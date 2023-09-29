@@ -1,0 +1,455 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeCommon.Types;
+using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.DictionaryCompression;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.DictionaryCompression
+{
+    [TestClass]
+    public class PQNameIdLookupGeneratorTests
+    {
+        private IPQNameIdLookupGenerator firstGeneratorSubKey1;
+        private IPQNameIdLookupGenerator firstGeneratorSubKey2;
+        private IPQNameIdLookupGenerator secondGeneratorSubKey1;
+        private IPQNameIdLookupGenerator secondGeneratorSubKey2;
+
+        private Dictionary<int, string> initialValues;
+        private DateTime snapshotTime;
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            initialValues = new Dictionary<int, string>
+            {
+                {1, "FirstItem"},
+                {2, "SecondItem"},
+                {3, "ThirdItem"}
+            };
+
+            firstGeneratorSubKey1 = new PQNameIdLookupGenerator(1,1);
+            firstGeneratorSubKey2 = new PQNameIdLookupGenerator(1,2);
+            secondGeneratorSubKey1 = new PQNameIdLookupGenerator(2,1);
+            secondGeneratorSubKey2 = new PQNameIdLookupGenerator(2,2);
+
+            foreach (var kvp in initialValues)
+            {
+                firstGeneratorSubKey1.GetOrAddId(kvp.Value);
+                firstGeneratorSubKey2.GetOrAddId(kvp.Value);
+                secondGeneratorSubKey1.GetOrAddId(kvp.Value);
+                secondGeneratorSubKey2.GetOrAddId(kvp.Value);
+            }
+
+            snapshotTime = new DateTime(2018, 02, 03);
+        }
+
+        [TestMethod]
+        public void PopulatedPQNameIdGenerator_New_CopiesValues()
+        {
+            var copyFirstSubKey1 = new PQNameIdLookupGenerator(firstGeneratorSubKey1);
+            Assert.AreEqual(firstGeneratorSubKey1, copyFirstSubKey1);
+        }
+
+        [TestMethod]
+        public void NewlyPopulatedPQNameIdLookup_HasUpdates_ExpectNoStringUpdatesWhenSetFalse()
+        {
+            Assert.IsTrue(firstGeneratorSubKey1.HasUpdates);
+            Assert.IsTrue(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            firstGeneratorSubKey1.HasUpdates = true;
+            Assert.IsTrue(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+        }
+
+        [TestMethod]
+        public void NoNewlyPopulatedLookups_AddNewEntry_MarksNewEntryForStringUpdate()
+        {
+            var firstSubKey1AsType = firstGeneratorSubKey1 as PQNameIdLookupGenerator;
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            Assert.IsFalse(firstSubKey1AsType.IsIdUpdated(4));
+
+            var id =firstGeneratorSubKey1.GetOrAddId("FourthItem");
+
+            Assert.IsTrue(firstSubKey1AsType.IsIdUpdated(4));
+
+            var expectedStringUpdates = new PQFieldStringUpdate
+            {
+                Field = new PQFieldUpdate(1, 0u, 1 | PQFieldFlags.IsUpdate),
+                StringUpdate = new PQStringUpdate
+                {
+                    Command = CrudCommand.Update,
+                    DictionaryId = id,
+                    Value = "FourthItem"
+                }
+            };
+
+            var retrieved = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+
+            Assert.AreEqual(expectedStringUpdates, retrieved);
+        }
+
+        [TestMethod]
+        public void PerDictionaryIdSubDictId_GetStringUpdates_PlacesDictionaryAndSubDictIdsInCorrectUpdateField()
+        {
+            var expectedStringUpdates = new PQFieldStringUpdate
+            {
+                Field = new PQFieldUpdate(1, 0u, 2 | PQFieldFlags.IsUpdate),
+                StringUpdate = new PQStringUpdate
+                {
+                    Command = CrudCommand.Update,
+                    DictionaryId = 1,
+                    Value = "FirstItem"
+                }
+            };
+            var retrieved = firstGeneratorSubKey2.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+            Assert.AreEqual(expectedStringUpdates, retrieved);
+            
+            expectedStringUpdates = new PQFieldStringUpdate
+            {
+                Field = new PQFieldUpdate(2, 0u, 1 | PQFieldFlags.IsUpdate),
+                StringUpdate = new PQStringUpdate
+                {
+                    Command = CrudCommand.Update,
+                    DictionaryId = 1,
+                    Value = "FirstItem"
+                }
+            };
+            retrieved = secondGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+            Assert.AreEqual(expectedStringUpdates, retrieved);
+            
+            expectedStringUpdates = new PQFieldStringUpdate
+            {
+                Field = new PQFieldUpdate(2, 0u, 2 | PQFieldFlags.IsUpdate),
+                StringUpdate = new PQStringUpdate
+                {
+                    Command = CrudCommand.Update,
+                    DictionaryId = 1,
+                    Value = "FirstItem"
+                }
+            };
+            retrieved = secondGeneratorSubKey2.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+            Assert.AreEqual(expectedStringUpdates, retrieved);
+        }
+
+        [TestMethod]
+        public void NoNewlyPopulatedLookups_GetStringUpdatesAsFullSnapshot_ReturnsAllEntries()
+        {
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.FullSnapshot).ToList();
+
+            Assert.AreEqual(3, allFields.Count);
+
+            var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(1, 1);
+            foreach (var pqFieldStringUpdate in allFields)
+            {
+                Assert.IsTrue(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
+            }
+
+            Assert.AreEqual(firstGeneratorSubKey1, newEmptyFirstDictSubKey1);
+        }
+
+        [TestMethod]
+        public void NoNewlyPopulatedLookups_UpdateFieldStringDifferentSubKey_IgnoresAllUpdates()
+        {
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.FullSnapshot).ToList();
+
+            Assert.AreEqual(3, allFields.Count);
+
+            var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(1, 2);
+            foreach (var pqFieldStringUpdate in allFields)
+            {
+                Assert.IsFalse(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
+            }
+
+            Assert.AreEqual(0, newEmptyFirstDictSubKey1.Count);
+        }
+
+        [TestMethod]
+        public void NoNewlyPopulatedLookups_UpdateFieldStringDifferentDictId_IgnoresAllUpdates()
+        {
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.FullSnapshot).ToList();
+
+            Assert.AreEqual(3, allFields.Count);
+
+            var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(2, 1);
+            foreach (var pqFieldStringUpdate in allFields)
+            {
+                Assert.IsFalse(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
+            }
+
+            Assert.AreEqual(0, newEmptyFirstDictSubKey1.Count);
+        }
+
+        [TestMethod]
+        public void NonUpdateInsertAttempt_UpdateFieldString_IgnoresRequest()
+        {
+            var nonUpdateInsertPQFieldStringUpdate = new PQFieldStringUpdate
+            {
+                Field = new PQFieldUpdate(1, 0u, 1 | PQFieldFlags.IsUpdate),
+                StringUpdate = new PQStringUpdate
+                {
+                    Command = CrudCommand.None,
+                    DictionaryId = 3,
+                    Value = "SomethingElse"
+                }
+            };
+
+            Assert.IsFalse(firstGeneratorSubKey1.UpdateFieldString(nonUpdateInsertPQFieldStringUpdate));
+
+            Assert.AreEqual("ThirdItem", firstGeneratorSubKey1.GetName(3));
+        }
+
+        [TestMethod]
+        public void EmptyPQLookupGenerator_CopyFromSameInstance_NoChange()
+        {
+            Assert.AreEqual(3, firstGeneratorSubKey1.Count);
+            var beforeCopyFrom = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.FullSnapshot).ToList();
+
+            firstGeneratorSubKey1.CopyFrom(firstGeneratorSubKey1);
+
+            Assert.AreEqual(3, firstGeneratorSubKey1.Count);
+            var afterCopyFrom = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.FullSnapshot).ToList();
+            Assert.IsTrue(beforeCopyFrom.SequenceEqual(afterCopyFrom));
+        }
+
+        [TestMethod]
+        public void EmptyPQLookupGenerator_CopyFromPopulatedPQLookupGeneratorDefault_AreEqual()
+        {
+            var empty = new PQNameIdLookupGenerator(1, 1);
+
+            empty.CopyFrom(firstGeneratorSubKey1);
+
+            Assert.AreEqual(firstGeneratorSubKey1, empty);
+        }
+
+        [TestMethod]
+        public void UpdatedDicttionary_CopyFromOnlyUpdated_OnlyChangesCopiedAcross()
+        {
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+            
+            firstGeneratorSubKey1.GetOrAddId("FourthItem");
+
+            var empty = new PQNameIdLookupGenerator(1, 1);
+
+            empty.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.CopyUpdated);
+
+            Assert.AreEqual(1, empty.Count);
+
+            empty = new PQNameIdLookupGenerator(1, 1);
+
+            empty.CopyFrom(firstGeneratorSubKey1);
+
+            Assert.AreEqual(1, empty.Count);
+        }
+
+        [TestMethod]
+        public void UpdatedDicttionary_CopyFromNonUpdatedAsWell_OnlyChangesCopiedAcross()
+        {
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+            
+            firstGeneratorSubKey1.GetOrAddId("FourthItem");
+
+            var empty = new PQNameIdLookupGenerator(1, 1);
+
+            empty.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.CopyNonUpdated);
+
+            Assert.AreEqual(4, empty.Count);
+        }
+
+        [TestMethod]
+        public void PopulatedPQLookupGenerator_CopyFromNoAppend_ClearsPreviousValuesBeforeCopy()
+        {
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            firstGeneratorSubKey1.GetOrAddId("FourthItem");
+
+            Assert.AreEqual(3, firstGeneratorSubKey2.Count);
+
+            firstGeneratorSubKey2.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.NoAppendLookupValues);
+
+            Assert.AreEqual(1, firstGeneratorSubKey2.Count);
+        }
+
+        [TestMethod]
+        public void UpdatedPQLookupGenerator_CopyFrom_CopyKeepsUpdatedTracking()
+        {
+            firstGeneratorSubKey1.HasUpdates = false;
+            Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).Any());
+
+            firstGeneratorSubKey1.GetOrAddId("FourthItem");
+
+            var originalUpdate = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+
+            var empty = new PQNameIdLookupGenerator(1, 1);
+            empty.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.NoAppendLookupValues);
+            var copyUpdate = empty.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+            Assert.AreEqual(originalUpdate, copyUpdate);
+
+            empty = new PQNameIdLookupGenerator(1, 1);
+            empty.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.CopyNonUpdated);
+            copyUpdate = empty.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+            Assert.AreEqual(originalUpdate, copyUpdate);
+
+            empty = new PQNameIdLookupGenerator(1, 1);
+            empty.CopyFrom(firstGeneratorSubKey1);
+            copyUpdate = empty.GetStringUpdates(snapshotTime, UpdateStyle.Updates).First();
+            Assert.AreEqual(originalUpdate, copyUpdate);
+        }
+
+        [TestMethod]
+        public void NonPQLookupGenerator_EmptyCopyFrom_CopiesEverythingNothingMarkedUpdated()
+        {
+            var populatedIdLookupGenerator = new NameIdLookupGenerator(initialValues);
+
+            var empty = new PQNameIdLookupGenerator(1, 1);
+
+            empty.CopyFrom(populatedIdLookupGenerator);
+
+            Assert.AreEqual(3, empty.Count);
+            Assert.IsTrue(populatedIdLookupGenerator.AreEquivalent(empty));
+            Assert.IsFalse(populatedIdLookupGenerator.AreEquivalent(empty, true));
+        }
+
+        [TestMethod]
+        public void NonPQLookupGenerator_PopulatedCopyFrom_NoAppendCopiesRemainingIsOnlyWhatWasPassedIn()
+        {
+            initialValues = new Dictionary<int, string>
+            {
+                {5, "FifthItem" },
+                {6, "SixthItem" },
+            };
+
+            var populatedIdLookupGenerator = new NameIdLookupGenerator(initialValues);
+
+            Assert.AreEqual(3, secondGeneratorSubKey1.Count);
+            Assert.AreEqual("FirstItem", secondGeneratorSubKey1.GetName(1));
+            Assert.AreEqual("SecondItem", secondGeneratorSubKey1.GetName(2));
+            Assert.AreEqual("ThirdItem", secondGeneratorSubKey1.GetName(3));
+
+            secondGeneratorSubKey1.CopyFrom(populatedIdLookupGenerator, CopyMergeFlags.NoAppendLookupValues);
+
+            Assert.AreEqual(2, secondGeneratorSubKey1.Count);
+            Assert.IsNull(secondGeneratorSubKey1.GetName(1));
+            Assert.IsNull(secondGeneratorSubKey1.GetName(2));
+            Assert.IsNull(secondGeneratorSubKey1.GetName(3));
+            Assert.AreEqual("FifthItem", secondGeneratorSubKey1.GetName(5));
+            Assert.AreEqual("SixthItem", secondGeneratorSubKey1.GetName(6));
+        }
+
+        [TestMethod]
+        public void FromInterfacePopulatedNameLookupId_Cloned_ReturnsNewIdenticalCopy()
+        {
+            var cloneIdLookup = firstGeneratorSubKey1.Clone();
+            Assert.AreNotSame(cloneIdLookup, firstGeneratorSubKey1);
+            for (int i = 1; i < 4; i++)
+            {
+                Assert.AreEqual(firstGeneratorSubKey1[i], cloneIdLookup[i]);
+                Assert.AreEqual(i, cloneIdLookup[firstGeneratorSubKey1[i]]);
+                Assert.AreEqual(firstGeneratorSubKey1[i], cloneIdLookup.GetValue(i));
+                Assert.AreEqual(i, cloneIdLookup.GetId(firstGeneratorSubKey1[i]));
+            }
+            Assert.AreEqual(firstGeneratorSubKey1, cloneIdLookup);
+        }
+
+        [TestMethod]
+        public void FromBaseTypePopulatedNameLookupId_Cloned_ReturnsNewIdenticalCopy()
+        {
+            var cloneIdLookup = ((INameIdLookupGenerator)firstGeneratorSubKey1).Clone();
+            Assert.AreNotSame(cloneIdLookup, firstGeneratorSubKey1);
+            for (int i = 1; i < 4; i++)
+            {
+                Assert.AreEqual(firstGeneratorSubKey1[i], cloneIdLookup[i]);
+                Assert.AreEqual(i, cloneIdLookup[firstGeneratorSubKey1[i]]);
+                Assert.AreEqual(firstGeneratorSubKey1[i], cloneIdLookup.GetValue(i));
+                Assert.AreEqual(i, cloneIdLookup.GetId(firstGeneratorSubKey1[i]));
+            }
+            Assert.AreEqual(firstGeneratorSubKey1, cloneIdLookup);
+        }
+
+        [TestMethod]
+        public void FromTypePopulatedNameLookupId_Cloned_ReturnsNewIdenticalCopy()
+        {
+            var cloneIdLookup = (IPQNameIdLookupGenerator)((PQNameIdLookupGenerator)firstGeneratorSubKey1).Clone();
+            Assert.AreNotSame(cloneIdLookup, firstGeneratorSubKey1);
+            for (int i = 1; i < 4; i++)
+            {
+                Assert.AreEqual(firstGeneratorSubKey1[i], cloneIdLookup[i]);
+                Assert.AreEqual(i, cloneIdLookup[firstGeneratorSubKey1[i]]);
+                Assert.AreEqual(firstGeneratorSubKey1[i], cloneIdLookup.GetValue(i));
+                Assert.AreEqual(i, cloneIdLookup.GetId(firstGeneratorSubKey1[i]));
+            }
+            Assert.AreEqual(firstGeneratorSubKey1, cloneIdLookup);
+        }
+
+        [TestMethod]
+        public void DifferingPqDictsNumAndSubNumber_AreEquivalent_ReturnsExpected()
+        {
+            var removedLastEntry = initialValues;
+            removedLastEntry.Remove(3);
+
+            Assert.IsTrue(firstGeneratorSubKey1.AreEquivalent(firstGeneratorSubKey2));
+            Assert.IsTrue(firstGeneratorSubKey1.AreEquivalent(secondGeneratorSubKey1));
+            Assert.IsTrue(firstGeneratorSubKey1.AreEquivalent(secondGeneratorSubKey2));
+
+            var subFirstSubKey1 = new PQNameIdLookupGenerator(1, 1);
+            PopulateGenerator(subFirstSubKey1, removedLastEntry);
+            Assert.IsTrue(firstGeneratorSubKey1.AreEquivalent(subFirstSubKey1));
+            Assert.IsFalse(firstGeneratorSubKey1.AreEquivalent(subFirstSubKey1, true));
+            Assert.IsTrue(firstGeneratorSubKey2.AreEquivalent(subFirstSubKey1));
+
+            var subFirstSubKey2 = new PQNameIdLookupGenerator(1, 2);
+            PopulateGenerator(subFirstSubKey2, removedLastEntry);
+            Assert.IsTrue(firstGeneratorSubKey2.AreEquivalent(subFirstSubKey2));
+            Assert.IsFalse(firstGeneratorSubKey2.AreEquivalent(subFirstSubKey2, true));
+            Assert.IsTrue(secondGeneratorSubKey1.AreEquivalent(subFirstSubKey2));
+
+            var subSecondSubKey1 = new PQNameIdLookupGenerator(2, 1);
+            PopulateGenerator(subSecondSubKey1, removedLastEntry);
+            Assert.IsTrue(secondGeneratorSubKey1.AreEquivalent(subSecondSubKey1));
+            Assert.IsFalse(secondGeneratorSubKey1.AreEquivalent(subSecondSubKey1, true));
+            Assert.IsTrue(firstGeneratorSubKey1.AreEquivalent(subSecondSubKey1));
+        }
+
+        [TestMethod]
+        public void FullyPopulatedPQNameLookupGenerator_ToString_ReturnsNameAndValues()
+        {
+            var toString = firstGeneratorSubKey1.ToString();
+
+            Assert.IsTrue(toString.Contains(firstGeneratorSubKey1.GetType().Name));
+
+            foreach (var kvp in firstGeneratorSubKey1)
+            {
+                Assert.IsTrue(toString.Contains($"{kvp.Key}:{kvp.Value}"));
+            }
+            Assert.IsTrue(toString.Contains("dictionaryFieldKey: 1"));
+            Assert.IsTrue(toString.Contains("subDictionaryId: 1"));
+        }
+
+        private void PopulateGenerator(IPQNameIdLookupGenerator pqNameIdLookupGenerator,
+            IDictionary<int, string> source)
+        {
+            foreach (var kvp in source)
+            {
+                pqNameIdLookupGenerator.GetOrAddId(kvp.Value);
+            }
+        }
+    }
+}

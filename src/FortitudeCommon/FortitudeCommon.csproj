@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FortitudeCommon</RootNamespace>
+    <AssemblyName>FortitudeCommon</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\NLog.4.5.7\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Reactive, Version=4.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.4.0.0\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Core, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Core.4.0.0\lib\net46\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Interfaces.4.0.0\lib\net46\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Linq.4.0.0\lib\net46\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.PlatformServices.4.0.0\lib\net46\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Windows.Threading.4.0.0\lib\net46\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AsyncProcessing\ISequencer.cs" />
+    <Compile Include="DataStructures\Lists\ReuseIteratorList.cs" />
+    <Compile Include="DataStructures\Maps\GarbageAndLockFreeMap.cs" />
+    <Compile Include="DataStructures\Maps\IdMap\IIdLookup.cs" />
+    <Compile Include="DataStructures\Maps\IdMap\NameIdLookup.cs" />
+    <Compile Include="DataStructures\Maps\IdMap\NameIdLookupHelpers.cs" />
+    <Compile Include="DataStructures\Collections\IRelatedItem.cs" />
+    <Compile Include="DataStructures\Maps\KeyValuePair.cs" />
+    <Compile Include="DataStructures\Memory\GarbageAndLockFreePooledFactory.cs" />
+    <Compile Include="DataStructures\Memory\IPooledFactory.cs" />
+    <Compile Include="DataStructures\Memory\IRecycleableObject.cs" />
+    <Compile Include="DataStructures\Memory\IRecycler.cs" />
+    <Compile Include="Monitoring\Alerting\LoggingAlertManager.cs" />
+    <Compile Include="Monitoring\Metrics\CounterMetricRecorder.cs" />
+    <Compile Include="Monitoring\Metrics\IMetricRecorder.cs" />
+    <Compile Include="Monitoring\Metrics\IMetricRepository.cs" />
+    <Compile Include="Monitoring\Metrics\MetricRepository.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\ITimerCallbackSubscription.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\TimerCallbackSubscription.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\IOSSocketHelpers.cs" />
+    <Compile Include="Types\IInterfacesComparable.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\CallStats\CallStatsForBatch.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\CallStats\CallStatsForPercentile.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\CallStats\CallStatsHelper.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Performance\IPerfLoggerPool.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Performance\IPerfLoggingPoolFactory.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Performance\PerfLoggingPoolFactory.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\CallStats\CallStat.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Latency\LatencyLoggingLevel.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Tracing\TraceEntry.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Tracing\TraceEntryHelper.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\IIntraOSThreadSignal.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\IntraOSThreadSignal.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\IOSParallelController.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\IOSParallelControllerFactory.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\IOSThread.cs" />
+    <Compile Include="AsyncProcessing\ISyncLock.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\OSParallelController.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\OSParallelControllerFactory.cs" />
+    <Compile Include="OSWrapper\AsyncWrappers\OSThread.cs" />
+    <Compile Include="AsyncProcessing\Sequencer.cs" />
+    <Compile Include="AsyncProcessing\SpinLockLight.cs" />
+    <Compile Include="AsyncProcessing\YieldLockLight.cs" />
+    <Compile Include="Chronometry\DateTimeEx.cs" />
+    <Compile Include="Chronometry\DateTimeConstants.cs" />
+    <Compile Include="Chronometry\HighPrecisionTimeContext.cs" />
+    <Compile Include="Chronometry\ITimeContext.cs" />
+    <Compile Include="Chronometry\TimeContext.cs" />
+    <Compile Include="Configuration\Availability\DayOfWeekAvailability.cs" />
+    <Compile Include="Configuration\Availability\IAvailability.cs" />
+    <Compile Include="Configuration\Availability\IDayOfWeekAvailability.cs" />
+    <Compile Include="Configuration\Availability\IInterDayWeeklyPeriod.cs" />
+    <Compile Include="Configuration\Availability\InterDayWeeklyPeriod.cs" />
+    <Compile Include="Configuration\Availability\IntraDayPeriod.cs" />
+    <Compile Include="Configuration\Availability\IDateTimeContained.cs" />
+    <Compile Include="Configuration\Availability\IDateTimePeriod.cs" />
+    <Compile Include="Configuration\Availability\ITimeContained.cs" />
+    <Compile Include="Configuration\Availability\ITimeZoneTimePeriod.cs" />
+    <Compile Include="Configuration\Availability\IWeeklyTimeTable.cs" />
+    <Compile Include="Configuration\Availability\Month.cs" />
+    <Compile Include="Configuration\Availability\ITimeTable.cs" />
+    <Compile Include="Configuration\Availability\IFixedCalendarDate.cs" />
+    <Compile Include="Configuration\Availability\DateTimePeriod.cs" />
+    <Compile Include="Configuration\Availability\TimeTable.cs" />
+    <Compile Include="Configuration\Availability\WeeklyTimeTable.cs" />
+    <Compile Include="Configuration\IMuteableRepository.cs" />
+    <Compile Include="Configuration\KeyValueProperties\BackedConfigurationRepository.cs" />
+    <Compile Include="Configuration\KeyValueProperties\CompositeKey.cs" />
+    <Compile Include="Configuration\KeyValueProperties\ConfigItem.cs" />
+    <Compile Include="Configuration\KeyValueProperties\ConfigItemEvent.cs" />
+    <Compile Include="EventProcessing\EventType.cs" />
+    <Compile Include="Configuration\KeyValueProperties\ConfigItemExtensionMethods.cs" />
+    <Compile Include="Configuration\KeyValueProperties\IConfigItem.cs" />
+    <Compile Include="Configuration\KeyValueProperties\IConfigItemValue.cs" />
+    <Compile Include="Configuration\KeyValueProperties\IConfigurationRepository.cs" />
+    <Compile Include="Configuration\KeyValueProperties\SimpleConfigurationRepository.cs" />
+    <Compile Include="DataStructures\Maps\IdMap\INameIdLookup.cs" />
+    <Compile Include="DataStructures\Maps\IdMap\INameIdLookupGenerator.cs" />
+    <Compile Include="DataStructures\Maps\IdMap\IdLookup.cs" />
+    <Compile Include="DataStructures\Maps\IdMap\NameIdLookupGenerator.cs" />
+    <Compile Include="DataStructures\Lists\LinkedLists\IDoublyLinkedList.cs" />
+    <Compile Include="DataStructures\Maps\IMap.cs" />
+    <Compile Include="DataStructures\Lists\LinkedLists\BlockingDoublyLinkedList.cs" />
+    <Compile Include="DataStructures\Lists\LinkedLists\DoublyLinkedList.cs" />
+    <Compile Include="DataStructures\Lists\LinkedLists\IDoublyLinkedListNode.cs" />
+    <Compile Include="DataStructures\Lists\LinkedLists\DoublyLinkedListWrapperNode.cs" />
+    <Compile Include="DataStructures\Lists\LinkedLists\SortedDoublyLinkedList.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\AliasText.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\ArgvConfigSource.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\ArgvParser.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\ConfigBase.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\ConfigCollection.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\ConfigSourceBase.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\DotNetConfigSource.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IConfig.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IConfigSource.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniConfig.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniConfigSource.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniDocument.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniException.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniItem.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniReader.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniSection.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniSectionCollection.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\IniWriter.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\OrderedList.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\OrderedListEnumerator.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\RegistryConfigSource.cs" />
+    <Compile Include="Configuration\KeyValueProperties\PropertyFiles\XmlConfigSource.cs" />
+    <Compile Include="DataStructures\Maps\ConcurrentCache.cs" />
+    <Compile Include="DataStructures\Maps\LinkedListCache.cs" />
+    <Compile Include="DataStructures\Maps\LinkedListUintKeyMap.cs" />
+    <Compile Include="DataStructures\Maps\LinkedListMap.cs" />
+    <Compile Include="DataStructures\Maps\ConcurrentMap.cs" />
+    <Compile Include="DataStructures\Memory\StreamByteOps.cs" />
+    <Compile Include="DataStructures\ZeroAllocationArrayTools.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\ClaimStrategyType.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\IClaimStrategy.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\IRingBarrier.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\IWaitStrategy.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\WaitStrategyType.cs" />
+    <Compile Include="EventProcessing\ReactiveProcessing\SchedulerContext.cs" />
+    <Compile Include="Extensions\DiffNewUpdatedDeleted.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Monitoring\Alerting\IAlertManager.cs" />
+    <Compile Include="Monitoring\Alerting\AlertSeverity.cs" />
+    <Compile Include="Monitoring\Logging\FLogEvent.cs" />
+    <Compile Include="Monitoring\Logging\FLogEventPoller.cs" />
+    <Compile Include="Monitoring\Logging\FLoggerConfigurationContext.cs" />
+    <Compile Include="Monitoring\Logging\AsyncFLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\CallStats\CallStatsLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\DiagnosticFileWatcher.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\DiagnosticLoggingConfigSection.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\GCMonitor.cs" />
+    <Compile Include="DataStructures\Memory\MemoryUtils.cs" />
+    <Compile Include="DataStructures\Memory\ObjectPool.cs" />
+    <Compile Include="EventProcessing\Disruption\Sequences\PaddedAtomicLong.cs" />
+    <Compile Include="EventProcessing\Disruption\Sequences\PaddedLong.cs" />
+    <Compile Include="EventProcessing\Disruption\Sequences\PaddedVolatileFlag.cs" />
+    <Compile Include="EventProcessing\Disruption\Sequences\PaddedVolatileLong.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\ClaimStrategies.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\LoopingArray.cs" />
+    <Compile Include="EventProcessing\Disruption\Consuming\NoopRingConsumer.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\Batching\PollingRing.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\Immediate\PushingRing.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\ReusableRingEnumerator.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\IndependentRingBarrier.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\RingCell.cs" />
+    <Compile Include="EventProcessing\Disruption\Consuming\IRingConsumer.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\Batching\RingPoller.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\Immediate\RingPusher.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\Immediate\RingScheduler.cs" />
+    <Compile Include="EventProcessing\Disruption\Sequences\Sequence.cs" />
+    <Compile Include="EventProcessing\Disruption\Rings\StaticRing.cs" />
+    <Compile Include="EventProcessing\Disruption\Waiting\WaitStrategies.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\HierarchialConfigurationUpdater.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\HierarchialLoggingConfigurator.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\CallStats\ICallStatsLogger.cs" />
+    <Compile Include="Monitoring\Logging\IFLogger.cs" />
+    <Compile Include="Monitoring\Logging\IHierarchialLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Latency\ILatencyLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Performance\IPerfLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Tracing\ITraceLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Latency\LatencyLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Performance\PerfLogger.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Performance\PerfLoggerPool.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Performance\NoOpPerfLogger.cs" />
+    <Compile Include="Monitoring\Logging\FLogLevel.cs" />
+    <Compile Include="Monitoring\Logging\IFLoggerFactory.cs" />
+    <Compile Include="Monitoring\Logging\FLoggerFactory.cs" />
+    <Compile Include="Monitoring\Logging\NLogAdapter\NLogAsyncConfigurationContext.cs" />
+    <Compile Include="Monitoring\Logging\NLogAdapter\NLogFactory.cs" />
+    <Compile Include="Monitoring\Logging\FNoopFactory.cs" />
+    <Compile Include="Monitoring\Logging\Diagnostics\Tracing\TraceLogger.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\DirectOSNetworkingApi.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\IDirectOSNetworkingApi.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\IOSNetworkingController.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\IOSSocket.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\OSNetworkingController.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\OSSocket.cs" />
+    <Compile Include="OSWrapper\NetworkingWrappers\TimeValue.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\EnumHelper.cs" />
+    <Compile Include="Types\ICloneable.cs" />
+    <Compile Include="Types\IDGen.cs" />
+    <Compile Include="Types\IStoreState.cs" />
+    <Compile Include="Types\ITracksChanges.cs" />
+    <Compile Include="Types\Mutable\IMutableString.cs" />
+    <Compile Include="Types\Mutable\IMutableStringBuilder.cs" />
+    <Compile Include="Types\Mutable\MutableString.cs" />
+    <Compile Include="Types\NonPublicInvocator.cs" />
+    <Compile Include="Types\ReflectionHelper.cs" />
+    <Compile Include="Types\TestClassNotRequiredAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

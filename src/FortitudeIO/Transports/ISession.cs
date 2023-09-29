@@ -1,0 +1,11 @@
+using FortitudeIO.Protocols.Authentication;
+
+namespace FortitudeIO.Sockets
+{
+    public interface ISession
+    {
+        IUserData AuthData { get; set; }
+        bool Active { get; set; }
+        string SessionDescription { get; }
+    }
+}

@@ -1,0 +1,226 @@
+﻿using System;
+using System.Collections.Generic;
+using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeCommon.Types;
+using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+
+namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook
+{
+    public class PQPriceVolumeLayer : IPQPriceVolumeLayer
+    {
+        private decimal price;
+        private decimal volume;
+        protected LayerFieldUpdatedFlags UpdatedFlags;
+
+        public PQPriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
+        {
+            Price = price;
+            Volume = volume;
+        }
+
+        public PQPriceVolumeLayer(IPriceVolumeLayer toClone)
+        {
+            Price = toClone.Price;
+            Volume = toClone.Volume;
+            SetFlagsSame(toClone);
+        }
+
+        protected void SetFlagsSame(IPriceVolumeLayer toCopyFlags)
+        {
+            if (toCopyFlags is PQPriceVolumeLayer pqToClone)
+            {
+                UpdatedFlags = pqToClone.UpdatedFlags;
+            }
+        }
+        
+        public decimal Price
+        {
+            get => price;
+            set
+            {
+                if (value == price) return;
+                IsPriceUpdated = true;
+                price = value;
+            }
+        }
+
+        public decimal Volume
+        {
+            get => volume;
+            set
+            {
+                if (value == volume) return;
+                IsVolumeUpdated = true;
+                volume = value;
+            }
+        }
+
+        public bool IsPriceUpdated
+        {
+            get => (UpdatedFlags & LayerFieldUpdatedFlags.PriceUpdatedFlag) > 0;
+            set
+            {
+                if (value)
+                {
+                    UpdatedFlags |= LayerFieldUpdatedFlags.PriceUpdatedFlag;
+                }
+                else if(IsPriceUpdated)
+                {
+                    UpdatedFlags ^= LayerFieldUpdatedFlags.PriceUpdatedFlag;
+                }
+            }
+        }
+
+        public bool IsVolumeUpdated
+        {
+            get => (UpdatedFlags & LayerFieldUpdatedFlags.VolumeUpdatedFlag) > 0;
+            set
+            {
+                if (value)
+                {
+                    UpdatedFlags |= LayerFieldUpdatedFlags.VolumeUpdatedFlag;
+                }
+                else if(IsVolumeUpdated)
+                {
+                    UpdatedFlags ^= LayerFieldUpdatedFlags.VolumeUpdatedFlag;
+                }
+            }
+        }
+
+        public virtual bool HasUpdates
+        {
+            get => UpdatedFlags != 0;
+            set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : LayerFieldUpdatedFlags.None;
+        }
+
+        public virtual bool IsEmpty => Price == 0m && Volume == 0m;
+
+        public virtual void Reset()
+        {
+            Price = 0m;
+            Volume = 0m;
+            UpdatedFlags = LayerFieldUpdatedFlags.None;
+        }
+
+        public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle, 
+            IPQQuotePublicationPrecisionSettings quotePublicationPrecisionSetting = null)
+        {
+            var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
+            if (!updatedOnly || IsPriceUpdated)
+            { 
+                yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, Price, 
+                    quotePublicationPrecisionSetting?.PriceScalingPrecision ?? 1);
+            }
+            if (!updatedOnly || IsVolumeUpdated)
+            {
+                yield return new PQFieldUpdate(PQFieldKeys.LayerVolumeOffset, Volume, 
+                    quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? 6);
+            }
+        }
+
+        public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
+        {// assume the book has already forwarded this through to the correct layer
+            if (pqFieldUpdate.Id >= PQFieldKeys.LayerPriceOffset &&
+                pqFieldUpdate.Id < (PQFieldKeys.LayerPriceOffset + PQFieldKeys.SingleByteFieldIdMaxBookDepth))
+            {
+                IsPriceUpdated = true;
+                Price = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                return 0;
+            }
+            if (pqFieldUpdate.Id >= PQFieldKeys.LayerVolumeOffset &&
+                pqFieldUpdate.Id < (PQFieldKeys.LayerVolumeOffset + PQFieldKeys.SingleByteFieldIdMaxBookDepth))
+            {
+                IsVolumeUpdated = true;
+                Volume = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                return 0;
+            }
+            return -1;
+        }
+
+        public virtual void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        {
+            if (source == null) return;
+
+            if (!(source is PQPriceVolumeLayer pqpvl))
+            {
+                Price = source.Price;
+                Volume = source.Volume;
+            }
+            else
+            {
+                if (pqpvl.IsPriceUpdated)
+                {
+                    IsPriceUpdated = true;
+                    Price = pqpvl.Price;
+                }
+                if (pqpvl.IsVolumeUpdated)
+                {
+                    IsVolumeUpdated = true;
+                    Volume = pqpvl.Volume;
+                }
+            }
+        }
+
+        public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo referenceInstance)
+        {
+        }
+
+        public virtual void EnsureRelatedItemsAreConfigured(IPQPriceVolumeLayer referenceInstance)
+        {
+        }
+
+        public virtual IPQPriceVolumeLayer Clone()
+        {
+            return new PQPriceVolumeLayer(this);
+        }
+
+        IPriceVolumeLayer ICloneable<IPriceVolumeLayer>.Clone()
+        {
+            return Clone();
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+
+        public virtual bool AreEquivalent(IPriceVolumeLayer other, bool exactTypes = false)
+        {
+            if (other == null) return false;
+            if (exactTypes && other.GetType() != GetType()) return false;
+
+            var priceSame = Price == other.Price;
+            var volumeSame = Volume == other.Volume;
+            var flagsSame = true;
+            if (exactTypes)
+            {
+                var pqOther = other as PQPriceVolumeLayer;
+                flagsSame = UpdatedFlags == pqOther.UpdatedFlags;
+            }
+
+            return priceSame && volumeSame && flagsSame;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer) obj, true);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = (price.GetHashCode() * 397) ^ UpdatedFlags.GetHashCode();
+                hash = (hash * 397) ^ Volume.GetHashCode();
+                return hash;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"PQPriceVolumeLayer {{ {nameof(Price)}: {Price:N5}, " +
+                   $"{nameof(Volume)}: {Volume:N2} }}";
+        }
+    }
+}

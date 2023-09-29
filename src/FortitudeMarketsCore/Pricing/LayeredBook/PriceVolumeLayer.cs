@@ -1,0 +1,81 @@
+﻿using System;
+using FortitudeCommon.Types;
+using FortitudeMarketsApi.Pricing.LayeredBook;
+
+namespace FortitudeMarketsCore.Pricing.LayeredBook
+{
+    public class PriceVolumeLayer : IMutablePriceVolumeLayer
+    {
+        public PriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
+        {
+            Price = price;
+            Volume = volume;
+        }
+
+        public PriceVolumeLayer(IPriceVolumeLayer toClone)
+        {
+            Price = toClone.Price;
+            Volume = toClone.Volume;
+        }
+        public decimal Price { get; set; }
+        public decimal Volume { get; set; }
+        public virtual bool IsEmpty => Price == 0m && Volume == 0m;
+
+        public virtual void Reset()
+        {
+            Price = Volume = 0m;
+        }
+
+        public virtual void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        {
+            if (source != null)
+            {
+                Price = source.Price;
+                Volume = source.Volume;
+            }
+            else
+            {
+                Price = 0m;
+                Volume = 0m;
+            }
+        }
+
+        public virtual IPriceVolumeLayer Clone()
+        {
+            return new PriceVolumeLayer(this);
+        }
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+
+        public virtual bool AreEquivalent(IPriceVolumeLayer other, bool exactTypes = false)
+        {
+            if (other == null) return false;
+            if (exactTypes && other.GetType() != GetType()) return false;
+            var priceSame = Price == other.Price;
+            var volumeSame = Volume == other.Volume;
+
+            return priceSame && volumeSame;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer) obj, true);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Price.GetHashCode()*397) ^ Volume.GetHashCode();
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"PriceVolumeLayer {{{nameof(Price)}: {Price:N5}, " +
+                   $"{nameof(Volume)}: {Volume:N2} }}";
+        }
+    }
+}

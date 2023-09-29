@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections.Generic;
+using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeIO.Protocols.ORX.Authentication;
+using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
+using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
+using FortitudeIO.Protocols.Serialization;
+using FortitudeMarketsApi.Trading.Orders;
+using FortitudeMarketsApi.Trading.Orders.Products;
+using FortitudeMarketsApi.Trading.Orders.Venues;
+using FortitudeMarketsCore.Trading;
+using FortitudeMarketsCore.Trading.ORX.CounterParties;
+using FortitudeMarketsCore.Trading.ORX.Orders;
+using FortitudeMarketsCore.Trading.ORX.Orders.Products;
+using FortitudeMarketsCore.Trading.ORX.Orders.Products.General;
+using FortitudeMarketsCore.Trading.ORX.Orders.Venues;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace FortitudeTests.FortitudeMarketsCore.Trading.ORX.Orders
+{
+    [TestClass]
+    public class OrxOrderTests
+    {
+        private DispatchContext dispatchContext;
+        private byte[] byteBuffer;
+        private const int BufferSize = 2048;
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            byteBuffer = new byte[BufferSize];
+
+            dispatchContext = new DispatchContext
+            {
+                EncodedBuffer = new ReadWriteBuffer(byteBuffer),
+                DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, ""),
+                MessageVersion = TradingVersionInfo.CurrentVersion
+            };
+        }
+
+        [TestMethod]
+        public void NewOrders_Serialize_DeserializesProperly()
+        {
+            var orxOrxClientOrderIdSerializer = new OrxByteSerializer<Orders>();
+            var originalClientOrderId = new Orders()
+            {
+                FirstOrder = BuildVenueOrders(),
+                SecondOrder = BuildVenueOrders(),
+                ThirdOrder = BuildVenueOrders(),
+                FourthOrder = BuildVenueOrders(),
+            };
+
+            dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+                byteBuffer, 0, 0);
+
+            var ordersDeserializer = new OrxByteDeserializer<Orders>(new OrxDeserializerLookup(
+                new OrxRecyclingFactory()));
+
+            var deserializedOrders = (Orders)ordersDeserializer
+                .Deserialize(dispatchContext);
+
+            Assert.AreEqual(originalClientOrderId.FirstOrder, deserializedOrders.FirstOrder);
+            Assert.AreEqual(originalClientOrderId.SecondOrder, deserializedOrders.SecondOrder);
+            Assert.AreEqual(originalClientOrderId.ThirdOrder, deserializedOrders.ThirdOrder);
+            Assert.AreEqual(originalClientOrderId.FourthOrder, deserializedOrders.FourthOrder);
+        }
+
+        private OrxOrder BuildVenueOrders()
+        {
+            return new OrxOrder(new OrxOrderId(1234, "Test1234", 2345, "Test2345", new OrxOrderId(3456, "Test3456"), 
+                    "TrackingId1234"), TimeInForce.GoodTillCancelled, new DateTime(2018, 3, 30, 2, 4, 11),
+                OrderStatus.New, new OrxSpotOrder("TestTicker", OrderSide.Bid, 1.23456m, 300_000L,
+                    OrderType.Limit, 100_000, 0.00025m, 10_000m),
+                new DateTime(2018, 3, 30, 2, 18, 2),
+                new OrxParties(null, new OrxParty("TestPartyId", "TestPartyName", null, "MyClientPartyId",
+                    new OrxBookingInfo("TestAccount", "TestSubAccount"))),
+                new DateTime(2018, 3, 30, 2, 18, 2),
+                new OrxVenueCriteria(new List<OrxVenue> {new OrxVenue(23, "TestVenue")}, VenueSelectionMethod.Default),
+                null, null, "OrderMessage", null);
+        }
+
+        public class Orders
+        {
+            [OrxMandatoryField(0)]
+            public OrxOrder FirstOrder { get; set; }
+            [OrxMandatoryField(1)]
+            public OrxOrder SecondOrder { get; set; }
+            [OrxOptionalField(2)]
+            public OrxOrder ThirdOrder { get; set; }
+            [OrxOptionalField(3)]
+            public OrxOrder FourthOrder { get; set; }
+        }
+    }
+}

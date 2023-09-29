@@ -1,0 +1,166 @@
+graph ER {
+	node [shape=box;fontsize=8]; 		
+	edge[fontsize=8];
+
+	subgraph cluster_0 {
+		label = "Rules";
+	
+		RuleLink[label="RuleLink\n\nint RuleLinkID\nDateTime UpdatedDateTime\nint SpecificVersionRuleID\nint LatestVersionRuleInstanceID\nstring UpdatedBy\nstring Comment"];
+		RuleLinkHistory[label="RuleLinkHistory\n\nint RuleLinkHistoryID\nint RuleLinkID\nDateTime UpdatedDateTime\nint SpecificVersionRuleID\nint LatestVersionRuleInstanceID\nstring UpdatedBy\nstring Comment"];
+		RuleInstance[label="RuleInstance\n\nint RuleInstanceID\nstring Creator"];
+		Rule[label="Rule\n\nint RuleID\nint RuleInstanceID\nint PreviousRuleID\nstring RuleType\nstring UpdatedBy\nDateTime UpdatedDateTime\nDateTime AppliesFromDateTime\nDateTime AppliesToDateTime\nstring RuleState\nstring UpdateComment"];
+		SignalAggregationRule[label="SignalAggregationRule\n\nint OperatorRuleId\nstring RuleOperatorType\nstring RuleAggregationType"];
+		SignalGenerationRule[label="SignalGenerationRule\n\nint SignalStrength\n"];
+		SignalPriceTrapRule[label="SignalPriceTrapRule\n\nint LongTradeMonitoringRuleLinkID\nint ShortTradeMonitoringRuleLinkID\nstring ResetDefaultState\nint InitialStopLossRentryResetCount\nbool InitialStopLossFlipsDirection"];
+		SignalExecutionRule[label="SignalExecutionRule\n\nint MinimumStrength\nint MaximumStrength\ndouble MaxAccountSizeRiskPercentage\nint TradeMonitoringRuleLinkID"];
+		PositionMonitoringRule[label="PositionMonitoringRule\n\nint Direction\nint StrategyID\nint StopLossThresholdId\nint TakeProfitThresholdId\nint TradeCloseActivationRuleID"];
+		AccountMonitoringRule[label="AccountMonitoringRule\n\nint ExchangeID"];
+		TripWire[label="TripWire\n\nint TripWireID\nint TripWireInstanceID\nDateTime UpdatedDateTime\nint PreviousTripWireID\nint PriceTrapPriceParamID\nint TrapOrderedPosition\nint BoundPriceParamLinkID\ndecimal TripWireDeltaPrice\nchar TripWireActivationMethod\nTimeSpan UnspringTripWireAfterTimeSpan\ndecimal UnspringAfterPriceMove"]; 
+		Threshold[label="Threshold\n\nint ThresholdID\nDateTime CreatedDateTime\nstring Direction\nstring ThresholdType\nint ThresholdPriceParamLinkID\ndecimal DeltaPriceFromPriceParam\nint PercentageOfTradeToClose"];
+
+		Rule -- SignalAggregationRule[label="is"];
+		SignalGenerationRule -- SignalAggregationRule[label="is"];
+		SignalExecutionRule -- SignalAggregationRule[label="is"];
+		PositionMonitoringRule -- Rule[label="is"];
+		AccountMonitoringRule -- Rule[label="is"];
+		SignalPriceTrapRule -- TripWire [label="1..N"];
+		SignalGenerationRule -- SignalPriceTrapRule[label="is"];
+		RuleLink -- Rule [label="0..1"];
+		RuleLink -- RuleInstance [label="0..1"];
+		RuleLinkHistory -- RuleLink[label="N"];
+
+		color=black;
+	}
+
+	subgraph cluster_1 {
+		label = "Rule State";
+
+		RuleExecutionState[label="RuleExecutionState\n\nint RuleExecutionStateID\nint RuleInstanceID\nint ActiveRuleID\nint PreviousRuleExecutionStateID\nDateTime UpdateDateTime\nstring Comment"];
+		MarketSensitiveRuleExecutionState[label="MarketSensitiveRuleExecutionState\n\nint PreEventMarketSummaryID\nint DuringEventMarketSummaryID\nint PostEventMarketSummaryID"];
+		SignalAggregationRuleExecutionState[label="SignalAggregationRuleExecutionState\n\nstring SignalEventType\nint SignalValue"];
+		PositionMonitoringRuleExecutionState[label="PositionMonitoringRuleExecutionState\n\nstring PositionState\n"];
+		SignalPriceTrapRuleExecutionState[label="SignalPriceTrapRuleExecutionState\n\nstring TripWireState\nint StopLossRentryResetRemainingCount\nbool StopLossFlipsDirection"];
+		AccountMonitoringRuleState[label="AccountMonitoringRuleState\n\nbool IsSimulation\nstring StateUpdateReason\nstring AccountTradingState\ndouble AggregatePnLState"];
+		TripWireExecutionState[label="TripWireExecutionState\n\nint TripWireExecutionHistoryId\nint TripWireInstanceID\nint ActiveTripWireID\nint PreviousTripWireHistoryID\nDateTime UpdatedDateTime\nint ActivatationState\nstring UpdatedBy\nstring Comment"];
+
+		SignalPriceTrapRuleExecutionState -- SignalAggregationRuleExecutionState[label="is"];
+		SignalAggregationRuleExecutionState -- SignalAggregationRule[label="state"];
+		SignalAggregationRuleExecutionState -- MarketSensitiveRuleExecutionState[label="is"];
+		AccountMonitoringRuleState -- MarketSensitiveRuleExecutionState[label="is"];
+		PositionMonitoringRuleExecutionState -- MarketSensitiveRuleExecutionState[label="is"];
+		RuleExecutionState -- MarketSensitiveRuleExecutionState[label="is"];
+		TripWireExecutionState -- SignalPriceTrapRuleExecutionState [label="is"];
+		color=black;
+	}
+
+	subgraph cluster_2 {
+		label = "Price Parameters";
+
+		PriceParamLink[label="PriceParamLink\n\nint PriceParamLinkID\nDateTime UpdatedDateTime\nint SpecificVersionPriceParamID\nint LatestVersionPriceParamInstanceID\nstring UpdatedBy\nstring Comment"];
+		PriceParamLinkHistory[label="PriceParamLinkHistory\n\nint PriceParamLinkHistoryID\nint PriceParamLinkID\nDateTime UpdatedDateTime\nint SpecificVersionPriceParamID\nint LatestVersionPriceParamInstanceID\nstring UpdatedBy\nstring Comment"];
+		PriceParam[label="PriceParam\n\nint PriceParamsID\nint PriceParamInstanceID\nstring Ticker\nDateTime UpdateDateTime\nint PreviousVersionPriceParamID\nstring PriceParamsType\n"]; 
+		HorizontalLine[label="HorizontalLine\n\ndecimal Price\n"];
+		TrendLine[label="TrendLine\n\nDateTime Point1DateTime\ndecimal Point1Price\nDateTime Point2DateTime\ndecimal Point2Price"];
+		MovingAverage[label="MovingAverage\n\nstring MovingAverageType\nint PeriodType\nint Length"];
+		MarketDirectionPolygon[label="MarketDirectionPolygon\n\nstring Direction\nDateTime Point1DateTime\ndecimal Point1Price\nDateTime Point2DateTime\ndecimal Point2Price\nDateTime Point3DateTime\ndecimal Point3Price\nint ConnectedMarketDirectionPolygonID"];
+		PriceParamInstance[label="PriceParamInstance\n\nint PriceParamInstanceID\nDateTime CreatedDateTime\nstring Creator"];
+
+		PriceParam -- MarketDirectionPolygon [label="is"];
+		PriceParamInstance -- PriceParam [label="N"];
+		HorizontalLine -- PriceParam [label="is"];
+		MovingAverage -- PriceParam [label="is"];
+		TrendLine -- PriceParam [label="is"];
+		PriceParamLink -- PriceParam[label="0..1"];
+		PriceParamLink -- PriceParamInstance[label="0..1"];
+		PriceParamLinkHistory -- PriceParamLink[label="N"];
+
+		color=black;
+	}
+
+	subgraph cluster_3 {
+		label = "Market Execution";
+
+		MonitoredPosition[label="MonitoredPosition\n\nint MonitoredPositionID\nstring Ticker\nbool IsSimulated\nstring TargetExchange\ndouble VolumeTickerPnL\ndouble MaxDrawDown\nstring ExecutionSuccessStatus\nint ExecutionRuledId\nint PositionMonitoringRuleLinkId\nstring CreationComment\nstring ClosedComment\nstring ErrorInformation"];
+		MonitoredPositionEntryExit[label="MonitoredPositionEntryExit\n\nint MonitoredPositionEntryExitID\nint MonitoredPositionID\nint EntryExitType\nDateTime CreatedDateTime\nint ReferencePriceID\ndouble TargetPrice\ndouble TargetVolume\ndouble ExecutedPrice\ndouble ExecutedTradeVolume\nstring VolumeTicker\n"];
+		ExchangeOrder[label="ExchangeOrder\n\nint MonitoredPositionEntryExitID\nint MonitoredPositionID\nint PositionType\nstring OrderType\nstring ExchangeName\nstring ExchangeOrderID\nDateTime SubmitDateTime\nDateTime CompleteDateTime\nstring Ticker\nchar Direction\ndouble TargetPrice\ndouble SubmitPrice\ndouble SubmitVolume\nstring VolumeTicker\nint PreSubmitReferencePriceID\nstring ErrorInformation\nstring Comments"];
+		ExchangeTrade[label="ExchangeTrade\n\nint MarketTradeID\nint MonitoredPositionEntryExitID\nstring Ticker\nDateTime TradeDateTime\nint PositionType\nstring ExchangeName\nstring ExchangeTradeID\ndouble FillPrice\ndouble FillVolume\nint PostTradeReferencePriceID\nstring ErrorInformation\nstring Comments"];
+		MarginAccountBlotterEntry[label="MarginAccountBlotterEntry\n\nint MarginAccountBlotterEntryID\nint ExchangeID\nDateTime UpdateDateTime\nstring UpdateType\ndouble AccountSize\nint MonitoredPositionID\nstring Comment"];
+
+		MonitoredPosition -- MonitoredPositionEntryExit[label="0..N"];
+		ExchangeOrder -- MonitoredPositionEntryExit[label="1..N"];
+		ExchangeTrade -- ExchangeOrder[label="0..N"];
+		MarginAccountBlotterEntry -- MonitoredPosition[label="1"];
+
+		color=black;
+	}
+
+	subgraph cluster_4 {
+		label = "Market Configuration";
+
+		Exchange[label="Exchange\n\nExchangeID\nstring ExchangeName\nstring AccountName\nstring AccountHolder\nDateTime OpenedDateTime\nstring AccountAddress\nstring Comment"];
+		ExchangeConnectionInformation[label="ExchangeConnectionInformation\n\nint ExchangeConnectionInformationID\nint ExchangeID\nint PreviousExchangeConnectionInformationID\nDateTime UpdatedDateTime\nstring Username\nstring Password\nstring ConnectionType\nstring ConnectionFormatString"];
+		DeterministicSetting[label="DeterministicSetting\n\nint DeterministicSettingID\nstring CategoryName\nstring MainKey\nstring SubKey\nstring SubKeyModifier\nstring Value\nstring ValueRestriction"];
+		DeterministicSettingHierarchy[label="DeterministicSettingHierarchy\n\nint DeterministicSettingHierarchy\nstring CategoryName\nstring ParentCategoryName"];
+		TickerExchangeLimits[label="TickerExchangeLimits\n\nint TickerExchangeLimitsID\nstring Ticker\nstring Exchange\ndouble MinimumTradeSize"];
+
+
+		AccountActivationThroughput[label="AccountActivationThroughput\n\nint AccountActivationThroughputID\nstring ActivationType\nint PeriodMs\ndouble Volume"];
+		Exchange -- TickerExchangeLimits [label="N"];
+		DeterministicSetting -- DeterministicSettingHierarchy[label="defines"];
+		ExchangeConnectionInformation -- Exchange[label="1"];
+
+		color=black;
+	}
+
+	subgraph cluster_5 {
+		label = "Market Pricing";
+
+		MarketSummary[label="MarketSummary\n\nint MarketSummaryID\nstring Ticker\nstring MarketSummaryType\nint MarketTickContainerID\nstring Comment"];
+		MarketTicksContainer[label="MarketTicksContainer\n\nlong MarketTicksID\nstring Exchange\nstring Ticker\nDateTime FromDateTime\nDateTime ToDateTime\nbyte[] CompressedQuotes\ndouble StartMidPrice\ndouble EndMidPrice\ndouble HighestMidPrice\ndouble LowestMidPrice\nint NumberOfQuotes"];
+		ReferencePrice[label="ReferencePrice\n\nint ReferencePriceID\nstring Ticker\ndouble MarketBidPrice\ndouble MarketAskPrice\nstring MarketExchangeName"];
+		MarketTicksContainer -- MarketSummary[label="1"];
+
+		color=black;
+	}
+
+	subgraph cluster_6 {
+		label = "Signal Strategies";
+
+		Signal[label="Signal\n\nint SignalID\nint StrategyID\nDateTime CreatedDateTime\nchar Direction\nint PositionMonitoringRuleLinkID\nint SignalStrength\nint PriceReferencePriceID"]; 
+		StrategyInstance[label="StrategyInstance\n\nint StrategyInstanceID\nstring Creator"]; 
+		Strategy[label="Strategy\n\nint StrategyID\nint StrategyInstanceID\nDateTime UpdateDateTime\nint PreviousStrategyID\nstring ActivationState\nint SignalGenerationRuleLinkID\nint SignalExecutionRuleLinkID\ndouble StategyConfidenceMultiplier"]; 
+
+		Signal -- Strategy [label="N"];
+		Strategy -- StrategyInstance [label="1"];
+
+		color=black;
+	}
+
+	Signal -- RuleLink [label="1"];
+	Strategy -- RuleLink [label="2"];
+	PositionMonitoringRule -- Threshold [label="2"];
+	PriceParamLink -- TripWire [label="1"];
+	Threshold -- PriceParamLink [label="1"];
+	TripWireExecutionState -- TripWire [label="N"];
+	SignalExecutionRule -- RuleLink[label="1"];
+	SignalPriceTrapRule -- RuleLink[label="2"];
+
+	ExchangeOrder -- ReferencePrice[label="1"];
+	ExchangeTrade -- ReferencePrice[label="1"];
+	ReferencePrice -- MonitoredPositionEntryExit[label="2"];
+
+	AccountMonitoringRule -- AccountActivationThroughput[label="N"];
+	AccountMonitoringRule -- Exchange[label="1"];
+	AccountMonitoringRule -- AccountMonitoringRuleState[label="state"];
+	MonitoredPosition -- RuleLink[label="1"];
+	SignalExecutionRule -- MonitoredPosition[label="1"];
+	RuleExecutionState -- Rule[label="0..N"];
+	RuleExecutionState -- RuleInstance[label="0..N"];
+	SignalPriceTrapRuleExecutionState  -- SignalPriceTrapRule[label="state"];
+	MarketSensitiveRuleExecutionState -- MarketSummary[label="1..3"];
+	PositionMonitoringRuleExecutionState -- PositionMonitoringRule[label="state"];
+	MarginAccountBlotterEntry -- Exchange[label="N"];
+
+	label = "\n\nFortitude EventCapture ER Diagram";
+	fontsize=20;
+}

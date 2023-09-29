@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>QuickFix</id>
+    <version>1.13.3</version>
+    <title>QuickFix</title>
+    <authors>nisbus</authors>
+    <owners>nisbus</owners>
+    <licenseUrl>http://quickfix.svn.sourceforge.net/viewvc/quickfix/trunk/quickfix/LICENSE?revision=2096&amp;view=markup</licenseUrl>
+    <projectUrl>http://quickfixengine.org/</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Quickfix is an engine for running FIX servers of clients</description>
+    <summary>A FIX engine for .NET projects</summary>
+    <tags>FIX</tags>
+  </metadata>
+</package>

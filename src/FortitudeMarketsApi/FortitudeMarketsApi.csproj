@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{916C4068-3581-4291-99AE-46C5345C67AE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FortitudeMarketsApi</RootNamespace>
+    <AssemblyName>FortitudeMarketsApi</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reactive, Version=4.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.4.0.0\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Core, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Core.4.0.0\lib\net46\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Interfaces.4.0.0\lib\net46\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Linq.4.0.0\lib\net46\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.PlatformServices.4.0.0\lib\net46\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\System.Reactive.Windows.Threading.4.0.0\lib\net46\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\ClientServerConfig\IMarketServerConfig.cs" />
+    <Compile Include="Configuration\ClientServerConfig\IMarketServerConfigRepository.cs" />
+    <Compile Include="Configuration\ClientServerConfig\IMarketServerConfigUpdate.cs" />
+    <Compile Include="Configuration\ClientServerConfig\MarketsConfig\IMarketsConfig.cs" />
+    <Compile Include="Configuration\ClientServerConfig\MarketServerConfig.cs" />
+    <Compile Include="Configuration\ClientServerConfig\MarketServerConfigRepository.cs" />
+    <Compile Include="Configuration\ClientServerConfig\MarketServerConfigUpdate.cs" />
+    <Compile Include="Configuration\ClientServerConfig\MarketServerType.cs" />
+    <Compile Include="Configuration\ClientServerConfig\TradingConfig\IClientSocketConfig.cs" />
+    <Compile Include="Configuration\ClientServerConfig\TradingConfig\ITradingServersConfigRepository.cs" />
+    <Compile Include="Configuration\ClientServerConfig\TradingConfig\ITradingServerConfig.cs" />
+    <Compile Include="Configuration\ClientServerConfig\PricingConfig\IPricingServersConfigRepository.cs" />
+    <Compile Include="Configuration\ClientServerConfig\PricingConfig\ISnapshotUpdatePricingServerConfig.cs" />
+    <Compile Include="Configuration\ClientServerConfig\PricingConfig\ISourceTickerClientAndPublicationConfig.cs" />
+    <Compile Include="Configuration\ClientServerConfig\PricingConfig\ISourceTickerPublicationConfigRepository.cs" />
+    <Compile Include="Configuration\ClientServerConfig\PricingConfig\ISourceTickerPublicationInfo.cs" />
+    <Compile Include="Configuration\ClientServerConfig\TradingConfig\SocketConfig.cs" />
+    <Compile Include="Pricing\Conflation\IMutablePeriodSummary.cs" />
+    <Compile Include="Pricing\Conflation\IPeriodSummary.cs" />
+    <Compile Include="Pricing\LastTraded\ILastPaidGivenTrade.cs" />
+    <Compile Include="Pricing\LastTraded\ILastTraderPaidGivenTrade.cs" />
+    <Compile Include="Pricing\LastTraded\IMutableLastPaidGivenTrade.cs" />
+    <Compile Include="Pricing\LastTraded\IMutableLastTrade.cs" />
+    <Compile Include="Pricing\LastTraded\IMutableLastTraderPaidGivenTrade.cs" />
+    <Compile Include="Pricing\LastTraded\IMutableRecentlyTraded.cs" />
+    <Compile Include="Pricing\LastTraded\IRecentlyTraded.cs" />
+    <Compile Include="Pricing\LastTraded\LastTradedFlags.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutableOrderBook.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutableSourceQuoteRefPriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutableSourcePriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutableTraderLayerInfo.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutableTraderPriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutableValueDatePriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\ISourceQuoteRefPriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\ISourceQuoteRefTraderValueDatePriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\IValueDatePriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\LayerFlags.cs" />
+    <Compile Include="Configuration\ClientServerConfig\TradingConfig\TradingServersConfigRepository.cs" />
+    <Compile Include="Configuration\ClientServerConfig\PricingConfig\PricingServersConfigRepository.cs" />
+    <Compile Include="Monitoring\Logging\MarketLogs.cs" />
+    <Compile Include="Trading\Executions\ExecutionStageType.cs" />
+    <Compile Include="Trading\Executions\ExecutionType.cs" />
+    <Compile Include="Trading\Executions\IExecution.cs" />
+    <Compile Include="Trading\Executions\IExecutionId.cs" />
+    <Compile Include="Trading\Executions\IExecutions.cs" />
+    <Compile Include="Trading\Executions\IExecutionUpdate.cs" />
+    <Compile Include="Trading\Executions\MktTrade.cs" />
+    <Compile Include="Trading\ITradingFeedListener.cs" />
+    <Compile Include="Trading\Replay\ITradingHistoryService.cs" />
+    <Compile Include="Trading\ITradingMessage.cs" />
+    <Compile Include="Trading\Orders\Auditing\IStrategyTraceability.cs" />
+    <Compile Include="Trading\Orders\Auditing\ITraceabilityDetails.cs" />
+    <Compile Include="Trading\Orders\Client\IOrderAmendRequest.cs" />
+    <Compile Include="Trading\Orders\Client\IOrderSubmitRequest.cs" />
+    <Compile Include="Trading\Orders\Products\VenueFeatures.cs" />
+    <Compile Include="Trading\Orders\Server\AmendType.cs" />
+    <Compile Include="Trading\Orders\Server\IOrderAmendResponse.cs" />
+    <Compile Include="Trading\Orders\Server\IOrderStatusUpdate.cs" />
+    <Compile Include="Trading\Orders\Server\IOrderUpdate.cs" />
+    <Compile Include="Trading\Orders\Server\OrderUpdateEventType.cs" />
+    <Compile Include="Trading\Orders\Venues\IVenueCriteria.cs" />
+    <Compile Include="Trading\Orders\Venues\IVenueOrder.cs" />
+    <Compile Include="Trading\Orders\Venues\IVenueOrders.cs" />
+    <Compile Include="Trading\Orders\Venues\IVenueOrderUpdate.cs" />
+    <Compile Include="Trading\Orders\Venues\VenueSelectionMethod.cs" />
+    <Compile Include="Trading\Orders\Venues\IVenuePriceQuoteId.cs" />
+    <Compile Include="Trading\Counterparties\IBookingInfo.cs" />
+    <Compile Include="Trading\Orders\Products\FillExpectation.cs" />
+    <Compile Include="Trading\Orders\Venues\IVenueOrderId.cs" />
+    <Compile Include="Trading\Orders\Client\IOrderAmend.cs" />
+    <Compile Include="Trading\Orders\IOrderId.cs" />
+    <Compile Include="Trading\Orders\IOrder.cs" />
+    <Compile Include="Trading\Orders\IOrderPublisher.cs" />
+    <Compile Include="Trading\Orders\OrderHelpers.cs" />
+    <Compile Include="Trading\Orders\Client\PositionChangeType.cs" />
+    <Compile Include="Trading\Orders\Products\OrderSide.cs" />
+    <Compile Include="Trading\Orders\Products\OrderSideHelpers.cs" />
+    <Compile Include="Trading\Orders\OrderStatus.cs" />
+    <Compile Include="Pricing\LastTraded\ILastTrade.cs" />
+    <Compile Include="Pricing\Quotes\ILevel0Quote.cs" />
+    <Compile Include="Pricing\LayeredBook\IMutablePriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\IPriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\IOrderBook.cs" />
+    <Compile Include="Pricing\Quotes\ILevel2Quote.cs" />
+    <Compile Include="Pricing\Quotes\ILevel3Quote.cs" />
+    <Compile Include="Pricing\Quotes\ILevel1Quote.cs" />
+    <Compile Include="Pricing\IQuotePublisher.cs" />
+    <Compile Include="Pricing\LayeredBook\ISourcePriceVolumeLayer.cs" />
+    <Compile Include="Pricing\LayeredBook\ITraderLayerInfo.cs" />
+    <Compile Include="Pricing\LayeredBook\ITraderPriceVolumeLayer.cs" />
+    <Compile Include="Pricing\PricingConstants.cs" />
+    <Compile Include="Pricing\QuoteExtensionMethods.cs" />
+    <Compile Include="Pricing\Quotes\IMutableLevel0Quote.cs" />
+    <Compile Include="Pricing\Quotes\IMutableLevel1Quote.cs" />
+    <Compile Include="Pricing\Quotes\IMutableLevel2Quote.cs" />
+    <Compile Include="Pricing\Quotes\IMutableLevel3Quote.cs" />
+    <Compile Include="Pricing\Quotes\SourceTickerInfo\IMutableSourceTickerQuoteInfo.cs" />
+    <Compile Include="Pricing\Quotes\SourceTickerInfo\ISourceTickerQuoteInfo.cs" />
+    <Compile Include="Pricing\Quotes\SourceTickerInfo\IUniqueSourceTickerIdentifier.cs" />
+    <Compile Include="Pricing\Quotes\PQSyncStatus.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trading\Orders\Products\OrderType.cs" />
+    <Compile Include="Trading\Orders\TimeInForce.cs" />
+    <Compile Include="Positions\PositionType.cs" />
+    <Compile Include="Pricing\Conflation\TimeFrame.cs" />
+    <Compile Include="Trading\Counterparties\IParties.cs" />
+    <Compile Include="Trading\Counterparties\IParty.cs" />
+    <Compile Include="Trading\Orders\Products\General\ISpotOrder.cs" />
+    <Compile Include="Trading\Orders\Products\ICompositeProductOrder.cs" />
+    <Compile Include="Trading\Orders\Venues\IVenue.cs" />
+    <Compile Include="Trading\Orders\Products\IProductOrder.cs" />
+    <Compile Include="Trading\Orders\Products\ProductType.cs" />
+    <Compile Include="Trading\ITradingFeed.cs" />
+    <Compile Include="Trading\Executions\ExecutionUpdateType.cs" />
+    <Compile Include="Trading\Replay\IReplayMessage.cs" />
+    <Compile Include="Trading\Replay\ReplayMessageType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj">
+      <Project>{8bafb6d7-288e-4f46-97f9-16e741ada0eb}</Project>
+      <Name>FortitudeCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FortitudeIO\FortitudeIO.csproj">
+      <Project>{0aa83fcd-59a9-4e3b-9f4d-4194f7b2cb0d}</Project>
+      <Name>FortitudeIO</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
