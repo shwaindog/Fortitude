@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeMarketConnectivity", "FortitudeMarketConnectivity\FortitudeMarketConnectivity.csproj", "{A31EF257-F645-4A38-AD15-90F2E7754AFF}"
 EndProject
@@ -14,6 +14,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeTests", "FortitudeTests\FortitudeTests.csproj", "{0ECF25F9-A97F-4DF1-9F48-1C441AB46E7A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeIO", "FortitudeIO\FortitudeIO.csproj", "{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreCommon", "FortitudeCoreCommon\FortitudeCoreCommon.csproj", "{E4808314-0328-4390-912A-7C9C2FF40409}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeCoreTests", "FortitudeCoreTests\FortitudeCoreTests.csproj", "{AEDB3DDF-8BAC-4A47-ABAB-3CADD591B996}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4808314-0328-4390-912A-7C9C2FF40409}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4808314-0328-4390-912A-7C9C2FF40409}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4808314-0328-4390-912A-7C9C2FF40409}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4808314-0328-4390-912A-7C9C2FF40409}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEDB3DDF-8BAC-4A47-ABAB-3CADD591B996}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEDB3DDF-8BAC-4A47-ABAB-3CADD591B996}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEDB3DDF-8BAC-4A47-ABAB-3CADD591B996}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEDB3DDF-8BAC-4A47-ABAB-3CADD591B996}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

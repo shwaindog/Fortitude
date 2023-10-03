@@ -1,0 +1,5 @@
+# All files
+[*]
+guidelines = 120
+# ARGB color format (red with 25% opacity)
+guidelines_style = 2.5px solid 40ff0000
