@@ -57,5 +57,7 @@ public class PerfLoggingPoolFactory : IPerfLoggingPoolFactory
         }
     }
 
+    public static void ClearPerfLoggingPoolFactory() => instance = null;
+
     private string GenKey(string prefixName, string name) => prefixName + "." + name;
 }

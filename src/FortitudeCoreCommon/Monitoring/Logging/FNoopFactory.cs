@@ -27,7 +27,7 @@ internal class NoopFactory : IFLoggerFactory
 
         public bool IsDebugEnabled => false;
 
-        public void Debug(string fmt, params object[] args) { }
+        public void Debug(string fmt, params object?[] args) { }
 
         public void Debug(string msg) { }
 
@@ -35,7 +35,7 @@ internal class NoopFactory : IFLoggerFactory
 
         public bool IsInfoEnabled => false;
 
-        public void Info(string fmt, params object[] args) { }
+        public void Info(string fmt, params object?[] args) { }
 
         public void Info(string msg) { }
 
@@ -43,7 +43,7 @@ internal class NoopFactory : IFLoggerFactory
 
         public bool IsWarnEnabled { get; } = false;
 
-        public void Warn(string fmt, params object[] args) { }
+        public void Warn(string fmt, params object?[] args) { }
 
         public void Warn(string msg) { }
 
@@ -51,7 +51,7 @@ internal class NoopFactory : IFLoggerFactory
 
         public bool IsErrorEnabled => false;
 
-        public void Error(string fmt, params object[] args) { }
+        public void Error(string fmt, params object?[] args) { }
 
         public void Error(string msg) { }
 

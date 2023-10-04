@@ -49,6 +49,11 @@ public class NoOpPerfLogger : IPerfLogger
 
     public void Add(string identifier) { }
 
+    public void SetWriteTrace(bool shouldWrite)
+    {
+        WriteTrace = shouldWrite;
+    }
+
     public void Indent() { }
 
     public void Dedent() { }

@@ -7,6 +7,7 @@ public interface ITraceLogger : IHierarchicalLogger
     void Start();
     void Add<TU>(string identifier, TU subject);
     void Add(string identifier);
+    void SetWriteTrace(bool shouldWrite);
     void Indent();
     void Dedent();
     List<TraceEntry> TraceFinished();

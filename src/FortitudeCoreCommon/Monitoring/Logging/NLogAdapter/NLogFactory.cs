@@ -62,7 +62,7 @@ public class NLogFactory : IFLoggerFactory
             logger.Log(theEvent);
         }
 
-        public void Debug(string fmt, params object[] args)
+        public void Debug(string fmt, params object?[] args)
         {
             logger.Debug(fmt, args);
         }
@@ -79,7 +79,7 @@ public class NLogFactory : IFLoggerFactory
 
         public bool IsInfoEnabled => logger.IsInfoEnabled;
 
-        public void Info(string fmt, params object[] args)
+        public void Info(string fmt, params object?[] args)
         {
             logger.Info(fmt, args);
         }
@@ -96,7 +96,7 @@ public class NLogFactory : IFLoggerFactory
 
         public bool IsWarnEnabled => logger.IsWarnEnabled;
 
-        public void Warn(string fmt, params object[] args)
+        public void Warn(string fmt, params object?[] args)
         {
             logger.Warn(fmt, args);
         }
@@ -113,7 +113,7 @@ public class NLogFactory : IFLoggerFactory
 
         public bool IsErrorEnabled => logger.IsErrorEnabled;
 
-        public void Error(string fmt, params object[] args)
+        public void Error(string fmt, params object?[] args)
         {
             logger.Error(fmt, args);
         }

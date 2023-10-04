@@ -178,7 +178,7 @@ public class NonPublicInvocator
 
         if (fieldInfo == null)
             throw new ApplicationException($"Requested field '{fieldName}' could not be found on {type.Name}");
-        fieldInfo.SetValue(null, value);
+        fieldInfo.SetValue(null, value, BindingFlags.SetField, Type.DefaultBinder, null);
     }
 
     public static void SetStaticField<T>(object objInstance, string fieldName, T value,
