@@ -56,11 +56,10 @@ public class DirectOSNetworkingStub : IDirectOSNetworkingApi
         {
             var bytesToWrite = itemsToReadFromSocket.Peek();
             arg = 0;
-            if (bytesToWrite == null) return -1;
             if (bytesToWrite.BytesToReadFromSocket == null) return 0;
 
             arg = itemsToReadFromSocket.Where(msg => msg?.BytesToReadFromSocket != null)
-                .Sum(msg => msg.BytesToReadFromSocket.Length);
+                .Sum(msg => msg.BytesToReadFromSocket?.Length ?? 0);
             return 0;
         }
         catch

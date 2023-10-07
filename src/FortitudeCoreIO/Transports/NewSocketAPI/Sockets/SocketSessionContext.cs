@@ -76,7 +76,10 @@ public class SocketSessionContext : ISocketSessionContext
     IConversationPublisher? ISocketConversation.ConversationPublisher => SocketSender;
 
     public event Action<SocketSessionState>? StateChanged;
+
+#pragma warning disable 67
     public event Action<string, int>? Error;
+#pragma warning restore 67
     public event Action<ISocketConnection>? SocketConnected;
     public event Action? Connected;
     public event Action? Disconnected;

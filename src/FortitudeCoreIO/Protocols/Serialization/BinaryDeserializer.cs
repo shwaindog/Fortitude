@@ -13,7 +13,8 @@ public abstract class BinaryDeserializer<TM> : ICallbackBinaryDeserializer<TM> w
 {
     public abstract object? Deserialize(DispatchContext dispatchContext);
 
-    [Obsolete] public event Action<TM, object?, ISession?>? Deserialized;
+    //[Obsolete]  TODO restore when switched over
+    public event Action<TM, object?, ISession?>? Deserialized;
 
     public event Action<TM, object?, ISocketConversation?>? Deserialized2;
 

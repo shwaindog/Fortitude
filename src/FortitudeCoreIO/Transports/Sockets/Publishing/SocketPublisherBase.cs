@@ -27,7 +27,9 @@ public abstract class SocketPublisherBase : SocketStreamPublisher
         Port = port;
     }
 
+#pragma warning disable 67
     public virtual event Action? OnConnected;
+#pragma warning restore 67
     public virtual event Action? OnDisconnected;
 
     public void Send(ISession client, IVersionedMessage message)

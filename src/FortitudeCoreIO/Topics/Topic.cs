@@ -37,10 +37,6 @@ public abstract class Topic : ITopic
 
     public abstract void Stop();
 
-    public event Action<string, int>? Error;
-    public event Action? Started;
-    public event Action? Stopped;
-
     protected class PublisherConversationPublisher : IConversationPublisher
     {
         private readonly IList<IPublisherTransportTopicConversation> publisherTransportSessions;
@@ -74,4 +70,10 @@ public abstract class Topic : ITopic
             return allSucceeded;
         }
     }
+
+#pragma warning disable 67
+    public event Action<string, int>? Error;
+    public event Action? Started;
+    public event Action? Stopped;
+#pragma warning restore 67
 }
