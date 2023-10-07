@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿#region
+
 using FortitudeCommon.Types;
 
-namespace FortitudeMarketsApi.Pricing.LastTraded
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.LastTraded;
+
+public interface IRecentlyTraded : ICloneable<IRecentlyTraded>, IEnumerable<ILastTrade>,
+    IInterfacesComparable<IRecentlyTraded>
 {
-    public interface IRecentlyTraded : ICloneable<IRecentlyTraded>, IEnumerable<ILastTrade>,
-        IInterfacesComparable<IRecentlyTraded>
-    {
-        bool HasLastTrades { get; }
-        int Count { get; }
-        int Capacity { get; }
-        ILastTrade this[int i] { get; }
-    }
+    bool HasLastTrades { get; }
+    int Count { get; }
+    int Capacity { get; }
+    ILastTrade? this[int i] { get; }
 }

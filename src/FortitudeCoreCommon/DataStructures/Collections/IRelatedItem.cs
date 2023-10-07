@@ -1,7 +1,6 @@
-﻿namespace FortitudeCommon.DataStructures.Collections
+﻿namespace FortitudeCommon.DataStructures.Collections;
+
+public interface IRelatedItem<in T>
 {
-    public interface IRelatedItem<in T>
-    {
-        void EnsureRelatedItemsAreConfigured(T referenceInstance);
-    }
+    void EnsureRelatedItemsAreConfigured(T? referenceInstance);
 }

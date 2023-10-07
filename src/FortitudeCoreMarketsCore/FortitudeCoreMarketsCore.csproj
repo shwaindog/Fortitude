@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <RootNamespace>FortitudeMarketsCore</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FortitudeCoreCommon\FortitudeCoreCommon.csproj" />
+    <ProjectReference Include="..\FortitudeCoreIO\FortitudeCoreIO.csproj" />
+    <ProjectReference Include="..\FortitudeCoreMarketsApi\FortitudeCoreMarketsApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\ClientServerConfig\MarketsConfig\" />
+  </ItemGroup>
+
+</Project>

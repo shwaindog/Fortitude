@@ -42,7 +42,7 @@ public class MarketServerConfigRepository<T> : IMarketServerConfigRepository<T>,
     public T? Find(string name)
     {
         return currentConfigs.Select(kvp => kvp.Value)
-            .FirstOrDefault(sci => sci.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            .FirstOrDefault(sci => sci.Name?.Equals(name, StringComparison.InvariantCultureIgnoreCase) ?? false);
     }
 
     public bool ContainsItem(T checkItem) => currentConfigs.ContainsKey(checkItem.Id);

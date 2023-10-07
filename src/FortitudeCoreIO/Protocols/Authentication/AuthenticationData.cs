@@ -15,6 +15,8 @@ public interface IAuthenticationData
 
 public class AuthenticationData : IAuthenticationData
 {
+    public AuthenticationData() { }
+
     public AuthenticationData(IAuthenticationData toClone)
     {
         AuthenticationType = toClone.AuthenticationType;

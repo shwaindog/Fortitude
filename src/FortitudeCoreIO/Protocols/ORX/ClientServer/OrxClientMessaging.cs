@@ -52,7 +52,7 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 
     public OrxRecyclingFactory RecyclingFactory { get; }
 
-    public void RegisterDeserializer<T>(Action<T, object?, ISession?> msgHandler)
+    public void RegisterDeserializer<T>(Action<T, object?, ISession?>? msgHandler)
         where T : class, IVersionedMessage, new()
     {
         var instanceOfTypeToDeserialize = RecyclingFactory.Borrow<T>();

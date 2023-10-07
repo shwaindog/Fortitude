@@ -13,7 +13,7 @@ using FortitudeIO.Transports.Sockets.Logging;
 
 namespace FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 
-public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
+public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 {
     private readonly IDeserializer[] mandatory;
     private readonly Dictionary<ushort, IDeserializer> optional = new();
@@ -33,9 +33,9 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
         {
             var pi = props.Values[i];
             if (!pi.PropertyType.IsArray && !ReflectionHelper.IsSubclassOfRawGeneric(typeof(List<>), pi.PropertyType))
-                ManditoryBasicTypes(thisVersion, pi, i);
+                MandatoryBasicTypes(thisVersion, pi, i);
             else
-                ManditoryArrayTypes(thisVersion, pi, i);
+                MandatoryArrayTypes(thisVersion, pi, i);
         }
 
         foreach (var kv in OrxOptionalField.FindAll(currentType))
@@ -257,9 +257,17 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
         {
             var customAttributes = (OrxOptionalField?)pi
                 .GetCustomAttributes(typeof(OrxOptionalField)).FirstOrDefault();
-            optional.Add(id, (IDeserializer)Activator.CreateInstance(typeof(OptionalObjectDeserializer<>)
-                    .MakeGenericType(typeof(Tm), pi.PropertyType), pi, customAttributes?.Mapping,
-                OrxDeserializerLookup, messageVersion)!);
+
+            if ((customAttributes != null && pi.PropertyType.IsAbstract) ||
+                pi.PropertyType.GetConstructor(Type.EmptyTypes) == null ||
+                (customAttributes?.Mapping?.Count ?? 0) > 0)
+                optional.Add(id, (IDeserializer)Activator.CreateInstance(typeof(OptionalObjectDeserializer<>)
+                        .MakeGenericType(typeof(Tm), typeof(object)), pi, customAttributes?.Mapping,
+                    OrxDeserializerLookup, messageVersion)!);
+            else
+                optional.Add(id, (IDeserializer)Activator.CreateInstance(typeof(OptionalObjectDeserializer<>)
+                        .MakeGenericType(typeof(Tm), pi.PropertyType), pi, customAttributes?.Mapping,
+                    OrxDeserializerLookup, messageVersion)!);
         }
         else
         {
@@ -267,7 +275,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
         }
     }
 
-    private void ManditoryArrayTypes(byte messageVersion, PropertyInfo pi, int i)
+    private void MandatoryArrayTypes(byte messageVersion, PropertyInfo pi, int i)
     {
         if (pi.PropertyType == typeof(bool[]))
             mandatory[i] = new BoolArrayDeserializer(pi);
@@ -322,7 +330,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
             throw new Exception("Unsupported type: " + pi.PropertyType.FullName);
     }
 
-    private void ManditoryBasicTypes(byte messageVersion, PropertyInfo pi, int i)
+    private void MandatoryBasicTypes(byte messageVersion, PropertyInfo pi, int i)
     {
         if (pi.PropertyType == typeof(bool))
         {
@@ -378,9 +386,17 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
         {
             var customAttributes = (OrxMandatoryField?)pi
                 .GetCustomAttributes(typeof(OrxMandatoryField)).FirstOrDefault();
-            mandatory[i] = (IDeserializer)Activator.CreateInstance(typeof(ManditoryObjectDeserializer<>)
-                    .MakeGenericType(typeof(Tm), pi.PropertyType), pi, customAttributes?.Mapping,
-                OrxDeserializerLookup, messageVersion)!;
+
+            if ((customAttributes != null && pi.PropertyType.IsAbstract) ||
+                pi.PropertyType.GetConstructor(Type.EmptyTypes) == null ||
+                (customAttributes?.Mapping?.Count ?? 0) > 0)
+                mandatory[i] = (IDeserializer)Activator.CreateInstance(typeof(MandatoryObjectDeserializer<,>)
+                        .MakeGenericType(typeof(Tm), typeof(object), pi.PropertyType), pi, customAttributes?.Mapping,
+                    OrxDeserializerLookup, messageVersion)!;
+            else
+                mandatory[i] = (IDeserializer)Activator.CreateInstance(typeof(MandatoryObjectDeserializer<,>)
+                        .MakeGenericType(typeof(Tm), pi.PropertyType, pi.PropertyType), pi, OrxDeserializerLookup
+                    , messageVersion)!;
         }
         else
         {
@@ -403,18 +419,16 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
         public abstract unsafe void Deserialize(Tm message, ref byte* buffer);
     }
 
-    private sealed class ManditoryObjectDeserializer<T> : Deserializer<T> where T : class
+    private sealed class MandatoryObjectDeserializer<TD, TP> : Deserializer<TP> where TD : class, new() where TP : class
     {
-        private readonly Dictionary<ushort, IOrxDeserializer> deserializerLookup;
+        private readonly Dictionary<ushort, IOrxDeserializer>? deserializerLookup;
         private readonly IOrxDeserializer itemSerializer;
         private readonly byte messageVersion;
 
         // ReSharper disable once UnusedMember.Local
-        public ManditoryObjectDeserializer(PropertyInfo property, Dictionary<ushort, Type>? mapping,
-            IOrxDeserializerLookup orxDeserializerLookup, byte version) : base(property)
+        public MandatoryObjectDeserializer(PropertyInfo property, Dictionary<ushort, Type>? mapping,
+            IOrxDeserializerLookup orxDeserializerLookup, byte version) : this(property, orxDeserializerLookup, version)
         {
-            itemSerializer = orxDeserializerLookup.GetOrCreateDeserializerForVersion(typeof(T), version);
-            messageVersion = version;
             deserializerLookup = new Dictionary<ushort, IOrxDeserializer>();
             if (mapping != null)
                 foreach (var keyValuePair in mapping)
@@ -423,6 +437,14 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
                         keyValuePair.Value, version);
                     deserializerLookup.Add(keyValuePair.Key, mappedSerializer);
                 }
+        }
+
+        // ReSharper disable once MemberCanBePrivate.Local
+        public MandatoryObjectDeserializer(PropertyInfo property,
+            IOrxDeserializerLookup orxDeserializerLookup, byte version) : base(property)
+        {
+            itemSerializer = orxDeserializerLookup.GetOrCreateDeserializerForVersion(typeof(TD), version);
+            messageVersion = version;
         }
 
         public override unsafe void Deserialize(Tm message, ref byte* ptr)
@@ -436,24 +458,24 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
                 return;
             }
 
-            T typedProp;
-            if (deserializerLookup != null && deserializerLookup.Count > 0)
+            TD typedProp;
+            if (deserializerLookup is { Count: > 0 })
             {
                 var typeId = StreamByteOps.ToUShort(ref ptr);
                 var mappedDeserializer = deserializerLookup[typeId];
-                typedProp = (T)mappedDeserializer.Deserialize(ptr, size, messageVersion);
+                typedProp = (TD)mappedDeserializer.Deserialize(ptr, size, messageVersion);
             }
             else
             {
-                typedProp = (T)itemSerializer.Deserialize(ptr, size, messageVersion);
+                typedProp = (TD)itemSerializer.Deserialize(ptr, size, messageVersion);
             }
 
-            Set(message, typedProp);
+            Set(message, (TP)(object)typedProp);
             ptr += size;
         }
     }
 
-    private sealed class OptionalObjectDeserializer<T> : Deserializer<T> where T : class
+    private sealed class OptionalObjectDeserializer<T> : Deserializer<T> where T : class, new()
     {
         private readonly Dictionary<ushort, IOrxDeserializer>? deserializerLookup;
         private readonly IOrxDeserializer itemSerializer;
@@ -483,6 +505,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
             int size = StreamByteOps.ToUShort(ref ptr);
             if (size == 0)
             {
+                // TODO recycle previous instance
                 Set(message, null);
                 return;
             }
@@ -897,15 +920,22 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
         public override unsafe void Deserialize(Tm message, ref byte* ptr)
         {
             var arraySize = StreamByteOps.ToUShort(ref ptr);
-            var array = get(arraySize);
-            for (var i = 0; i < array.Length; i++)
+            if (arraySize != ushort.MaxValue)
             {
-                int size = StreamByteOps.ToUShort(ref ptr);
-                array[i] = (To)itemDeserializer.Deserialize(ptr, size, version);
-                ptr += size;
-            }
+                var array = get(arraySize);
+                for (var i = 0; i < array.Length; i++)
+                {
+                    int size = StreamByteOps.ToUShort(ref ptr);
+                    array[i] = (To)itemDeserializer.Deserialize(ptr, size, version);
+                    ptr += size;
+                }
 
-            Set(message, array);
+                Set(message, array);
+            }
+            else
+            {
+                Set(message, null);
+            }
         }
     }
 
@@ -928,16 +958,23 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class
         public override unsafe void Deserialize(Tm message, ref byte* ptr)
         {
             var arraySize = StreamByteOps.ToUShort(ref ptr);
-            var objectList = orxRecyclingFactory.Borrow<List<To>>();
-            objectList.Clear();
-            for (var i = 0; i < arraySize; i++)
+            if (arraySize != ushort.MaxValue)
             {
-                int size = StreamByteOps.ToUShort(ref ptr);
-                objectList.Add((To)itemDeserializer.Deserialize(ptr, size, version));
-                ptr += size;
-            }
+                var objectList = orxRecyclingFactory.Borrow<List<To>>();
+                objectList.Clear();
+                for (var i = 0; i < arraySize; i++)
+                {
+                    int size = StreamByteOps.ToUShort(ref ptr);
+                    objectList.Add((To)itemDeserializer.Deserialize(ptr, size, version));
+                    ptr += size;
+                }
 
-            Set(message, objectList);
+                Set(message, objectList);
+            }
+            else
+            {
+                Set(message, null);
+            }
         }
     }
 

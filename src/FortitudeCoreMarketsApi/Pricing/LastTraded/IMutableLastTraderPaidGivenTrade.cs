@@ -1,8 +1,7 @@
-namespace FortitudeMarketsApi.Pricing.LastTraded
+namespace FortitudeMarketsApi.Pricing.LastTraded;
+
+public interface IMutableLastTraderPaidGivenTrade : IMutableLastPaidGivenTrade, ILastTraderPaidGivenTrade
 {
-    public interface IMutableLastTraderPaidGivenTrade : IMutableLastPaidGivenTrade, ILastTraderPaidGivenTrade
-    {
-        new string TraderName { get; set; }
-        new IMutableLastTraderPaidGivenTrade Clone();
-    }
+    new string? TraderName { get; set; }
+    new IMutableLastTraderPaidGivenTrade Clone();
 }

@@ -1,9 +1,8 @@
-﻿namespace FortitudeMarketsApi.Trading.Counterparties
+﻿namespace FortitudeMarketsApi.Trading.Counterparties;
+
+public interface IParties
 {
-    public interface IParties
-    {
-        IParty BuySide { get; set; }
-        IParty SellSide { get; set; }
-        IParties Clone();
-    }
+    IParty? BuySide { get; set; }
+    IParty? SellSide { get; set; }
+    IParties Clone();
 }

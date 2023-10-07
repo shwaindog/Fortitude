@@ -88,7 +88,7 @@ public abstract class SocketSubscriber : SocketStreamSubscriber, ISocketSubscrib
 
     public virtual void Send(IVersionedMessage message)
     {
-        StreamToPublisher.Enqueue(Connector!, message);
+        StreamToPublisher?.Enqueue(Connector!, message);
     }
 
     public override void OnCxError(ISocketSessionConnection cx, string errorMsg, int proposedReconnectMs)
@@ -101,7 +101,7 @@ public abstract class SocketSubscriber : SocketStreamSubscriber, ISocketSubscrib
             (uint)proposedReconnectMs);
     }
 
-    protected abstract IOSSocket CreateAndConnect(string host, int port);
+    protected abstract IOSSocket? CreateAndConnect(string host, int port);
 
     private void ScheduleConnect(uint spanMs)
     {
@@ -129,7 +129,7 @@ public abstract class SocketSubscriber : SocketStreamSubscriber, ISocketSubscrib
                 try
                 {
                     Connector = RegisterConnector(CreateAndConnect(currentConnectionConfig.Hostname,
-                        currentConnectionConfig.Port));
+                        currentConnectionConfig.Port)!);
                 }
                 catch (Exception ex)
                 {

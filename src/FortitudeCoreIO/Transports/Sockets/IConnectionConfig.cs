@@ -12,7 +12,7 @@ public interface IConnectionConfig : ICloneable<IConnectionConfig>
     string ConnectionName { get; }
     string Hostname { get; }
     int Port { get; }
-    string NetworkSubAddress { get; }
+    string? NetworkSubAddress { get; }
     ConnectionDirectionType ConnectionDirectionType { get; }
     IObservable<IConnectionUpdate> Updates { get; set; }
     uint ReconnectIntervalMs { get; }

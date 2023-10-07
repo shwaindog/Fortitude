@@ -12,5 +12,5 @@ public interface IOrxSubscriber : ISocketSubscriber
 {
     OrxRecyclingFactory RecyclingFactory { get; }
     new IOrxPublisher StreamToPublisher { get; }
-    void RegisterDeserializer<T>(Action<T, object?, ISession?> msgHandler) where T : class, IVersionedMessage, new();
+    void RegisterDeserializer<T>(Action<T, object?, ISession?>? msgHandler) where T : class, IVersionedMessage, new();
 }

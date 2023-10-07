@@ -10,21 +10,27 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeIO.Protocols.ORX.Serialization;
 
-public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
+public interface ISerializer
 {
-    private readonly ISerializer[] serializers;
+    Type SerializesType { get; }
+}
 
-    public OrxByteSerializer()
+public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
+{
+    private readonly ITypeSerializer[] serializers;
+    private readonly Dictionary<string, ITypeSerializer?> visitedSerializers = new();
+
+    public OrxByteSerializer() : this(new Dictionary<string, ISerializer?>()) { }
+
+    private OrxByteSerializer(Dictionary<string, ISerializer?> rootAllSerializers)
     {
-        var all = new List<ISerializer>();
-
         foreach (var kv in OrxMandatoryField.FindAll(typeof(Tm)))
         {
             var pi = kv.Value;
             if (!pi.PropertyType.IsArray && !ReflectionHelper.IsSubclassOfRawGeneric(typeof(List<>), pi.PropertyType))
-                ManditoryBasicTypes(pi, all);
+                MandatoryBasicTypes(pi, visitedSerializers, rootAllSerializers);
             else
-                ManditoryArrayTypes(pi, all);
+                MandatoryArrayTypes(pi, visitedSerializers, rootAllSerializers);
         }
 
         foreach (var kv in OrxOptionalField.FindAll(typeof(Tm)))
@@ -32,12 +38,13 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
             var id = kv.Key;
             var pi = kv.Value;
             if (!pi.PropertyType.IsArray && !ReflectionHelper.IsSubclassOfRawGeneric(typeof(List<>), pi.PropertyType))
-                OptionalBasicTypes(pi, all, id);
+                OptionalBasicTypes(pi, id, visitedSerializers, rootAllSerializers);
             else
-                OptionalArrayTypes(pi, all, id);
+                OptionalArrayTypes(pi, id, visitedSerializers, rootAllSerializers);
         }
 
-        serializers = all.ToArray();
+        // serializers = currObjSerializers.ToArray();
+        serializers = visitedSerializers.Values.Where(v => v != null).OfType<ITypeSerializer>().ToArray();
     }
 
     public unsafe int Serialize(object message, byte[] buffer, int msgOffset, int headerOffset)
@@ -60,271 +67,334 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
     #region Inner members
 
-    private interface ISerializer
+    private interface ITypeSerializer : ISerializer
     {
         unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr);
     }
 
-    private void OptionalArrayTypes(PropertyInfo pi, List<ISerializer> all, ushort id)
+    private string PropertyInfoFullPath(PropertyInfo pi) => $"{pi.DeclaringType!.FullName}.{pi.Name}";
+
+    private void OptionalArrayTypes(PropertyInfo pi, ushort id, Dictionary<string, ITypeSerializer?> currObjSerializers,
+        Dictionary<string, ISerializer?> rootAllSerializers)
     {
+        var piPath = PropertyInfoFullPath(pi);
+        if (!currObjSerializers.ContainsKey(piPath) && rootAllSerializers.TryGetValue(piPath, out var serializer))
+        {
+            currObjSerializers[piPath] = serializer as ITypeSerializer;
+            return;
+        }
+
         if (pi.PropertyType == typeof(bool[]))
-            all.Add(new BoolArraySerializer(pi, id));
+            currObjSerializers[piPath] = new BoolArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<bool>))
-            all.Add(new BoolListSerializer(pi, id));
+            currObjSerializers[piPath] = new BoolListSerializer(pi, id);
         else if (pi.PropertyType == typeof(byte[]))
-            all.Add(new ByteArraySerializer(pi, id));
+            currObjSerializers[piPath] = new ByteArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<byte>))
-            all.Add(new ByteListSerializer(pi, id));
+            currObjSerializers[piPath] = new ByteListSerializer(pi, id);
         else if (pi.PropertyType == typeof(short[]))
-            all.Add(new ShortArraySerializer(pi, id));
+            currObjSerializers[piPath] = new ShortArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<short>))
-            all.Add(new ShortListSerializer(pi, id));
+            currObjSerializers[piPath] = new ShortListSerializer(pi, id);
         else if (pi.PropertyType == typeof(ushort[]))
-            all.Add(new UShortArraySerializer(pi, id));
+            currObjSerializers[piPath] = new UShortArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<ushort>))
-            all.Add(new UShortListSerializer(pi, id));
+            currObjSerializers[piPath] = new UShortListSerializer(pi, id);
         else if (pi.PropertyType == typeof(int[]))
-            all.Add(new IntArraySerializer(pi, id));
+            currObjSerializers[piPath] = new IntArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<int>))
-            all.Add(new IntListSerializer(pi, id));
+            currObjSerializers[piPath] = new IntListSerializer(pi, id);
         else if (pi.PropertyType == typeof(uint[]))
-            all.Add(new UIntArraySerializer(pi, id));
+            currObjSerializers[piPath] = new UIntArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<uint>))
-            all.Add(new UIntListSerializer(pi, id));
+            currObjSerializers[piPath] = new UIntListSerializer(pi, id);
         else if (pi.PropertyType == typeof(long[]))
-            all.Add(new LongArraySerializer(pi, id));
+            currObjSerializers[piPath] = new LongArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<long>))
-            all.Add(new LongListSerializer(pi, id));
+            currObjSerializers[piPath] = new LongListSerializer(pi, id);
         else if (pi.PropertyType == typeof(decimal[]))
-            all.Add(new DecimalArraySerializer(pi, id));
+            currObjSerializers[piPath] = new DecimalArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<decimal>))
-            all.Add(new DecimalListSerializer(pi, id));
+            currObjSerializers[piPath] = new DecimalListSerializer(pi, id);
         else if (pi.PropertyType == typeof(string[]))
-            all.Add(new StringArraySerializer(pi, id));
+            currObjSerializers[piPath] = new StringArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<string>))
-            all.Add(new StringListSerializer(pi, id));
+            currObjSerializers[piPath] = new StringListSerializer(pi, id);
         else if (pi.PropertyType == typeof(MutableString[]))
-            all.Add(new MutableStringArraySerializer(pi, id));
+            currObjSerializers[piPath] = new MutableStringArraySerializer(pi, id);
         else if (pi.PropertyType == typeof(List<MutableString>))
-            all.Add(new MutableStringListSerializer(pi, id));
+            currObjSerializers[piPath] = new MutableStringListSerializer(pi, id);
         else if (ReflectionHelper.IsSubclassOfRawGeneric(typeof(List<>), pi.PropertyType) &&
                  pi.PropertyType.GenericTypeArguments[0].IsClass)
-            all.Add((ISerializer)Activator.CreateInstance(typeof(ObjectListSerializer<>).MakeGenericType(typeof(Tm),
-                pi.PropertyType.GenericTypeArguments[0]), pi, id)!);
+            currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(
+                typeof(ObjectListSerializer<>).MakeGenericType(
+                    typeof(Tm),
+                    pi.PropertyType.GenericTypeArguments[0]), pi, id)!;
         // ReSharper disable once PossibleNullReferenceException
         else if (pi.PropertyType.GetElementType()!.IsClass && pi.PropertyType.GetArrayRank() == 1)
-            all.Add((ISerializer)Activator.CreateInstance(typeof(ObjectArraySerializer<>)
-                .MakeGenericType(typeof(Tm), pi.PropertyType.GetElementType()!), pi, id)!);
+            currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(typeof(ObjectArraySerializer<>)
+                .MakeGenericType(typeof(Tm), pi.PropertyType.GetElementType()!), pi, id)!;
         else
             throw new Exception("Unsupported type: " + pi.PropertyType.FullName);
+        rootAllSerializers[piPath] = currObjSerializers[piPath]!;
     }
 
-    private void OptionalBasicTypes(PropertyInfo pi, List<ISerializer> all, ushort id)
+    private void OptionalBasicTypes(PropertyInfo pi, ushort id, Dictionary<string, ITypeSerializer?> currObjSerializers
+        , Dictionary<string, ISerializer?> rootAllSerializers)
     {
+        var piPath = PropertyInfoFullPath(pi);
+        if (!currObjSerializers.ContainsKey(piPath) && rootAllSerializers.TryGetValue(piPath, out var serializer))
+        {
+            currObjSerializers[piPath] = serializer as ITypeSerializer;
+            return;
+        }
+
         if (pi.PropertyType == typeof(bool))
         {
-            all.Add(new BoolSerializer(pi, id));
+            currObjSerializers[piPath] = new BoolSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(byte) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(byte)))
         {
-            all.Add(new ByteSerializer(pi, id));
+            currObjSerializers[piPath] = new ByteSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(short) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(short)))
         {
-            all.Add(new ShortSerializer(pi, id));
+            currObjSerializers[piPath] = new ShortSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(ushort) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(ushort)))
         {
-            all.Add(new UShortSerializer(pi, id));
+            currObjSerializers[piPath] = new UShortSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(int) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(int)))
         {
-            all.Add(new IntSerializer(pi, id));
+            currObjSerializers[piPath] = new IntSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(uint) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(uint)))
         {
-            all.Add(new UIntSerializer(pi, id));
+            currObjSerializers[piPath] = new UIntSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(decimal))
         {
-            all.Add(new DecimalSerializer(pi, id));
+            currObjSerializers[piPath] = new DecimalSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(long))
         {
-            all.Add(new LongSerializer(pi, id));
+            currObjSerializers[piPath] = new LongSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(DateTime))
         {
-            all.Add(new DateTimeSerializer(pi, id));
+            currObjSerializers[piPath] = new DateTimeSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(string))
         {
-            all.Add(new StringSerializer(pi, id));
+            currObjSerializers[piPath] = new StringSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(MutableString))
         {
-            all.Add(new MutableStringSerializer(pi, id));
+            currObjSerializers[piPath] = new MutableStringSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(Dictionary<string, string>))
         {
-            all.Add(new MapSerializer(pi, id));
+            currObjSerializers[piPath] = new MapSerializer(pi, id);
         }
         else if (pi.PropertyType == typeof(Tm))
         {
+            rootAllSerializers[piPath] = null!; // prevent re-entry
             var customAttributes = (OrxOptionalField?)pi
                 .GetCustomAttributes(typeof(OrxOptionalField)).FirstOrDefault();
-            if (customAttributes != null) all.Add(new SelfSerializer(pi, id, customAttributes.Mapping, this));
+            if (customAttributes != null)
+                currObjSerializers[piPath] = new SelfSerializer(pi, id, customAttributes.Mapping,
+                    this, rootAllSerializers);
         }
         else if (pi.PropertyType.IsClass)
         {
             var customAttributes = (OrxOptionalField?)pi
                 .GetCustomAttributes(typeof(OrxOptionalField)).FirstOrDefault();
-            if (customAttributes != null)
-                all.Add((ISerializer)Activator.CreateInstance(typeof(ObjectSerializer<>)
-                    .MakeGenericType(typeof(Tm), pi.PropertyType), pi, id, customAttributes?.Mapping)!);
+            if ((customAttributes != null && pi.PropertyType.IsAbstract) ||
+                pi.PropertyType.GetConstructor(Type.EmptyTypes) == null ||
+                (customAttributes?.Mapping?.Count ?? 0) > 0)
+                currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(typeof(ObjectSerializer<>)
+                        .MakeGenericType(typeof(Tm), typeof(object)), pi, id,
+                    rootAllSerializers, customAttributes?.Mapping)!;
+            else
+                currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(typeof(ObjectSerializer<>)
+                    .MakeGenericType(typeof(Tm), pi.PropertyType), pi, id, rootAllSerializers)!;
         }
         else
         {
             throw new Exception("Unsupported type: " + pi.PropertyType.FullName);
         }
+
+        rootAllSerializers[piPath] = currObjSerializers[piPath]!;
     }
 
-    private void ManditoryArrayTypes(PropertyInfo pi, List<ISerializer> all)
+    private void MandatoryArrayTypes(PropertyInfo pi, Dictionary<string, ITypeSerializer?> currObjSerializers
+        , Dictionary<string, ISerializer?> rootAllSerializers)
     {
+        var piPath = PropertyInfoFullPath(pi);
+        if (!currObjSerializers.ContainsKey(piPath) && rootAllSerializers.TryGetValue(piPath, out var serializer))
+        {
+            currObjSerializers[piPath] = serializer as ITypeSerializer;
+            return;
+        }
+
         if (pi.PropertyType == typeof(bool[]))
-            all.Add(new BoolArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new BoolArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<bool>))
-            all.Add(new BoolListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new BoolListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(byte[]))
-            all.Add(new ByteArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new ByteArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<byte>))
-            all.Add(new ByteListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new ByteListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(short[]))
-            all.Add(new ShortArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new ShortArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<short>))
-            all.Add(new ShortListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new ShortListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(ushort[]))
-            all.Add(new UShortArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new UShortArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<ushort>))
-            all.Add(new UShortListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new UShortListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(int[]))
-            all.Add(new IntArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new IntArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<int>))
-            all.Add(new IntListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new IntListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(uint[]))
-            all.Add(new UIntArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new UIntArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<uint>))
-            all.Add(new UIntListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new UIntListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(long[]))
-            all.Add(new LongArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new LongArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<long>))
-            all.Add(new LongListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new LongListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(decimal[]))
-            all.Add(new DecimalArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new DecimalArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<decimal>))
-            all.Add(new DecimalListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new DecimalListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(string[]))
-            all.Add(new StringArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new StringArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<string>))
-            all.Add(new StringListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new StringListSerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(MutableString[]))
-            all.Add(new MutableStringArraySerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new MutableStringArraySerializer(pi, ushort.MaxValue);
         else if (pi.PropertyType == typeof(List<MutableString>))
-            all.Add(new MutableStringListSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new MutableStringListSerializer(pi, ushort.MaxValue);
         // ReSharper disable once PossibleNullReferenceException
         else if (ReflectionHelper.IsSubclassOfRawGeneric(typeof(List<>), pi.PropertyType) &&
                  pi.PropertyType.GenericTypeArguments[0].IsClass)
-            all.Add((ISerializer)Activator.CreateInstance(typeof(ObjectListSerializer<>).MakeGenericType(typeof(Tm),
-                pi.PropertyType.GenericTypeArguments[0]), pi, ushort.MaxValue)!);
+            currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(
+                typeof(ObjectListSerializer<>).MakeGenericType(
+                    typeof(Tm),
+                    pi.PropertyType.GenericTypeArguments[0]), pi, ushort.MaxValue)!;
         // ReSharper disable once PossibleNullReferenceException
         else if (pi.PropertyType.GetElementType()!.IsClass && pi.PropertyType.GetArrayRank() == 1)
-            all.Add((ISerializer)Activator.CreateInstance(typeof(ObjectArraySerializer<>).MakeGenericType(typeof(Tm),
-                pi.PropertyType.GetElementType()!), pi, ushort.MaxValue)!);
+            currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(
+                typeof(ObjectArraySerializer<>).MakeGenericType(
+                    typeof(Tm),
+                    pi.PropertyType.GetElementType()!), pi, ushort.MaxValue)!;
         else
             throw new Exception("Unsupported type: " + pi.PropertyType.FullName);
+        rootAllSerializers[piPath] = currObjSerializers[piPath]!;
     }
 
-    private void ManditoryBasicTypes(PropertyInfo pi, List<ISerializer> all)
+
+    private void MandatoryBasicTypes(PropertyInfo pi, Dictionary<string, ITypeSerializer?> currObjSerializers
+        , Dictionary<string, ISerializer?> rootAllSerializers)
     {
+        var piPath = PropertyInfoFullPath(pi);
+        if (!currObjSerializers.ContainsKey(piPath) && rootAllSerializers.TryGetValue(piPath, out var serializer))
+        {
+            currObjSerializers[piPath] = serializer as ITypeSerializer;
+            return;
+        }
+
         if (pi.PropertyType == typeof(bool))
         {
-            all.Add(new BoolSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new BoolSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(byte) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(byte)))
         {
-            all.Add(new ByteSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new ByteSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(short) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(short)))
         {
-            all.Add(new ShortSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new ShortSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(ushort) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(ushort)))
         {
-            all.Add(new UShortSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new UShortSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(int) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(int)))
         {
-            all.Add(new IntSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new IntSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(uint) ||
                  (pi.PropertyType.IsEnum && Enum.GetUnderlyingType(pi.PropertyType) == typeof(uint)))
         {
-            all.Add(new UIntSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new UIntSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(decimal))
         {
-            all.Add(new DecimalSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new DecimalSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(long))
         {
-            all.Add(new LongSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new LongSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(DateTime))
         {
-            all.Add(new DateTimeSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new DateTimeSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(string))
         {
-            all.Add(new StringSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new StringSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(MutableString))
         {
-            all.Add(new MutableStringSerializer(pi, ushort.MaxValue));
+            currObjSerializers[piPath] = new MutableStringSerializer(pi, ushort.MaxValue);
         }
         else if (pi.PropertyType == typeof(Tm))
         {
+            rootAllSerializers[piPath] = null!; // prevent re-entry
             var customAttributes = (OrxMandatoryField?)pi
                 .GetCustomAttributes(typeof(OrxMandatoryField)).FirstOrDefault();
             if (customAttributes != null)
-                all.Add(new SelfSerializer(pi, ushort.MaxValue, customAttributes.Mapping, this));
+                currObjSerializers[piPath] = new SelfSerializer(pi, ushort.MaxValue, customAttributes.Mapping,
+                    this, rootAllSerializers);
         }
         else if (pi.PropertyType.IsClass)
         {
             var customAttributes = (OrxMandatoryField?)pi
                 .GetCustomAttributes(typeof(OrxMandatoryField)).FirstOrDefault();
-            if (customAttributes != null)
-                all.Add((ISerializer)Activator.CreateInstance(typeof(ObjectSerializer<>)
-                        .MakeGenericType(typeof(Tm), pi.PropertyType), pi, ushort.MaxValue
-                    , customAttributes?.Mapping)!);
+            if ((customAttributes != null && pi.PropertyType.IsAbstract) ||
+                pi.PropertyType.GetConstructor(Type.EmptyTypes) == null ||
+                (customAttributes?.Mapping?.Count ?? 0) > 0)
+                currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(typeof(ObjectSerializer<>)
+                        .MakeGenericType(typeof(Tm), typeof(object)), pi, ushort.MaxValue,
+                    rootAllSerializers, customAttributes?.Mapping)!;
+            else
+                currObjSerializers[piPath] = (ITypeSerializer)Activator.CreateInstance(typeof(ObjectSerializer<>)
+                    .MakeGenericType(typeof(Tm), pi.PropertyType), pi, ushort.MaxValue, rootAllSerializers)!;
         }
         else
         {
             throw new Exception("Unsupported type: " + pi.PropertyType.FullName);
         }
+
+        rootAllSerializers[piPath] = currObjSerializers[piPath]!;
     }
 
-    private abstract class Serializer<TP> : ISerializer
+    private abstract class Serializer<TP> : ITypeSerializer
     {
-        protected readonly Func<Tm, TP> Get;
+        protected readonly Func<Tm, TP?> Get;
         protected readonly ushort Id;
 
         protected Serializer(PropertyInfo property, ushort id)
@@ -335,25 +405,29 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
         protected bool IsOptional => Id != ushort.MaxValue;
 
+        public Type SerializesType => typeof(TP);
+
         public abstract unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr);
     }
 
-    private class ObjectSerializer<TO> : Serializer<TO> where TO : class
+    private class ObjectSerializer<TO> : Serializer<object> where TO : class, new()
     {
         private readonly Dictionary<Type, IOrxSerializer> serializerLookup;
         protected OrxByteSerializer<TO> ItemSerializer;
         private Dictionary<ushort, Type>? mapping;
 
-        protected ObjectSerializer(PropertyInfo property, ushort id) : base(property, id)
+        public ObjectSerializer(PropertyInfo property, ushort id, Dictionary<string, ISerializer?> allSerializers) :
+            base(property, id)
         {
             serializerLookup = new Dictionary<Type, IOrxSerializer>();
             mapping = new Dictionary<ushort, Type>();
-            ItemSerializer = new OrxByteSerializer<TO>();
+            ItemSerializer = new OrxByteSerializer<TO>(allSerializers);
         }
 
         // ReSharper disable once UnusedMember.Local
-        public ObjectSerializer(PropertyInfo property, ushort id, Dictionary<ushort, Type>? mapping)
-            : this(property, id)
+        public ObjectSerializer(PropertyInfo property, ushort id, Dictionary<string, ISerializer?> allSerializers
+            , Dictionary<ushort, Type>? mapping)
+            : this(property, id, allSerializers)
         {
             ImportMapping(mapping);
         }
@@ -387,9 +461,9 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
             int size;
             if (mapping != null && mapping.Count > 0)
             {
-                var mapEntry = mapping.FirstOrDefault(kvp => kvp.Value == obj.GetType()).Key;
-                if (mapEntry == 0) return false;
-                StreamByteOps.ToBytes(ref ptr, mapEntry);
+                var subClassKey = mapping.FirstOrDefault(kvp => kvp.Value == obj.GetType()).Key;
+                if (subClassKey == 0) return false;
+                StreamByteOps.ToBytes(ref ptr, subClassKey);
                 var mappedSerializer = serializerLookup[obj.GetType()];
                 if ((size = mappedSerializer.Serialize(obj, ptr, msgStart, endPtr)) == 0) return false;
             }
@@ -408,8 +482,8 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
     private class SelfSerializer : ObjectSerializer<Tm>
     {
         public SelfSerializer(PropertyInfo property, ushort id, Dictionary<ushort, Type> mapping,
-            OrxByteSerializer<Tm> serializer)
-            : base(property, id)
+            OrxByteSerializer<Tm> serializer, Dictionary<string, ISerializer?> allSerializers)
+            : base(property, id, allSerializers)
         {
             ItemSerializer = serializer;
             ImportMapping(mapping);
@@ -434,12 +508,12 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++)
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++)
                 {
-                    *ptr = array[i] ? (byte)0xFF : (byte)00;
+                    *ptr = array![i] ? (byte)0xFF : (byte)00;
                     ptr++;
                 }
 
@@ -466,12 +540,12 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Count ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++)
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Count ?? 0));
+                for (var i = 0; i < (array?.Count ?? 0); i++)
                 {
-                    *ptr = array[i] ? (byte)0xFF : (byte)00;
+                    *ptr = array![i] ? (byte)0xFF : (byte)00;
                     ptr++;
                 }
 
@@ -498,12 +572,12 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++)
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++)
                 {
-                    *ptr = array[i];
+                    *ptr = array![i];
                     ptr++;
                 }
 
@@ -530,12 +604,12 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Count ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++)
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Count ?? 0));
+                for (var i = 0; i < (array?.Count ?? 0); i++)
                 {
-                    *ptr = array[i];
+                    *ptr = array![i];
                     ptr++;
                 }
 
@@ -562,10 +636,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -589,10 +663,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Count ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Count ?? 0));
+                for (var i = 0; i < (array?.Count ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -616,10 +690,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -643,10 +717,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Count ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Count ?? 0));
+                for (var i = 0; i < (array?.Count ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -670,10 +744,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -697,10 +771,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Count ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Count ?? 0));
+                for (var i = 0; i < (array?.Count ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -724,10 +798,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -751,10 +825,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Count ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Count ?? 0));
+                for (var i = 0; i < (array?.Count ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -778,10 +852,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -805,10 +879,10 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Count ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++) StreamByteOps.ToBytes(ref ptr, array[i]);
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Count ?? 0));
+                for (var i = 0; i < (array?.Count ?? 0); i++) StreamByteOps.ToBytes(ref ptr, array![i]);
                 return true;
             }
 
@@ -832,12 +906,12 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Length * OrxConstants.UInt32Sz <= endPtr)
+            if (ptr + OrxConstants.UInt16Sz + (array?.Length ?? 0) * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++)
+                StreamByteOps.ToBytes(ref ptr, (ushort)(array?.Length ?? 0));
+                for (var i = 0; i < (array?.Length ?? 0); i++)
                 {
-                    var elementDecimal = array[i];
+                    var elementDecimal = array![i];
                     var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(elementDecimal)[3])[2];
                     var roundingNoDecimal = (long)((decimal)Math.Pow(10, decimalPlaces) * elementDecimal);
                     StreamByteOps.ToBytes(ref ptr, decimalPlaces);
@@ -867,12 +941,13 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
                 StreamByteOps.ToBytes(ref ptr, (ushort)(OrxConstants.UInt16Sz + array.Count));
             }
 
-            if (ptr + OrxConstants.UInt16Sz + array.Count * OrxConstants.UInt32Sz <= endPtr)
+            var arrayCount = array?.Count ?? 0;
+            if (ptr + OrxConstants.UInt16Sz + arrayCount * OrxConstants.UInt32Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++)
+                StreamByteOps.ToBytes(ref ptr, (ushort)arrayCount);
+                for (var i = 0; i < arrayCount; i++)
                 {
-                    var elementDecimal = array[i];
+                    var elementDecimal = array![i];
                     var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(elementDecimal)[3])[2];
                     var roundingNoDecimal = (long)((decimal)Math.Pow(10, decimalPlaces) * elementDecimal);
                     StreamByteOps.ToBytes(ref ptr, decimalPlaces);
@@ -906,10 +981,11 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
             if (ptr + OrxConstants.UInt16Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++)
-                    if (ptr + array.Length * 256 <= endPtr)
-                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array[i], 256);
+                var arrayLength = array?.Length ?? 0;
+                StreamByteOps.ToBytes(ref ptr, (ushort)arrayLength);
+                for (var i = 0; i < arrayLength; i++)
+                    if (ptr + arrayLength * 256 <= endPtr)
+                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array![i], 256);
                 if (Id != ushort.MaxValue)
                     StreamByteOps.ToBytes(ref sizeOfArray, (ushort)(ptr - sizeOfArray - OrxConstants.UInt16Sz));
                 return true;
@@ -939,10 +1015,11 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
             if (ptr + OrxConstants.UInt16Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++)
-                    if (ptr + array.Count * 256 <= endPtr)
-                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array[i], 256);
+                var arrayCount = array?.Count ?? 0;
+                StreamByteOps.ToBytes(ref ptr, (ushort)arrayCount);
+                for (var i = 0; i < arrayCount; i++)
+                    if (ptr + arrayCount * 256 <= endPtr)
+                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array![i], 256);
                 if (Id != ushort.MaxValue)
                     StreamByteOps.ToBytes(ref sizeOfArray, (ushort)(ptr - sizeOfArray - OrxConstants.UInt16Sz));
                 return true;
@@ -972,10 +1049,11 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
             if (ptr + OrxConstants.UInt16Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
-                for (var i = 0; i < array.Length; i++)
-                    if (ptr + array.Length * 1024 <= endPtr)
-                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array[i], 1024);
+                var arrayLength = array?.Length ?? 0;
+                StreamByteOps.ToBytes(ref ptr, (ushort)arrayLength);
+                for (var i = 0; i < arrayLength; i++)
+                    if (ptr + arrayLength * 1024 <= endPtr)
+                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array![i], 1024);
                 if (Id != ushort.MaxValue)
                     StreamByteOps.ToBytes(ref sizeOfArray, (ushort)(ptr - sizeOfArray - OrxConstants.UInt16Sz));
                 return true;
@@ -1005,10 +1083,11 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
             if (ptr + OrxConstants.UInt16Sz <= endPtr)
             {
-                StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
-                for (var i = 0; i < array.Count; i++)
-                    if (ptr + array.Count * 1024 <= endPtr)
-                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array[i], 1024);
+                var arrayCount = array?.Count ?? 0;
+                StreamByteOps.ToBytes(ref ptr, (ushort)arrayCount);
+                for (var i = 0; i < arrayCount; i++)
+                    if (ptr + arrayCount * 1024 <= endPtr)
+                        StreamByteOps.ToBytesWithSizeHeader(ref ptr, array![i], 1024);
                 if (Id != ushort.MaxValue)
                     StreamByteOps.ToBytes(ref sizeOfArray, (ushort)(ptr - sizeOfArray - OrxConstants.UInt16Sz));
                 return true;
@@ -1025,7 +1104,8 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
         public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
         {
-            var dic = Get(message);
+            var dictionary = Get(message);
+            var dic = dictionary;
 
             byte* sizePtr = null;
             if (Id != ushort.MaxValue)
@@ -1037,18 +1117,20 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
             }
 
             if (ptr + OrxConstants.UInt32Sz > endPtr) return false;
-            StreamByteOps.ToBytes(ref ptr, (uint)dic.Count);
+            var dicCount = dic?.Count ?? 0;
+            StreamByteOps.ToBytes(ref ptr, (uint)dicCount);
 
             int size = OrxConstants.UInt32Sz;
-            foreach (var kv in Get(message))
-            {
-                var recLen = (kv.Key.Length + kv.Value.Length + 2) * OrxConstants.UInt8Sz;
-                if (ptr + recLen > endPtr) return false;
-                size += recLen;
+            if (dictionary != null)
+                foreach (var kv in dictionary)
+                {
+                    var recLen = (kv.Key.Length + kv.Value.Length + 2) * OrxConstants.UInt8Sz;
+                    if (ptr + recLen > endPtr) return false;
+                    size += recLen;
 
-                StreamByteOps.ToBytesWithSizeHeader(ref ptr, kv.Key, ushort.MaxValue);
-                StreamByteOps.ToBytesWithSizeHeader(ref ptr, kv.Value, ushort.MaxValue);
-            }
+                    StreamByteOps.ToBytesWithSizeHeader(ref ptr, kv.Key, ushort.MaxValue);
+                    StreamByteOps.ToBytesWithSizeHeader(ref ptr, kv.Value, ushort.MaxValue);
+                }
 
             if (sizePtr != null) StreamByteOps.ToBytes(ref sizePtr, (ushort)size);
 
@@ -1056,7 +1138,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
         }
     }
 
-    private sealed class ObjectArraySerializer<To> : Serializer<To[]> where To : class
+    private sealed class ObjectArraySerializer<To> : Serializer<To[]> where To : class, new()
     {
         private readonly OrxByteSerializer<To> itemSerializer = new();
 
@@ -1066,12 +1148,17 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
         public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
         {
             var array = Get(message);
+            var wasNull = array == null;
+            array ??= Array.Empty<To>();
 
             if (ptr + (2 + array.Length) * OrxConstants.UInt16Sz > endPtr) return false;
             StreamByteOps.ToBytes(ref ptr, Id);
             var objectsListSize = ptr;
             ptr += OrxConstants.UInt16Sz;
-            StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
+            if (wasNull)
+                StreamByteOps.ToBytes(ref ptr, ushort.MaxValue);
+            else
+                StreamByteOps.ToBytes(ref ptr, (ushort)array.Length);
             var objectListStart = ptr;
             for (var i = 0; i < array.Length; i++)
             {
@@ -1088,7 +1175,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
         }
     }
 
-    private sealed class ObjectListSerializer<To> : Serializer<List<To>> where To : class
+    private sealed class ObjectListSerializer<To> : Serializer<List<To>> where To : class, new()
     {
         private readonly OrxByteSerializer<To> itemSerializer = new();
 
@@ -1097,18 +1184,22 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class
 
         public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
         {
-            var array = Get(message);
-
-            if (ptr + (2 + array.Count) * OrxConstants.UInt16Sz > endPtr) return false;
+            var list = Get(message);
+            var wasNull = list == null;
+            list ??= new List<To>();
+            if (ptr + (2 + list.Count) * OrxConstants.UInt16Sz > endPtr) return false;
             StreamByteOps.ToBytes(ref ptr, Id);
             var objectsListSize = ptr;
             ptr += OrxConstants.UInt16Sz;
-            StreamByteOps.ToBytes(ref ptr, (ushort)array.Count);
+            if (wasNull)
+                StreamByteOps.ToBytes(ref ptr, ushort.MaxValue);
+            else
+                StreamByteOps.ToBytes(ref ptr, (ushort)list.Count);
             var objectListStart = ptr;
-            for (var i = 0; i < array.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 int size;
-                if ((size = itemSerializer.Serialize(array[i], ptr + OrxConstants.UInt16Sz, msgStart, endPtr)) == 0)
+                if ((size = itemSerializer.Serialize(list[i], ptr + OrxConstants.UInt16Sz, msgStart, endPtr)) == 0)
                     return false;
                 StreamByteOps.ToBytes(ref ptr, (ushort)size);
                 ptr += size;

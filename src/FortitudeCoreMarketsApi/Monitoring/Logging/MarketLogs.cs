@@ -30,9 +30,9 @@ public class NewOrderLog
     {
         var sb = new StringBuilder(256)
             .Append("New order: ")
-            .Append(order.Order.VenueSelectionCriteria).Append(';')
-            .Append(order.Order.OrderId.ClientOrderId).Append(';')
-            .Append(order.Order.Parties).Append(';')
+            .Append(order.Order?.VenueSelectionCriteria).Append(';')
+            .Append(order.Order?.OrderId.ClientOrderId).Append(';')
+            .Append(order.Order?.Parties).Append(';')
             .Append(order.Side).Append(';')
             .Append(order.Ticker).Append(';')
             .Append(price).Append(';')
@@ -51,9 +51,9 @@ public class AbortedOrderLog
     public override string ToString() =>
         new StringBuilder(256)
             .Append("Aborted order: ")
-            .Append(order.Order.VenueSelectionCriteria).Append(';')
-            .Append(order.Order.OrderId.ClientOrderId).Append(';')
-            .Append(order.Order.Parties).Append(';')
+            .Append(order.Order?.VenueSelectionCriteria).Append(';')
+            .Append(order.Order?.OrderId.ClientOrderId).Append(';')
+            .Append(order.Order?.Parties).Append(';')
             .Append(order.Side).Append(';')
             .Append(order.Ticker).Append(';')
             .Append(order.Price).Append(';')
@@ -69,13 +69,13 @@ public class OrderUpdateLog
     private readonly decimal price;
     private readonly decimal size;
     private readonly OrderStatus status;
-    private readonly IVenueCriteria venueCriteria;
+    private readonly IVenueCriteria? venueCriteria;
 
     public OrderUpdateLog(ISpotOrder order)
     {
-        id = order.Order.OrderId.VenueClientOrderId.ToString()!;
-        venueCriteria = order.Order.VenueSelectionCriteria;
-        status = order.Order.Status;
+        id = order.Order?.OrderId?.VenueClientOrderId?.ToString()!;
+        venueCriteria = order.Order?.VenueSelectionCriteria;
+        status = order.Order?.Status ?? OrderStatus.New;
         size = order.Size;
         price = order.Price;
         message = order.Message?.ToString();
@@ -95,7 +95,7 @@ public class OrderUpdateLog
 
 public class OrderAmendLog
 {
-    private readonly IVenueCriteria exchangeId;
+    private readonly IVenueCriteria? exchangeId;
     private readonly decimal executedPrice;
     private readonly decimal executedSize;
     private readonly string id;
@@ -106,9 +106,9 @@ public class OrderAmendLog
 
     public OrderAmendLog(ISpotOrder order)
     {
-        id = order.Order.OrderId.VenueClientOrderId.ToString()!;
-        exchangeId = order.Order.VenueSelectionCriteria;
-        status = order.Order.Status;
+        id = order.Order?.OrderId?.VenueClientOrderId?.ToString()!;
+        exchangeId = order.Order?.VenueSelectionCriteria;
+        status = order.Order?.Status ?? OrderStatus.Unknown;
         size = order.Size;
         executedSize = order.ExecutedSize;
         price = order.Price;
@@ -150,7 +150,7 @@ public class CancelOrderLog
 {
     private readonly string id;
 
-    public CancelOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId.ToString()!;
+    public CancelOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId!.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)
@@ -162,7 +162,7 @@ public class SuspendOrderLog
 {
     private readonly string id;
 
-    public SuspendOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId.ToString()!;
+    public SuspendOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId!.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)
@@ -174,7 +174,7 @@ public class ResumeOrderLog
 {
     private readonly string id;
 
-    public ResumeOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId.ToString()!;
+    public ResumeOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId!.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)

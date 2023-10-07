@@ -41,7 +41,7 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
 
     public T? GetValue(int id) => this[id];
 
-    public int GetId(T name) => this[name];
+    public int GetId(T? name) => name == null ? 0 : this[name];
 
     public virtual object Clone() => new IdLookup<T>(this);
 

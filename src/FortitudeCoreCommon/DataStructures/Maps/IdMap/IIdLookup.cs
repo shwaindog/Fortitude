@@ -13,6 +13,6 @@ public interface IIdLookup<T> : IEnumerable<System.Collections.Generic.KeyValueP
     int this[T name] { get; }
     int Count { get; }
     T? GetValue(int id);
-    int GetId(T name);
+    int GetId(T? name);
     new IIdLookup<T> Clone();
 }

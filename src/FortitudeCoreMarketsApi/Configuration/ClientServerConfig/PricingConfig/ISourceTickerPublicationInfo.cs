@@ -1,11 +1,19 @@
-﻿using FortitudeCommon.Types;
+﻿#region
+
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
-namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig
+#endregion
+
+namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+
+public interface ISourceTickerPublicationConfig : ISourceTickerQuoteInfo
 {
-    public interface ISourceTickerPublicationConfig : ISourceTickerQuoteInfo
-    {
-        ISnapshotUpdatePricingServerConfig MarketPriceQuoteServer { get; }
-        new ISourceTickerPublicationConfig Clone();
-    }
+    ISnapshotUpdatePricingServerConfig? MarketPriceQuoteServer { get; }
+    new ISourceTickerPublicationConfig Clone();
+}
+
+public interface IMutableSourceTickerPublicationConfig : ISourceTickerPublicationConfig, IMutableSourceTickerQuoteInfo
+{
+    new ISnapshotUpdatePricingServerConfig? MarketPriceQuoteServer { get; set; }
+    new IMutableSourceTickerPublicationConfig Clone();
 }

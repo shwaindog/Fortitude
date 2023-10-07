@@ -3,13 +3,14 @@
 public static class DiffNewUpdatedDeleted
 {
     public static DiffResults<T> Diff<T, U>(this IEnumerable<T> originalSet,
-        IEnumerable<T> newSet,
+        IEnumerable<T>? newSet,
         Func<T, U> uniqueId) where U : notnull
     {
-        var originalSetDict = originalSet.ToDictionary(uniqueId);
+        var originalSetDict = originalSet?.ToDictionary(uniqueId) ?? new Dictionary<U, T>();
         var newItems = new List<T>();
         var updatedItems = new List<T>();
-        foreach (var checkItem in newSet)
+        var checkNew = newSet ?? new List<T>();
+        foreach (var checkItem in checkNew)
         {
             var checkItemKey = uniqueId(checkItem);
             if (!originalSetDict.ContainsKey(checkItemKey))

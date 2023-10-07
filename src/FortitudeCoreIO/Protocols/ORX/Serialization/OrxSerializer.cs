@@ -1,42 +1,42 @@
-﻿using FortitudeCommon.DataStructures.Memory;
+﻿#region
+
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serialization;
 
-namespace FortitudeIO.Protocols.ORX.Serialization
+#endregion
+
+namespace FortitudeIO.Protocols.ORX.Serialization;
+
+public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IBinarySerializer<Tm> where Tm : class, new()
 {
-    public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IBinarySerializer<Tm> where Tm : class
+    public readonly ushort Id;
+
+    public OrxSerializer(ushort id) => Id = id;
+
+    public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage msg)
     {
-        public readonly ushort Id;
-        public OrxSerializer(ushort id)
+        // We want to make sure that at least the header will fit
+        if (OrxDecoder.HeaderSize <= buffer.Length - writeOffset)
         {
-            Id = id;
-        }
-
-        public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage msg)
-        {
-            // We want to make sure that at least the header will fit
-            if (OrxDecoder.HeaderSize <= buffer.Length - writeOffset)
+            var size = (ushort)Serialize(msg, buffer, writeOffset, OrxDecoder.HeaderSize);
+            if (size > 0 || msg is OrxLogonResponse)
             {
-                ushort size = (ushort)Serialize(msg, buffer, writeOffset, OrxDecoder.HeaderSize);
-                if (size > 0 || msg is OrxLogonResponse)
+                fixed (byte* fptr = buffer)
                 {
-                    fixed (byte* fptr = buffer)
-                    {
-                        byte* ptr = fptr + writeOffset;
-                        *(ptr++) = msg.Version;
-                        StreamByteOps.ToBytes(ref ptr, Id);
-                        StreamByteOps.ToBytes(ref ptr, size);
-                    }
-
-                    if (msg is IRecycleableObject recycleableObject && recycleableObject.ShouldAutoRecycle)
-                    {
-                        recycleableObject.Recycler?.Recycle(recycleableObject);
-                    }
-                    return size + OrxDecoder.HeaderSize;
+                    var ptr = fptr + writeOffset;
+                    *ptr++ = msg.Version;
+                    StreamByteOps.ToBytes(ref ptr, Id);
+                    StreamByteOps.ToBytes(ref ptr, size);
                 }
+
+                if (msg is IRecycleableObject recycleableObject && recycleableObject.ShouldAutoRecycle)
+                    recycleableObject.Recycler?.Recycle(recycleableObject);
+                return size + OrxDecoder.HeaderSize;
             }
-            return -1;
         }
+
+        return -1;
     }
 }

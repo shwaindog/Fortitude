@@ -66,7 +66,7 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
 
         public OrxRecyclingFactory RecyclingFactory => publisher.RecyclingFactory;
 
-        public void RegisterDeserializer<T>(Action<T, object?, ISession?> msgHandler)
+        public void RegisterDeserializer<T>(Action<T, object?, ISession?>? msgHandler)
             where T : class, IVersionedMessage, new()
         {
             var instanceOfTypeToDeserialize = RecyclingFactory.Borrow<T>();
