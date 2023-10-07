@@ -1,19 +1,22 @@
-﻿using System.Net.Sockets;
+﻿#region
 
-namespace FortitudeCommon.OSWrapper.NetworkingWrappers
+using System.Net.Sockets;
+
+#endregion
+
+namespace FortitudeCommon.OSWrapper.NetworkingWrappers;
+
+public interface IDirectOSNetworkingApi
 {
-    public interface IDirectOSNetworkingApi
-    {
-        int Select(int ignoredParameter, IntPtr[] readfds,
-            IntPtr[] writefds, IntPtr[] exceptfds, ref TimeValue timeout);
+    int Select(int ignoredParameter, IntPtr[] readfds,
+        IntPtr[]? writefds, IntPtr[]? exceptfds, ref TimeValue timeout);
 
-        int GetLastCallError();
+    int GetLastCallError();
 
-        unsafe int Recv(IntPtr socketHandle, byte* pinnedBuffer, int len, ref bool partialMsg);
+    unsafe int Recv(IntPtr socketHandle, byte* pinnedBuffer, int len, ref bool partialMsg);
 
-        // TODO hide this inside the DirectWindowsNetworkingApi
-        int IoCtlSocket(IntPtr socketHandle, ref int arg);
+    // TODO hide this inside the DirectWindowsNetworkingApi
+    int IoCtlSocket(IntPtr socketHandle, ref int arg);
 
-        unsafe int Send(IntPtr socketHandle, byte* pinnedBuffer, int len, SocketFlags socketFlags);
-    }
+    unsafe int Send(IntPtr socketHandle, byte* pinnedBuffer, int len, SocketFlags socketFlags);
 }

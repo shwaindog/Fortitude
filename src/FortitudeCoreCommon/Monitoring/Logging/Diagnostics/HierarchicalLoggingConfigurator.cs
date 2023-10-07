@@ -11,11 +11,12 @@ namespace FortitudeCommon.Monitoring.Logging.Diagnostics;
 public class HierarchicalLoggingConfigurator<T> where T : class, IHierarchicalLogger
 {
     private static readonly SortedList<string, List<T>> trackingItems;
+    private static readonly SortedList<string, string> loggingActivations;
 
     static HierarchicalLoggingConfigurator()
     {
-        trackingItems ??= new SortedList<string, List<T>>(new LengthLexComparer());
-        loggingActivations ??= new SortedList<string, string>(new LengthLexComparer());
+        trackingItems = new SortedList<string, List<T>>(new LengthLexComparer());
+        loggingActivations = new SortedList<string, string>(new LengthLexComparer());
     }
 
     public static IEnumerable<string> ActivationKeywords =>
@@ -28,14 +29,22 @@ public class HierarchicalLoggingConfigurator<T> where T : class, IHierarchicalLo
         var lowercaseFullName = trackThis.FullNameOfLogger.ToLower();
         lock (TrackingSyncLock)
         {
-            if (trackingItems.TryGetValue(lowercaseFullName, out var collectionOfT))
+            try
             {
-                collectionOfT.Add(trackThis);
+                if (trackingItems.TryGetValue(lowercaseFullName, out var collectionOfT))
+                {
+                    collectionOfT.Add(trackThis);
+                }
+                else
+                {
+                    collectionOfT = new List<T>(12) { trackThis };
+                    trackingItems[lowercaseFullName] = collectionOfT;
+                }
             }
-            else
+            catch
             {
-                collectionOfT = new List<T>(12) { trackThis };
-                trackingItems[lowercaseFullName] = collectionOfT;
+                Console.WriteLine($"Exception trying to add {lowercaseFullName} to {trackThis} trackingItems");
+                throw;
             }
         }
 
@@ -61,7 +70,8 @@ public class HierarchicalLoggingConfigurator<T> where T : class, IHierarchicalLo
             loggingActivations[ruleHierarchy] = value.ToLower();
         }
 
-        Logger.Info("Activating {0} for full logger path {1} with value {2}", typeof(T).Name, ruleHierarchy, value);
+        Logger.Value.Info("Activating {0} for full logger path {1} with value {2}", typeof(T).Name, ruleHierarchy
+            , value);
         List<T> itemsMatchingRuleName;
         lock (TrackingSyncLock)
         {
@@ -82,7 +92,7 @@ public class HierarchicalLoggingConfigurator<T> where T : class, IHierarchicalLo
             loggingActivations.Remove(ruleHierarchy);
         }
 
-        Logger.Info("Deactivating {0} for full logger path {1}", typeof(T).Name, ruleHierarchy);
+        Logger.Value.Info("Deactivating {0} for full logger path {1}", typeof(T).Name, ruleHierarchy);
         List<T> itemsMatchingRuleName;
         lock (TrackingSyncLock)
         {
@@ -142,11 +152,10 @@ public class HierarchicalLoggingConfigurator<T> where T : class, IHierarchicalLo
     }
 
     // ReSharper disable StaticFieldInGenericType
-    private static readonly SortedList<string, string> loggingActivations;
     private static readonly object TrackingSyncLock = new();
     private static readonly object ConfigSyncLock = new();
     private static IEnumerable<string>? cachedActivationWords;
 
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger("DiagnosticSettings");
+    private static readonly Lazy<IFLogger> Logger = new(() => FLoggerFactory.Instance.GetLogger("DiagnosticSettings"));
     // ReSharper restore StaticFieldInGenericType
 }

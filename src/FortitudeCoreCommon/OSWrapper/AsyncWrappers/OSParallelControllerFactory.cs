@@ -37,4 +37,6 @@ public class OSParallelControllerFactory : IOSParallelControllerFactory
             return osParallelController;
         }
     }
+
+    public static void ClearOSParallelControllerFactory() => instance = null;
 }

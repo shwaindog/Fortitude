@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "FortitudeCoreTests": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

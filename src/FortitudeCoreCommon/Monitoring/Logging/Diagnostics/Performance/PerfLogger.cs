@@ -69,6 +69,11 @@ public class PerfLogger : IPerfLogger
         if (traceLogger.Enabled) traceLogger.Add(identifier);
     }
 
+    public void SetWriteTrace(bool shouldWrite)
+    {
+        WriteTrace = shouldWrite;
+    }
+
     public void Dedent()
     {
         if (traceLogger.Enabled) traceLogger.Dedent();

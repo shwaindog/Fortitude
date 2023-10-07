@@ -792,7 +792,7 @@ public sealed class MutableString : IMutableString
         return this;
     }
 
-    private bool Equals(MutableString other)
+    private bool Equals(MutableString? other)
     {
         if (ReferenceEquals(null, other)) return false;
         return 0 == CompareTo(other);
@@ -834,21 +834,22 @@ public sealed class MutableString : IMutableString
 
     public static bool operator !=(string lhs, MutableString rhs) => !(lhs == rhs);
 
-    public static bool operator ==(MutableString lhs, string rhs)
+    public static bool operator ==(MutableString? lhs, string? rhs)
+    {
+        if (ReferenceEquals(lhs, null)) return ReferenceEquals(rhs, null);
+        if (ReferenceEquals(rhs, null)) return ReferenceEquals(lhs, null);
+        return lhs.Equals(rhs);
+    }
+
+    public static bool operator !=(MutableString? lhs, string? rhs) => !(lhs == rhs);
+
+    public static bool operator ==(MutableString? lhs, MutableString? rhs)
     {
         if (ReferenceEquals(lhs, null)) return ReferenceEquals(rhs, null);
         return lhs.Equals(rhs);
     }
 
-    public static bool operator !=(MutableString lhs, string rhs) => !(lhs == rhs);
-
-    public static bool operator ==(MutableString lhs, MutableString rhs)
-    {
-        if (ReferenceEquals(lhs, null)) return ReferenceEquals(rhs, null);
-        return lhs.Equals(rhs);
-    }
-
-    public static bool operator !=(MutableString lhs, MutableString rhs) => !(lhs == rhs);
+    public static bool operator !=(MutableString? lhs, MutableString? rhs) => !(lhs == rhs);
 
     private class StringBuilderEnumerator : IEnumerator<char>
     {

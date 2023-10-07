@@ -8,5 +8,5 @@ public sealed class FLogEvent
     public DateTime LogTime = default;
     public string MsgFormat = string.Empty;
     public object MsgObject = string.Empty;
-    public object[]? MsgParams;
+    public object?[]? MsgParams;
 }

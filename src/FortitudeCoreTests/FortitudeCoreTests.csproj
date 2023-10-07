@@ -9,10 +9,13 @@
     <IsTestProject>true</IsTestProject>
     <RootNamespace>FortitudeTests</RootNamespace>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="5.1.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
     <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
@@ -21,6 +24,20 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FortitudeCoreCommon\FortitudeCoreCommon.csproj" />
+    <ProjectReference Include="..\FortitudeCoreIO\FortitudeCoreIO.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="FortitudeIO\Configuration\ClientServerConfig\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="diagnosticSettings.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

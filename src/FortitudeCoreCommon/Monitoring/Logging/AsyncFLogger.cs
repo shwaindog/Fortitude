@@ -27,7 +27,7 @@ internal sealed class AsyncFLogger : IFLogger
         throw new NotImplementedException("Should not be accessing through AsyncFLogger");
     }
 
-    public void Debug(string fmt, params object[] args)
+    public void Debug(string fmt, params object?[] args)
     {
         PushFormat(FLogLevel.Debug, fmt, args);
     }
@@ -44,7 +44,7 @@ internal sealed class AsyncFLogger : IFLogger
 
     public bool IsInfoEnabled => logger.IsInfoEnabled;
 
-    public void Info(string fmt, params object[] args)
+    public void Info(string fmt, params object?[] args)
     {
         PushFormat(FLogLevel.Info, fmt, args);
     }
@@ -61,7 +61,7 @@ internal sealed class AsyncFLogger : IFLogger
 
     public bool IsWarnEnabled => logger.IsWarnEnabled;
 
-    public void Warn(string fmt, params object[] args)
+    public void Warn(string fmt, params object?[] args)
     {
         PushFormat(FLogLevel.Warn, fmt, args);
     }
@@ -78,7 +78,7 @@ internal sealed class AsyncFLogger : IFLogger
 
     public bool IsErrorEnabled => logger.IsErrorEnabled;
 
-    public void Error(string fmt, params object[] args)
+    public void Error(string fmt, params object?[] args)
     {
         PushFormat(FLogLevel.Error, fmt, args);
     }
@@ -114,7 +114,7 @@ internal sealed class AsyncFLogger : IFLogger
         }
     }
 
-    private void PushFormat(FLogLevel level, string fmt, object[] args)
+    private void PushFormat(FLogLevel level, string fmt, object?[] args)
     {
         var seqId = ring.Claim();
         var evt = ring[seqId];

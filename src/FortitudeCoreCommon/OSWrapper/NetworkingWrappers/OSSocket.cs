@@ -240,8 +240,9 @@ public class OSSocket : IOSSocket
     public int IOControl(int ioControlCode, byte[] optionInValue, byte[] optionOutValue) =>
         UnderlyingSocket.IOControl(ioControlCode, optionInValue, optionOutValue);
 
-    public int IOControl(IOControlCode ioControlCode, byte[] optionInValue, byte[] optionOutValue) =>
+    public int IOControl(IOControlCode ioControlCode, byte[] optionInValue, byte[]? optionOutValue) =>
         UnderlyingSocket.IOControl(ioControlCode, optionInValue, optionOutValue);
+
 
     public void SetIPProtectionLevel(IPProtectionLevel level)
     {

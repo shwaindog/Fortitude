@@ -34,7 +34,7 @@ public class FLoggerFactory : IFLoggerFactory
 
         Loggers = new Dictionary<string, IFLogger>();
         var configManager = new ConfigurationManager();
-        var builder = configManager.AddIniFile("NLog.ini", false, true);
+        var builder = configManager.AddIniFile("NLog.ini", true, true);
 
         var configContext = builder.Build();
 
@@ -44,7 +44,7 @@ public class FLoggerFactory : IFLoggerFactory
             () => new FLogEvent(),
             ClaimStrategyType.MultiProducers,
             false);
-        RingPoller = new FLogEventPoller(Ring, configContext.GetSection("TimeoutMs").Value?.ToUInt() ?? 500);
+        RingPoller = new FLogEventPoller(Ring, configContext["TimeoutMs"]?.ToUInt() ?? 500);
 
         AppDomain.CurrentDomain.DomainUnload += (s, e) => { RingPoller.Dispose(); };
         ///AppDomain.CurrentDomain.ProcessExit += (s, e) => { RingPoller.Dispose(); };
@@ -78,7 +78,7 @@ public class FLoggerFactory : IFLoggerFactory
                     Loggers.Add(loggerName, logger = new AsyncFLogger(Ring, LoggerFactory.GetLogger(loggerName)));
             }
 
-            HierarchicalLoggingConfigurator<IFLogger>.Register(logger);
+            HierarchicalLoggingConfigurator<IFLogger>.Register(logger!);
         }
 
         return logger;

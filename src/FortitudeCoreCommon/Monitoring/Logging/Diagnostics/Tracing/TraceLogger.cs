@@ -14,7 +14,7 @@ public class TraceLogger : ITraceLogger
 {
     private const bool DefaultTraceEnabled = false;
     private const string ActivationKeyWordAlwaysTrace = "alwaystrace";
-    public static readonly ITimeContext ConsistentTimer = new HighPrecisionTimeContext();
+    public static ITimeContext ConsistentTimer = new HighPrecisionTimeContext();
 
     private static readonly ConcurrentDictionary<string, TraceLogger> KnownInstances = new();
 
@@ -100,6 +100,11 @@ public class TraceLogger : ITraceLogger
     public void Add(string identifier)
     {
         if (Enabled) traceLog.Add(new TraceEntry(ConsistentTimer.UtcNow, identifier, null, currentDepth));
+    }
+
+    public void SetWriteTrace(bool shouldWrite)
+    {
+        WriteTrace = shouldWrite;
     }
 
     public void Indent()
