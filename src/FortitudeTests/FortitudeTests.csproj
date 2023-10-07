@@ -205,7 +205,7 @@
     <Compile Include="FortitudeMarketsCore\Pricing\PQ\Subscription\PQClientDecoderTests.cs" />
     <Compile Include="FortitudeMarketsCore\Pricing\PQ\Subscription\PQClientSyncMonitoringTests.cs" />
     <Compile Include="FortitudeMarketsCore\Pricing\PQ\Subscription\PQClientTests.cs" />
-    <Compile Include="FortitudeMarketsApi\Pricing\QuoteExtensionMethodsTests.cs" />
+    <Compile Include="FortitudeMarketsCore\Pricing\QuoteExtensionMethodsTests.cs" />
     <Compile Include="FortitudeMarketsCore\Pricing\PQ\Subscription\PQSnapshotClientRegistrationFactoryTests.cs" />
     <Compile Include="FortitudeMarketsCore\Pricing\PQ\Subscription\PQSnapshotClientTests.cs" />
     <Compile Include="FortitudeMarketsCore\Pricing\PQ\Subscription\PQSocketSubscriptionRegistrationFactoryBaseTests.cs" />
@@ -267,6 +267,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="FortitudeIO\Configuration\ClientServerConfig\" />
+    <Folder Include="FortitudeMarketsApi\Pricing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

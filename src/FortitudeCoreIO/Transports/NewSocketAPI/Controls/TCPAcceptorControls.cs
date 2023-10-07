@@ -27,7 +27,9 @@ public class TCPAcceptorControls : IAcceptorControls
     private readonly ISyncLock connSync = new YieldLockLight();
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TCPAcceptorControls));
     private readonly ISocketFactory socketFactory;
+#pragma warning disable 0169
     private IDirectOSNetworkingApi? directOSNetworkingApi;
+#pragma warning restore 0169
 
     public TCPAcceptorControls(ISocketSessionContext acceptorSocketSessionContext)
     {

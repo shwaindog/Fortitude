@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeMarketConnectivity", "FortitudeMarketConnectivity\FortitudeMarketConnectivity.csproj", "{A31EF257-F645-4A38-AD15-90F2E7754AFF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeCommon", "FortitudeCommon\FortitudeCommon.csproj", "{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeMarketsCore", "FortitudeMarketsCore\FortitudeMarketsCore.csproj", "{9B8F3F94-926A-4AA6-99D5-F5A026686BB8}"
@@ -19,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreCommon", "Fort
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreTests", "FortitudeCoreTests\FortitudeCoreTests.csproj", "{AEDB3DDF-8BAC-4A47-ABAB-3CADD591B996}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeCoreIO", "FortitudeCoreIO\FortitudeCoreIO.csproj", "{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreIO", "FortitudeCoreIO\FortitudeCoreIO.csproj", "{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeCoreMarketsApi", "FortitudeCoreMarketsApi\FortitudeCoreMarketsApi.csproj", "{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A31EF257-F645-4A38-AD15-90F2E7754AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A31EF257-F645-4A38-AD15-90F2E7754AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A31EF257-F645-4A38-AD15-90F2E7754AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A31EF257-F645-4A38-AD15-90F2E7754AFF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -63,6 +59,10 @@ Global
 		{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

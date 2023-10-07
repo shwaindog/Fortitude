@@ -85,8 +85,12 @@ public class TcpSocketClientTests
         };
         var expectedKeepAliveByteValues = expectedKeepAliveValues.ToByteArray();
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+#pragma warning disable CA1416
             moqSocket.Setup(oss => oss.IOControl(IOControlCode.KeepAliveValues, expectedKeepAliveByteValues, null))
                 .Returns(0).Verifiable();
+#pragma warning restore CA1416
+        }
 
         var receivedSocket = dummyTcpSocketClient.CallCreateAndConnect(expectedHost, expectedPort);
 
@@ -119,8 +123,12 @@ public class TcpSocketClientTests
         };
         var expectedKeepAliveByteValues = expectedKeepAliveValues.ToByteArray();
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+#pragma warning disable CA1416
             moqSocket.Verify(oss => oss.IOControl(IOControlCode.KeepAliveValues, expectedKeepAliveByteValues, null),
                 Times.Never());
+#pragma warning restore CA1416
+        }
 
         moqSocket.Verify(oss => oss.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1),
             Times.Never);

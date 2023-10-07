@@ -29,9 +29,6 @@ public class RequestResponseResponderTopic : Topic, IRequestResponseResponderTop
         throw new NotImplementedException();
     }
 
-    public event Action<ISocketConversation>? OnNewClient;
-    public event Action<ISocketConversation>? OnClientRemoved;
-
     public void RegisterSerializer(uint messageId, IBinarySerializer serializer) { }
 
     public IReadOnlyDictionary<int, ISocketConversation>? Clients { get; set; }
@@ -46,4 +43,9 @@ public class RequestResponseResponderTopic : Topic, IRequestResponseResponderTop
     {
         throw new NotImplementedException();
     }
+
+#pragma warning disable 67
+    public event Action<ISocketConversation>? OnNewClient;
+    public event Action<ISocketConversation>? OnClientRemoved;
+#pragma warning restore 67
 }

@@ -1,10 +1,13 @@
-﻿using System;
+﻿#region
+
+using System;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports;
-using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.SessionConnection;
+
+#endregion
 
 namespace FortitudeIO.Protocols.Serialization
 {
@@ -17,8 +20,10 @@ namespace FortitudeIO.Protocols.Serialization
         public ReadWriteBuffer EncodedBuffer { get; set; }
         public byte MessageVersion { get; set; }
         public int MessageSize { get; set; }
+
         public object MessageHeader { get; set; }
-        [Obsolete]
+
+        //[Obsolete] TODO restore when replacement is known
         public ISocketSessionConnection Session { get; set; }
         public ISocketConversation Conversation { get; set; }
         public IPerfLogger DispatchLatencyLogger { get; set; }

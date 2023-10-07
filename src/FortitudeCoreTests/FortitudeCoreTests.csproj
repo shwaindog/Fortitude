@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FortitudeCoreCommon\FortitudeCoreCommon.csproj" />
     <ProjectReference Include="..\FortitudeCoreIO\FortitudeCoreIO.csproj" />
+    <ProjectReference Include="..\FortitudeCoreMarketsApi\FortitudeCoreMarketsApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>

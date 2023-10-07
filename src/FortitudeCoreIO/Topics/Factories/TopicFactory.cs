@@ -10,10 +10,6 @@ namespace FortitudeIO.Topics.Factories;
 
 public class TopicFactory : ITopicFactory
 {
-    private ITopicConfigRepository? topicConfigRepository;
-    private ITopicRegistry? topicRegistry;
-    private ITopicTransportFactory? transportSelectorTopicTransportFactory;
-
     public PublisherTopic? CreatePublisherTopic(string topicName, string instanceName, ISerdesFactory serdesFactory)
     {
         var configForTopic = topicConfigRepository!.GetConfigForTopic(topicName);
@@ -24,4 +20,11 @@ public class TopicFactory : ITopicFactory
 
         return null;
     }
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+    private ITopicConfigRepository? topicConfigRepository;
+#pragma warning disable 0169
+    private ITopicRegistry? topicRegistry;
+    private ITopicTransportFactory? transportSelectorTopicTransportFactory;
+#pragma warning restore 0169
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 }

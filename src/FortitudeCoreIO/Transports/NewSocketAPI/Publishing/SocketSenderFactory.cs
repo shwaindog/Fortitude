@@ -16,7 +16,9 @@ public interface ISocketSenderFactory
 public class SocketSenderFactory : ISocketSenderFactory
 {
     private readonly IDirectOSNetworkingApi directOSNetworkingApi;
+#pragma warning disable CS0414 // Field is assigned but its value is never used
     private ConversationType conversationType = ConversationType.Publisher;
+#pragma warning restore CS0414 // Field is assigned but its value is never used
 
     public SocketSenderFactory(IDirectOSNetworkingApi directOSNetworkingApi) =>
         this.directOSNetworkingApi = directOSNetworkingApi;
