@@ -7,8 +7,8 @@ using System.Collections;
 namespace FortitudeCommon.DataStructures.Maps.IdMap;
 
 /// <summary>
-/// A readonly concert implementation of INameIdLookup.  To populate override and access the cache member directly.
-/// see NameIdLookupGenerator.
+///     A readonly concrete implementation of INameIdLookup.  To populate override and access the cache member directly.
+///     see NameIdLookupGenerator.
 /// </summary>
 public class IdLookup<T> : IIdLookup<T> where T : notnull
 {

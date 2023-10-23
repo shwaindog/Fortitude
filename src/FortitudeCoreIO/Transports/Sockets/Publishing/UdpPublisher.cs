@@ -17,6 +17,8 @@ namespace FortitudeIO.Transports.Sockets.Publishing;
 
 public abstract class UdpPublisher : SocketPublisherBase, IPQPublisher
 {
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(UdpPublisher));
+
     protected readonly IConnectionConfig ConnectionConfig;
     private readonly IPAddress mcastIntf;
 
@@ -38,6 +40,8 @@ public abstract class UdpPublisher : SocketPublisherBase, IPQPublisher
         {
             mcastIntf = networkingController.GetIpAddress(Dns.GetHostName());
         }
+
+        // logger.Debug("Will publish on IPAddress: {0}", mcastIntf);
     }
 
     public override IBinaryStreamSubscriber StreamFromSubscriber => matchSubscriber ??= BuildSubscriber(this);

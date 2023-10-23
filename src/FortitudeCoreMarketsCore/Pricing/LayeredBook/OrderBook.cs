@@ -90,7 +90,6 @@ public class OrderBook : IMutableOrderBook
 
     public virtual void CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        var currentDeepestLayerSet = Count;
         var sourceDeepestLayerSet = source.Count;
         for (var i = 0; i < sourceDeepestLayerSet; i++)
         {
@@ -100,9 +99,9 @@ public class OrderBook : IMutableOrderBook
                 if (!(BookLayers[i] is IMutablePriceVolumeLayer mutableLayer))
                     BookLayers[i] = LayerSelector.ConvertToExpectedImplementation(sourceLayerToCopy, true);
                 else if (sourceLayerToCopy != null)
-                    mutableLayer.CopyFrom(source[i]!);
+                    mutableLayer.CopyFrom(sourceLayerToCopy);
                 else
-                    BookLayers[i] = null;
+                    (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
             }
             else
             {
@@ -110,7 +109,7 @@ public class OrderBook : IMutableOrderBook
             }
         }
 
-        for (var i = Math.Min(currentDeepestLayerSet, BookLayers.Count) - 1; i >= sourceDeepestLayerSet; i--)
+        for (var i = sourceDeepestLayerSet; i < BookLayers.Count; i++)
             (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
     }
 

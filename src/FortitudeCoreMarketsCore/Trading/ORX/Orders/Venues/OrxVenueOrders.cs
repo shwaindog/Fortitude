@@ -25,7 +25,7 @@ public class OrxVenueOrders : IVenueOrders
 
     [OrxMandatoryField(0)] public List<OrxVenueOrder>? VenueOrdersList { get; set; }
 
-    public int Count => VenueOrdersList!.Count;
+    public int Count => VenueOrdersList?.Count ?? 0;
 
     public IVenueOrder? this[int index]
     {
@@ -35,7 +35,8 @@ public class OrxVenueOrders : IVenueOrders
 
     public IVenueOrders Clone() => new OrxVenueOrders(this);
 
-    public IEnumerator<IVenueOrder> GetEnumerator() => VenueOrdersList!.GetEnumerator();
+    public IEnumerator<IVenueOrder> GetEnumerator() =>
+        VenueOrdersList?.GetEnumerator() ?? Enumerable.Empty<IVenueOrder>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

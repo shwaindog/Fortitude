@@ -529,14 +529,14 @@ public class PQTraderPriceVolumeLayerTests
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);
-        Assert.IsFalse(populatedPvl.IsPriceUpdated);
-        Assert.IsFalse(populatedPvl.IsVolumeUpdated);
+        Assert.IsTrue(populatedPvl.IsPriceUpdated);
+        Assert.IsTrue(populatedPvl.IsVolumeUpdated);
         for (var i = 0; i < populatedNumberOfTraders; i++)
         {
             Assert.AreEqual(null, populatedPvl[i]!.TraderName);
             Assert.AreEqual(0m, populatedPvl[i]!.TraderVolume);
-            Assert.IsFalse(populatedPvl[i]!.IsTraderNameUpdated);
-            Assert.IsFalse(populatedPvl[i]!.IsTraderVolumeUpdated);
+            Assert.IsTrue(populatedPvl[i]!.IsTraderNameUpdated);
+            Assert.IsTrue(populatedPvl[i]!.IsTraderVolumeUpdated);
             Assert.IsTrue(populatedPvl[i]!.IsEmpty);
         }
 

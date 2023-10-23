@@ -84,7 +84,6 @@ public class PQPriceVolumeLayer : IPQPriceVolumeLayer
     {
         Price = 0m;
         Volume = 0m;
-        UpdatedFlags = LayerFieldUpdatedFlags.None;
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
@@ -123,26 +122,15 @@ public class PQPriceVolumeLayer : IPQPriceVolumeLayer
 
     public virtual void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (source == null) return;
-
-        if (!(source is PQPriceVolumeLayer pqpvl))
+        if (source is not PQPriceVolumeLayer pqpvl)
         {
             Price = source.Price;
             Volume = source.Volume;
         }
         else
         {
-            if (pqpvl.IsPriceUpdated)
-            {
-                IsPriceUpdated = true;
-                Price = pqpvl.Price;
-            }
-
-            if (pqpvl.IsVolumeUpdated)
-            {
-                IsVolumeUpdated = true;
-                Volume = pqpvl.Volume;
-            }
+            if (pqpvl.IsPriceUpdated) Price = pqpvl.Price;
+            if (pqpvl.IsVolumeUpdated) Volume = pqpvl.Volume;
         }
     }
 

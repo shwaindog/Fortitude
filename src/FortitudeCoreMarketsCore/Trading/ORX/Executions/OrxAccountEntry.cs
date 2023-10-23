@@ -10,6 +10,8 @@ namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
 public class OrxAccountEntry : OrxTradingMessage
 {
+    public OrxAccountEntry() { }
+
     public OrxAccountEntry(string account)
         : this((MutableString)account) { }
 
@@ -17,5 +19,5 @@ public class OrxAccountEntry : OrxTradingMessage
 
     public override uint MessageId => (uint)TradingMessageIds.AccountEntry;
 
-    [OrxMandatoryField(0)] public MutableString Account { get; }
+    [OrxMandatoryField(0)] public MutableString? Account { get; }
 }

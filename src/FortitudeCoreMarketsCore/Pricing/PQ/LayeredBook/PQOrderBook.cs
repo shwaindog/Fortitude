@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
@@ -13,6 +14,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
 
 public class PQOrderBook : IPQOrderBook
 {
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBook));
+
     public PQOrderBook(IPQSourceTickerQuoteInfo srcTickerQuoteInfo)
     {
         AllLayers = new List<IPQPriceVolumeLayer?>();
@@ -33,8 +36,9 @@ public class PQOrderBook : IPQOrderBook
 
     public PQOrderBook(IOrderBook toClone)
     {
-        var size = toClone.Count;
+        var size = toClone.Capacity;
         AllLayers = new List<IPQPriceVolumeLayer?>(size);
+        Capacity = toClone.Capacity;
         for (var i = 0; i < size; i++)
         {
             var pqLayer = (IPQPriceVolumeLayer?)LayerSelector.ConvertToExpectedImplementation(toClone[i], true);
@@ -43,7 +47,6 @@ public class PQOrderBook : IPQOrderBook
 
         if (AllLayers.Count == 0 && toClone.Count == 0)
             AllLayers.Add((IPQPriceVolumeLayer?)LayerSelector.ConvertToExpectedImplementation(toClone[0], true));
-        Capacity = toClone.Capacity;
     }
 
     public static IPQOrderBookLayerFactorySelector LayerSelector { get; set; }
@@ -82,7 +85,8 @@ public class PQOrderBook : IPQOrderBook
             if (value > PQFieldKeys.SingleByteFieldIdMaxBookDepth)
                 throw new ArgumentException("Expected PQOrderBook Capacity to be less than or equal to " +
                                             PQFieldKeys.SingleByteFieldIdMaxBookDepth);
-            while (AllLayers.Count < value)
+
+            for (var i = AllLayers.Count; i < value && AllLayers.Count > 0; i++)
             {
                 var clonedFirstLayer = AllLayers[0]?.Clone();
                 clonedFirstLayer?.Reset();
@@ -126,7 +130,12 @@ public class PQOrderBook : IPQOrderBook
             if (this[i] is { } currentLayer)
                 foreach (var layerFields in currentLayer.GetDeltaUpdateFields(snapShotTime,
                              updateStyle, quotePublicationPrecisionSetting))
-                    yield return new PQFieldUpdate((ushort)(layerFields.Id + i), layerFields.Value, layerFields.Flag);
+                {
+                    var positionUpdate = new PQFieldUpdate((ushort)(layerFields.Id + i), layerFields.Value
+                        , layerFields.Flag);
+                    // logger.Info("Generating FieldUpdate: {0}", positionUpdate);
+                    yield return positionUpdate;
+                }
     }
 
     public int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -135,6 +144,7 @@ public class PQOrderBook : IPQOrderBook
         {
             var index = (pqFieldUpdate.Id - PQFieldKeys.LayerPriceOffset) % PQFieldKeys.SingleByteFieldIdMaxBookDepth;
             var pqPriceVolumeLayer = this[index];
+            // logger.Debug("Recieved pqFieldUpdate: {}", pqFieldUpdate);
             return pqPriceVolumeLayer?.UpdateField(pqFieldUpdate) ?? -1;
         }
 
@@ -180,17 +190,16 @@ public class PQOrderBook : IPQOrderBook
 
     public virtual void CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        IPQPriceVolumeLayer? destinationLayer = null;
-        IPriceVolumeLayer? sourcelayer = null;
-        for (var i = 0; i < source.Capacity; i++)
+        for (var i = 0; i < source.Count; i++)
         {
-            sourcelayer = source[i];
-            if (sourcelayer == null)
+            var sourcelayer = source[i];
+            if (sourcelayer == null || sourcelayer.IsEmpty)
             {
                 AllLayers[i]?.Reset();
                 continue;
             }
 
+            IPQPriceVolumeLayer? destinationLayer = null;
             var foundAtIndex = false;
             if (i < AllLayers.Count)
             {
@@ -206,18 +215,7 @@ public class PQOrderBook : IPQOrderBook
             destinationLayer?.CopyFrom(sourcelayer);
         }
 
-        for (var i = source.Capacity; i < AllLayers.Count; i++)
-        {
-            if (AllLayers[i]?.GetType() == destinationLayer?.GetType())
-            {
-                AllLayers[i]?.Reset();
-                continue;
-            }
-
-            var newDestinationLayer = AllLayers[i] ?? destinationLayer?.Clone();
-            destinationLayer = LayerSelector.SelectPriceVolumeLayer(newDestinationLayer, sourcelayer);
-            AllLayers[i] = newDestinationLayer;
-        }
+        for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i]?.Reset();
     }
 
     public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)

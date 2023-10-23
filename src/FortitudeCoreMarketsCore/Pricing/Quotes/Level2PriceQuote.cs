@@ -80,7 +80,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
             else
             {
                 BidBook[0]
-                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo) as IMutablePriceVolumeLayer;
+                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as IMutablePriceVolumeLayer;
                 BidBook[0]!.Price = value;
             }
         }
@@ -98,7 +98,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
             else
             {
                 AskBook[0]
-                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo) as IMutablePriceVolumeLayer;
+                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as IMutablePriceVolumeLayer;
                 AskBook[0]!.Price = value;
             }
         }

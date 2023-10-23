@@ -189,18 +189,14 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         var pqspvl = source as IPQSourcePriceVolumeLayer;
         if (source is ISourcePriceVolumeLayer spvl && pqspvl == null)
         {
-            if (SourceName != spvl.SourceName)
-            {
-                SourceId = (ushort)SourceNameIdLookup[spvl.SourceName!];
-                Executable = spvl.Executable;
-            }
+            if (SourceName != spvl.SourceName) SourceId = (ushort)SourceNameIdLookup[spvl.SourceName];
+            Executable = spvl.Executable;
         }
         else if (pqspvl != null)
         {
             SourceNameIdLookup.CopyFrom(pqspvl.SourceNameIdLookup);
             if (pqspvl.IsSourceNameUpdated) SourceId = pqspvl.SourceId;
             if (pqspvl.IsExecutableUpdated) Executable = pqspvl.Executable;
-            SetFlagsSame(pqspvl);
         }
     }
 

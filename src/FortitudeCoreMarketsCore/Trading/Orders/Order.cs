@@ -51,15 +51,15 @@ public sealed class Order : IOrder
 
     public Order(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status,
         IProductOrder product, DateTime submitTime, IParties parties, DateTime doneTime,
-        IVenueCriteria venueSelectionCriteria, IVenueOrders venueOrders, IExecutions executions,
-        string message, IOrderPublisher orderPublisher)
+        IVenueCriteria venueSelectionCriteria, IVenueOrders? venueOrders, IExecutions? executions,
+        string message, IOrderPublisher? orderPublisher)
         : this(orderId, timeInForce, creationTime, status, product, submitTime, parties, doneTime,
             venueSelectionCriteria, venueOrders, executions, orderPublisher) { }
 
     public Order(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status,
         IProductOrder product, DateTime submitTime, IParties parties, DateTime doneTime,
-        IVenueCriteria venueSelectionCriteria, IVenueOrders venueOrders, IExecutions executions,
-        IOrderPublisher orderPublisher)
+        IVenueCriteria venueSelectionCriteria, IVenueOrders? venueOrders, IExecutions? executions,
+        IOrderPublisher? orderPublisher)
     {
         OrderId = orderId;
         TimeInForce = timeInForce;

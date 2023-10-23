@@ -199,8 +199,8 @@ public class PQTraderLayerInfoTests
         Assert.IsTrue(populatedTli.IsEmpty);
         Assert.IsNull(populatedTli.TraderName);
         Assert.AreEqual(0m, populatedTli.TraderVolume);
-        Assert.IsFalse(populatedTli.IsTraderNameUpdated);
-        Assert.IsFalse(populatedTli.IsTraderVolumeUpdated);
+        Assert.IsTrue(populatedTli.IsTraderNameUpdated);
+        Assert.IsTrue(populatedTli.IsTraderVolumeUpdated);
         Assert.IsTrue(populatedTli.IsEmpty);
     }
 

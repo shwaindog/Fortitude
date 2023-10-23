@@ -291,7 +291,6 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     public override void ResetFields()
     {
-        base.ResetFields();
         executable = true;
 
         adapterSentTime = DateTimeConstants.UnixEpoch;
@@ -300,6 +299,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         sourceBidTime = DateTimeConstants.UnixEpoch;
 
         bidPriceTop = askPriceTop = 0m;
+        base.ResetFields();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,

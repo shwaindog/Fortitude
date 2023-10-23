@@ -234,7 +234,6 @@ public class PQLevel0Quote : IPQLevel0Quote
         DispatchedTime = LastPublicationTime = ProcessedTime = SocketReceivingTime = DateTime.MinValue;
         PQSyncStatus = PQSyncStatus.OutOfSync;
         IsReplay = false;
-        UpdatedFlags = 0;
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,

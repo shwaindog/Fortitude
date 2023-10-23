@@ -10,7 +10,7 @@ public interface IIdLookup<T> : IEnumerable<System.Collections.Generic.KeyValueP
     IInterfacesComparable<IIdLookup<T>>
 {
     T? this[int id] { get; }
-    int this[T name] { get; }
+    int this[T? name] { get; }
     int Count { get; }
     T? GetValue(int id);
     int GetId(T? name);

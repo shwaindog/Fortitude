@@ -624,11 +624,12 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
         Assert.IsTrue(populatedPvl.IsValueDateUpdated);
         for (var i = 0; i < populatedNumberOfTraders; i++)
         {
-            Assert.AreNotEqual(null, populatedPvl[i]!.TraderName);
-            Assert.AreNotEqual(0m, populatedPvl[i]!.TraderVolume);
-            Assert.IsTrue(populatedPvl[i]!.IsTraderNameUpdated);
-            Assert.IsTrue(populatedPvl[i]!.IsTraderVolumeUpdated);
-            Assert.IsFalse(populatedPvl[i]!.IsEmpty);
+            var sourceTraderLayer = populatedPvl[i]!;
+            Assert.AreNotEqual(null, sourceTraderLayer.TraderName);
+            Assert.AreNotEqual(0m, sourceTraderLayer.TraderVolume);
+            Assert.IsTrue(sourceTraderLayer.IsTraderNameUpdated);
+            Assert.IsTrue(sourceTraderLayer.IsTraderVolumeUpdated);
+            Assert.IsFalse(sourceTraderLayer.IsEmpty);
         }
 
         populatedPvl.Reset();
@@ -639,19 +640,20 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
         Assert.AreEqual(null, populatedPvl.SourceName);
         Assert.IsFalse(populatedPvl.Executable);
         Assert.AreEqual(0u, populatedPvl.SourceQuoteReference);
-        Assert.IsFalse(populatedPvl.IsPriceUpdated);
-        Assert.IsFalse(populatedPvl.IsVolumeUpdated);
-        Assert.IsFalse(populatedPvl.IsSourceNameUpdated);
-        Assert.IsFalse(populatedPvl.IsExecutableUpdated);
-        Assert.IsFalse(populatedPvl.IsSourceQuoteReferenceUpdated);
-        Assert.IsFalse(populatedPvl.IsValueDateUpdated);
+        Assert.IsTrue(populatedPvl.IsPriceUpdated);
+        Assert.IsTrue(populatedPvl.IsVolumeUpdated);
+        Assert.IsTrue(populatedPvl.IsSourceNameUpdated);
+        Assert.IsTrue(populatedPvl.IsExecutableUpdated);
+        Assert.IsTrue(populatedPvl.IsSourceQuoteReferenceUpdated);
+        Assert.IsTrue(populatedPvl.IsValueDateUpdated);
         for (var i = 0; i < populatedNumberOfTraders; i++)
         {
-            Assert.AreEqual(null, populatedPvl[i]!.TraderName);
-            Assert.AreEqual(0m, populatedPvl[i]!.TraderVolume);
-            Assert.IsFalse(populatedPvl[i]!.IsTraderNameUpdated);
-            Assert.IsFalse(populatedPvl[i]!.IsTraderVolumeUpdated);
-            Assert.IsTrue(populatedPvl[i]!.IsEmpty);
+            var sourceTraderLayer = populatedPvl[i]!;
+            Assert.AreEqual(null, sourceTraderLayer.TraderName);
+            Assert.AreEqual(0m, sourceTraderLayer.TraderVolume);
+            Assert.IsTrue(sourceTraderLayer.IsTraderNameUpdated);
+            Assert.IsTrue(sourceTraderLayer.IsTraderVolumeUpdated);
+            Assert.IsTrue(sourceTraderLayer.IsEmpty);
         }
     }
 

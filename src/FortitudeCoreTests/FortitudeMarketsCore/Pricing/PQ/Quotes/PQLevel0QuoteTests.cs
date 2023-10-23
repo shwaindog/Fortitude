@@ -242,7 +242,7 @@ public class PQLevel0QuoteTests
 
         emptyQuote.ResetFields();
 
-        Assert.IsFalse(emptyQuote.HasUpdates);
+        Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);

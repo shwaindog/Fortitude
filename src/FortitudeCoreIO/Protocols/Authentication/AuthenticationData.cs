@@ -23,7 +23,7 @@ public class AuthenticationData : IAuthenticationData
         AuthenticationBytes = toClone.AuthenticationBytes;
     }
 
-    public AuthenticationData(AuthenticationType authenticationType, byte[] authenticationBytes)
+    public AuthenticationData(AuthenticationType authenticationType, byte[]? authenticationBytes)
     {
         AuthenticationType = authenticationType;
         AuthenticationBytes = authenticationBytes;

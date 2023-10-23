@@ -32,22 +32,22 @@ public class SpotOrder : ProductOrder, ISpotOrder
         QuoteInformation = toClone.QuoteInformation;
     }
 
-    public SpotOrder(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, IProductOrder product,
+    public SpotOrder(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime,
         OrderSide side, string ticker, decimal price, decimal size,
         OrderType type, decimal displaySize = 0m, decimal allowedPriceSlippage = 0m,
         decimal allowedVolumeSlippage = 0m, decimal executedPrice = 0m, decimal executedSize = 0m,
         decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete,
         IVenuePriceQuoteId? quoteInformation = null)
-        : this(orderId, timeInForce, creationTime, product, side, (MutableString)ticker, price, size, type,
+        : this(orderId, timeInForce, creationTime, side, (MutableString)ticker, price, size, type,
             displaySize, allowedPriceSlippage, allowedVolumeSlippage, executedPrice, executedSize, sizeAtRisk,
             fillExpectation, quoteInformation) { }
 
-    public SpotOrder(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, IProductOrder product,
+    public SpotOrder(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime,
         OrderSide side, IMutableString ticker, decimal price, decimal size,
         OrderType type, decimal displaySize = 0m, decimal allowedPriceSlippage = 0m,
         decimal allowedVolumeSlippage = 0m, decimal executedPrice = 0m, decimal executedSize = 0m,
         decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete,
-        IVenuePriceQuoteId? quoteInformation = null) : base(orderId, timeInForce, creationTime, product)
+        IVenuePriceQuoteId? quoteInformation = null) : base(orderId, timeInForce, creationTime)
     {
         Side = side;
         Ticker = ticker;

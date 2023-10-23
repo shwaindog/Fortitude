@@ -3,6 +3,7 @@
 using System.Reactive.Disposables;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Logging;
@@ -54,6 +55,8 @@ public abstract class PQDeserializerBase : BinaryDeserializer<PQLevel0Quote>, IP
 public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserializer<T>
     where T : class, IPQLevel0Quote
 {
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQDeserializerBase<>));
+
     // ReSharper disable once StaticMemberInGenericType
     private static IPerfLoggerPool PublishPQQuoteDeserializerLatencyTraceLoggerPool =
         PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool("clientCallback",
@@ -119,6 +122,7 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
                 else
                     id = StreamByteOps.ToUShort(ref ptr);
                 var pqFieldUpdate = new PQFieldUpdate(id, StreamByteOps.ToUInt(ref ptr), flags);
+                // logger.Info("Received PQDeserializerBase<> received pqFieldUpdate: {0}", pqFieldUpdate);
                 var moreBytes = ent.UpdateField(pqFieldUpdate);
                 if (moreBytes <= 0 || ptr + moreBytes + 4 > end) continue;
                 var stringUpdate = new PQStringUpdate

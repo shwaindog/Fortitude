@@ -13,10 +13,10 @@ namespace FortitudeMarketsCore.Trading.Orders.Products;
 
 public abstract class ProductOrder : IProductOrder
 {
-    protected ProductOrder(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, IProductOrder product)
+    protected ProductOrder(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime)
     {
         Message = new MutableString();
-        Order = new Order(orderId, timeInForce, creationTime, product);
+        Order = new Order(orderId, timeInForce, creationTime, this);
         IsComplete = false;
     }
 
@@ -24,7 +24,7 @@ public abstract class ProductOrder : IProductOrder
     {
         Message = toClone.Message;
         IsComplete = toClone.IsComplete;
-        Order = toClone.Order?.Clone();
+        Order = toClone.Order;
     }
 
     protected ProductOrder(string message, IOrder order, bool isComplete)
