@@ -18,7 +18,7 @@ public class OrxRecyclingFactory : IRecycler
     private readonly IOrxRecyclingDisassemblerLookup recyclingDisassemblerLookup =
         new OrxRecyclingDisassemblerLookup();
 
-    public T Borrow<T>() where T : class
+    public T Borrow<T>() where T : class, new()
     {
         if (poolFactoryMap.TryGetValue(typeof(T), out var poolFactoryContainer))
         {
@@ -45,12 +45,13 @@ public class OrxRecyclingFactory : IRecycler
         logger.Debug("Returning item without recycling factory having created it.");
     }
 
-    private DisassemblerAndPoolFactoryContainer CreateNewPoolFactoryContainer<T>() where T : class
+    private DisassemblerAndPoolFactoryContainer CreateNewPoolFactoryContainer<T>() where T : class, new()
     {
         var typeOfT = typeof(T);
         var ctor = typeOfT.GetConstructor(Type.EmptyTypes);
         if (ctor == null)
-            throw new MissingMethodException("There is no constructor without defined parameters for this object");
+            throw new MissingMethodException(
+                $"There is no constructor without defined parameters for object of type {typeof(T).FullName}");
         var name = typeOfT.Name;
         if (name.Contains("`"))
         {

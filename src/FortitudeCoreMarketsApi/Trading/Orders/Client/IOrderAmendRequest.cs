@@ -1,7 +1,6 @@
-﻿namespace FortitudeMarketsApi.Trading.Orders.Client
+﻿namespace FortitudeMarketsApi.Trading.Orders.Client;
+
+public interface IOrderAmendRequest : IOrderSubmitRequest
 {
-    public interface IOrderAmendRequest : IOrderSubmitRequest
-    {
-        IOrderAmend Amendment { get; set; }
-    }
+    IOrderAmend? Amendment { get; set; }
 }

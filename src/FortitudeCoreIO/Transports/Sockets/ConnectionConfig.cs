@@ -17,13 +17,13 @@ public class ConnectionConfig : IConnectionConfig
     private IConnectionConfig? fallbackConnectionConfig;
     private string hostname;
     private IDisposable? isSubscribedExternally;
-    private string networkSubAddress;
+    private string? networkSubAddress;
     private int port;
     private uint reconnectIntervalMs;
 
     public ConnectionConfig(string connectionName, string hostname, int port
         , ConnectionDirectionType connectionDirectionType,
-        string networkSubAddress, uint reconnectIntervalMs, IObservable<IConnectionUpdate>? repoUpdateStream = null)
+        string? networkSubAddress, uint reconnectIntervalMs, IObservable<IConnectionUpdate>? repoUpdateStream = null)
     {
         this.connectionName = connectionName;
         this.hostname = hostname;
@@ -88,7 +88,7 @@ public class ConnectionConfig : IConnectionConfig
         }
     }
 
-    public string NetworkSubAddress
+    public string? NetworkSubAddress
     {
         get => networkSubAddress;
         protected set

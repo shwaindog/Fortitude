@@ -65,12 +65,13 @@ public class MarketServerConfigTests
 
         Assert.AreEqual("OriginalServerName", updateAbleServerConfig.Name);
         Assert.AreEqual(MarketServerType.ConfigServer, updateAbleServerConfig.MarketServerType);
-        Assert.IsTrue(new[] { originalServerConnectionConfig }.SequenceEqual(updateAbleServerConfig.ServerConnections));
-        ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections.First(),
+        Assert.IsTrue(
+            new[] { originalServerConnectionConfig }.SequenceEqual(updateAbleServerConfig.ServerConnections!));
+        ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
             "OriginalConnectionName", "OriginalHostName", 5678, ConnectionDirectionType.Both,
             "OriginalNetworkSubAddress", 125U);
 
-        var firstNewServerConnection = ConnectionConfigTests.DummyConnectionConfig;
+        var firstNewServerConnection = ConnectionConfigTests.DummyConnectionConfig!;
         var secondNewServerConnection = ConnectionConfigTests.DummyConnectionConfig;
         NonPublicInvocator.SetInstanceProperty(secondNewServerConnection,
             ReflectionHelper.GetPropertyName((ConnectionConfig x) => x.Id),
@@ -91,15 +92,15 @@ public class MarketServerConfigTests
         Assert.AreEqual(MarketServerType.Trading, updateAbleServerConfig.MarketServerType);
         Assert.IsTrue(
             new[] { firstNewServerConnection, secondNewServerConnection }.SequenceEqual(updateAbleServerConfig
-                .ServerConnections));
-        ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections.First(),
+                .ServerConnections!));
+        ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
             firstNewServerConnection.ConnectionName, firstNewServerConnection.Hostname, firstNewServerConnection.Port
             , firstNewServerConnection.ConnectionDirectionType,
-            firstNewServerConnection.NetworkSubAddress, firstNewServerConnection.ReconnectIntervalMs);
-        ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections.Last(),
+            firstNewServerConnection?.NetworkSubAddress, firstNewServerConnection!.ReconnectIntervalMs);
+        ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.Last(),
             secondNewServerConnection.ConnectionName, secondNewServerConnection.Hostname, secondNewServerConnection.Port
             , secondNewServerConnection.ConnectionDirectionType,
-            secondNewServerConnection.NetworkSubAddress, secondNewServerConnection.ReconnectIntervalMs);
+            secondNewServerConnection?.NetworkSubAddress, secondNewServerConnection!.ReconnectIntervalMs);
     }
 
     public interface IDummyMarketServerConfig : IMarketServerConfig<IDummyMarketServerConfig>

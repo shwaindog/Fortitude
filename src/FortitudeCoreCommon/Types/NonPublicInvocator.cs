@@ -127,15 +127,15 @@ public class NonPublicInvocator
     {
         var flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField;
         var fieldInfo = t.GetField(fieldName, flags);
-        if (fieldInfo == null) throw new ArgumentException($"Field {fieldName} cannot be found in {t.FullName}");
-        return instance => (Tv)fieldInfo.GetValue(instance)!;
+        return fieldInfo == null ?
+            throw new ArgumentException($"Field {fieldName} cannot be found in {t.FullName}") :
+            instance => (Tv)fieldInfo.GetValue(instance)!;
     }
 
     public static void SetAutoPropertyInstanceField<T, U>(object objInstance, Expression<Func<T, U>> expression,
         U value)
     {
         var propertyName = expression.GetPropertyName();
-        if (propertyName == null) throw new Exception($"No property found in type {objInstance.GetType()}");
         SetInstanceField(objInstance, $"<{propertyName}>k__BackingField", value);
     }
 
@@ -305,9 +305,9 @@ public class NonPublicInvocator
     }
 
     /// <summary>
-    /// Call a virtual method non-virtually - like Reflection's MethodInfo.Invoke, 
-    /// but doesn't do virtual dispatch.
-    /// http://blogs.msdn.com/rmbyers/archive/2008/08/16/invoking-a-virtual-method-non-virtually.aspx
+    ///     Call a virtual method non-virtually - like Reflection's MethodInfo.Invoke,
+    ///     but doesn't do virtual dispatch.
+    ///     http://blogs.msdn.com/rmbyers/archive/2008/08/16/invoking-a-virtual-method-non-virtually.aspx
     /// </summary>
     /// <param name="method">The method to invoke</param>
     /// <param name="args">The arguments to pass (including 'this')</param>

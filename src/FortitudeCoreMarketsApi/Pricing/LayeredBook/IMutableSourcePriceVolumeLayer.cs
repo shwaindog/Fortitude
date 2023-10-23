@@ -1,9 +1,8 @@
-namespace FortitudeMarketsApi.Pricing.LayeredBook
+namespace FortitudeMarketsApi.Pricing.LayeredBook;
+
+public interface IMutableSourcePriceVolumeLayer : ISourcePriceVolumeLayer, IMutablePriceVolumeLayer
 {
-    public interface IMutableSourcePriceVolumeLayer : ISourcePriceVolumeLayer, IMutablePriceVolumeLayer
-    {
-        new string SourceName { get; set; }
-        new bool Executable { get; set; }
-        new IMutableSourcePriceVolumeLayer Clone();
-    }
+    new string? SourceName { get; set; }
+    new bool Executable { get; set; }
+    new IMutableSourcePriceVolumeLayer Clone();
 }

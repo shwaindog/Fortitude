@@ -1,12 +1,14 @@
-using System;
+#region
+
 using FortitudeIO.Sockets;
 using FortitudeMarketsApi.Trading.Orders.Server;
 
-namespace FortitudeMarketsApi.Trading.Orders
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Orders;
+
+public interface IOrderPublisher : IDisposable
 {
-    public interface IOrderPublisher : IDisposable
-    {
-        bool Publish(IOrderUpdate orderUpdate);
-        ISession UnderlyingSession { get; }
-    }
+    ISession? UnderlyingSession { get; }
+    bool Publish(IOrderUpdate orderUpdate);
 }

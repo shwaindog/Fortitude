@@ -7,7 +7,7 @@ using FortitudeIO.Protocols.Serialization;
 
 namespace FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 
-public sealed class OrxDeserializer<Tm> : BinaryDeserializer<Tm> where Tm : class
+public sealed class OrxDeserializer<Tm> : BinaryDeserializer<Tm> where Tm : class, new()
 {
     private readonly OrxByteDeserializer<Tm> orxByteDeserializer;
     private readonly IRecycler recyclingFactory;

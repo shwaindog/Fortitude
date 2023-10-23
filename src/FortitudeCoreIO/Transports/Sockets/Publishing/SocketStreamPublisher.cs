@@ -67,10 +67,10 @@ public abstract class SocketStreamPublisher : ISocketLinkListener
         foreach (var cx in cxs) Enqueue(cx, message);
     }
 
-    public void RegisterSerializer<Tm>(uint msgId) where Tm : class
+    public void RegisterSerializer<Tm>(uint msgId) where Tm : class, new()
     {
         if (!serializers.TryGetValue(msgId, out var binSerializer) || binSerializer == null)
-            serializers.Add(msgId, GetFactory().GetSerializer<Tm>(msgId));
+            serializers.Add(msgId, GetFactory().GetSerializer<Tm>(msgId)!);
         else
             throw new Exception("Two different message types cannot be registered to the same Id");
     }

@@ -7,7 +7,7 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.EventProcessing.Disruption.Rings;
 
-public class LoopingArray<T> : IEnumerable<T> where T : class, new()
+public class LoopingArray<T> : IEnumerable<T?> where T : class, new()
 {
     protected readonly bool AllowOverwrite;
     internal readonly T[] Cells;
@@ -34,7 +34,7 @@ public class LoopingArray<T> : IEnumerable<T> where T : class, new()
 
     public long Capacity => Cells.Length;
 
-    public IEnumerator<T> GetEnumerator() => new ReusableRingEnumerator<T>(this);
+    public IEnumerator<T?> GetEnumerator() => new ReusableRingEnumerator<T>(this);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

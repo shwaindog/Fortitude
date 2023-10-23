@@ -5,12 +5,14 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;
+using FortitudeMarketsCore.Trading.ORX.Serialization;
 using Moq;
 
 #endregion
@@ -240,6 +242,15 @@ public class SocketStreamSubscriberTests
     internal class DummySocketStreamSubscriber : SocketStreamSubscriber
     {
         private readonly IBinaryDeserializationFactory binaryDeserializationFactory;
+
+        public DummySocketStreamSubscriber() :
+            base(FLoggerFactory.Instance.GetLogger(typeof(DummySocketStreamSubscriber)),
+                new Mock<ISocketDispatcher>().Object, "", 1,
+                new ConcurrentCache<uint, IBinaryDeserializer>())
+        {
+            binaryDeserializationFactory = new OrxSerializationFactory(new OrxRecyclingFactory());
+            StreamToPublisher = new Mock<IBinaryStreamPublisher>().Object;
+        }
 
         public DummySocketStreamSubscriber(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription,
             int wholeMessagesPerReceive, IMap<uint, IBinaryDeserializer> serializerCache,

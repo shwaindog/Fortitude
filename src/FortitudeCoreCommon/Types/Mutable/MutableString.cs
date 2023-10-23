@@ -26,7 +26,7 @@ public sealed class MutableString : IMutableString
         Append(initialString);
     }
 
-    public MutableString(string initialString)
+    public MutableString(string? initialString)
     {
         sb = new StringBuilder();
         sb.Append(initialString);
@@ -815,7 +815,7 @@ public sealed class MutableString : IMutableString
 
     public override string ToString() => sb.ToString();
 
-    public static bool IsNullOrEmpty(IMutableString test)
+    public static bool IsNullOrEmpty(IMutableString? test)
     {
         if (test == null) return true;
         for (var i = 0; i < test.Length; i++)
@@ -824,7 +824,7 @@ public sealed class MutableString : IMutableString
         return true;
     }
 
-    public static implicit operator MutableString(string initial) => new(initial);
+    public static implicit operator MutableString(string? initial) => new(initial);
 
     public static bool operator ==(string lhs, MutableString rhs)
     {

@@ -1,14 +1,17 @@
-﻿using FortitudeCommon.Types.Mutable;
+﻿#region
 
-namespace FortitudeMarketsApi.Trading.Counterparties
+using FortitudeCommon.Types.Mutable;
+
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Counterparties;
+
+public interface IParty
 {
-    public interface IParty
-    {
-        IMutableString PartyId { get; set; }
-        IMutableString Name { get; set; }
-        IParty ParentParty { get; set; }
-        IMutableString ClientPartyId { get; set; }
-        IBookingInfo Portfolio { get; set; }
-        IParty Clone();
-    }
+    IMutableString PartyId { get; set; }
+    IMutableString Name { get; set; }
+    IParty? ParentParty { get; set; }
+    IMutableString ClientPartyId { get; set; }
+    IBookingInfo Portfolio { get; set; }
+    IParty Clone();
 }

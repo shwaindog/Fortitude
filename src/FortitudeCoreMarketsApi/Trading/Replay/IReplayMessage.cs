@@ -1,12 +1,15 @@
-﻿using FortitudeMarketsApi.Trading.Executions;
+﻿#region
+
+using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders.Server;
 
-namespace FortitudeMarketsApi.Trading.Replay
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Replay;
+
+public interface IReplayMessage : ITradingMessage
 {
-    public interface IReplayMessage : ITradingMessage
-    {
-        ReplayMessageType ReplayMessageType { get; set;  }
-        IOrderUpdate PastOrder { get; set; }
-        IExecutionUpdate PastExecutionUpdate { get; set; }
-    }
+    ReplayMessageType ReplayMessageType { get; set; }
+    IOrderUpdate? PastOrder { get; set; }
+    IExecutionUpdate? PastExecutionUpdate { get; set; }
 }

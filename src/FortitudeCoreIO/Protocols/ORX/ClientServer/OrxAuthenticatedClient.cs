@@ -39,19 +39,19 @@ public abstract class OrxAuthenticatedClient
 
     public virtual bool IsAvailable => Subscriber.IsConnected && IsServiceAvailable && IsLoggedIn;
 
-    private event Action<string, bool>? StatusUpdateHandlers;
+    private event Action<string?, bool>? StatusUpdateHandlers;
 
-    protected void NotifyStatusUpdateHandlers(string key, bool status)
+    protected void NotifyStatusUpdateHandlers(string? key, bool status)
     {
         StatusUpdateHandlers?.Invoke(key, status);
     }
 
-    protected void AppendStatusHandler(Action<string, bool> callback)
+    protected void AppendStatusHandler(Action<string?, bool>? callback)
     {
         StatusUpdateHandlers += callback;
     }
 
-    protected void RemoveStatusHandler(Action<string, bool> callback)
+    protected void RemoveStatusHandler(Action<string?, bool>? callback)
     {
         StatusUpdateHandlers -= callback;
     }

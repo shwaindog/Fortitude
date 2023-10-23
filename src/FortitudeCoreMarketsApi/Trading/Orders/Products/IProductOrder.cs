@@ -13,7 +13,7 @@ public interface IProductOrder
 {
     ProductType ProductType { get; }
     IMutableString? Message { get; set; }
-    IOrder Order { get; set; }
+    IOrder? Order { get; set; }
     bool IsComplete { get; set; }
     bool IsError { get; }
     void ApplyAmendment(IOrderAmend amendment);

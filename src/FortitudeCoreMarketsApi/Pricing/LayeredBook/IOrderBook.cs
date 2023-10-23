@@ -1,13 +1,15 @@
-using System.Collections.Generic;
+#region
+
 using FortitudeCommon.Types;
 
-namespace FortitudeMarketsApi.Pricing.LayeredBook
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.LayeredBook;
+
+public interface IOrderBook : IEnumerable<IPriceVolumeLayer>, ICloneable<IOrderBook>,
+    IInterfacesComparable<IOrderBook>
 {
-    public interface IOrderBook : IEnumerable<IPriceVolumeLayer>, ICloneable<IOrderBook>,
-                    IInterfacesComparable<IOrderBook>
-    {
-        int Capacity { get; }
-        int Count { get; }
-        IPriceVolumeLayer this[int level] { get; }
-    }
+    int Capacity { get; }
+    int Count { get; }
+    IPriceVolumeLayer? this[int level] { get; }
 }

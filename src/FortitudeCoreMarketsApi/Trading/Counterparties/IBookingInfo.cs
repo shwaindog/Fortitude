@@ -1,11 +1,14 @@
-﻿using FortitudeCommon.Types.Mutable;
+﻿#region
 
-namespace FortitudeMarketsApi.Trading.Counterparties
+using FortitudeCommon.Types.Mutable;
+
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Counterparties;
+
+public interface IBookingInfo
 {
-    public interface IBookingInfo
-    {
-        IMutableString Portfolio { get; set; }
-        IMutableString SubPortfolio { get; set; }
-        IBookingInfo Clone();
-    }
+    IMutableString? Portfolio { get; set; }
+    IMutableString? SubPortfolio { get; set; }
+    IBookingInfo Clone();
 }

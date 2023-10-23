@@ -16,6 +16,8 @@ public interface IUserData
 
 public class UserData : IUserData
 {
+    public UserData() { }
+
     public UserData(IMutableString userId, IAuthenticationData? authData = null)
     {
         AuthData = authData;

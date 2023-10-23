@@ -1,18 +1,19 @@
-﻿using System.Collections;
+﻿#region
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
-using FortitudeMarketsCore.Trading.ORX.Serialization;
+
+#endregion
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues
 {
     public class OrxVenueOrders : IVenueOrders
     {
-        public OrxVenueOrders()
-        {
-        }
+        public OrxVenueOrders() => VenueOrdersList = new List<OrxVenueOrder>();
 
         public OrxVenueOrders(IVenueOrders toClone)
         {
@@ -24,8 +25,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues
             VenueOrdersList = venueOrders.Select(vo => new OrxVenueOrder(vo)).ToList();
         }
 
-        [OrxMandatoryField(0)]
-        public List<OrxVenueOrder> VenueOrdersList { get; set; }
+        [OrxMandatoryField(0)] public List<OrxVenueOrder> VenueOrdersList { get; set; }
 
         public int Count => VenueOrdersList.Count;
 
@@ -35,6 +35,12 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues
             set => VenueOrdersList[index] = (OrxVenueOrder)value;
         }
 
+        public IVenueOrders Clone() => new OrxVenueOrders(this);
+
+        public IEnumerator<IVenueOrder> GetEnumerator() => VenueOrdersList.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         public void CopyFrom(IVenueOrders venueOrders, IRecycler recycler)
         {
             var venueOrderCount = venueOrders.Count;
@@ -42,47 +48,28 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues
             {
                 var orxVenueList = recycler.Borrow<List<OrxVenueOrder>>();
                 orxVenueList.Clear();
-                for (int i = 0; i < venueOrderCount; i++)
+                for (var i = 0; i < venueOrderCount; i++)
                 {
                     var orxVenueOrder = recycler.Borrow<OrxVenueOrder>();
                     orxVenueOrder.CopyFrom(venueOrders[i], recycler);
                     orxVenueList.Add(orxVenueOrder);
                 }
+
                 VenueOrdersList = orxVenueList;
             }
         }
 
-        public IVenueOrders Clone()
-        {
-            return new OrxVenueOrders(this);
-        }
-
-        protected bool Equals(OrxVenueOrders other)
-        {
-            return VenueOrdersList?.SequenceEqual(other.VenueOrdersList) ?? other.VenueOrdersList == null;
-        }
+        protected bool Equals(OrxVenueOrders other) =>
+            VenueOrdersList?.SequenceEqual(other.VenueOrdersList) ?? other.VenueOrdersList == null;
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((OrxVenueOrders) obj);
+            return Equals((OrxVenueOrders)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return VenueOrdersList != null ? VenueOrdersList.GetHashCode() : 0;
-        }
-
-        public IEnumerator<IVenueOrder> GetEnumerator()
-        {
-            return VenueOrdersList.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public override int GetHashCode() => VenueOrdersList != null ? VenueOrdersList.GetHashCode() : 0;
     }
 }

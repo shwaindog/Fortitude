@@ -1,12 +1,15 @@
+#region
+
 using FortitudeCommon.Types;
 
-namespace FortitudeMarketsApi.Pricing.LayeredBook
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.LayeredBook;
+
+public interface IMutableTraderLayerInfo : ITraderLayerInfo, IStoreState<ITraderLayerInfo>
 {
-    public interface IMutableTraderLayerInfo : ITraderLayerInfo, IStoreState<ITraderLayerInfo>
-    {
-        new string TraderName { get; set; }
-        new decimal TraderVolume { get; set; }
-        void Reset();
-        new IMutableTraderLayerInfo Clone();
-    }
+    new string? TraderName { get; set; }
+    new decimal TraderVolume { get; set; }
+    void Reset();
+    new IMutableTraderLayerInfo Clone();
 }

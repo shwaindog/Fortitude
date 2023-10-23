@@ -23,7 +23,7 @@ public class ConnectionConfigTests
             port, connectionDirectionType, networkSubAddress, reconnectInterval, updateStream);
 
     public static void AssertIsExpected(IConnectionConfig subjectToBeVerified, string name, string hostname,
-        int port, ConnectionDirectionType connectionDirectionType, string networkSubAddress, uint reconnectInterval)
+        int port, ConnectionDirectionType connectionDirectionType, string? networkSubAddress, uint reconnectInterval)
     {
         Assert.AreEqual(name, subjectToBeVerified.ConnectionName);
         Assert.AreEqual(hostname, subjectToBeVerified.Hostname);

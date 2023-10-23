@@ -1,12 +1,15 @@
+#region
+
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Sockets.Publishing;
 using FortitudeIO.Transports.Sockets.Subscription;
 
-namespace FortitudeIO.Transports.Sockets
+#endregion
+
+namespace FortitudeIO.Transports.Sockets;
+
+public interface ISocketLinkInitiator : ISocketLink, IBinaryStreamSubscriber
 {
-    public interface ISocketLinkInitiator : ISocketLink, IBinaryStreamSubscriber
-    {
-        IBinaryStreamPublisher StreamToPublisher { get; }
-        IFLogger Logger { get; }
-    }
+    IBinaryStreamPublisher? StreamToPublisher { get; }
+    IFLogger Logger { get; }
 }

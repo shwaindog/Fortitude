@@ -49,7 +49,7 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
         Dispatcher.Stop();
     }
 
-    public abstract IBinaryStreamPublisher StreamToPublisher { get; }
+    public abstract IBinaryStreamPublisher? StreamToPublisher { get; }
 
 
     public abstract IStreamDecoder? GetDecoder(IMap<uint, IBinaryDeserializer> deserializers);
@@ -63,7 +63,7 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
 
     public int RegisteredDeserializersCount => deserializers.Count;
 
-    public void RegisterDeserializer<TM>(uint msgId, Action<TM, object?, ISession?>? msgHandler) where TM : class
+    public void RegisterDeserializer<TM>(uint msgId, Action<TM, object?, ISession?>? msgHandler) where TM : class, new()
     {
         if (msgHandler == null)
             throw new Exception("Message Handler cannot be null");
@@ -71,7 +71,7 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
         ICallbackBinaryDeserializer<TM>? mu;
         if (!deserializers.TryGetValue(msgId, out u))
         {
-            deserializers.Add(msgId, mu = GetFactory().GetDeserializer<TM>(msgId));
+            deserializers.Add(msgId, mu = GetFactory()!.GetDeserializer<TM>(msgId)!);
             lock (deserializersCallbackCount)
             {
                 deserializersCallbackCount[msgId] = 0;
@@ -98,7 +98,7 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
         }
     }
 
-    public void UnregisterDeserializer<TM>(uint msgId, Action<TM, object, ISession> msgHandler) where TM : class
+    public void UnregisterDeserializer<TM>(uint msgId, Action<TM, object, ISession> msgHandler) where TM : class, new()
     {
         IBinaryDeserializer? u;
         ICallbackBinaryDeserializer<TM>? mu;
@@ -119,6 +119,6 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
         }
     }
 
-    protected abstract IBinaryDeserializationFactory GetFactory();
+    protected abstract IBinaryDeserializationFactory? GetFactory();
     public abstract void OnCxError(ISocketSessionConnection cx, string errorMsg, int proposedReconnect);
 }
