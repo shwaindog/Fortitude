@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -13,6 +14,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 {
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel2Quote));
+
     private IPQOrderBook askBook;
     private IPQOrderBook bidBook;
 
@@ -131,11 +134,9 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     public override void ResetFields()
     {
-        base.ResetFields();
         bidBook.Reset();
-        bidBook.HasUpdates = false;
         askBook.Reset();
-        askBook.HasUpdates = false;
+        base.ResetFields();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
@@ -162,6 +163,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
             (pqFieldUpdate.Id >= PQFieldKeys.SecondLayersRangeStart &&
              pqFieldUpdate.Id <= PQFieldKeys.SecondLayersRangeEnd))
         {
+            // logger.Info("Received PQLevel2Quote Book pqFieldUpdate: {0}", pqFieldUpdate);
             var result = pqFieldUpdate.IsBid() ?
                 bidBook.UpdateField(pqFieldUpdate) :
                 askBook.UpdateField(pqFieldUpdate);

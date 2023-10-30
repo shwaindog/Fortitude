@@ -192,7 +192,7 @@ public class PQRecentlyTraded : IPQRecentlyTraded
             else
                 lastTrades[i] = destinationLayer;
 
-            destinationLayer?.CopyFrom(sourcelayer);
+            destinationLayer?.CopyFrom(sourcelayer!);
         }
 
         for (var i = source.Capacity; i < lastTrades.Count; i++) lastTrades[i]?.Reset();

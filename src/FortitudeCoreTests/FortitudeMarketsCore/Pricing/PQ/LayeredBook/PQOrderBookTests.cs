@@ -491,7 +491,7 @@ public class PQOrderBookTests
         var notEmpty = new PQOrderBook(simpleFullyPopulatedOrderBook);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
-        Assert.AreEqual(notEmpty[5], new PQPriceVolumeLayer());
+        Assert.AreEqual(notEmpty[5], new PQPriceVolumeLayer() { IsPriceUpdated = true, IsVolumeUpdated = true });
         Assert.AreEqual(MaxNumberOfLayers - 2, notEmpty.Count);
     }
 

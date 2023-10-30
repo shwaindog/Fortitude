@@ -119,7 +119,6 @@ public class PQTraderLayerInfo : IPQTraderLayerInfo
     {
         TraderName = null;
         TraderVolume = 0;
-        UpdatedFlags = TraderLayerInfoFlags.None;
     }
 
     public virtual void CopyFrom(ITraderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

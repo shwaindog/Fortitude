@@ -215,8 +215,8 @@ public class PQPriceVolumeLayerTests
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);
-        Assert.IsFalse(populatedPvl.IsPriceUpdated);
-        Assert.IsFalse(populatedPvl.IsVolumeUpdated);
+        Assert.IsTrue(populatedPvl.IsPriceUpdated);
+        Assert.IsTrue(populatedPvl.IsVolumeUpdated);
     }
 
     [TestMethod]

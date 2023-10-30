@@ -18,10 +18,10 @@ public class Party : IParty
         Portfolio = toClone.Portfolio;
     }
 
-    public Party(string partyId, string name, IParty parentParty, string clientPartyId, IBookingInfo portfolio)
+    public Party(string partyId, string name, IParty? parentParty, string clientPartyId, IBookingInfo portfolio)
         : this((MutableString)partyId, (MutableString)name, parentParty, (MutableString)clientPartyId, portfolio) { }
 
-    public Party(IMutableString partyId, IMutableString name, IParty parentParty, IMutableString clientPartyId
+    public Party(IMutableString partyId, IMutableString name, IParty? parentParty, IMutableString clientPartyId
         , IBookingInfo portfolio)
     {
         PartyId = partyId;

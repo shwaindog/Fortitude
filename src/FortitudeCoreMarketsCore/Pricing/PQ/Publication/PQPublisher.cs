@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
@@ -12,6 +13,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
 public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
 {
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublisher<>));
+
     private readonly IMap<string, T> pictures = new ConcurrentMap<string, T>();
     private readonly IPQServer<T> pqServer;
     private volatile bool shutdownFlag;
@@ -46,6 +49,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
     {
         if (pictures.TryGetValue(quote.SourceTickerQuoteInfo!.Ticker, out var pqPicture))
         {
+            // logger.Info("About to publish quote: {0}", quote);
             pqPicture!.CopyFrom(quote);
             pqServer.Publish(pqPicture);
         }

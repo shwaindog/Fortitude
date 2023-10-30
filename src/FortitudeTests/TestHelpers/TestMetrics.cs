@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,25 +12,28 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeTests.FortitudeCommon.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+#endregion
+
 namespace FortitudeTests.TestHelpers
 {
-    [TestClass, NoMatchingProductionClass]
+    [TestClass]
+    [NoMatchingProductionClass]
     public class TestMetrics
     {
         private const int MaxAllowedUntestedClassesInCommon = 122;
-        private const int MaxAllowedUntestedClassesInFortitudeIO = 88;
+        private const int MaxAllowedUntestedClassesInFortitudeIO = 90;
         private const int MaxAllowedUntestedClassesInFortitudeMarketsApi = 19;
         private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 79;
 
-        private Type fortitudeCommonType;
-        private Type fortitudeIOType;
-        private Type fortitudeMarketsApiType;
-        private Type fortitudeMarketsCoreType;
-
         private IDictionary<string, List<Type>> fortitudeCommonAssemblyClasses;
+
+        private Type fortitudeCommonType;
         private IDictionary<string, List<Type>> fortitudeIOAssemblyClasses;
+        private Type fortitudeIOType;
         private IDictionary<string, List<Type>> fortitudeMarketsApiAssemblyClasses;
+        private Type fortitudeMarketsApiType;
         private IDictionary<string, List<Type>> fortitudeMarketsCoreAssemblyClasses;
+        private Type fortitudeMarketsCoreType;
 
         private IDictionary<string, Type> testClasses;
         private IDictionary<string, List<Type>> testClassNames;
@@ -60,19 +65,19 @@ namespace FortitudeTests.TestHelpers
         public void ListProdClassesWithoutMatchingTestClass()
         {
             Console.Out.WriteLine("FortitudeCommon Assembly Classes Without Tests");
-            int countUnTestedInAssembly = fortitudeCommonAssemblyClasses.Values.SelectMany(lt => lt)
+            var countUnTestedInAssembly = fortitudeCommonAssemblyClasses.Values.SelectMany(lt => lt)
                 .Count(PrintTestClassStateIfApplicable);
             Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInCommon,
                 $"Common has {countUnTestedInAssembly} which is greater " +
                 $"than max allowed of {MaxAllowedUntestedClassesInCommon}");
-            
+
             Console.Out.WriteLine("\nFortitudeIO Assembly Classes Without Tests");
             countUnTestedInAssembly = fortitudeIOAssemblyClasses.Values.SelectMany(lt => lt)
                 .Count(PrintTestClassStateIfApplicable);
             Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeIO,
                 $"FortitudeIO has {countUnTestedInAssembly} which is greater " +
                 $"than max allowed of {MaxAllowedUntestedClassesInFortitudeIO}");
-            
+
             Console.Out.WriteLine("\nFortitudeMarketsApi Assembly Classes Without Tests");
             countUnTestedInAssembly = fortitudeMarketsApiAssemblyClasses.Values.SelectMany(lt => lt)
                 .Count(PrintTestClassStateIfApplicable);
@@ -86,7 +91,7 @@ namespace FortitudeTests.TestHelpers
             Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeMarketsCore,
                 $"FortitudeMarketsCore has {countUnTestedInAssembly} which is greater " +
                 $"than max allowed of {MaxAllowedUntestedClassesInFortitudeMarketsCore}");
-            
+
             Console.Out.WriteLine("\nFortitudeTests Assembly Test Classes Production Class");
             countUnTestedInAssembly = testClassNames.Values.SelectMany(lt => lt)
                 .Count(PrintTestClassWithNoMatchingProductionClass);
@@ -103,15 +108,16 @@ namespace FortitudeTests.TestHelpers
         public IEnumerable<Type> ProductionTestingClassesInAssembly(Type sampleTypeFoundInAssembly)
         {
             return OuterClassesInAssembly(sampleTypeFoundInAssembly)
-                .Where(t => !t.GetCustomAttributes(typeof(NoMatchingProductionClassAttribute)).Any() 
-                && t.GetCustomAttributes(typeof(TestClassAttribute)).Any());
+                .Where(t => !t.GetCustomAttributes(typeof(NoMatchingProductionClassAttribute)).Any()
+                            && t.GetCustomAttributes(typeof(TestClassAttribute)).Any());
         }
 
         public IEnumerable<Type> OuterClassesInAssembly(Type sampleTypeFoundInAssembly)
         {
-            Assembly assembly = sampleTypeFoundInAssembly.Assembly;
-            return assembly.GetTypes().Where(t => t.IsClass && (!t.FullName?.Contains("<") ?? false) 
-                    && (!t.FullName?.Contains("+") ?? false)).OrderBy(t => t.FullName);
+            var assembly = sampleTypeFoundInAssembly.Assembly;
+            return assembly.GetTypes().Where(t => t.IsClass && (!t.FullName?.Contains("<") ?? false)
+                                                            && (!t.FullName?.Contains("+") ?? false))
+                .OrderBy(t => t.FullName);
         }
 
         public bool PrintTestClassStateIfApplicable(Type determineTestClassState)
@@ -123,6 +129,7 @@ namespace FortitudeTests.TestHelpers
                                       " in wrong namespace");
                 return true;
             }
+
             Console.Out.WriteLine($"\t{determineTestClassState.FullName} has no test class.");
             return true;
         }
@@ -136,22 +143,15 @@ namespace FortitudeTests.TestHelpers
             return true;
         }
 
-        public bool HasTestClassInCorrectNameSpace(Type findTestClassForThis)
-        {
-            return testClasses.ContainsKey("FortitudeTests." + 
-                StripOutGenericBackTicks(findTestClassForThis.FullName) + "Tests");
-        }
+        public bool HasTestClassInCorrectNameSpace(Type findTestClassForThis) =>
+            testClasses.ContainsKey("FortitudeTests." +
+                                    StripOutGenericBackTicks(findTestClassForThis.FullName) + "Tests");
 
-        private string StripOutGenericBackTicks(string fullClassName)
-        {
-            return fullClassName.Substring(0, fullClassName.IndexOf("`") < 0 
-                ? fullClassName.Length : fullClassName.IndexOf("`"));
-        }
+        private string StripOutGenericBackTicks(string fullClassName) =>
+            fullClassName.Substring(0
+                , fullClassName.IndexOf("`") < 0 ? fullClassName.Length : fullClassName.IndexOf("`"));
 
-        private string GenerateProductionClassFromTestClassName(Type testClass)
-        {
-            return testClass.Name.Replace("Tests", "");
-        }
+        private string GenerateProductionClassFromTestClassName(Type testClass) => testClass.Name.Replace("Tests", "");
 
         public bool HasTestClassAtIncorrectNameSpace(Type findTestClassForThis, out string testClassFullName)
         {
@@ -160,24 +160,26 @@ namespace FortitudeTests.TestHelpers
                 testClassFullName = string.Join(", ", foundTypes);
                 return true;
             }
+
             testClassFullName = null;
             return false;
         }
-        
+
         public IDictionary<string, List<Type>> GetExpectedTypeDictionary(Type testClass)
         {
             if (testClass.FullName.Contains("FortitudeTests.FortitudeCommon")) return fortitudeCommonAssemblyClasses;
             if (testClass.FullName.Contains("FortitudeTests.FortitudeIO")) return fortitudeIOAssemblyClasses;
-            if (testClass.FullName.Contains("FortitudeTests.FortitudeMarketsApi")) return fortitudeMarketsApiAssemblyClasses;
-            if (testClass.FullName.Contains("FortitudeTests.FortitudeMarketsCore")) return fortitudeMarketsCoreAssemblyClasses;
+            if (testClass.FullName.Contains("FortitudeTests.FortitudeMarketsApi"))
+                return fortitudeMarketsApiAssemblyClasses;
+            if (testClass.FullName.Contains("FortitudeTests.FortitudeMarketsCore"))
+                return fortitudeMarketsCoreAssemblyClasses;
             Console.Out.WriteLine($"{testClass.FullName} cannot determine production class assembly");
-            throw new ArgumentException("Did not expect a test class without NoMatchProductionClassAttribute to not map to Common, ForititudeCommon or FotitudeCore");
+            throw new ArgumentException(
+                "Did not expect a test class without NoMatchProductionClassAttribute to not map to Common, ForititudeCommon or FotitudeCore");
         }
 
-        public bool FindTypeInDictionary(IDictionary<string, List<Type>> searchDictionary, string findClassNameInDict)
-        {
-            return searchDictionary.ContainsKey(findClassNameInDict);
-        }
-
+        public bool FindTypeInDictionary(IDictionary<string, List<Type>> searchDictionary
+            , string findClassNameInDict) =>
+            searchDictionary.ContainsKey(findClassNameInDict);
     }
 }

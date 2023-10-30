@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Serialization;
@@ -411,10 +412,26 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
     private abstract class Deserializer<Tp> : IDeserializer
     {
+        private static IFLogger logger
+            = FLoggerFactory.Instance.GetLogger(
+                "FortitudeIO.Protocols.ORX.Serialization.Deserialization.OrxByteDeserializer.Deserializer");
+
         protected readonly Action<Tm, Tp?> Set;
 
-        protected Deserializer(PropertyInfo property) =>
-            Set = (Action<Tm, Tp?>)Delegate.CreateDelegate(typeof(Action<Tm, Tp?>), property.GetSetMethod(true)!);
+        protected Deserializer(PropertyInfo property)
+        {
+            try
+            {
+                Set = (Action<Tm, Tp?>)Delegate.CreateDelegate(typeof(Action<Tm, Tp?>), property.GetSetMethod(true)!);
+            }
+            catch (ArgumentException ae)
+            {
+                logger.Error(
+                    $"Error when trying to bind Tm:{typeof(Tm).FullName} and Tp:{typeof(Tp).FullName} in Deserializer"
+                    , ae);
+                throw;
+            }
+        }
 
         public abstract unsafe void Deserialize(Tm message, ref byte* buffer);
     }

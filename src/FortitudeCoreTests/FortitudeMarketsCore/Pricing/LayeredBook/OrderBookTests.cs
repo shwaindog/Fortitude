@@ -360,7 +360,7 @@ public class OrderBookTests
         var notEmpty = new OrderBook(simpleFullyPopulatedOrderBook);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
-        Assert.AreEqual(notEmpty[5], clonePopulated[5]);
+        Assert.AreEqual(notEmpty[5], new PriceVolumeLayer()); // null copies to empty
         Assert.AreEqual(MaxNumberOfLayers - 2, notEmpty.Count);
     }
 

@@ -50,9 +50,9 @@ public class NLogFactory : IFLoggerFactory
             if (evt.Exception != null)
                 theEvent = new LogEventInfo(level, Name, CultureInfo.InvariantCulture, evt.MsgFormat,
                     evt.MsgParams, evt.Exception);
-            else if (evt.MsgObject != null)
+            else if (evt.MsgObject != FLogEvent.UnsetMsgObject)
                 theEvent = new LogEventInfo(level, Name, evt.MsgObject.ToString());
-            else if (evt.MsgParams != null)
+            else if (evt.MsgParams != FLogEvent.UnsetMsgParams)
                 theEvent = new LogEventInfo(level, Name, CultureInfo.InvariantCulture, evt.MsgFormat,
                     evt.MsgParams);
             else

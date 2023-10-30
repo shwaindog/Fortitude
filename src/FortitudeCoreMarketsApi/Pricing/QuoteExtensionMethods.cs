@@ -218,12 +218,12 @@ public static class QuoteExtensionMethods
             sb.Append($"{propertyName,PropertyNamePadding}:q1={(q1Value != null ? "not null" : "null")}\n")
                 .Insert(sb.Length, " ", secondLinePadding)
                 .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
-        var maxLayers = Math.Max(q1Value?.Count ?? int.MinValue,
-            q2Value?.Count ?? int.MinValue);
+        var maxLayers = Math.Max(q1Value?.Capacity ?? int.MinValue,
+            q2Value?.Capacity ?? int.MinValue);
         for (var i = 0; i < maxLayers; i++)
         {
-            var l1 = i < (q1Value?.Count ?? int.MinValue) ? q1Value?[i] : null;
-            var l2 = i < (q2Value?.Count ?? int.MinValue) ? q2Value?[i] : null;
+            var l1 = i < (q1Value?.Capacity ?? int.MinValue) ? q1Value?[i] : null;
+            var l2 = i < (q2Value?.Capacity ?? int.MinValue) ? q2Value?[i] : null;
             sb.AddIfDifferent(propertyName, i, l1, l2);
         }
 

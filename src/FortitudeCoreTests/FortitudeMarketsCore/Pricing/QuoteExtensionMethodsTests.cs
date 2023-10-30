@@ -230,7 +230,7 @@ public class QuoteExtensionMethodsTests
                       && differences.Select((c, i) => differences.Substring(i))
                           .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 2);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2, (Level3PriceQuote pq) => pq.BidBook
-            , new OrderBook(q2.SourceTickerQuoteInfo));
+            , new OrderBook(2));
 
         differences = q2.DiffQuotes(originalQuote);
         Console.Out.WriteLine(differences);
@@ -245,7 +245,7 @@ public class QuoteExtensionMethodsTests
                       && differences.Select((c, i) => differences.Substring(i))
                           .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 2);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2, (Level3PriceQuote pq) => pq.BidBook
-            , new OrderBook(q2.SourceTickerQuoteInfo));
+            , new OrderBook(2));
 
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
@@ -314,7 +314,7 @@ public class QuoteExtensionMethodsTests
                       && differences.Select((c, i) => differences.Substring(i))
                           .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 2);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2, (Level3PriceQuote pq) => pq.AskBook
-            , new OrderBook(q2.SourceTickerQuoteInfo));
+            , new OrderBook(2));
 
         differences = q2.DiffQuotes(originalQuote);
         Console.Out.WriteLine(differences);
@@ -329,7 +329,7 @@ public class QuoteExtensionMethodsTests
                       && differences.Select((c, i) => differences.Substring(i))
                           .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 2);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2, (Level3PriceQuote pq) => pq.AskBook
-            , new OrderBook(q2.SourceTickerQuoteInfo));
+            , new OrderBook(2));
 
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
@@ -342,8 +342,7 @@ public class QuoteExtensionMethodsTests
                       && differences.Contains("[ 0]")
                       && differences.Contains("[ 1]")
                       && differences.Select((c, i) => differences.Substring(i))
-                          .Count(sub => sub.StartsWith("l2=null")) ==
-                      2
+                          .Count(sub => sub.StartsWith("l2=null")) == 2
                       && differences.Select((c, i) => differences.Substring(i))
                           .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 2);
 

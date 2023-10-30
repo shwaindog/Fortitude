@@ -134,6 +134,8 @@ internal sealed class AsyncFLogger : IFLogger
         evt.Logger = logger;
         evt.Level = level;
         evt.MsgFormat = msg;
+        evt.MsgParams = FLogEvent.UnsetMsgParams;
+        evt.MsgObject = FLogEvent.UnsetMsgObject;
         ring.Publish(seqId);
     }
 
@@ -145,6 +147,8 @@ internal sealed class AsyncFLogger : IFLogger
         evt.Logger = logger;
         evt.Level = level;
         evt.MsgObject = obj;
+        evt.MsgFormat = FLogEvent.UnsetMsgFormat;
+        evt.MsgParams = FLogEvent.UnsetMsgParams;
         ring.Publish(seqId);
     }
 
@@ -156,6 +160,8 @@ internal sealed class AsyncFLogger : IFLogger
         evt.Logger = logger;
         evt.Level = level;
         evt.MsgFormat = msg;
+        evt.MsgParams = FLogEvent.UnsetMsgParams;
+        evt.MsgObject = FLogEvent.UnsetMsgObject;
         evt.Exception = ex;
         ring.Publish(seqId);
     }

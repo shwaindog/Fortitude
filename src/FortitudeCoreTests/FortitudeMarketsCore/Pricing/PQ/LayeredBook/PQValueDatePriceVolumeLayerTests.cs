@@ -201,9 +201,9 @@ public class PQValueDatePriceVolumeLayerTests
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedPvl.ValueDate);
-        Assert.IsFalse(populatedPvl.IsPriceUpdated);
-        Assert.IsFalse(populatedPvl.IsVolumeUpdated);
-        Assert.IsFalse(populatedPvl.IsValueDateUpdated);
+        Assert.IsTrue(populatedPvl.IsPriceUpdated);
+        Assert.IsTrue(populatedPvl.IsVolumeUpdated);
+        Assert.IsTrue(populatedPvl.IsValueDateUpdated);
     }
 
     [TestMethod]
