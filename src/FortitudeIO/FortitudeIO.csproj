@@ -4,12 +4,12 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>FortitudeMarketsApi</RootNamespace>
+    <RootNamespace>FortitudeIO</RootNamespace>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FortitudeCoreCommon\FortitudeCoreCommon.csproj" />
-    <ProjectReference Include="..\FortitudeCoreIO\FortitudeCoreIO.csproj" />
+    <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
   </ItemGroup>
 
 </Project>

@@ -21,4 +21,4 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("25035f88-56a3-41c5-ac73-e404e87c484e")]
 
-[assembly: InternalsVisibleTo("FortitudeCoreTests")]
+[assembly: InternalsVisibleTo("FortitudeTests")]

@@ -23,10 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FortitudeCoreCommon\FortitudeCoreCommon.csproj" />
-    <ProjectReference Include="..\FortitudeCoreIO\FortitudeCoreIO.csproj" />
-    <ProjectReference Include="..\FortitudeCoreMarketsApi\FortitudeCoreMarketsApi.csproj" />
-    <ProjectReference Include="..\FortitudeCoreMarketsCore\FortitudeCoreMarketsCore.csproj" />
+    <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
+    <ProjectReference Include="..\FortitudeIO\FortitudeIO.csproj" />
+    <ProjectReference Include="..\FortitudeMarketsApi\FortitudeMarketsApi.csproj" />
+    <ProjectReference Include="..\FortitudeMarketsCore\FortitudeMarketsCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

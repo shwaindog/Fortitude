@@ -7,19 +7,19 @@ applications with protocols optimised for market trading applications.
 1. Make it easy to build eTrading applications in .NET 
 2. Minimise publish latency between servers communicating
 3. Minimise garbage generated on market updates
-4. Take advantage of mechanical synchronization of x64 architecture and multithreading
+4. Take advantage of mechanical sympathy of x64 architecture and multithreading
 5. Support Windows and Linux as equal deployment options
 6. Provide reliability and updatability through comprehensive testing
 
 # Why this exists
 .NET and .NET core is a great platform for building eTrading applications thanks to it's availability of 
 structs and high precision decimal type that unlike Java's BigDecimal generates garbage when handling numbers.
-However unlike Java, .NET library of low latency class is lacking and this library hopes to provide those missing
+However unlike Java, .NET lacks a pleothra of low latency libraries and this library hopes to provide those missing
 tools to allow .NET developers the same ease of building trading applications.
 
 ## Current State 
 This project is in Beta v0.1 release and is under heavy development.  It is expected to change frequently 
-and with backwards compatibility support until it make v1.0.
+and with NO backwards compatibility support until it reaches v1.0.
 
 ## Whats in the Box Now
 The following are a list of features found in the Fortitude Libraries
@@ -66,7 +66,7 @@ The following are a list of features found in the Fortitude Libraries
 # Who is this for
 This library exists for anyone who cares about speed and latency and not just eTrading systems.  
 Those who care about latency know how much work goes into reducing Garbage Collection in your code.
-Code that generates lots of garbage frequently pauses while .NET can remove unreference objects and
+Code that generates lots of garbage frequently pauses while .NET can remove unreachable objects and
 consoliate memory so that allocations can be performed faster.
 If you need to send data and rapidly receive responses then this library could be for you.
 The eventual goal would be to remove Garbage in the pricing related classes it is not yet totally garbage free.  
