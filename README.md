@@ -24,34 +24,34 @@ and with backwards compatibility support until it make v1.0.
 ## Whats in the Box Now
 The following are a list of features found in the Fortitude Libraries
 * Low Latency Event Rings
-** Disruption Ring 
+  * Disruption Ring 
 * High Performance Collections
-** Collection Extensions Methods
-** Doubly Linked Lists
-** Garbage Free Maps (Dictionary)
-** Reusable Enumerator 
+  * Collection Extensions Methods
+  * Doubly Linked Lists
+  * Garbage Free Maps (Dictionary)
+  * Reusable Enumerator 
 * OS Abstractions
-** Networking
-** Multi-threading
+  * Networking
+  * Multi-threading
 * Low Garbage Metric Collection
-** Tracing
-** StopWatch
-** Latency Trigger Logs
-** Low latency logging 
+  * Tracing
+  * StopWatch
+  * Latency Trigger Logs
+  * Low latency logging 
 * Reflection Helpers
 * Reusable String Replacement
 * Low Garbage Socket Send Receive
-** Fast TCP
-** Fast UDP / UDP Multicast 
+  * Fast TCP
+  * Fast UDP / UDP Multicast 
 * Compact Object Serialization Deserialization
 * Network Clients And Server
 * Pricing Implementation
-** Library Compression 
-** Level 0, 1, 2 Quotes
-** Recently Traded Info
-** Efficent Delta Updates
-** Snapshot Request  
-** Support 20+ Book Depth with many attributes
+  * Library Compression 
+  * Level 0, 1, 2 Quotes
+  * Recently Traded Info
+  * Efficent Delta UDP mutlicast updates
+  * Snapshot Request  
+  * Support 20+ Book Depth with many attributes
 * Order and Execution transmission
   
 ## Whats going to be in future releases
@@ -78,13 +78,13 @@ if zero garbage pricing can be achieved.
 When building and running the tests on windows please ensure you have installed "Microsoft KM-TEST Loopback Adapter"
 and have it as the highest priority adapter via
 * Network Adapters 
-** Microsoft KM-TEST Loopback Adapter 
-*** Properties 
-**** Internet Protocol Version 4 (TCP/IPv4)
-***** Properties
-****** Advanced
-******* Untick "Automatic Metric"
-******** Lower number has higher priority 
+  * Microsoft KM-TEST Loopback Adapter 
+    * Properties 
+      * Internet Protocol Version 4 (TCP/IPv4)
+        * Properties
+          * Advanced
+            * Untick "Automatic Metric"
+              * Lower number has higher priority 
 
 Then ensure any adapter that appears above "Microsoft KM-TEST Loopback Adapter" in ipconfig has a higher priority.
 Also ensure the IP address in FortitudeTests -> TestEnvironment -> TestMachineConfig matches that of the 
