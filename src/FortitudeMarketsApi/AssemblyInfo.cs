@@ -19,7 +19,6 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM.
 
-[assembly: Guid("3d52420c-715a-4a05-b106-6b5e01732ea3")]
+[assembly: Guid("7afcbffe-76de-43dc-b860-f8ff2648889c")]
 
-
-[assembly: InternalsVisibleTo("FortitudeCoreTests")]
+[assembly: InternalsVisibleTo("FortitudeTests")]
