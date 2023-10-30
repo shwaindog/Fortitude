@@ -3,25 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeCommon", "FortitudeCommon\FortitudeCommon.csproj", "{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeMarketsCore", "FortitudeMarketsCore\FortitudeMarketsCore.csproj", "{9B8F3F94-926A-4AA6-99D5-F5A026686BB8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeMarketsApi", "FortitudeMarketsApi\FortitudeMarketsApi.csproj", "{916C4068-3581-4291-99AE-46C5345C67AE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeTests", "FortitudeTests\FortitudeTests.csproj", "{0ECF25F9-A97F-4DF1-9F48-1C441AB46E7A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeIO", "FortitudeIO\FortitudeIO.csproj", "{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreCommon", "FortitudeCoreCommon\FortitudeCoreCommon.csproj", "{E4808314-0328-4390-912A-7C9C2FF40409}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreTests", "FortitudeCoreTests\FortitudeCoreTests.csproj", "{AEDB3DDF-8BAC-4A47-ABAB-3CADD591B996}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreIO", "FortitudeCoreIO\FortitudeCoreIO.csproj", "{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeCoreMarketsApi", "FortitudeCoreMarketsApi\FortitudeCoreMarketsApi.csproj", "{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreMarketsApi", "FortitudeCoreMarketsApi\FortitudeCoreMarketsApi.csproj", "{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortitudeCoreMarketsCore", "FortitudeCoreMarketsCore\FortitudeCoreMarketsCore.csproj", "{255E26B2-6660-4C78-A1B2-F396E3568987}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeCoreMarketsCore", "FortitudeCoreMarketsCore\FortitudeCoreMarketsCore.csproj", "{255E26B2-6660-4C78-A1B2-F396E3568987}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,26 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BAFB6D7-288E-4F46-97F9-16E741ADA0EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B8F3F94-926A-4AA6-99D5-F5A026686BB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B8F3F94-926A-4AA6-99D5-F5A026686BB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B8F3F94-926A-4AA6-99D5-F5A026686BB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B8F3F94-926A-4AA6-99D5-F5A026686BB8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{916C4068-3581-4291-99AE-46C5345C67AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{916C4068-3581-4291-99AE-46C5345C67AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{916C4068-3581-4291-99AE-46C5345C67AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{916C4068-3581-4291-99AE-46C5345C67AE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0ECF25F9-A97F-4DF1-9F48-1C441AB46E7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0ECF25F9-A97F-4DF1-9F48-1C441AB46E7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0ECF25F9-A97F-4DF1-9F48-1C441AB46E7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0ECF25F9-A97F-4DF1-9F48-1C441AB46E7A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0AA83FCD-59A9-4E3B-9F4D-4194F7B2CB0D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E4808314-0328-4390-912A-7C9C2FF40409}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E4808314-0328-4390-912A-7C9C2FF40409}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4808314-0328-4390-912A-7C9C2FF40409}.Release|Any CPU.ActiveCfg = Release|Any CPU
