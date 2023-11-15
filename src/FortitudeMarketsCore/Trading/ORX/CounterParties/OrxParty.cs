@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Counterparties;
@@ -11,6 +12,8 @@ namespace FortitudeMarketsCore.Trading.ORX.CounterParties;
 
 public class OrxParty : IParty
 {
+    private int refCount = 0;
+
     public OrxParty()
     {
         PartyId = new MutableString();
@@ -85,24 +88,45 @@ public class OrxParty : IParty
 
     public IParty Clone() => new OrxParty(this);
 
-    public void CopyFrom(IParty party, IRecycler recycler)
+    public void CopyFrom(IParty party, CopyMergeFlags copyMergeFlags)
     {
-        PartyId = recycler.Borrow<MutableString>().Clear().Append(party.PartyId);
-        Name = recycler.Borrow<MutableString>().Clear().Append(party.Name);
+        PartyId = Recycler!.Borrow<MutableString>().Clear().Append(party.PartyId);
+        Name = Recycler!.Borrow<MutableString>().Clear().Append(party.Name);
         if (party.ParentParty != null)
         {
-            var orxParentParty = recycler.Borrow<OrxParty>();
-            orxParentParty.CopyFrom(party.ParentParty, recycler);
+            var orxParentParty = Recycler!.Borrow<OrxParty>();
+            orxParentParty.CopyFrom(party.ParentParty, copyMergeFlags);
             ParentParty = orxParentParty;
         }
 
-        ClientPartyId = recycler.Borrow<MutableString>().Clear().Append(party.ClientPartyId);
+        ClientPartyId = Recycler!.Borrow<MutableString>().Clear().Append(party.ClientPartyId);
         if (party.Portfolio != null)
         {
-            var orxBookingInfo = recycler.Borrow<OrxBookingInfo>();
-            orxBookingInfo.CopyFrom(party.Portfolio, recycler);
+            var orxBookingInfo = Recycler!.Borrow<OrxBookingInfo>();
+            orxBookingInfo.CopyFrom(party.Portfolio, copyMergeFlags);
             Portfolio = orxBookingInfo;
         }
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IParty)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxParty other)

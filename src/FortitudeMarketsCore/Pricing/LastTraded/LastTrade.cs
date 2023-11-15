@@ -42,6 +42,11 @@ public class LastTrade : IMutableLastTrade
         TradePrice = source.TradePrice;
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((ILastTrade)source, copyMergeFlags);
+    }
+
     public virtual IMutableLastTrade Clone() => new LastTrade(this);
 
     object ICloneable.Clone() => Clone();

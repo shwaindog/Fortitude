@@ -1,55 +1,76 @@
-﻿using System;
+﻿#region
+
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
+using FortitudeCommon.OSWrapper.AsyncWrappers;
 
-namespace FortitudeCommon.EventProcessing.Disruption.Rings.Batching
+#endregion
+
+namespace FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+
+public abstract class RingPoller<T> : IDisposable where T : class
 {
-    public abstract class RingPoller<T> : IDisposable where T : class
+    private readonly AutoResetEvent are = new(true);
+    private readonly ISubject<T> eventSubject = new Subject<T>();
+    protected readonly IPollingRing<T> Ring;
+    private readonly IOSThread thread;
+    private readonly int timeoutMs;
+    private volatile bool running = true;
+
+    protected RingPoller(IPollingRing<T> ring, uint timeoutMs, IOSParallelController? parallelController = null)
     {
-        private readonly AutoResetEvent are = new AutoResetEvent(true);
-        protected readonly PollingRing<T> Ring;
-        private readonly Thread thread;
-        private readonly int timeoutMs;
-        private volatile bool running = true;
-        private ISubject<T> eventSubject = new Subject<T>();
-
-        protected RingPoller(PollingRing<T> ring, uint timeoutMs)
+        Ring = ring;
+        var osParallelController = parallelController ?? new OSParallelController();
+        this.timeoutMs = (int)timeoutMs;
+        thread = osParallelController.CreateNewOSThread(delegate()
         {
-            Ring = ring;
-            this.timeoutMs = (int) timeoutMs;
-
-            thread = new Thread(delegate()
+            InitializeInPollingThread();
+            while (running)
             {
-                while (running)
+                are.WaitOne(this.timeoutMs);
+                foreach (var data in Ring)
                 {
-                    are.WaitOne(this.timeoutMs);
-                    foreach (var data in Ring)
-                    {
-                        eventSubject.OnNext(data);
-                        Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
-                    }
+                    eventSubject.OnNext(data);
+                    Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
                 }
-            });
-            thread.IsBackground = true;
-            thread.Name = ring.Name + "Poller";
-            thread.Start();
-        }
 
-        public void Dispose()
-        {
-            running = false;
-            are.Set();
-            thread.Join();
-            foreach (var data in Ring)
-            {
-                eventSubject.OnNext(data);
-                Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+                CurrentPollingIterationComplete();
             }
-        }
 
-        private IObservable<T> Events => eventSubject.AsObservable();
-
-        protected virtual void Processor(long sequence, long batchSize, T data, bool startOfBatch, bool endOfBatch){}
+            ShuttingDownPollingThread();
+        });
+        thread.IsBackground = true;
+        thread.Name = Ring.Name + "-Poller";
     }
+
+    private IObservable<T> Events => eventSubject.AsObservable();
+
+    public void Dispose()
+    {
+        running = false;
+        are.Set();
+        thread.Join();
+        foreach (var data in Ring)
+        {
+            eventSubject.OnNext(data);
+            Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+        }
+    }
+
+    public void WakeIfAsleep()
+    {
+        are.Set();
+    }
+
+    public void StartPolling()
+    {
+        thread.Start();
+    }
+
+    protected virtual void InitializeInPollingThread() { }
+
+    protected virtual void ShuttingDownPollingThread() { }
+    protected virtual void CurrentPollingIterationComplete() { }
+
+    protected virtual void Processor(long sequence, long batchSize, T data, bool startOfBatch, bool endOfBatch) { }
 }

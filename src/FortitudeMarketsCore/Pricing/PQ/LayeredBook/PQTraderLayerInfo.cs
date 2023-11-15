@@ -138,6 +138,11 @@ public class PQTraderLayerInfo : IPQTraderLayerInfo
         }
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((ITraderLayerInfo)source, copyMergeFlags);
+    }
+
     object ICloneable.Clone() => Clone();
 
     IMutableTraderLayerInfo IMutableTraderLayerInfo.Clone() => (IMutableTraderLayerInfo)Clone();

@@ -2,6 +2,7 @@
 
 using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
@@ -69,6 +70,7 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
                     break;
                 }
 
+                if (encoder.Message is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
                 encoder.Message = null;
                 encoder.Serializer = null;
                 sendLock.Acquire();

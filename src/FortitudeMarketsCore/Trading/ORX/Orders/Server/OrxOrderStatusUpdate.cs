@@ -46,7 +46,7 @@ public class OrxOrderStatusUpdate : OrxTradingMessage, IOrderStatusUpdate
         if (orderId != null)
         {
             var orxOrderId = orxRecyclerFactory.Borrow<OrxOrderId>();
-            orxOrderId.CopyFrom(orderId, orxRecyclerFactory);
+            orxOrderId.CopyFrom(orderId);
             OrderId = orxOrderId;
         }
 

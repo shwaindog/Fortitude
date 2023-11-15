@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsCore.Trading.ORX.Session;
@@ -53,13 +53,13 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate
 
     public IExecutionUpdate Clone() => new OrxExecutionUpdate(this);
 
-    public void CopyFrom(IExecutionUpdate executionUpdate, IRecycler orxRecyclingFactory)
+    public void CopyFrom(IExecutionUpdate executionUpdate, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(executionUpdate, orxRecyclingFactory);
+        base.CopyFrom(executionUpdate, copyMergeFlags);
         if (executionUpdate.Execution != null)
         {
-            var orxExecution = orxRecyclingFactory.Borrow<OrxExecution>();
-            orxExecution.CopyFrom(executionUpdate.Execution, orxRecyclingFactory);
+            var orxExecution = Recycler!.Borrow<OrxExecution>();
+            orxExecution.CopyFrom(executionUpdate.Execution, copyMergeFlags);
             Execution = orxExecution;
         }
 

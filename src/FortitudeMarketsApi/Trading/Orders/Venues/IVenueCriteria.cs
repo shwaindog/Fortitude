@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿#region
 
-namespace FortitudeMarketsApi.Trading.Orders.Venues
+using FortitudeCommon.DataStructures.Memory;
+
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Orders.Venues;
+
+public interface IVenueCriteria : IEnumerable<IVenue>, IRecyclableObject<IVenueCriteria>
 {
-    public interface IVenueCriteria : IEnumerable<IVenue>
-    {
-        IVenue this[int index] { get; set; }
-        int Count { get; }
-        VenueSelectionMethod VenueSelectionMethod { get; set; }
-        IVenueCriteria Clone();
-    }
+    IVenue this[int index] { get; set; }
+    int Count { get; }
+    VenueSelectionMethod VenueSelectionMethod { get; set; }
+    IVenueCriteria Clone();
 }

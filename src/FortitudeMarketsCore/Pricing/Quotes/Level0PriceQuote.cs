@@ -54,6 +54,11 @@ public class Level0PriceQuote : IMutableLevel0Quote
         SinglePrice = source.SinglePrice;
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((ILevel0Quote)source, copyMergeFlags);
+    }
+
     public virtual object Clone() => new Level0PriceQuote(this);
 
     ILevel0Quote ICloneable<ILevel0Quote>.Clone() => (ILevel0Quote)Clone();

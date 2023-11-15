@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Counterparties;
 using FortitudeMarketsApi.Trading.Executions;
@@ -15,8 +16,10 @@ using FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
-public class OrxExecution : IExecution
+public class OrxExecution : IExecution, IRecyclableObject<IExecution>
 {
+    private int refCount = 0;
+
     public OrxExecution()
     {
         ExecutionId = new OrxExecutionId();
@@ -117,33 +120,33 @@ public class OrxExecution : IExecution
 
     public IExecution Clone() => new OrxExecution(this);
 
-    public void CopyFrom(IExecution execution, IRecycler recycler)
+    public void CopyFrom(IExecution execution, CopyMergeFlags copyMergeFlags)
     {
         if (execution.ExecutionId != null)
         {
-            var orxExecutionId = recycler.Borrow<OrxExecutionId>();
-            orxExecutionId.CopyFrom(execution.ExecutionId, recycler);
+            var orxExecutionId = Recycler!.Borrow<OrxExecutionId>();
+            orxExecutionId.CopyFrom(execution.ExecutionId, copyMergeFlags);
             ExecutionId = orxExecutionId;
         }
 
         if (execution.Venue != null)
         {
-            var orxVenue = recycler.Borrow<OrxVenue>();
-            orxVenue.CopyFrom(execution.Venue, recycler);
+            var orxVenue = Recycler!.Borrow<OrxVenue>();
+            orxVenue.CopyFrom(execution.Venue, copyMergeFlags);
             Venue = orxVenue;
         }
 
         if (execution.VenueOrderId != null)
         {
-            var orxVenueOrderId = recycler.Borrow<OrxVenueOrderId>();
-            orxVenueOrderId.CopyFrom(execution.VenueOrderId, recycler);
+            var orxVenueOrderId = Recycler!.Borrow<OrxVenueOrderId>();
+            orxVenueOrderId.CopyFrom(execution.VenueOrderId, copyMergeFlags);
             VenueOrderId = orxVenueOrderId;
         }
 
         if (execution.OrderId != null)
         {
-            var orxOrderId = recycler.Borrow<OrxOrderId>();
-            orxOrderId.CopyFrom(execution.OrderId, recycler);
+            var orxOrderId = Recycler!.Borrow<OrxOrderId>();
+            orxOrderId.CopyFrom(execution.OrderId, copyMergeFlags);
             OrderId = orxOrderId;
         }
 
@@ -151,14 +154,35 @@ public class OrxExecution : IExecution
         Quantity = execution.Quantity;
         if (execution.CounterParty != null)
         {
-            var orxCounterParty = recycler.Borrow<OrxParty>();
-            orxCounterParty.CopyFrom(execution.CounterParty, recycler);
+            var orxCounterParty = Recycler!.Borrow<OrxParty>();
+            orxCounterParty.CopyFrom(execution.CounterParty, copyMergeFlags);
             CounterParty = orxCounterParty;
         }
 
         ValueDate = execution.ValueDate;
         Type = execution.Type;
         ExecutionStageType = execution.ExecutionStageType;
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IExecution)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; } = false;
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxExecution other)

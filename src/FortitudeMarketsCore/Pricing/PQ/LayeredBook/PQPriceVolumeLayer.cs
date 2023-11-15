@@ -134,6 +134,11 @@ public class PQPriceVolumeLayer : IPQPriceVolumeLayer
         }
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+    }
+
     public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance) { }
 
     public virtual void EnsureRelatedItemsAreConfigured(IPQPriceVolumeLayer? referenceInstance) { }

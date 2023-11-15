@@ -1,12 +1,12 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeIO.Protocols;
 
-public abstract class VersionedMessage : IVersionedMessage
+public abstract class VersionedMessage : IVersionedMessage, IStoreState<IVersionedMessage>
 {
     protected VersionedMessage() { }
 
@@ -14,13 +14,18 @@ public abstract class VersionedMessage : IVersionedMessage
 
     protected VersionedMessage(byte version) => Version = version;
 
-    public abstract uint MessageId { get; }
-    public byte Version { get; set; }
-
-    public virtual void CopyFrom(IVersionedMessage source, IRecycler recyclerFactory)
+    public virtual void CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags)
     {
         Version = source.Version;
     }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IVersionedMessage)source, copyMergeFlags);
+    }
+
+    public abstract uint MessageId { get; }
+    public byte Version { get; set; }
 
     protected bool Equals(IVersionedMessage other) => Version == other.Version && MessageId == other.MessageId;
 

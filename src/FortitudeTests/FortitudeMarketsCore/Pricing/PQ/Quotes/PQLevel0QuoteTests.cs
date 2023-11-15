@@ -565,6 +565,11 @@ public class PQLevel0QuoteTests
 
         public void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) { }
 
+        public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        {
+            CopyFrom((ILevel0Quote)source, copyMergeFlags);
+        }
+
         public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
             IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
         {

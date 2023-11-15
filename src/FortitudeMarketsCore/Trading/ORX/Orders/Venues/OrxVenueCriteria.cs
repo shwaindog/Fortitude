@@ -2,6 +2,7 @@
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 
@@ -11,6 +12,8 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 public class OrxVenueCriteria : IVenueCriteria
 {
+    private int refCount = 0;
+
     public OrxVenueCriteria() { }
 
     public OrxVenueCriteria(IVenueCriteria toClone)
@@ -44,23 +47,44 @@ public class OrxVenueCriteria : IVenueCriteria
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void CopyFrom(IVenueCriteria venueCriteria, IRecycler recycler)
+    public void CopyFrom(IVenueCriteria venueCriteria, CopyMergeFlags copyMergeFlags)
     {
         VenueSelectionMethod = venueCriteria.VenueSelectionMethod;
         var venueCriteriaCount = venueCriteria.Count;
         if (venueCriteriaCount > 0)
         {
-            var orxVenueList = recycler.Borrow<List<OrxVenue>>();
+            var orxVenueList = Recycler!.Borrow<List<OrxVenue>>();
             orxVenueList.Clear();
             for (var i = 0; i < venueCriteriaCount; i++)
             {
-                var orxVenue = recycler.Borrow<OrxVenue>();
-                orxVenue.CopyFrom(venueCriteria[i], recycler);
+                var orxVenue = Recycler!.Borrow<OrxVenue>();
+                orxVenue.CopyFrom(venueCriteria[i], copyMergeFlags);
                 orxVenueList.Add(orxVenue);
             }
 
             VenueList = orxVenueList;
         }
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IVenueCriteria)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxVenueCriteria other)

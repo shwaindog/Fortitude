@@ -74,6 +74,11 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         }
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((INameIdLookup)source, copyMergeFlags);
+    }
+
     public override object Clone() => new NameIdLookupGenerator(this);
 
     INameIdLookupGenerator INameIdLookupGenerator.Clone() => (INameIdLookupGenerator)Clone();

@@ -39,6 +39,11 @@ public class TraderLayerInfo : IMutableTraderLayerInfo
         TraderName = source.TraderName;
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((ITraderLayerInfo)source, copyMergeFlags);
+    }
+
     IMutableTraderLayerInfo IMutableTraderLayerInfo.Clone() => (IMutableTraderLayerInfo)Clone();
 
     public virtual ITraderLayerInfo Clone() => new TraderLayerInfo(TraderName, TraderVolume);

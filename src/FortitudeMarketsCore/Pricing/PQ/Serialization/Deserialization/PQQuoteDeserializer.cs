@@ -5,6 +5,7 @@ using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization.SyncState;
 
@@ -75,7 +76,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
                     continue;
                 }
 
-                PublishedQuote.CopyFrom(ent);
+                PublishedQuote.CopyFrom((ILevel0Quote)ent);
                 PublishedQuote.ClientReceivedTime = ent.ClientReceivedTime;
                 PublishedQuote.ProcessedTime = ent.ProcessedTime;
             }

@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 
 #endregion
@@ -19,7 +19,8 @@ public abstract class OrxVersionedMessage : IVersionedMessage
 
     [OrxMandatoryField(0)] public byte Version { get; set; }
 
-    public virtual void CopyFrom(IVersionedMessage tradingMessage, IRecycler orxRecyclingFactory)
+    public virtual void CopyFrom(IVersionedMessage tradingMessage
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Version = tradingMessage.Version;
     }

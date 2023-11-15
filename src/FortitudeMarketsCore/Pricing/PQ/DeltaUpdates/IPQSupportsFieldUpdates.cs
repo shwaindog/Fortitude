@@ -6,7 +6,7 @@ using FortitudeCommon.Types;
 
 namespace FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
-public interface IPQSupportsFieldUpdates<in T> : ITracksChanges<T>
+public interface IPQSupportsFieldUpdates<in T> : ITracksChanges<T> where T : class
 {
     int UpdateField(PQFieldUpdate fieldUpdate);
 

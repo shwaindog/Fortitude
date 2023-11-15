@@ -113,6 +113,11 @@ public class OrderBook : IMutableOrderBook
             (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IOrderBook)source, copyMergeFlags);
+    }
+
     IMutableOrderBook ICloneable<IMutableOrderBook>.Clone() => Clone();
 
     IMutableOrderBook IMutableOrderBook.Clone() => Clone();

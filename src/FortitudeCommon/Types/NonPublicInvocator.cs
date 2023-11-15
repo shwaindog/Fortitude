@@ -13,6 +13,7 @@ public class NonPublicInvocator
 {
     private NonPublicInvocator() { }
 
+
     public static T RunStaticMethod<T>(string fullNamespaceTypeName, string strMethod, params object[] aobjParams)
     {
         var flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Static;
@@ -29,6 +30,18 @@ public class NonPublicInvocator
     {
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;
         return RunMethod<T>(objInstance, strMethod, aobjParams, flags);
+    }
+
+    public static Action<T> GetInstanceMethodAction<T>(object objInstance, string strMethod)
+    {
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        return GetInstanceMethodAction<T>(objInstance, strMethod, flags);
+    }
+
+    public static Func<T, TU, TV> GetInstanceMethodFunc<T, TU, TV>(object objInstance, string strMethod)
+    {
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        return GetInstanceMethodFunc<T, TU, TV>(objInstance, strMethod, flags);
     }
 
     public static T RunInstanceMethodBaseVersion<T>(object objInstance, string strMethod,
@@ -160,6 +173,28 @@ public class NonPublicInvocator
         fieldInfo.SetValue(objInstance, value);
     }
 
+    public static FieldInfo SetInstanceFieldFieldInfo<TInstance>(TInstance objInstance, string fieldName,
+        bool includePubWithNonPubSetters = false)
+    {
+        var flags
+            = BindingFlags.NonPublic | (includePubWithNonPubSetters ? BindingFlags.Public : BindingFlags.NonPublic)
+                                     | BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.FlattenHierarchy;
+        var t = typeof(TInstance);
+        FieldInfo? fieldInfo = null;
+
+        while (t != null && t != typeof(object) && fieldInfo == null)
+        {
+            fieldInfo = t.GetField(fieldName, flags);
+            t = t.BaseType;
+        }
+
+        if (fieldInfo == null)
+            throw new ApplicationException(
+                $"Requested field '{fieldName}' could not be found on {objInstance.GetType().Name}");
+
+        return fieldInfo;
+    }
+
     public static void SetStaticField<T>(Type type, string fieldName, T value,
         bool includePubWithNonPubSetters = false)
     {
@@ -266,6 +301,31 @@ public class NonPublicInvocator
         return RunMethod<T>(t, objInstance, strMethod, aobjParams, flags);
     }
 
+    private static Action<T> GetInstanceMethodAction<T>(object objInstance, string strMethod, BindingFlags flags)
+    {
+        Type t;
+        if (objInstance != null && !(objInstance is Type))
+            t = objInstance.GetType();
+        else if (objInstance != null)
+            t = (Type)objInstance;
+        else
+            throw new ArgumentException("Expected objectInstance to be the instance to invoke or the System.Type");
+        return GetInstanceMethodAction<T>(t, objInstance, strMethod, flags);
+    }
+
+    private static Func<T, TU, TV> GetInstanceMethodFunc<T, TU, TV>(object objInstance, string strMethod
+        , BindingFlags flags)
+    {
+        Type t;
+        if (objInstance != null && !(objInstance is Type))
+            t = objInstance.GetType();
+        else if (objInstance != null)
+            t = (Type)objInstance;
+        else
+            throw new ArgumentException("Expected objectInstance to be the instance to invoke or the System.Type");
+        return GetInstanceMethodFunc<T, TU, TV>(t, objInstance, strMethod, flags);
+    }
+
     private static T RunMethod<T>(Type t, object? objInstance, string strMethod, object[] objParams,
         BindingFlags flags)
     {
@@ -286,6 +346,50 @@ public class NonPublicInvocator
 
         var objRet = m.Invoke(objInstance, objParams)!;
         return (T)objRet;
+    }
+
+    private static Action<T> GetInstanceMethodAction<T>(Type t, object? objInstance, string strMethod,
+        BindingFlags flags)
+    {
+        if (objInstance == null) objInstance = t;
+        var paramTypes = new Type[1];
+        paramTypes[0] = typeof(T);
+        MethodInfo? m = null;
+        var currentType = t;
+        while (currentType != null && currentType != typeof(object) && m == null)
+        {
+            m = currentType.GetMethod(strMethod, flags, null, paramTypes, null);
+            currentType = currentType.BaseType;
+        }
+
+        if (m == null)
+            throw new ArgumentException("There is no method '" + strMethod + "' for type '" + currentType +
+                                        "' or its base methods.");
+
+        var callBackDelegate = m.CreateDelegate<Action<T>>(objInstance);
+        return callBackDelegate;
+    }
+
+    private static Func<T, TU, TV> GetInstanceMethodFunc<T, TU, TV>(Type t, object? objInstance, string strMethod,
+        BindingFlags flags)
+    {
+        if (objInstance == null) objInstance = t;
+        var paramTypes = new Type[1];
+        paramTypes[0] = typeof(T);
+        MethodInfo? m = null;
+        var currentType = t;
+        while (currentType != null && currentType != typeof(object) && m == null)
+        {
+            m = currentType.GetMethod(strMethod, flags, null, paramTypes, null);
+            currentType = currentType.BaseType;
+        }
+
+        if (m == null)
+            throw new ArgumentException("There is no method '" + strMethod + "' for type '" + currentType +
+                                        "' or its base methods.");
+
+        var callBackDelegate = m.CreateDelegate<Func<T, TU, TV>>(objInstance);
+        return callBackDelegate;
     }
 
     private static T RunMethodNoVirtual<T>(Type t, object? objInstance, string strMethod, object[] aobjParams,

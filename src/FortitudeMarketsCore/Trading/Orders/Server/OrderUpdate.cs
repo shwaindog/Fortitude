@@ -10,6 +10,8 @@ namespace FortitudeMarketsCore.Trading.Orders.Server;
 
 public class OrderUpdate : TradingMessage, IOrderUpdate
 {
+    public OrderUpdate() { }
+
     public OrderUpdate(IOrderUpdate toClone) : base(toClone)
     {
         Order = toClone.Order!.Clone();

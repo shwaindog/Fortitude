@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;
@@ -28,7 +28,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate
         AdapterUpdateTime = adapterUpdateTime;
     }
 
-    [OrxMandatoryField(10)] public OrxOrder? Order { get; set; }
+    [OrxMandatoryField(9)] public OrxOrder? Order { get; set; }
 
     public override uint MessageId => (ushort)TradingMessageIds.OrderUpdate;
 
@@ -38,22 +38,29 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate
         set => Order = value as OrxOrder;
     }
 
-    [OrxMandatoryField(11)] public OrderUpdateEventType OrderUpdateType { get; set; }
+    [OrxMandatoryField(10)] public OrderUpdateEventType OrderUpdateType { get; set; }
 
-    [OrxOptionalField(12)] public DateTime AdapterUpdateTime { get; set; }
+    [OrxOptionalField(11)] public DateTime AdapterUpdateTime { get; set; }
 
     public DateTime ClientReceivedTime { get; set; }
 
     public IOrderUpdate Clone() => new OrxOrderUpdate(this);
 
-    public void CopyFrom(IOrderUpdate orderUpdate, IRecycler orxRecyclingFactory)
+    public void CopyFrom(IOrderUpdate orderUpdate, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(orderUpdate, orxRecyclingFactory);
+        base.CopyFrom(orderUpdate, copyMergeFlags);
         if (orderUpdate.Order != null)
         {
-            var orxOrder = orxRecyclingFactory.Borrow<OrxOrder>();
-            orxOrder.CopyFrom(orderUpdate.Order, orxRecyclingFactory);
-            Order = orxOrder;
+            Order ??= Recycler!.Borrow<OrxOrder>();
+            Order.CopyFrom(orderUpdate.Order, copyMergeFlags);
+        }
+        else
+        {
+            if (Order != null)
+            {
+                Order.DecrementRefCount();
+                Order = null;
+            }
         }
 
         AdapterUpdateTime = orderUpdate.AdapterUpdateTime;

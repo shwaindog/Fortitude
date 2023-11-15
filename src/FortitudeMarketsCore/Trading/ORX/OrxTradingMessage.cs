@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Authentication;
@@ -55,15 +55,15 @@ public abstract class OrxTradingMessage : OrxAuthenticatedMessage, ITradingMessa
 
     [OrxOptionalField(8)] public DateTime OriginalSendTime { get; set; } = DateTimeConstants.UnixEpoch;
 
-    public override void CopyFrom(IVersionedMessage source, IRecycler orxRecyclingFactory)
+    public override void CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags)
     {
-        base.CopyFrom(source, orxRecyclingFactory);
+        base.CopyFrom(source, copyMergeFlags);
         if (source is ITradingMessage tradingMessage)
         {
             SequenceNumber = tradingMessage.SequenceNumber;
             IsReplay = tradingMessage.IsReplay;
             MachineName = tradingMessage.MachineName != null ?
-                orxRecyclingFactory.Borrow<MutableString>().Clear().Append(tradingMessage.MachineName) :
+                Recycler!.Borrow<MutableString>().Clear().Append(tradingMessage.MachineName) :
                 null;
             OriginalSendTime = tradingMessage.OriginalSendTime;
         }

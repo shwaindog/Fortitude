@@ -20,17 +20,25 @@ public class OrxRecyclingFactory : IRecycler
 
     public T Borrow<T>() where T : class, new()
     {
-        if (poolFactoryMap.TryGetValue(typeof(T), out var poolFactoryContainer))
+        DisassemblerAndPoolFactoryContainer? poolFactoryContainer;
+        if (!poolFactoryMap.TryGetValue(typeof(T), out poolFactoryContainer))
+            lock (poolFactoryMap)
+            {
+                if (!poolFactoryMap.ContainsKey(typeof(T)))
+                    poolFactoryContainer = CreateNewPoolFactoryContainer<T>();
+                else
+                    poolFactoryContainer = poolFactoryMap[typeof(T)];
+            }
+
+        var borrow = (T)poolFactoryContainer.PooledFactory.Borrow();
+        if (borrow is IRecyclableObject checkRecyclerStillAdded)
         {
-            var reborrowing = (T)poolFactoryContainer.PooledFactory.Borrow();
-            if (reborrowing is IRecycleableObject checkRecyclerStillAdded) checkRecyclerStillAdded.Recycler = this;
-            return reborrowing;
+            checkRecyclerStillAdded.Recycler = this;
+            checkRecyclerStillAdded.IncrementRefCount();
+            checkRecyclerStillAdded.RecycleOnRefCountZero = true;
         }
 
-        poolFactoryContainer = CreateNewPoolFactoryContainer<T>();
-        var checkingOut = (T)poolFactoryContainer.PooledFactory.Borrow();
-        if (checkingOut is IRecycleableObject recycleableObject) recycleableObject.Recycler = this;
-        return checkingOut;
+        return borrow;
     }
 
     public void Recycle(object trash)
@@ -42,7 +50,7 @@ public class OrxRecyclingFactory : IRecycler
             return;
         }
 
-        logger.Debug("Returning item without recycling factory having created it.");
+        logger.Warn("Returning item without recycling factory having created it.");
     }
 
     private DisassemblerAndPoolFactoryContainer CreateNewPoolFactoryContainer<T>() where T : class, new()

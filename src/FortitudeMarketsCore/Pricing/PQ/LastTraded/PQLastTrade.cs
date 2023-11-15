@@ -175,6 +175,11 @@ public class PQLastTrade : IPQLastTrade
         }
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((ILastTrade)source, copyMergeFlags);
+    }
+
     public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance) { }
 
     public virtual void EnsureRelatedItemsAreConfigured(IPQLastTrade? referenceInstance) { }

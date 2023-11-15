@@ -1,7 +1,6 @@
-﻿namespace FortitudeCommon.Types
+﻿namespace FortitudeCommon.Types;
+
+public interface ITracksChanges<in T> : IStoreState<T> where T : class
 {
-    public interface ITracksChanges<in T> : IStoreState<T>
-    {
-        bool HasUpdates { get; set; }
-    }
+    bool HasUpdates { get; set; }
 }

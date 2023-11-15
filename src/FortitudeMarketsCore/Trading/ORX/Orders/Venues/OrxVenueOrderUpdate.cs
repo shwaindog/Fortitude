@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 using FortitudeMarketsCore.Trading.ORX.Session;
@@ -52,13 +52,13 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
 
     public IVenueOrderUpdate Clone() => new OrxVenueOrderUpdate(this);
 
-    public void CopyFrom(IVenueOrderUpdate venueOrderUpdate, IRecycler orxRecyclingFactory)
+    public void CopyFrom(IVenueOrderUpdate venueOrderUpdate, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(venueOrderUpdate, orxRecyclingFactory);
+        base.CopyFrom(venueOrderUpdate, copyMergeFlags);
         if (venueOrderUpdate.VenueOrder != null)
         {
-            var orxVenueOrder = orxRecyclingFactory.Borrow<OrxVenueOrder>();
-            orxVenueOrder.CopyFrom(venueOrderUpdate.VenueOrder, orxRecyclingFactory);
+            var orxVenueOrder = Recycler!.Borrow<OrxVenueOrder>();
+            orxVenueOrder.CopyFrom(venueOrderUpdate.VenueOrder, copyMergeFlags);
             VenueOrder = orxVenueOrder;
         }
 

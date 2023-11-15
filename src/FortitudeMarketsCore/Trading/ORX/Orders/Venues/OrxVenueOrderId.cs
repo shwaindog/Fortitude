@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
@@ -11,6 +12,8 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 public class OrxVenueOrderId : IVenueOrderId
 {
+    private int refCount = 0;
+
     public OrxVenueOrderId()
     {
         VenueClientOrderId = new MutableString();
@@ -50,14 +53,35 @@ public class OrxVenueOrderId : IVenueOrderId
 
     public IVenueOrderId Clone() => new OrxVenueOrderId(this);
 
-    public void CopyFrom(IVenueOrderId venueOrderId, IRecycler recycler)
+    public void CopyFrom(IVenueOrderId venueOrderId, CopyMergeFlags copyMergeFlags)
     {
         VenueClientOrderId = venueOrderId?.VenueClientOrderId != null ?
-            recycler.Borrow<MutableString>().Clear().Append(venueOrderId.VenueClientOrderId) :
+            Recycler!.Borrow<MutableString>().Clear().Append(venueOrderId.VenueClientOrderId) :
             new MutableString();
         VenueOrderIdentifier = venueOrderId?.VenueOrderIdentifier != null ?
-            recycler.Borrow<MutableString>().Clear().Append(venueOrderId.VenueOrderIdentifier) :
+            Recycler!.Borrow<MutableString>().Clear().Append(venueOrderId.VenueOrderIdentifier) :
             new MutableString();
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IVenueOrderId)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxVenueOrderId other)

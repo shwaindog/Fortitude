@@ -1,12 +1,15 @@
-﻿using System.Net.Mail;
+﻿#region
+
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 
-namespace FortitudeMarketsApi.Trading.Orders.Venues
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Orders.Venues;
+
+public interface IVenueOrderId : IRecyclableObject<IVenueOrderId>
 {
-    public interface IVenueOrderId
-    {
-        IMutableString VenueClientOrderId { get; set; }
-        IMutableString VenueOrderIdentifier { get; set; }
-        IVenueOrderId Clone();
-    }
+    IMutableString VenueClientOrderId { get; set; }
+    IMutableString VenueOrderIdentifier { get; set; }
+    IVenueOrderId Clone();
 }

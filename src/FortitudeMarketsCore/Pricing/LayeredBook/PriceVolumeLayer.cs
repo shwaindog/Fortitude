@@ -36,6 +36,11 @@ public class PriceVolumeLayer : IMutablePriceVolumeLayer
         Volume = source.Volume;
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+    }
+
     public virtual IPriceVolumeLayer Clone() => new PriceVolumeLayer(this);
 
     object ICloneable.Clone() => Clone();

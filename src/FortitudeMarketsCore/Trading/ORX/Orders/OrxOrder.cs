@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Counterparties;
@@ -21,6 +22,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders;
 public class OrxOrder : IOrder
 {
     private OrxProductOrder? product;
+    private int refCount = 0;
 
     public OrxOrder()
     {
@@ -171,10 +173,10 @@ public class OrxOrder : IOrder
 
     public IOrder Clone() => new OrxOrder(this);
 
-    public void CopyFrom(IOrder order, IRecycler recycler)
+    public void CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags)
     {
-        var orxOrderId = recycler.Borrow<OrxOrderId>();
-        orxOrderId.CopyFrom(order.OrderId, recycler);
+        var orxOrderId = Recycler!.Borrow<OrxOrderId>();
+        orxOrderId.CopyFrom(order.OrderId, copyMergeFlags);
         OrderId = orxOrderId;
 
         TimeInForce = order.TimeInForce;
@@ -182,8 +184,8 @@ public class OrxOrder : IOrder
         Status = order.Status;
         if (order.Product != null)
         {
-            var orxProductOrder = ((OrxProductOrder)order.Product).GetPooledInstance(recycler);
-            orxProductOrder.CopyFrom(order.Product, recycler);
+            var orxProductOrder = ((OrxProductOrder)order.Product).GetPooledInstance(Recycler);
+            orxProductOrder.CopyFrom(order.Product, copyMergeFlags);
             Product = orxProductOrder;
         }
 
@@ -191,35 +193,60 @@ public class OrxOrder : IOrder
         DoneTime = order.DoneTime;
         if (order.Parties != null)
         {
-            var orxParties = recycler.Borrow<OrxParties>();
-            orxParties.CopyFrom(order.Parties, recycler);
+            var orxParties = Recycler.Borrow<OrxParties>();
+            orxParties.CopyFrom(order.Parties, copyMergeFlags);
             Parties = orxParties;
         }
 
         OrderPublisher = order.OrderPublisher;
         if (order.VenueSelectionCriteria != null)
         {
-            var orxVenueCriteria = recycler.Borrow<OrxVenueCriteria>();
-            orxVenueCriteria.CopyFrom(order.VenueSelectionCriteria, recycler);
+            var orxVenueCriteria = Recycler.Borrow<OrxVenueCriteria>();
+            orxVenueCriteria.CopyFrom(order.VenueSelectionCriteria, copyMergeFlags);
             VenueSelectionCriteria = orxVenueCriteria;
         }
 
         if (order.VenueOrders != null)
         {
-            var orxVenueOrders = recycler.Borrow<OrxVenueOrders>();
-            orxVenueOrders.CopyFrom(order.VenueOrders, recycler);
+            var orxVenueOrders = Recycler.Borrow<OrxVenueOrders>();
+            orxVenueOrders.CopyFrom(order.VenueOrders, copyMergeFlags);
             VenueOrders = orxVenueOrders;
         }
 
         if (order.Executions != null)
         {
-            var orxExecutions = recycler.Borrow<OrxExecutions>();
-            orxExecutions.CopyFrom(order.Executions, recycler);
+            var orxExecutions = Recycler.Borrow<OrxExecutions>();
+            orxExecutions.CopyFrom(order.Executions, copyMergeFlags);
             Executions = orxExecutions;
         }
 
         var orxMessage = Message;
         orxMessage.CopyFrom(order.Message);
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IOrder)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+
+    public int DecrementRefCount()
+    {
+        if (Interlocked.Decrement(ref refCount) == 0 && RecycleOnRefCountZero) Recycler!.Recycle(this);
+        return refCount;
+    }
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxOrder other)

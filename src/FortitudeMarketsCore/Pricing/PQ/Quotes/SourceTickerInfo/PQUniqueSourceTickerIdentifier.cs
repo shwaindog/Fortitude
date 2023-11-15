@@ -187,6 +187,11 @@ public class PQUniqueSourceTickerIdentifier : IPQUniqueSourceTickerIdentifier
         if (sourceUniqueTickerId is PQUniqueSourceTickerIdentifier pqSrcTkrId) UpdatedFlags = pqSrcTkrId.UpdatedFlags;
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IUniqueSourceTickerIdentifier)source, copyMergeFlags);
+    }
+
     public virtual object Clone() => new PQUniqueSourceTickerIdentifier(this);
 
     IUniqueSourceTickerIdentifier ICloneable<IUniqueSourceTickerIdentifier>.Clone() =>

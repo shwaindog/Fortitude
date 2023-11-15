@@ -89,6 +89,11 @@ public class PeriodSummary : IMutablePeriodSummary
         PeriodVolume = source.PeriodVolume;
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IPeriodSummary)source, copyMergeFlags);
+    }
+
     object ICloneable.Clone() => Clone();
 
     IPeriodSummary ICloneable<IPeriodSummary>.Clone() => Clone();
