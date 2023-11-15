@@ -78,7 +78,7 @@ public class PQLevel0Quote : IPQLevel0Quote
                 PQSourceTickerQuoteInfo = pqSourceTickerInfo;
             if (PQSourceTickerQuoteInfo is PQSourceTickerQuoteInfo pqSourceTickInfo)
             {
-                PQSourceTickerQuoteInfo.CopyFrom(pqSourceTickInfo);
+                PQSourceTickerQuoteInfo.CopyFrom((IUniqueSourceTickerIdentifier)pqSourceTickInfo);
                 return;
             }
 
@@ -396,6 +396,11 @@ public class PQLevel0Quote : IPQLevel0Quote
                 LastPublicationTime = pq0.LastPublicationTime;
             }
         }
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((ILevel0Quote)source, copyMergeFlags);
     }
 
     public virtual void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance)

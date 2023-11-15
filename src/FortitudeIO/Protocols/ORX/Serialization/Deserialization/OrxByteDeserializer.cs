@@ -441,6 +441,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         private readonly Dictionary<ushort, IOrxDeserializer>? deserializerLookup;
         private readonly IOrxDeserializer itemSerializer;
         private readonly byte messageVersion;
+        private readonly IOrxDeserializerLookup orxDeserializerLookup;
 
         // ReSharper disable once UnusedMember.Local
         public MandatoryObjectDeserializer(PropertyInfo property, Dictionary<ushort, Type>? mapping,
@@ -461,6 +462,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
             IOrxDeserializerLookup orxDeserializerLookup, byte version) : base(property)
         {
             itemSerializer = orxDeserializerLookup.GetOrCreateDeserializerForVersion(typeof(TD), version);
+            this.orxDeserializerLookup = orxDeserializerLookup;
             messageVersion = version;
         }
 
@@ -487,6 +489,9 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
                 typedProp = (TD)itemSerializer.Deserialize(ptr, size, messageVersion);
             }
 
+            if (typedProp is IRecyclableObject recyclableObject)
+                recyclableObject.Recycler = orxDeserializerLookup.OrxRecyclingFactory;
+
             Set(message, (TP)(object)typedProp);
             ptr += size;
         }
@@ -497,12 +502,14 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         private readonly Dictionary<ushort, IOrxDeserializer>? deserializerLookup;
         private readonly IOrxDeserializer itemSerializer;
         private readonly byte messageVersion;
+        private readonly IOrxDeserializerLookup orxDeserializerLookup;
 
         // ReSharper disable once UnusedMember.Local
         public OptionalObjectDeserializer(PropertyInfo property, Dictionary<ushort, Type>? mapping,
             IOrxDeserializerLookup orxDeserializerLookup, byte version) : base(property)
         {
             itemSerializer = orxDeserializerLookup.GetOrCreateDeserializerForVersion(typeof(T), version);
+            this.orxDeserializerLookup = orxDeserializerLookup;
             messageVersion = version;
             if (mapping != null)
             {
@@ -538,6 +545,9 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
             {
                 typedProp = (T)itemSerializer.Deserialize(ptr, size, messageVersion);
             }
+
+            if (typedProp is IRecyclableObject recyclableObject)
+                recyclableObject.Recycler = orxDeserializerLookup.OrxRecyclingFactory;
 
             Set(message, typedProp);
             ptr += size;

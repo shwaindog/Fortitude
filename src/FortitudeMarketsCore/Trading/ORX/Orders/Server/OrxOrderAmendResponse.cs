@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders;
@@ -42,16 +42,16 @@ public class OrxOrderAmendResponse : OrxOrderUpdate, IOrderAmendResponse
 
     public new IOrderAmendResponse Clone() => new OrxOrderAmendResponse(this);
 
-    public override void CopyFrom(IVersionedMessage source, IRecycler orxRecyclingFactory)
+    public override void CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags)
     {
-        base.CopyFrom(source, orxRecyclingFactory);
+        base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderAmendResponse amendResponse)
         {
             AmendType = amendResponse.AmendType;
             if (amendResponse.OldOrderId != null)
             {
-                var newOrderId = orxRecyclingFactory.Borrow<OrxOrderId>();
-                newOrderId.CopyFrom(amendResponse.OldOrderId, orxRecyclingFactory);
+                var newOrderId = Recycler!.Borrow<OrxOrderId>();
+                newOrderId.CopyFrom(amendResponse.OldOrderId, copyMergeFlags);
                 OldOrderId = newOrderId;
             }
         }

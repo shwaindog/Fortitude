@@ -60,16 +60,25 @@ public class TradingFeedHandle : ITradingFeed
     public void SubmitOrderRequest(IOrderSubmitRequest submitRequest)
     {
         submitRequest.OrderDetails!.Status = OrderStatus.Active;
-        OnOrderUpdate(new OrderUpdate(submitRequest.OrderDetails, OrderUpdateEventType.OrderAcknowledged,
-            TimeContext.UtcNow));
+        var orderUpdate = submitRequest.Recycler!.Borrow<OrderUpdate>();
+        orderUpdate.Order = submitRequest.OrderDetails;
+        orderUpdate.OrderUpdateType = OrderUpdateEventType.OrderAcknowledged;
+        orderUpdate.AdapterUpdateTime = TimeContext.UtcNow;
+        orderUpdate.ClientReceivedTime = DateTime.MinValue;
+        OnOrderUpdate(orderUpdate);
         LastReceivedOrder = submitRequest.OrderDetails.Clone();
     }
 
     public void AmendOrderRequest(IOrder order, IOrderAmend amendOrderRequest)
     {
         order.Product!.ApplyAmendment(amendOrderRequest);
-        OnOrderAmendResponse(new OrxOrderAmendResponse((OrxOrder)order, OrderUpdateEventType.OrderAmended
-            , TimeContext.UtcNow, AmendType.Amended, null));
+        var amendResponse = order.Recycler!.Borrow<OrxOrderAmendResponse>();
+        amendResponse.Order = (OrxOrder)order;
+        amendResponse.OrderUpdateType = OrderUpdateEventType.OrderAmended;
+        amendResponse.AdapterUpdateTime = TimeContext.UtcNow;
+        amendResponse.AmendType = AmendType.Amended;
+        amendResponse.OldOrderId = null;
+        OnOrderAmendResponse(amendResponse);
         LastReceivedOrder = order.Clone();
     }
 

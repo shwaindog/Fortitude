@@ -532,6 +532,11 @@ public class PQPeriodSummary : IPQPeriodSummary
         }
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IPeriodSummary)source, copyMergeFlags);
+    }
+
     public IMutablePeriodSummary Clone() => new PQPeriodSummary(this);
 
     object ICloneable.Clone() => Clone();

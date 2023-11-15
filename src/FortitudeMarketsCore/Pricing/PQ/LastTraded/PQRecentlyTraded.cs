@@ -198,6 +198,11 @@ public class PQRecentlyTraded : IPQRecentlyTraded
         for (var i = source.Capacity; i < lastTrades.Count; i++) lastTrades[i]?.Reset();
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IRecentlyTraded)source, copyMergeFlags);
+    }
+
     public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
     {
         var entiresFactory = LastTradeEntrySelector.FindForLastTradeFlags(referenceInstance);

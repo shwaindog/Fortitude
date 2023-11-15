@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 
@@ -43,7 +43,7 @@ public class OrxVenuePriceQuoteId : IVenuePriceQuoteId
 
     public IVenuePriceQuoteId Clone() => new OrxVenuePriceQuoteId(this);
 
-    public void CopyFrom(IVenuePriceQuoteId venuePriceQuoteId, IRecycler recycler)
+    public void CopyFrom(IVenuePriceQuoteId venuePriceQuoteId, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SourceId = venuePriceQuoteId.SourceId;
         TickerId = venuePriceQuoteId.TickerId;

@@ -2,6 +2,7 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -10,7 +11,7 @@ using System.Reflection;
 namespace FortitudeCommon.Types;
 
 /// <summary>
-/// Provide methods used in reflection
+///     Provide methods used in reflection
 /// </summary>
 public static class ReflectionHelper
 {
@@ -22,13 +23,17 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Gets a member from an object
-    /// The member name can be composed of other member name (such as "Statistics.Decile.Value")
+    ///     Gets a member from an object
+    ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="object"></param>
     /// <param name="memberName"></param>
-    /// <param name="ignoreComposedMemberNull">Don't throw an exception if an intermediate is <see langword="null"/>. For example, if looking for "Statistics.Decile.Value", Decile is <see langword="null"/>, then the method will return <see langword="null"/>.</param>
+    /// <param name="ignoreComposedMemberNull">
+    ///     Don't throw an exception if an intermediate is <see langword="null" />. For
+    ///     example, if looking for "Statistics.Decile.Value", Decile is <see langword="null" />, then the method will return
+    ///     <see langword="null" />.
+    /// </param>
     /// <returns></returns>
     public static T? GetProperty<T>(object? @object, string memberName, bool ignoreComposedMemberNull)
     {
@@ -99,8 +104,8 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Gets a member from an object
-    /// The member name can be composed of other member name (such as "Statistics.Decile.Value")
+    ///     Gets a member from an object
+    ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="object"></param>
@@ -109,8 +114,8 @@ public static class ReflectionHelper
     public static T? GetProperty<T>(object @object, string memberName) => GetProperty<T>(@object, memberName, false);
 
     /// <summary>
-    /// Gets a member from an object
-    /// The member name can be composed of other member name (such as "Statistics.Decile.Value")
+    ///     Gets a member from an object
+    ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
     /// </summary>
     /// <param name="object"></param>
     /// <param name="memberName"></param>
@@ -159,7 +164,7 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Gets the value of a property of an object
+    ///     Gets the value of a property of an object
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="object"></param>
@@ -168,7 +173,7 @@ public static class ReflectionHelper
     public static T? GetProperty<T>(object @object, PropertyInfo property) => (T?)property.GetValue(@object, null);
 
     /// <summary>
-    /// Return all the properties of a given type of an object 
+    ///     Return all the properties of a given type of an object
     /// </summary>
     /// <typeparam name="T">Type of the property</typeparam>
     /// <param name="object">Object to look on</param>
@@ -176,7 +181,7 @@ public static class ReflectionHelper
     public static List<T> GetProperties<T>(object @object) => GetProperties<T>(@object, false);
 
     /// <summary>
-    /// Return all the fields of a given type of an object
+    ///     Return all the fields of a given type of an object
     /// </summary>
     /// <typeparam name="T">Type of the field</typeparam>
     /// <param name="object">Object to look on</param>
@@ -197,7 +202,7 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Instantiate an object of the given type
+    ///     Instantiate an object of the given type
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="typeToInstantiate"></param>
@@ -205,15 +210,38 @@ public static class ReflectionHelper
     public static T? Instantiate<T>(Type typeToInstantiate) =>
         (T?)typeToInstantiate.Assembly.CreateInstance(typeToInstantiate.FullName!);
 
+
     /// <summary>
-    /// Instantiate an object of the given type
+    ///     Instantiate an object of a generic Type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="parameterlessGenericType"></param>
+    /// <returns></returns>
+    public static object InstantiateGenericType(Type parameterlessGenericType,
+        Type[] genericArgs, params object[] constructorArgs)
+    {
+        var fullConfiguredType = parameterlessGenericType.MakeGenericType(genericArgs);
+        return Activator.CreateInstance(fullConfiguredType, BindingFlags.CreateInstance,
+            null, constructorArgs, CultureInfo.CurrentCulture)!;
+    }
+
+    public static Delegate CreateEmptyConstructorFactoryAsFuncType(Type withParameterlessConstructor)
+    {
+        var typeConstant = Expression.Constant(withParameterlessConstructor);
+        var constructor = withParameterlessConstructor.GetConstructor(Array.Empty<Type>());
+        var callConstructor = Expression.New(constructor);
+        return Expression.Lambda(callConstructor).Compile();
+    }
+
+    /// <summary>
+    ///     Instantiate an object of the given type
     /// </summary>
     /// <param name="typeToInstantiate"></param>
     /// <returns></returns>
     public static object? Instantiate(Type typeToInstantiate) => Instantiate<object>(typeToInstantiate);
 
     /// <summary>
-    /// Get a <see cref="PropertyInfo"/> object from a lambda expression representing the member to return
+    ///     Get a <see cref="PropertyInfo" /> object from a lambda expression representing the member to return
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
@@ -232,8 +260,8 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Get a string representation of the lambda expression.
-    /// Example: a lambda of o => o.Item.SubItem will return a string of "Item.SubItem"
+    ///     Get a string representation of the lambda expression.
+    ///     Example: a lambda of o => o.Item.SubItem will return a string of "Item.SubItem"
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
@@ -252,8 +280,10 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Get a collection of <see cref="PropertyInfo"/> objects from a lambda expression representing the members to return.
-    /// Example: if the lambda expression is item.SubItem.SubSubItem, this will return a <see cref="PropertyInfo"/> for SubItem, and another one for SubSubItem.
+    ///     Get a collection of <see cref="PropertyInfo" /> objects from a lambda expression representing the members to
+    ///     return.
+    ///     Example: if the lambda expression is item.SubItem.SubSubItem, this will return a <see cref="PropertyInfo" /> for
+    ///     SubItem, and another one for SubSubItem.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
@@ -266,7 +296,7 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Return all the properties of a given type of an object 
+    ///     Return all the properties of a given type of an object
     /// </summary>
     /// <typeparam name="T">Type of the property</typeparam>
     /// <param name="object">Object to look on</param>
@@ -276,10 +306,13 @@ public static class ReflectionHelper
         GetProperties<T>(@object, recursive, new List<object>());
 
     /// <summary>
-    /// Get the name of the method which called this method
+    ///     Get the name of the method which called this method
     /// </summary>
     /// <param name="frameIndex">0 gives the name of this method, 1 its parent, 2 parent of parent etc.</param>
-    /// <param name="removeGetSetPrefix">If the calling method is a getter or a setter, setting this to true will remove the get_ set_ prefix</param>
+    /// <param name="removeGetSetPrefix">
+    ///     If the calling method is a getter or a setter, setting this to true will remove the
+    ///     get_ set_ prefix
+    /// </param>
     /// <returns></returns>
     public static string GetCallingMethodName(int frameIndex, bool removeGetSetPrefix)
     {
@@ -328,7 +361,7 @@ public static class ReflectionHelper
     }
 
     /// <summary>
-    /// Return all the properties of a given type of an object 
+    ///     Return all the properties of a given type of an object
     /// </summary>
     /// <typeparam name="T">Type of the property</typeparam>
     /// <param name="object">Object to look on</param>

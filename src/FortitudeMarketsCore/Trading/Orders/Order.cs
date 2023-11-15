@@ -2,6 +2,8 @@
 
 using System.Text;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarketsApi.Trading.Counterparties;
 using FortitudeMarketsApi.Trading.Executions;
@@ -18,6 +20,7 @@ namespace FortitudeMarketsCore.Trading.Orders;
 public sealed class Order : IOrder
 {
     private IProductOrder? product;
+    private int refCount = 0;
     private OrderStatus status;
 
     public Order(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, IProductOrder product)
@@ -113,6 +116,43 @@ public sealed class Order : IOrder
     public IVenueOrders? VenueOrders { get; set; }
     public IExecutions? Executions { get; set; }
     public IMutableString Message { get; set; } = new MutableString();
+
+    public void CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        OrderId = source.OrderId;
+        TimeInForce = source.TimeInForce;
+        CreationTime = source.CreationTime;
+        SubmitTime = source.SubmitTime;
+        DoneTime = source.DoneTime;
+        Parties = source.Parties;
+        Status = source.Status;
+        OrderPublisher = source.OrderPublisher;
+        Product = source.Product;
+        VenueOrders = source.VenueOrders;
+        Executions = source.Executions;
+        Message = source.Message;
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IOrder)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
+    }
 
     public IOrder Clone() => new Order(this);
 

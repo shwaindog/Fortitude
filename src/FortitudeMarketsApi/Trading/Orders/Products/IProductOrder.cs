@@ -9,7 +9,7 @@ using FortitudeMarketsApi.Trading.Orders.Client;
 
 namespace FortitudeMarketsApi.Trading.Orders.Products;
 
-public interface IProductOrder
+public interface IProductOrder : IRecyclableObject<IProductOrder>
 {
     ProductType ProductType { get; }
     IMutableString? Message { get; set; }
@@ -18,7 +18,6 @@ public interface IProductOrder
     bool IsError { get; }
     void ApplyAmendment(IOrderAmend amendment);
     bool RequiresAmendment(IOrderAmend amendment);
-    void CopyFrom(IProductOrder source, IRecycler recycler);
     void RegisterExecution(IExecution execution);
     IProductOrder Clone();
 }

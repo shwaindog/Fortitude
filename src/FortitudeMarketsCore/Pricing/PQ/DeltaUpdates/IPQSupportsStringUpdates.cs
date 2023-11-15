@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using FortitudeCommon.Types;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+﻿#region
 
-namespace FortitudeMarketsCore.Pricing.PQ.DeltaUpdates
+using FortitudeCommon.Types;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+
+public interface IPQSupportsStringUpdates<in T> : ITracksChanges<T> where T : class
 {
-    public interface IPQSupportsStringUpdates<in T> : ITracksChanges<T>
-    {
-        bool UpdateFieldString(PQFieldStringUpdate updates);
-        IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle);
-    }
+    bool UpdateFieldString(PQFieldStringUpdate updates);
+    IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle);
 }

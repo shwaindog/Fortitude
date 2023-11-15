@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders;
@@ -13,6 +14,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 public class OrxVenueOrder : IVenueOrder
 {
+    private int refCount = 0;
     public OrxVenueOrder() { }
 
     public OrxVenueOrder(IVenueOrder toClone)
@@ -86,35 +88,56 @@ public class OrxVenueOrder : IVenueOrder
 
     public IVenueOrder Clone() => new OrxVenueOrder(this);
 
-    public void CopyFrom(IVenueOrder venueOrder, IRecycler recycler)
+    public void CopyFrom(IVenueOrder venueOrder, CopyMergeFlags copyMergeFlags)
     {
         if (venueOrder.VenueOrderId != null)
         {
-            var orxVenueOrderId = recycler.Borrow<OrxVenueOrderId>();
-            orxVenueOrderId.CopyFrom(venueOrder.VenueOrderId, recycler);
+            var orxVenueOrderId = Recycler!.Borrow<OrxVenueOrderId>();
+            orxVenueOrderId.CopyFrom(venueOrder.VenueOrderId, copyMergeFlags);
             VenueOrderId = orxVenueOrderId;
         }
 
         if (venueOrder.OrderId != null)
         {
-            var orxOrderId = recycler.Borrow<OrxOrderId>();
-            orxOrderId.CopyFrom(venueOrder.OrderId, recycler);
+            var orxOrderId = Recycler!.Borrow<OrxOrderId>();
+            orxOrderId.CopyFrom(venueOrder.OrderId, copyMergeFlags);
             OrderId = orxOrderId;
         }
 
         Status = venueOrder.Status;
         if (venueOrder.Venue != null)
         {
-            var orxVenue = recycler.Borrow<OrxVenue>();
-            orxVenue.CopyFrom(venueOrder.Venue, recycler);
+            var orxVenue = Recycler!.Borrow<OrxVenue>();
+            orxVenue.CopyFrom(venueOrder.Venue, copyMergeFlags);
             Venue = orxVenue;
         }
 
         Ticker = venueOrder.Ticker != null ?
-            recycler.Borrow<MutableString>().Clear().Append(venueOrder.Ticker) :
+            Recycler!.Borrow<MutableString>().Clear().Append(venueOrder.Ticker) :
             new MutableString();
         Price = venueOrder.Price;
         Quantity = venueOrder.Quantity;
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IVenueOrder)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxVenueOrder other)

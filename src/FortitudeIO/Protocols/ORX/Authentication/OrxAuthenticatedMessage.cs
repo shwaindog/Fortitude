@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
@@ -12,6 +13,7 @@ namespace FortitudeIO.Protocols.ORX.Authentication;
 
 public abstract class OrxAuthenticatedMessage : OrxVersionedMessage, IAuthenticatedMessage
 {
+    private int refCount;
     protected OrxAuthenticatedMessage() { }
 
     protected OrxAuthenticatedMessage(IAuthenticatedMessage toClone) : base(toClone)
@@ -57,9 +59,54 @@ public abstract class OrxAuthenticatedMessage : OrxVersionedMessage, IAuthentica
         set => UserData = value as OrxUserData;
     }
 
-    public bool ShouldAutoRecycle { get; set; } = true;
-
+    public int RefCount => refCount;
     public IRecycler? Recycler { get; set; }
+
+    public int DecrementRefCount()
+    {
+        if (Interlocked.Decrement(ref refCount) == 0 && RecycleOnRefCountZero) Recycle();
+        return refCount;
+    }
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool RecycleOnRefCountZero { get; set; }
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+
+    public bool Recycle()
+    {
+        if (!AutoRecycledByProducer && !IsInRecycler && (refCount == 0 || !RecycleOnRefCountZero))
+            Recycler!.Recycle(this);
+        return IsInRecycler;
+    }
+
+    public override void CopyFrom(IVersionedMessage versionedMessage
+        , CopyMergeFlags copyMergeFlags)
+    {
+        base.CopyFrom(versionedMessage, copyMergeFlags);
+        if (versionedMessage is IAuthenticatedMessage authMessage)
+        {
+            SenderName = authMessage.SenderName != null ?
+                Recycler!.Borrow<MutableString>().Clear().Append(authMessage.SenderName) :
+                null;
+            SendTime = authMessage.SendTime;
+            Info = authMessage.Info != null ?
+                Recycler!.Borrow<MutableString>().Clear().Append(authMessage.Info) :
+                null;
+            if (authMessage.UserData != null)
+            {
+                var orxUserData = Recycler!.Borrow<OrxUserData>();
+                orxUserData.CopyFrom(authMessage.UserData, Recycler);
+                UserData = orxUserData;
+            }
+        }
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IVersionedMessage)source, copyMergeFlags);
+    }
 
     public virtual void Configure(byte version, DateTime sendTime,
         MutableString? senderName, MutableString? info, OrxUserData? userData, IRecycler recyclerFactory)
@@ -69,27 +116,6 @@ public abstract class OrxAuthenticatedMessage : OrxVersionedMessage, IAuthentica
         SenderName = senderName != null ? recyclerFactory.Borrow<MutableString>().Clear().Append(senderName) : null;
         Info = info != null ? recyclerFactory.Borrow<MutableString>().Clear().Append(info) : null;
         UserData = userData != null ? recyclerFactory.Borrow<OrxUserData>().Configure(userData, recyclerFactory) : null;
-    }
-
-    public override void CopyFrom(IVersionedMessage versionedMessage, IRecycler orxRecyclingFactory)
-    {
-        base.CopyFrom(versionedMessage, orxRecyclingFactory);
-        if (versionedMessage is IAuthenticatedMessage authMessage)
-        {
-            SenderName = authMessage.SenderName != null ?
-                orxRecyclingFactory.Borrow<MutableString>().Clear().Append(authMessage.SenderName) :
-                null;
-            SendTime = authMessage.SendTime;
-            Info = authMessage.Info != null ?
-                orxRecyclingFactory.Borrow<MutableString>().Clear().Append(authMessage.Info) :
-                null;
-            if (authMessage.UserData != null)
-            {
-                var orxUserData = orxRecyclingFactory.Borrow<OrxUserData>();
-                orxUserData.CopyFrom(authMessage.UserData, orxRecyclingFactory);
-                UserData = orxUserData;
-            }
-        }
     }
 
     protected bool Equals(IAuthenticatedMessage other) =>

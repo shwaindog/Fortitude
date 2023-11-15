@@ -31,7 +31,7 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IBinarySerializer
                     StreamByteOps.ToBytes(ref ptr, size);
                 }
 
-                if (msg is IRecycleableObject recycleableObject && recycleableObject.ShouldAutoRecycle)
+                if (msg is IRecyclableObject recycleableObject && recycleableObject.AutoRecycledByProducer)
                     recycleableObject.Recycler?.Recycle(recycleableObject);
                 return size + OrxDecoder.HeaderSize;
             }

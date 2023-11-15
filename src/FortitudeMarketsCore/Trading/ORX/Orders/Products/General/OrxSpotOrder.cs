@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Executions;
@@ -123,14 +124,14 @@ public class OrxSpotOrder : OrxProductOrder, ISpotOrder
         ExecutedSize += execution.Quantity;
     }
 
-    public override void CopyFrom(IProductOrder source, IRecycler recycler)
+    public override void CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags)
     {
-        base.CopyFrom(source, recycler);
+        base.CopyFrom(source, copyMergeFlags);
         if (source is ISpotOrder spotOrder)
         {
             Side = spotOrder.Side;
             Ticker = spotOrder.Ticker != null ?
-                recycler.Borrow<MutableString>().Clear().Append(spotOrder.Ticker) :
+                Recycler!.Borrow<MutableString>().Clear().Append(spotOrder.Ticker) :
                 null;
             Price = spotOrder.Price;
             Size = spotOrder.Size;
@@ -144,8 +145,8 @@ public class OrxSpotOrder : OrxProductOrder, ISpotOrder
             FillExpectation = spotOrder.FillExpectation;
             if (spotOrder.QuoteInformation != null)
             {
-                var orxQuoteInformation = recycler.Borrow<OrxVenuePriceQuoteId>();
-                orxQuoteInformation.CopyFrom(spotOrder.QuoteInformation, recycler);
+                var orxQuoteInformation = Recycler!.Borrow<OrxVenuePriceQuoteId>();
+                orxQuoteInformation.CopyFrom(spotOrder.QuoteInformation, copyMergeFlags);
                 QuoteInformation = orxQuoteInformation;
             }
         }

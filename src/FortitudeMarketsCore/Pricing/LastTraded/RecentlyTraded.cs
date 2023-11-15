@@ -134,6 +134,11 @@ public class RecentlyTraded : IMutableRecentlyTraded
             LastTrades[i]?.Reset();
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IRecentlyTraded)source, copyMergeFlags);
+    }
+
     public virtual IMutableRecentlyTraded Clone() => new RecentlyTraded(this);
 
     object ICloneable.Clone() => Clone();

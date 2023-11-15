@@ -1,11 +1,15 @@
-﻿using FortitudeCommon.Types.Mutable;
+﻿#region
 
-namespace FortitudeMarketsApi.Trading.Orders.Venues
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types.Mutable;
+
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Orders.Venues;
+
+public interface IVenue : IRecyclableObject<IVenue>
 {
-    public interface IVenue
-    {
-        ushort VenueId { get; set; }
-        IMutableString Name { get; set; }
-        IVenue Clone();
-    }
+    ushort VenueId { get; set; }
+    IMutableString Name { get; set; }
+    IVenue Clone();
 }

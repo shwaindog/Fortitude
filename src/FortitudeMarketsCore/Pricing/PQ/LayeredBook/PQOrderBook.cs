@@ -218,6 +218,11 @@ public class PQOrderBook : IPQOrderBook
         for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i]?.Reset();
     }
 
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    {
+        CopyFrom((IOrderBook)source, copyMergeFlags);
+    }
+
     public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
     {
         int maxBookDepth = Math.Max((byte)1, Math.Min(referenceInstance!.MaximumPublishedLayers,

@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
@@ -11,6 +12,8 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 public class OrxVenue : IVenue
 {
+    private int refCount = 0;
+
     public OrxVenue() => Name = new MutableString();
 
     public OrxVenue(IVenue toClone)
@@ -40,10 +43,31 @@ public class OrxVenue : IVenue
 
     public IVenue Clone() => new OrxVenue(this);
 
-    public void CopyFrom(IVenue venue, IRecycler recycler)
+    public void CopyFrom(IVenue venue, CopyMergeFlags copyMergeFlags)
     {
         VenueId = venue.VenueId;
-        Name = recycler.Borrow<MutableString>().Clear().Append(venue.Name);
+        Name = Recycler!.Borrow<MutableString>().Clear().Append(venue.Name);
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IVenue)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxVenue other)

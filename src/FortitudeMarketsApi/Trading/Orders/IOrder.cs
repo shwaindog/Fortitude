@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarketsApi.Trading.Counterparties;
 using FortitudeMarketsApi.Trading.Executions;
@@ -10,7 +11,7 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsApi.Trading.Orders;
 
-public interface IOrder
+public interface IOrder : IRecyclableObject<IOrder>
 {
     IOrderId OrderId { get; set; }
     TimeInForce TimeInForce { get; set; }

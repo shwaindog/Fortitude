@@ -108,7 +108,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
             if (!orderSubmitRequest.OrderDetails.IsInError())
             {
                 var orxOrder = OrxRecyclingFactory.Borrow<OrxOrder>();
-                orxOrder.CopyFrom(orderSubmitRequest.OrderDetails, OrxRecyclingFactory);
+                orxOrder.CopyFrom(orderSubmitRequest.OrderDetails);
                 orderSessionTracker.RegisterOrderIdWithSession(orxOrder, repositorySession!);
             }
 
@@ -184,7 +184,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         if (orderUpdate.Order?.OrderPublisher?.UnderlyingSession != null)
         {
             var orxOrderUpdate = OrxRecyclingFactory.Borrow<OrxOrderUpdate>();
-            orxOrderUpdate.CopyFrom(orderUpdate, OrxRecyclingFactory);
+            orxOrderUpdate.CopyFrom(orderUpdate);
             MessagePublisher.Send(orderUpdate.Order.OrderPublisher.UnderlyingSession,
                 orxOrderUpdate);
         }
@@ -198,7 +198,8 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         if (amendResponse.Order?.OrderPublisher?.UnderlyingSession != null)
         {
             var orxOrderAmendResponse = OrxRecyclingFactory.Borrow<OrxOrderAmendResponse>();
-            orxOrderAmendResponse.CopyFrom(amendResponse, OrxRecyclingFactory);
+            orxOrderAmendResponse.CopyFrom(amendResponse);
+            amendResponse.DecrementRefCount();
             MessagePublisher.Send(amendResponse.Order.OrderPublisher.UnderlyingSession,
                 orxOrderAmendResponse);
         }
@@ -210,7 +211,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         if (orderSession != null)
         {
             var orxOrxVenueOrderUpdate = OrxRecyclingFactory.Borrow<OrxVenueOrderUpdate>();
-            orxOrxVenueOrderUpdate.CopyFrom(venueOrderUpdate, OrxRecyclingFactory);
+            orxOrxVenueOrderUpdate.CopyFrom(venueOrderUpdate);
             MessagePublisher.Send(orderSession, orxOrxVenueOrderUpdate);
         }
     }
@@ -221,7 +222,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         {
             var orderSession = orderSessionTracker.FindSessionFromOrderId(executionUpdate.Execution.OrderId);
             var orxExecutionUpdate = OrxRecyclingFactory.Borrow<OrxExecutionUpdate>();
-            orxExecutionUpdate.CopyFrom(executionUpdate, OrxRecyclingFactory);
+            orxExecutionUpdate.CopyFrom(executionUpdate);
             MessagePublisher.Send(orderSession!, new OrxExecutionUpdate(executionUpdate));
         }
     }

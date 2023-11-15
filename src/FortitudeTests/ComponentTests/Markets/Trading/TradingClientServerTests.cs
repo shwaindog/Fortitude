@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Diagnostics;
 using System.Reactive.Linq;
 using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.Monitoring.Alerting;
@@ -113,18 +112,12 @@ public class TradingClientServerTests
             new LoggingAlertManager(), false, true);
         orxClient.OrderUpdate += orderUpdate =>
         {
-            try
-            {
-                lastOrder = new Order(orderUpdate.Order!);
-                orderStatus = orderUpdate.Order!.Status;
-            }
-            catch (Exception ex)
-            {
-                Debugger.Break();
-            }
+            lastOrder = new Order(orderUpdate.Order!);
+            orderStatus = orderUpdate.Order!.Status;
+            logger.Info("orderStatus : {0}", orderStatus);
         };
 
-        Thread.Sleep(400);
+        Thread.Sleep(40);
         var orderId = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
         var timeInForce = TimeInForce.GoodTillCancelled;
         var creationTime = new DateTime(2018, 3, 30, 2, 4, 11);
@@ -137,7 +130,7 @@ public class TradingClientServerTests
                 new VenueCriteria(new List<IVenue>() { new Venue(23, "TestVenue") },
                     VenueSelectionMethod.Default), null, null, "", null),
             1, new DateTime(2018, 3, 30, 2, 18, 2), new DateTime(2018, 3, 30, 2, 18, 2), "Tag"));
-        Thread.Sleep(80);
+        Thread.Sleep(40);
 
         Assert.IsNotNull(lastOrder);
         Assert.AreEqual(OrderStatus.Active, orderStatus);
@@ -178,21 +171,11 @@ public class TradingClientServerTests
         var editOrder = lastOrder;
         lastOrder = null;
 
-        orxClient.OrderAmend += amendedOrder =>
-        {
-            try
-            {
-                lastOrder = amendedOrder.Clone();
-            }
-            catch (Exception ex)
-            {
-                Debugger.Break();
-            }
-        };
+        orxClient.OrderAmend += amendedOrder => { lastOrder = amendedOrder.Clone(); };
 
         orxClient.AmendOrderRequest(editOrder, new OrderAmend(1_000_000));
 
-        Thread.Sleep(500);
+        Thread.Sleep(50);
 
         Assert.IsNotNull(lastOrder);
         Assert.AreEqual(1_000_000, ((ISpotOrder)lastOrder.Product!).Size);

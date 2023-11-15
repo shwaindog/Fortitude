@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeMarketsApi", "Fort
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeMarketsCore", "FortitudeMarketsCore\FortitudeMarketsCore.csproj", "{255E26B2-6660-4C78-A1B2-F396E3568987}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForititudeBusRules", "ForitudeBusRules\ForititudeBusRules.csproj", "{706C862A-F116-451B-A221-4E772AEE4C5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{255E26B2-6660-4C78-A1B2-F396E3568987}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{255E26B2-6660-4C78-A1B2-F396E3568987}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{255E26B2-6660-4C78-A1B2-F396E3568987}.Release|Any CPU.Build.0 = Release|Any CPU
+		{706C862A-F116-451B-A221-4E772AEE4C5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{706C862A-F116-451B-A221-4E772AEE4C5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{706C862A-F116-451B-A221-4E772AEE4C5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{706C862A-F116-451B-A221-4E772AEE4C5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

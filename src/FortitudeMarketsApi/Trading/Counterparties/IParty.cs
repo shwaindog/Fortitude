@@ -1,12 +1,13 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 
 #endregion
 
 namespace FortitudeMarketsApi.Trading.Counterparties;
 
-public interface IParty
+public interface IParty : IRecyclableObject<IParty>
 {
     IMutableString PartyId { get; set; }
     IMutableString Name { get; set; }

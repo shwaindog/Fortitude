@@ -2,6 +2,7 @@
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Executions;
 
@@ -11,6 +12,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
 public class OrxExecutions : IExecutions
 {
+    private int refCount = 0;
     public OrxExecutions() => ExecutionsList = new List<OrxExecution>();
 
     public OrxExecutions(IExecutions toClone)
@@ -47,22 +49,43 @@ public class OrxExecutions : IExecutions
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void CopyFrom(IExecutions executions, IRecycler recycler)
+    public void CopyFrom(IExecutions executions, CopyMergeFlags copyMergeFlags)
     {
         var executionsCount = executions.Count;
         if (executionsCount > 0)
         {
-            var orxExecutionsList = recycler.Borrow<List<OrxExecution>>();
+            var orxExecutionsList = Recycler!.Borrow<List<OrxExecution>>();
             orxExecutionsList.Clear();
             for (var i = 0; i < executionsCount; i++)
             {
-                var orxExecution = recycler.Borrow<OrxExecution>();
-                orxExecution.CopyFrom(executions[i], recycler);
+                var orxExecution = Recycler!.Borrow<OrxExecution>();
+                orxExecution.CopyFrom(executions[i], copyMergeFlags);
                 orxExecutionsList.Add(orxExecution);
             }
 
             ExecutionsList = orxExecutionsList;
         }
+    }
+
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IExecutions)source, copyMergeFlags);
+    }
+
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
+    public bool IsInRecycler { get; set; }
+    public IRecycler? Recycler { get; set; }
+    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
+
+    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    public bool Recycle()
+    {
+        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
+
+        return IsInRecycler;
     }
 
     protected bool Equals(OrxExecutions other) =>

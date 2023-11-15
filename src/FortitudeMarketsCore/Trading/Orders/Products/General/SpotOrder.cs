@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
@@ -100,9 +100,9 @@ public class SpotOrder : ProductOrder, ISpotOrder
         amendment.NewQuantity != Size ||
         amendment.NewSide != Side;
 
-    public override void CopyFrom(IProductOrder source, IRecycler recycler)
+    public override void CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, recycler);
+        base.CopyFrom(source, copyMergeFlags);
         if (source is ISpotOrder spotOrder)
         {
             Side = spotOrder.Side;

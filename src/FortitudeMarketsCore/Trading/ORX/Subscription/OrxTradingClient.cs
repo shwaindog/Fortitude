@@ -501,7 +501,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
 
         order.OrderId = orderOrderId;
-        order.Product?.CopyFrom(update.Order.Product!, Subscriber.RecyclingFactory);
+        order.Product?.CopyFrom(update.Order.Product!);
 
         var oldStatus = order.Status;
         if (update.OrderUpdateType == OrderUpdateEventType.OrderUnsent
@@ -518,7 +518,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
         else if (update.OrderUpdateType == OrderUpdateEventType.Error)
         {
-            order.Product!.CopyFrom(update.Order.Product!, Subscriber.RecyclingFactory);
+            order.Product!.CopyFrom(update.Order.Product!);
         }
         else
         {
