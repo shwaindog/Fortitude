@@ -1,7 +1,7 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.EventBus.Messages;
-using Fortitude.EventProcessing.BusRules.EventBus.Tasks;
+using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
+using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
@@ -9,7 +9,7 @@ using FortitudeCommon.EventProcessing.Disruption.Waiting;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.EventBus;
+namespace Fortitude.EventProcessing.BusRules.MessageBus;
 
 public interface IEventQueue
 {
@@ -23,8 +23,9 @@ public interface IEventQueue
     void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
         string? destinationAddress = null, MessageType msgType = MessageType.Publish);
 
-    ValueTask<TResponse> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
-        string? destinationAddress = null, MessageType msgType = MessageType.Publish);
+    ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
+        ProcessorRegistry processorRegistry, string? destinationAddress = null
+        , MessageType msgType = MessageType.Publish);
 
     ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule);
 
@@ -99,8 +100,8 @@ public class EventQueue : IEventQueue
         return responseResult;
     }
 
-    public ValueTask<TResponse> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender
-        , string? destinationAddress = null
+    public ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
+        ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.Publish)
     {
         var seqId = ring.Claim();
@@ -108,12 +109,15 @@ public class EventQueue : IEventQueue
         evt.Type = msgType;
         evt.PayLoad = new PayLoad<TPayload>(payload);
         evt.DestinationAddress = destinationAddress;
-        var reusableValueTaskSource = eventContext.PooledRecycler.Borrow<ReusableValueTaskSource<TResponse>>();
-        var response = new ValueTask<TResponse>(reusableValueTaskSource, (short)(reusableValueTaskSource.Version + 1));
+        var reusableValueTaskSource
+            = eventContext.PooledRecycler.Borrow<ReusableResponseValueTaskSource<TResponse>>();
+        reusableValueTaskSource.DispatchResult = processorRegistry.DispatchResult;
+        var response = new ValueTask<RequestResponse<TResponse>>(reusableValueTaskSource
+            , (short)(reusableValueTaskSource.Version + 1));
         evt.Response = reusableValueTaskSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
-        evt.ProcessorRegistry = null;
+        evt.ProcessorRegistry = processorRegistry;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
         return response;
@@ -122,8 +126,7 @@ public class EventQueue : IEventQueue
     public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule)
     {
         var processorRegistry = eventContext.PooledRecycler.Borrow<ProcessorRegistry>();
-        var dispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.SetResponse(dispatchResult);
+        processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
         return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.LoadRule);
     }
 
@@ -143,7 +146,6 @@ public class EventQueue : IEventQueue
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
     }
-
 
     public void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
         string? destinationAddress = null, MessageType msgType = MessageType.Publish)

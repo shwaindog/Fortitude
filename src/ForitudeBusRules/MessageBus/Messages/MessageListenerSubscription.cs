@@ -1,13 +1,14 @@
 ﻿#region
 
 using System.Threading.Tasks.Sources;
-using Fortitude.EventProcessing.BusRules.EventBus.Tasks;
+using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.EventBus.Messages;
+namespace Fortitude.EventProcessing.BusRules.MessageBus.Messages;
 
 public class MessageListenerSubscription
 {

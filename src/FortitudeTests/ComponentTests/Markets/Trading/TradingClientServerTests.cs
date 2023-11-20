@@ -95,6 +95,7 @@ public class TradingClientServerTests
     {
         var orxServer = new OrxServerMessaging(serverSocketDispatcher, networkingController,
             TestMachineConfig.TradingServerPort, "TestTradingServer");
+        var orderAutoResetEvent = new AutoResetEvent(false);
         var tradingHandler = new TradingFeedHandle
         {
             IsAvailable = true
@@ -115,9 +116,12 @@ public class TradingClientServerTests
             lastOrder = new Order(orderUpdate.Order!);
             orderStatus = orderUpdate.Order!.Status;
             logger.Info("orderStatus : {0}", orderStatus);
+            // Console.WriteLine("orderStatus : {0}", orderStatus);
+            orderAutoResetEvent.Set();
         };
 
         Thread.Sleep(40);
+        Assert.IsTrue(orxClient.IsAvailable);
         var orderId = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
         var timeInForce = TimeInForce.GoodTillCancelled;
         var creationTime = new DateTime(2018, 3, 30, 2, 4, 11);
@@ -130,7 +134,8 @@ public class TradingClientServerTests
                 new VenueCriteria(new List<IVenue>() { new Venue(23, "TestVenue") },
                     VenueSelectionMethod.Default), null, null, "", null),
             1, new DateTime(2018, 3, 30, 2, 18, 2), new DateTime(2018, 3, 30, 2, 18, 2), "Tag"));
-        Thread.Sleep(40);
+
+        orderAutoResetEvent.WaitOne(1_000);
 
         Assert.IsNotNull(lastOrder);
         Assert.AreEqual(OrderStatus.Active, orderStatus);
@@ -138,7 +143,12 @@ public class TradingClientServerTests
 
         IVenueOrder? lastVenueOrder = null;
 
-        orxClient.VenueOrderUpdated += update => { lastVenueOrder = new VenueOrder(update.VenueOrder!); };
+        var venueAutoResetEvent = new AutoResetEvent(false);
+        orxClient.VenueOrderUpdated += update =>
+        {
+            lastVenueOrder = new VenueOrder(update.VenueOrder!);
+            venueAutoResetEvent.Set();
+        };
 
         tradingHandler.OnVenueOrder(new VenueOrderUpdate(new VenueOrder(new VenueOrderId("VenueOrderId23_0123", ""),
                 new OrderId(1234, "Test1234", 1, "1", null, "TrackingId1234"),
@@ -148,14 +158,19 @@ public class TradingClientServerTests
             new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(110),
             new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(112)));
 
-        Thread.Sleep(50);
+        venueAutoResetEvent.WaitOne(1_000);
 
         Assert.IsNotNull(lastVenueOrder);
         Assert.AreEqual((MutableString)"VenueOrderId23_0123", lastVenueOrder.VenueOrderId!.VenueClientOrderId);
 
         IExecution? lastExecution = null;
 
-        orxClient.Execution += executionUpdate => { lastExecution = executionUpdate.Execution; };
+        var executionAutoResetEvent = new AutoResetEvent(false);
+        orxClient.Execution += executionUpdate =>
+        {
+            lastExecution = executionUpdate.Execution;
+            executionAutoResetEvent.Set();
+        };
 
         tradingHandler.OnExecution(new ExecutionUpdate(new Execution(new ExecutionId("ExecutionId", 123, ""),
             new Venue(23, "TestVenue"), new VenueOrderId("VenueOrderId23_0123", ""), lastOrder.OrderId,
@@ -164,7 +179,7 @@ public class TradingClientServerTests
                 new BookingInfo("TestAccount", "TestSubAccount")), new DateTime(2018, 3, 26),
             ExecutionType.CounterPartyGave, ExecutionStageType.Trade), ExecutionUpdateType.Created));
 
-        Thread.Sleep(50);
+        executionAutoResetEvent.WaitOne(1_000);
 
         Assert.IsNotNull(lastExecution);
 
@@ -175,7 +190,7 @@ public class TradingClientServerTests
 
         orxClient.AmendOrderRequest(editOrder, new OrderAmend(1_000_000));
 
-        Thread.Sleep(50);
+        orderAutoResetEvent.WaitOne(1_000);
 
         Assert.IsNotNull(lastOrder);
         Assert.AreEqual(1_000_000, ((ISpotOrder)lastOrder.Product!).Size);
@@ -185,13 +200,13 @@ public class TradingClientServerTests
 
         orxClient.CancelOrder(editOrder);
 
-        Thread.Sleep(50);
+        orderAutoResetEvent.WaitOne(1_000);
 
         tradingHandler.LastReceivedOrder!.Status = OrderStatus.Dead;
         tradingHandler.OnOrderUpdate(new OrderUpdate(tradingHandler.LastReceivedOrder,
             OrderUpdateEventType.OrderAmended, new DateTime(2018, 3, 30, 2, 35, 43)));
 
-        Thread.Sleep(50);
+        orderAutoResetEvent.WaitOne(1_000);
 
         Assert.IsNotNull(lastOrder);
         Assert.AreEqual(OrderStatus.Dead, lastOrder.Status);
