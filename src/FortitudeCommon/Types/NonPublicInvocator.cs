@@ -190,7 +190,7 @@ public class NonPublicInvocator
 
         if (fieldInfo == null)
             throw new ApplicationException(
-                $"Requested field '{fieldName}' could not be found on {objInstance.GetType().Name}");
+                $"Requested field '{fieldName}' could not be found on {objInstance!.GetType().Name}");
 
         return fieldInfo;
     }

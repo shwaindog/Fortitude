@@ -229,7 +229,7 @@ public static class ReflectionHelper
     {
         var typeConstant = Expression.Constant(withParameterlessConstructor);
         var constructor = withParameterlessConstructor.GetConstructor(Array.Empty<Type>());
-        var callConstructor = Expression.New(constructor);
+        var callConstructor = Expression.New(constructor!);
         return Expression.Lambda(callConstructor).Compile();
     }
 

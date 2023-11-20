@@ -12,7 +12,7 @@ public class SpinLockLight : ISyncLock
 
     public void Acquire()
     {
-        while (Interlocked.CompareExchange(ref flag.Value, 1, 0) != 0) Thread.SpinWait(10_000);
+        while (Interlocked.CompareExchange(ref flag.Value, 1, 0) != 0) Thread.SpinWait(200);
     }
 
     public void Release()

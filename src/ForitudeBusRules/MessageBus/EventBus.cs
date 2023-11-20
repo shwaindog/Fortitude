@@ -14,7 +14,7 @@ public interface IEventBus
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
         , IDispatchOptions dispatchOptions);
 
-    ValueTask<IResponse<U>> RequestAsync<T, U>(string publishAddress, T msg, IDispatchOptions dispatchOptions);
+    ValueTask<RequestResponse<U>> RequestAsync<T, U>(string publishAddress, T msg, IDispatchOptions dispatchOptions);
     ValueTask<string> DeployRuleAsync(IRule rule, IDeploymentOptions options);
     ValueTask<string> DeployRuleAsync(Type ruleType, IDeploymentOptions options);
 
@@ -43,7 +43,7 @@ public class EventBus : IEventBus
         allQueues.AddRange(workerQueues);
     }
 
-    public ValueTask<IResponse<U>> RequestAsync<T, U>(string publishAddress, T msg
+    public ValueTask<RequestResponse<U>> RequestAsync<T, U>(string publishAddress, T msg
         , IDispatchOptions dispatchOptions) =>
         throw new NotImplementedException();
 
@@ -56,7 +56,7 @@ public class EventBus : IEventBus
         var count = 0;
         var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
         var dispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.SetResponse(dispatchResult);
+        processorRegistry.DispatchResult = dispatchResult;
         foreach (var eventQueue in allQueues.Where(eq => eq.IsListeningToAddress(publishAddress)))
         {
             count++;

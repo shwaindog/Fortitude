@@ -9,7 +9,6 @@ namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 public class MessagePumpSyncContext : SynchronizationContext
 {
     private IMap<Task, SendOrPostCallback> enqueueTasks;
-    private IMap<Type, SendOrPostCallback> enqueueValueTasks;
 
 
     public MessagePumpSyncContext() => enqueueTasks = new ConcurrentMap<Task, SendOrPostCallback>();
@@ -52,11 +51,11 @@ public class MessagePumpSyncContext : SynchronizationContext
 
     public override void Send(SendOrPostCallback d, object? state)
     {
-        var task = (Task)state;
+        var task = state as Task;
         if (Current == this)
             d.Invoke(task);
         else
             Post(d, state);
-        task.Wait(600_000);
+        task?.Wait(600_000);
     }
 }

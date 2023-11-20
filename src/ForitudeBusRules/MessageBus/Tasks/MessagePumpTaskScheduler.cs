@@ -14,19 +14,19 @@ public class MessagePumpTaskScheduler : TaskScheduler
     private readonly Func<Task, bool, bool> threadPoolTryExecuteTaskInline =
         NonPublicInvocator.GetInstanceMethodFunc<Task, bool, bool>(Default, "TryExecuteTaskInline");
 
-    private SynchronizationContext messagePumptSyncContext = SynchronizationContext.Current;
+    private SynchronizationContext messagePumpSyncContext = SynchronizationContext.Current!;
 
     public override int MaximumConcurrencyLevel => 1;
 
     private void TryExecuteCallback(object? state)
     {
-        TryExecuteTask((Task)state);
+        TryExecuteTask((Task)state!);
     }
 
     protected override void QueueTask(Task task)
     {
-        if (SynchronizationContext.Current == messagePumptSyncContext)
-            messagePumptSyncContext.Post(TryExecuteCallback, task);
+        if (SynchronizationContext.Current == messagePumpSyncContext)
+            messagePumpSyncContext.Post(TryExecuteCallback, task);
         else if (SynchronizationContext.Current != null)
             SynchronizationContext.Current.Post(TryExecuteCallback, task);
         else
@@ -40,7 +40,7 @@ public class MessagePumpTaskScheduler : TaskScheduler
     }
 
     protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) =>
-        SynchronizationContext.Current == messagePumptSyncContext ?
+        SynchronizationContext.Current == messagePumpSyncContext ?
             TryExecuteTask(task) :
             threadPoolTryExecuteTaskInline(task, taskWasPreviouslyQueued);
 
