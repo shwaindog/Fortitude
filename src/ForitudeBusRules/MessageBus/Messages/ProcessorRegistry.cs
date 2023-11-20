@@ -1,16 +1,18 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.EventBus.Tasks;
+using System.Diagnostics;
+using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.Messaging;
+namespace Fortitude.EventProcessing.BusRules.MessageBus.Messages;
 
 public interface IProcessorRegistry : IRecyclableObject
 {
-    void SetResponse(DispatchResult dispatchResult);
+    DispatchResult? DispatchResult { get; set; }
     void RegisterStart(IRule processor);
     void RegisterAwaiting(IRule processor);
     void RegisterFinish(IRule processor);
@@ -25,36 +27,40 @@ internal enum TimeType
 
 public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProcessorRegistry
 {
-    private DispatchResult? response;
+    private DispatchResult? dispatchResult;
     private List<RuleTime> ruleTimes = new();
 
-    public void SetResponse(DispatchResult? dispatchResult = null)
+    public DispatchResult? DispatchResult
     {
-        response = dispatchResult;
-        if (dispatchResult != null)
+        get => dispatchResult;
+        set
         {
-            dispatchResult.Reset();
-            dispatchResult.SentTime = DateTime.Now;
+            dispatchResult = value;
+            if (dispatchResult != null)
+            {
+                dispatchResult.Reset();
+                dispatchResult.SentTime = DateTime.Now;
+            }
         }
     }
 
     public void RegisterStart(IRule processor)
     {
-        if (response != null)
+        if (dispatchResult != null)
         {
-            IncrementRefCount();
+            Debug.Assert(RefCount == 1);
             ruleTimes.Add(new RuleTime(processor, TimeType.Start, DateTime.Now));
         }
     }
 
     public void RegisterAwaiting(IRule processor)
     {
-        if (response != null) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
+        if (dispatchResult != null) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
     }
 
     public void RegisterFinish(IRule processor)
     {
-        if (response != null)
+        if (dispatchResult != null)
         {
             DecrementRefCount();
             ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
@@ -71,7 +77,7 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
 
     private void CollectDispatchStats()
     {
-        if (response != null)
+        if (dispatchResult != null)
         {
             var finishTime = DateTime.Now;
             long totalTaskTimeTicks = 0;
@@ -94,7 +100,8 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
                         if (ruleStart.Rule == awaitOrComplete.Rule && ruleStart.TimeType == TimeType.Completed)
                         {
                             totalAwaitTimeTicks += awaitOrComplete.Instant.Ticks - ruleStart.Instant.Ticks;
-                            response.AddRuleTime(new RuleExecutionTime(ruleStart.Rule, ruleStart.Instant, awaitDateTime
+                            dispatchResult.AddRuleTime(new RuleExecutionTime(ruleStart.Rule, ruleStart.Instant
+                                , awaitDateTime
                                 , awaitOrComplete.Instant));
                             break;
                         }
@@ -102,13 +109,12 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
                 }
             }
 
-            response.TotalExecutionAwaitingTimeTicks = totalAwaitTimeTicks;
-            response.TotalExecutionTimeTicks = totalTaskTimeTicks;
-            response.FinishedDispatchTime = finishTime;
-            TrySetResult(response);
+            dispatchResult.TotalExecutionAwaitingTimeTicks = totalAwaitTimeTicks;
+            dispatchResult.TotalExecutionTimeTicks = totalTaskTimeTicks;
+            dispatchResult.FinishedDispatchTime = finishTime;
+            TrySetResult(dispatchResult);
         }
     }
-
 
     private struct RuleTime
     {

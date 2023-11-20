@@ -1,21 +1,20 @@
-﻿using Fortitude.EventProcessing.BusRules.Config;
-using Fortitude.EventProcessing.BusRules.EventBus;
+﻿#region
 
-namespace Fortitude.EventProcessing.BusRules
+using Fortitude.EventProcessing.BusRules.Config;
+using Fortitude.EventProcessing.BusRules.MessageBus;
+using Fortitude.EventProcessing.BusRules.Rules;
+
+#endregion
+
+namespace Fortitude.EventProcessing.BusRules;
+
+public class BusRulesLauncher
 {
-    public class BusRulesLauncher
+    private IEventBus? eventBus;
+
+    public void /*IEventBus */ Start(BusRulesConfig busRulesConfig, IRule bootstrapRule)
     {
-
-        public void /*IEventBus */ Start(BusRulesConfig busRulesConfig)
-        {
-            // find the number of cores
-
-            // spin up message bus for each core
-
-            // register each msg bus to the event bus
-
-            // return eventBus
-
-        }
+        eventBus = new EventBus(busRulesConfig);
+        eventBus.DeployRuleAsync(bootstrapRule, new DeploymentOptions());
     }
 }

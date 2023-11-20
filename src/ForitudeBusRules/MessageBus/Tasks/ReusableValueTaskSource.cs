@@ -1,12 +1,13 @@
 ﻿#region
 
 using System.Threading.Tasks.Sources;
+using Fortitude.EventProcessing.BusRules.Messaging;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.EventBus.Tasks;
+namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 
 public interface IMessageResponseSource : IValueTaskSource, IRecyclableObject<IMessageResponseSource> { }
 
@@ -15,9 +16,8 @@ public interface IMessageResponseSource : IValueTaskSource, IRecyclableObject<IM
 public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IMessageResponseSource
     , IStoreState<ReusableValueTaskSource<T>>
 {
-    private ManualResetValueTaskSourceCore<T> core; // mutable struct; do not make this readonly
+    protected ManualResetValueTaskSourceCore<T> core; // mutable struct; do not make this readonly
     private int refCount = 0;
-
 
     public bool RunContinuationsAsynchronously
     {
@@ -64,7 +64,8 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IMessageResponseS
 
     void IValueTaskSource.GetResult(short token) => core.GetResult(token);
 
-    public void CopyFrom(ReusableValueTaskSource<T> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public virtual void CopyFrom(ReusableValueTaskSource<T> source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         core = source.core;
     }
@@ -89,4 +90,23 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IMessageResponseS
     }
 
     public override string ToString() => $"{GetType()}{{ {nameof(refCount)}: {refCount} }}";
+}
+
+internal class ReusableResponseValueTaskSource<T> : ReusableValueTaskSource<RequestResponse<T>>
+{
+    public IDispatchResult? DispatchResult { get; set; }
+
+    public override void Reset()
+    {
+        DispatchResult = null;
+        base.Reset();
+    }
+
+    public void TrySetResult(T result)
+    {
+        if (core.GetStatus(core.Version) == ValueTaskSourceStatus.Pending)
+            core.SetResult(new RequestResponse<T>(DispatchResult, result));
+    }
+
+    public void SetResult(T result) => core.SetResult(new RequestResponse<T>(DispatchResult, result));
 }

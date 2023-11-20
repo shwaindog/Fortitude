@@ -4,7 +4,7 @@ using FortitudeCommon.DataStructures.Maps;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.EventBus.Tasks;
+namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 
 public class MessagePumpSyncContext : SynchronizationContext
 {

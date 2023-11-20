@@ -1,17 +1,13 @@
 ﻿namespace Fortitude.EventProcessing.BusRules.Messaging;
 
-public interface IRequestResponse<T>
+public struct RequestResponse<T>
 {
-    public DateTime SentDateTime { get; }
-    public DateTime ReceivedDateTime { get; }
-    public DateTime ReturnedDateTime { get; }
-    public T Body { get; }
-}
+    public RequestResponse(IDispatchResult? dispatchResult, T? response)
+    {
+        DispatchResult = dispatchResult;
+        Response = response;
+    }
 
-class RequestResponse<T> : IRequestResponse<T>
-{
-    public DateTime SentDateTime { get; set; }
-    public DateTime ReceivedDateTime { get; set; }
-    public DateTime ReturnedDateTime { get; set; }
-    public T Body { get; set; }
+    public IDispatchResult? DispatchResult { get; set; }
+    public T? Response { get; set; }
 }
