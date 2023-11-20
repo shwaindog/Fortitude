@@ -1,14 +1,14 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.EventBus.Tasks;
-using Fortitude.EventProcessing.BusRules.Messaging;
+using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
+using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 using Fortitude.EventProcessing.BusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.EventBus.Messages;
+namespace Fortitude.EventProcessing.BusRules.Messaging;
 
 public interface IPayLoad
 {

@@ -1,20 +1,20 @@
 ﻿#region
 
 using Fortitude.EventProcessing.BusRules.Config;
-using Fortitude.EventProcessing.BusRules.EventBus.Messages;
+using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
 using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.EventBus;
+namespace Fortitude.EventProcessing.BusRules.MessageBus;
 
 public interface IEventBus
 {
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
         , IDispatchOptions dispatchOptions);
 
-    ValueTask<IRequestResponse<U>> RequestAsync<T, U>(string publishAddress, T msg, IDispatchOptions dispatchOptions);
+    ValueTask<IResponse<U>> RequestAsync<T, U>(string publishAddress, T msg, IDispatchOptions dispatchOptions);
     ValueTask<string> DeployRuleAsync(IRule rule, IDeploymentOptions options);
     ValueTask<string> DeployRuleAsync(Type ruleType, IDeploymentOptions options);
 
@@ -43,7 +43,7 @@ public class EventBus : IEventBus
         allQueues.AddRange(workerQueues);
     }
 
-    public ValueTask<IRequestResponse<U>> RequestAsync<T, U>(string publishAddress, T msg
+    public ValueTask<IResponse<U>> RequestAsync<T, U>(string publishAddress, T msg
         , IDispatchOptions dispatchOptions) =>
         throw new NotImplementedException();
 

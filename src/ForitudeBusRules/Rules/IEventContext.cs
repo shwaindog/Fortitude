@@ -1,6 +1,6 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.EventBus;
+using Fortitude.EventProcessing.BusRules.MessageBus;
 using FortitudeCommon.DataStructures.Memory;
 
 #endregion

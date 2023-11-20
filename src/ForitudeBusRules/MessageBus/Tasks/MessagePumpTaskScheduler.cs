@@ -4,7 +4,7 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.EventBus.Tasks;
+namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 
 public class MessagePumpTaskScheduler : TaskScheduler
 {
@@ -16,25 +16,13 @@ public class MessagePumpTaskScheduler : TaskScheduler
 
     private SynchronizationContext messagePumptSyncContext = SynchronizationContext.Current;
 
-    /// <summary>
-    ///     Implements the <see cref="TaskScheduler.MaximumConcurrencyLevel" /> property for
-    ///     this scheduler class.
-    ///     By default it returns 1, because a <see cref="SynchronizationContext" /> based
-    ///     scheduler only supports execution on a single thread.
-    /// </summary>
     public override int MaximumConcurrencyLevel => 1;
-
 
     private void TryExecuteCallback(object? state)
     {
         TryExecuteTask((Task)state);
     }
 
-    /// <summary>
-    ///     Implementation of <see cref="TaskScheduler.QueueTask" /> for this scheduler class.
-    ///     Simply posts the tasks to be executed on the associated <see cref="SynchronizationContext" />.
-    /// </summary>
-    /// <param name="task"></param>
     protected override void QueueTask(Task task)
     {
         if (SynchronizationContext.Current == messagePumptSyncContext)
@@ -51,14 +39,6 @@ public class MessagePumpTaskScheduler : TaskScheduler
         QueueTask(task);
     }
 
-    /// <summary>
-    ///     Implementation of <see cref="TaskScheduler.TryExecuteTaskInline" />  for this scheduler
-    ///     class.
-    ///     The task will be executed inline only if the call happens within
-    ///     the associated <see cref="SynchronizationContext" />.
-    /// </summary>
-    /// <param name="task"></param>
-    /// <param name="taskWasPreviouslyQueued"></param>
     protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) =>
         SynchronizationContext.Current == messagePumptSyncContext ?
             TryExecuteTask(task) :
