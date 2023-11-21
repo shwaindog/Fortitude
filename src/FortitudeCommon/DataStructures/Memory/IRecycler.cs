@@ -20,7 +20,7 @@ public class Recycler : IRecycler
     private readonly bool shouldAutoRecycleOnRefCountZero;
     private readonly bool throwWhenAttemptToRecycleRefCountNoZero;
 
-    public Recycler(bool shouldAutoRecycleOnRefCountZero = false, bool acceptNonCreatedObjects = true,
+    public Recycler(bool shouldAutoRecycleOnRefCountZero = true, bool acceptNonCreatedObjects = true,
         bool throwWhenAttemptToRecycleRefCountNoZero = true)
     {
         this.acceptNonCreatedObjects = acceptNonCreatedObjects;

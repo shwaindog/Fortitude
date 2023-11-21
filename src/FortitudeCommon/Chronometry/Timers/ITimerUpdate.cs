@@ -8,7 +8,10 @@ namespace FortitudeCommon.Chronometry.Timers;
 
 public interface ITimerUpdate : IRecyclableObject<ITimerUpdate>
 {
-    Timer RegisteredTimer { get; }
+    bool IsFinished { get; }
+    bool IsPaused { get; }
+    DateTime NextScheduleDateTime { get; }
+    ITimer RegisteredTimer { get; }
 
     bool Cancel();
     bool ExecuteNowOnThreadPool();

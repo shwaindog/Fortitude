@@ -5,17 +5,24 @@ public class IntervalTimerUpdate : OneOffTimerUpdate
     public override bool Cancel()
     {
         CallBackRunInfo.IsPaused = true;
-        var removed = RegisteredTimer.Remove(CallBackRunInfo);
-        return removed && !CallBackRunInfo.IsFinished;
+        CallBackRunInfo.MaxNumberOfCalls = CallBackRunInfo.CurrentNumberOfCalls;
+        var removed = UpdateableTimer.Remove(CallBackRunInfo);
+        return removed && CallBackRunInfo.IsFinished;
     }
 
-    public override bool UpdateWaitPeriod(TimeSpan newWaitFromNowTimeSpan) =>
-        CallBackRunInfo.RegisteredTimer.Change(newWaitFromNowTimeSpan, newWaitFromNowTimeSpan);
+    public override bool UpdateWaitPeriod(TimeSpan newWaitFromNowTimeSpan)
+    {
+        CallBackRunInfo.IntervalPeriodTimeSpan = newWaitFromNowTimeSpan;
+        CallBackRunInfo.NextScheduleTime = TimeContext.UtcNow + newWaitFromNowTimeSpan;
+        return CallBackRunInfo.RegisteredTimer.Change(newWaitFromNowTimeSpan, newWaitFromNowTimeSpan) &&
+               !CallBackRunInfo.IsFinished;
+    }
 
     public override bool Pause()
     {
         CallBackRunInfo.IsPaused = true;
-        return CallBackRunInfo.RegisteredTimer.Change(TimeSpan.MaxValue, TimeSpan.MaxValue);
+        return CallBackRunInfo.RegisteredTimer.Change(Timer.MaxTimerMs, Timer.MaxTimerMs) &&
+               !CallBackRunInfo.IsFinished;
     }
 
     public override bool Resume()
@@ -25,6 +32,7 @@ public class IntervalTimerUpdate : OneOffTimerUpdate
         var launchTime = CallBackRunInfo.NextScheduleTime < now ?
             TimeSpan.Zero :
             now - CallBackRunInfo.NextScheduleTime;
-        return CallBackRunInfo.RegisteredTimer.Change(launchTime, CallBackRunInfo.RepeatPeriodTimeSpan);
+        return CallBackRunInfo.RegisteredTimer.Change(launchTime, CallBackRunInfo.IntervalPeriodTimeSpan) &&
+               !CallBackRunInfo.IsFinished;
     }
 }

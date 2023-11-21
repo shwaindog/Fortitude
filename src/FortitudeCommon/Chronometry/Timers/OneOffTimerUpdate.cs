@@ -10,17 +10,29 @@ namespace FortitudeCommon.Chronometry.Timers;
 public class OneOffTimerUpdate : ITimerUpdate
 {
     protected internal TimerCallBackRunInfo CallBackRunInfo = null!;
-    private int refCount = 0;
+    private int refCount;
+    private IUpdateableTimer? updateableTimer;
 
-    public Timer RegisteredTimer { get; set; } = null!;
+    internal IUpdateableTimer UpdateableTimer
+    {
+        get => updateableTimer!;
+        set => updateableTimer = value;
+    }
+
+    public ITimer RegisteredTimer => updateableTimer!;
+
+    public bool IsFinished => CallBackRunInfo.IsFinished;
+    public bool IsPaused => CallBackRunInfo.IsPaused;
+
+    public DateTime NextScheduleDateTime => CallBackRunInfo.NextScheduleTime;
 
     public void CopyFrom(ITimerUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        RegisteredTimer = source.RegisteredTimer;
+        updateableTimer = (IUpdateableTimer)source.RegisteredTimer;
         CallBackRunInfo = ((OneOffTimerUpdate)source).CallBackRunInfo;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
     {
         CopyFrom((ITimerUpdate)source, copyMergeFlags);
     }
@@ -54,9 +66,10 @@ public class OneOffTimerUpdate : ITimerUpdate
     public virtual bool Cancel()
     {
         CallBackRunInfo.IsPaused = true;
-        var removed = RegisteredTimer.Remove(CallBackRunInfo);
-        RegisteredTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
-        return removed && !CallBackRunInfo.IsFinished;
+        CallBackRunInfo.MaxNumberOfCalls = CallBackRunInfo.CurrentNumberOfCalls;
+        var removed = UpdateableTimer.Remove(CallBackRunInfo);
+        UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
+        return removed && CallBackRunInfo.IsFinished;
     }
 
     public bool ExecuteNowOnThreadPool()
@@ -64,8 +77,8 @@ public class OneOffTimerUpdate : ITimerUpdate
         var result = CallBackRunInfo.RunCallbackOnThreadPool();
         if (result && CallBackRunInfo.IsFinished)
         {
-            RegisteredTimer.Remove(CallBackRunInfo);
-            RegisteredTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
+            UpdateableTimer.Remove(CallBackRunInfo);
+            UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
         }
 
         return result;
@@ -76,12 +89,12 @@ public class OneOffTimerUpdate : ITimerUpdate
         var result = CallBackRunInfo.RunCallbackOnThisThread();
         if (result && CallBackRunInfo.IsFinished)
         {
-            RegisteredTimer.Remove(CallBackRunInfo);
-            RegisteredTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
+            UpdateableTimer.Remove(CallBackRunInfo);
+            UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
         }
         else
         {
-            RegisteredTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
+            UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
         }
 
         return result;
@@ -91,10 +104,11 @@ public class OneOffTimerUpdate : ITimerUpdate
 
     public virtual bool UpdateWaitPeriod(TimeSpan newWaitFromNowTimeSpan)
     {
+        var originalPause = CallBackRunInfo.IsPaused;
         CallBackRunInfo.IsPaused = true;
         CallBackRunInfo.NextScheduleTime = TimeContext.UtcNow + newWaitFromNowTimeSpan;
-        CallBackRunInfo.IsPaused = false;
-        RegisteredTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
+        CallBackRunInfo.IsPaused = originalPause;
+        UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
         return !CallBackRunInfo.IsFinished;
     }
 
@@ -107,6 +121,7 @@ public class OneOffTimerUpdate : ITimerUpdate
     public virtual bool Resume()
     {
         CallBackRunInfo.IsPaused = false;
+        UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
         return !CallBackRunInfo.IsFinished;
     }
 }
