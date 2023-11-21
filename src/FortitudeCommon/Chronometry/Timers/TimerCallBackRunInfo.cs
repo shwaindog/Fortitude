@@ -16,7 +16,7 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
     public DateTime FirstScheduledTime { get; set; }
     public DateTime? LastRunTime { get; set; }
     public DateTime NextScheduleTime { get; set; }
-    public TimeSpan RepeatPeriodTimeSpan { get; set; }
+    public TimeSpan IntervalPeriodTimeSpan { get; set; }
 
     public int CurrentNumberOfCalls
     {
@@ -27,7 +27,7 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
     public int MaxNumberOfCalls { get; set; }
     public object? State { get; set; }
     public bool IsPaused { get; set; }
-    public bool IsFinished => CurrentNumberOfCalls < MaxNumberOfCalls;
+    public bool IsFinished => CurrentNumberOfCalls >= MaxNumberOfCalls;
     public System.Threading.Timer RegisteredTimer { get; set; } = null!;
 
     public int CompareTo(TimerCallBackRunInfo? other)
@@ -47,10 +47,12 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
         Callback = source.Callback;
         FirstScheduledTime = source.FirstScheduledTime;
         LastRunTime = source.LastRunTime;
+        IsPaused = source.IsPaused;
         NextScheduleTime = source.NextScheduleTime;
-        RepeatPeriodTimeSpan = source.RepeatPeriodTimeSpan;
+        IntervalPeriodTimeSpan = source.IntervalPeriodTimeSpan;
         CurrentNumberOfCalls = source.CurrentNumberOfCalls;
         MaxNumberOfCalls = source.MaxNumberOfCalls;
+        RegisteredTimer = source.RegisteredTimer;
         State = source.State;
     }
 
@@ -69,7 +71,7 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
 
     public bool Recycle()
     {
-        if (refCount <= 0 && !RecycleOnRefCountZero) Recycler!.Recycle(this);
+        if (refCount <= 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
 
         return IsInRecycler;
     }
@@ -80,7 +82,7 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
         {
             Interlocked.Increment(ref currentNumberOfCalls);
             if (!IsFinished)
-                NextScheduleTime += RepeatPeriodTimeSpan;
+                NextScheduleTime += IntervalPeriodTimeSpan;
             else
                 NextScheduleTime = DateTime.MaxValue;
 
@@ -97,7 +99,7 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
         {
             Interlocked.Increment(ref currentNumberOfCalls);
             if (!IsFinished)
-                NextScheduleTime += RepeatPeriodTimeSpan;
+                NextScheduleTime += IntervalPeriodTimeSpan;
             else
                 NextScheduleTime = DateTime.MaxValue;
 
