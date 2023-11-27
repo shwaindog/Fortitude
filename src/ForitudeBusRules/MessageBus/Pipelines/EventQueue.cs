@@ -6,10 +6,11 @@ using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
+using FortitudeCommon.Extensions;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus;
+namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
 
 public interface IEventQueue
 {
@@ -32,24 +33,34 @@ public interface IEventQueue
     bool IsListeningToAddress(string destinationAddress);
 
     void RunOn(IRule sender, Action action);
+
+    uint NumOfMessagesReceivedRecently();
+
+    void Shutdown();
 }
 
 public enum EventQueueType
 {
     Event
     , Worker
+    , IOInbound
+    , IOOutbound
 }
 
 public class EventQueue : IEventQueue
 {
+    public const int MessageCountHistoryEntries = 60;
+
     private readonly EventContext eventContext;
     private readonly int id;
     private readonly MessagePump messagePump;
+
+    private readonly uint[] recentMessageCountReceived = new uint[MessageCountHistoryEntries];
     private readonly PollingRing<Message> ring;
     private readonly EventQueueType type;
+    private DateTime lastUpDateTime = DateTime.Now;
 
-
-    public EventQueue(EventBus eventBus, EventQueueType type, int id, int size)
+    public EventQueue(IEventBus eventBus, EventQueueType type, int id, int size)
     {
         this.type = type;
         this.id = id;
@@ -68,6 +79,7 @@ public class EventQueue : IEventQueue
 
     public void EnqueueMessage(Message msg)
     {
+        IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
         evt.Type = msg.Type;
@@ -85,6 +97,7 @@ public class EventQueue : IEventQueue
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.Publish)
     {
+        IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
         evt.Type = msgType;
@@ -104,6 +117,7 @@ public class EventQueue : IEventQueue
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.Publish)
     {
+        IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
         evt.Type = msgType;
@@ -125,6 +139,8 @@ public class EventQueue : IEventQueue
 
     public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule)
     {
+        rule.LifeCycleState = RuleLifeCycle.Starting;
+        rule.Context = eventContext;
         var processorRegistry = eventContext.PooledRecycler.Borrow<ProcessorRegistry>();
         processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
         return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.LoadRule);
@@ -135,6 +151,7 @@ public class EventQueue : IEventQueue
 
     public void RunOn(IRule sender, Action action)
     {
+        IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
         evt.Type = MessageType.RunActionPayload;
@@ -150,6 +167,7 @@ public class EventQueue : IEventQueue
     public void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
         string? destinationAddress = null, MessageType msgType = MessageType.Publish)
     {
+        IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
         evt.PayLoad = new PayLoad<TPayload>(payload);
@@ -161,5 +179,40 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = null;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
+    }
+
+    public uint NumOfMessagesReceivedRecently()
+    {
+        uint total = 0;
+        for (var i = 0; i < MessageCountHistoryEntries; i++) total += recentMessageCountReceived[i];
+        return total;
+    }
+
+    public void Shutdown()
+    {
+        messagePump.Dispose();
+    }
+
+    private void IncrementRecentMessageReceived()
+    {
+        var currentTimeToSecond = DateTime.Now.TruncToSecond();
+        if (currentTimeToSecond != lastUpDateTime)
+        {
+            var timeSpanBetweenLastMessage = currentTimeToSecond - lastUpDateTime;
+            if (timeSpanBetweenLastMessage > TimeSpan.FromSeconds(60))
+            {
+                for (var i = 0; i < MessageCountHistoryEntries; i++) recentMessageCountReceived[i] = 0;
+            }
+            else
+            {
+                var secondsSinceLastMessage = (int)timeSpanBetweenLastMessage.TotalSeconds;
+                for (var i = lastUpDateTime.Second + 1; i < secondsSinceLastMessage; i++)
+                    recentMessageCountReceived[i % MessageCountHistoryEntries] = 0;
+            }
+
+            lastUpDateTime = currentTimeToSecond;
+        }
+
+        recentMessageCountReceived[currentTimeToSecond.Second] += 1;
     }
 }

@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Reflection;
+using Fortitude.EventProcessing.BusRules.Messaging;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -20,6 +21,9 @@ public class TestMetrics
     private const int MaxAllowedUntestedClassesInFortitudeIO = 94;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsApi = 20;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 82;
+    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 30;
+    private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses = null!;
+    private Type fortitudeBusRulesType = null!;
 
     private IDictionary<string, List<Type>> fortitudeCommonAssemblyClasses = null!;
 
@@ -41,6 +45,7 @@ public class TestMetrics
         fortitudeIOType = typeof(SocketSessionConnection);
         fortitudeMarketsApiType = typeof(ILevel0Quote);
         fortitudeMarketsCoreType = typeof(PQLevel0Quote);
+        fortitudeBusRulesType = typeof(Message);
 
         fortitudeCommonAssemblyClasses = TestableClassesInAssembly(fortitudeCommonType)
             .GroupBy(t => StripOutGenericBackTicks(t.Name)).ToDictionary(gpt => gpt.Key, gpt => gpt.ToList());
@@ -49,6 +54,8 @@ public class TestMetrics
         fortitudeMarketsApiAssemblyClasses = TestableClassesInAssembly(fortitudeMarketsApiType)
             .GroupBy(t => StripOutGenericBackTicks(t.Name)).ToDictionary(gpt => gpt.Key, gpt => gpt.ToList());
         fortitudeMarketsCoreAssemblyClasses = TestableClassesInAssembly(fortitudeMarketsCoreType)
+            .GroupBy(t => StripOutGenericBackTicks(t.Name)).ToDictionary(gpt => gpt.Key, gpt => gpt.ToList());
+        fortitudeBusRulesAssemblyClasses = TestableClassesInAssembly(fortitudeBusRulesType)
             .GroupBy(t => StripOutGenericBackTicks(t.Name)).ToDictionary(gpt => gpt.Key, gpt => gpt.ToList());
 
         testClasses = ProductionTestingClassesInAssembly(GetType()).ToDictionary(t => t.FullName!, t => t);
@@ -87,6 +94,13 @@ public class TestMetrics
         Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeMarketsCore,
             $"FortitudeMarketsCore has {countUnTestedInAssembly} which is greater " +
             $"than max allowed of {MaxAllowedUntestedClassesInFortitudeMarketsCore}");
+
+        Console.Out.WriteLine("\nFortitudeBusRules Assembly Classes Without Tests");
+        countUnTestedInAssembly = fortitudeBusRulesAssemblyClasses.Values.SelectMany(lt => lt)
+            .Count(PrintTestClassStateIfApplicable);
+        Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeBusRules,
+            $"FortitudeBusRules has {countUnTestedInAssembly} which is greater " +
+            $"than max allowed of {MaxAllowedUntestedClassesInFortitudeBusRules}");
 
         Console.Out.WriteLine("\nFortitudeTests Assembly Test Classes Production Class");
         countUnTestedInAssembly = testClassNames.Values.SelectMany(lt => lt)
@@ -168,6 +182,8 @@ public class TestMetrics
             return fortitudeMarketsApiAssemblyClasses;
         if (testClass.FullName!.Contains("FortitudeTests.FortitudeMarketsCore"))
             return fortitudeMarketsCoreAssemblyClasses;
+        if (testClass.FullName!.Contains("FortitudeTests.FortitudeBusRules"))
+            return fortitudeBusRulesAssemblyClasses;
         Console.Out.WriteLine($"{testClass.FullName} cannot determine production class assembly");
         throw new ArgumentException(
             "Did not expect a test class without NoMatchProductionClassAttribute to not map to Common, ForititudeCommon or FotitudeCore");

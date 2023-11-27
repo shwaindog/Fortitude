@@ -7,12 +7,10 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclableObject<TimerCallBackRunInfo>
+public abstract class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclableObject<TimerCallBackRunInfo>
 {
-    private int currentNumberOfCalls;
+    protected int CurrentInvocations;
     private int refCount;
-
-    public WaitCallback? Callback { get; set; }
     public DateTime FirstScheduledTime { get; set; }
     public DateTime? LastRunTime { get; set; }
     public DateTime NextScheduleTime { get; set; }
@@ -20,12 +18,11 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
 
     public int CurrentNumberOfCalls
     {
-        get => currentNumberOfCalls;
-        set => currentNumberOfCalls = value;
+        get => CurrentInvocations;
+        set => CurrentInvocations = value;
     }
 
     public int MaxNumberOfCalls { get; set; }
-    public object? State { get; set; }
     public bool IsPaused { get; set; }
     public bool IsFinished => CurrentNumberOfCalls >= MaxNumberOfCalls;
     public System.Threading.Timer RegisteredTimer { get; set; } = null!;
@@ -42,9 +39,8 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
     public bool IsInRecycler { get; set; }
     public IRecycler? Recycler { get; set; }
 
-    public void CopyFrom(TimerCallBackRunInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public virtual void CopyFrom(TimerCallBackRunInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        Callback = source.Callback;
         FirstScheduledTime = source.FirstScheduledTime;
         LastRunTime = source.LastRunTime;
         IsPaused = source.IsPaused;
@@ -53,7 +49,6 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
         CurrentNumberOfCalls = source.CurrentNumberOfCalls;
         MaxNumberOfCalls = source.MaxNumberOfCalls;
         RegisteredTimer = source.RegisteredTimer;
-        State = source.State;
     }
 
     public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
@@ -76,38 +71,7 @@ public class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclab
         return IsInRecycler;
     }
 
-    public bool RunCallbackOnThreadPool()
-    {
-        if (!IsFinished)
-        {
-            Interlocked.Increment(ref currentNumberOfCalls);
-            if (!IsFinished)
-                NextScheduleTime += IntervalPeriodTimeSpan;
-            else
-                NextScheduleTime = DateTime.MaxValue;
+    public abstract bool RunCallbackOnThreadPool();
 
-            LastRunTime = TimeContext.UtcNow;
-            return ThreadPool.QueueUserWorkItem(Callback!, State);
-        }
-
-        return false;
-    }
-
-    public bool RunCallbackOnThisThread()
-    {
-        if (!IsFinished)
-        {
-            Interlocked.Increment(ref currentNumberOfCalls);
-            if (!IsFinished)
-                NextScheduleTime += IntervalPeriodTimeSpan;
-            else
-                NextScheduleTime = DateTime.MaxValue;
-
-            LastRunTime = TimeContext.UtcNow;
-            Callback!(State);
-            return true;
-        }
-
-        return false;
-    }
+    public abstract bool RunCallbackOnThisThread();
 }

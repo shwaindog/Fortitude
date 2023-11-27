@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Chronometry.Timers;
 using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
@@ -407,7 +408,7 @@ public class TimerTests
         statelessWaitUpdate.Pause();
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(false, statelessWaitUpdate.IsFinished);
-        statelessWaitUpdate.ExecuteNowOnThreadPool();
+        ((IThreadPoolTimerUpdate)statelessWaitUpdate).ExecuteNowOnThreadPool();
         waitCallbackResetEvent.WaitOne(1_200);
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
         Assert.AreEqual(true, statelessWaitUpdate.IsFinished);
@@ -423,12 +424,12 @@ public class TimerTests
         var nextScheduledRunTime = statelessWaitUpdate.NextScheduleDateTime;
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(false, statelessWaitUpdate.IsFinished);
-        statelessWaitUpdate.ExecuteNowOnThreadPool();
+        ((IThreadPoolTimerUpdate)statelessWaitUpdate).ExecuteNowOnThreadPool();
         waitCallbackResetEvent.WaitOne(1_200);
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
         Assert.AreEqual(false, statelessWaitUpdate.IsFinished);
         Assert.AreEqual(nextScheduledRunTime + TimeSpan.FromSeconds(1), statelessWaitUpdate.NextScheduleDateTime);
-        statelessWaitUpdate.ExecuteNowOnThreadPool();
+        ((IThreadPoolTimerUpdate)statelessWaitUpdate).ExecuteNowOnThreadPool();
         waitCallbackResetEvent.WaitOne(1_200);
         Assert.AreEqual(2, nullStateWaitCallbackCounter);
         Assert.AreEqual(false, statelessWaitUpdate.IsFinished);

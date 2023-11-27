@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ForitudeBusRules\ForititudeBusRules.csproj" />
     <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
     <ProjectReference Include="..\FortitudeIO\FortitudeIO.csproj" />
     <ProjectReference Include="..\FortitudeMarketsApi\FortitudeMarketsApi.csproj" />
@@ -31,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="FortitudeBusRules\MessageBus\" />
     <Folder Include="FortitudeIO\Configuration\ClientServerConfig\" />
   </ItemGroup>
 

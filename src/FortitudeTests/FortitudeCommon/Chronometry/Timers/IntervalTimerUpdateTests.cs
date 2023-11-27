@@ -18,7 +18,7 @@ public class IntervalTimerUpdateTests
     private IntervalTimerUpdate intervalTimerUpdate = null!;
     private Mock<IUpdateableTimer> moqTimer = null!;
     private Timer timer = null!;
-    private TimerCallBackRunInfo timerCallBackRunInfo = null!;
+    private WaitCallbackTimerCallBackRunInfo timerCallBackRunInfo = null!;
     private volatile int timerCounter;
     private WaitCallback waitCallback = null!;
 
@@ -42,10 +42,10 @@ public class IntervalTimerUpdateTests
         };
     }
 
-    private TimerCallBackRunInfo CreateTimerCallBackRunInfo(DateTime firstScheduledTime) =>
+    private WaitCallbackTimerCallBackRunInfo CreateTimerCallBackRunInfo(DateTime firstScheduledTime) =>
         new()
         {
-            Callback = waitCallback, FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
+            WaitCallback = waitCallback, FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
             , MaxNumberOfCalls = 1, NextScheduleTime = firstScheduledTime
             , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(50), State = null, RegisteredTimer = timer
         };

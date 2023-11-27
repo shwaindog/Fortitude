@@ -1,5 +1,6 @@
 ﻿#region
 
+using Fortitude.EventProcessing.BusRules.Injection;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -51,4 +52,6 @@ public class BusRulesConfig
         get => int.Parse(busRulesConfig[nameof(MessagePumpMaxWaitMs)]!);
         set => busRulesConfig[nameof(MessagePumpMaxWaitMs)] = value.ToString();
     }
+
+    public IDependencyResolver? Resolver { get; set; }
 }

@@ -7,7 +7,7 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-public class OneOffTimerUpdate : ITimerUpdate
+public class OneOffTimerUpdate : IThreadPoolTimerUpdate
 {
     protected internal TimerCallBackRunInfo CallBackRunInfo = null!;
     private int refCount;

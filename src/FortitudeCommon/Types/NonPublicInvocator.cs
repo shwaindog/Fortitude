@@ -32,6 +32,13 @@ public class NonPublicInvocator
         return RunMethod<T>(objInstance, strMethod, aobjParams, flags);
     }
 
+    public static Type GetNonPublicType(Type sameAssembly, string fullyQualifiedName)
+    {
+        var assembly = sameAssembly.Assembly;
+        var foundType = assembly.GetType(fullyQualifiedName, true);
+        return foundType!;
+    }
+
     public static Action<T> GetInstanceMethodAction<T>(object objInstance, string strMethod)
     {
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -374,8 +381,9 @@ public class NonPublicInvocator
         BindingFlags flags)
     {
         if (objInstance == null) objInstance = t;
-        var paramTypes = new Type[1];
+        var paramTypes = new Type[2];
         paramTypes[0] = typeof(T);
+        paramTypes[1] = typeof(TU);
         MethodInfo? m = null;
         var currentType = t;
         while (currentType != null && currentType != typeof(object) && m == null)

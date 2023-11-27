@@ -15,6 +15,6 @@ public class BusRulesLauncher
     public void /*IEventBus */ Start(BusRulesConfig busRulesConfig, IRule bootstrapRule)
     {
         eventBus = new EventBus(busRulesConfig);
-        eventBus.DeployRuleAsync(bootstrapRule, new DeploymentOptions());
+        eventBus.DeployRuleAsync(bootstrapRule, bootstrapRule, new DeploymentOptions());
     }
 }
