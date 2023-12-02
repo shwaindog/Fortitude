@@ -7,6 +7,7 @@ using Fortitude.EventProcessing.BusRules.Rules;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
@@ -30,6 +31,8 @@ public interface IEventQueue
 
     ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule);
 
+    ValueTask<IDispatchResult> StopRule(IRule sender, IRule rule);
+
     bool IsListeningToAddress(string destinationAddress);
 
     void RunOn(IRule sender, Action action);
@@ -50,10 +53,12 @@ public enum EventQueueType
 public class EventQueue : IEventQueue
 {
     public const int MessageCountHistoryEntries = 60;
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(EventQueue));
 
     private readonly EventContext eventContext;
     private readonly int id;
     private readonly MessagePump messagePump;
+    private readonly string name;
 
     private readonly uint[] recentMessageCountReceived = new uint[MessageCountHistoryEntries];
     private readonly PollingRing<Message> ring;
@@ -64,8 +69,9 @@ public class EventQueue : IEventQueue
     {
         this.type = type;
         this.id = id;
+        name = $"{type}-{id}";
         ring = new PollingRing<Message>(
-            $"EventQueue-{type}-{id}",
+            $"EventQueue-{name}",
             size,
             () => new Message(),
             ClaimStrategyType.MultiProducers,
@@ -75,7 +81,7 @@ public class EventQueue : IEventQueue
         messagePump.StartPolling();
     }
 
-    public string Name => $"{type}-{id}";
+    public string Name => name;
 
     public void EnqueueMessage(Message msg)
     {
@@ -106,11 +112,11 @@ public class EventQueue : IEventQueue
         evt.Response = Message.NoOpCompletionSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
-        var responseResult = new ValueTask<IDispatchResult>(processorRegistry, (short)(processorRegistry.Version + 1));
+        logger.Debug("EnqueuePayloadWithStats processorRegistry: {0}", processorRegistry.ToString());
         evt.ProcessorRegistry = processorRegistry;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
-        return responseResult;
+        return processorRegistry.GenerateValueTask();
     }
 
     public ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
@@ -125,16 +131,17 @@ public class EventQueue : IEventQueue
         evt.DestinationAddress = destinationAddress;
         var reusableValueTaskSource
             = eventContext.PooledRecycler.Borrow<ReusableResponseValueTaskSource<TResponse>>();
+        reusableValueTaskSource.IncrementRefCount(); // decremented when value is read for valueTask;
         reusableValueTaskSource.DispatchResult = processorRegistry.DispatchResult;
-        var response = new ValueTask<RequestResponse<TResponse>>(reusableValueTaskSource
-            , (short)(reusableValueTaskSource.Version + 1));
+        processorRegistry.Reset();
+        reusableValueTaskSource.RecycleTimer = eventContext.Timer;
         evt.Response = reusableValueTaskSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
         evt.ProcessorRegistry = processorRegistry;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
-        return response;
+        return reusableValueTaskSource.GenerateValueTask();
     }
 
     public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule)
@@ -142,8 +149,23 @@ public class EventQueue : IEventQueue
         rule.LifeCycleState = RuleLifeCycle.Starting;
         rule.Context = eventContext;
         var processorRegistry = eventContext.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
+        processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
+        processorRegistry.DispatchResult ??= eventContext.PooledRecycler.Borrow<DispatchResult>();
+        processorRegistry.Reset();
+        processorRegistry.RecycleTimer = eventContext.Timer;
         return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.LoadRule);
+    }
+
+    public ValueTask<IDispatchResult> StopRule(IRule sender, IRule rule)
+    {
+        rule.LifeCycleState = RuleLifeCycle.ShuttingDown;
+        rule.Context = eventContext;
+        var processorRegistry = eventContext.PooledRecycler.Borrow<ProcessorRegistry>();
+        processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
+        processorRegistry.DispatchResult ??= eventContext.PooledRecycler.Borrow<DispatchResult>();
+        processorRegistry.Reset();
+        processorRegistry.RecycleTimer = eventContext.Timer;
+        return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.UnloadRule);
     }
 
     public bool IsListeningToAddress(string destinationAddress) =>
@@ -215,4 +237,6 @@ public class EventQueue : IEventQueue
 
         recentMessageCountReceived[currentTimeToSecond.Second] += 1;
     }
+
+    public override string ToString() => $"{GetType().Name}({nameof(name)}: \"{name}\")";
 }

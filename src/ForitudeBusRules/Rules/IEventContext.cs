@@ -13,7 +13,7 @@ namespace Fortitude.EventProcessing.BusRules.Rules;
 
 public interface IEventContext
 {
-    EventQueue RegisteredOn { get; }
+    IEventQueue RegisteredOn { get; }
     IEventBus EventBus { get; }
     IRecycler PooledRecycler { get; }
     IActionTimer Timer { get; }
@@ -29,8 +29,10 @@ public class EventContext : IEventContext
         Timer = new QueueTimer(new Timer(), this);
     }
 
-    public EventQueue RegisteredOn { get; }
+    public IEventQueue RegisteredOn { get; }
     public IEventBus EventBus { get; }
     public IRecycler PooledRecycler { get; }
     public IActionTimer Timer { get; }
+
+    public override string ToString() => $"{GetType().Name}({nameof(RegisteredOn)}: {RegisteredOn})";
 }

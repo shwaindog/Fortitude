@@ -30,8 +30,8 @@ public interface IRule
     IEnumerable<IRule> ChildRules { get; }
 
     event LifeCycleChangeHandler LifeCycleChanged;
-    void Start();
-    void Stop();
+    Task Start();
+    Task Stop();
     void AddChild(IRule child);
 }
 
@@ -53,7 +53,11 @@ public class Rule : IListeningRule
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(Rule));
 
-    public static readonly Rule NoKnownSender = new() { Id = "UnknownSender" };
+    public static readonly Rule NoKnownSender = new()
+    {
+        Id = "UnknownSender"
+    };
+
     private readonly List<IRule> children = new();
     private IRule? parentRule;
 
@@ -124,15 +128,9 @@ public class Rule : IListeningRule
 
     public bool ShouldBeStopped() => LifeCycleState == RuleLifeCycle.Started && refCount <= 0;
 
-    public virtual void Start()
-    {
-        LifeCycleState = RuleLifeCycle.Started;
-    }
+    public virtual Task Start() => Task.CompletedTask;
 
-    public virtual void Stop()
-    {
-        if (LifeCycleState == RuleLifeCycle.Started) LifeCycleState = RuleLifeCycle.ShuttingDown;
-    }
+    public virtual Task Stop() => Task.CompletedTask;
 
     private RuleLifeCycle ValidateRuleLifeCycleTransition(RuleLifeCycle value)
     {

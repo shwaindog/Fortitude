@@ -22,7 +22,7 @@ public interface IPayLoad<T> : IPayLoad
     T? Body { get; }
 }
 
-internal struct PayLoad<T> : IPayLoad
+public struct PayLoad<T> : IPayLoad<T>
 {
     public PayLoad() { }
     public PayLoad(T? body) => Body = body;
@@ -36,6 +36,8 @@ internal struct PayLoad<T> : IPayLoad
     public Type BodyType { get; } = typeof(T);
     public T? Body { get; set; }
     public object? BodyObj => Body;
+
+    public override string ToString() => $"{GetType().Name}[{typeof(T).Name}]({nameof(Body)}: {Body})";
 }
 
 public interface IMessage : IStoreState<IMessage>
@@ -47,27 +49,41 @@ public interface IMessage : IStoreState<IMessage>
     IPayLoad? PayLoad { get; }
     IMessageResponseSource Response { get; }
     IProcessorRegistry? ProcessorRegistry { get; }
+    void IncrementCargoRefCounts();
+    void DecrementCargoRefCounts();
+    int IncrementRefCount();
+    int DecrementRefCount();
+    IMessage<TAsPayLoad> BorrowCopy<TAsPayLoad>(IEventContext messageContext);
+    IRespondingMessage<TAsPayLoad, TAsResponse> BorrowCopy<TAsPayLoad, TAsResponse>(IEventContext messageContext);
 }
 
 public enum MessageType
 {
     Publish
     , RunActionPayload
+    , TimerPayload
     , RequestResponse
     , LoadRule
-    , MessageListener
-    , MessageUnsubscribe
+    , UnloadRule
+    , ListenerSubscribe
+    , ListenerUnsubscribe
 }
 
-public interface IMessage<TPayLoad, TResponse> : IMessage, IRecyclableObject<IMessage>
+public interface IMessage<TPayLoad> : IMessage, IRecyclableObject<IMessage>
 {
-    new IPayLoad<TPayLoad> PayLoad { get; }
+    new PayLoad<TPayLoad> PayLoad { get; }
+    new int IncrementRefCount();
+    new int DecrementRefCount();
+}
+
+public interface IRespondingMessage<TPayLoad, TResponse> : IMessage<TPayLoad>
+{
     new ReusableValueTaskSource<TResponse> Response { get; }
 }
 
 public class Message : IMessage
 {
-    public static ReusableValueTaskSource<object> NoOpCompletionSource = new();
+    public static readonly NoMessageResponseSource NoOpCompletionSource = new();
 
     public MessageType Type { get; set; }
     public IRule? Sender { get; set; }
@@ -77,6 +93,10 @@ public class Message : IMessage
     public IMessageResponseSource Response { get; set; } = NoOpCompletionSource;
 
     public IProcessorRegistry? ProcessorRegistry { get; set; }
+
+    public virtual int IncrementRefCount() => 0;
+
+    public virtual int DecrementRefCount() => 0;
 
     public void CopyFrom(IMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -94,14 +114,6 @@ public class Message : IMessage
         CopyFrom((IMessage)source, copyMergeFlags);
     }
 
-    public IMessage<TPayLoad, TResponse> BorrowCopy<TPayLoad, TResponse>(IEventContext messageContext)
-    {
-        var castClone = messageContext.PooledRecycler.Borrow<Message<TPayLoad, TResponse>>();
-        castClone.CopyFrom(this);
-        castClone.IncrementRefCount();
-        return castClone;
-    }
-
     public void IncrementCargoRefCounts()
     {
         if (PayLoad?.BodyObj is IRecyclableObject recyclePayLoad) recyclePayLoad.IncrementRefCount();
@@ -116,8 +128,19 @@ public class Message : IMessage
         if (Response is IRecyclableObject recycleResponse) recycleResponse.DecrementRefCount();
     }
 
+    public IRespondingMessage<TPayLoad, TResponse> BorrowCopy<TPayLoad, TResponse>(IEventContext messageContext)
+    {
+        var castClone = messageContext.PooledRecycler.Borrow<Message<TPayLoad, TResponse>>();
+        castClone.CopyFrom(this);
+        castClone.IncrementCargoRefCounts();
+        return castClone;
+    }
+
+    public IMessage<TPayLoad> BorrowCopy<TPayLoad>(IEventContext messageContext) =>
+        BorrowCopy<TPayLoad, object>(messageContext);
+
     public override string ToString() =>
-        $"{GetType()}{{{nameof(Type)}: {Type}," +
+        $"{GetType().Name}{{{nameof(Type)}: {Type}, " +
         $"{nameof(Sender)}: {Sender}, " +
         $"{nameof(DestinationAddress)}: {DestinationAddress}, " +
         $"{nameof(SentTime)}: {SentTime}, " +
@@ -125,11 +148,13 @@ public class Message : IMessage
         $"{nameof(Response)}: {Response}}}";
 }
 
-public class Message<TPayLoad, TResponse> : Message, IMessage<TPayLoad, TResponse>
+public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad, TResponse>
 {
-    public new IPayLoad<TPayLoad> PayLoad
+    private int refCount;
+
+    public new PayLoad<TPayLoad> PayLoad
     {
-        get => (IPayLoad<TPayLoad>)((Message)this).PayLoad!;
+        get => (PayLoad<TPayLoad>)((Message)this).PayLoad!;
         set => ((Message)this).PayLoad = value;
     }
 
@@ -139,19 +164,39 @@ public class Message<TPayLoad, TResponse> : Message, IMessage<TPayLoad, TRespons
         set => ((Message)this).Response = value;
     }
 
-    public int RefCount => 0;
-    public bool RecycleOnRefCountZero { get; set; } = false;
-    public bool AutoRecycledByProducer { get; set; } = true;
+    public int RefCount => refCount;
+    public bool RecycleOnRefCountZero { get; set; } = true;
+    public bool AutoRecycledByProducer { get; set; }
     public bool IsInRecycler { get; set; }
     public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => 0;
 
-    public int IncrementRefCount() => 0;
+    public override int DecrementRefCount()
+    {
+        DecrementCargoRefCounts();
+        if (Interlocked.Decrement(ref refCount) <= 0 && RecycleOnRefCountZero) Recycle();
+        return refCount;
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (!IsInRecycler) IncrementCargoRefCounts();
+        return Interlocked.Increment(ref refCount);
+    }
 
     public bool Recycle()
     {
-        if (!AutoRecycledByProducer && !IsInRecycler)
+        if (Recycler != null && !IsInRecycler && (refCount == 0 || !RecycleOnRefCountZero))
             Recycler!.Recycle(this);
         return IsInRecycler;
     }
+
+    public override string ToString() =>
+        $"{GetType().Name}[{typeof(TPayLoad).Name}, {typeof(TResponse).Name}]({nameof(Type)}: {Type}, " +
+        $"{nameof(Sender)}: {Sender}, " +
+        $"{nameof(DestinationAddress)}: {DestinationAddress}, " +
+        $"{nameof(SentTime)}: {SentTime}, " +
+        $"{nameof(PayLoad)}: {PayLoad}, " +
+        $"{nameof(Response)}: {Response}, " +
+        $"{nameof(refCount)}: {refCount}, " +
+        $"{nameof(IsInRecycler)}: {IsInRecycler})";
 }

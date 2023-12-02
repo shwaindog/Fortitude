@@ -27,5 +27,5 @@ public class MessageListenerUnsubscribe : ISubscription
 
     public void Unsubscribe() =>
         SubscriberRule.Context.RegisteredOn.EnqueuePayload(this, SubscriberRule, PublishAddress
-            , MessageType.MessageUnsubscribe);
+            , MessageType.ListenerUnsubscribe);
 }
