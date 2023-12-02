@@ -133,16 +133,17 @@ public class QueueTimer : Rule, IActionTimer
         backingTimer.StopAllTimers();
     }
 
-    public override void Stop()
+    public override Task Stop()
     {
         backingTimer.StopAllTimers();
         base.Stop();
+        return Task.CompletedTask;
     }
 
     public void OneOffTimerEnqueueAsMessage(object? state)
     {
         if (state is ITimerCallbackPayload timerCallbackPayload)
-            Context.RegisteredOn.EnqueuePayload(timerCallbackPayload, this, null, MessageType.RunActionPayload);
+            Context.RegisteredOn.EnqueuePayload(timerCallbackPayload, this, null, MessageType.TimerPayload);
     }
 
     public void IntervalTimerEnqueueAsMessage(object? state)
@@ -150,7 +151,7 @@ public class QueueTimer : Rule, IActionTimer
         if (state is ITimerCallbackPayload timerCallbackPayload)
         {
             timerCallbackPayload.IncrementRefCount();
-            Context.RegisteredOn.EnqueuePayload(timerCallbackPayload, this, null, MessageType.RunActionPayload);
+            Context.RegisteredOn.EnqueuePayload(timerCallbackPayload, this, null, MessageType.TimerPayload);
         }
     }
 }

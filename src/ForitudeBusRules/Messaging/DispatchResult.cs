@@ -1,5 +1,6 @@
 ﻿#region
 
+using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
 using Fortitude.EventProcessing.BusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -10,12 +11,13 @@ namespace Fortitude.EventProcessing.BusRules.Messaging;
 
 public interface IDispatchResult : IRecyclableObject<IDispatchResult>
 {
-    public long TotalExecutionTimeTicks { get; set; }
-    public long TotalExecutionAwaitingTimeTicks { get; set; }
-    public DateTime SentTime { get; }
-    public DateTime FinishedDispatchTime { get; }
-    public IReadOnlyList<RuleExecutionTime> RulesReceived { get; }
-
+    long TotalExecutionTimeTicks { get; set; }
+    long TotalExecutionAwaitingTimeTicks { get; set; }
+    long TotalAwaitingTimeTicks { get; set; }
+    DateTime SentTime { get; }
+    DateTime FinishedDispatchTime { get; }
+    IReadOnlyList<RuleExecutionTime> RulesReceived { get; }
+    IProcessorRegistry? OwningProcessorRegistry { get; set; }
     void Reset();
     void AddRuleTime(RuleExecutionTime ruleExecutionTime);
 }
@@ -43,8 +45,10 @@ public class DispatchResult : IDispatchResult
     public IReadOnlyList<RuleExecutionTime> RulesReceived => rulesTimes;
     public long TotalExecutionTimeTicks { get; set; }
     public long TotalExecutionAwaitingTimeTicks { get; set; }
+    public long TotalAwaitingTimeTicks { get; set; }
     public DateTime SentTime { get; set; }
     public DateTime FinishedDispatchTime { get; set; }
+    public IProcessorRegistry? OwningProcessorRegistry { get; set; }
 
     public void Reset()
     {
@@ -73,11 +77,30 @@ public class DispatchResult : IDispatchResult
 
     public int DecrementRefCount()
     {
-        if (Interlocked.Increment(ref refCount) <= 0 && RecycleOnRefCountZero) Recycle();
-        return refCount;
+        if (OwningProcessorRegistry != null)
+        {
+            OwningProcessorRegistry.DecrementRefCount();
+            return OwningProcessorRegistry.RefCount;
+        }
+        else
+        {
+            if (Interlocked.Increment(ref refCount) <= 0 && RecycleOnRefCountZero) Recycle();
+            return refCount;
+        }
     }
 
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
+    public int IncrementRefCount()
+    {
+        if (OwningProcessorRegistry != null)
+        {
+            OwningProcessorRegistry.IncrementRefCount();
+            return OwningProcessorRegistry.RefCount;
+        }
+        else
+        {
+            return Interlocked.Increment(ref refCount);
+        }
+    }
 
     public bool Recycle()
     {
@@ -102,6 +125,9 @@ public class DispatchResult : IDispatchResult
         rulesTimes.Clear();
         rulesTimes.AddRange(source.RulesReceived);
     }
+
+    public override string ToString() =>
+        $"{GetType().Name}({nameof(rulesTimes)}: [{string.Join(", ", rulesTimes)}], {nameof(refCount)}: {refCount}, {nameof(TotalExecutionTimeTicks)}: {TotalExecutionTimeTicks}, {nameof(TotalExecutionAwaitingTimeTicks)}: {TotalExecutionAwaitingTimeTicks}, {nameof(SentTime)}: {SentTime}, {nameof(FinishedDispatchTime)}: {FinishedDispatchTime}, {nameof(IsInRecycler)}: {IsInRecycler})";
 }
 
 public class DispatchExecutionSummary

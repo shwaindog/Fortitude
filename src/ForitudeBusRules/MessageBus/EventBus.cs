@@ -24,11 +24,14 @@ public interface IEventBus
     ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, IDeploymentOptions options);
     ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, IDeploymentOptions options);
 
-    ISubscription RegisterListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
-        , Func<IMessage<TPayload, TResponse>, ValueTask<TResponse>> handler);
-}
+    ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule rule);
 
-public interface IDispatchOptions { }
+    ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
+        , Action<IMessage<TPayload>> handler);
+
+    ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
+        , Func<IRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler);
+}
 
 public class EventBus : IEventBus
 {
@@ -37,11 +40,11 @@ public class EventBus : IEventBus
     public const int MinimumEventQueues = 2; // at least two
     public const int MinimumWorkerQueues = 1; // at least one
 
-    private readonly List<EventQueue> allQueues = new();
-    private readonly List<EventQueue> eventQueues = new();
-    private readonly EventQueue ioInboundQueue;
-    private readonly EventQueue ioOutboundQueue;
-    private readonly List<EventQueue> workerQueues = new();
+    private readonly List<IEventQueue> allQueues = new();
+    private readonly List<IEventQueue> eventQueues = new();
+    private readonly IEventQueue ioInboundQueue;
+    private readonly IEventQueue ioOutboundQueue;
+    private readonly List<IEventQueue> workerQueues = new();
     private int lastRequestIndex;
 
     public EventBus(BusRulesConfig config)
@@ -66,6 +69,24 @@ public class EventBus : IEventBus
         allQueues.Add(ioInboundQueue);
     }
 
+    internal EventBus(Func<IEventBus, List<IEventQueue>?>? eventQueues = null
+        , IDependencyResolver? dependencyResolver = null
+        , Func<IEventBus, List<IEventQueue>?>? workerQueues = null,
+        Func<IEventBus, IEventQueue?>? ioInboundQueue = null, Func<IEventBus, IEventQueue?>? ioOutboundQueue = null)
+    {
+        DependencyResolver = dependencyResolver ?? new BasicDependencyResolver();
+        this.eventQueues = eventQueues != null ? eventQueues(this) ?? new List<IEventQueue>() : new List<IEventQueue>();
+        this.workerQueues = workerQueues != null ?
+            workerQueues(this) ?? new List<IEventQueue>() :
+            new List<IEventQueue>();
+        this.ioInboundQueue = ioInboundQueue != null ? ioInboundQueue(this) ?? null! : null!;
+        this.ioOutboundQueue = ioOutboundQueue != null ? ioOutboundQueue(this) ?? null! : null!;
+        allQueues.AddRange(this.eventQueues);
+        allQueues.AddRange(this.workerQueues);
+        if (ioInboundQueue != null) allQueues.Add(this.ioInboundQueue);
+        if (ioOutboundQueue != null) allQueues.Add(this.ioOutboundQueue);
+    }
+
     public IDependencyResolver DependencyResolver { get; set; }
 
     public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, IDeploymentOptions options)
@@ -79,8 +100,11 @@ public class EventBus : IEventBus
     {
         var count = 0;
         var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-        var dispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.DispatchResult = dispatchResult;
+        processorRegistry.DispatchResult ??= sender.Context.PooledRecycler.Borrow<DispatchResult>();
+        processorRegistry.Reset();
+        processorRegistry.IncrementRefCount();
+        processorRegistry.DispatchResult.SentTime = DateTime.Now;
+        processorRegistry.RecycleTimer = sender.Context.Timer;
         foreach (var eventQueue in allQueues.Where(eq => eq.IsListeningToAddress(publishAddress)))
         {
             count++;
@@ -91,19 +115,7 @@ public class EventBus : IEventBus
         if (count == 0) throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
         processorRegistry.DecrementRefCount();
 
-        return new ValueTask<IDispatchResult>(processorRegistry, (short)(processorRegistry.Version + 1));
-    }
-
-    public ISubscription RegisterListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
-        , Func<IMessage<TPayload, TResponse>, ValueTask<TResponse>> handler)
-    {
-        var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
-        var msgListener
-            = new MessageListenerSubscription(rule, publishAddress, subscriberId);
-        rule.IncrementLifeTimeCount();
-        msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.MessageListener);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+        return processorRegistry.GenerateValueTask();
     }
 
     public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, IDeploymentOptions options)
@@ -124,8 +136,11 @@ public class EventBus : IEventBus
         , IDispatchOptions dispatchOptions)
     {
         var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-        var dispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.DispatchResult = dispatchResult;
+        processorRegistry.DispatchResult ??= sender.Context.PooledRecycler.Borrow<DispatchResult>();
+        processorRegistry.Reset();
+        processorRegistry.IncrementRefCount();
+        processorRegistry.DispatchResult.SentTime = DateTime.Now;
+        processorRegistry.RecycleTimer = sender.Context.Timer;
         for (var i = lastRequestIndex + 1; i < lastRequestIndex + allQueues.Count; i++)
         {
             var currIndex = i % allQueues.Count;
@@ -140,7 +155,34 @@ public class EventBus : IEventBus
         throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
     }
 
-    public int ResolveLeastBusy(List<EventQueue> queues)
+    public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
+        , Action<IMessage<TPayload>> handler)
+    {
+        var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
+        var msgListener
+            = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
+        rule.IncrementLifeTimeCount();
+        msgListener.SetHandlerFromSpecificMessageHandler(handler);
+        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+    }
+
+    public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
+        , Func<IRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler)
+    {
+        var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
+        var msgListener
+            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+        rule.IncrementLifeTimeCount();
+        msgListener.SetHandlerFromSpecificMessageHandler(handler);
+        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+    }
+
+    public ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule toUndeploy) =>
+        toUndeploy.Context.RegisteredOn.StopRule(sender, toUndeploy);
+
+    public int ResolveLeastBusy(List<IEventQueue> queues)
     {
         var minIndex = 0;
         var currentMinMessageCount = uint.MaxValue;
