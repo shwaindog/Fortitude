@@ -1,7 +1,11 @@
 ﻿#region
 
 using Fortitude.EventProcessing.BusRules.MessageBus;
+using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
+using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines.Timers;
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
+using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -10,26 +14,23 @@ namespace Fortitude.EventProcessing.BusRules.Rules;
 public interface IEventContext
 {
     EventQueue RegisteredOn { get; }
-
     IEventBus EventBus { get; }
     IRecycler PooledRecycler { get; }
+    IActionTimer Timer { get; }
 }
 
 public class EventContext : IEventContext
 {
-    private long executionTimeTicks;
-    private long messageCount;
-
     public EventContext(EventQueue registeredOn, IEventBus eventBus, IRecycler? pooledRecycler = null)
     {
         RegisteredOn = registeredOn;
         EventBus = eventBus;
         PooledRecycler = pooledRecycler ?? new Recycler();
+        Timer = new QueueTimer(new Timer(), this);
     }
 
     public EventQueue RegisteredOn { get; }
     public IEventBus EventBus { get; }
     public IRecycler PooledRecycler { get; }
-    public long IncrementMessageCount() => Interlocked.Increment(ref messageCount);
-    public long AddProcessingTicks(long addThis) => Interlocked.Add(ref executionTimeTicks, addThis);
+    public IActionTimer Timer { get; }
 }

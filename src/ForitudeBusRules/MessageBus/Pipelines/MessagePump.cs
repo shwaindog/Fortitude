@@ -11,7 +11,7 @@ using FortitudeCommon.Monitoring.Logging;
 #endregion
 
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus;
+namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
 
 public class MessagePump : RingPoller<Message>
 {
@@ -49,7 +49,13 @@ public class MessagePump : RingPoller<Message>
     {
         try
         {
-            if (data.Type == MessageType.RunActionPayload)
+            if (data.Type == MessageType.LoadRule)
+            {
+                var newRule = (IListeningRule)data.PayLoad!.BodyObj!;
+                livingRules.Add(newRule);
+                newRule.Start();
+            }
+            else if (data.Type == MessageType.RunActionPayload)
             {
                 var actionBody = ((PayLoad<Action>)data.PayLoad!).Body!;
                 actionBody();
@@ -82,6 +88,8 @@ public class MessagePump : RingPoller<Message>
                 if (checkRule.ShouldBeStopped()) checkRule.Stop();
                 livingRules.RemoveAt(i--);
             }
+
+            data.DecrementCargoRefCounts();
         }
         catch (Exception e)
         {

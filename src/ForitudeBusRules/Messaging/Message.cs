@@ -24,7 +24,6 @@ public interface IPayLoad<T> : IPayLoad
 
 internal struct PayLoad<T> : IPayLoad
 {
-    private int refCount;
     public PayLoad() { }
     public PayLoad(T? body) => Body = body;
 
@@ -99,7 +98,22 @@ public class Message : IMessage
     {
         var castClone = messageContext.PooledRecycler.Borrow<Message<TPayLoad, TResponse>>();
         castClone.CopyFrom(this);
+        castClone.IncrementRefCount();
         return castClone;
+    }
+
+    public void IncrementCargoRefCounts()
+    {
+        if (PayLoad?.BodyObj is IRecyclableObject recyclePayLoad) recyclePayLoad.IncrementRefCount();
+        if (ProcessorRegistry is IRecyclableObject recycleRegistry) recycleRegistry.IncrementRefCount();
+        if (Response is IRecyclableObject recycleResponse) recycleResponse.IncrementRefCount();
+    }
+
+    public void DecrementCargoRefCounts()
+    {
+        if (PayLoad?.BodyObj is IRecyclableObject recyclePayLoad) recyclePayLoad.DecrementRefCount();
+        if (ProcessorRegistry is IRecyclableObject recycleRegistry) recycleRegistry.DecrementRefCount();
+        if (Response is IRecyclableObject recycleResponse) recycleResponse.DecrementRefCount();
     }
 
     public override string ToString() =>

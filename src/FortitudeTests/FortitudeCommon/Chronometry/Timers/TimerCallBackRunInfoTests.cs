@@ -14,33 +14,24 @@ namespace FortitudeTests.FortitudeCommon.Chronometry.Timers;
 [TestClass]
 public class TimerCallBackRunInfoTests
 {
-    private readonly AutoResetEvent autoResetEvent = new(false);
-    private volatile int callbackCounter;
     private Timer timer = null!;
-    private TimerCallBackRunInfo timerCallBackRunInfo = null!;
-    private WaitCallback waitCallback = null!;
+    private ConcreteTimerCallbackRunInfo timerCallBackRunInfo = null!;
 
 
     [TestInitialize]
     public void SetUp()
     {
-        callbackCounter = 0;
-        waitCallback = _ =>
-        {
-            Interlocked.Increment(ref callbackCounter);
-            autoResetEvent.Set();
-        };
         timer = new Timer(NoopTimeCallback, null, MaxTimerMs, MaxTimerMs);
         var firstScheduledTime = TimeContext.UtcNow;
         timerCallBackRunInfo = CreateTimerCallBackRunInfo(firstScheduledTime);
     }
 
-    private TimerCallBackRunInfo CreateTimerCallBackRunInfo(DateTime firstScheduledTime) =>
+    private ConcreteTimerCallbackRunInfo CreateTimerCallBackRunInfo(DateTime firstScheduledTime) =>
         new()
         {
-            Callback = waitCallback, FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
+            FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
             , MaxNumberOfCalls = 1, NextScheduleTime = firstScheduledTime
-            , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(500), State = null, RegisteredTimer = timer
+            , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(500), RegisteredTimer = timer
         };
 
     [TestCleanup]
@@ -55,7 +46,7 @@ public class TimerCallBackRunInfoTests
     [TestMethod]
     public void LowestNextScheduleTimeComparesLessThanOther()
     {
-        var higherNextScheduleTime = new TimerCallBackRunInfo();
+        var higherNextScheduleTime = new ConcreteTimerCallbackRunInfo();
         higherNextScheduleTime.CopyFrom(timerCallBackRunInfo);
         higherNextScheduleTime.NextScheduleTime += TimeSpan.FromSeconds(10);
 
@@ -68,17 +59,15 @@ public class TimerCallBackRunInfoTests
     [TestMethod]
     public void CopyFromTest()
     {
-        var fromCopy = new TimerCallBackRunInfo();
+        var fromCopy = new ConcreteTimerCallbackRunInfo();
         fromCopy.CopyFrom((IStoreState)timerCallBackRunInfo, CopyMergeFlags.Default);
 
-        Assert.AreEqual(timerCallBackRunInfo.Callback, fromCopy.Callback);
         Assert.AreEqual(timerCallBackRunInfo.FirstScheduledTime, fromCopy.FirstScheduledTime);
         Assert.AreEqual(timerCallBackRunInfo.LastRunTime, fromCopy.LastRunTime);
         Assert.AreEqual(timerCallBackRunInfo.NextScheduleTime, fromCopy.NextScheduleTime);
         Assert.AreEqual(timerCallBackRunInfo.IntervalPeriodTimeSpan, fromCopy.IntervalPeriodTimeSpan);
         Assert.AreEqual(timerCallBackRunInfo.CurrentNumberOfCalls, fromCopy.CurrentNumberOfCalls);
         Assert.AreEqual(timerCallBackRunInfo.MaxNumberOfCalls, fromCopy.MaxNumberOfCalls);
-        Assert.AreEqual(timerCallBackRunInfo.State, fromCopy.State);
         Assert.AreEqual(timerCallBackRunInfo.IsFinished, fromCopy.IsFinished);
         Assert.AreEqual(timerCallBackRunInfo.RegisteredTimer, fromCopy.RegisteredTimer);
     }
@@ -100,7 +89,7 @@ public class TimerCallBackRunInfoTests
     public void RecycleTest()
     {
         var recycler = new Recycler();
-        var borrowedTimerCallbackRunInfo = recycler.Borrow<TimerCallBackRunInfo>();
+        var borrowedTimerCallbackRunInfo = recycler.Borrow<ConcreteTimerCallbackRunInfo>();
         Assert.AreEqual(1, borrowedTimerCallbackRunInfo.RefCount);
         Assert.AreEqual(false, borrowedTimerCallbackRunInfo.IsInRecycler);
         Assert.AreEqual(0, borrowedTimerCallbackRunInfo.DecrementRefCount());
@@ -108,33 +97,10 @@ public class TimerCallBackRunInfoTests
         Assert.AreEqual(true, borrowedTimerCallbackRunInfo.IsInRecycler);
     }
 
-    [TestMethod]
-    public void RunCallbackOnThreadPoolTest()
+    private class ConcreteTimerCallbackRunInfo : TimerCallBackRunInfo
     {
-        Assert.AreEqual(0, callbackCounter);
-        timerCallBackRunInfo.RunCallbackOnThreadPool();
-        autoResetEvent.WaitOne(1_000);
-        Assert.AreEqual(1, callbackCounter);
+        public override bool RunCallbackOnThreadPool() => throw new NotImplementedException();
 
-        var pausedTimerCallbackInfo = CreateTimerCallBackRunInfo(timerCallBackRunInfo.FirstScheduledTime);
-        pausedTimerCallbackInfo.IsPaused = true;
-        Assert.AreEqual(1, callbackCounter);
-        pausedTimerCallbackInfo.RunCallbackOnThreadPool();
-        autoResetEvent.WaitOne(1_000);
-        Assert.AreEqual(2, callbackCounter);
-    }
-
-    [TestMethod]
-    public void RunCallbackOnThisThreadTest()
-    {
-        Assert.AreEqual(0, callbackCounter);
-        timerCallBackRunInfo.RunCallbackOnThisThread();
-        Assert.AreEqual(1, callbackCounter);
-
-        var pausedTimerCallbackInfo = CreateTimerCallBackRunInfo(timerCallBackRunInfo.FirstScheduledTime);
-        pausedTimerCallbackInfo.IsPaused = true;
-        Assert.AreEqual(1, callbackCounter);
-        pausedTimerCallbackInfo.RunCallbackOnThisThread();
-        Assert.AreEqual(2, callbackCounter);
+        public override bool RunCallbackOnThisThread() => throw new NotImplementedException();
     }
 }

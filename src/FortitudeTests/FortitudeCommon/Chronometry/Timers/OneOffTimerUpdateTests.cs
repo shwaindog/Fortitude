@@ -20,7 +20,7 @@ public class OneOffTimerUpdateTests
     private Mock<IUpdateableTimer> moqTimer = null!;
     private OneOffTimerUpdate oneOffTimerUpdate = null!;
     private Timer timer = null!;
-    private TimerCallBackRunInfo timerCallBackRunInfo = null!;
+    private WaitCallbackTimerCallBackRunInfo timerCallBackRunInfo = null!;
     private WaitCallback waitCallback = null!;
 
 
@@ -43,10 +43,10 @@ public class OneOffTimerUpdateTests
         };
     }
 
-    private TimerCallBackRunInfo CreateTimerCallBackRunInfo(DateTime firstScheduledTime) =>
+    private WaitCallbackTimerCallBackRunInfo CreateTimerCallBackRunInfo(DateTime firstScheduledTime) =>
         new()
         {
-            Callback = waitCallback, FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
+            WaitCallback = waitCallback, FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
             , MaxNumberOfCalls = 1, NextScheduleTime = firstScheduledTime
             , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(500), State = null, RegisteredTimer = timer
         };
@@ -86,7 +86,7 @@ public class OneOffTimerUpdateTests
     {
         var recycler = new Recycler();
         var borrowed = recycler.Borrow<OneOffTimerUpdate>();
-        var borrowCallBackRunInfo = recycler.Borrow<TimerCallBackRunInfo>();
+        var borrowCallBackRunInfo = recycler.Borrow<WaitCallbackTimerCallBackRunInfo>();
         borrowed.CallBackRunInfo = borrowCallBackRunInfo;
         Assert.AreEqual(1, borrowed.RefCount);
         Assert.AreEqual(1, borrowCallBackRunInfo.RefCount);

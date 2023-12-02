@@ -22,7 +22,6 @@ public class MessageListenerSubscription
     }
 
     public string SubscriberId { get; set; }
-
     public IEventContext RegisteredContext { get; set; } = null!;
     public IRule SubscriberRule { get; set; }
     public string PublishAddress { get; set; }
