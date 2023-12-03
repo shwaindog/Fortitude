@@ -13,8 +13,6 @@ public enum RuleLifeCycle
     , Starting
     , Started
     , ShuttingDown
-    , AwaitingChildShutdown
-    , AwaitingListenUnsubscription
     , Stopped
 }
 
@@ -30,8 +28,15 @@ public interface IRule
     IEnumerable<IRule> ChildRules { get; }
 
     event LifeCycleChangeHandler LifeCycleChanged;
-    Task Start();
-    Task Stop();
+
+    ValueTask StartAsync();
+
+    Task StartTaskAsync();
+
+    void Start();
+    ValueTask StopAsync();
+    Task StopTaskAsync();
+    void Stop();
     void AddChild(IRule child);
 }
 
@@ -93,6 +98,7 @@ public class Rule : IListeningRule
 
     public void AddChild(IRule child)
     {
+        if (child == this) return;
         children.Add(child);
         if (child.LifeCycleState is RuleLifeCycle.NotStarted or RuleLifeCycle.Starting or RuleLifeCycle.Started)
             IncrementLifeTimeCount();
@@ -128,9 +134,31 @@ public class Rule : IListeningRule
 
     public bool ShouldBeStopped() => LifeCycleState == RuleLifeCycle.Started && refCount <= 0;
 
-    public virtual Task Start() => Task.CompletedTask;
+    public virtual async ValueTask StartAsync()
+    {
+        await StartTaskAsync();
+    }
 
-    public virtual Task Stop() => Task.CompletedTask;
+    public virtual Task StartTaskAsync()
+    {
+        Start();
+        return Task.CompletedTask;
+    }
+
+    public virtual void Start() { }
+
+    public virtual async ValueTask StopAsync()
+    {
+        await StopTaskAsync();
+    }
+
+    public virtual Task StopTaskAsync()
+    {
+        Stop();
+        return Task.CompletedTask;
+    }
+
+    public virtual void Stop() { }
 
     private RuleLifeCycle ValidateRuleLifeCycleTransition(RuleLifeCycle value)
     {
@@ -153,35 +181,19 @@ public class Rule : IListeningRule
                         , new List<RuleLifeCycle> { RuleLifeCycle.ShuttingDown });
                 break;
             case RuleLifeCycle.ShuttingDown:
-                if (value is RuleLifeCycle.Stopped or RuleLifeCycle.AwaitingChildShutdown
-                    or RuleLifeCycle.AwaitingListenUnsubscription)
+                if (value is RuleLifeCycle.Stopped)
                     break;
 
                 throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
                     , new List<RuleLifeCycle>
                     {
-                        RuleLifeCycle.Stopped, RuleLifeCycle.AwaitingChildShutdown
-                        , RuleLifeCycle.AwaitingListenUnsubscription
-                    });
-            case RuleLifeCycle.AwaitingChildShutdown:
-                if (value is RuleLifeCycle.Stopped or RuleLifeCycle.AwaitingListenUnsubscription) break;
-
-                throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                    , new List<RuleLifeCycle>
-                    {
-                        RuleLifeCycle.Stopped, RuleLifeCycle.AwaitingListenUnsubscription
-                    });
-            case RuleLifeCycle.AwaitingListenUnsubscription:
-                if (value is RuleLifeCycle.Stopped or RuleLifeCycle.AwaitingChildShutdown) break;
-
-                throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                    , new List<RuleLifeCycle>
-                    {
-                        RuleLifeCycle.Stopped, RuleLifeCycle.AwaitingChildShutdown
+                        RuleLifeCycle.Stopped
                     });
             case RuleLifeCycle.Stopped:
+                if (value is RuleLifeCycle.NotStarted)
+                    break;
                 throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                    , new List<RuleLifeCycle>());
+                    , new List<RuleLifeCycle> { RuleLifeCycle.NotStarted });
         }
 
         return oldState;

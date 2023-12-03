@@ -34,6 +34,9 @@ public interface IEventBus
 
     ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
         , Func<IRespondingMessage<TPayload, TResponse>, TResponse> handler);
+
+    ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
+        , Func<IRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler);
 }
 
 public class EventBus : IEventBus
@@ -184,6 +187,18 @@ public class EventBus : IEventBus
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
         , Func<IRespondingMessage<TPayload, TResponse>, TResponse> handler)
+    {
+        var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
+        var msgListener
+            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+        rule.IncrementLifeTimeCount();
+        msgListener.SetHandlerFromSpecificMessageHandler(handler);
+        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+    }
+
+    public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
+        , Func<IRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener

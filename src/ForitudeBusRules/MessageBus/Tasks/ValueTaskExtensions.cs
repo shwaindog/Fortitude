@@ -16,6 +16,52 @@ public static class ValueTaskExtensions
     public static string ValueTaskInternalsString<T>(this ValueTask<T> valueTask) =>
         TypedValueTaskExtensions<T>.ValueTaskObjAndTokenString(valueTask);
 
+    public static async ValueTask ContinueWith<TResult>(this ValueTask<TResult> source,
+        Action<ValueTask<TResult>, object?> continuationAction, object? state)
+    {
+        // The source task is consumed after the await, and cannot be used further.
+        ValueTask<TResult> completed;
+        try
+        {
+            completed = new ValueTask<TResult>(await source.ConfigureAwait(false));
+        }
+        catch (OperationCanceledException oce)
+        {
+            var tcs = new TaskCompletionSource<TResult>();
+            tcs.SetCanceled(oce.CancellationToken);
+            completed = new ValueTask<TResult>(tcs.Task);
+        }
+        catch (Exception ex)
+        {
+            completed = new ValueTask<TResult>(Task.FromException<TResult>(ex));
+        }
+
+        continuationAction(completed, state);
+    }
+
+    public static async ValueTask ContinueWith(this ValueTask source,
+        Action<ValueTask, object?> continuationAction, object? state)
+    {
+        ValueTask completed;
+        try
+        {
+            await source;
+            completed = new ValueTask();
+        }
+        catch (OperationCanceledException oce)
+        {
+            var tcs = new TaskCompletionSource();
+            tcs.SetCanceled(oce.CancellationToken);
+            completed = new ValueTask(tcs.Task);
+        }
+        catch (Exception ex)
+        {
+            completed = new ValueTask(Task.FromException(ex));
+        }
+
+        continuationAction(completed, state);
+    }
+
     private static class TypedValueTaskExtensions<T>
     {
         private static readonly Func<ValueTask<T>, object?> ExtractValueTaskObj;

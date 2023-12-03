@@ -9,6 +9,8 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.Monitoring.Logging;
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
 #endregion
 
 
@@ -18,8 +20,8 @@ public class MessagePump : RingPoller<Message>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessagePump));
 
-    private static readonly Action<Task, object?> RuleStated = RuleStartedCallback;
-    private static readonly Action<Task, object?> RuleStopped = RuleStoppedCallback;
+    private static readonly Action<ValueTask, object?> RuleStarted = RuleStartedCallback;
+    private static readonly Action<ValueTask, object?> RuleStopped = RuleStoppedCallback;
     private readonly List<string> destinationAddresses = new();
     private readonly EventContext eventContext;
     private readonly int id;
@@ -50,7 +52,7 @@ public class MessagePump : RingPoller<Message>
 
     protected override void CurrentPollingIterationComplete() { }
 
-    private static void RuleStartedCallback(Task launchTask, object? state)
+    private static void RuleStartedCallback(ValueTask launchTask, object? state)
     {
         if (state is IProcessorRegistry processorRegistry)
         {
@@ -62,7 +64,7 @@ public class MessagePump : RingPoller<Message>
         }
     }
 
-    private static void RuleStoppedCallback(Task launchTask, object? state)
+    private static void RuleStoppedCallback(ValueTask launchTask, object? state)
     {
         if (state is IProcessorRegistry processorRegistry)
         {
@@ -169,7 +171,7 @@ public class MessagePump : RingPoller<Message>
             {
                 UndeployChildren(toShutdown);
                 UnsubscribeAllListenersForRule(toShutdown);
-                var stopTask = toShutdown.Stop();
+                var stopTask = toShutdown.StopAsync();
                 livingRules.Remove(toShutdown);
 
                 if (stopTask.IsCompleted)
@@ -193,15 +195,10 @@ public class MessagePump : RingPoller<Message>
 
     private void UndeployChildren(IRule parentRule)
     {
-        var isWaitingForChildToShuttdown = false;
         if (parentRule.ChildRules.Any())
             foreach (var child in parentRule.ChildRules)
                 if (child.LifeCycleState == RuleLifeCycle.Started)
-                {
-                    if (!isWaitingForChildToShuttdown) parentRule.LifeCycleState = RuleLifeCycle.AwaitingChildShutdown;
-
                     child.Context.RegisteredOn.StopRule(parentRule, child);
-                }
     }
 
     private void UnsubscribeAllListenersForRule(IRule removeListeners)
@@ -232,7 +229,7 @@ public class MessagePump : RingPoller<Message>
         {
             var processorRegistry = data.ProcessorRegistry!;
             processorRegistry.RegisterStart(newRule);
-            var started = newRule.Start();
+            var started = newRule.StartAsync();
             livingRules.Add(newRule);
             if (started.IsCompleted)
             {
@@ -244,7 +241,7 @@ public class MessagePump : RingPoller<Message>
             {
                 processorRegistry.RegisterAwaiting(newRule);
                 processorRegistry.RulePayLoad = newRule;
-                started.ContinueWith(RuleStated, processorRegistry);
+                started.ContinueWith(RuleStarted, processorRegistry);
             }
         }
         catch (Exception ex)

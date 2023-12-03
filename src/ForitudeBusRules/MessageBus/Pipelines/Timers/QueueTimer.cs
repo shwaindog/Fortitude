@@ -133,11 +133,10 @@ public class QueueTimer : Rule, IActionTimer
         backingTimer.StopAllTimers();
     }
 
-    public override Task Stop()
+    public override void Stop()
     {
         backingTimer.StopAllTimers();
         base.Stop();
-        return Task.CompletedTask;
     }
 
     public void OneOffTimerEnqueueAsMessage(object? state)
