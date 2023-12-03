@@ -10,7 +10,7 @@ public static class ValueTaskExtensions
 {
     public static Task<T> ToTask<T>(this ValueTask<T> valueTask) => TypedValueTaskExtensions<T>.ExtractTask(valueTask);
 
-    public static ReusableValueTaskSource<T>? ToReusableValueTaskSource<T>(this ValueTask<T> valueTask) =>
+    public static IReusableMessageResponseSource<T>? ToReusableValueTaskSource<T>(this ValueTask<T> valueTask) =>
         TypedValueTaskExtensions<T>.ExtractReusableValueTaskSource(valueTask);
 
     public static string ValueTaskInternalsString<T>(this ValueTask<T> valueTask) =>
@@ -32,7 +32,7 @@ public static class ValueTaskExtensions
         }
 
         // ReSharper disable once UnusedMember.Global
-        public static ReusableValueTaskSource<T>? ExtractReusableValueTaskSource(ValueTask<T> toConvert)
+        public static IReusableMessageResponseSource<T>? ExtractReusableValueTaskSource(ValueTask<T> toConvert)
         {
             var obj = ExtractValueTaskObj(toConvert);
             if (obj is ReusableValueTaskSource<T> reusableObj) return reusableObj;
@@ -43,7 +43,7 @@ public static class ValueTaskExtensions
         public static Task<T> ExtractTask(ValueTask<T> toConvert)
         {
             var obj = ExtractValueTaskObj(toConvert);
-            if (obj is ReusableValueTaskSource<T> reusableObj) return reusableObj.AsTask;
+            if (obj is IReusableMessageResponseSource<T> reusableObj) return reusableObj.AsTask;
 
             return toConvert.AsTask();
         }

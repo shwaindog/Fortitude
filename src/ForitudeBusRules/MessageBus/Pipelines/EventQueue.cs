@@ -27,7 +27,7 @@ public interface IEventQueue
 
     ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish);
+        , MessageType msgType = MessageType.RequestResponse);
 
     ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule);
 
@@ -77,7 +77,7 @@ public class EventQueue : IEventQueue
             ClaimStrategyType.MultiProducers,
             false);
         eventContext = new EventContext(this, eventBus);
-        messagePump = new MessagePump(ring, 30, id);
+        messagePump = new MessagePump(eventContext, ring, 30, id);
         messagePump.StartPolling();
     }
 
@@ -112,7 +112,7 @@ public class EventQueue : IEventQueue
         evt.Response = Message.NoOpCompletionSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
-        logger.Debug("EnqueuePayloadWithStats processorRegistry: {0}", processorRegistry.ToString());
+        // logger.Debug("EnqueuePayloadWithStats processorRegistry: {0}", processorRegistry.ToString());
         evt.ProcessorRegistry = processorRegistry;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
@@ -121,7 +121,7 @@ public class EventQueue : IEventQueue
 
     public ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish)
+        , MessageType msgType = MessageType.RequestResponse)
     {
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
@@ -169,7 +169,7 @@ public class EventQueue : IEventQueue
     }
 
     public bool IsListeningToAddress(string destinationAddress) =>
-        messagePump.listeners.ContainsKey(destinationAddress);
+        messagePump.Listeners.ContainsKey(destinationAddress);
 
     public void RunOn(IRule sender, Action action)
     {
@@ -178,7 +178,7 @@ public class EventQueue : IEventQueue
         var evt = ring[seqId];
         evt.Type = MessageType.RunActionPayload;
         evt.PayLoad = new PayLoad<Action>(action);
-        evt.DestinationAddress = MessagePump.RunActionAddress;
+        evt.DestinationAddress = null;
         evt.Response = Message.NoOpCompletionSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;

@@ -67,6 +67,7 @@ public enum MessageType
     , UnloadRule
     , ListenerSubscribe
     , ListenerUnsubscribe
+    , TaskAction
 }
 
 public interface IMessage<TPayLoad> : IMessage, IRecyclableObject<IMessage>
@@ -78,7 +79,7 @@ public interface IMessage<TPayLoad> : IMessage, IRecyclableObject<IMessage>
 
 public interface IRespondingMessage<TPayLoad, TResponse> : IMessage<TPayLoad>
 {
-    new ReusableValueTaskSource<TResponse> Response { get; }
+    new IResponseValueTaskSource<TResponse> Response { get; }
 }
 
 public class Message : IMessage
@@ -158,10 +159,10 @@ public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad
         set => ((Message)this).PayLoad = value;
     }
 
-    public new ReusableValueTaskSource<TResponse> Response
+    public new IResponseValueTaskSource<TResponse> Response
     {
-        get => (ReusableValueTaskSource<TResponse>)((Message)this).Response;
-        set => ((Message)this).Response = value;
+        get => (IResponseValueTaskSource<TResponse>)base.Response;
+        set => base.Response = value;
     }
 
     public int RefCount => refCount;

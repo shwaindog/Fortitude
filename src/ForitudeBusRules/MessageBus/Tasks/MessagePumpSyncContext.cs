@@ -1,6 +1,7 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Maps;
+using Fortitude.EventProcessing.BusRules.Messaging;
+using Fortitude.EventProcessing.BusRules.Rules;
 
 #endregion
 
@@ -8,54 +9,38 @@ namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 
 public class MessagePumpSyncContext : SynchronizationContext
 {
-    private IMap<Task, SendOrPostCallback> enqueueTasks;
+    private readonly EventContext pumpContext;
+    private readonly MessagePumpSyncContextRule sendingRule;
 
-
-    public MessagePumpSyncContext() => enqueueTasks = new ConcurrentMap<Task, SendOrPostCallback>();
-
-
-    public MessagePumpSyncContext(IMap<Task, SendOrPostCallback> enqueueTasks) => this.enqueueTasks = enqueueTasks;
-
-    public void RunQueuedTasks()
+    public MessagePumpSyncContext(EventContext pumpContext)
     {
-        // TODO make this a member and clear and insert
-        var enquedTasks = enqueueTasks.ToList();
-        foreach (var keyValuePair in enquedTasks) keyValuePair.Value(keyValuePair.Key);
-        foreach (var keyValuePair in enquedTasks)
-        {
-            var task = keyValuePair.Key;
-            if (task.IsCompleted || task.IsCanceled || task.IsFaulted || task.IsCompletedSuccessfully)
-                enqueueTasks.Remove(keyValuePair.Key);
-        }
+        this.pumpContext = pumpContext;
+        sendingRule = new MessagePumpSyncContextRule(pumpContext);
     }
 
-    public override SynchronizationContext CreateCopy() => new MessagePumpSyncContext(enqueueTasks);
-
-    public override void OperationCompleted()
-    {
-        base.OperationCompleted();
-    }
-
-    public override void OperationStarted()
-    {
-        base.OperationStarted();
-    }
+    public override SynchronizationContext CreateCopy() => new MessagePumpSyncContext(pumpContext);
 
     public override void Post(SendOrPostCallback d, object? state)
     {
-        var task = (Task)state!;
-        enqueueTasks.Add(task, d);
-    }
+        var taskPayload = pumpContext.PooledRecycler.Borrow<TaskPayload>();
+        taskPayload.Callback = d;
+        taskPayload.State = state;
 
-    public void Post<T>(ValueTask<T> toRun) { }
+        pumpContext.RegisteredOn.EnqueuePayload(taskPayload, sendingRule, null, MessageType.TaskAction);
+    }
 
     public override void Send(SendOrPostCallback d, object? state)
     {
-        var task = state as Task;
         if (Current == this)
-            d.Invoke(task);
+            d.Invoke(state);
         else
             Post(d, state);
-        task?.Wait(600_000);
+    }
+
+    private class MessagePumpSyncContextRule : Rule
+    {
+        public MessagePumpSyncContextRule(EventContext pumpContext) : base(
+            $"MessagePumpSyncContextRule_{pumpContext.RegisteredOn.Name}"
+            , $"MessagePumpSyncContextRule_{pumpContext.RegisteredOn.Name}") { }
     }
 }
