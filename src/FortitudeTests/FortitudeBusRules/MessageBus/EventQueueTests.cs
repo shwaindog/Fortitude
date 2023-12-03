@@ -42,14 +42,14 @@ public class EventQueueTests
     [TestMethod]
     public void StartingListeningRuleThenPublishingRuleExpectToReceiveSamePublishedMessages()
     {
-        var listeningRule = new ListeningRule();
+        var publishRule = new PublishingRule(2);
+        var listeningRule = new ListeningRule(publishRule.PublishAddress);
         var listenDeploy = eventQueue.LaunchRule(listeningRule, listeningRule);
         var listenDeployTask = listenDeploy.ToTask();
         listenDeployTask.Wait(2_000);
         Assert.IsTrue(listenDeploy.IsCompleted);
         Thread.Sleep(10);
         Assert.AreEqual(0, listenDeploy.Result.DecrementRefCount());
-        var publishRule = new PublishingRule(2);
         var publishDeployVTask = eventQueue.LaunchRule(publishRule, publishRule);
         var publishRuleTask = publishDeployVTask.ToTask();
         publishRuleTask.Wait(2_000);
@@ -80,7 +80,7 @@ public class EventQueueTests
         respondingDeployTask.Wait(2_000);
         Thread.Sleep(10);
         Assert.AreEqual(0, respondingDeploy.Result.DecrementRefCount());
-        var requestingRule = new RequestingRule();
+        var requestingRule = new RequestingRule(respondingRule.ListenAddress);
         var requestingDeployVTask = eventQueue.LaunchRule(requestingRule, requestingRule);
         var requestingRuleTask = requestingDeployVTask.ToTask();
         requestingRuleTask.Wait(2_000);
@@ -90,5 +90,67 @@ public class EventQueueTests
         Assert.AreEqual(3, requestingRule.PublishNumber);
         Assert.AreEqual(3, respondingRule.ReceiveCount);
         Assert.AreEqual(3, requestingRule.ReceiveCount);
+    }
+
+    [TestMethod]
+    public void StartResponderThenAsyncValueTaskResponderThenStartRequesterEachReceiveExpectedNumberOfInvocations()
+    {
+        var respondingRule = new RespondingRule();
+        var respondingDeploy = eventQueue.LaunchRule(respondingRule, respondingRule);
+        var respondingDeployTask = respondingDeploy.ToTask();
+        respondingDeployTask.Wait(2_000);
+        Thread.Sleep(10);
+        Assert.AreEqual(0, respondingDeploy.Result.DecrementRefCount());
+        var asyncRespondingRule = new AsyncValueTaskRespondingRule(requestAddress: respondingRule.ListenAddress);
+        var asyncRespondingDeploy = eventQueue.LaunchRule(asyncRespondingRule, asyncRespondingRule);
+        var asyncRespondingDeployTask = asyncRespondingDeploy.ToTask();
+        asyncRespondingDeployTask.Wait(2_000);
+        Thread.Sleep(10);
+        Assert.AreEqual(0, asyncRespondingDeploy.Result.DecrementRefCount());
+        var requestingRule = new RequestingRule(asyncRespondingRule.ListenAddress);
+        var requestingDeployVTask = eventQueue.LaunchRule(requestingRule, requestingRule);
+        var requestingRuleTask = requestingDeployVTask.ToTask();
+        requestingRuleTask.Wait(2_000);
+        Thread.Sleep(10);
+        Assert.IsTrue(requestingDeployVTask.IsCompleted);
+        Assert.AreEqual(0, requestingDeployVTask.Result.DecrementRefCount());
+        Assert.AreEqual(3, requestingRule.PublishNumber);
+        Assert.AreEqual(3, asyncRespondingRule.LastReceivedRequestNumber);
+        Assert.AreEqual(13, asyncRespondingRule.LastReceivedResponseNumber);
+        Assert.AreEqual(3, asyncRespondingRule.ReceiveCount);
+        Assert.AreEqual(3, respondingRule.ReceiveCount);
+        Assert.AreEqual(3, requestingRule.ReceiveCount);
+        Thread.Sleep(1_000);
+    }
+
+    [TestMethod]
+    public void StartResponderThenAsyncTaskResponderThenStartRequesterEachReceiveExpectedNumberOfInvocations()
+    {
+        var respondingRule = new RespondingRule();
+        var respondingDeploy = eventQueue.LaunchRule(respondingRule, respondingRule);
+        var respondingDeployTask = respondingDeploy.ToTask();
+        respondingDeployTask.Wait(2_000);
+        Thread.Sleep(10);
+        Assert.AreEqual(0, respondingDeploy.Result.DecrementRefCount());
+        var asyncRespondingRule = new AsyncTaskRespondingRule(requestAddress: respondingRule.ListenAddress);
+        var asyncRespondingDeploy = eventQueue.LaunchRule(asyncRespondingRule, asyncRespondingRule);
+        var asyncRespondingDeployTask = asyncRespondingDeploy.ToTask();
+        asyncRespondingDeployTask.Wait(2_000);
+        Thread.Sleep(10);
+        Assert.AreEqual(0, asyncRespondingDeploy.Result.DecrementRefCount());
+        var requestingRule = new RequestingRule(asyncRespondingRule.ListenAddress);
+        var requestingDeployVTask = eventQueue.LaunchRule(requestingRule, requestingRule);
+        var requestingRuleTask = requestingDeployVTask.ToTask();
+        requestingRuleTask.Wait(2_000);
+        Thread.Sleep(10);
+        Assert.IsTrue(requestingDeployVTask.IsCompleted);
+        Assert.AreEqual(0, requestingDeployVTask.Result.DecrementRefCount());
+        Assert.AreEqual(3, requestingRule.PublishNumber);
+        Assert.AreEqual(3, asyncRespondingRule.LastReceivedRequestNumber);
+        Assert.AreEqual(13, asyncRespondingRule.LastReceivedResponseNumber);
+        Assert.AreEqual(3, asyncRespondingRule.ReceiveCount);
+        Assert.AreEqual(3, respondingRule.ReceiveCount);
+        Assert.AreEqual(3, requestingRule.ReceiveCount);
+        Thread.Sleep(1_000);
     }
 }
