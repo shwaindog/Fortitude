@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Threading.Tasks.Sources;
 using FortitudeCommon.Chronometry.Timers;
@@ -22,6 +21,8 @@ public interface IReusableMessageResponseSource<T> : IMessageResponseSource
 {
     // ReSharper disable once UnusedMemberInSuper.Global
     Task<T> AsTask { get; }
+
+    short Version { get; }
     ValueTask<T>? AwaitingValueTask { get; set; }
     void TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask);
     void TrySetResultFromAwaitingTask(Task<T> awaitingTask);
@@ -35,6 +36,7 @@ public interface IReusableMessageResponseSource<T> : IMessageResponseSource
 public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageResponseSource<T>
     , IStoreState<ReusableValueTaskSource<T>>
 {
+    // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ReusableValueTaskSource<T>));
 
     public static int AfterGetResultRecycleInstanceMs = 10_000;
@@ -42,9 +44,6 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
     private static readonly Action<Task<T>, object?> CheckTaskComplete = CheckAsTaskComplete;
     private static readonly Action<ReusableValueTaskSource<T>?> CheckTaskCompleteAgain = CheckAsTaskCompleteAgain;
     private static readonly Action<IMessageResponseSource?> RecycleReusableValueTaskSource = RecycleCompleted;
-
-    private static readonly Func<object?, T> NeverRunTask = _ =>
-        throw new ArgumentException("This should never be called");
 
     private static readonly Action<Task<T>> ResetTaskAction;
     private static int totalInstances;
@@ -85,8 +84,9 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
         set => Core.RunContinuationsAsynchronously = value;
     }
 
-    public short Version => Core.Version;
     public IActionTimer? RecycleTimer { get; set; }
+
+    public short Version => Core.Version;
 
     public bool IsCompleted => GetStatus() != ValueTaskSourceStatus.Pending;
 
@@ -151,30 +151,29 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
 
     public virtual int DecrementRefCount()
     {
-        logger.Debug("instanceNumber: {0} DecrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
-            , refCount, new StackTrace());
+        // logger.Debug("instanceNumber: {0} DecrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
+        //     , refCount, new StackTrace());
         if (refCount > 0 && Interlocked.Decrement(ref refCount) <= 0)
             if (RecycleOnRefCountZero)
-                // if (RecycleTimer != null)
-                // {
-                //     if (lastTimerActive != null) lastTimerActive.DecrementRefCount();
-                //
-                //     lastTimerActive = RecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this
-                //         , RecycleReusableValueTaskSource);
-                // }
-                // else
-                // {
-                Recycle();
-        // }
+                if (RecycleTimer != null)
+                {
+                    if (lastTimerActive != null) lastTimerActive.DecrementRefCount();
+
+                    lastTimerActive = RecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this
+                        , RecycleReusableValueTaskSource);
+                }
+                else
+                {
+                    Recycle();
+                }
+
         return refCount;
     }
 
-    public int IncrementRefCount()
-    {
-        logger.Debug("instanceNumber: {0} IncrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
-            , refCount, new StackTrace());
-        return Interlocked.Increment(ref refCount);
-    }
+    public int IncrementRefCount() =>
+        // logger.Debug("instanceNumber: {0} IncrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
+        //     , refCount, new StackTrace());
+        Interlocked.Increment(ref refCount);
 
     public bool Recycle()
     {
@@ -304,8 +303,8 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
         var status = Core.GetStatus(Core.Version);
         if (status == ValueTaskSourceStatus.Canceled || status == ValueTaskSourceStatus.Faulted)
             StartRecycleDecrementRefCountTimer();
-        logger.Debug("instanceNumber: {0} IncrementRefCount with refCount {1} has status {2}", InstanceNumber
-            , refCount, status);
+        // logger.Debug("instanceNumber: {0} IncrementRefCount with refCount {1} has status {2}", InstanceNumber
+        //     , refCount, status);
         return status;
     }
 

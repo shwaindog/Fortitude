@@ -16,38 +16,39 @@ namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
 
 public class MessagePump : RingPoller<Message>
 {
-    public const string RunActionAddress = "RunActionAddress";
-    public const string RunTaskAddress = "RunTaskAddress";
-    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(MessagePump));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessagePump));
 
     private static readonly Action<Task, object?> RuleStated = RuleStartedCallback;
     private static readonly Action<Task, object?> RuleStopped = RuleStoppedCallback;
     private readonly List<string> destinationAddresses = new();
+    private readonly EventContext eventContext;
+    private readonly int id;
 
-    public IMap<string, List<IMessageListenerSubscription>> listeners
+    private readonly List<IListeningRule> livingRules = new();
+
+    public IMap<string, List<IMessageListenerSubscription>> Listeners
         = new ConcurrentMap<string, List<IMessageListenerSubscription>>();
-
-    private List<IListeningRule> livingRules = new();
 
     private MessagePumpSyncContext syncContext = null!;
 
-    public MessagePump(PollingRing<Message> ring, uint timeoutMs, int id)
-        : base(ring, timeoutMs) { }
+    public MessagePump(EventContext eventContext, PollingRing<Message> ring, uint timeoutMs, int id)
+        : base(ring, timeoutMs)
+    {
+        this.eventContext = eventContext;
+        this.id = id;
+    }
 
 
     public MessagePumpTaskScheduler RingPollerScheduler { get; private set; } = null!;
 
     protected override void InitializeInPollingThread()
     {
-        syncContext = new MessagePumpSyncContext();
+        syncContext = new MessagePumpSyncContext(eventContext);
         SynchronizationContext.SetSynchronizationContext(syncContext);
         RingPollerScheduler = new MessagePumpTaskScheduler();
     }
 
-    protected override void CurrentPollingIterationComplete()
-    {
-        syncContext.RunQueuedTasks();
-    }
+    protected override void CurrentPollingIterationComplete() { }
 
     private static void RuleStartedCallback(Task launchTask, object? state)
     {
@@ -76,57 +77,72 @@ public class MessagePump : RingPoller<Message>
     {
         try
         {
-            if (data.Type == MessageType.LoadRule)
+            switch (data.Type)
             {
-                LoadNewRule(data);
-            }
-            else if (data.Type == MessageType.UnloadRule)
-            {
-                UnloadExistingRule(data);
-            }
-            else if (data.Type == MessageType.RunActionPayload)
-            {
-                var actionBody = ((PayLoad<Action>)data.PayLoad!).Body!;
-                actionBody();
-            }
-            else if (data.Type == MessageType.TimerPayload)
-            {
-                var timerCallbackPayload = (ITimerCallbackPayload)data.PayLoad!.BodyObj!;
-                timerCallbackPayload.Invoke();
-            }
-            else if (data.Type == MessageType.ListenerSubscribe)
-            {
-                var subscribePayLoad = (IMessageListenerSubscription)data.PayLoad!.BodyObj!;
-                subscribePayLoad.SubscriberRule.IncrementLifeTimeCount();
-                var listeningAddress = subscribePayLoad.PublishAddress;
-                if (!listeners.TryGetValue(subscribePayLoad.PublishAddress, out var ruleListeners))
+                case MessageType.LoadRule:
+                    LoadNewRule(data);
+                    break;
+                case MessageType.UnloadRule:
+                    UnloadExistingRule(data);
+                    break;
+                case MessageType.RunActionPayload:
                 {
-                    ruleListeners = new List<IMessageListenerSubscription>();
-                    listeners.Add(subscribePayLoad.PublishAddress, ruleListeners);
+                    var actionBody = ((PayLoad<Action>)data.PayLoad!).Body!;
+                    actionBody();
+                    break;
                 }
-
-                ruleListeners!.Add(subscribePayLoad);
-            }
-            else if (data.Type == MessageType.ListenerUnsubscribe)
-            {
-                var unsubscribePayLoad = ((PayLoad<MessageListenerUnsubscribe>)data.PayLoad!).Body!;
-                var listeningAddress = unsubscribePayLoad.PublishAddress;
-                if (listeners.TryGetValue(unsubscribePayLoad.PublishAddress, out var ruleListeners))
+                case MessageType.TimerPayload:
                 {
-                    for (var i = 0; i < ruleListeners!.Count; i++)
+                    var timerCallbackPayload = (ITimerCallbackPayload)data.PayLoad!.BodyObj!;
+                    timerCallbackPayload.Invoke();
+                    break;
+                }
+                case MessageType.TaskAction:
+                {
+                    var timerCallbackPayload = (ITaskPayload)data.PayLoad!.BodyObj!;
+                    timerCallbackPayload.Invoke();
+                    break;
+                }
+                case MessageType.ListenerSubscribe:
+                {
+                    var subscribePayLoad = (IMessageListenerSubscription)data.PayLoad!.BodyObj!;
+                    subscribePayLoad.SubscriberRule.IncrementLifeTimeCount();
+                    var listeningAddress = subscribePayLoad.PublishAddress;
+                    if (!Listeners.TryGetValue(listeningAddress, out var ruleListeners))
                     {
-                        var ruleListener = ruleListeners![i];
-                        if (ruleListener.SubscriberId == unsubscribePayLoad.SubscriberId) ruleListeners.RemoveAt(i);
+                        ruleListeners = new List<IMessageListenerSubscription>();
+                        Listeners.Add(listeningAddress, ruleListeners);
                     }
 
-                    if (ruleListeners.Count == 0) listeners.Remove(unsubscribePayLoad.PublishAddress);
+                    ruleListeners!.Add(subscribePayLoad);
+                    break;
                 }
+                case MessageType.ListenerUnsubscribe:
+                {
+                    var unsubscribePayLoad = ((PayLoad<MessageListenerUnsubscribe>)data.PayLoad!).Body!;
+                    var listeningAddress = unsubscribePayLoad.PublishAddress;
+                    if (Listeners.TryGetValue(listeningAddress, out var ruleListeners))
+                    {
+                        for (var i = 0; i < ruleListeners!.Count; i++)
+                        {
+                            var ruleListener = ruleListeners[i];
+                            if (ruleListener.SubscriberId == unsubscribePayLoad.SubscriberId) ruleListeners.RemoveAt(i);
+                        }
 
-                unsubscribePayLoad.SubscriberRule.DecrementLifeTimeCount();
-            }
-            else if (listeners.TryGetValue(data.DestinationAddress!, out var ruleListeners))
-            {
-                foreach (var ruleListener in ruleListeners!) ruleListener.Handler(data);
+                        if (ruleListeners.Count == 0) Listeners.Remove(listeningAddress);
+                    }
+
+                    unsubscribePayLoad.SubscriberRule.DecrementLifeTimeCount();
+                    break;
+                }
+                default:
+                {
+                    if (Listeners.TryGetValue(data.DestinationAddress!, out var ruleListeners))
+                        foreach (var ruleListener in ruleListeners!)
+                            ruleListener.Handler(data);
+
+                    break;
+                }
             }
 
             for (var i = 0; i < livingRules.Count; i++)
@@ -140,7 +156,7 @@ public class MessagePump : RingPoller<Message>
         }
         catch (Exception e)
         {
-            logger.Warn("MessagePump id: {0} caught the following exception. ", e);
+            Logger.Warn("MessagePump id: {0} caught the following exception. ", e);
         }
     }
 
@@ -171,7 +187,7 @@ public class MessagePump : RingPoller<Message>
         }
         catch (Exception ex)
         {
-            logger.Warn("Problem starting rule: {0}.  Caught {1}", toShutdown.FriendlyName, ex);
+            Logger.Warn("Problem starting rule: {0}.  Caught {1}", toShutdown.FriendlyName, ex);
         }
     }
 
@@ -191,7 +207,7 @@ public class MessagePump : RingPoller<Message>
     private void UnsubscribeAllListenersForRule(IRule removeListeners)
     {
         destinationAddresses.Clear();
-        foreach (var listenKvp in listeners)
+        foreach (var listenKvp in Listeners)
         {
             for (var i = 0; i < listenKvp.Value.Count; i++)
             {
@@ -205,7 +221,7 @@ public class MessagePump : RingPoller<Message>
         for (var i = 0; i < destinationAddresses.Count; i++)
         {
             var emptyDestinationAddress = destinationAddresses[i];
-            listeners.Remove(emptyDestinationAddress);
+            Listeners.Remove(emptyDestinationAddress);
         }
     }
 
@@ -233,7 +249,7 @@ public class MessagePump : RingPoller<Message>
         }
         catch (Exception ex)
         {
-            logger.Warn("Problem starting rule: {0}.  Caught {1}", newRule.FriendlyName, ex);
+            Logger.Warn("Problem starting rule: {0}.  Caught {1}", newRule.FriendlyName, ex);
         }
     }
 }

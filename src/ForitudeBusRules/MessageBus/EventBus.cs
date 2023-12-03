@@ -31,6 +31,9 @@ public interface IEventBus
 
     ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
         , Func<IRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler);
+
+    ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
+        , Func<IRespondingMessage<TPayload, TResponse>, TResponse> handler);
 }
 
 public class EventBus : IEventBus
@@ -141,7 +144,7 @@ public class EventBus : IEventBus
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.RecycleTimer = sender.Context.Timer;
-        for (var i = lastRequestIndex + 1; i < lastRequestIndex + allQueues.Count; i++)
+        for (var i = lastRequestIndex + 1; i < lastRequestIndex + 1 + allQueues.Count; i++)
         {
             var currIndex = i % allQueues.Count;
             var currQueue = allQueues[currIndex];
@@ -169,6 +172,18 @@ public class EventBus : IEventBus
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
         , Func<IRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler)
+    {
+        var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
+        var msgListener
+            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+        rule.IncrementLifeTimeCount();
+        msgListener.SetHandlerFromSpecificMessageHandler(handler);
+        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+    }
+
+    public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
+        , Func<IRespondingMessage<TPayload, TResponse>, TResponse> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener

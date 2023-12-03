@@ -4,6 +4,7 @@ using System.Threading.Tasks.Sources;
 using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
@@ -51,14 +52,21 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         if (state is IMessage msgState)
         {
-            var typeResponse = (ReusableValueTaskSource<TResponse>)msgState.Response;
-            try
+            if (msgState.Type is MessageType.Publish)
             {
-                typeResponse.TrySetResultFromAwaitingTask(completed);
+                if (completed is { Result: IRecyclableObject recyclableObject }) recyclableObject.DecrementRefCount();
             }
-            catch (Exception e)
+            else if (msgState.Type is MessageType.RequestResponse)
             {
-                logger.Warn("Error expected completed to be completed when this is called. Got {0}", e);
+                var typeResponse = (IResponseValueTaskSource<TResponse>)msgState.Response;
+                try
+                {
+                    typeResponse.TrySetResultFromAwaitingTask(completed);
+                }
+                catch (Exception e)
+                {
+                    logger.Warn("Error expected completed to be completed when this is called. Got {0}", e);
+                }
             }
 
             msgState.ProcessorRegistry?.RegisterFinish(SubscriberRule);
@@ -70,14 +78,24 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         if (state is IMessage msgState)
         {
-            var typeResponse = (ReusableValueTaskSource<TResponse>)msgState.Response;
-            try
+            if (msgState.Type is MessageType.Publish)
             {
-                typeResponse.TrySetResultFromAwaitingTask(typeResponse.AwaitingValueTask!.Value);
+                var typeResponse = msgState.Response as ReusableValueTaskSource<TResponse>;
+                var awaitingTask = typeResponse?.AwaitingValueTask;
+                if (awaitingTask is { Result: IRecyclableObject recyclableObject })
+                    recyclableObject.DecrementRefCount();
             }
-            catch (Exception e)
+            else if (msgState.Type is MessageType.RequestResponse)
             {
-                logger.Warn("Error expected completed to be completed when this is called. Got {0}", e);
+                var typeResponse = (IResponseValueTaskSource<TResponse>)msgState.Response;
+                try
+                {
+                    typeResponse.TrySetResultFromAwaitingTask(typeResponse.AwaitingValueTask!.Value);
+                }
+                catch (Exception e)
+                {
+                    logger.Warn("Error expected completed to be completed when this is called. Got {0}", e);
+                }
             }
 
             msgState.ProcessorRegistry?.RegisterFinish(SubscriberRule);
@@ -90,12 +108,42 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         Handler = message =>
         {
-            if (message.Type is MessageType.Publish or MessageType.RequestResponse)
+            if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
                 IRespondingMessage<TPayLoad, TResponse> typeMessage
                     = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
-                var typeResponse = message.Response as ReusableValueTaskSource<TResponse>;
+                var response = wrapHandler(typeMessage);
+                if (!response.IsCompleted)
+                {
+                    message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
+                    var responseAsReusable = response.ToReusableValueTaskSource();
+                    if (responseAsReusable != null)
+                    {
+                        responseAsReusable.AwaitingValueTask = response;
+                        responseAsReusable.OnCompleted(onDependentValueTaskCompleted, message
+                            , responseAsReusable.Version, ValueTaskSourceOnCompletedFlags.None);
+                    }
+                    else
+                    {
+                        var responseAsTask = response.ToTask();
+                        responseAsTask.ContinueWith(onDependentTaskCompleted, message);
+                    }
+                }
+                else if (response.IsCompletedSuccessfully || response.IsFaulted)
+                {
+                    if (response is { Result: IRecyclableObject recyclableObject })
+                        recyclableObject.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeMessage.DecrementRefCount();
+                }
+            }
+            else if (message.Type is MessageType.RequestResponse)
+            {
+                message.ProcessorRegistry?.RegisterStart(SubscriberRule);
+                IRespondingMessage<TPayLoad, TResponse> typeMessage
+                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                var typeResponse = message.Response as IResponseValueTaskSource<TResponse>;
                 var response = wrapHandler(typeMessage);
                 if (typeResponse != null)
                 {
@@ -105,6 +153,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                         var responseAsReusable = response.ToReusableValueTaskSource();
                         if (responseAsReusable != null)
                         {
+                            responseAsReusable.AwaitingValueTask = response;
                             responseAsReusable.OnCompleted(onDependentValueTaskCompleted, message
                                 , responseAsReusable.Version, ValueTaskSourceOnCompletedFlags.None);
                         }
@@ -134,12 +183,32 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         Handler = message =>
         {
-            if (message.Type is MessageType.Publish or MessageType.RequestResponse)
+            if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
                 IRespondingMessage<TPayLoad, TResponse> typeMessage
                     = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
-                var typeResponse = message.Response as ReusableValueTaskSource<TResponse>;
+                var response = wrapHandler(typeMessage);
+                if (!response.IsCompleted)
+                {
+                    message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
+                    response.ContinueWith(onDependentTaskCompleted, message);
+                }
+                else if (response.IsCompletedSuccessfully || response.IsFaulted)
+                {
+                    if (response is { Result: IRecyclableObject recyclableObject })
+                        recyclableObject.DecrementRefCount();
+
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeMessage.DecrementRefCount();
+                }
+            }
+            else if (message.Type is MessageType.RequestResponse)
+            {
+                message.ProcessorRegistry?.RegisterStart(SubscriberRule);
+                IRespondingMessage<TPayLoad, TResponse> typeMessage
+                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                var typeResponse = message.Response as IResponseValueTaskSource<TResponse>;
                 var response = wrapHandler(typeMessage);
                 if (typeResponse != null)
                 {
@@ -168,22 +237,48 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         Handler = message =>
         {
-            if (message.Type is MessageType.Publish or MessageType.RequestResponse)
+            if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
                 IRespondingMessage<TPayLoad, TResponse> typeMessage
                     = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
                 try
                 {
-                    if (message.Response is ReusableValueTaskSource<TResponse> typeResponse)
+                    try
+                    {
+                        var response = wrapHandler(typeMessage);
+                        if (response is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Warn($"Unexpected call to MessageListenerSubscription with message: {message}. Got {e}");
+                    }
+                    finally
+                    {
+                        message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    }
+                }
+                finally
+                {
+                    typeMessage.DecrementRefCount();
+                }
+            }
+            else if (message.Type is MessageType.RequestResponse)
+            {
+                message.ProcessorRegistry?.RegisterStart(SubscriberRule);
+                IRespondingMessage<TPayLoad, TResponse> typeMessage
+                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                try
+                {
+                    if (message.Response is IResponseValueTaskSource<TResponse> requestResponse)
                         try
                         {
                             var response = wrapHandler(typeMessage);
-                            typeResponse.TrySetResult(response);
+                            requestResponse.TrySetResult(response);
                         }
                         catch (Exception e)
                         {
-                            typeResponse.SetException(e);
+                            requestResponse.SetException(e);
                         }
                         finally
                         {
