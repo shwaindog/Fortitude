@@ -1,14 +1,16 @@
-﻿using System;
+﻿#region
 
-namespace FortitudeMarketsApi.Trading.Orders.Venues
+using FortitudeCommon.DataStructures.Memory;
+
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Orders.Venues;
+
+public interface IVenuePriceQuoteId : IReusableObject<IVenuePriceQuoteId>
 {
-    public interface IVenuePriceQuoteId
-    {
-        ushort SourceId { get; set; }
-        ushort TickerId { get; set; }
-        uint SourceRefId { get; set; }
-        uint PQSequenceNumber { get; set; }
-        DateTime VenueQuoteTime { get; set; }
-        IVenuePriceQuoteId Clone();
-    }
+    ushort SourceId { get; set; }
+    ushort TickerId { get; set; }
+    uint SourceRefId { get; set; }
+    uint PQSequenceNumber { get; set; }
+    DateTime VenueQuoteTime { get; set; }
 }

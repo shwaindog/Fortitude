@@ -6,7 +6,7 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-public interface ITimerUpdate : IRecyclableObject<ITimerUpdate>
+public interface ITimerUpdate : IReusableObject<ITimerUpdate>
 {
     bool IsFinished { get; }
     bool IsPaused { get; }

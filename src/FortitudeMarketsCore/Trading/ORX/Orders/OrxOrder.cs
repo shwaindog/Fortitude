@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -19,10 +20,9 @@ using FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders;
 
-public class OrxOrder : IOrder
+public class OrxOrder : ReusableObject<IOrder>, IOrder
 {
     private OrxProductOrder? product;
-    private int refCount = 0;
 
     public OrxOrder()
     {
@@ -115,6 +115,7 @@ public class OrxOrder : IOrder
     [OrxOptionalField(10)] public OrxExecutions? Executions { get; set; }
 
     [OrxOptionalField(11)] public MutableString Message { get; set; } = new();
+    public bool AutoRecycledByProducer { get; set; }
 
     IOrderId IOrder.OrderId
     {
@@ -167,86 +168,49 @@ public class OrxOrder : IOrder
     IMutableString IOrder.Message
     {
         get => Message;
-        set => Message = value as MutableString ?? new MutableString();
+        set => Message = value as MutableString ?? Recycler?.Borrow<MutableString>() ?? new MutableString();
     }
 
-
-    public IOrder Clone() => new OrxOrder(this);
-
-    public void CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags)
+    public override void Reset()
     {
-        var orxOrderId = Recycler!.Borrow<OrxOrderId>();
-        orxOrderId.CopyFrom(order.OrderId, copyMergeFlags);
-        OrderId = orxOrderId;
+        TimeInForce = TimeInForce.None;
+        CreationTime = DateTimeConstants.UnixEpoch;
+        Status = OrderStatus.Unknown;
+        Product?.DecrementRefCount();
+        Product = null;
+        SubmitTime = DateTimeConstants.UnixEpoch;
+        DoneTime = DateTimeConstants.UnixEpoch;
+        Parties?.DecrementRefCount();
+        Parties = null;
+        OrderPublisher = null;
+        VenueSelectionCriteria?.DecrementRefCount();
+        VenueSelectionCriteria = null;
+        VenueOrders?.DecrementRefCount();
+        VenueOrders = null;
+        Executions?.DecrementRefCount();
+        Executions = null;
+        base.Reset();
+    }
 
+    public override IOrder Clone() => Recycler?.Borrow<OrxOrder>().CopyFrom(this) ?? new OrxOrder(this);
+
+
+    public override IOrder CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        OrderId = order.OrderId.SyncOrRecycle(OrderId)!;
         TimeInForce = order.TimeInForce;
         CreationTime = order.CreationTime;
         Status = order.Status;
-        if (order.Product != null)
-        {
-            var orxProductOrder = ((OrxProductOrder)order.Product).GetPooledInstance(Recycler);
-            orxProductOrder.CopyFrom(order.Product, copyMergeFlags);
-            Product = orxProductOrder;
-        }
-
+        Product = order.Product.CloneOrRecycle(Product);
         SubmitTime = order.SubmitTime;
         DoneTime = order.DoneTime;
-        if (order.Parties != null)
-        {
-            var orxParties = Recycler.Borrow<OrxParties>();
-            orxParties.CopyFrom(order.Parties, copyMergeFlags);
-            Parties = orxParties;
-        }
-
+        Parties = order.Parties.SyncOrRecycle(Parties);
         OrderPublisher = order.OrderPublisher;
-        if (order.VenueSelectionCriteria != null)
-        {
-            var orxVenueCriteria = Recycler.Borrow<OrxVenueCriteria>();
-            orxVenueCriteria.CopyFrom(order.VenueSelectionCriteria, copyMergeFlags);
-            VenueSelectionCriteria = orxVenueCriteria;
-        }
-
-        if (order.VenueOrders != null)
-        {
-            var orxVenueOrders = Recycler.Borrow<OrxVenueOrders>();
-            orxVenueOrders.CopyFrom(order.VenueOrders, copyMergeFlags);
-            VenueOrders = orxVenueOrders;
-        }
-
-        if (order.Executions != null)
-        {
-            var orxExecutions = Recycler.Borrow<OrxExecutions>();
-            orxExecutions.CopyFrom(order.Executions, copyMergeFlags);
-            Executions = orxExecutions;
-        }
-
-        var orxMessage = Message;
-        orxMessage.CopyFrom(order.Message);
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IOrder)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-
-    public int DecrementRefCount()
-    {
-        if (Interlocked.Decrement(ref refCount) == 0 && RecycleOnRefCountZero) Recycler!.Recycle(this);
-        return refCount;
-    }
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-        return IsInRecycler;
+        VenueSelectionCriteria = order.VenueSelectionCriteria.SyncOrRecycle(VenueSelectionCriteria);
+        VenueOrders = order.VenueOrders.SyncOrRecycle(VenueOrders);
+        Executions = order.Executions.SyncOrRecycle(Executions);
+        Message = order.Message.SyncOrRecycle(Message)!;
+        return this;
     }
 
     protected bool Equals(OrxOrder other)

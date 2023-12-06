@@ -9,10 +9,11 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.Orders.Venues;
 
-public class VenueCriteria : IVenueCriteria
+public class VenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
 {
-    private int refCount = 0;
     private IList<IVenue> venues;
+
+    public VenueCriteria() => venues = new List<IVenue>();
 
     public VenueCriteria(IVenueCriteria toClone)
     {
@@ -35,36 +36,24 @@ public class VenueCriteria : IVenueCriteria
     public int Count => venues.Count;
     public VenueSelectionMethod VenueSelectionMethod { get; set; }
 
-    public void CopyFrom(IVenueCriteria source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void Reset()
     {
-        venues = source.ToList();
-        VenueSelectionMethod = source.VenueSelectionMethod;
+        base.Reset();
+        venues.Clear();
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IVenueCriteria)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
-
-    public IVenueCriteria Clone() => new VenueCriteria(this);
+    public override IVenueCriteria Clone() =>
+        Recycler?.Borrow<VenueCriteria>().CopyFrom(this) ?? new VenueCriteria(this);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<IVenue> GetEnumerator() => venues.GetEnumerator();
+
+    public override IVenueCriteria CopyFrom(IVenueCriteria source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        venues = source.ToList();
+        VenueSelectionMethod = source.VenueSelectionMethod;
+        return this;
+    }
 }

@@ -1,19 +1,19 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeIO.Protocols.Authentication;
 
-public interface IAuthenticationData
+public interface IAuthenticationData : IReusableObject<IAuthenticationData>
 {
     AuthenticationType AuthenticationType { get; set; }
     IList<byte>? AuthenticationBytes { get; set; }
-    IAuthenticationData Clone();
 }
 
-public class AuthenticationData : IAuthenticationData
+public class AuthenticationData : ReusableObject<IAuthenticationData>, IAuthenticationData
 {
     public AuthenticationData() { }
 
@@ -32,8 +32,29 @@ public class AuthenticationData : IAuthenticationData
     public AuthenticationType AuthenticationType { get; set; }
     public IList<byte>? AuthenticationBytes { get; set; }
 
-    public IAuthenticationData Clone() => new AuthenticationData(this);
+    public override IAuthenticationData CopyFrom(IAuthenticationData source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        AuthenticationType = source.AuthenticationType;
+        if (source.AuthenticationBytes == null) return this;
+        var authBytes = Recycler?.Borrow<List<byte>>() ?? new List<byte>();
+        authBytes.Clear();
+        for (var i = 0; i < source.AuthenticationBytes.Count; i++) authBytes.Add(source.AuthenticationBytes[i]);
+        return this;
+    }
 
+    public override void Reset()
+    {
+        AuthenticationType = default;
+        if (AuthenticationBytes != null) Recycler?.Recycle(AuthenticationBytes);
+        AuthenticationBytes = null;
+        base.Reset();
+    }
+
+    public override IAuthenticationData Clone() =>
+        Recycler?.Borrow<AuthenticationData>().CopyFrom(this) ?? new AuthenticationData(this);
+
+    [Obsolete]
     public IAuthenticationData Configure(IAuthenticationData authData, IRecycler recyclerFactory)
     {
         AuthenticationType = authData.AuthenticationType;

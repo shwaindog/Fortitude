@@ -17,11 +17,17 @@ using FortitudeMarketsCore.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.Orders;
 
-public sealed class Order : IOrder
+public sealed class Order : ReusableObject<IOrder>, IOrder
 {
     private IProductOrder? product;
-    private int refCount = 0;
     private OrderStatus status;
+
+    public Order()
+    {
+        product = null;
+        status = OrderStatus.New;
+        OrderId = null!;
+    }
 
     public Order(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, IProductOrder product)
     {
@@ -81,7 +87,6 @@ public sealed class Order : IOrder
     public decimal PendingExecutedSize { get; set; }
     public bool HasPendingExecutions => PendingExecutedSize > 0;
     public IOrderId OrderId { get; set; }
-
     public TimeInForce TimeInForce { get; set; }
     public DateTime CreationTime { get; set; }
     public DateTime SubmitTime { get; set; }
@@ -117,7 +122,30 @@ public sealed class Order : IOrder
     public IExecutions? Executions { get; set; }
     public IMutableString Message { get; set; } = new MutableString();
 
-    public void CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void Reset()
+    {
+        base.Reset();
+        PendingExecutedSize = 0;
+        OrderId.DecrementRefCount();
+        Parties?.DecrementRefCount();
+        Parties = null;
+        OrderPublisher = null;
+        Product?.DecrementRefCount();
+        Product = null;
+        VenueSelectionCriteria?.DecrementRefCount();
+        VenueSelectionCriteria = null;
+        VenueOrders?.DecrementRefCount();
+        VenueOrders = null;
+        Executions?.DecrementRefCount();
+        Executions = null;
+        Message?.Clear();
+    }
+
+    object ICloneable.Clone() => Clone();
+
+    public override IOrder Clone() => Recycler?.Borrow<Order>().CopyFrom(this) ?? new Order(this);
+
+    public override IOrder CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         OrderId = source.OrderId;
         TimeInForce = source.TimeInForce;
@@ -131,30 +159,8 @@ public sealed class Order : IOrder
         VenueOrders = source.VenueOrders;
         Executions = source.Executions;
         Message = source.Message;
+        return this;
     }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IOrder)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
-
-    public IOrder Clone() => new Order(this);
 
     public override string ToString() =>
         new StringBuilder(256)

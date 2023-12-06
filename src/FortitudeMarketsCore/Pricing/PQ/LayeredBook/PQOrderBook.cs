@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -12,9 +13,11 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
 
-public class PQOrderBook : IPQOrderBook
+public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBook));
+
+    public PQOrderBook() => AllLayers = new List<IPQPriceVolumeLayer?>();
 
     public PQOrderBook(IPQSourceTickerQuoteInfo srcTickerQuoteInfo)
     {
@@ -118,9 +121,10 @@ public class PQOrderBook : IPQOrderBook
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         for (var i = 0; i < AllLayers.Count; i++) AllLayers[i]?.Reset();
+        base.Reset();
     }
 
     public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
@@ -186,9 +190,10 @@ public class PQOrderBook : IPQOrderBook
 
     IMutableOrderBook IMutableOrderBook.Clone() => Clone();
 
-    public IPQOrderBook Clone() => new PQOrderBook(this);
+    public override IPQOrderBook Clone() =>
+        (IPQOrderBook?)Recycler?.Borrow<PQOrderBook>().CopyFrom(this) ?? new PQOrderBook(this);
 
-    public virtual void CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         for (var i = 0; i < source.Count; i++)
         {
@@ -216,11 +221,7 @@ public class PQOrderBook : IPQOrderBook
         }
 
         for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i]?.Reset();
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((IOrderBook)source, copyMergeFlags);
+        return this;
     }
 
     public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)

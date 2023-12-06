@@ -1,12 +1,13 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeMarketsApi.Pricing.LastTraded;
 
-public interface IRecentlyTraded : ICloneable<IRecentlyTraded>, IEnumerable<ILastTrade>,
+public interface IRecentlyTraded : IReusableObject<IRecentlyTraded>, IEnumerable<ILastTrade>,
     IInterfacesComparable<IRecentlyTraded>
 {
     bool HasLastTrades { get; }

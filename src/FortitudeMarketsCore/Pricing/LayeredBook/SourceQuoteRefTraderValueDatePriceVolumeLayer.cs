@@ -11,6 +11,8 @@ namespace FortitudeMarketsCore.Pricing.LayeredBook;
 public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLayer,
     IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer
 {
+    public SourceQuoteRefTraderValueDatePriceVolumeLayer() => ValueDate = DateTimeConstants.UnixEpoch;
+
     public SourceQuoteRefTraderValueDatePriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
         DateTime? valueDate = null, string? sourceName = null, bool executable = false,
         uint quoteRef = 0u) : base(price, volume)
@@ -66,7 +68,8 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         SourceQuoteReference = 0;
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer)
@@ -91,6 +94,8 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         {
             ValueDate = valueDatePvLayer.ValueDate;
         }
+
+        return this;
     }
 
     ISourceQuoteRefPriceVolumeLayer ICloneable<ISourceQuoteRefPriceVolumeLayer>.Clone() =>
@@ -134,7 +139,9 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
 
     ISourcePriceVolumeLayer ISourcePriceVolumeLayer.Clone() => (ISourcePriceVolumeLayer)Clone();
 
-    public override IPriceVolumeLayer Clone() => new SourceQuoteRefTraderValueDatePriceVolumeLayer(this);
+    public override IPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<SourceQuoteRefTraderValueDatePriceVolumeLayer>().CopyFrom(this) ??
+        new SourceQuoteRefTraderValueDatePriceVolumeLayer(this);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

@@ -1,13 +1,12 @@
 #region
 
-using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface IMutableLevel0Quote : ILevel0Quote, IStoreState<ILevel0Quote>
+public interface IMutableLevel0Quote : ILevel0Quote
 {
     new bool IsReplay { get; set; }
     new DateTime SourceTime { get; set; }

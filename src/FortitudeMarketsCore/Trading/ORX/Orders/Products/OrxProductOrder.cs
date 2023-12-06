@@ -13,10 +13,8 @@ using FortitudeMarketsApi.Trading.Orders.Products;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders.Products;
 
-public abstract class OrxProductOrder : IProductOrder
+public abstract class OrxProductOrder : ReusableObject<IProductOrder>, IProductOrder
 {
-    private int refCount = 0;
-
     protected OrxProductOrder() { }
 
     protected OrxProductOrder(IProductOrder toClone)
@@ -42,44 +40,18 @@ public abstract class OrxProductOrder : IProductOrder
     public abstract void ApplyAmendment(IOrderAmend amendment);
     public abstract bool RequiresAmendment(IOrderAmend amendment);
 
-    public virtual void CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags)
+
+    public abstract void RegisterExecution(IExecution execution);
+
+    public abstract override IProductOrder Clone();
+
+    public override IProductOrder CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (ProductType != source.ProductType)
             throw new ArgumentException("Attempting to copy different product types across");
 
-        Message = source.Message != null ? Recycler!.Borrow<MutableString>().Clear().Append(source.Message) : null;
+        Message = source.Message.SyncOrRecycle(Message);
         IsComplete = source.IsComplete;
+        return this;
     }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IProductOrder)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
-
-    public void CopyFrom(IProductOrder source, IRecycler recycler)
-    {
-        throw new NotImplementedException();
-    }
-
-    public abstract void RegisterExecution(IExecution execution);
-
-    public abstract IProductOrder Clone();
-
-    public abstract OrxProductOrder GetPooledInstance(IRecycler recycler);
 }

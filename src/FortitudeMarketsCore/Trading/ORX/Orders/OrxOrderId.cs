@@ -10,9 +10,8 @@ using FortitudeMarketsApi.Trading.Orders;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders;
 
-public class OrxOrderId : IOrderId, IRecyclableObject<IOrderId>
+public class OrxOrderId : ReusableObject<IOrderId>, IOrderId
 {
-    private int refCount = 0;
     public OrxOrderId() { }
 
     public OrxOrderId(IOrderId toClone)
@@ -44,6 +43,7 @@ public class OrxOrderId : IOrderId, IRecyclableObject<IOrderId>
     [OrxOptionalField(4)] public MutableString? TrackingId { get; set; }
 
     [OrxOptionalField(5)] public OrxOrderId? ParentOrderId { get; set; }
+    public bool AutoRecycledByProducer { get; set; } = false;
 
     [OrxMandatoryField(0)] public long ClientOrderId { get; set; }
 
@@ -73,43 +73,17 @@ public class OrxOrderId : IOrderId, IRecyclableObject<IOrderId>
         set => ParentOrderId = value as OrxOrderId;
     }
 
-    public IOrderId Clone() => new OrxOrderId(this);
+    public override IOrderId Clone() => Recycler?.Borrow<OrxOrderId>().CopyFrom(this) ?? new OrxOrderId(this);
 
-    public void CopyFrom(IOrderId orderId, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IOrderId CopyFrom(IOrderId orderId, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         ClientOrderId = orderId.ClientOrderId;
-        VenueClientOrderId = orderId.VenueClientOrderId != null ?
-            Recycler!.Borrow<MutableString>().Clear().Append(orderId.VenueClientOrderId) :
-            null;
+        VenueClientOrderId = orderId.VenueClientOrderId.SyncOrRecycle(VenueClientOrderId);
         AdapterOrderId = orderId.AdapterOrderId;
-        VenueAdapterOrderId = orderId.VenueAdapterOrderId != null ?
-            Recycler!.Borrow<MutableString>().Clear().Append(orderId.VenueAdapterOrderId) :
-            null;
-        ParentOrderId = orderId.ParentOrderId != null ? new OrxOrderId(orderId.ParentOrderId) : null;
-        TrackingId = orderId.TrackingId != null ?
-            Recycler!.Borrow<MutableString>().Clear().Append(orderId.TrackingId) :
-            null;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IOrderId)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; } = false;
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        VenueAdapterOrderId = orderId.VenueAdapterOrderId.SyncOrRecycle(VenueAdapterOrderId);
+        ParentOrderId = orderId.ParentOrderId.SyncOrRecycle(ParentOrderId);
+        TrackingId = orderId.TrackingId.SyncOrRecycle(TrackingId);
+        return this;
     }
 
     protected bool Equals(OrxOrderId other)

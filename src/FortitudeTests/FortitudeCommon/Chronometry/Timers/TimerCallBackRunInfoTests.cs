@@ -79,7 +79,7 @@ public class TimerCallBackRunInfoTests
         Assert.AreEqual(0, timerCallBackRunInfo.RefCount);
         Assert.AreEqual(1, timerCallBackRunInfo.IncrementRefCount());
         Assert.AreEqual(1, timerCallBackRunInfo.RefCount);
-        timerCallBackRunInfo.RecycleOnRefCountZero = false;
+        timerCallBackRunInfo.AutoRecycleAtRefCountZero = false;
         Assert.AreEqual(0, timerCallBackRunInfo.DecrementRefCount());
         Assert.AreEqual(0, timerCallBackRunInfo.RefCount);
     }
@@ -102,5 +102,7 @@ public class TimerCallBackRunInfoTests
         public override bool RunCallbackOnThreadPool() => throw new NotImplementedException();
 
         public override bool RunCallbackOnThisThread() => throw new NotImplementedException();
+
+        public override TimerCallBackRunInfo Clone() => new ConcreteTimerCallbackRunInfo();
     }
 }

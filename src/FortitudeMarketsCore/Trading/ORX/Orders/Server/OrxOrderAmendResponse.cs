@@ -40,9 +40,20 @@ public class OrxOrderAmendResponse : OrxOrderUpdate, IOrderAmendResponse
         set => OldOrderId = value as OrxOrderId;
     }
 
-    public new IOrderAmendResponse Clone() => new OrxOrderAmendResponse(this);
+    public override void Reset()
+    {
+        OldOrderId?.DecrementRefCount();
+        OldOrderId = null;
+        AmendType = default;
+        base.Reset();
+    }
 
-    public override void CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags)
+    public override IOrderAmendResponse Clone() =>
+        (IOrderAmendResponse?)Recycler?.Borrow<OrxOrderAmendResponse>().CopyFrom(this) ??
+        new OrxOrderAmendResponse(this);
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderAmendResponse amendResponse)
@@ -55,5 +66,7 @@ public class OrxOrderAmendResponse : OrxOrderUpdate, IOrderAmendResponse
                 OldOrderId = newOrderId;
             }
         }
+
+        return this;
     }
 }

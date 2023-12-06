@@ -9,9 +9,8 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.Orders.Venues;
 
-public class VenueOrders : IVenueOrders
+public class VenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
 {
-    private int refCount = 0;
     private IList<IVenueOrder?> venueOrders;
 
     public VenueOrders() => venueOrders = new List<IVenueOrder?>();
@@ -25,41 +24,28 @@ public class VenueOrders : IVenueOrders
 
     public int Count => venueOrders.Count;
 
+
     public IVenueOrder? this[int index]
     {
         get => venueOrders[index];
         set => venueOrders[index] = value;
     }
 
-    public void CopyFrom(IVenueOrders source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void Reset()
     {
-        venueOrders = source.ToList()!;
+        base.Reset();
+        venueOrders.Clear();
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IVenueOrders)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
-
-    public IVenueOrders Clone() => new VenueOrders(this);
+    public override IVenueOrders Clone() => Recycler?.Borrow<VenueOrders>().CopyFrom(this) ?? new VenueOrders(this);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<IVenueOrder> GetEnumerator() => venueOrders.GetEnumerator()!;
+
+    public override IVenueOrders CopyFrom(IVenueOrders source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        venueOrders = source.ToList()!;
+        return this;
+    }
 }

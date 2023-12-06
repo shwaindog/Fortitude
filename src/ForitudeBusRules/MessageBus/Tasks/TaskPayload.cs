@@ -7,51 +7,46 @@ using FortitudeCommon.Types;
 
 namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 
-public interface ITaskPayload : IRecyclableObject
+public interface ITaskPayload : IReusableObject<ITaskPayload>
 {
     void Invoke();
 }
 
-public class TaskPayload : ITaskPayload, IRecyclableObject<TaskPayload>
+public class TaskPayload : ReusableObject<ITaskPayload>, ITaskPayload
 {
-    private int refCount;
+    public TaskPayload() { }
+
+    private TaskPayload(TaskPayload toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
     public SendOrPostCallback Callback { get; set; } = null!;
     public object? State { get; set; }
-
-    public void CopyFrom(TaskPayload source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        Callback = source.Callback;
-        State = source.State;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((TaskPayload)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-
-    public int DecrementRefCount()
-    {
-        if (Interlocked.Decrement(ref refCount) == 0 && RecycleOnRefCountZero) Recycle();
-        return refCount;
-    }
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
 
     public void Invoke()
     {
         Callback(State);
     }
+
+    public override void Reset()
+    {
+        Callback = null!;
+        State = null!;
+        base.Reset();
+    }
+
+    public override ITaskPayload CopyFrom(ITaskPayload source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is TaskPayload taskPayloadSource)
+        {
+            Callback = taskPayloadSource.Callback;
+            State = taskPayloadSource.State;
+        }
+
+        return this;
+    }
+
+    public override ITaskPayload Clone() => Recycler?.Borrow<TaskPayload>().CopyFrom(this) ?? new TaskPayload(this);
 }

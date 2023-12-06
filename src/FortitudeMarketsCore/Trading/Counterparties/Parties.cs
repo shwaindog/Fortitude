@@ -8,9 +8,9 @@ using FortitudeMarketsApi.Trading.Counterparties;
 
 namespace FortitudeMarketsCore.Trading.Counterparties;
 
-public class Parties : IParties
+public class Parties : ReusableObject<IParties>, IParties
 {
-    private int refCount = 0;
+    public Parties() { }
 
     public Parties(IParties toClone)
     {
@@ -27,33 +27,13 @@ public class Parties : IParties
     public IParty? BuySide { get; set; }
     public IParty? SellSide { get; set; }
 
-    public void CopyFrom(IParties source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+
+    public override IParties Clone() => Recycler?.Borrow<Parties>().CopyFrom(this) ?? new Parties(this);
+
+    public override IParties CopyFrom(IParties source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        BuySide = source.BuySide;
-        SellSide = source.SellSide;
+        BuySide = source.BuySide?.CopyOrClone(BuySide as Party);
+        SellSide = source.SellSide?.CopyOrClone(SellSide as Party);
+        return this;
     }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IParties)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
-
-
-    public IParties Clone() => new Parties(this);
 }

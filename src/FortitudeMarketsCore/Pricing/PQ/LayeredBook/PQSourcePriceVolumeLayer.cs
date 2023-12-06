@@ -183,7 +183,8 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         return false;
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var pqspvl = source as IPQSourcePriceVolumeLayer;
@@ -198,6 +199,8 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
             if (pqspvl.IsSourceNameUpdated) SourceId = pqspvl.SourceId;
             if (pqspvl.IsExecutableUpdated) Executable = pqspvl.Executable;
         }
+
+        return this;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance)

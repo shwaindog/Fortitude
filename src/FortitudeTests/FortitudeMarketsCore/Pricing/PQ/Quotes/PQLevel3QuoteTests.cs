@@ -828,10 +828,10 @@ public class PQLevel3QuoteTests
             Assert.AreEqual(0u, emptyQuote.SourceQuoteReference);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ValueDate);
             Assert.AreEqual(pqLevel3Quote.PQSequenceId, emptyQuote.PQSequenceId);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+            Assert.AreEqual(pqLevel3Quote.SourceTime, emptyQuote.SourceTime);
             Assert.IsTrue(pqLevel3Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
-            Assert.IsFalse(emptyQuote.IsReplay);
-            Assert.AreEqual(0m, emptyQuote.SinglePrice);
+            Assert.AreEqual(pqLevel3Quote.IsReplay, emptyQuote.IsReplay);
+            Assert.AreEqual(pqLevel3Quote.SinglePrice, emptyQuote.SinglePrice);
             Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);

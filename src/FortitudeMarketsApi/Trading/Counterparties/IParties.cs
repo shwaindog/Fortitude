@@ -6,9 +6,8 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeMarketsApi.Trading.Counterparties;
 
-public interface IParties : IRecyclableObject<IParties>
+public interface IParties : IReusableObject<IParties>
 {
     IParty? BuySide { get; set; }
     IParty? SellSide { get; set; }
-    IParties Clone();
 }

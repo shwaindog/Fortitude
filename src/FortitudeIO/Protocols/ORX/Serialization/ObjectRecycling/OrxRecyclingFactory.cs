@@ -35,7 +35,7 @@ public class OrxRecyclingFactory : IRecycler
         {
             checkRecyclerStillAdded.Recycler = this;
             checkRecyclerStillAdded.IncrementRefCount();
-            checkRecyclerStillAdded.RecycleOnRefCountZero = true;
+            checkRecyclerStillAdded.AutoRecycleAtRefCountZero = true;
         }
 
         return borrow;

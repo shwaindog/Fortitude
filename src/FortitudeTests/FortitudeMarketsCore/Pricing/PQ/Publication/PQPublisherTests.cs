@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
@@ -69,7 +70,7 @@ public class PQPublisherTests
     {
         SetupTickerWithPublisher();
 
-        moqPQLevel1Quote.Setup(pql0qp => pql0qp.CopyFrom(It.IsAny<IPQLevel0Quote>(), CopyMergeFlags.Default))
+        moqPQLevel1Quote.Setup(pql0qp => pql0qp.CopyFrom(It.IsAny<ILevel0Quote>(), CopyMergeFlags.Default))
             .Verifiable();
         moqPqServer.Setup(pqs => pqs.Publish(moqPQLevel1Quote.Object)).Verifiable();
 

@@ -221,7 +221,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         return false;
     }
 
-    public override void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILevel0Quote CopyFrom(ILevel0Quote source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var l3Q = source as ILevel3Quote;
@@ -250,6 +251,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
             // ensure flags still match source
             UpdatedFlags = pql3Q.UpdatedFlags;
         }
+
+        return this;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ILevel0Quote? quote)
@@ -266,7 +269,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
 
     IPQLevel3Quote IPQLevel3Quote.Clone() => (IPQLevel3Quote)Clone();
 
-    public override object Clone() => new PQLevel3Quote(this);
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this) ?? new PQLevel3Quote(this);
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

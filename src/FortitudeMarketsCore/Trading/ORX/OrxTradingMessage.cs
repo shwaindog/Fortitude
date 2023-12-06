@@ -4,6 +4,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading;
@@ -55,7 +56,8 @@ public abstract class OrxTradingMessage : OrxAuthenticatedMessage, ITradingMessa
 
     [OrxOptionalField(8)] public DateTime OriginalSendTime { get; set; } = DateTimeConstants.UnixEpoch;
 
-    public override void CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags)
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ITradingMessage tradingMessage)
@@ -67,7 +69,20 @@ public abstract class OrxTradingMessage : OrxAuthenticatedMessage, ITradingMessa
                 null;
             OriginalSendTime = tradingMessage.OriginalSendTime;
         }
+
+        return this;
     }
+
+    public override void Reset()
+    {
+        MachineName?.DecrementRefCount();
+        SequenceNumber = 0;
+        IsReplay = false;
+        OriginalSendTime = DateTimeConstants.UnixEpoch;
+        base.Reset();
+    }
+
+    public abstract override IAuthenticatedMessage Clone();
 
     public virtual void Configure()
     {

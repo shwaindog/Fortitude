@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -10,11 +11,13 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LastTraded;
 
-public class PQLastTrade : IPQLastTrade
+public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 {
     private decimal tradePrice;
     private DateTime tradeTime = DateTimeConstants.UnixEpoch;
     protected LastTradeUpdated UpdatedFlags;
+
+    public PQLastTrade() { }
 
     public PQLastTrade(decimal tradePrice = 0m, DateTime? tradeTime = null)
     {
@@ -98,7 +101,7 @@ public class PQLastTrade : IPQLastTrade
 
     public virtual bool IsEmpty => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
 
-    public virtual void Reset()
+    public override void Reset()
     {
         TradeTime = DateTimeConstants.UnixEpoch;
         TradePrice = 0m;
@@ -154,12 +157,12 @@ public class PQLastTrade : IPQLastTrade
         return -1;
     }
 
-    public virtual void CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILastTrade CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source == null)
         {
             Reset();
-            return;
+            return this;
         }
 
         if (source is PQLastTrade pqlt)
@@ -173,11 +176,8 @@ public class PQLastTrade : IPQLastTrade
             TradePrice = source.TradePrice;
             TradeTime = source.TradeTime;
         }
-    }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((ILastTrade)source, copyMergeFlags);
+        return this;
     }
 
     public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance) { }
@@ -190,7 +190,8 @@ public class PQLastTrade : IPQLastTrade
 
     ILastTrade ICloneable<ILastTrade>.Clone() => Clone();
 
-    public virtual IMutableLastTrade Clone() => new PQLastTrade(this);
+    public override IMutableLastTrade Clone() =>
+        (IMutableLastTrade?)Recycler?.Borrow<PQLastTrade>().CopyFrom(this) ?? new PQLastTrade(this);
 
     public virtual bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {

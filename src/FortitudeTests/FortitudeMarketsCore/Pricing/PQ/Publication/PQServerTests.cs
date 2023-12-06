@@ -11,6 +11,7 @@ using FortitudeIO.Transports.Sockets.Subscription;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
@@ -305,8 +306,9 @@ public class PQServerTests
         {
             SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom(stubLevel1Quote, CopyMergeFlags.Default))
-            .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Verifiable();
+        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default))
+            .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(moqRegisteredPqLevel0Quote.Object)
+            .Verifiable();
         moqRegisteredPqLevel0Quote.SetupSet(l0Q => l0Q.PQSequenceId = 10)
             .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Verifiable();
         moqSyncLock.Setup(sl => sl.Release()).Callback(() => { isInQuoteSyncLock = false; }).Verifiable();
@@ -391,7 +393,7 @@ public class PQServerTests
         {
             SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom(stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqQuoteSyncLock.Setup(sl => sl.Release());
 
         replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);
@@ -466,7 +468,7 @@ public class PQServerTests
         {
             SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom(stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.PQSequenceId, 10u);
         moqSyncLock.Setup(sl => sl.Release());
 
@@ -529,7 +531,7 @@ public class PQServerTests
         {
             SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom(stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.PQSequenceId, 10u);
         moqSyncLock.Setup(sl => sl.Release());
 
@@ -566,7 +568,7 @@ public class PQServerTests
         {
             SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom(stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.PQSequenceId, 10u);
         moqSyncLock.Setup(sl => sl.Release());
 
@@ -600,7 +602,7 @@ public class PQServerTests
         {
             SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom(stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.PQSequenceId, 10u);
         moqSyncLock.Setup(sl => sl.Release());
 

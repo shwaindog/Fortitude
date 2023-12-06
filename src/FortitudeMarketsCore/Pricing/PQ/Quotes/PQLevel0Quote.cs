@@ -2,7 +2,9 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
@@ -12,7 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Quotes;
 
-public class PQLevel0Quote : IPQLevel0Quote
+public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 {
     protected readonly ISyncLock SyncLock = new SpinLockLight();
     protected byte BooleanFields;
@@ -27,10 +29,7 @@ public class PQLevel0Quote : IPQLevel0Quote
 
     protected QuoteFieldUpdatedFlags UpdatedFlags;
 
-    [Obsolete] // to give a compiler warning if used directly
-    public PQLevel0Quote() // required for serializers to compile
-        =>
-            throw new NotSupportedException();
+    public PQLevel0Quote() { }
 
     public PQLevel0Quote(ISourceTickerQuoteInfo sourceTickerInfo) =>
         SourceTickerQuoteInfo = (IMutableSourceTickerQuoteInfo)sourceTickerInfo;
@@ -356,20 +355,14 @@ public class PQLevel0Quote : IPQLevel0Quote
     public virtual bool UpdateFieldString(PQFieldStringUpdate updates) =>
         PQSourceTickerQuoteInfo != null && PQSourceTickerQuoteInfo.UpdateFieldString(updates);
 
-    public virtual void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (source == null) return;
-        var ipq0 = source as IPQLevel0Quote;
-
         ClientReceivedTime = source.ClientReceivedTime;
-        if (ipq0 == null)
-        {
-            SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
-            SourceTime = source.SourceTime;
-            IsReplay = source.IsReplay;
-            SinglePrice = source.SinglePrice;
-        }
-        else
+        SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
+        SourceTime = source.SourceTime;
+        IsReplay = source.IsReplay;
+        SinglePrice = source.SinglePrice;
+        if (source is IPQLevel0Quote ipq0)
         {
             if (PQSourceTickerQuoteInfo != null)
                 PQSourceTickerQuoteInfo.CopyFrom(ipq0.SourceTickerQuoteInfo!);
@@ -396,12 +389,13 @@ public class PQLevel0Quote : IPQLevel0Quote
                 LastPublicationTime = pq0.LastPublicationTime;
             }
         }
+
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((ILevel0Quote)source, copyMergeFlags);
-    }
+    IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags) =>
+        (IVersionedMessage)CopyFrom((ILevel0Quote)source, copyMergeFlags);
 
     public virtual void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance)
     {
@@ -409,15 +403,13 @@ public class PQLevel0Quote : IPQLevel0Quote
             SourceTickerQuoteInfo = pqSrcTkrQuoteInfo;
     }
 
-    public virtual object Clone() => new PQLevel0Quote(this);
+    ILevel0Quote ICloneable<ILevel0Quote>.Clone() => Clone();
+    IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
 
-    ILevel0Quote ICloneable<ILevel0Quote>.Clone() => (ILevel0Quote)Clone();
+    IMutableLevel0Quote IMutableLevel0Quote.Clone() => Clone();
 
-    ILevel0Quote ILevel0Quote.Clone() => (ILevel0Quote)Clone();
-
-    IMutableLevel0Quote IMutableLevel0Quote.Clone() => (IMutableLevel0Quote)Clone();
-
-    IPQLevel0Quote IPQLevel0Quote.Clone() => (IPQLevel0Quote)Clone();
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this) ?? new PQLevel0Quote(this);
 
     public virtual bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

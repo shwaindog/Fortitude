@@ -7,10 +7,10 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-public abstract class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, IRecyclableObject<TimerCallBackRunInfo>
+public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo>, IComparable<TimerCallBackRunInfo>
+    , IRecyclableObject
 {
     protected int CurrentInvocations;
-    private int refCount;
     public DateTime FirstScheduledTime { get; set; }
     public DateTime? LastRunTime { get; set; }
     public DateTime NextScheduleTime { get; set; }
@@ -33,42 +33,29 @@ public abstract class TimerCallBackRunInfo : IComparable<TimerCallBackRunInfo>, 
         return tickDiff < 0L ? -1 : tickDiff > 0L ? 1 : 0;
     }
 
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-
-    public virtual void CopyFrom(TimerCallBackRunInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void Reset()
     {
+        CurrentInvocations = 0;
+        FirstScheduledTime = DateTime.MaxValue;
+        LastRunTime = DateTime.MaxValue;
+        LastRunTime = DateTime.MaxValue;
+        NextScheduleTime = DateTime.MaxValue;
+        IntervalPeriodTimeSpan = Timer.MaxTimerSpan;
+        base.Reset();
+    }
+
+    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CurrentNumberOfCalls = source.CurrentNumberOfCalls;
         FirstScheduledTime = source.FirstScheduledTime;
         LastRunTime = source.LastRunTime;
-        IsPaused = source.IsPaused;
         NextScheduleTime = source.NextScheduleTime;
         IntervalPeriodTimeSpan = source.IntervalPeriodTimeSpan;
-        CurrentNumberOfCalls = source.CurrentNumberOfCalls;
         MaxNumberOfCalls = source.MaxNumberOfCalls;
+        IsPaused = source.IsPaused;
         RegisteredTimer = source.RegisteredTimer;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((TimerCallBackRunInfo)source, copyMergeFlags);
-    }
-
-    public int DecrementRefCount()
-    {
-        if (Interlocked.Decrement(ref refCount) <= 0 && RecycleOnRefCountZero) Recycle();
-        return refCount;
-    }
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount <= 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        return this;
     }
 
     public abstract bool RunCallbackOnThreadPool();

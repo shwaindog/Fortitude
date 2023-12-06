@@ -1,6 +1,8 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsCore.Trading.ORX.Session;
@@ -51,9 +53,26 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate
 
     public DateTime ClientReceivedTime { get; set; }
 
-    public IExecutionUpdate Clone() => new OrxExecutionUpdate(this);
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((IExecutionUpdate)source, copyMergeFlags);
 
-    public void CopyFrom(IExecutionUpdate executionUpdate, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void Reset()
+    {
+        Execution?.DecrementRefCount();
+        Execution = null;
+        ExecutionUpdateType = ExecutionUpdateType.Unknown;
+        SocketReceivedTime = DateTimeConstants.UnixEpoch;
+        AdapterProcessedTime = DateTimeConstants.UnixEpoch;
+        ClientReceivedTime = DateTimeConstants.UnixEpoch;
+        base.Reset();
+    }
+
+    public override IExecutionUpdate Clone() =>
+        Recycler?.Borrow<OrxExecutionUpdate>().CopyFrom(this) ?? new OrxExecutionUpdate(this);
+
+    public IExecutionUpdate CopyFrom(IExecutionUpdate executionUpdate
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(executionUpdate, copyMergeFlags);
         if (executionUpdate.Execution != null)
@@ -67,5 +86,6 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate
         SocketReceivedTime = executionUpdate.SocketReceivedTime;
         AdapterProcessedTime = executionUpdate.AdapterProcessedTime;
         ClientReceivedTime = executionUpdate.ClientReceivedTime;
+        return this;
     }
 }

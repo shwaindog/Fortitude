@@ -7,5 +7,4 @@ public interface IExecutionUpdate : ITradingMessage
     DateTime SocketReceivedTime { get; set; }
     DateTime AdapterProcessedTime { get; set; }
     DateTime ClientReceivedTime { get; set; }
-    IExecutionUpdate Clone();
 }

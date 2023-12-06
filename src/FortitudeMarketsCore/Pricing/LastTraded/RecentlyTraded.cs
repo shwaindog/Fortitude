@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -11,9 +12,11 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.LastTraded;
 
-public class RecentlyTraded : IMutableRecentlyTraded
+public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyTraded
 {
     protected readonly IList<IMutableLastTrade?> LastTrades;
+
+    public RecentlyTraded() => LastTrades = new List<IMutableLastTrade?>();
 
     public RecentlyTraded(IEnumerable<ILastTrade> lastTrades)
     {
@@ -95,9 +98,10 @@ public class RecentlyTraded : IMutableRecentlyTraded
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         LastTrades.Clear();
+        base.Reset();
     }
 
     public void Add(IMutableLastTrade newLastTrade)
@@ -108,7 +112,8 @@ public class RecentlyTraded : IMutableRecentlyTraded
             LastTrades[Count] = newLastTrade;
     }
 
-    public void CopyFrom(IRecentlyTraded source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IRecentlyTraded CopyFrom(IRecentlyTraded source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var currentDeepestLayerSet = Count;
         var sourceDeepestLayerSet = source.Count;
@@ -132,14 +137,11 @@ public class RecentlyTraded : IMutableRecentlyTraded
 
         for (var i = Math.Min(currentDeepestLayerSet, LastTrades.Count) - 1; i >= sourceDeepestLayerSet; i--)
             LastTrades[i]?.Reset();
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((IRecentlyTraded)source, copyMergeFlags);
-    }
-
-    public virtual IMutableRecentlyTraded Clone() => new RecentlyTraded(this);
+    public override IMutableRecentlyTraded Clone() =>
+        (IMutableRecentlyTraded?)Recycler?.Borrow<RecentlyTraded>().CopyFrom(this) ?? new RecentlyTraded(this);
 
     object ICloneable.Clone() => Clone();
 

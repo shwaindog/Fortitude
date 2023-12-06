@@ -140,10 +140,10 @@ public class Level0PriceQuoteTests
         var clone = fullyPopulatedLevel0Quote.Clone();
         Assert.AreNotSame(clone, fullyPopulatedLevel0Quote);
         Assert.AreEqual(fullyPopulatedLevel0Quote, clone);
-        clone = ((ICloneable<ILevel0Quote>)fullyPopulatedLevel0Quote).Clone();
+        clone = (IMutableLevel0Quote)((ICloneable<ILevel0Quote>)fullyPopulatedLevel0Quote).Clone();
         Assert.AreNotSame(clone, fullyPopulatedLevel0Quote);
         Assert.AreEqual(fullyPopulatedLevel0Quote, clone);
-        clone = ((ILevel0Quote)fullyPopulatedLevel0Quote).Clone();
+        clone = (IMutableLevel0Quote)((ILevel0Quote)fullyPopulatedLevel0Quote).Clone();
         Assert.AreNotSame(clone, fullyPopulatedLevel0Quote);
         Assert.AreEqual(fullyPopulatedLevel0Quote, clone);
         clone = ((IMutableLevel0Quote)fullyPopulatedLevel0Quote).Clone();

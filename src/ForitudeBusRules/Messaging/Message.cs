@@ -3,6 +3,7 @@
 using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
 using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
@@ -47,7 +48,7 @@ public interface IMessage : IStoreState<IMessage>
     string? DestinationAddress { get; }
     DateTime? SentTime { get; }
     IPayLoad? PayLoad { get; }
-    IMessageResponseSource Response { get; }
+    IAsyncResponseSource Response { get; }
     IProcessorRegistry? ProcessorRegistry { get; }
     void IncrementCargoRefCounts();
     void DecrementCargoRefCounts();
@@ -70,7 +71,7 @@ public enum MessageType
     , TaskAction
 }
 
-public interface IMessage<TPayLoad> : IMessage, IRecyclableObject<IMessage>
+public interface IMessage<TPayLoad> : IMessage, IRecyclableObject
 {
     new PayLoad<TPayLoad> PayLoad { get; }
     new int IncrementRefCount();
@@ -91,29 +92,13 @@ public class Message : IMessage
     public string? DestinationAddress { get; set; }
     public DateTime? SentTime { get; set; }
     public IPayLoad? PayLoad { get; set; }
-    public IMessageResponseSource Response { get; set; } = NoOpCompletionSource;
+    public IAsyncResponseSource Response { get; set; } = NoOpCompletionSource;
 
     public IProcessorRegistry? ProcessorRegistry { get; set; }
 
     public virtual int IncrementRefCount() => 0;
 
     public virtual int DecrementRefCount() => 0;
-
-    public void CopyFrom(IMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        Type = source.Type;
-        Sender = source.Sender;
-        DestinationAddress = source.DestinationAddress;
-        SentTime = source.SentTime;
-        PayLoad = source.PayLoad;
-        Response = source.Response;
-        ProcessorRegistry = source.ProcessorRegistry;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IMessage)source, copyMergeFlags);
-    }
 
     public void IncrementCargoRefCounts()
     {
@@ -140,6 +125,24 @@ public class Message : IMessage
     public IMessage<TPayLoad> BorrowCopy<TPayLoad>(IEventContext messageContext) =>
         BorrowCopy<TPayLoad, object>(messageContext);
 
+    public IMessage CopyFrom(IMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        Type = source.Type;
+        Sender = source.Sender;
+        DestinationAddress = source.DestinationAddress;
+        SentTime = source.SentTime;
+        PayLoad = source.PayLoad;
+        Response = source.Response;
+        ProcessorRegistry = source.ProcessorRegistry;
+        return this;
+    }
+
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((IMessage)source, copyMergeFlags);
+        return this;
+    }
+
     public override string ToString() =>
         $"{GetType().Name}{{{nameof(Type)}: {Type}, " +
         $"{nameof(Sender)}: {Sender}, " +
@@ -152,6 +155,7 @@ public class Message : IMessage
 public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad, TResponse>
 {
     private int refCount;
+    public bool AutoRecycledByProducer { get; set; }
 
     public new PayLoad<TPayLoad> PayLoad
     {
@@ -166,15 +170,14 @@ public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad
     }
 
     public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
+    public bool AutoRecycleAtRefCountZero { get; set; } = true;
     public bool IsInRecycler { get; set; }
     public IRecycler? Recycler { get; set; }
 
     public override int DecrementRefCount()
     {
         DecrementCargoRefCounts();
-        if (Interlocked.Decrement(ref refCount) <= 0 && RecycleOnRefCountZero) Recycle();
+        if (Interlocked.Decrement(ref refCount) <= 0 && AutoRecycleAtRefCountZero) Recycle();
         return refCount;
     }
 
@@ -186,7 +189,7 @@ public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad
 
     public bool Recycle()
     {
-        if (Recycler != null && !IsInRecycler && (refCount == 0 || !RecycleOnRefCountZero))
+        if (Recycler != null && !IsInRecycler && (refCount == 0 || !AutoRecycleAtRefCountZero))
             Recycler!.Recycle(this);
         return IsInRecycler;
     }

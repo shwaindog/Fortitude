@@ -9,7 +9,7 @@ using FortitudeCommon.Types;
 
 namespace Fortitude.EventProcessing.BusRules.Messaging;
 
-public interface IDispatchResult : IRecyclableObject<IDispatchResult>
+public interface IDispatchResult : IReusableObject<IDispatchResult>
 {
     long TotalExecutionTimeTicks { get; set; }
     long TotalExecutionAwaitingTimeTicks { get; set; }
@@ -18,7 +18,6 @@ public interface IDispatchResult : IRecyclableObject<IDispatchResult>
     DateTime FinishedDispatchTime { get; }
     IReadOnlyList<RuleExecutionTime> RulesReceived { get; }
     IProcessorRegistry? OwningProcessorRegistry { get; set; }
-    void Reset();
     void AddRuleTime(RuleExecutionTime ruleExecutionTime);
 }
 
@@ -38,10 +37,18 @@ public struct RuleExecutionTime
     public DateTime CompleteTime { get; set; }
 }
 
-public class DispatchResult : IDispatchResult
+public class DispatchResult : ReusableObject<IDispatchResult>, IDispatchResult
 {
     private readonly List<RuleExecutionTime> rulesTimes = new();
-    private int refCount = 0;
+
+    public DispatchResult() { }
+
+    public DispatchResult(DispatchResult toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
     public IReadOnlyList<RuleExecutionTime> RulesReceived => rulesTimes;
     public long TotalExecutionTimeTicks { get; set; }
     public long TotalExecutionAwaitingTimeTicks { get; set; }
@@ -50,13 +57,14 @@ public class DispatchResult : IDispatchResult
     public DateTime FinishedDispatchTime { get; set; }
     public IProcessorRegistry? OwningProcessorRegistry { get; set; }
 
-    public void Reset()
+    public override void Reset()
     {
         SentTime = DateTime.MinValue;
         FinishedDispatchTime = DateTime.MaxValue;
         TotalExecutionTimeTicks = 0;
         TotalExecutionAwaitingTimeTicks = 0;
         rulesTimes.Clear();
+        base.Reset();
     }
 
     public void AddRuleTime(RuleExecutionTime ruleExecutionTime)
@@ -64,18 +72,7 @@ public class DispatchResult : IDispatchResult
         rulesTimes.Add(ruleExecutionTime);
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((DispatchResult)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; } = false;
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-
-    public int DecrementRefCount()
+    public override int DecrementRefCount()
     {
         if (OwningProcessorRegistry != null)
         {
@@ -84,12 +81,12 @@ public class DispatchResult : IDispatchResult
         }
         else
         {
-            if (Interlocked.Increment(ref refCount) <= 0 && RecycleOnRefCountZero) Recycle();
+            if (Interlocked.Increment(ref refCount) <= 0 && AutoRecycleAtRefCountZero) Recycle();
             return refCount;
         }
     }
 
-    public int IncrementRefCount()
+    public override int IncrementRefCount()
     {
         if (OwningProcessorRegistry != null)
         {
@@ -102,21 +99,11 @@ public class DispatchResult : IDispatchResult
         }
     }
 
-    public bool Recycle()
-    {
-        if (RecycleOnRefCountZero)
-        {
-            if (refCount <= 0) Recycler!.Recycle(this);
-        }
-        else
-        {
-            Recycler!.Recycle(this);
-        }
+    public override IDispatchResult Clone() =>
+        Recycler?.Borrow<DispatchResult>().CopyFrom(this) ?? new DispatchResult(this);
 
-        return IsInRecycler;
-    }
-
-    public void CopyFrom(IDispatchResult source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IDispatchResult CopyFrom(IDispatchResult source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SentTime = source.SentTime;
         FinishedDispatchTime = source.FinishedDispatchTime;
@@ -124,6 +111,7 @@ public class DispatchResult : IDispatchResult
         TotalExecutionAwaitingTimeTicks = source.TotalExecutionAwaitingTimeTicks;
         rulesTimes.Clear();
         rulesTimes.AddRange(source.RulesReceived);
+        return this;
     }
 
     public override string ToString() =>

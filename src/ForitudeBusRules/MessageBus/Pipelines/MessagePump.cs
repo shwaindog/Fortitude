@@ -5,6 +5,7 @@ using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines.Timers;
 using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.Monitoring.Logging;
@@ -150,7 +151,7 @@ public class MessagePump : RingPoller<Message>
             for (var i = 0; i < livingRules.Count; i++)
             {
                 var checkRule = livingRules[i];
-                if (checkRule.ShouldBeStopped()) checkRule.Stop();
+                if (checkRule.ShouldBeStopped()) checkRule.StopAsync();
                 livingRules.RemoveAt(i--);
             }
 

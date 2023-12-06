@@ -30,13 +30,7 @@ public interface IRule
     event LifeCycleChangeHandler LifeCycleChanged;
 
     ValueTask StartAsync();
-
-    Task StartTaskAsync();
-
-    void Start();
     ValueTask StopAsync();
-    Task StopTaskAsync();
-    void Stop();
     void AddChild(IRule child);
 }
 
@@ -139,6 +133,11 @@ public class Rule : IListeningRule
         await StartTaskAsync();
     }
 
+    public virtual async ValueTask StopAsync()
+    {
+        await StopTaskAsync();
+    }
+
     public virtual Task StartTaskAsync()
     {
         Start();
@@ -146,11 +145,6 @@ public class Rule : IListeningRule
     }
 
     public virtual void Start() { }
-
-    public virtual async ValueTask StopAsync()
-    {
-        await StopTaskAsync();
-    }
 
     public virtual Task StopTaskAsync()
     {

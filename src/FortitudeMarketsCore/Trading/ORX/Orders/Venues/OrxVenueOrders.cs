@@ -10,10 +10,8 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
-public class OrxVenueOrders : IVenueOrders
+public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
 {
-    private int refCount = 0;
-
     public OrxVenueOrders() { }
 
     public OrxVenueOrders(IVenueOrders toClone)
@@ -36,14 +34,16 @@ public class OrxVenueOrders : IVenueOrders
         set => VenueOrdersList![index] = (OrxVenueOrder)value!;
     }
 
-    public IVenueOrders Clone() => new OrxVenueOrders(this);
+    public override IVenueOrders Clone() =>
+        Recycler?.Borrow<OrxVenueOrders>().CopyFrom(this) ?? new OrxVenueOrders(this);
 
     public IEnumerator<IVenueOrder> GetEnumerator() =>
         VenueOrdersList?.GetEnumerator() ?? Enumerable.Empty<IVenueOrder>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void CopyFrom(IVenueOrders venueOrders, CopyMergeFlags copyMergeFlags)
+    public override IVenueOrders CopyFrom(IVenueOrders venueOrders
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var venueOrderCount = venueOrders.Count;
         if (venueOrderCount > 0)
@@ -59,27 +59,8 @@ public class OrxVenueOrders : IVenueOrders
 
             VenueOrdersList = orxVenueList;
         }
-    }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IVenueOrders)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        return this;
     }
 
     protected bool Equals(OrxVenueOrders other) =>

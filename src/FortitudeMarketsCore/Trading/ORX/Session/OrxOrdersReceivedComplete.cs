@@ -1,6 +1,10 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading;
@@ -30,4 +34,25 @@ public class OrxOrdersReceivedComplete : OrxTradingMessage
     public override uint MessageId => (uint)TradingMessageIds.OrderReplayComplete;
 
     [OrxOptionalField(9)] public OrxAccountEntry? OrxAccount { get; set; }
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is OrxOrdersReceivedComplete ordersReceivedComplete)
+            OrxAccount = ordersReceivedComplete.OrxAccount.SyncOrRecycle(OrxAccount);
+
+        return this;
+    }
+
+    public override void Reset()
+    {
+        OrxAccount?.DecrementRefCount();
+        OrxAccount = null;
+        base.Reset();
+    }
+
+    public override IAuthenticatedMessage Clone() =>
+        (IAuthenticatedMessage?)Recycler?.Borrow<OrxOrdersReceivedComplete>().CopyFrom(this) ??
+        new OrxOrdersReceivedComplete(this);
 }

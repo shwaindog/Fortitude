@@ -1,20 +1,20 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 
 #endregion
 
 namespace FortitudeIO.Protocols.Authentication;
 
-public interface IUserData
+public interface IUserData : IReusableObject<IUserData>
 {
     IAuthenticationData? AuthData { get; set; }
     IMutableString? UserId { get; set; }
-    IUserData Clone();
 }
 
-public class UserData : IUserData
+public class UserData : ReusableObject<IUserData>, IUserData
 {
     public UserData() { }
 
@@ -33,8 +33,25 @@ public class UserData : IUserData
     public IAuthenticationData? AuthData { get; set; }
     public IMutableString? UserId { get; set; }
 
-    public IUserData Clone() => new UserData(this);
+    public override IUserData CopyFrom(IUserData source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        AuthData = source.AuthData?.CopyOrClone(AuthData as AuthenticationData);
+        UserId = source.UserId?.CopyOrClone(UserId as MutableString);
+        return this;
+    }
 
+    public override void Reset()
+    {
+        AuthData?.DecrementRefCount();
+        AuthData = null;
+        UserId?.DecrementRefCount();
+        UserId = null;
+        base.Reset();
+    }
+
+    public override IUserData Clone() => Recycler?.Borrow<UserData>().CopyFrom(this) ?? new UserData(this);
+
+    [Obsolete]
     public IUserData Configure(IUserData userData, IRecycler recyclerFactory)
     {
         AuthData = userData.AuthData != null ?

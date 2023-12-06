@@ -556,7 +556,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         {
             var executionId = update.Execution.ExecutionId;
             Subscriber.Logger.Info("*** PenExec {0} {1} {2}", executionId,
-                update.Execution.CumlativeQuantity, update.Execution.CumlativeVwapPrice);
+                update.Execution.CumulativeQuantity, update.Execution.CumulativeVwapPrice);
             IOrder? order;
             lock (ActiveOrders)
             {

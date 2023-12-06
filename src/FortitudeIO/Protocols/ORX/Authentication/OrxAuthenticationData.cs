@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
 
@@ -8,7 +9,7 @@ using FortitudeIO.Protocols.ORX.Serialization;
 
 namespace FortitudeIO.Protocols.ORX.Authentication;
 
-public class OrxAuthenticationData : IAuthenticationData
+public class OrxAuthenticationData : ReusableObject<IAuthenticationData>, IAuthenticationData
 {
     public OrxAuthenticationData() { }
 
@@ -29,27 +30,35 @@ public class OrxAuthenticationData : IAuthenticationData
         set => AuthenticationBytes = (List<byte>)value!;
     }
 
-    public IAuthenticationData Clone() => new OrxAuthenticationData(this);
+    public override IAuthenticationData Clone() =>
+        Recycler?.Borrow<OrxAuthenticationData>().CopyFrom(this) ?? new OrxAuthenticationData(this);
 
-    public void CopyFrom(IAuthenticationData authData, IRecycler orxRecyclingFactory)
+
+    public override void Reset()
+    {
+        if (AuthenticationBytes != null)
+        {
+            AuthenticationBytes.Clear();
+            Recycler?.Recycle(AuthenticationBytes);
+        }
+
+        AuthenticationBytes = null;
+        AuthenticationType = AuthenticationType.None;
+        base.Reset();
+    }
+
+    public override IAuthenticationData CopyFrom(IAuthenticationData authData
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         AuthenticationType = authData.AuthenticationType;
         if (authData.AuthenticationBytes != null)
         {
-            var orxAuthData = orxRecyclingFactory.Borrow<List<byte>>();
+            var orxAuthData = Recycler?.Borrow<List<byte>>() ?? new List<byte>();
             orxAuthData.Clear();
             orxAuthData.AddRange(authData.AuthenticationBytes);
             AuthenticationBytes = orxAuthData;
         }
-    }
 
-    public OrxAuthenticationData Configure(IAuthenticationData authData, IRecycler recyclerFactory)
-    {
-        AuthenticationType = authData.AuthenticationType;
-        if (authData.AuthenticationBytes == null) return this;
-        var authBytes = recyclerFactory.Borrow<List<byte>>();
-        authBytes.Clear();
-        for (var i = 0; i < authData.AuthenticationBytes.Count; i++) authBytes.Add(authData.AuthenticationBytes[i]);
         return this;
     }
 

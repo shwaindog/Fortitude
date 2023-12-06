@@ -12,4 +12,5 @@ public interface IReplayMessage : ITradingMessage
     ReplayMessageType ReplayMessageType { get; set; }
     IOrderUpdate? PastOrder { get; set; }
     IExecutionUpdate? PastExecutionUpdate { get; set; }
+    new IReplayMessage Clone();
 }

@@ -6,9 +6,8 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeMarketsApi.Trading.Orders.Venues;
 
-public interface IVenueOrders : IEnumerable<IVenueOrder>, IRecyclableObject<IVenueOrders>
+public interface IVenueOrders : IEnumerable<IVenueOrder>, IReusableObject<IVenueOrders>
 {
     int Count { get; }
     IVenueOrder? this[int index] { get; set; }
-    IVenueOrders Clone();
 }

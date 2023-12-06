@@ -10,10 +10,8 @@ using FortitudeMarketsApi.Trading.Counterparties;
 
 namespace FortitudeMarketsCore.Trading.ORX.CounterParties;
 
-public class OrxParty : IParty
+public class OrxParty : ReusableObject<IParty>, IParty
 {
-    private int refCount = 0;
-
     public OrxParty()
     {
         PartyId = new MutableString();
@@ -55,6 +53,7 @@ public class OrxParty : IParty
     [OrxOptionalField(3)] public MutableString ClientPartyId { get; set; }
 
     [OrxOptionalField(4)] public OrxBookingInfo Portfolio { get; set; }
+    public bool AutoRecycledByProducer { get; set; }
 
     IMutableString IParty.PartyId
     {
@@ -86,47 +85,16 @@ public class OrxParty : IParty
         set => Portfolio = (OrxBookingInfo)value;
     }
 
-    public IParty Clone() => new OrxParty(this);
+    public override IParty Clone() => Recycler?.Borrow<OrxParty>().CopyFrom(this) ?? new OrxParty(this);
 
-    public void CopyFrom(IParty party, CopyMergeFlags copyMergeFlags)
+    public override IParty CopyFrom(IParty party, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        PartyId = Recycler!.Borrow<MutableString>().Clear().Append(party.PartyId);
-        Name = Recycler!.Borrow<MutableString>().Clear().Append(party.Name);
-        if (party.ParentParty != null)
-        {
-            var orxParentParty = Recycler!.Borrow<OrxParty>();
-            orxParentParty.CopyFrom(party.ParentParty, copyMergeFlags);
-            ParentParty = orxParentParty;
-        }
-
-        ClientPartyId = Recycler!.Borrow<MutableString>().Clear().Append(party.ClientPartyId);
-        if (party.Portfolio != null)
-        {
-            var orxBookingInfo = Recycler!.Borrow<OrxBookingInfo>();
-            orxBookingInfo.CopyFrom(party.Portfolio, copyMergeFlags);
-            Portfolio = orxBookingInfo;
-        }
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IParty)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        PartyId = party.PartyId.SyncOrRecycle(PartyId)!;
+        Name = party.Name.SyncOrRecycle(Name)!;
+        ParentParty = party.ParentParty.SyncOrRecycle(ParentParty);
+        ClientPartyId = party.ClientPartyId.SyncOrRecycle(ClientPartyId)!;
+        Portfolio = party.Portfolio.SyncOrRecycle(Portfolio)!;
+        return this;
     }
 
     protected bool Equals(OrxParty other)

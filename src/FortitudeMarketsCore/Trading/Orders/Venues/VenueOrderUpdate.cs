@@ -1,6 +1,9 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 using FortitudeMarketsCore.Trading.ORX.Session;
 
@@ -10,6 +13,8 @@ namespace FortitudeMarketsCore.Trading.Orders.Venues;
 
 public class VenueOrderUpdate : TradingMessage, IVenueOrderUpdate
 {
+    public VenueOrderUpdate() { }
+
     public VenueOrderUpdate(IVenueOrderUpdate toClone)
     {
         VenueOrder = toClone.VenueOrder?.Clone();
@@ -37,5 +42,22 @@ public class VenueOrderUpdate : TradingMessage, IVenueOrderUpdate
     public DateTime AdapterProcessedTime { get; set; }
     public DateTime ClientReceivedTime { get; set; }
 
-    public IVenueOrderUpdate Clone() => new VenueOrderUpdate(this);
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IVenueOrderUpdate venueOrderUpdate)
+        {
+            VenueOrder = venueOrderUpdate.VenueOrder?.SyncOrRecycle(VenueOrder as VenueOrder);
+            UpdateTime = venueOrderUpdate.UpdateTime;
+            AdapterSocketReceivedTime = venueOrderUpdate.AdapterSocketReceivedTime;
+            AdapterProcessedTime = venueOrderUpdate.AdapterProcessedTime;
+            ClientReceivedTime = venueOrderUpdate.ClientReceivedTime;
+        }
+
+        return this;
+    }
+
+    public override IVenueOrderUpdate Clone() =>
+        (IVenueOrderUpdate?)Recycler?.Borrow<VenueOrderUpdate>().CopyFrom(this) ?? new VenueOrderUpdate(this);
 }

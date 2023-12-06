@@ -24,7 +24,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     protected DateTime sourceAskTime = DateTimeConstants.UnixEpoch;
     protected DateTime sourceBidTime = DateTimeConstants.UnixEpoch;
 
-    [Obsolete] public PQLevel1Quote() => throw new NotSupportedException();
+    public PQLevel1Quote() { }
 
     public PQLevel1Quote(ISourceTickerQuoteInfo sourceTickerInfo)
         : base(sourceTickerInfo) =>
@@ -408,7 +408,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         }
     }
 
-    public override void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
 
@@ -459,6 +459,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             // ensure flags still match source
             UpdatedFlags = pq1.UpdatedFlags;
         }
+
+        return this;
     }
 
     ILevel1Quote ICloneable<ILevel1Quote>.Clone() => (ILevel1Quote)Clone();
@@ -469,11 +471,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     IPQLevel1Quote IPQLevel1Quote.Clone() => (IPQLevel1Quote)Clone();
 
-    public override object Clone()
-    {
-        var clone = new PQLevel1Quote(this);
-        return clone;
-    }
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this) ?? new PQLevel1Quote(this);
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

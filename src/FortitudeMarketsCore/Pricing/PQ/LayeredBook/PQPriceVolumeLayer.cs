@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -9,11 +10,13 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
 
-public class PQPriceVolumeLayer : IPQPriceVolumeLayer
+public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
 {
     private decimal price;
     protected LayerFieldUpdatedFlags UpdatedFlags;
     private decimal volume;
+
+    public PQPriceVolumeLayer() { }
 
     public PQPriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
     {
@@ -80,7 +83,7 @@ public class PQPriceVolumeLayer : IPQPriceVolumeLayer
 
     public virtual bool IsEmpty => Price == 0m && Volume == 0m;
 
-    public virtual void Reset()
+    public override void Reset()
     {
         Price = 0m;
         Volume = 0m;
@@ -120,7 +123,8 @@ public class PQPriceVolumeLayer : IPQPriceVolumeLayer
         return -1;
     }
 
-    public virtual void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is not PQPriceVolumeLayer pqpvl)
         {
@@ -132,18 +136,16 @@ public class PQPriceVolumeLayer : IPQPriceVolumeLayer
             if (pqpvl.IsPriceUpdated) Price = pqpvl.Price;
             if (pqpvl.IsVolumeUpdated) Volume = pqpvl.Volume;
         }
-    }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+        return this;
     }
 
     public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance) { }
 
     public virtual void EnsureRelatedItemsAreConfigured(IPQPriceVolumeLayer? referenceInstance) { }
 
-    public virtual IPQPriceVolumeLayer Clone() => new PQPriceVolumeLayer(this);
+    public override IPQPriceVolumeLayer Clone() =>
+        (IPQPriceVolumeLayer?)Recycler?.Borrow<PQPriceVolumeLayer>().CopyFrom(this) ?? new PQPriceVolumeLayer(this);
 
     IPriceVolumeLayer ICloneable<IPriceVolumeLayer>.Clone() => Clone();
 

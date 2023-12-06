@@ -1,6 +1,9 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;
@@ -44,26 +47,29 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate
 
     public DateTime ClientReceivedTime { get; set; }
 
-    public IOrderUpdate Clone() => new OrxOrderUpdate(this);
-
-    public void CopyFrom(IOrderUpdate orderUpdate, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void Reset()
     {
-        base.CopyFrom(orderUpdate, copyMergeFlags);
-        if (orderUpdate.Order != null)
+        OrderUpdateType = OrderUpdateEventType.Unknown;
+        AdapterUpdateTime = DateTimeConstants.UnixEpoch;
+        Order?.DecrementRefCount();
+        Order = null;
+        base.Reset();
+    }
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage versionedMessage
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(versionedMessage, copyMergeFlags);
+        if (versionedMessage is IOrderUpdate orderUpdate)
         {
-            Order ??= Recycler!.Borrow<OrxOrder>();
-            Order.CopyFrom(orderUpdate.Order, copyMergeFlags);
-        }
-        else
-        {
-            if (Order != null)
-            {
-                Order.DecrementRefCount();
-                Order = null;
-            }
+            Order = orderUpdate.Order.SyncOrRecycle(Order);
+            AdapterUpdateTime = orderUpdate.AdapterUpdateTime;
+            OrderUpdateType = orderUpdate.OrderUpdateType;
         }
 
-        AdapterUpdateTime = orderUpdate.AdapterUpdateTime;
-        OrderUpdateType = orderUpdate.OrderUpdateType;
+        return this;
     }
+
+    public override IOrderUpdate Clone() =>
+        (IOrderUpdate?)Recycler?.Borrow<OrxOrderUpdate>().CopyFrom(this) ?? new OrxOrderUpdate(this);
 }

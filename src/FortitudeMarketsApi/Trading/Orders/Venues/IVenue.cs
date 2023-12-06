@@ -7,9 +7,8 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarketsApi.Trading.Orders.Venues;
 
-public interface IVenue : IRecyclableObject<IVenue>
+public interface IVenue : IReusableObject<IVenue>
 {
     ushort VenueId { get; set; }
     IMutableString Name { get; set; }
-    IVenue Clone();
 }

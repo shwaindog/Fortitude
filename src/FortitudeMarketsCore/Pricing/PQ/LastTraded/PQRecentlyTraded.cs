@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
@@ -11,9 +12,11 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LastTraded;
 
-public class PQRecentlyTraded : IPQRecentlyTraded
+public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTraded
 {
     private IList<IPQLastTrade?> lastTrades;
+
+    public PQRecentlyTraded() => lastTrades = new List<IPQLastTrade?>();
 
     public PQRecentlyTraded(PQSourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
@@ -99,9 +102,10 @@ public class PQRecentlyTraded : IPQRecentlyTraded
 
     public bool HasLastTrades => Count > 0;
 
-    public void Reset()
+    public override void Reset()
     {
         foreach (var lastTrade in lastTrades) lastTrade?.Reset();
+        base.Reset();
     }
 
     public void Add(IMutableLastTrade newLastTrade)
@@ -156,7 +160,8 @@ public class PQRecentlyTraded : IPQRecentlyTraded
         return false;
     }
 
-    public void CopyFrom(IRecentlyTraded source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IRecentlyTraded CopyFrom(IRecentlyTraded source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         IPQLastTrade? destinationLayer = null;
         ILastTrade? sourcelayer = null;
@@ -196,11 +201,7 @@ public class PQRecentlyTraded : IPQRecentlyTraded
         }
 
         for (var i = source.Capacity; i < lastTrades.Count; i++) lastTrades[i]?.Reset();
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((IRecentlyTraded)source, copyMergeFlags);
+        return this;
     }
 
     public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
@@ -267,7 +268,9 @@ public class PQRecentlyTraded : IPQRecentlyTraded
 
     IEnumerator<IMutableLastTrade> IMutableRecentlyTraded.GetEnumerator() => GetEnumerator();
 
-    public IPQRecentlyTraded Clone() => new PQRecentlyTraded((IRecentlyTraded)this);
+    public override IPQRecentlyTraded Clone() =>
+        (IPQRecentlyTraded?)Recycler?.Borrow<PQRecentlyTraded>().CopyFrom(this) ??
+        new PQRecentlyTraded((IRecentlyTraded)this);
 
     public override string ToString() =>
         $"PQRecentlyTraded {{ {nameof(lastTrades)}: [{string.Join(",", (IEnumerable<ILastTrade>)this)}], " +

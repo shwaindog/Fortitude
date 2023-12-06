@@ -10,14 +10,13 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.Types.Mutable;
 
 [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
-public sealed class MutableString : IMutableString
+public sealed class MutableString : ReusableObject<IMutableString>, IMutableString
 {
     private static readonly IPooledFactory<StringBuilderEnumerator> EnumeratorPool =
         new GarbageAndLockFreePooledFactory<StringBuilderEnumerator>(pool => new StringBuilderEnumerator(pool));
 
     private static readonly char[] WhiteSpaceChars = { ' ', '\t', '\r', '\n' };
     private readonly StringBuilder sb;
-
     public MutableString() => sb = new StringBuilder();
 
     public MutableString(IMutableString initialString)
@@ -159,8 +158,6 @@ public sealed class MutableString : IMutableString
         get => sb[index];
         set => sb[index] = value;
     }
-
-    IMutableString IMutableString.Clone() => Clone();
 
     public bool Contains(string subStr) => IndexOf(subStr) >= 0;
 
@@ -441,6 +438,28 @@ public sealed class MutableString : IMutableString
         var stringBuilderEnumerator = EnumeratorPool.Borrow();
         stringBuilderEnumerator.StringBuilder = sb;
         return stringBuilderEnumerator;
+    }
+
+
+    public override void Reset()
+    {
+        sb.Clear();
+        base.Reset();
+    }
+
+    object ICloneable.Clone() => Clone();
+
+    IMutableString ICloneable<IMutableString>.Clone() => Clone();
+
+    public override IMutableString CopyFrom(IMutableString source, CopyMergeFlags copyMergeFlags)
+    {
+        if (source is MutableString mutableStringSource)
+        {
+            sb.Clear();
+            sb.Append(mutableStringSource.sb);
+        }
+
+        return this;
     }
 
     public MutableString Append(IMutableString value)
@@ -730,7 +749,7 @@ public sealed class MutableString : IMutableString
         return this;
     }
 
-    public MutableString Clone() => new(this);
+    public override MutableString Clone() => Recycler?.Borrow<MutableString>() ?? new MutableString(this);
 
     public MutableString Remove(int startIndex)
     {
@@ -791,6 +810,7 @@ public sealed class MutableString : IMutableString
         sb.Remove(length, Length - length);
         return this;
     }
+
 
     private bool Equals(MutableString? other)
     {

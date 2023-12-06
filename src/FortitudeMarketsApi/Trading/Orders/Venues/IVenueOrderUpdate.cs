@@ -7,5 +7,4 @@ public interface IVenueOrderUpdate : ITradingMessage
     DateTime AdapterSocketReceivedTime { get; set; }
     DateTime AdapterProcessedTime { get; set; }
     DateTime ClientReceivedTime { get; set; }
-    IVenueOrderUpdate Clone();
 }

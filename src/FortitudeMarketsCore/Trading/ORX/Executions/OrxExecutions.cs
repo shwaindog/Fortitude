@@ -10,9 +10,8 @@ using FortitudeMarketsApi.Trading.Executions;
 
 namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
-public class OrxExecutions : IExecutions
+public class OrxExecutions : ReusableObject<IExecutions>, IExecutions
 {
-    private int refCount = 0;
     public OrxExecutions() => ExecutionsList = new List<OrxExecution>();
 
     public OrxExecutions(IExecutions toClone)
@@ -43,13 +42,19 @@ public class OrxExecutions : IExecutions
         set => ExecutionsList[index] = (OrxExecution)value;
     }
 
-    public IExecutions Clone() => new OrxExecutions(this);
+    public override IExecutions Clone() => Recycler?.Borrow<OrxExecutions>().CopyFrom(this) ?? new OrxExecutions(this);
 
     public IEnumerator<IExecution> GetEnumerator() => ExecutionsList.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void CopyFrom(IExecutions executions, CopyMergeFlags copyMergeFlags)
+    public override void Reset()
+    {
+        ExecutionsList.Clear();
+        base.Reset();
+    }
+
+    public override IExecutions CopyFrom(IExecutions executions, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var executionsCount = executions.Count;
         if (executionsCount > 0)
@@ -65,27 +70,8 @@ public class OrxExecutions : IExecutions
 
             ExecutionsList = orxExecutionsList;
         }
-    }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IExecutions)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        return this;
     }
 
     protected bool Equals(OrxExecutions other) =>

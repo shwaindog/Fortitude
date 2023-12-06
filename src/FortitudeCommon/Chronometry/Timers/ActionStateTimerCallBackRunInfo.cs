@@ -11,6 +11,14 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
     private WaitCallback? actionAsWaitCallback;
     private Action<T?>? backingAction;
 
+    public ActionStateTimerCallBackRunInfo() { }
+
+    private ActionStateTimerCallBackRunInfo(ActionStateTimerCallBackRunInfo<T> toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
     public Action<T?>? Action
     {
         get => backingAction;
@@ -23,7 +31,8 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
 
     public T? State { get; set; }
 
-    public override void CopyFrom(TimerCallBackRunInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is ActionStateTimerCallBackRunInfo<T> actionTimerCallBackRunInfo)
         {
@@ -31,7 +40,7 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
             State = actionTimerCallBackRunInfo.State;
         }
 
-        base.CopyFrom(source, copyMergeFlags);
+        return base.CopyFrom(source, copyMergeFlags);
     }
 
     public override bool RunCallbackOnThreadPool()
@@ -68,4 +77,8 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
 
         return false;
     }
+
+    public override TimerCallBackRunInfo Clone() =>
+        Recycler?.Borrow<ActionStateTimerCallBackRunInfo<T>>().CopyFrom(this) ??
+        new ActionStateTimerCallBackRunInfo<T>(this);
 }

@@ -9,7 +9,7 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeIO.Protocols.Authentication;
 
-public interface IAuthenticatedMessage : IVersionedMessage, IRecyclableObject<IVersionedMessage>
+public interface IAuthenticatedMessage : IVersionedMessage
 {
     IMutableString? SenderName { get; set; }
     DateTime SendTime { get; set; }
@@ -19,7 +19,6 @@ public interface IAuthenticatedMessage : IVersionedMessage, IRecyclableObject<IV
 
 public abstract class AuthenticatedMessage : VersionedMessage, IAuthenticatedMessage
 {
-    private int refCount;
     protected AuthenticatedMessage() { }
 
     protected AuthenticatedMessage(IAuthenticatedMessage toClone) : base(toClone)
@@ -44,45 +43,33 @@ public abstract class AuthenticatedMessage : VersionedMessage, IAuthenticatedMes
     public DateTime SendTime { get; set; }
     public IUserData? UserData { get; set; }
     public IMutableString? Info { get; set; }
-    public int RefCount => refCount;
-    public IRecycler? Recycler { get; set; }
 
-    public int DecrementRefCount()
+    public override void Reset()
     {
-        if (Interlocked.Decrement(ref refCount) == 0 && RecycleOnRefCountZero) Recycle();
-        return refCount;
+        SenderName?.DecrementRefCount();
+        SenderName = null;
+        UserData?.DecrementRefCount();
+        UserData = null;
+        Info?.DecrementRefCount();
+        Info = null;
     }
 
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool RecycleOnRefCountZero { get; set; }
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-
-    public bool Recycle()
-    {
-        if (!AutoRecycledByProducer && !IsInRecycler && (refCount == 0 || !RecycleOnRefCountZero))
-            Recycler!.Recycle(this);
-        return IsInRecycler;
-    }
-
-    public override void CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags)
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        if (source is IAuthenticatedMessage authMessage)
+        if (source is IAuthenticatedMessage authenticatedMessage)
         {
-            SenderName = authMessage.SenderName != null ?
-                Recycler!.Borrow<MutableString>().Clear().Append(authMessage.SenderName) :
-                null;
-            SendTime = authMessage.SendTime;
-            UserData = authMessage.UserData != null ?
-                Recycler!.Borrow<UserData>().Configure(authMessage.UserData, Recycler) :
-                null;
-            Info = authMessage.Info != null ?
-                Recycler!.Borrow<MutableString>().Clear().Append(authMessage.Info) :
-                null;
+            SenderName = authenticatedMessage.SenderName?.SyncOrRecycle(SenderName as MutableString);
+            SendTime = authenticatedMessage.SendTime;
+            UserData = authenticatedMessage.UserData?.CopyOrClone(UserData as UserData);
+            Info = authenticatedMessage.Info?.CopyOrClone(Info as MutableString);
         }
+
+        return this;
     }
+
+    public abstract override IAuthenticatedMessage Clone();
 
     protected bool Equals(IAuthenticatedMessage other) =>
         base.Equals(other) && Equals(SenderName, other.SenderName) &&

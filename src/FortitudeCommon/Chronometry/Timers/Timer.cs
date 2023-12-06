@@ -14,7 +14,7 @@ public class Timer : IUpdateableTimer
     public const uint MaxTimerMs = uint.MaxValue - 1;
     private static ITimer? instance;
     private static readonly object SyncLock = new();
-    private static readonly TimeSpan MaxTimerSpan = TimeSpan.FromMilliseconds(MaxTimerMs);
+    internal static readonly TimeSpan MaxTimerSpan = TimeSpan.FromMilliseconds(MaxTimerMs);
     private readonly TimeSpan heartBeatCheck = TimeSpan.FromSeconds(10);
     private readonly List<TimerCallBackRunInfo> intervalCallBacks = new();
     private readonly List<TimerCallBackRunInfo> oneOffCallbacks = new();
