@@ -6,5 +6,6 @@ public interface IOrderUpdate : ITradingMessage
     OrderUpdateEventType OrderUpdateType { get; set; }
     DateTime AdapterUpdateTime { get; set; }
     DateTime ClientReceivedTime { get; set; }
-    IOrderUpdate Clone();
+
+    new IOrderUpdate Clone();
 }

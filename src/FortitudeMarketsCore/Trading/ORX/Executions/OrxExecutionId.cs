@@ -10,10 +10,8 @@ using FortitudeMarketsApi.Trading.Executions;
 
 namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
-public class OrxExecutionId : IExecutionId
+public class OrxExecutionId : ReusableObject<IExecutionId>, IExecutionId
 {
-    private int refCount = 0;
-
     public OrxExecutionId()
     {
         VenueExecutionId = new MutableString();
@@ -55,34 +53,16 @@ public class OrxExecutionId : IExecutionId
         set => BookingSystemId = (MutableString)value;
     }
 
-    public IExecutionId Clone() => new OrxExecutionId(this);
+    public override IExecutionId Clone() =>
+        Recycler?.Borrow<OrxExecutionId>().CopyFrom(this) ?? new OrxExecutionId(this);
 
-    public void CopyFrom(IExecutionId executionId, CopyMergeFlags copyMergeFlags)
+    public override IExecutionId CopyFrom(IExecutionId executionId
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        VenueExecutionId = Recycler!.Borrow<MutableString>().Clear().Append(executionId.VenueExecutionId);
+        VenueExecutionId = executionId.VenueExecutionId.SyncOrRecycle(VenueExecutionId)!;
         AdapterExecutionId = executionId.AdapterExecutionId;
-        BookingSystemId = Recycler!.Borrow<MutableString>().Clear().Append(executionId.BookingSystemId);
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IExecutionId)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        BookingSystemId = executionId.BookingSystemId.SyncOrRecycle(BookingSystemId)!;
+        return this;
     }
 
     protected bool Equals(OrxExecutionId other)

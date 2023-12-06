@@ -11,7 +11,7 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsApi.Trading.Orders;
 
-public interface IOrder : IRecyclableObject<IOrder>
+public interface IOrder : IReusableObject<IOrder>
 {
     IOrderId OrderId { get; set; }
     TimeInForce TimeInForce { get; set; }
@@ -26,5 +26,4 @@ public interface IOrder : IRecyclableObject<IOrder>
     IVenueOrders? VenueOrders { get; set; }
     IExecutions? Executions { get; set; }
     IMutableString Message { get; set; }
-    IOrder Clone();
 }

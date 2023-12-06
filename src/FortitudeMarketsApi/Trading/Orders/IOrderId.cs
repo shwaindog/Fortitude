@@ -1,12 +1,13 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 
 #endregion
 
 namespace FortitudeMarketsApi.Trading.Orders;
 
-public interface IOrderId
+public interface IOrderId : IReusableObject<IOrderId>
 {
     long ClientOrderId { get; set; }
     IMutableString? VenueClientOrderId { get; set; }
@@ -14,5 +15,4 @@ public interface IOrderId
     long AdapterOrderId { get; set; }
     IMutableString? VenueAdapterOrderId { get; set; }
     IOrderId? ParentOrderId { get; set; }
-    IOrderId Clone();
 }

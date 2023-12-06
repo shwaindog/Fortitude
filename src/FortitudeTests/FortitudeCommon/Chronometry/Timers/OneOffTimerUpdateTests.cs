@@ -76,7 +76,7 @@ public class OneOffTimerUpdateTests
         Assert.AreEqual(0, oneOffTimerUpdate.RefCount);
         Assert.AreEqual(1, oneOffTimerUpdate.IncrementRefCount());
         Assert.AreEqual(1, oneOffTimerUpdate.RefCount);
-        oneOffTimerUpdate.RecycleOnRefCountZero = false;
+        oneOffTimerUpdate.AutoRecycleAtRefCountZero = false;
         Assert.AreEqual(0, oneOffTimerUpdate.DecrementRefCount());
         Assert.AreEqual(0, oneOffTimerUpdate.RefCount);
     }

@@ -163,10 +163,10 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override void CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILastTrade CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        if (source == null) return;
+        if (source == null) return this;
         var pqlpgt = source as PQLastPaidGivenTrade;
         if (pqlpgt == null && source is ILastPaidGivenTrade lpgt)
         {
@@ -182,6 +182,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
             UpdatedFlags = pqlpgt.UpdatedFlags;
         }
+
+        return this;
     }
 
     public override IMutableLastTrade Clone() => new PQLastPaidGivenTrade(this);

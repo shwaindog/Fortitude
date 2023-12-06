@@ -7,11 +7,18 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-public class OneOffTimerUpdate : IThreadPoolTimerUpdate
+public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerUpdate
 {
-    protected internal TimerCallBackRunInfo CallBackRunInfo = null!;
-    private int refCount;
+    protected internal TimerCallBackRunInfo? CallBackRunInfo;
     private IUpdateableTimer? updateableTimer;
+
+    public OneOffTimerUpdate() { }
+
+    private OneOffTimerUpdate(OneOffTimerUpdate toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
 
     internal IUpdateableTimer UpdateableTimer
     {
@@ -21,43 +28,28 @@ public class OneOffTimerUpdate : IThreadPoolTimerUpdate
 
     public ITimer RegisteredTimer => updateableTimer!;
 
-    public bool IsFinished => CallBackRunInfo.IsFinished;
-    public bool IsPaused => CallBackRunInfo.IsPaused;
+    public bool IsFinished => CallBackRunInfo!.IsFinished;
+    public bool IsPaused => CallBackRunInfo!.IsPaused;
 
-    public DateTime NextScheduleDateTime => CallBackRunInfo.NextScheduleTime;
+    public DateTime NextScheduleDateTime => CallBackRunInfo!.NextScheduleTime;
 
-    public void CopyFrom(ITimerUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+
+    public override int DecrementRefCount()
     {
-        updateableTimer = (IUpdateableTimer)source.RegisteredTimer;
-        CallBackRunInfo = ((OneOffTimerUpdate)source).CallBackRunInfo;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((ITimerUpdate)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-
-    public int DecrementRefCount()
-    {
-        if (Interlocked.Decrement(ref refCount) == 0 && RecycleOnRefCountZero) Recycle();
+        CallBackRunInfo?.DecrementRefCount();
+        if (Interlocked.Decrement(ref refCount) == 0 && AutoRecycleAtRefCountZero) Recycle();
         return refCount;
     }
 
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
+    public override int IncrementRefCount()
     {
-        if (refCount <= 0 || !RecycleOnRefCountZero)
-        {
-            CallBackRunInfo.DecrementRefCount();
-            Recycler!.Recycle(this);
-        }
+        CallBackRunInfo?.IncrementRefCount();
+        return Interlocked.Increment(ref refCount);
+    }
+
+    public override bool Recycle()
+    {
+        if (refCount <= 0 || !AutoRecycleAtRefCountZero) Recycler!.Recycle(this);
 
         return IsInRecycler;
     }
@@ -65,7 +57,7 @@ public class OneOffTimerUpdate : IThreadPoolTimerUpdate
 
     public virtual bool Cancel()
     {
-        CallBackRunInfo.IsPaused = true;
+        CallBackRunInfo!.IsPaused = true;
         CallBackRunInfo.MaxNumberOfCalls = CallBackRunInfo.CurrentNumberOfCalls;
         var removed = UpdateableTimer.Remove(CallBackRunInfo);
         UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
@@ -74,7 +66,7 @@ public class OneOffTimerUpdate : IThreadPoolTimerUpdate
 
     public bool ExecuteNowOnThreadPool()
     {
-        var result = CallBackRunInfo.RunCallbackOnThreadPool();
+        var result = CallBackRunInfo!.RunCallbackOnThreadPool();
         if (result && CallBackRunInfo.IsFinished)
         {
             UpdateableTimer.Remove(CallBackRunInfo);
@@ -86,7 +78,7 @@ public class OneOffTimerUpdate : IThreadPoolTimerUpdate
 
     public bool ExecuteNowOnThisThread()
     {
-        var result = CallBackRunInfo.RunCallbackOnThisThread();
+        var result = CallBackRunInfo!.RunCallbackOnThisThread();
         if (result && CallBackRunInfo.IsFinished)
         {
             UpdateableTimer.Remove(CallBackRunInfo);
@@ -104,7 +96,7 @@ public class OneOffTimerUpdate : IThreadPoolTimerUpdate
 
     public virtual bool UpdateWaitPeriod(TimeSpan newWaitFromNowTimeSpan)
     {
-        var originalPause = CallBackRunInfo.IsPaused;
+        var originalPause = CallBackRunInfo!.IsPaused;
         CallBackRunInfo.IsPaused = true;
         CallBackRunInfo.NextScheduleTime = TimeContext.UtcNow + newWaitFromNowTimeSpan;
         CallBackRunInfo.IsPaused = originalPause;
@@ -114,14 +106,34 @@ public class OneOffTimerUpdate : IThreadPoolTimerUpdate
 
     public virtual bool Pause()
     {
-        CallBackRunInfo.IsPaused = true;
+        CallBackRunInfo!.IsPaused = true;
         return !CallBackRunInfo.IsFinished;
     }
 
     public virtual bool Resume()
     {
-        CallBackRunInfo.IsPaused = false;
+        CallBackRunInfo!.IsPaused = false;
         UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
         return !CallBackRunInfo.IsFinished;
     }
+
+    public override ITimerUpdate CopyFrom(ITimerUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (ReferenceEquals(this, source)) return this;
+        updateableTimer = (IUpdateableTimer)source.RegisteredTimer;
+        CallBackRunInfo = ((OneOffTimerUpdate)source).CallBackRunInfo;
+        CallBackRunInfo?.IncrementRefCount();
+        return this;
+    }
+
+    public override void Reset()
+    {
+        CallBackRunInfo?.DecrementRefCount();
+        CallBackRunInfo = null;
+        updateableTimer = null;
+        base.Reset();
+    }
+
+    public override ITimerUpdate Clone() =>
+        Recycler?.Borrow<OneOffTimerUpdate>().CopyFrom(this) ?? new OneOffTimerUpdate(this);
 }

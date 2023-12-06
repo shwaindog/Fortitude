@@ -1,6 +1,9 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsCore.Trading.ORX.Session;
 
@@ -10,6 +13,8 @@ namespace FortitudeMarketsCore.Trading.Executions;
 
 public class ExecutionUpdate : TradingMessage, IExecutionUpdate
 {
+    public ExecutionUpdate() { }
+
     public ExecutionUpdate(IExecutionUpdate toClone) : base(toClone)
     {
         Execution = toClone.Execution;
@@ -38,5 +43,22 @@ public class ExecutionUpdate : TradingMessage, IExecutionUpdate
     public DateTime AdapterProcessedTime { get; set; }
     public DateTime ClientReceivedTime { get; set; }
 
-    public IExecutionUpdate Clone() => new ExecutionUpdate(this);
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IExecutionUpdate executionUpdate)
+        {
+            Execution = executionUpdate.Execution?.SyncOrRecycle(Execution as Execution);
+            ExecutionUpdateType = executionUpdate.ExecutionUpdateType;
+            SocketReceivedTime = executionUpdate.SocketReceivedTime;
+            AdapterProcessedTime = executionUpdate.AdapterProcessedTime;
+            ClientReceivedTime = executionUpdate.ClientReceivedTime;
+        }
+
+        return this;
+    }
+
+    public override IExecutionUpdate Clone() =>
+        (IExecutionUpdate?)Recycler?.Borrow<ExecutionUpdate>().CopyFrom(this) ?? new ExecutionUpdate(this);
 }

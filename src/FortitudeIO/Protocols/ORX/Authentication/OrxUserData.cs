@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
@@ -9,7 +10,7 @@ using FortitudeIO.Protocols.ORX.Serialization;
 
 namespace FortitudeIO.Protocols.ORX.Authentication;
 
-public class OrxUserData : IUserData
+public class OrxUserData : ReusableObject<IUserData>, IUserData
 {
     public OrxUserData() { }
 
@@ -41,29 +42,21 @@ public class OrxUserData : IUserData
         set => AuthData = value as OrxAuthenticationData;
     }
 
-    public IUserData Clone() => new OrxUserData(this);
+    public override IUserData Clone() => Recycler?.Borrow<OrxUserData>().CopyFrom(this) ?? new OrxUserData(this);
 
-    public void CopyFrom(IUserData userData, IRecycler orxRecyclingFactory)
+    public override void Reset()
     {
-        UserId = userData.UserId != null ?
-            orxRecyclingFactory.Borrow<MutableString>().Clear().Append(userData.UserId) :
-            null;
-        if (userData.AuthData != null)
-        {
-            var orxAuthData = orxRecyclingFactory.Borrow<OrxAuthenticationData>();
-            orxAuthData.CopyFrom(userData.AuthData, orxRecyclingFactory);
-            AuthData = orxAuthData;
-        }
+        UserId?.DecrementRefCount();
+        UserId = null;
+        AuthData?.DecrementRefCount();
+        AuthData = null;
+        base.Reset();
     }
 
-    public OrxUserData Configure(IUserData userData, IRecycler recyclerFactory)
+    public override IUserData CopyFrom(IUserData userData, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        AuthData = userData.AuthData != null ?
-            recyclerFactory.Borrow<OrxAuthenticationData>().Configure(userData.AuthData, recyclerFactory) :
-            null;
-        UserId = userData.UserId != null ?
-            recyclerFactory.Borrow<MutableString>().Clear().Append(userData.UserId) :
-            null;
+        UserId = userData.UserId?.CopyOrClone(UserId);
+        AuthData = userData.AuthData?.CopyOrClone(AuthData);
         return this;
     }
 

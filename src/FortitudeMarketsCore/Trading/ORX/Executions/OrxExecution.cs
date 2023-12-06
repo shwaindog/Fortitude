@@ -16,10 +16,8 @@ using FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
-public class OrxExecution : IExecution, IRecyclableObject<IExecution>
+public class OrxExecution : ReusableObject<IExecution>, IExecution
 {
-    private int refCount = 0;
-
     public OrxExecution()
     {
         ExecutionId = new OrxExecutionId();
@@ -102,9 +100,9 @@ public class OrxExecution : IExecution, IRecyclableObject<IExecution>
 
     [OrxMandatoryField(6)] public decimal Quantity { get; set; }
 
-    [OrxMandatoryField(7)] public decimal CumlativeQuantity { get; set; }
+    [OrxMandatoryField(7)] public decimal CumulativeQuantity { get; set; }
 
-    [OrxMandatoryField(8)] public decimal CumlativeVwapPrice { get; set; }
+    [OrxMandatoryField(8)] public decimal CumulativeVwapPrice { get; set; }
 
     IParty IExecution.CounterParty
     {
@@ -118,71 +116,21 @@ public class OrxExecution : IExecution, IRecyclableObject<IExecution>
 
     [OrxOptionalField(12)] public ExecutionStageType ExecutionStageType { get; set; }
 
-    public IExecution Clone() => new OrxExecution(this);
+    public override IExecution Clone() => Recycler?.Borrow<OrxExecution>().CopyFrom(this) ?? new OrxExecution(this);
 
-    public void CopyFrom(IExecution execution, CopyMergeFlags copyMergeFlags)
+    public override IExecution CopyFrom(IExecution execution, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (execution.ExecutionId != null)
-        {
-            var orxExecutionId = Recycler!.Borrow<OrxExecutionId>();
-            orxExecutionId.CopyFrom(execution.ExecutionId, copyMergeFlags);
-            ExecutionId = orxExecutionId;
-        }
-
-        if (execution.Venue != null)
-        {
-            var orxVenue = Recycler!.Borrow<OrxVenue>();
-            orxVenue.CopyFrom(execution.Venue, copyMergeFlags);
-            Venue = orxVenue;
-        }
-
-        if (execution.VenueOrderId != null)
-        {
-            var orxVenueOrderId = Recycler!.Borrow<OrxVenueOrderId>();
-            orxVenueOrderId.CopyFrom(execution.VenueOrderId, copyMergeFlags);
-            VenueOrderId = orxVenueOrderId;
-        }
-
-        if (execution.OrderId != null)
-        {
-            var orxOrderId = Recycler!.Borrow<OrxOrderId>();
-            orxOrderId.CopyFrom(execution.OrderId, copyMergeFlags);
-            OrderId = orxOrderId;
-        }
-
+        ExecutionId = execution.ExecutionId.CopyOrClone(ExecutionId)!;
+        Venue = execution.Venue.CopyOrClone(Venue)!;
+        VenueOrderId = execution.VenueOrderId.CopyOrClone(VenueOrderId)!;
+        OrderId = execution.OrderId.CopyOrClone(OrderId)!;
         Price = execution.Price;
         Quantity = execution.Quantity;
-        if (execution.CounterParty != null)
-        {
-            var orxCounterParty = Recycler!.Borrow<OrxParty>();
-            orxCounterParty.CopyFrom(execution.CounterParty, copyMergeFlags);
-            CounterParty = orxCounterParty;
-        }
-
+        CounterParty = execution.CounterParty.CopyOrClone(CounterParty)!;
         ValueDate = execution.ValueDate;
         Type = execution.Type;
         ExecutionStageType = execution.ExecutionStageType;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IExecution)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; } = false;
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        return this;
     }
 
     protected bool Equals(OrxExecution other)
@@ -194,8 +142,8 @@ public class OrxExecution : IExecution, IRecyclableObject<IExecution>
         var executionTimeSame = Equals(ExecutionTime, other.ExecutionTime);
         var priceSame = Price == other.Price;
         var quantitySame = Quantity == other.Quantity;
-        var cumlativeQuantitySame = CumlativeQuantity == other.CumlativeQuantity;
-        var cumlativeVwapPriceSame = CumlativeVwapPrice == other.CumlativeVwapPrice;
+        var cumlativeQuantitySame = CumulativeQuantity == other.CumulativeQuantity;
+        var cumlativeVwapPriceSame = CumulativeVwapPrice == other.CumulativeVwapPrice;
         var counterPartySame = Equals(CounterParty, other.CounterParty);
         var valueDateSame = ValueDate.Equals(other.ValueDate);
         var typeSame = Type == other.Type;
@@ -225,8 +173,8 @@ public class OrxExecution : IExecution, IRecyclableObject<IExecution>
             hashCode = (hashCode * 397) ^ (ExecutionTime != default ? ExecutionTime.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ Price.GetHashCode();
             hashCode = (hashCode * 397) ^ Quantity.GetHashCode();
-            hashCode = (hashCode * 397) ^ CumlativeQuantity.GetHashCode();
-            hashCode = (hashCode * 397) ^ CumlativeVwapPrice.GetHashCode();
+            hashCode = (hashCode * 397) ^ CumulativeQuantity.GetHashCode();
+            hashCode = (hashCode * 397) ^ CumulativeVwapPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ (CounterParty != null ? CounterParty.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)Type;

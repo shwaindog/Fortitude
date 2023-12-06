@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsCore.Trading.ORX.Orders;
@@ -8,8 +10,10 @@ using FortitudeMarketsCore.Trading.ORX.Orders;
 
 namespace FortitudeMarketsCore.Trading.Orders;
 
-public class OrderId : IOrderId
+public class OrderId : ReusableObject<IOrderId>, IOrderId
 {
+    public OrderId() { }
+
     public OrderId(IOrderId toClone)
     {
         ClientOrderId = toClone.ClientOrderId;
@@ -45,5 +49,24 @@ public class OrderId : IOrderId
     public IOrderId? ParentOrderId { get; set; }
     public IMutableString? TrackingId { get; set; }
 
-    public IOrderId Clone() => new OrderId(this);
+    public override void Reset()
+    {
+        base.Reset();
+    }
+
+
+    public override IOrderId CopyFrom(IOrderId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        AdapterOrderId = source.AdapterOrderId;
+        VenueAdapterOrderId = source.VenueAdapterOrderId?.CopyOrClone(VenueAdapterOrderId as MutableString);
+        ClientOrderId = source.ClientOrderId;
+        VenueClientOrderId = source.VenueClientOrderId?.CopyOrClone(VenueClientOrderId as MutableString);
+        ParentOrderId = source.ParentOrderId?.CopyOrClone(ParentOrderId as OrderId);
+        TrackingId = source.TrackingId?.Clone();
+        return this;
+    }
+
+    object ICloneable.Clone() => Clone();
+
+    public override IOrderId Clone() => Recycler?.Borrow<OrderId>().CopyFrom(this) ?? new OrderId(this);
 }

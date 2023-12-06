@@ -2,8 +2,8 @@
 
 using Fortitude.EventProcessing.BusRules.MessageBus;
 using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
-using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeTests.FortitudeBusRules.Rules;
 
 #endregion
@@ -120,7 +120,6 @@ public class EventQueueTests
         Assert.AreEqual(3, asyncRespondingRule.ReceiveCount);
         Assert.AreEqual(3, respondingRule.ReceiveCount);
         Assert.AreEqual(3, requestingRule.ReceiveCount);
-        Thread.Sleep(1_000);
     }
 
     [TestMethod]
@@ -151,6 +150,5 @@ public class EventQueueTests
         Assert.AreEqual(3, asyncRespondingRule.ReceiveCount);
         Assert.AreEqual(3, respondingRule.ReceiveCount);
         Assert.AreEqual(3, requestingRule.ReceiveCount);
-        Thread.Sleep(1_000);
     }
 }

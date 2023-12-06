@@ -242,7 +242,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         return false;
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source,
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source,
         CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
@@ -290,6 +290,8 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
                 }
             }
         }
+
+        return this;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance)

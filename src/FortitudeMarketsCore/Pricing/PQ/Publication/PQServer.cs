@@ -9,6 +9,7 @@ using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
@@ -110,7 +111,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
             try
             {
                 var seqId = ent.PQSequenceId;
-                ent.CopyFrom(quote);
+                ent.CopyFrom((ILevel0Quote)quote);
                 quote.HasUpdates = false;
                 ent.PQSequenceId = seqId;
             }

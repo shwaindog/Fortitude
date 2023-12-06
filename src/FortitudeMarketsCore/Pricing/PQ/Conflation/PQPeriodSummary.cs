@@ -484,7 +484,7 @@ public class PQPeriodSummary : IPQPeriodSummary
         }
     }
 
-    public void CopyFrom(IPeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IPeriodSummary CopyFrom(IPeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (!(ps is IPQPeriodSummary pqPs))
         {
@@ -530,12 +530,12 @@ public class PQPeriodSummary : IPQPeriodSummary
 
             if (pqPs is PQPeriodSummary pqPeriodSummary) updatedFlags = pqPeriodSummary.updatedFlags;
         }
+
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IPeriodSummary)source, copyMergeFlags);
-    }
 
     public IMutablePeriodSummary Clone() => new PQPeriodSummary(this);
 

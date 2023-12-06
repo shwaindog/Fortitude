@@ -209,17 +209,14 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     IPQLevel2Quote IPQLevel2Quote.Clone() => (IPQLevel2Quote)Clone();
 
-    public override object Clone()
-    {
-        var clone = new PQLevel2Quote(this);
-        return clone;
-    }
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel2Quote>().CopyFrom(this) ?? new PQLevel2Quote(this);
 
-    public override void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
 
-        if (!(source is ILevel2Quote l2Q)) return;
+        if (!(source is ILevel2Quote l2Q)) return this;
         Type? originalType = null;
         if (bidBook.AllLayers.Any()) originalType = bidBook[0]!.GetType();
         bidBook.CopyFrom(l2Q.BidBook);
@@ -227,6 +224,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         Type? newType = null;
         if (bidBook.AllLayers.Any()) newType = bidBook[0]!.GetType();
         if (newType != originalType) EnsureRelatedItemsAreConfigured(this);
+        return this;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ILevel0Quote? quote)

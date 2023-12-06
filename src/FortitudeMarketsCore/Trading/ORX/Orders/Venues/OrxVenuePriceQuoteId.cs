@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
@@ -8,7 +10,7 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
-public class OrxVenuePriceQuoteId : IVenuePriceQuoteId
+public class OrxVenuePriceQuoteId : ReusableObject<IVenuePriceQuoteId>, IVenuePriceQuoteId
 {
     public OrxVenuePriceQuoteId() { }
 
@@ -41,16 +43,29 @@ public class OrxVenuePriceQuoteId : IVenuePriceQuoteId
 
     [OrxOptionalField(4)] public uint PQSequenceNumber { get; set; }
 
-    public IVenuePriceQuoteId Clone() => new OrxVenuePriceQuoteId(this);
+    public override IVenuePriceQuoteId Clone() => new OrxVenuePriceQuoteId(this);
 
-    public void CopyFrom(IVenuePriceQuoteId venuePriceQuoteId, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void Reset()
+    {
+        SourceId = 0;
+        TickerId = 0;
+        VenueQuoteTime = DateTimeConstants.UnixEpoch;
+        SourceRefId = 0;
+        PQSequenceNumber = 0;
+        base.Reset();
+    }
+
+    public override IVenuePriceQuoteId CopyFrom(IVenuePriceQuoteId venuePriceQuoteId
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SourceId = venuePriceQuoteId.SourceId;
         TickerId = venuePriceQuoteId.TickerId;
         SourceRefId = venuePriceQuoteId.SourceRefId;
         PQSequenceNumber = venuePriceQuoteId.PQSequenceNumber;
         VenueQuoteTime = venuePriceQuoteId.VenueQuoteTime;
+        return this;
     }
+
 
     protected bool Equals(OrxVenuePriceQuoteId other)
     {

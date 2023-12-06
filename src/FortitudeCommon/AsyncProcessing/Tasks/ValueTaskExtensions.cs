@@ -4,13 +4,13 @@ using System.Linq.Expressions;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+namespace FortitudeCommon.AsyncProcessing.Tasks;
 
 public static class ValueTaskExtensions
 {
     public static Task<T> ToTask<T>(this ValueTask<T> valueTask) => TypedValueTaskExtensions<T>.ExtractTask(valueTask);
 
-    public static IReusableMessageResponseSource<T>? ToReusableValueTaskSource<T>(this ValueTask<T> valueTask) =>
+    public static IReusableAsyncResponseSource<T>? ToReusableValueTaskSource<T>(this ValueTask<T> valueTask) =>
         TypedValueTaskExtensions<T>.ExtractReusableValueTaskSource(valueTask);
 
     public static string ValueTaskInternalsString<T>(this ValueTask<T> valueTask) =>
@@ -78,7 +78,7 @@ public static class ValueTaskExtensions
         }
 
         // ReSharper disable once UnusedMember.Global
-        public static IReusableMessageResponseSource<T>? ExtractReusableValueTaskSource(ValueTask<T> toConvert)
+        public static IReusableAsyncResponseSource<T>? ExtractReusableValueTaskSource(ValueTask<T> toConvert)
         {
             var obj = ExtractValueTaskObj(toConvert);
             if (obj is ReusableValueTaskSource<T> reusableObj) return reusableObj;
@@ -89,7 +89,7 @@ public static class ValueTaskExtensions
         public static Task<T> ExtractTask(ValueTask<T> toConvert)
         {
             var obj = ExtractValueTaskObj(toConvert);
-            if (obj is IReusableMessageResponseSource<T> reusableObj) return reusableObj.AsTask;
+            if (obj is IReusableAsyncResponseSource<T> reusableObj) return reusableObj.AsTask;
 
             return toConvert.AsTask();
         }

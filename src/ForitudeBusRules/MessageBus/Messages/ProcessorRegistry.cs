@@ -1,14 +1,14 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 using Fortitude.EventProcessing.BusRules.Messaging;
 using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeCommon.AsyncProcessing.Tasks;
 
 #endregion
 
 namespace Fortitude.EventProcessing.BusRules.MessageBus.Messages;
 
-public interface IProcessorRegistry : IReusableMessageResponseSource<IDispatchResult>
+public interface IProcessorRegistry : IReusableAsyncResponseSource<IDispatchResult>
 {
     DispatchResult? DispatchResult { get; set; }
 

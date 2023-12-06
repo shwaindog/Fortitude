@@ -5,16 +5,13 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Counterparties;
-using FortitudeMarketsCore.Trading.Counterparties;
 
 #endregion
 
 namespace FortitudeMarketsCore.Trading.ORX.CounterParties;
 
-public class OrxBookingInfo : IBookingInfo
+public class OrxBookingInfo : ReusableObject<IBookingInfo>, IBookingInfo
 {
-    private int refCount = 0;
-
     public OrxBookingInfo() { }
 
     public OrxBookingInfo(IBookingInfo toClone)
@@ -48,36 +45,15 @@ public class OrxBookingInfo : IBookingInfo
         set => SubPortfolio = value as MutableString;
     }
 
-    public IBookingInfo Clone() => new BookingInfo(this);
+    public override IBookingInfo Clone() =>
+        Recycler?.Borrow<OrxBookingInfo>().CopyFrom(this) ?? new OrxBookingInfo(this);
 
-    public void CopyFrom(IBookingInfo bookingInfo, CopyMergeFlags copyMergeFlags)
+    public override IBookingInfo CopyFrom(IBookingInfo bookingInfo
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        Portfolio = bookingInfo.Portfolio != null ?
-            Recycler!.Borrow<MutableString>().Clear().Append(bookingInfo.Portfolio) :
-            null;
-        SubPortfolio = bookingInfo.SubPortfolio != null ?
-            Recycler!.Borrow<MutableString>().Clear().Append(bookingInfo.SubPortfolio) :
-            null;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IBookingInfo)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-        return true;
+        Portfolio = bookingInfo.Portfolio.SyncOrRecycle(Portfolio);
+        SubPortfolio = bookingInfo.SubPortfolio.SyncOrRecycle(SubPortfolio);
+        return this;
     }
 
     protected bool Equals(OrxBookingInfo other)

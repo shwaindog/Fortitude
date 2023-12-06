@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
@@ -17,12 +18,14 @@ public enum TraderLayerInfoFlags : byte
     , TraderVolumeUpdatedFlag = 0x02
 }
 
-public class PQTraderLayerInfo : IPQTraderLayerInfo
+public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLayerInfo
 {
     private int traderNameId;
 
     protected TraderLayerInfoFlags UpdatedFlags;
     private decimal volume;
+
+    public PQTraderLayerInfo() => TraderNameIdLookup = null!;
 
     public PQTraderLayerInfo(IPQNameIdLookupGenerator? lookupDict, string? traderName = null,
         decimal traderVolume = 0m)
@@ -115,13 +118,15 @@ public class PQTraderLayerInfo : IPQTraderLayerInfo
 
     public bool IsEmpty => TraderName == null && TraderVolume == 0;
 
-    public void Reset()
+    public override void Reset()
     {
         TraderName = null;
         TraderVolume = 0;
+        base.Reset();
     }
 
-    public virtual void CopyFrom(ITraderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITraderLayerInfo CopyFrom(ITraderLayerInfo source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var pqTrdrLyrInfo = source as IPQTraderLayerInfo;
         if (source is ITraderLayerInfo traderLayerInfo && pqTrdrLyrInfo == null)
@@ -136,11 +141,8 @@ public class PQTraderLayerInfo : IPQTraderLayerInfo
             if (pqTrdrLyrInfo.IsTraderVolumeUpdated) TraderName = pqTrdrLyrInfo.TraderName;
             UpdatedFlags = (source as PQTraderLayerInfo)?.UpdatedFlags ?? UpdatedFlags;
         }
-    }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((ITraderLayerInfo)source, copyMergeFlags);
+        return this;
     }
 
     object ICloneable.Clone() => Clone();
@@ -149,7 +151,8 @@ public class PQTraderLayerInfo : IPQTraderLayerInfo
 
     IPQTraderLayerInfo IPQTraderLayerInfo.Clone() => (IPQTraderLayerInfo)Clone();
 
-    public virtual ITraderLayerInfo Clone() => new PQTraderLayerInfo(this);
+    public override ITraderLayerInfo Clone() =>
+        Recycler?.Borrow<PQTraderLayerInfo>().CopyFrom(this) ?? new PQTraderLayerInfo(this);
 
     public virtual bool AreEquivalent(ITraderLayerInfo? other, bool exactTypes = false)
     {

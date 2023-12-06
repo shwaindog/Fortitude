@@ -15,6 +15,8 @@ namespace FortitudeMarketsCore.Trading.Orders.Products.General;
 
 public class SpotOrder : ProductOrder, ISpotOrder
 {
+    public SpotOrder() { }
+
     public SpotOrder(ISpotOrder toClone) : base(toClone)
     {
         Side = toClone.Side;
@@ -100,7 +102,7 @@ public class SpotOrder : ProductOrder, ISpotOrder
         amendment.NewQuantity != Size ||
         amendment.NewSide != Side;
 
-    public override void CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IProductOrder CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ISpotOrder spotOrder)
@@ -119,9 +121,11 @@ public class SpotOrder : ProductOrder, ISpotOrder
             FillExpectation = spotOrder.FillExpectation;
             QuoteInformation = spotOrder.QuoteInformation;
         }
+
+        return this;
     }
 
-    public override IProductOrder Clone() => new SpotOrder(this);
+    public override IProductOrder Clone() => Recycler?.Borrow<SpotOrder>().CopyFrom(this) ?? new SpotOrder(this);
 
     public void SetError(string msg, long sizeAtRisk)
     {

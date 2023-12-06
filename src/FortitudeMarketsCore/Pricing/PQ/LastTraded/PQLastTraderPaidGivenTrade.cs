@@ -156,10 +156,10 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         return false;
     }
 
-    public override void CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILastTrade CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        if (source == null) return;
+        if (source == null) return this;
         var pqltpgt = source as PQLastTraderPaidGivenTrade;
         if (pqltpgt == null && source is ILastTraderPaidGivenTrade ltpgt)
         {
@@ -171,6 +171,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
             if (pqltpgt.IsTraderNameUpdated) TraderId = pqltpgt.traderId;
             UpdatedFlags = pqltpgt.UpdatedFlags;
         }
+
+        return this;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance)

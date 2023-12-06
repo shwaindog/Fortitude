@@ -10,9 +10,9 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.Orders.Venues;
 
-public class VenueOrder : IVenueOrder
+public class VenueOrder : ReusableObject<IVenueOrder>, IVenueOrder
 {
-    private int refCount = 0;
+    public VenueOrder() { }
 
     public VenueOrder(IVenueOrder toClone)
     {
@@ -55,7 +55,9 @@ public class VenueOrder : IVenueOrder
     public decimal Price { get; set; }
     public decimal Quantity { get; set; }
 
-    public void CopyFrom(IVenueOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVenueOrder Clone() => Recycler?.Borrow<VenueOrder>().CopyFrom(this) ?? new VenueOrder(this);
+
+    public override IVenueOrder CopyFrom(IVenueOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         VenueOrderId = source.VenueOrderId;
         OrderId = source.OrderId;
@@ -66,28 +68,6 @@ public class VenueOrder : IVenueOrder
         Ticker = source.Ticker;
         Price = source.Price;
         Quantity = source.Quantity;
+        return this;
     }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IVenueOrder)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-        return IsInRecycler;
-    }
-
-
-    public IVenueOrder Clone() => new VenueOrder(this);
 }

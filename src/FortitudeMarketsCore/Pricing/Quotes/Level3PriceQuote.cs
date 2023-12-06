@@ -15,6 +15,8 @@ namespace FortitudeMarketsCore.Pricing.Quotes;
 
 public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
 {
+    public Level3PriceQuote() { }
+
     public Level3PriceQuote(ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null,
@@ -61,7 +63,7 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
 
     public DateTime ValueDate { get; set; } = DateTimeConstants.UnixEpoch;
 
-    public override void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 
@@ -83,15 +85,18 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
             SourceQuoteReference = level3Quote.SourceQuoteReference;
             ValueDate = level3Quote.ValueDate;
         }
-    }
 
-    public override object Clone() => new Level3PriceQuote(this);
+        return this;
+    }
 
     ILevel3Quote ICloneable<ILevel3Quote>.Clone() => (ILevel3Quote)Clone();
 
     ILevel3Quote ILevel3Quote.Clone() => (ILevel3Quote)Clone();
 
     IMutableLevel3Quote IMutableLevel3Quote.Clone() => (IMutableLevel3Quote)Clone();
+
+    public override IMutableLevel0Quote Clone() =>
+        (IMutableLevel0Quote?)Recycler?.Borrow<Level3PriceQuote>().CopyFrom(this) ?? new Level3PriceQuote(this);
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

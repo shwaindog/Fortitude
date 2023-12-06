@@ -1,7 +1,10 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
 
 #endregion
@@ -18,11 +21,40 @@ public sealed class OrxStatusMessage : OrxTradingMessage
         ExchangeName = exchangeName;
     }
 
+    private OrxStatusMessage(OrxStatusMessage toClone)
+    {
+        CopyFrom(toClone);
+    }
+
     public override uint MessageId => (uint)TradingMessageIds.StatusUpdate;
 
     [OrxMandatoryField(10)] public OrxExchangeStatus ExchangeStatus { get; set; }
 
     [OrxMandatoryField(11)] public MutableString? ExchangeName { get; set; }
+
+    public override IAuthenticatedMessage Clone() =>
+        (IAuthenticatedMessage?)Recycler?.Borrow<OrxStatusMessage>().CopyFrom(this) ?? new OrxStatusMessage(this);
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is OrxStatusMessage statusMessage)
+        {
+            ExchangeStatus = statusMessage.ExchangeStatus;
+            ExchangeName = statusMessage.ExchangeName?.CopyOrClone(ExchangeName);
+        }
+
+        return this;
+    }
+
+    public override void Reset()
+    {
+        ExchangeStatus = OrxExchangeStatus.Down;
+        ExchangeName?.DecrementRefCount();
+        ExchangeName = null;
+        base.Reset();
+    }
 
     public void Configure(OrxExchangeStatus orxExchangeStatus, string exchangeName,
         IRecycler orxRecyclingFactory)

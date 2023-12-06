@@ -10,10 +10,8 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
-public class OrxVenueCriteria : IVenueCriteria
+public class OrxVenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
 {
-    private int refCount = 0;
-
     public OrxVenueCriteria() { }
 
     public OrxVenueCriteria(IVenueCriteria toClone)
@@ -41,13 +39,15 @@ public class OrxVenueCriteria : IVenueCriteria
 
     public int Count => VenueList.Count;
 
-    public IVenueCriteria Clone() => new OrxVenueCriteria(this);
+    public override IVenueCriteria Clone() =>
+        Recycler?.Borrow<OrxVenueCriteria>().CopyFrom(this) ?? new OrxVenueCriteria(this);
 
     public IEnumerator<IVenue> GetEnumerator() => VenueList.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void CopyFrom(IVenueCriteria venueCriteria, CopyMergeFlags copyMergeFlags)
+    public override IVenueCriteria CopyFrom(IVenueCriteria venueCriteria
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         VenueSelectionMethod = venueCriteria.VenueSelectionMethod;
         var venueCriteriaCount = venueCriteria.Count;
@@ -64,27 +64,8 @@ public class OrxVenueCriteria : IVenueCriteria
 
             VenueList = orxVenueList;
         }
-    }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IVenueCriteria)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        return this;
     }
 
     protected bool Equals(OrxVenueCriteria other)

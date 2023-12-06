@@ -10,6 +10,8 @@ namespace FortitudeMarketsCore.Pricing.LayeredBook;
 
 public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePriceVolumeLayer
 {
+    public ValueDatePriceVolumeLayer() => ValueDate = DateTimeConstants.UnixEpoch;
+
     public ValueDatePriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
         DateTime? valueDate = null) : base(price, volume) =>
         ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
@@ -31,11 +33,13 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
         ValueDate = DateTimeConstants.UnixEpoch;
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IValueDatePriceVolumeLayer sourceSourcePriceVolumeLayer)
             ValueDate = sourceSourcePriceVolumeLayer.ValueDate;
+        return this;
     }
 
     IValueDatePriceVolumeLayer ICloneable<IValueDatePriceVolumeLayer>.Clone() =>
@@ -49,7 +53,8 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
     IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.Clone() =>
         (IMutableValueDatePriceVolumeLayer)Clone();
 
-    public override IPriceVolumeLayer Clone() => new ValueDatePriceVolumeLayer(this);
+    public override IPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<ValueDatePriceVolumeLayer>().CopyFrom(this) ?? new ValueDatePriceVolumeLayer(this);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

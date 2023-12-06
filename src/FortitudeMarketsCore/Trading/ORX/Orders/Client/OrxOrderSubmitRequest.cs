@@ -1,6 +1,10 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Client;
@@ -62,7 +66,36 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         set => Tag = value as MutableString;
     }
 
-    public virtual IOrderSubmitRequest Clone() => new OrderSubmitRequest(this);
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IOrderSubmitRequest orderSubmitRequest)
+        {
+            OrderDetails = orderSubmitRequest.OrderDetails.SyncOrRecycle(OrderDetails);
+            Tag = orderSubmitRequest.Tag.SyncOrRecycle(Tag);
+            AttemptNumber = orderSubmitRequest.AttemptNumber;
+            CurrentAttemptTime = orderSubmitRequest.CurrentAttemptTime;
+            OriginalAttemptTime = orderSubmitRequest.OriginalAttemptTime;
+        }
+
+        return this;
+    }
+
+    public override void Reset()
+    {
+        OrderDetails?.DecrementRefCount();
+        OrderDetails = null;
+        Tag?.DecrementRefCount();
+        Tag = null;
+        AttemptNumber = 0;
+        CurrentAttemptTime = DateTimeConstants.UnixEpoch;
+        OriginalAttemptTime = DateTimeConstants.UnixEpoch;
+        base.Reset();
+    }
+
+    public override IOrderSubmitRequest Clone() =>
+        (IOrderSubmitRequest?)Recycler?.Borrow<OrderSubmitRequest>().CopyFrom(this) ?? new OrderSubmitRequest(this);
 
     protected bool Equals(OrxOrderSubmitRequest other)
     {

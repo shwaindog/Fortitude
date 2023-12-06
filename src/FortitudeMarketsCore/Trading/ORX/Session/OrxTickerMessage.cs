@@ -1,6 +1,11 @@
 ﻿#region
 
 using System.Text;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
 
 #endregion
@@ -16,11 +21,17 @@ public sealed class OrxTickerMessage : OrxTradingMessage
     }
 
     public OrxTickerMessage() { }
+
+    private OrxTickerMessage(OrxTickerMessage toClone)
+    {
+        CopyFrom(this);
+    }
+
     public override uint MessageId => (uint)TradingMessageIds.Ticker;
 
-    [OrxMandatoryField(10)] public string? Exchange { get; set; }
+    [OrxMandatoryField(10)] public MutableString? Exchange { get; set; }
 
-    [OrxMandatoryField(11)] public string? Ticker { get; set; }
+    [OrxMandatoryField(11)] public MutableString? Ticker { get; set; }
 
     [OrxMandatoryField(12)] public long ContractSize { get; set; }
 
@@ -35,6 +46,45 @@ public sealed class OrxTickerMessage : OrxTradingMessage
     [OrxMandatoryField(17)] public uint Mql { get; set; }
 
     [OrxMandatoryField(18)] public bool Tradeable { get; set; }
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is OrxTickerMessage message)
+        {
+            Exchange = message.Exchange?.SyncOrRecycle(Exchange);
+            Ticker = message.Ticker?.SyncOrRecycle(Ticker);
+            ContractSize = message.ContractSize;
+            MinimumSize = message.MinimumSize;
+            SizeIncrement = message.SizeIncrement;
+            MaximumSize = message.MaximumSize;
+            PriceIncrement = message.PriceIncrement;
+            Mql = message.Mql;
+            Tradeable = message.Tradeable;
+        }
+
+        return this;
+    }
+
+    public override void Reset()
+    {
+        Exchange?.DecrementRefCount();
+        Exchange = null;
+        Ticker?.DecrementRefCount();
+        Ticker = null;
+        ContractSize = 0;
+        MinimumSize = 0;
+        SizeIncrement = 0;
+        MaximumSize = 0;
+        PriceIncrement = 0;
+        Mql = 0;
+        Tradeable = false;
+        base.Reset();
+    }
+
+    public override IAuthenticatedMessage Clone() =>
+        (IAuthenticatedMessage?)Recycler?.Borrow<OrxTickerMessage>().CopyFrom(this) ?? new OrxTickerMessage(this);
 
     public override bool Equals(object? obj) =>
         obj is OrxTickerMessage m && m.Exchange == Exchange && m.Ticker == Ticker;

@@ -9,10 +9,8 @@ using FortitudeMarketsApi.Trading.Counterparties;
 
 namespace FortitudeMarketsCore.Trading.ORX.CounterParties;
 
-public class OrxParties : IParties
+public class OrxParties : ReusableObject<IParties>, IParties
 {
-    private int refCount = 0;
-
     public OrxParties() { }
 
     public OrxParties(IParties toClone)
@@ -38,6 +36,7 @@ public class OrxParties : IParties
     [OrxOptionalField(0)] public OrxParty? BuySide { get; set; }
 
     [OrxOptionalField(1)] public OrxParty? SellSide { get; set; }
+    public bool AutoRecycledByProducer { get; set; }
 
     IParty? IParties.BuySide
     {
@@ -51,44 +50,13 @@ public class OrxParties : IParties
         set => SellSide = value as OrxParty;
     }
 
-    public IParties Clone() => new OrxParties(this);
+    public override IParties Clone() => Recycler?.Borrow<OrxParties>().CopyFrom(this) ?? new OrxParties(this);
 
-    public void CopyFrom(IParties parties, CopyMergeFlags copyMergeFlags)
+    public override IParties CopyFrom(IParties parties, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (parties.BuySide != null)
-        {
-            var orxBuySideParty = Recycler!.Borrow<OrxParty>();
-            orxBuySideParty.CopyFrom(parties.BuySide, copyMergeFlags);
-            BuySide = orxBuySideParty;
-        }
-
-        if (parties.SellSide != null)
-        {
-            var orxSellSideParty = Recycler!.Borrow<OrxParty>();
-            orxSellSideParty.CopyFrom(parties.SellSide, copyMergeFlags);
-            SellSide = orxSellSideParty;
-        }
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IParties)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
+        BuySide = parties.BuySide.SyncOrRecycle(BuySide);
+        SellSide = parties.SellSide.SyncOrRecycle(SellSide);
+        return this;
     }
 
     protected bool Equals(OrxParties other)

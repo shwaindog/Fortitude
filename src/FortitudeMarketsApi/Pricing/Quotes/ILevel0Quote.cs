@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
@@ -7,12 +8,12 @@ using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel0Quote : ICloneable<ILevel0Quote>, IInterfacesComparable<ILevel0Quote>
+public interface ILevel0Quote : IReusableObject<ILevel0Quote>, IInterfacesComparable<ILevel0Quote>
 {
     bool IsReplay { get; }
     DateTime SourceTime { get; }
     DateTime ClientReceivedTime { get; }
     ISourceTickerQuoteInfo? SourceTickerQuoteInfo { get; }
     decimal SinglePrice { get; }
-    new ILevel0Quote Clone();
+    new ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }

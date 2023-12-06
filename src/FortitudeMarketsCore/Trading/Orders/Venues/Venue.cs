@@ -8,9 +8,9 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarketsApi.Trading.Orders.Venues;
 
-public class Venue : IVenue
+public class Venue : ReusableObject<IVenue>, IVenue
 {
-    private int refCount = 0;
+    public Venue() => Name = null!;
 
     public Venue(IVenue toClone)
     {
@@ -30,33 +30,12 @@ public class Venue : IVenue
     public ushort VenueId { get; set; }
     public IMutableString Name { get; set; }
 
-    public void CopyFrom(IVenue source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVenue Clone() => Recycler?.Borrow<Venue>().CopyFrom(this) ?? new Venue(this);
+
+    public override IVenue CopyFrom(IVenue source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         VenueId = source.VenueId;
         Name = source.Name;
+        return this;
     }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IVenue)source, copyMergeFlags);
-    }
-
-    public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; } = true;
-    public bool AutoRecycledByProducer { get; set; }
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-    public int DecrementRefCount() => Interlocked.Decrement(ref refCount);
-
-    public int IncrementRefCount() => Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (refCount == 0 || !RecycleOnRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
-
-
-    public IVenue Clone() => new Venue(this);
 }

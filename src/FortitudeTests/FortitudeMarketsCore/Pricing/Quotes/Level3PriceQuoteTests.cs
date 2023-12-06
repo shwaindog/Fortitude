@@ -24,10 +24,12 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 [TestClass]
 public class Level3PriceQuoteTests
 {
+    private readonly bool allowCatchup = true;
+
+    private readonly uint retryWaitMs = 2000;
     private IList<Level3PriceQuote> allEmptyQuotes = null!;
 
     private IList<Level3PriceQuote> allFullyPopulatedQuotes = null!;
-    private readonly bool allowCatchup = true;
     private Level3PriceQuote noRecentlyTradedEmptyQuote = null!;
     private Level3PriceQuote noRecentlyTradedFullyPopulatedQuote = null!;
     private ISourceTickerQuoteInfo noRecentlyTradedSrcTkrQtInfo = null!;
@@ -35,8 +37,6 @@ public class Level3PriceQuoteTests
     private Level3PriceQuote paidGivenVolumeRecentlyTradedFullyPopulatedQuote = null!;
     private ISourceTickerQuoteInfo paidGivenVolumeRecentlyTradedSrcTkrQtInfo = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-
-    private readonly uint retryWaitMs = 2000;
     private Level3PriceQuote simpleRecentlyTradedEmptyQuote = null!;
     private Level3PriceQuote simpleRecentlyTradedFullyPopulatedQuote = null!;
     private ISourceTickerQuoteInfo simpleRecentlyTradedSrcTkrQtInfo = null!;
@@ -422,37 +422,37 @@ public class Level3PriceQuoteTests
             var clone = populatedQuote.Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ICloneable<ILevel0Quote>)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ICloneable<ILevel0Quote>)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ILevel0Quote)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ILevel0Quote)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
             clone = ((IMutableLevel0Quote)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ICloneable<ILevel1Quote>)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ICloneable<ILevel1Quote>)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ILevel1Quote)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ILevel1Quote)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
             clone = ((IMutableLevel1Quote)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ICloneable<ILevel2Quote>)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ICloneable<ILevel2Quote>)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ILevel2Quote)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ILevel2Quote)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
             clone = ((IMutableLevel2Quote)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ICloneable<ILevel3Quote>)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ICloneable<ILevel3Quote>)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
-            clone = ((ILevel3Quote)populatedQuote).Clone();
+            clone = (IMutableLevel0Quote)((ILevel3Quote)populatedQuote).Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
             clone = ((IMutableLevel3Quote)populatedQuote).Clone();

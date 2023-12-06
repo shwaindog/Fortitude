@@ -10,6 +10,5 @@ public interface IMutableOrderBook : IOrderBook, ICloneable<IMutableOrderBook>, 
 {
     new int Capacity { get; set; }
     new IMutablePriceVolumeLayer? this[int level] { get; set; }
-    void Reset();
     new IMutableOrderBook Clone();
 }

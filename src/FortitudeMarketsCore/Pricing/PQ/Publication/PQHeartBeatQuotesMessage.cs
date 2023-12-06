@@ -1,13 +1,17 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
-public class PQHeartBeatQuotesMessage : IPQHeartBeatQuotesMessage, IEnumerable<IPQLevel0Quote>
+public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHeartBeatQuotesMessage
+    , IEnumerable<IPQLevel0Quote>
 {
     public PQHeartBeatQuotesMessage(IList<IPQLevel0Quote> quotesToSendHeartBeats) =>
         QuotesToSendHeartBeats = quotesToSendHeartBeats;
@@ -20,6 +24,22 @@ public class PQHeartBeatQuotesMessage : IPQHeartBeatQuotesMessage, IEnumerable<I
 
     public byte Version => 1;
     public IList<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; }
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is IPQHeartBeatQuotesMessage heartBeatQuotesMessage)
+        {
+            QuotesToSendHeartBeats.Clear();
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < heartBeatQuotesMessage.QuotesToSendHeartBeats.Count; i++)
+                QuotesToSendHeartBeats.Add(heartBeatQuotesMessage.QuotesToSendHeartBeats[i]);
+        }
+
+        return this;
+    }
+
+    public override IVersionedMessage Clone() => throw new NotImplementedException();
 
     protected bool Equals(PQHeartBeatQuotesMessage other) =>
         Equals(QuotesToSendHeartBeats, other.QuotesToSendHeartBeats);

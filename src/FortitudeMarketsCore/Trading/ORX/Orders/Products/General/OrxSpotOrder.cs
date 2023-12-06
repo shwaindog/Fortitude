@@ -124,15 +124,15 @@ public class OrxSpotOrder : OrxProductOrder, ISpotOrder
         ExecutedSize += execution.Quantity;
     }
 
-    public override void CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags)
+    public override IProductOrder Clone() => Recycler?.Borrow<OrxSpotOrder>().CopyFrom(this) ?? new OrxSpotOrder(this);
+
+    public override IProductOrder CopyFrom(IProductOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ISpotOrder spotOrder)
         {
             Side = spotOrder.Side;
-            Ticker = spotOrder.Ticker != null ?
-                Recycler!.Borrow<MutableString>().Clear().Append(spotOrder.Ticker) :
-                null;
+            Ticker = spotOrder.Ticker.SyncOrRecycle(Ticker);
             Price = spotOrder.Price;
             Size = spotOrder.Size;
             DisplaySize = spotOrder.DisplaySize;
@@ -143,18 +143,11 @@ public class OrxSpotOrder : OrxProductOrder, ISpotOrder
             AllowedPriceSlippage = spotOrder.AllowedPriceSlippage;
             AllowedVolumeSlippage = spotOrder.AllowedVolumeSlippage;
             FillExpectation = spotOrder.FillExpectation;
-            if (spotOrder.QuoteInformation != null)
-            {
-                var orxQuoteInformation = Recycler!.Borrow<OrxVenuePriceQuoteId>();
-                orxQuoteInformation.CopyFrom(spotOrder.QuoteInformation, copyMergeFlags);
-                QuoteInformation = orxQuoteInformation;
-            }
+            QuoteInformation = spotOrder.QuoteInformation.SyncOrRecycle(QuoteInformation);
         }
+
+        return this;
     }
-
-    public override IProductOrder Clone() => new OrxSpotOrder(this);
-
-    public override OrxProductOrder GetPooledInstance(IRecycler recycler) => recycler.Borrow<OrxSpotOrder>();
 
     protected bool Equals(OrxSpotOrder other)
     {

@@ -9,6 +9,8 @@ namespace FortitudeMarketsCore.Pricing.LastTraded;
 
 public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
 {
+    public LastPaidGivenTrade() { }
+
     public LastPaidGivenTrade(decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m,
         bool wasPaid = false, bool wasGiven = false) : base(tradePrice, tradeDateTime)
     {
@@ -39,19 +41,21 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         base.Reset();
     }
 
-    public override void CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-
         if (source is ILastPaidGivenTrade lastPaidGivenTrade)
         {
             TradeVolume = lastPaidGivenTrade.TradeVolume;
             WasPaid = lastPaidGivenTrade.WasPaid;
             WasGiven = lastPaidGivenTrade.WasGiven;
         }
+
+        return this;
     }
 
-    public override IMutableLastTrade Clone() => new LastPaidGivenTrade(this);
+    public override IMutableLastTrade Clone() =>
+        (IMutableLastTrade?)Recycler?.Borrow<LastPaidGivenTrade>().CopyFrom(this) ?? new LastPaidGivenTrade(this);
 
     ILastPaidGivenTrade ILastPaidGivenTrade.Clone() => (ILastPaidGivenTrade)Clone();
 

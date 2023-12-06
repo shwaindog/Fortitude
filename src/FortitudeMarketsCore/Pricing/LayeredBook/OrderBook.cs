@@ -1,6 +1,7 @@
 #region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -11,9 +12,11 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.LayeredBook;
 
-public class OrderBook : IMutableOrderBook
+public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 {
     protected IList<IPriceVolumeLayer?> BookLayers;
+
+    public OrderBook() => BookLayers = new List<IPriceVolumeLayer?>();
 
     public OrderBook(int numBookLayers) => BookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
 
@@ -83,12 +86,13 @@ public class OrderBook : IMutableOrderBook
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         for (var i = 0; i < BookLayers.Count; i++) (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
+        base.Reset();
     }
 
-    public virtual void CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var sourceDeepestLayerSet = source.Count;
         for (var i = 0; i < sourceDeepestLayerSet; i++)
@@ -111,11 +115,7 @@ public class OrderBook : IMutableOrderBook
 
         for (var i = sourceDeepestLayerSet; i < BookLayers.Count; i++)
             (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((IOrderBook)source, copyMergeFlags);
+        return this;
     }
 
     IMutableOrderBook ICloneable<IMutableOrderBook>.Clone() => Clone();
@@ -143,7 +143,8 @@ public class OrderBook : IMutableOrderBook
 
     public IEnumerator<IPriceVolumeLayer> GetEnumerator() => BookLayers.Take(Count).GetEnumerator()!;
 
-    public virtual OrderBook Clone() => new(this);
+    public override OrderBook Clone() =>
+        (OrderBook?)Recycler?.Borrow<OrderBook>().CopyFrom(this) ?? new OrderBook(this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrderBook?)obj, true);
 

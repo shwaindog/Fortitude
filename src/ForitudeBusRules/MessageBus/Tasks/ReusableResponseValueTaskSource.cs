@@ -1,12 +1,13 @@
 ﻿#region
 
 using Fortitude.EventProcessing.BusRules.Messaging;
+using FortitudeCommon.AsyncProcessing.Tasks;
 
 #endregion
 
 namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 
-public interface IResponseValueTaskSource<T> : IReusableMessageResponseSource<RequestResponse<T>>
+public interface IResponseValueTaskSource<T> : IReusableAsyncResponseSource<RequestResponse<T>>
 {
     void TrySetResult(T result);
     void TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask);

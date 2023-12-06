@@ -261,7 +261,8 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         return false;
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
         switch (source)
@@ -312,6 +313,8 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
                 ValueDate = valueDatePvLayer.ValueDate;
                 break;
         }
+
+        return this;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance)

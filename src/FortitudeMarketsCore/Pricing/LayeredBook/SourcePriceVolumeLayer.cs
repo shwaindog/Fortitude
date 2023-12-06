@@ -9,6 +9,8 @@ namespace FortitudeMarketsCore.Pricing.LayeredBook;
 
 public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolumeLayer
 {
+    public SourcePriceVolumeLayer() { }
+
     public SourcePriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
         string? sourceName = null, bool executable = false)
         : base(price, volume)
@@ -39,7 +41,8 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         Executable = false;
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ISourcePriceVolumeLayer sourceSourcePriceVolumeLayer)
@@ -47,6 +50,8 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
             SourceName = sourceSourcePriceVolumeLayer.SourceName;
             Executable = sourceSourcePriceVolumeLayer.Executable;
         }
+
+        return this;
     }
 
     ISourcePriceVolumeLayer ICloneable<ISourcePriceVolumeLayer>.Clone() => (ISourcePriceVolumeLayer)Clone();
@@ -55,7 +60,8 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
 
     ISourcePriceVolumeLayer ISourcePriceVolumeLayer.Clone() => (ISourcePriceVolumeLayer)Clone();
 
-    public override IPriceVolumeLayer Clone() => new SourcePriceVolumeLayer(this);
+    public override IPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<SourcePriceVolumeLayer>().CopyFrom(this) ?? new SourcePriceVolumeLayer(this);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serialization;
 
@@ -8,12 +9,35 @@ using FortitudeIO.Protocols.Serialization;
 
 namespace FortitudeTests.FortitudeIO.Protocols.Serialization;
 
-public class SimpleVersionedMessage : IVersionedMessage
+public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersionedMessage
 {
+    public SimpleVersionedMessage() { }
+
+    private SimpleVersionedMessage(SimpleVersionedMessage toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
     public int PayLoad { get; set; }
     public double PayLoad2 { get; set; }
     public uint MessageId { get; set; } = 2345;
     public byte Version { get; set; } = 2;
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is SimpleVersionedMessage simpleVersionedMessage)
+        {
+            PayLoad = simpleVersionedMessage.PayLoad;
+            PayLoad2 = simpleVersionedMessage.PayLoad2;
+        }
+
+        return this;
+    }
+
+    public override IVersionedMessage Clone() =>
+        Recycler?.Borrow<SimpleVersionedMessage>().CopyFrom(this) ?? new SimpleVersionedMessage(this);
 
 
     public class SimpleDeserializer : BinaryDeserializer<SimpleVersionedMessage>

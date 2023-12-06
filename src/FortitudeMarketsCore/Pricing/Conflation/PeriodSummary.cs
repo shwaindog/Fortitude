@@ -72,7 +72,7 @@ public class PeriodSummary : IMutablePeriodSummary
     public uint TickCount { get; set; }
     public long PeriodVolume { get; set; }
 
-    public void CopyFrom(IPeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IPeriodSummary CopyFrom(IPeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         TimeFrame = source.TimeFrame;
         StartTime = source.StartTime;
@@ -87,12 +87,11 @@ public class PeriodSummary : IMutablePeriodSummary
         EndAskPrice = source.EndAskPrice;
         TickCount = source.TickCount;
         PeriodVolume = source.PeriodVolume;
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IPeriodSummary)source, copyMergeFlags);
-    }
 
     object ICloneable.Clone() => Clone();
 

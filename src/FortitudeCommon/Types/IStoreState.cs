@@ -2,12 +2,12 @@
 
 public interface IStoreState
 {
-    void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags);
 }
 
-public interface IStoreState<in T> : IStoreState where T : class
+public interface IStoreState<T> : IStoreState where T : class
 {
-    void CopyFrom(T source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    T CopyFrom(T source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
 [Flags]

@@ -8,10 +8,19 @@ namespace FortitudeCommon.Chronometry.Timers;
 
 internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
 {
+    public WaitCallbackTimerCallBackRunInfo() { }
+
+    private WaitCallbackTimerCallBackRunInfo(WaitCallbackTimerCallBackRunInfo toCLone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toCLone);
+    }
+
     public WaitCallback? WaitCallback { get; set; }
     public object? State { get; set; }
 
-    public override void CopyFrom(TimerCallBackRunInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is WaitCallbackTimerCallBackRunInfo waitCallbackTimerCallBackRunInfo)
         {
@@ -19,7 +28,7 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
             State = waitCallbackTimerCallBackRunInfo.State;
         }
 
-        base.CopyFrom(source, copyMergeFlags);
+        return base.CopyFrom(source, copyMergeFlags);
     }
 
     public override bool RunCallbackOnThreadPool()
@@ -56,4 +65,15 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
 
         return false;
     }
+
+    public override void Reset()
+    {
+        WaitCallback = null;
+        State = null;
+        base.Reset();
+    }
+
+    public override TimerCallBackRunInfo Clone() =>
+        Recycler?.Borrow<WaitCallbackTimerCallBackRunInfo>().CopyFrom(this) ??
+        new WaitCallbackTimerCallBackRunInfo(this);
 }

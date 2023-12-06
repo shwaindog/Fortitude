@@ -7,7 +7,7 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarketsApi.Trading.Orders.Venues;
 
-public interface IVenueOrder : IRecyclableObject<IVenueOrder>
+public interface IVenueOrder : IReusableObject<IVenueOrder>
 {
     IVenueOrderId? VenueOrderId { get; set; }
     IOrderId? OrderId { get; set; }
@@ -18,5 +18,4 @@ public interface IVenueOrder : IRecyclableObject<IVenueOrder>
     IMutableString? Ticker { get; set; }
     decimal Price { get; set; }
     decimal Quantity { get; set; }
-    IVenueOrder Clone();
 }

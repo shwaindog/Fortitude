@@ -344,14 +344,14 @@ public class PQSourceTickerQuoteInfo : PQUniqueSourceTickerIdentifier, IPQSource
         return -1;
     }
 
-    public override void CopyFrom(IUniqueSourceTickerIdentifier source
+    public override IUniqueSourceTickerIdentifier CopyFrom(IUniqueSourceTickerIdentifier source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
 
-        if (source == null) return;
+        if (source == null) return this;
 
-        if (!(source is ISourceTickerQuoteInfo src)) return;
+        if (!(source is ISourceTickerQuoteInfo src)) return this;
         RoundingPrecision = src.RoundingPrecision;
         MinSubmitSize = src.MinSubmitSize;
         MaxSubmitSize = src.MaxSubmitSize;
@@ -372,6 +372,8 @@ public class PQSourceTickerQuoteInfo : PQUniqueSourceTickerIdentifier, IPQSource
                 MaximumPublishedLayers = pqSrcTkrQtInfo.MaximumPublishedLayers;
             if (pqSrcTkrQtInfo.IsLastTradedFlagsUpdated) LastTradedFlags = pqSrcTkrQtInfo.LastTradedFlags;
         }
+
+        return this;
     }
 
     public override object Clone() => new PQSourceTickerQuoteInfo(this);

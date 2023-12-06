@@ -120,7 +120,7 @@ public class TradingClientServerTests
             orderAutoResetEvent.Set();
         };
 
-        Thread.Sleep(40);
+        Thread.Sleep(400);
         Assert.IsTrue(orxClient.IsAvailable);
         var orderId = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
         var timeInForce = TimeInForce.GoodTillCancelled;

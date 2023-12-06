@@ -13,6 +13,8 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
 {
     public const string TraderCountTraderName = "Only Trader Count Provided";
 
+    public TraderPriceVolumeLayer() => TraderDetails = new List<IMutableTraderLayerInfo?>();
+
     public TraderPriceVolumeLayer(decimal price = 0m, decimal volume = 0m) : base(price, volume) =>
         TraderDetails = new List<IMutableTraderLayerInfo?>();
 
@@ -120,11 +122,12 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
 
     public override void Reset()
     {
-        base.Reset();
         foreach (var traderLayerInfo in TraderDetails) traderLayerInfo?.Reset();
+        base.Reset();
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IMutableTraderPriceVolumeLayer sourceTraderPriceVolumeLayer)
@@ -145,6 +148,8 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
             for (var i = TraderDetails.Count - 1; i >= sourceTraderPriceVolumeLayer.Count; i--)
                 TraderDetails[i]?.Reset();
         }
+
+        return this;
     }
 
     ITraderPriceVolumeLayer ICloneable<ITraderPriceVolumeLayer>.Clone() => (ITraderPriceVolumeLayer)Clone();
@@ -153,7 +158,8 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
 
     IMutableTraderPriceVolumeLayer IMutableTraderPriceVolumeLayer.Clone() => (IMutableTraderPriceVolumeLayer)Clone();
 
-    public override IPriceVolumeLayer Clone() => new TraderPriceVolumeLayer(this);
+    public override IPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<TraderPriceVolumeLayer>().CopyFrom(this) ?? new TraderPriceVolumeLayer(this);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

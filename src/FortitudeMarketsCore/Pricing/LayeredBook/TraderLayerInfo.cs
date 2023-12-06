@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 
@@ -7,8 +8,10 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 
 namespace FortitudeMarketsCore.Pricing.LayeredBook;
 
-public class TraderLayerInfo : IMutableTraderLayerInfo
+public class TraderLayerInfo : ReusableObject<ITraderLayerInfo>, IMutableTraderLayerInfo
 {
+    public TraderLayerInfo() { }
+
     public TraderLayerInfo(string? traderNm = null, decimal traderVolume = 0m)
     {
         TraderName = traderNm;
@@ -27,26 +30,25 @@ public class TraderLayerInfo : IMutableTraderLayerInfo
 
     public decimal TraderVolume { get; set; }
 
-    public virtual void Reset()
+    public override void Reset()
     {
         TraderVolume = 0m;
         TraderName = null;
+        base.Reset();
     }
 
-    public virtual void CopyFrom(ITraderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITraderLayerInfo CopyFrom(ITraderLayerInfo source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         TraderVolume = source.TraderVolume;
         TraderName = source.TraderName;
-    }
-
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((ITraderLayerInfo)source, copyMergeFlags);
+        return this;
     }
 
     IMutableTraderLayerInfo IMutableTraderLayerInfo.Clone() => (IMutableTraderLayerInfo)Clone();
 
-    public virtual ITraderLayerInfo Clone() => new TraderLayerInfo(TraderName, TraderVolume);
+    public override ITraderLayerInfo Clone() =>
+        Recycler?.Borrow<TraderLayerInfo>().CopyFrom(this) ?? new TraderLayerInfo(TraderName, TraderVolume);
 
     object ICloneable.Clone() => Clone();
 

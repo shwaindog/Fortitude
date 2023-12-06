@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeMarketsApi.Trading.Counterparties;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
@@ -9,8 +11,18 @@ using FortitudeMarketsApi.Trading.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.Executions;
 
-public class Execution : IExecution
+public class Execution : ReusableObject<IExecution>, IExecution
 {
+    public Execution()
+    {
+        ExecutionId = null!;
+        Venue = null!;
+        VenueOrderId = null!;
+        OrderId = null!;
+        CounterParty = null!;
+        CounterParty = null!;
+    }
+
     public Execution(IExecution toClone)
     {
         ExecutionId = toClone.ExecutionId;
@@ -20,8 +32,8 @@ public class Execution : IExecution
         ExecutionTime = toClone.ExecutionTime;
         Price = toClone.Price;
         Quantity = toClone.Quantity;
-        CumlativeQuantity = toClone.CumlativeQuantity;
-        CumlativeVwapPrice = toClone.CumlativeVwapPrice;
+        CumulativeQuantity = toClone.CumulativeQuantity;
+        CumulativeVwapPrice = toClone.CumulativeVwapPrice;
         CounterParty = toClone.CounterParty;
         ValueDate = toClone.ValueDate;
         Type = toClone.Type;
@@ -40,8 +52,8 @@ public class Execution : IExecution
         ExecutionTime = executionTime;
         Price = price;
         Quantity = quantity;
-        CumlativeQuantity = cumlativeQuantity;
-        CumlativeVwapPrice = cumlativeVwapPrice;
+        CumulativeQuantity = cumlativeQuantity;
+        CumulativeVwapPrice = cumlativeVwapPrice;
         CounterParty = counterParty;
         ValueDate = valueDate;
         Type = type;
@@ -55,12 +67,19 @@ public class Execution : IExecution
     public DateTime ExecutionTime { get; set; }
     public decimal Price { get; set; }
     public decimal Quantity { get; set; }
-    public decimal CumlativeQuantity { get; set; }
-    public decimal CumlativeVwapPrice { get; set; }
+    public decimal CumulativeQuantity { get; set; }
+    public decimal CumulativeVwapPrice { get; set; }
     public IParty CounterParty { get; set; }
     public DateTime ValueDate { get; set; }
     public ExecutionType Type { get; set; }
     public ExecutionStageType ExecutionStageType { get; set; }
 
-    public IExecution Clone() => new Execution(this);
+    public override IExecution CopyFrom(IExecution source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        ExecutionId = source.ExecutionId.SyncOrRecycle(ExecutionId as ExecutionId)!;
+        Venue = source.Venue.SyncOrRecycle(Venue as Venue)!;
+        return this;
+    }
+
+    public override IExecution Clone() => Recycler?.Borrow<Execution>().CopyFrom(this) ?? new Execution(this);
 }

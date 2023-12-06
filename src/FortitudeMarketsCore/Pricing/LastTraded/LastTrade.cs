@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 
@@ -10,8 +11,10 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 
 namespace FortitudeMarketsCore.Pricing.LastTraded;
 
-public class LastTrade : IMutableLastTrade
+public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
 {
+    public LastTrade() => TradeTime = DateTimeConstants.UnixEpoch;
+
     public LastTrade(decimal tradePrice = 0m, DateTime? tradeDateTime = null)
     {
         TradeTime = tradeDateTime ?? DateTimeConstants.UnixEpoch;
@@ -30,24 +33,22 @@ public class LastTrade : IMutableLastTrade
 
     public virtual bool IsEmpty => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
 
-    public virtual void Reset()
+    public override void Reset()
     {
         TradeTime = DateTimeConstants.UnixEpoch;
         TradePrice = 0m;
+        base.Reset();
     }
 
-    public virtual void CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         TradeTime = source.TradeTime;
         TradePrice = source.TradePrice;
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((ILastTrade)source, copyMergeFlags);
-    }
-
-    public virtual IMutableLastTrade Clone() => new LastTrade(this);
+    public override IMutableLastTrade Clone() =>
+        (LastTrade?)Recycler?.Borrow<LastTrade>().CopyFrom(this) ?? new LastTrade(this);
 
     object ICloneable.Clone() => Clone();
 

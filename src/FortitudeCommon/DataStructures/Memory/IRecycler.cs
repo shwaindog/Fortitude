@@ -10,6 +10,7 @@ namespace FortitudeCommon.DataStructures.Memory;
 public interface IRecycler
 {
     T Borrow<T>() where T : class, new();
+
     void Recycle(object recyclableObject);
 }
 
@@ -41,7 +42,7 @@ public class Recycler : IRecycler
         {
             recycleable.Recycler = this;
             if (shouldAutoRecycleOnRefCountZero) recycleable.IncrementRefCount();
-            recycleable.RecycleOnRefCountZero = shouldAutoRecycleOnRefCountZero;
+            recycleable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
             recycleable.IsInRecycler = false;
         }
 
@@ -70,7 +71,8 @@ public class Recycler : IRecycler
 
         if (recyclable != null)
         {
-            if (recyclable.RefCount != 0 && recyclable.RecycleOnRefCountZero && throwWhenAttemptToRecycleRefCountNoZero)
+            if (recyclable.RefCount != 0 && recyclable.AutoRecycleAtRefCountZero &&
+                throwWhenAttemptToRecycleRefCountNoZero)
                 throw new ArgumentException("Attempted to recycle ref counted object that is not at RefCount == 0");
             recyclable.IsInRecycler = true;
         }

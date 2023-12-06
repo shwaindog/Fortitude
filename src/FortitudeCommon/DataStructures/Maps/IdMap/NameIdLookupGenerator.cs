@@ -53,13 +53,13 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         }
     }
 
-    public virtual void CopyFrom(INameIdLookup source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public virtual INameIdLookup CopyFrom(INameIdLookup source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (ReferenceEquals(this, source)) return;
+        if (ReferenceEquals(this, source)) return this;
         if (source is NameIdLookupGenerator nameIdLookupGen)
         {
             if (Cache.Count == nameIdLookupGen.Cache.Count &&
-                LargestAddedId == nameIdLookupGen.LargestAddedId) return;
+                LargestAddedId == nameIdLookupGen.LargestAddedId) return this;
             foreach (var kvp in nameIdLookupGen.Cache)
             {
                 Cache[kvp.Key] = kvp.Value;
@@ -72,11 +72,14 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         {
             foreach (var kvp in source) SetIdToName(kvp.Key, kvp.Value); //Updates LargestAddId if required
         }
+
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
     {
         CopyFrom((INameIdLookup)source, copyMergeFlags);
+        return this;
     }
 
     public override object Clone() => new NameIdLookupGenerator(this);

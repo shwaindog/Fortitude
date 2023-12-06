@@ -1,6 +1,10 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsCore.Trading.ORX.Executions;
 using FortitudeMarketsCore.Trading.ORX.Session;
@@ -23,9 +27,41 @@ public class OrxGetOrderBookMessage : OrxTradingMessage
         if (getInactiveOrders) OrxInactiveTrades = new OrxInactiveTrades(getInactiveOrders);
     }
 
+    private OrxGetOrderBookMessage(OrxGetOrderBookMessage toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
     public override uint MessageId => (uint)TradingMessageIds.GetOrderBook;
 
-    [OrxMandatoryField(10)] public OrxAccountEntry? OrxAccount { get; }
+    [OrxMandatoryField(10)] public OrxAccountEntry? OrxAccount { get; set; }
 
-    [OrxOptionalField(12)] public OrxInactiveTrades? OrxInactiveTrades { get; }
+    [OrxOptionalField(12)] public OrxInactiveTrades? OrxInactiveTrades { get; set; }
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is OrxGetOrderBookMessage orderBookMessage)
+        {
+            OrxAccount = orderBookMessage.OrxAccount.SyncOrRecycle(OrxAccount);
+            OrxInactiveTrades = orderBookMessage.OrxInactiveTrades.SyncOrRecycle(OrxInactiveTrades);
+        }
+
+        return this;
+    }
+
+    public override void Reset()
+    {
+        OrxAccount?.DecrementRefCount();
+        OrxAccount = null;
+        OrxInactiveTrades?.DecrementRefCount();
+        OrxInactiveTrades = null;
+        base.Reset();
+    }
+
+    public override IAuthenticatedMessage Clone() =>
+        (IAuthenticatedMessage?)Recycler?.Borrow<OrxGetOrderBookMessage>().CopyFrom(this) ??
+        new OrxGetOrderBookMessage(this);
 }

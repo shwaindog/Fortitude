@@ -176,21 +176,20 @@ public class PQUniqueSourceTickerIdentifier : IPQUniqueSourceTickerIdentifier
         return false;
     }
 
-    public virtual void CopyFrom(IUniqueSourceTickerIdentifier sourceUniqueTickerId
+    public virtual IUniqueSourceTickerIdentifier CopyFrom(IUniqueSourceTickerIdentifier sourceUniqueTickerId
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (sourceUniqueTickerId == null) return;
+        if (sourceUniqueTickerId == null) return this;
 
         Id = sourceUniqueTickerId.Id;
         Source = sourceUniqueTickerId.Source;
         Ticker = sourceUniqueTickerId.Ticker;
         if (sourceUniqueTickerId is PQUniqueSourceTickerIdentifier pqSrcTkrId) UpdatedFlags = pqSrcTkrId.UpdatedFlags;
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((IUniqueSourceTickerIdentifier)source, copyMergeFlags);
-    }
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
+        (IStoreState)CopyFrom((IUniqueSourceTickerIdentifier)source, copyMergeFlags);
 
     public virtual object Clone() => new PQUniqueSourceTickerIdentifier(this);
 

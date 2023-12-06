@@ -9,15 +9,15 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+namespace FortitudeCommon.AsyncProcessing.Tasks;
 
-public interface IMessageResponseSource : IValueTaskSource, IRecyclableObject<IMessageResponseSource>
+public interface IAsyncResponseSource : IValueTaskSource, IRecyclableObject
 {
     bool IsCompleted { get; }
     void SetException(Exception error);
 }
 
-public interface IReusableMessageResponseSource<T> : IMessageResponseSource
+public interface IReusableAsyncResponseSource<T> : IAsyncResponseSource
 {
     // ReSharper disable once UnusedMemberInSuper.Global
     Task<T> AsTask { get; }
@@ -33,17 +33,17 @@ public interface IReusableMessageResponseSource<T> : IMessageResponseSource
 
 // credit here to Microsoft.AspNetCore.Server.Kestrel.Core.Internal.ManualResetValueTaskSource
 // copy taken from Microsoft.AspNetCore.Server.Kestrel.Core.Internal.ManualResetValueTaskSource in Microsoft.AspNetCore.Server.IIS
-public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageResponseSource<T>
+public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncResponseSource<T>
     , IStoreState<ReusableValueTaskSource<T>>
 {
     // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ReusableValueTaskSource<T>));
 
     public static int AfterGetResultRecycleInstanceMs = 10_000;
-    private static readonly Action<IMessageResponseSource?> DecrementUsageAction = DecrementUsage;
+    private static readonly Action<IAsyncResponseSource?> DecrementUsageAction = DecrementUsage;
     private static readonly Action<Task<T>, object?> CheckTaskComplete = CheckAsTaskComplete;
     private static readonly Action<ReusableValueTaskSource<T>?> CheckTaskCompleteAgain = CheckAsTaskCompleteAgain;
-    private static readonly Action<IMessageResponseSource?> RecycleReusableValueTaskSource = RecycleCompleted;
+    private static readonly Action<IAsyncResponseSource?> RecycleReusableValueTaskSource = RecycleCompleted;
 
     private static readonly Action<Task<T>> ResetTaskAction;
     private static int totalInstances;
@@ -85,6 +85,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
     }
 
     public IActionTimer? RecycleTimer { get; set; }
+    public bool AutoRecycledByProducer { get; set; }
 
     public short Version => Core.Version;
 
@@ -138,14 +139,8 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
         }
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
-    }
-
     public int RefCount => refCount;
-    public bool RecycleOnRefCountZero { get; set; }
-    public bool AutoRecycledByProducer { get; set; }
+    public bool AutoRecycleAtRefCountZero { get; set; }
     public bool IsInRecycler { get; set; }
     public IRecycler? Recycler { get; set; }
 
@@ -154,7 +149,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
         // logger.Debug("instanceNumber: {0} DecrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
         //     , refCount, new StackTrace());
         if (refCount > 0 && Interlocked.Decrement(ref refCount) <= 0)
-            if (RecycleOnRefCountZero)
+            if (AutoRecycleAtRefCountZero)
                 if (RecycleTimer != null)
                 {
                     if (lastTimerActive != null) lastTimerActive.DecrementRefCount();
@@ -177,18 +172,13 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
 
     public bool Recycle()
     {
-        if (!IsInRecycler && (refCount <= 0 || !RecycleOnRefCountZero || AutoRecycledByProducer))
+        if (!IsInRecycler && (refCount <= 0 || !AutoRecycleAtRefCountZero || AutoRecycledByProducer))
         {
             Reset();
             Recycler!.Recycle(this);
         }
 
         return IsInRecycler;
-    }
-
-    public void CopyFrom(IMessageResponseSource source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
     }
 
     void IValueTaskSource.GetResult(short token)
@@ -218,10 +208,14 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
         }
     }
 
-    public virtual void CopyFrom(ReusableValueTaskSource<T> source
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (IStoreState)CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
+
+    public virtual ReusableValueTaskSource<T> CopyFrom(ReusableValueTaskSource<T> source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Core = source.Core;
+        return this;
     }
 
     public T GetResult(short token) => Core.GetResult(token);
@@ -231,12 +225,17 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableMessageR
         , ValueTaskSourceOnCompletedFlags flags) =>
         Core.OnCompleted(continuation, state, token, flags);
 
-    private static void RecycleCompleted(IMessageResponseSource? toRecycle)
+    public void CopyFrom(IAsyncResponseSource source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
+    }
+
+    private static void RecycleCompleted(IAsyncResponseSource? toRecycle)
     {
         toRecycle?.Recycle();
     }
 
-    private static void DecrementUsage(IMessageResponseSource? toDecrement)
+    private static void DecrementUsage(IAsyncResponseSource? toDecrement)
     {
         toDecrement?.DecrementRefCount();
     }

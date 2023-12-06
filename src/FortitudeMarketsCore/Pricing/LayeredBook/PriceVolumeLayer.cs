@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 
@@ -7,8 +8,10 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 
 namespace FortitudeMarketsCore.Pricing.LayeredBook;
 
-public class PriceVolumeLayer : IMutablePriceVolumeLayer
+public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePriceVolumeLayer
 {
+    public PriceVolumeLayer() { }
+
     public PriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
     {
         Price = price;
@@ -25,23 +28,22 @@ public class PriceVolumeLayer : IMutablePriceVolumeLayer
     public decimal Volume { get; set; }
     public virtual bool IsEmpty => Price == 0m && Volume == 0m;
 
-    public virtual void Reset()
+    public override void Reset()
     {
         Price = Volume = 0m;
+        base.Reset();
     }
 
-    public virtual void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Price = source.Price;
         Volume = source.Volume;
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
-    }
-
-    public virtual IPriceVolumeLayer Clone() => new PriceVolumeLayer(this);
+    public override IPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<PriceVolumeLayer>().CopyFrom(this) ?? new PriceVolumeLayer(this);
 
     object ICloneable.Clone() => Clone();
 

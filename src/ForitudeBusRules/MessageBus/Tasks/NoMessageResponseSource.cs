@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Threading.Tasks.Sources;
+using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
@@ -8,8 +9,10 @@ using FortitudeCommon.Types;
 
 namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
 
-public class NoMessageResponseSource : IMessageResponseSource
+public class NoMessageResponseSource : IAsyncResponseSource
 {
+    public bool AutoRecycledByProducer { get; set; }
+
     public void GetResult(short token)
     {
         throw new NotImplementedException("No value should be passed into this instance");
@@ -24,8 +27,6 @@ public class NoMessageResponseSource : IMessageResponseSource
         throw new NotImplementedException("No request should be be made on this instance");
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) { }
-
     public bool IsCompleted => false;
 
     public void SetException(Exception error)
@@ -34,8 +35,7 @@ public class NoMessageResponseSource : IMessageResponseSource
     }
 
     public int RefCount => 0;
-    public bool RecycleOnRefCountZero { get; set; }
-    public bool AutoRecycledByProducer { get; set; }
+    public bool AutoRecycleAtRefCountZero { get; set; }
     public bool IsInRecycler { get; set; }
     public IRecycler? Recycler { get; set; }
     public int DecrementRefCount() => 0;
@@ -44,5 +44,7 @@ public class NoMessageResponseSource : IMessageResponseSource
 
     public bool Recycle() => false;
 
-    public void CopyFrom(IMessageResponseSource source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) { }
+    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) { }
+
+    public void CopyFrom(IAsyncResponseSource source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) { }
 }

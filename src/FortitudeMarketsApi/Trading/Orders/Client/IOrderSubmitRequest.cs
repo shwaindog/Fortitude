@@ -13,5 +13,4 @@ public interface IOrderSubmitRequest : ITradingMessage
     DateTime CurrentAttemptTime { get; set; }
     int AttemptNumber { get; set; }
     IMutableString? Tag { get; set; }
-    IOrderSubmitRequest Clone();
 }

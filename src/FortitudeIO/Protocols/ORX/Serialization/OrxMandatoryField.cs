@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Reflection;
+using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
@@ -9,6 +10,7 @@ namespace FortitudeIO.Protocols.ORX.Serialization;
 [AttributeUsage(AttributeTargets.Property)]
 public class OrxMandatoryField : Attribute
 {
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(OrxMandatoryField));
     public readonly ushort Index;
     public readonly Dictionary<ushort, Type> Mapping;
 
@@ -29,7 +31,18 @@ public class OrxMandatoryField : Attribute
                                                                             BindingFlags.NonPublic))
         {
             var att = pi.GetCustomAttributes(typeof(OrxMandatoryField), true);
-            if (att.Length == 1 && pi.CanRead && pi.CanWrite) props.Add(((OrxMandatoryField)att[0]).Index, pi);
+            if (att.Length == 1 && pi.CanRead && pi.CanWrite)
+            {
+                var indexToAdd = ((OrxMandatoryField)att[0]).Index;
+                if (props.ContainsKey(indexToAdd))
+                {
+                    var message = $"Type {type.FullName} already contains MandatoryField attribute index {indexToAdd}";
+                    logger.Error(message);
+                    throw new ArgumentException(message);
+                }
+
+                props.Add(indexToAdd, pi);
+            }
         }
 
         return props;

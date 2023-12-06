@@ -1,8 +1,13 @@
-﻿namespace FortitudeIO.Protocols
+﻿#region
+
+using FortitudeCommon.DataStructures.Memory;
+
+#endregion
+
+namespace FortitudeIO.Protocols;
+
+public interface IVersionedMessage : IReusableObject<IVersionedMessage>
 {
-    public interface IVersionedMessage
-    {
-        uint MessageId { get; }
-        byte Version { get; }
-    }
+    uint MessageId { get; }
+    byte Version { get; }
 }

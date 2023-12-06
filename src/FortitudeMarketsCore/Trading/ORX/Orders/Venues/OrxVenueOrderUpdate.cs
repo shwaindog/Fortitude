@@ -50,9 +50,11 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
 
     public DateTime ClientReceivedTime { get; set; }
 
-    public IVenueOrderUpdate Clone() => new OrxVenueOrderUpdate(this);
+    public override IVenueOrderUpdate Clone() =>
+        Recycler?.Borrow<OrxVenueOrderUpdate>().CopyFrom(this) ?? new OrxVenueOrderUpdate(this);
 
-    public void CopyFrom(IVenueOrderUpdate venueOrderUpdate, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IVenueOrderUpdate CopyFrom(IVenueOrderUpdate venueOrderUpdate
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(venueOrderUpdate, copyMergeFlags);
         if (venueOrderUpdate.VenueOrder != null)
@@ -66,5 +68,6 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
         AdapterSocketReceivedTime = venueOrderUpdate.AdapterSocketReceivedTime;
         AdapterProcessedTime = venueOrderUpdate.AdapterProcessedTime;
         ClientReceivedTime = venueOrderUpdate.ClientReceivedTime;
+        return this;
     }
 }

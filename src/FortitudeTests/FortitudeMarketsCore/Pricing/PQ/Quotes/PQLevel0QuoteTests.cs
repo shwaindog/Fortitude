@@ -3,7 +3,9 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -56,16 +58,6 @@ public class PQLevel0QuoteTests
         quoteSequencedTestDataBuilder.InitializeQuote(newlyPopulatedPqLevel0Quote, 2);
 
         testDateTime = new DateTime(2017, 10, 08, 18, 33, 24);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(NotSupportedException))]
-    public void Attempt_NewPQLevel0DefaultConstrucor_ThrowsException()
-    {
-#pragma warning disable 612
-        // ReSharper disable once UnusedVariable
-        var pqLevel0Quote = new PQLevel0Quote();
-#pragma warning restore 612
     }
 
     [TestMethod]
@@ -360,11 +352,11 @@ public class PQLevel0QuoteTests
         emptyQuote.CopyFrom(fullyPopulatedPqLevel0Quote);
         Assert.AreEqual(fullyPopulatedPqLevel0Quote.ClientReceivedTime, emptyQuote.ClientReceivedTime);
         Assert.AreEqual(fullyPopulatedPqLevel0Quote.PQSequenceId, emptyQuote.PQSequenceId);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+        Assert.AreEqual(fullyPopulatedPqLevel0Quote.SourceTime, emptyQuote.SourceTime);
         Assert.IsTrue(
             fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
-        Assert.IsFalse(emptyQuote.IsReplay);
-        Assert.AreEqual(0m, emptyQuote.SinglePrice);
+        Assert.AreEqual(fullyPopulatedPqLevel0Quote.IsReplay, emptyQuote.IsReplay);
+        Assert.AreEqual(fullyPopulatedPqLevel0Quote.SinglePrice, emptyQuote.SinglePrice);
         Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
@@ -532,7 +524,7 @@ public class PQLevel0QuoteTests
 
     /// Created because when built Moq couldn't handle a property redefinition in interfaces and sets up only
     /// the most base form of the property leaving the redefined property unsetup.
-    internal class DummyPQLevel0Quote : IPQLevel0Quote
+    internal class DummyPQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
     {
         public uint MessageId => (uint)PricingMessageIds.PricingMessage;
         public byte Version => 1;
@@ -540,11 +532,17 @@ public class PQLevel0QuoteTests
         public ISyncLock Lock { get; } = new SpinLockLight();
         public IPQLevel0Quote? Previous { get; set; }
         public IPQLevel0Quote? Next { get; set; }
-        public virtual object Clone() => this;
-        ILevel0Quote ILevel0Quote.Clone() => (ILevel0Quote)Clone();
+
+        IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
+
         ILevel0Quote ICloneable<ILevel0Quote>.Clone() => (ILevel0Quote)Clone();
         IMutableLevel0Quote IMutableLevel0Quote.Clone() => (IMutableLevel0Quote)Clone();
         IPQLevel0Quote IPQLevel0Quote.Clone() => (IPQLevel0Quote)Clone();
+
+        public IVersionedMessage CopyFrom(IVersionedMessage source
+            , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            throw new NotImplementedException();
+
         bool ILevel0Quote.IsReplay => false;
         DateTime ILevel0Quote.SourceTime => DateTime.Now;
         DateTime ILevel0Quote.ClientReceivedTime => DateTime.Now;
@@ -563,12 +561,9 @@ public class PQLevel0QuoteTests
         public int UpdateField(PQFieldUpdate updates) => -1;
         public bool UpdateFieldString(PQFieldStringUpdate updates) => false;
 
-        public void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) { }
-
-        public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-        {
-            CopyFrom((ILevel0Quote)source, copyMergeFlags);
-        }
+        public override ILevel0Quote CopyFrom(ILevel0Quote source
+            , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            this;
 
         public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
             IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
@@ -593,6 +588,7 @@ public class PQLevel0QuoteTests
         public void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance) { }
 
         public bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false) => false;
+        public override ILevel0Quote Clone() => new PQLevel1QuoteTests.DummyLevel1Quote();
 
         public void SetPricePrecision(decimal precision) { }
         public void SetVolumePrecision(decimal precision) { }

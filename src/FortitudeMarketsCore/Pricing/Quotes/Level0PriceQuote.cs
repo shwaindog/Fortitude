@@ -2,6 +2,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -11,8 +12,10 @@ using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level0PriceQuote : IMutableLevel0Quote
+public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quote
 {
+    public Level0PriceQuote() { }
+
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
     public Level0PriceQuote(ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null)
@@ -45,27 +48,20 @@ public class Level0PriceQuote : IMutableLevel0Quote
     public virtual decimal SinglePrice { get; set; }
     public DateTime ClientReceivedTime { get; set; }
 
-    public virtual void CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         ClientReceivedTime = source.ClientReceivedTime;
         SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
         SourceTime = source.SourceTime;
         IsReplay = source.IsReplay;
         SinglePrice = source.SinglePrice;
+        return this;
     }
 
-    public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
-    {
-        CopyFrom((ILevel0Quote)source, copyMergeFlags);
-    }
+    ILevel0Quote ICloneable<ILevel0Quote>.Clone() => Clone();
 
-    public virtual object Clone() => new Level0PriceQuote(this);
-
-    ILevel0Quote ICloneable<ILevel0Quote>.Clone() => (ILevel0Quote)Clone();
-
-    ILevel0Quote ILevel0Quote.Clone() => (ILevel0Quote)Clone();
-
-    IMutableLevel0Quote IMutableLevel0Quote.Clone() => (IMutableLevel0Quote)Clone();
+    public override IMutableLevel0Quote Clone() =>
+        (IMutableLevel0Quote?)Recycler?.Borrow<Level0PriceQuote>().CopyFrom(this) ?? new Level0PriceQuote(this);
 
     public virtual bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

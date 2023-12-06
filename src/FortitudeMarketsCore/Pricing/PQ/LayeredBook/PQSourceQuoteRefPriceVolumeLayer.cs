@@ -77,7 +77,8 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
             yield return new PQFieldUpdate(PQFieldKeys.LayerSourceQuoteRefOffset, SourceQuoteReference);
     }
 
-    public override void CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
         var pqSourcePvl = source as IPQSourceQuoteRefPriceVolumeLayer;
@@ -86,6 +87,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         else if (pqSourcePvl != null)
             if (pqSourcePvl.IsSourceNameUpdated)
                 SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
+        return this;
     }
 
     IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.Clone() =>

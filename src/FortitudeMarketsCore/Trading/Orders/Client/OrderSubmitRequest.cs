@@ -1,6 +1,10 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Client;
 using FortitudeMarketsCore.Trading.ORX.Session;
@@ -11,6 +15,8 @@ namespace FortitudeMarketsCore.Trading.Orders.Client;
 
 public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
 {
+    public OrderSubmitRequest() { }
+
     public OrderSubmitRequest(IOrderSubmitRequest toClone) : base(toClone)
     {
         OrderDetails = toClone.OrderDetails?.Clone();
@@ -42,5 +48,34 @@ public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
     public int AttemptNumber { get; set; }
     public IMutableString? Tag { get; set; }
 
-    public virtual IOrderSubmitRequest Clone() => new OrderSubmitRequest(this);
+    public override void Reset()
+    {
+        OrderDetails?.DecrementRefCount();
+        OrderDetails = null;
+        OriginalAttemptTime = DateTimeConstants.UnixEpoch;
+        CurrentAttemptTime = DateTimeConstants.UnixEpoch;
+        AttemptNumber = 0;
+        Tag?.DecrementRefCount();
+        Tag = null;
+        base.Reset();
+    }
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IOrderSubmitRequest orderSubmitRequest)
+        {
+            OrderDetails = orderSubmitRequest.OrderDetails.SyncOrRecycle(OrderDetails as Order);
+            OriginalAttemptTime = orderSubmitRequest.OriginalAttemptTime;
+            CurrentAttemptTime = orderSubmitRequest.CurrentAttemptTime;
+            AttemptNumber = orderSubmitRequest.AttemptNumber;
+            Tag = orderSubmitRequest.Tag.SyncOrRecycle(Tag as MutableString);
+        }
+
+        return this;
+    }
+
+    public override IOrderSubmitRequest Clone() =>
+        (IOrderSubmitRequest?)Recycler?.Borrow<OrderSubmitRequest>().CopyFrom(this) ?? new OrderSubmitRequest(this);
 }
