@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Types;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders.Server;
 
@@ -7,7 +8,7 @@ using FortitudeMarketsApi.Trading.Orders.Server;
 
 namespace FortitudeMarketsApi.Trading.Replay;
 
-public interface IReplayMessage : ITradingMessage
+public interface IReplayMessage : ITradingMessage, IStoreState<IReplayMessage>
 {
     ReplayMessageType ReplayMessageType { get; set; }
     IOrderUpdate? PastOrder { get; set; }

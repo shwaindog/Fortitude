@@ -11,7 +11,7 @@ using FortitudeMarketsCore.Trading.ORX.Session;
 
 namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
-public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate
+public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, IStoreState<OrxExecutionUpdate>
 {
     public OrxExecutionUpdate() { }
 
@@ -68,9 +68,6 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate
         base.Reset();
     }
 
-    public override IExecutionUpdate Clone() =>
-        Recycler?.Borrow<OrxExecutionUpdate>().CopyFrom(this) ?? new OrxExecutionUpdate(this);
-
     public IExecutionUpdate CopyFrom(IExecutionUpdate executionUpdate
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -88,4 +85,12 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate
         ClientReceivedTime = executionUpdate.ClientReceivedTime;
         return this;
     }
+
+    public OrxExecutionUpdate CopyFrom(OrxExecutionUpdate source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (OrxExecutionUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
+
+
+    public override IExecutionUpdate Clone() =>
+        Recycler?.Borrow<OrxExecutionUpdate>().CopyFrom(this) ?? new OrxExecutionUpdate(this);
 }

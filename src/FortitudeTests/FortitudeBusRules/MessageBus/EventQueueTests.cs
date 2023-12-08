@@ -23,6 +23,7 @@ public class EventQueueTests
             eventQueue = new EventQueue(evtBus, EventQueueType.Event, 1, 12);
             return new List<IEventQueue> { eventQueue };
         });
+        eventBus.Start();
     }
 
     [TestMethod]

@@ -39,7 +39,14 @@ public interface IEventBus
         , Func<IRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler);
 }
 
-public class EventBus : IEventBus
+public interface IConfigureEventBus : IEventBus
+{
+    void Start();
+    void Stop();
+    IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, IDeploymentOptions queueDeploymentOptions);
+}
+
+public class EventBus : IEventBus, IConfigureEventBus
 {
     // ideal minimum number of cores is 6 to avoid excessive context switching
     public const int ReservedCoresForIO = 3; // inbound, outbound, logging
@@ -75,6 +82,7 @@ public class EventBus : IEventBus
         allQueues.Add(ioInboundQueue);
     }
 
+
     internal EventBus(Func<IEventBus, List<IEventQueue>?>? eventQueues = null
         , IDependencyResolver? dependencyResolver = null
         , Func<IEventBus, List<IEventQueue>?>? workerQueues = null,
@@ -92,6 +100,19 @@ public class EventBus : IEventBus
         if (ioInboundQueue != null) allQueues.Add(this.ioInboundQueue);
         if (ioOutboundQueue != null) allQueues.Add(this.ioOutboundQueue);
     }
+
+    public void Start()
+    {
+        foreach (var eventQueue in allQueues) eventQueue.Start();
+    }
+
+    public void Stop()
+    {
+        foreach (var eventQueue in allQueues) eventQueue.Shutdown();
+    }
+
+    public IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, IDeploymentOptions queueDeploymentOptions) =>
+        throw new NotImplementedException();
 
     public IDependencyResolver DependencyResolver { get; set; }
 

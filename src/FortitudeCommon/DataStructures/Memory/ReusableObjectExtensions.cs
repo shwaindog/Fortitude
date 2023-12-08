@@ -15,9 +15,9 @@ public static class ReusableObjectExtensions
         return null;
     }
 
-    public static TReturn? CopyOrClone<TCommon, TReturn>(this IReusableObject<TCommon>? source, TReturn? preExisting
+    public static TReturn? CopyOrClone<TCommon, TReturn>(this TCommon? source, TReturn? preExisting
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-        where TReturn : class, IReusableObject<TCommon>, new() where TCommon : class, IReusableObject<TCommon>
+        where TReturn : class, IStoreState<TCommon>, IRecyclableObject, new() where TCommon : class, IRecyclableObject
     {
         if (preExisting != null && source != null)
         {
@@ -37,9 +37,9 @@ public static class ReusableObjectExtensions
     }
 
 
-    public static TReturn? SyncOrRecycle<TCommon, TReturn>(this IReusableObject<TCommon>? source, TReturn? preExisting
+    public static TReturn? SyncOrRecycle<TCommon, TReturn>(this TCommon? source, TReturn? preExisting
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-        where TReturn : class, TCommon, new() where TCommon : class, IReusableObject<TCommon>
+        where TReturn : class, IStoreState<TCommon>, IRecyclableObject, new() where TCommon : class, IRecyclableObject
     {
         if (source != null) return source.CopyOrClone(preExisting, copyMergeFlags);
         preExisting?.DecrementRefCount();

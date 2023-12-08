@@ -8,6 +8,7 @@ using FortitudeCommon.Types;
 namespace FortitudeCommon.Chronometry.Timers;
 
 public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo>, IComparable<TimerCallBackRunInfo>
+    , IStoreState<TimerCallBackRunInfo>
 {
     protected int CurrentInvocations;
 
@@ -36,18 +37,31 @@ public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo
         return tickDiff < 0L ? -1 : tickDiff > 0L ? 1 : 0;
     }
 
+    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        CurrentNumberOfCalls = source.CurrentNumberOfCalls;
+        FirstScheduledTime = source.FirstScheduledTime;
+        LastRunTime = source.LastRunTime;
+        NextScheduleTime = source.NextScheduleTime;
+        IntervalPeriodTimeSpan = source.IntervalPeriodTimeSpan;
+        MaxNumberOfCalls = source.MaxNumberOfCalls;
+        IsPaused = source.IsPaused;
+        RegisteredTimer = source.RegisteredTimer;
+
+        return this;
+    }
+
     public override bool Recycle()
     {
         if (!IsInRecycler)
         {
             Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.RecycleRequested
-                , (int)RunStateEnum.CheckQueueCount);
-            Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.RecycleRequested
                 , (int)RunStateEnum.Executing);
             var currentState = Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.RecycleRequested
                 , (int)RunStateEnum.Queued);
 
-            if (currentState == (int)RunStateEnum.NotRunning)
+            if (currentState == (int)RunStateEnum.NotRunning || currentState == (int)RunStateEnum.CheckQueueCount)
                 Recycler?.Recycle(this);
         }
 
@@ -93,20 +107,6 @@ public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo
         NextScheduleTime = DateTime.MaxValue;
         IntervalPeriodTimeSpan = Timer.MaxTimerSpan;
         base.Reset();
-    }
-
-    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CurrentNumberOfCalls = source.CurrentNumberOfCalls;
-        FirstScheduledTime = source.FirstScheduledTime;
-        LastRunTime = source.LastRunTime;
-        NextScheduleTime = source.NextScheduleTime;
-        IntervalPeriodTimeSpan = source.IntervalPeriodTimeSpan;
-        MaxNumberOfCalls = source.MaxNumberOfCalls;
-        IsPaused = source.IsPaused;
-        RegisteredTimer = source.RegisteredTimer;
-        return this;
     }
 
     public abstract bool RunCallbackOnThreadPool();

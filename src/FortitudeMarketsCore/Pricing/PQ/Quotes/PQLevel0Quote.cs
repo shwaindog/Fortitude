@@ -397,6 +397,10 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         , CopyMergeFlags copyMergeFlags) =>
         (IVersionedMessage)CopyFrom((ILevel0Quote)source, copyMergeFlags);
 
+    public IReusableObject<IVersionedMessage> CopyFrom(IReusableObject<IVersionedMessage> source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (IVersionedMessage)CopyFrom((ILevel0Quote)source, copyMergeFlags);
+
     public virtual void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance)
     {
         if (referenceInstance?.SourceTickerQuoteInfo is IPQSourceTickerQuoteInfo pqSrcTkrQuoteInfo)

@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Trading.ORX.Session;
 
 namespace FortitudeMarketsCore.Trading.ORX.Executions;
 
-public class OrxAccountEntry : OrxTradingMessage
+public class OrxAccountEntry : OrxTradingMessage, IStoreState<OrxAccountEntry>
 {
     public OrxAccountEntry() { }
 
@@ -30,6 +30,9 @@ public class OrxAccountEntry : OrxTradingMessage
     public override uint MessageId => (uint)TradingMessageIds.AccountEntry;
 
     [OrxMandatoryField(10)] public MutableString? Account { get; set; }
+
+    public OrxAccountEntry CopyFrom(OrxAccountEntry source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (OrxAccountEntry)CopyFrom((IVersionedMessage)source, copyMergeFlags);
 
     public override IVersionedMessage CopyFrom(IVersionedMessage source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

@@ -10,7 +10,7 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.Types.Mutable;
 
 [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
-public sealed class MutableString : ReusableObject<IMutableString>, IMutableString
+public sealed class MutableString : ReusableObject<IMutableString>, IMutableString, IStoreState<MutableString>
 {
     private static readonly IPooledFactory<StringBuilderEnumerator> EnumeratorPool =
         new GarbageAndLockFreePooledFactory<StringBuilderEnumerator>(pool => new StringBuilderEnumerator(pool));
@@ -459,6 +459,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
             sb.Append(mutableStringSource.sb);
         }
 
+        return this;
+    }
+
+    public MutableString CopyFrom(MutableString source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        Clear();
+        Append(source);
         return this;
     }
 

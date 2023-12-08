@@ -16,6 +16,7 @@ namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
 public interface IEventQueue
 {
     string Name { get; }
+    void Start();
     void EnqueueMessage(Message msg);
 
     ValueTask<IDispatchResult> EnqueuePayloadWithStats<TPayload>(TPayload payload, IRule sender,
@@ -48,6 +49,7 @@ public enum EventQueueType
     , Worker
     , IOInbound
     , IOOutbound
+    , Custom
 }
 
 public class EventQueue : IEventQueue
@@ -78,7 +80,6 @@ public class EventQueue : IEventQueue
             false);
         eventContext = new EventContext(this, eventBus);
         messagePump = new MessagePump(eventContext, ring, 30, id);
-        messagePump.StartPolling();
     }
 
     public string Name => name;
@@ -205,6 +206,11 @@ public class EventQueue : IEventQueue
         uint total = 0;
         for (var i = 0; i < MessageCountHistoryEntries; i++) total += recentMessageCountReceived[i];
         return total;
+    }
+
+    public void Start()
+    {
+        messagePump.StartPolling();
     }
 
     public void Shutdown()

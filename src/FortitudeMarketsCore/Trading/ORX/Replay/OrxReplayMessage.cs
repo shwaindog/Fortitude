@@ -45,8 +45,8 @@ public class OrxReplayMessage : OrxTradingMessage, IReplayMessage
         set => PastExecutionUpdate = value as OrxExecutionUpdate;
     }
 
-    IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags) =>
+    public override IVersionedMessage CopyFrom(IVersionedMessage source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IReplayMessage)source, copyMergeFlags);
 
     public override void Reset()
@@ -73,6 +73,7 @@ public class OrxReplayMessage : OrxTradingMessage, IReplayMessage
 
         return this;
     }
+
 
     public override IAuthenticatedMessage Clone() =>
         (IAuthenticatedMessage?)Recycler?.Borrow<OrxReplayMessage>().CopyFrom(this) ?? new OrxReplayMessage(this);

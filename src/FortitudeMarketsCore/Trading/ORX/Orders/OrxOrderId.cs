@@ -11,7 +11,7 @@ using FortitudeMarketsApi.Trading.Orders;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders;
 
-public class OrxOrderId : ReusableObject<IOrderId>, IOrderId
+public class OrxOrderId : ReusableObject<IOrderId>, IOrderId, IStoreState<OrxOrderId>
 {
     public OrxOrderId() { }
 
@@ -86,6 +86,9 @@ public class OrxOrderId : ReusableObject<IOrderId>, IOrderId
         TrackingId = orderId.TrackingId.SyncOrRecycle(TrackingId);
         return this;
     }
+
+    public OrxOrderId CopyFrom(OrxOrderId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (OrxOrderId)CopyFrom((IOrderId)source, copyMergeFlags);
 
     protected bool Equals(OrxOrderId other)
     {
