@@ -9,7 +9,7 @@ using FortitudeIO.Protocols.ORX.Serialization;
 
 namespace FortitudeIO.Protocols.ORX.Authentication;
 
-public class OrxLoggedOutMessage : OrxVersionedMessage, IReusableObject<OrxLoggedOutMessage>
+public class OrxLoggedOutMessage : OrxVersionedMessage
 {
     public OrxLoggedOutMessage() { }
 
@@ -31,12 +31,9 @@ public class OrxLoggedOutMessage : OrxVersionedMessage, IReusableObject<OrxLogge
         base.Reset();
     }
 
-    public OrxLoggedOutMessage CopyFrom(OrxLoggedOutMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        throw new NotImplementedException();
 
     public override OrxLoggedOutMessage Clone() =>
-        Recycler?.Borrow<OrxLoggedOutMessage>().CopyFrom(this) ?? new OrxLoggedOutMessage(this);
+        (OrxLoggedOutMessage?)Recycler?.Borrow<OrxLoggedOutMessage>().CopyFrom(this) ?? new OrxLoggedOutMessage(this);
 
     public void Configure(byte version, MutableString? reason)
     {
@@ -45,6 +42,9 @@ public class OrxLoggedOutMessage : OrxVersionedMessage, IReusableObject<OrxLogge
     }
 
     public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        throw new NotImplementedException();
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is OrxLoggedOutMessage loggedOutMessage) Reason = loggedOutMessage.Reason.SyncOrRecycle(Reason);
+        return this;
+    }
 }

@@ -59,6 +59,9 @@ public class ExecutionUpdate : TradingMessage, IExecutionUpdate
         return this;
     }
 
+    public IExecutionUpdate CopyFrom(IExecutionUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (IExecutionUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
+
     public override IExecutionUpdate Clone() =>
         (IExecutionUpdate?)Recycler?.Borrow<ExecutionUpdate>().CopyFrom(this) ?? new ExecutionUpdate(this);
 }

@@ -221,6 +221,11 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
 
+    public IReusableObject<IReusableAsyncResponseSource<T>> CopyFrom(
+        IReusableObject<IReusableAsyncResponseSource<T>> source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
+
     public virtual void Reset()
     {
         refCount = 0;

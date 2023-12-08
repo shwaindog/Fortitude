@@ -1,6 +1,12 @@
-﻿namespace FortitudeMarketsApi.Trading.Orders.Server;
+﻿#region
 
-public interface IOrderUpdate : ITradingMessage
+using FortitudeCommon.Types;
+
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Orders.Server;
+
+public interface IOrderUpdate : ITradingMessage, IStoreState<IOrderUpdate>
 {
     IOrder? Order { get; set; }
     OrderUpdateEventType OrderUpdateType { get; set; }

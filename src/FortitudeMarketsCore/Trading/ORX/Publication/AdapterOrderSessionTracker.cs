@@ -112,7 +112,7 @@ public class AdapterOrderSessionTracker
                 if (orderFromSessionCache.TryGetValue(sessionMaps.Key, out var oldSession))
                 {
                     orderFromSessionCache.Remove(sessionMaps.Key);
-                    surplusOrderMaps.ReturnBorrowed(oldSession);
+                    surplusOrderMaps.ReturnBorrowed(oldSession!);
                 }
             }
 

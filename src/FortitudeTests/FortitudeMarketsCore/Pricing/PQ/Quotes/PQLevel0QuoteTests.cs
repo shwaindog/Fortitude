@@ -524,7 +524,7 @@ public class PQLevel0QuoteTests
 
     /// Created because when built Moq couldn't handle a property redefinition in interfaces and sets up only
     /// the most base form of the property leaving the redefined property unsetup.
-    internal class DummyPQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
+    internal class DummyPQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, IStoreState<DummyPQLevel0Quote>
     {
         public uint MessageId => (uint)PricingMessageIds.PricingMessage;
         public byte Version => 1;
@@ -565,6 +565,10 @@ public class PQLevel0QuoteTests
             , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             this;
 
+        public IReusableObject<IVersionedMessage> CopyFrom(IReusableObject<IVersionedMessage> source
+            , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            this;
+
         public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
             IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
         {
@@ -588,6 +592,11 @@ public class PQLevel0QuoteTests
         public void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance) { }
 
         public bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false) => false;
+
+        public DummyPQLevel0Quote CopyFrom(DummyPQLevel0Quote source
+            , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            this;
+
         public override ILevel0Quote Clone() => new PQLevel1QuoteTests.DummyLevel1Quote();
 
         public void SetPricePrecision(decimal precision) { }

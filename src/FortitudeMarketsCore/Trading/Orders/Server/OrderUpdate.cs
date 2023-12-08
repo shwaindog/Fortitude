@@ -64,6 +64,9 @@ public class OrderUpdate : TradingMessage, IOrderUpdate
         return this;
     }
 
+    public IOrderUpdate CopyFrom(IOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (IOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
+
     public override IOrderUpdate Clone() =>
         (IOrderUpdate?)Recycler?.Borrow<OrderUpdate>().CopyFrom(this) ?? new OrderUpdate(this);
 

@@ -431,7 +431,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         var order = GetActiveOrder(orderKey);
         RemoveActiveOrder(orderKey);
 
-        Subscriber.Logger.Info(new OrderUpdateLog((ISpotOrder)order.Product!));
+        Subscriber.Logger.Info(new OrderUpdateLog((ISpotOrder)order!.Product!));
         OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.OrderRejected, TimeContext.UtcNow));
     }
 
@@ -558,7 +558,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
     protected void HandleExecution(OrxExecutionUpdate update)
     {
-        var order = GetActiveOrder(update.Execution.OrderId.ClientOrderId.ToString());
+        var order = GetActiveOrder(update.Execution!.OrderId.ClientOrderId.ToString());
         if (PreTradeAsFinal && update.Execution!.ExecutionStageType == ExecutionStageType.PreTrade)
         {
             var executionId = update.Execution.ExecutionId;

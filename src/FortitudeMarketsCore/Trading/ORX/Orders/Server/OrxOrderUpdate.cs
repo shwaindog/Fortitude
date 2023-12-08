@@ -14,7 +14,7 @@ using FortitudeMarketsCore.Trading.ORX.Session;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders.Server;
 
-public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate
+public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOrderUpdate>
 {
     public OrxOrderUpdate() { }
 
@@ -71,8 +71,15 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate
         return this;
     }
 
+    public IOrderUpdate CopyFrom(IOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (IOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
+
+
     public override IOrderUpdate Clone() =>
         (IOrderUpdate?)Recycler?.Borrow<OrxOrderUpdate>().CopyFrom(this) ?? new OrxOrderUpdate(this);
+
+    public OrxOrderUpdate CopyFrom(OrxOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (OrxOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
 
 
     public override string ToString()

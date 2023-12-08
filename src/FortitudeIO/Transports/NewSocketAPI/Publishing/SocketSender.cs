@@ -126,8 +126,8 @@ public sealed class SocketSender : ISocketSender
                     break;
                 }
 
-                encoder.Message = null;
-                encoder.Serializer = null;
+                encoder.Message = null!;
+                encoder.Serializer = null!;
                 sendLock.Acquire();
                 try
                 {

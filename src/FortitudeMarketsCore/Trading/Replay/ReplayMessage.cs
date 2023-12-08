@@ -44,6 +44,10 @@ public class ReplayMessage : TradingMessage, IReplayMessage
         return this;
     }
 
+    public IReplayMessage CopyFrom(IReplayMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (IReplayMessage)CopyFrom((IVersionedMessage)source, copyMergeFlags);
+
+
     public override IReplayMessage Clone() =>
         (IReplayMessage?)Recycler?.Borrow<ReplayMessage>().CopyFrom(this) ?? new ReplayMessage(this);
 }
