@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -51,6 +52,16 @@ public class OrderId : ReusableObject<IOrderId>, IOrderId
 
     public override void Reset()
     {
+        AdapterOrderId = 0;
+        ClientOrderId = 0;
+        TrackingId?.DecrementRefCount();
+        TrackingId = null;
+        VenueAdapterOrderId?.DecrementRefCount();
+        VenueAdapterOrderId = null;
+        VenueClientOrderId?.DecrementRefCount();
+        VenueClientOrderId = null;
+        ParentOrderId?.DecrementRefCount();
+        ParentOrderId = null;
         base.Reset();
     }
 
@@ -58,15 +69,36 @@ public class OrderId : ReusableObject<IOrderId>, IOrderId
     public override IOrderId CopyFrom(IOrderId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         AdapterOrderId = source.AdapterOrderId;
-        VenueAdapterOrderId = source.VenueAdapterOrderId?.CopyOrClone(VenueAdapterOrderId as MutableString);
+        VenueAdapterOrderId = source.VenueAdapterOrderId?.SyncOrRecycle(VenueAdapterOrderId as MutableString);
         ClientOrderId = source.ClientOrderId;
-        VenueClientOrderId = source.VenueClientOrderId?.CopyOrClone(VenueClientOrderId as MutableString);
-        ParentOrderId = source.ParentOrderId?.CopyOrClone(ParentOrderId as OrderId);
-        TrackingId = source.TrackingId?.Clone();
+        VenueClientOrderId = source.VenueClientOrderId?.SyncOrRecycle(VenueClientOrderId as MutableString);
+        ParentOrderId = source.ParentOrderId?.SyncOrRecycle(ParentOrderId as OrderId);
+        TrackingId = source.TrackingId?.SyncOrRecycle(VenueAdapterOrderId as MutableString);
         return this;
     }
 
     object ICloneable.Clone() => Clone();
 
     public override IOrderId Clone() => Recycler?.Borrow<OrderId>().CopyFrom(this) ?? new OrderId(this);
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append("OrderId(");
+        if (ClientOrderId != 0) sb.Append("ClientOrderId: ").Append(ClientOrderId).Append(", ");
+        if (AdapterOrderId != 0) sb.Append("AdapterOrderId: ").Append(AdapterOrderId).Append(", ");
+        if (TrackingId != null && TrackingId.Length > 0) sb.Append("TrackingId: ").Append(TrackingId).Append(", ");
+        if (VenueClientOrderId != null && VenueClientOrderId.Length > 0)
+            sb.Append("VenueClientOrderId: ").Append(VenueClientOrderId).Append(", ");
+        if (VenueAdapterOrderId != null && VenueAdapterOrderId.Length > 0)
+            sb.Append("VenueAdapterOrderId: ").Append(VenueAdapterOrderId).Append(", ");
+        if (ParentOrderId != null) sb.Append("ParentOrderId: ").Append(ParentOrderId).Append(", ");
+        if (sb[^2] == ',')
+        {
+            sb[^2] = ')';
+            sb.Length -= 1;
+        }
+
+        return sb.ToString();
+    }
 }

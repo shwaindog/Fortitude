@@ -23,7 +23,6 @@ public sealed class OrxDeserializer<Tm> : BinaryDeserializer<Tm> where Tm : clas
         var tradingMessage = (Tm)orxByteDeserializer.Deserialize(dispatchContext);
         Dispatch(tradingMessage, dispatchContext.MessageHeader!,
             dispatchContext.Session, dispatchContext.DispatchLatencyLogger);
-        recyclingFactory.Recycle(tradingMessage);
         return tradingMessage;
     }
 }

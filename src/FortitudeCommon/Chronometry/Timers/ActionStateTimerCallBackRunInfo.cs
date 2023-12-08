@@ -25,7 +25,13 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
         set
         {
             backingAction = value;
-            actionAsWaitCallback ??= _ => backingAction!(State);
+            actionAsWaitCallback ??= stateObj =>
+            {
+                Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.Executing
+                    , (int)RunStateEnum.Queued);
+                backingAction!((T?)stateObj);
+                AsyncPostRunRecycleCheck();
+            };
         }
     }
 
@@ -46,16 +52,23 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
     public override bool RunCallbackOnThreadPool()
     {
         if (!IsFinished)
-        {
-            Interlocked.Increment(ref CurrentInvocations);
-            if (!IsFinished)
-                NextScheduleTime += IntervalPeriodTimeSpan;
-            else
-                NextScheduleTime = DateTime.MaxValue;
+            if (Interlocked.Increment(ref QueueCount) > 0 && Interlocked.CompareExchange(ref RunState
+                    , (int)RunStateEnum.Queued, (int)RunStateEnum.NotRunning) !=
+                (int)RunStateEnum.RecycleRequested)
+            {
+                Interlocked.Increment(ref CurrentInvocations);
+                if (!IsFinished)
+                    NextScheduleTime += IntervalPeriodTimeSpan;
+                else
+                    NextScheduleTime = DateTime.MaxValue;
 
-            LastRunTime = TimeContext.UtcNow;
-            return ThreadPool.QueueUserWorkItem(actionAsWaitCallback!, State);
-        }
+                LastRunTime = TimeContext.UtcNow;
+                return ThreadPool.QueueUserWorkItem(actionAsWaitCallback!, State);
+            }
+            else
+            {
+                AsyncPostRunRecycleCheck();
+            }
 
         return false;
     }

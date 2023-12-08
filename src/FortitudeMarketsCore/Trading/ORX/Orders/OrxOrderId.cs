@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -119,5 +120,26 @@ public class OrxOrderId : ReusableObject<IOrderId>, IOrderId
             hashCode = (hashCode * 397) ^ (TrackingId != null ? TrackingId.GetHashCode() : 0);
             return hashCode;
         }
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append("OrxOrderId(");
+        if (ClientOrderId != 0) sb.Append("ClientOrderId: ").Append(ClientOrderId).Append(", ");
+        if (AdapterOrderId != 0) sb.Append("AdapterOrderId: ").Append(AdapterOrderId).Append(", ");
+        if (TrackingId != null && TrackingId.Length > 0) sb.Append("TrackingId: ").Append(TrackingId).Append(", ");
+        if (VenueClientOrderId != null && VenueClientOrderId.Length > 0)
+            sb.Append("VenueClientOrderId: ").Append(VenueClientOrderId).Append(", ");
+        if (VenueAdapterOrderId != null && VenueAdapterOrderId.Length > 0)
+            sb.Append("VenueAdapterOrderId: ").Append(VenueAdapterOrderId).Append(", ");
+        if (ParentOrderId != null) sb.Append("ParentOrderId: ").Append(ParentOrderId).Append(", ");
+        if (sb[^2] == ',')
+        {
+            sb[^2] = ')';
+            sb.Length -= 1;
+        }
+
+        return sb.ToString();
     }
 }

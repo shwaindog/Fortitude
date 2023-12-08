@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -72,4 +73,25 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate
 
     public override IOrderUpdate Clone() =>
         (IOrderUpdate?)Recycler?.Borrow<OrxOrderUpdate>().CopyFrom(this) ?? new OrxOrderUpdate(this);
+
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append("OrxOrderUpdate(");
+        if (Order != null) sb.Append("VenueOrder: ").Append(Order).Append(", ");
+        if (OrderUpdateType != OrderUpdateEventType.Unknown)
+            sb.Append("OrderUpdateType: ").Append(OrderUpdateType).Append(", ");
+        if (AdapterUpdateTime != DateTimeConstants.UnixEpoch)
+            sb.Append("AdapterUpdateTime: ").Append(AdapterUpdateTime).Append(", ");
+        if (ClientReceivedTime != DateTimeConstants.UnixEpoch)
+            sb.Append("ClientReceivedTime: ").Append(ClientReceivedTime).Append(", ");
+        if (sb[^2] == ',')
+        {
+            sb[^2] = ')';
+            sb.Length -= 1;
+        }
+
+        return sb.ToString();
+    }
 }

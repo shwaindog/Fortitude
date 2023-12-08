@@ -1,10 +1,10 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -26,7 +26,7 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
             FLoggerFactory.Instance.GetLogger("OrxServer"), dispatcher, networkingController, port,
             socketUseDescription + " OrxServer")
     {
-        RecyclingFactory = new OrxRecyclingFactory();
+        RecyclingFactory = new Recycler();
         Factory = new OrxSerializationFactory(RecyclingFactory);
     }
 
@@ -40,13 +40,13 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
 
     IOrxSubscriber IOrxPublisher.StreamFromSubscriber => (IOrxSubscriber)StreamFromSubscriber;
 
-    public OrxRecyclingFactory RecyclingFactory { get; }
+    public IRecycler RecyclingFactory { get; }
 
     public void RegisterSerializer<T>() where T : class, IVersionedMessage, new()
     {
         var instanceOfTypeToSerialize = RecyclingFactory.Borrow<T>();
         RegisterSerializer<T>(instanceOfTypeToSerialize.MessageId);
-        RecyclingFactory.Recycle(instanceOfTypeToSerialize);
+        instanceOfTypeToSerialize.DecrementRefCount();
     }
 
     public override IBinarySerializationFactory GetFactory() => Factory;
@@ -64,14 +64,14 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
 
         public override IBinaryStreamPublisher StreamToPublisher => publisher;
 
-        public OrxRecyclingFactory RecyclingFactory => publisher.RecyclingFactory;
+        public IRecycler RecyclingFactory => publisher.RecyclingFactory;
 
         public void RegisterDeserializer<T>(Action<T, object?, ISession?>? msgHandler)
             where T : class, IVersionedMessage, new()
         {
             var instanceOfTypeToDeserialize = RecyclingFactory.Borrow<T>();
             RegisterDeserializer(instanceOfTypeToDeserialize.MessageId, msgHandler);
-            RecyclingFactory.Recycle(instanceOfTypeToDeserialize);
+            instanceOfTypeToDeserialize.DecrementRefCount();
         }
 
         IOrxPublisher IOrxSubscriber.StreamToPublisher => publisher;

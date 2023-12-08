@@ -28,11 +28,12 @@ internal sealed class PQQuoteSerializer : IBinarySerializer<IPQLevel0Quote>
     public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
     {
         var publishAll = (updateStyle & UpdateStyle.FullSnapshot) > 0;
-        if ((publishAll ? sizeof(uint) : 0) + HeaderSize > buffer.Length - writeOffset) return -1;
-        if (!(message is IPQLevel0Quote level0Quote)) return -1;
+        if ((publishAll ? sizeof(uint) : 0) + HeaderSize > buffer.Length - writeOffset)
+            return FinishProcessingMessageReturnValue(message, -1);
+        if (!(message is IPQLevel0Quote level0Quote)) return FinishProcessingMessageReturnValue(message, -1);
         fixed (byte* fptr = buffer)
         {
-            if (!publishAll && !level0Quote.HasUpdates) return 0;
+            if (!publishAll && !level0Quote.HasUpdates) return FinishProcessingMessageReturnValue(message, 0);
             var currentPtr = fptr + writeOffset;
             var end = fptr + buffer.Length;
             *currentPtr++ = message.Version; //protocol version
@@ -51,7 +52,7 @@ internal sealed class PQQuoteSerializer : IBinarySerializer<IPQLevel0Quote>
             {
                 foreach (var field in fields)
                 {
-                    if (currentPtr + FieldSize > end) return -1;
+                    if (currentPtr + FieldSize > end) return FinishProcessingMessageReturnValue(message, -1);
                     *currentPtr++ = field.Flag;
                     if ((field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
                     {
@@ -70,7 +71,7 @@ internal sealed class PQQuoteSerializer : IBinarySerializer<IPQLevel0Quote>
                     (TimeContext.UtcNow, updateStyle);
                 foreach (var fieldStringUpdate in stringUpdates)
                 {
-                    if (currentPtr + 100 > end) return -1;
+                    if (currentPtr + 100 > end) return FinishProcessingMessageReturnValue(message, -1);
 
                     flags |= (byte)PQBinaryMessageFlags.ContainsStringUpdate;
                     *currentPtr++ = fieldStringUpdate.Field.Flag;
@@ -105,7 +106,13 @@ internal sealed class PQQuoteSerializer : IBinarySerializer<IPQLevel0Quote>
                                  $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
                                  $"{updateStyle}.  ThreadName {Thread.CurrentThread.Name}");*/
             StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
-            return written;
+            return FinishProcessingMessageReturnValue(message, written);
         }
+    }
+
+    private int FinishProcessingMessageReturnValue(IVersionedMessage message, int response)
+    {
+        message.DecrementRefCount();
+        return response;
     }
 }

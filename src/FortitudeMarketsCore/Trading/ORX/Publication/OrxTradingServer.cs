@@ -54,7 +54,6 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         feed.VenueOrderUpdated += OnVenueOrder;
     }
 
-
     protected override void OnClientRemoved(ISocketSessionConnection client)
     {
         foreach (var order in orderSessionTracker.ReturnAllOrdersForSession(client)) feed.CancelOrder(order);
@@ -112,7 +111,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
                 orderSessionTracker.RegisterOrderIdWithSession(orxOrder, repositorySession!);
             }
 
-            OrxRecyclingFactory.Recycle(orxOrderPublisher);
+            orxOrderPublisher.DecrementRefCount();
         }
         else
         {
@@ -187,6 +186,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
             orxOrderUpdate.CopyFrom(orderUpdate);
             MessagePublisher.Send(orderUpdate.Order.OrderPublisher.UnderlyingSession,
                 orxOrderUpdate);
+            orxOrderUpdate.DecrementRefCount();
         }
     }
 
@@ -199,9 +199,9 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         {
             var orxOrderAmendResponse = OrxRecyclingFactory.Borrow<OrxOrderAmendResponse>();
             orxOrderAmendResponse.CopyFrom(amendResponse);
-            amendResponse.DecrementRefCount();
             MessagePublisher.Send(amendResponse.Order.OrderPublisher.UnderlyingSession,
                 orxOrderAmendResponse);
+            amendResponse.DecrementRefCount();
         }
     }
 

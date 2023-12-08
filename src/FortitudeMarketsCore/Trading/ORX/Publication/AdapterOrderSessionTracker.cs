@@ -13,27 +13,25 @@ namespace FortitudeMarketsCore.Trading.ORX.Publication;
 
 public class AdapterOrderSessionTracker
 {
-    private static readonly Func<MutableString, MutableString, bool> OrderKeyComparison = (s1, s2) => s1 == s2;
+    private static readonly Func<IMutableString, IMutableString, bool> OrderKeyComparison = (s1, s2) => Equals(s1, s2);
 
-    private readonly GarbageAndLockFreePooledFactory<MutableString> mutableStringPool
-        = new(() => new MutableString());
+    private readonly IMap<ISession, IMap<IMutableString, OrxOrder>> orderFromSessionCache =
+        new GarbageAndLockFreeMap<ISession, IMap<IMutableString, OrxOrder>>(ReferenceEquals);
 
-    private readonly IMap<ISession, IMap<MutableString, OrxOrder>> orderFromSessionCache =
-        new GarbageAndLockFreeMap<ISession, IMap<MutableString, OrxOrder>>(ReferenceEquals);
+    private readonly IRecycler recycler;
 
-    private readonly IRecycler orxRecyclingFactory;
+    private readonly IMap<IMutableString, ISession> sessionFromOrderIdCache =
+        new GarbageAndLockFreeMap<IMutableString, ISession>(OrderKeyComparison);
 
-    private readonly IMap<MutableString, ISession> sessionFromOrderIdCache =
-        new GarbageAndLockFreeMap<MutableString, ISession>(OrderKeyComparison);
-
-    private readonly GarbageAndLockFreePooledFactory<IMap<MutableString, OrxOrder>> surplusOrderMaps =
+    private readonly GarbageAndLockFreePooledFactory<IMap<IMutableString, OrxOrder>> surplusOrderMaps =
         new(() =>
-            new GarbageAndLockFreeMap<MutableString, OrxOrder>(OrderKeyComparison));
+            new GarbageAndLockFreeMap<IMutableString, OrxOrder>(OrderKeyComparison));
 
-    public AdapterOrderSessionTracker(IRecycler orxRecyclingFactory) => this.orxRecyclingFactory = orxRecyclingFactory;
+    public AdapterOrderSessionTracker(IRecycler recycler) => this.recycler = recycler;
 
     public void RegisterOrderIdWithSession(OrxOrder order, ISession repositorySession)
     {
+        var orderKey = order.OrderId.VenueAdapterOrderId!.Clone();
         lock (orderFromSessionCache)
         {
             if (!orderFromSessionCache.TryGetValue(repositorySession, out var sessionOrders))
@@ -43,28 +41,32 @@ public class AdapterOrderSessionTracker
                 orderFromSessionCache.Add(repositorySession, sessionOrders);
             }
 
-            sessionOrders?.Add(
-                mutableStringPool.Borrow().Clear().Append(order.OrderId.VenueAdapterOrderId!), order);
+            sessionOrders?.Add(orderKey, order);
+            order.IncrementRefCount();
         }
 
         lock (sessionFromOrderIdCache)
         {
-            sessionFromOrderIdCache.Add(
-                mutableStringPool.Borrow().Clear().Append(order.OrderId.VenueAdapterOrderId!), repositorySession);
+            sessionFromOrderIdCache.Add(orderKey, repositorySession);
         }
     }
 
     public void UnregisterOrderWithSession(IOrder order)
     {
+        var orderKeyToRemove = (MutableString)order.OrderId.VenueAdapterOrderId!;
         lock (orderFromSessionCache)
         {
             if (orderFromSessionCache.TryGetValue(order.OrderPublisher!.UnderlyingSession!, out var sessionOrders))
-                sessionOrders?.Remove((MutableString)order.OrderId.VenueAdapterOrderId!);
+                if (sessionOrders?.TryGetValue(orderKeyToRemove, out var removeThis) == true)
+                {
+                    sessionOrders.Remove(orderKeyToRemove);
+                    removeThis!.DecrementRefCount();
+                }
         }
 
         lock (sessionFromOrderIdCache)
         {
-            sessionFromOrderIdCache.Remove((MutableString)order.OrderId.VenueAdapterOrderId!);
+            sessionFromOrderIdCache.Remove(orderKeyToRemove);
         }
     }
 
@@ -102,10 +104,16 @@ public class AdapterOrderSessionTracker
                 var ordersMap = sessionMaps.Value;
                 foreach (var orderEntry in ordersMap)
                 {
-                    var removedEntry = ordersMap.Remove(orderEntry.Key);
+                    ordersMap.Remove(orderEntry.Key);
+                    orderEntry.Key.DecrementRefCount();
+                    orderEntry.Value.DecrementRefCount();
                 }
 
-                var removedSessionMap = orderFromSessionCache.Remove(sessionMaps.Key);
+                if (orderFromSessionCache.TryGetValue(sessionMaps.Key, out var oldSession))
+                {
+                    orderFromSessionCache.Remove(sessionMaps.Key);
+                    surplusOrderMaps.ReturnBorrowed(oldSession);
+                }
             }
 
             orderFromSessionCache.Clear();
@@ -132,7 +140,7 @@ public class AdapterOrderSessionTracker
         lock (orderFromSessionCache)
         {
             if (orderFromSessionCache.TryGetValue(repositorySession, out var sessionOrders))
-                sessionOrders?.TryGetValue(adapterId.ToString()!, out order);
+                sessionOrders?.TryGetValue(adapterId, out order);
         }
 
         return order;
@@ -141,7 +149,7 @@ public class AdapterOrderSessionTracker
     public ISession? FindSessionFromOrderId(IOrderId orderId)
     {
         // ReSharper disable once InconsistentlySynchronizedField
-        sessionFromOrderIdCache.TryGetValue(orderId.VenueAdapterOrderId!.ToString()!, out var session);
+        sessionFromOrderIdCache.TryGetValue(orderId.VenueAdapterOrderId!, out var session);
         return session;
     }
 }

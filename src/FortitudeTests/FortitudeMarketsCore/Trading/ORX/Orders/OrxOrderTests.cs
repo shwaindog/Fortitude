@@ -1,9 +1,9 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Products;
@@ -54,7 +54,7 @@ public class OrxOrderTests
             byteBuffer, 0, 0);
 
         var ordersDeserializer = new OrxByteDeserializer<Orders>(new OrxDeserializerLookup(
-            new OrxRecyclingFactory()));
+            new Recycler()));
 
         var deserializedOrders = (Orders)ordersDeserializer
             .Deserialize(dispatchContext);

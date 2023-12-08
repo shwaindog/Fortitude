@@ -89,7 +89,7 @@ public class OneOffTimerUpdateTests
         var borrowCallBackRunInfo = recycler.Borrow<WaitCallbackTimerCallBackRunInfo>();
         borrowed.CallBackRunInfo = borrowCallBackRunInfo;
         Assert.AreEqual(1, borrowed.RefCount);
-        Assert.AreEqual(1, borrowCallBackRunInfo.RefCount);
+        Assert.AreEqual(2, borrowCallBackRunInfo.RefCount);
         Assert.AreEqual(false, borrowed.IsInRecycler);
         Assert.AreEqual(false, borrowCallBackRunInfo.IsInRecycler);
         Assert.AreEqual(0, borrowed.DecrementRefCount());

@@ -10,8 +10,9 @@ namespace FortitudeCommon.DataStructures.Memory;
 public interface IRecycler
 {
     T Borrow<T>() where T : class, new();
+    object Borrow(Type type);
 
-    void Recycle(object recyclableObject);
+    void Recycle(object trash);
 }
 
 public class Recycler : IRecycler
@@ -49,20 +50,42 @@ public class Recycler : IRecycler
         return borrowed;
     }
 
-    public void Recycle(object recyclableObject)
+    public object Borrow(Type type)
     {
-        var type = recyclableObject.GetType();
-        var recyclable = recyclableObject as IRecyclableObject;
+        if (!poolFactoryMap.TryGetValue(type, out var poolFactoryContainer))
+        {
+            var newInstanceFunc = ReflectionHelper.CreateEmptyConstructorFactoryAsFuncType(type);
+            poolFactoryContainer = (IPooledFactory)ReflectionHelper
+                .InstantiateGenericType(typeof(GarbageAndLockFreePooledFactory<>)
+                    , new[] { type }, newInstanceFunc, 4);
+            poolFactoryMap.Add(type, poolFactoryContainer);
+        }
+
+        var borrowed = poolFactoryContainer!.Borrow();
+        if (borrowed is IRecyclableObject recycleable)
+        {
+            recycleable.Recycler = this;
+            if (shouldAutoRecycleOnRefCountZero) recycleable.IncrementRefCount();
+            recycleable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
+            recycleable.IsInRecycler = false;
+        }
+
+        return borrowed;
+    }
+
+    public void Recycle(object trash)
+    {
+        var type = trash.GetType();
+        var recyclable = trash as IRecyclableObject;
         if (!poolFactoryMap.TryGetValue(type, out var poolFactoryContainer))
             if (acceptNonCreatedObjects || (recyclable != null && recyclable.Recycler == this))
             {
+                var newInstanceFunc = ReflectionHelper.CreateEmptyConstructorFactoryAsFuncType(type);
+
                 poolFactoryContainer = (IPooledFactory)ReflectionHelper
                     .InstantiateGenericType(typeof(GarbageAndLockFreePooledFactory<>)
-                        , new[] { type }, new[]
-                        {
-                            ReflectionHelper.CreateEmptyConstructorFactoryAsFuncType(type)
-                        });
-                poolFactoryMap.Add(recyclableObject.GetType(), poolFactoryContainer);
+                        , new[] { type }, newInstanceFunc, 4);
+                poolFactoryMap.Add(trash.GetType(), poolFactoryContainer);
             }
             else
             {
@@ -71,12 +94,14 @@ public class Recycler : IRecycler
 
         if (recyclable != null)
         {
-            if (recyclable.RefCount != 0 && recyclable.AutoRecycleAtRefCountZero &&
+            if (recyclable.RefCount > 0 && recyclable.AutoRecycleAtRefCountZero &&
                 throwWhenAttemptToRecycleRefCountNoZero)
                 throw new ArgumentException("Attempted to recycle ref counted object that is not at RefCount == 0");
             recyclable.IsInRecycler = true;
         }
 
-        poolFactoryContainer!.ReturnBorrowed(recyclableObject);
+        if (trash is IReusableObject reusableObject) reusableObject.Reset();
+
+        poolFactoryContainer!.ReturnBorrowed(trash);
     }
 }

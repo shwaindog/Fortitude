@@ -90,6 +90,8 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
                     StreamByteOps.ToBytes(ref currPtr, simpleVersionedMsg.PayLoad2);
             }
 
+            message?.DecrementRefCount();
+
             return bytesSerialized;
         }
     }

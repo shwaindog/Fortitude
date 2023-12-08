@@ -8,7 +8,7 @@ namespace FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 
 public interface IOrxDeserializerLookup
 {
-    IRecycler OrxRecyclingFactory { get; }
+    IRecycler Recycler { get; }
     IOrxDeserializer GetOrCreateDeserializerForVersion(Type variableType, byte version);
     IOrxDeserializer? GetDeserializerForVersion(Type variableType, byte version);
 

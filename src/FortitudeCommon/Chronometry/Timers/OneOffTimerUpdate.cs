@@ -9,7 +9,8 @@ namespace FortitudeCommon.Chronometry.Timers;
 
 public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerUpdate
 {
-    protected internal TimerCallBackRunInfo? CallBackRunInfo;
+    private TimerCallBackRunInfo? callBackRunInfo;
+
     private IUpdateableTimer? updateableTimer;
 
     public OneOffTimerUpdate() { }
@@ -18,6 +19,17 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
     {
         // ReSharper disable once VirtualMemberCallInConstructor
         CopyFrom(toClone);
+    }
+
+    protected internal TimerCallBackRunInfo? CallBackRunInfo
+    {
+        get => callBackRunInfo;
+        set
+        {
+            if (value == callBackRunInfo) return;
+            if (value != null) value.IncrementRefCount();
+            callBackRunInfo = value;
+        }
     }
 
     internal IUpdateableTimer UpdateableTimer
@@ -122,7 +134,6 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
         if (ReferenceEquals(this, source)) return this;
         updateableTimer = (IUpdateableTimer)source.RegisteredTimer;
         CallBackRunInfo = ((OneOffTimerUpdate)source).CallBackRunInfo;
-        CallBackRunInfo?.IncrementRefCount();
         return this;
     }
 

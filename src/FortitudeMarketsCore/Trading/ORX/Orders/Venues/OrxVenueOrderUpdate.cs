@@ -1,5 +1,8 @@
 ﻿#region
 
+using System.Text;
+using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Venues;
@@ -50,6 +53,17 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
 
     public DateTime ClientReceivedTime { get; set; }
 
+    public override void Reset()
+    {
+        VenueOrder?.DecrementRefCount();
+        VenueOrder = null;
+        UpdateTime = DateTimeConstants.UnixEpoch;
+        AdapterSocketReceivedTime = DateTimeConstants.UnixEpoch;
+        AdapterProcessedTime = DateTimeConstants.UnixEpoch;
+        ClientReceivedTime = DateTimeConstants.UnixEpoch;
+        base.Reset();
+    }
+
     public override IVenueOrderUpdate Clone() =>
         Recycler?.Borrow<OrxVenueOrderUpdate>().CopyFrom(this) ?? new OrxVenueOrderUpdate(this);
 
@@ -57,17 +71,32 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(venueOrderUpdate, copyMergeFlags);
-        if (venueOrderUpdate.VenueOrder != null)
-        {
-            var orxVenueOrder = Recycler!.Borrow<OrxVenueOrder>();
-            orxVenueOrder.CopyFrom(venueOrderUpdate.VenueOrder, copyMergeFlags);
-            VenueOrder = orxVenueOrder;
-        }
-
+        VenueOrder = venueOrderUpdate.VenueOrder.SyncOrRecycle(VenueOrder);
         UpdateTime = venueOrderUpdate.UpdateTime;
         AdapterSocketReceivedTime = venueOrderUpdate.AdapterSocketReceivedTime;
         AdapterProcessedTime = venueOrderUpdate.AdapterProcessedTime;
         ClientReceivedTime = venueOrderUpdate.ClientReceivedTime;
         return this;
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append("OrxVenueOrderUpdate(");
+        if (VenueOrder != null) sb.Append("VenueOrder: ").Append(VenueOrder).Append(", ");
+        if (UpdateTime != DateTimeConstants.UnixEpoch) sb.Append("UpdateTime: ").Append(UpdateTime).Append(", ");
+        if (AdapterSocketReceivedTime != DateTimeConstants.UnixEpoch)
+            sb.Append("AdapterSocketReceivedTime: ").Append(AdapterSocketReceivedTime).Append(", ");
+        if (AdapterProcessedTime != DateTimeConstants.UnixEpoch)
+            sb.Append("AdapterProcessedTime: ").Append(AdapterProcessedTime).Append(", ");
+        if (ClientReceivedTime != DateTimeConstants.UnixEpoch)
+            sb.Append("ClientReceivedTime: ").Append(ClientReceivedTime).Append(", ");
+        if (sb[^2] == ',')
+        {
+            sb[^2] = ')';
+            sb.Length -= 1;
+        }
+
+        return sb.ToString();
     }
 }

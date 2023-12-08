@@ -16,7 +16,7 @@ public interface IGarbageFreeMap<TK, TV> : IMap<TK, TV> where TK : notnull
 }
 
 /// <summary>
-/// Quick map for small collections less than 100 items
+///     Quick map for small collections less than 100 items
 /// </summary>
 /// <typeparam name="TK"></typeparam>
 /// <typeparam name="TV"></typeparam>
@@ -111,7 +111,11 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         Container? foundItemToRemove = null;
         foreach (var container in queueWithElements)
             if (keyComparison(container.KeyValuePair.Key, key))
+            {
                 foundItemToRemove = container;
+                break;
+            }
+
         if (foundItemToRemove == null) return false;
         var foundContainer = queueWithElements.Remove(foundItemToRemove);
         return foundContainer;

@@ -51,6 +51,7 @@ internal sealed class PQHeartbeatSerializer : IBinarySerializer<PQLevel0Quote>
                     }
 
                 StreamByteOps.ToBytes(ref messageSize, (uint)(ptr - messageStart));
+                message.DecrementRefCount();
 
                 return (int)(ptr - messageStart);
             }
