@@ -1,10 +1,10 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Sockets;
 using FortitudeIO.Transports.Sockets;
@@ -34,7 +34,7 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
             FLoggerFactory.Instance.GetLogger("Orx"), dispatcher, networkingController,
             connectionConfig, socketUseDescription + "OrxClient", wholeMessagesPerReceive, null, keepalive)
     {
-        RecyclingFactory = new OrxRecyclingFactory();
+        RecyclingFactory = new Recycler();
         orxSerializationFactory = new OrxSerializationFactory(RecyclingFactory);
     }
 
@@ -50,14 +50,14 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 
     IOrxPublisher IOrxSubscriber.StreamToPublisher => (IOrxPublisher)StreamToPublisher;
 
-    public OrxRecyclingFactory RecyclingFactory { get; }
+    public IRecycler RecyclingFactory { get; }
 
     public void RegisterDeserializer<T>(Action<T, object?, ISession?>? msgHandler)
         where T : class, IVersionedMessage, new()
     {
         var instanceOfTypeToDeserialize = RecyclingFactory.Borrow<T>();
         RegisterDeserializer(instanceOfTypeToDeserialize.MessageId, msgHandler);
-        RecyclingFactory.Recycle(instanceOfTypeToDeserialize);
+        instanceOfTypeToDeserialize.DecrementRefCount();
     }
 
     public override IStreamDecoder GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers) =>
@@ -85,13 +85,13 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 
         public override IBinaryStreamSubscriber StreamFromSubscriber => orxClientMessaging;
 
-        public OrxRecyclingFactory RecyclingFactory => orxClientMessaging.RecyclingFactory;
+        public IRecycler RecyclingFactory => orxClientMessaging.RecyclingFactory;
 
         public void RegisterSerializer<T>() where T : class, IVersionedMessage, new()
         {
             var instanceOfTypeToSerialize = RecyclingFactory.Borrow<T>();
             RegisterSerializer<T>(instanceOfTypeToSerialize.MessageId);
-            RecyclingFactory.Recycle(instanceOfTypeToSerialize);
+            instanceOfTypeToSerialize.DecrementRefCount();
         }
 
         public override int SendBufferSize => 131072;

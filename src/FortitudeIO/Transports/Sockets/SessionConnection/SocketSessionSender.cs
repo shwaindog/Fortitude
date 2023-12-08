@@ -2,8 +2,8 @@
 
 using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serialization;
@@ -19,6 +19,7 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
 
     private readonly byte[] sendBuffer;
     private readonly ISyncLock sendLock = new SpinLockLight();
+    private IFLogger logger;
     private int sentCursor;
     private int toSendCursor;
 
@@ -28,10 +29,12 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
     {
         sendBuffer = new byte[socket.SendBufferSize];
         sentCursor = toSendCursor = 0;
+        logger = FLoggerFactory.Instance.GetLogger(typeof(SocketSessionSender).FullName + "-" + sessionDescription);
     }
 
     public void Enqueue(IVersionedMessage message, IBinarySerializer serializer)
     {
+        message.IncrementRefCount();
         sendLock.Acquire();
         try
         {
@@ -62,7 +65,8 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
                     sendLock.Release();
                 }
 
-                var writtenSize = encoder.Serializer!.Serialize(sendBuffer, toSendCursor, encoder.Message!);
+                // logger.Debug("Sent {0}", encoder.Message.ToString());
+                var writtenSize = encoder.Serializer.Serialize(sendBuffer, toSendCursor, encoder.Message);
                 if (writtenSize < 0)
                 {
                     if (toSendCursor == 0)
@@ -70,9 +74,8 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
                     break;
                 }
 
-                if (encoder.Message is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
-                encoder.Message = null;
-                encoder.Serializer = null;
+                encoder.Message = null!;
+                encoder.Serializer = null!;
                 sendLock.Acquire();
                 try
                 {
@@ -122,7 +125,7 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
 
     internal sealed class SocketEncoder
     {
-        public IVersionedMessage? Message;
-        public IBinarySerializer? Serializer;
+        public IVersionedMessage Message = null!;
+        public IBinarySerializer Serializer = null!;
     }
 }

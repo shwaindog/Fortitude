@@ -19,6 +19,7 @@ namespace FortitudeMarketsCore.Trading.Orders;
 
 public sealed class Order : ReusableObject<IOrder>, IOrder
 {
+    private IOrderPublisher? orderPublisher;
     private IProductOrder? product;
     private OrderStatus status;
 
@@ -105,7 +106,16 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
         }
     }
 
-    public IOrderPublisher? OrderPublisher { get; set; }
+    public IOrderPublisher? OrderPublisher
+    {
+        get => orderPublisher;
+        set
+        {
+            if (value == orderPublisher) return;
+            if (value != null) value.IncrementRefCount();
+            orderPublisher = value;
+        }
+    }
 
     public IProductOrder? Product
     {
@@ -162,22 +172,33 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
         return this;
     }
 
-    public override string ToString() =>
-        new StringBuilder(256)
-            .Append(OrderId).Append(',')
-            .Append(TimeInForce).Append(',')
-            .Append(CreationTime.ToString("O")).Append(',')
-            .Append(SubmitTime.ToString("O")).Append(',')
-            .Append(DoneTime.ToString("O")).Append(',')
-            .Append(Parties).Append(',')
-            .Append(Status).Append(',')
-            .Append(Product).Append(',')
-            .Append(VenueSelectionCriteria).Append(',')
-            .Append(VenueOrders).Append(',')
-            .Append(Executions)
-            .ToString();
-
     public override bool Equals(object? obj) => obj is IOrder order && OrderId.Equals(order.OrderId);
 
     public override int GetHashCode() => OrderId.GetHashCode();
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append("Order(");
+        sb.Append("OrderId: ").Append(OrderId).Append(", ");
+        if (TimeInForce != TimeInForce.None) sb.Append("TimeInForce: ").Append(TimeInForce).Append(", ");
+        if (CreationTime != DateTimeConstants.UnixEpoch) sb.Append("CreationTime: ").Append(CreationTime).Append(", ");
+        if (Status != OrderStatus.Unknown) sb.Append("Status: ").Append(Status).Append(", ");
+        if (Product != null) sb.Append("Product: ").Append(Product).Append(", ");
+        if (SubmitTime != DateTimeConstants.UnixEpoch) sb.Append("SubmitTime: ").Append(SubmitTime).Append(", ");
+        if (DoneTime != DateTimeConstants.UnixEpoch) sb.Append("DoneTime: ").Append(DoneTime).Append(", ");
+        if (Parties != null) sb.Append("Parties: ").Append(Parties).Append(", ");
+        if (OrderPublisher != null) sb.Append("OrderPublisher: ").Append(OrderPublisher).Append(", ");
+        if (VenueSelectionCriteria != null)
+            sb.Append("VenueSelectionCriteria: ").Append(VenueSelectionCriteria).Append(", ");
+        if (VenueOrders != null) sb.Append("VenueOrders: ").Append(VenueOrders).Append(", ");
+        if (Executions != null) sb.Append("Executions: ").Append(Executions).Append(", ");
+        if (sb[^2] == ',')
+        {
+            sb[^2] = ')';
+            sb.Length -= 1;
+        }
+
+        return sb.ToString();
+    }
 }

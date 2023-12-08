@@ -2,10 +2,10 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -248,7 +248,7 @@ public class SocketStreamSubscriberTests
                 new Mock<ISocketDispatcher>().Object, "", 1,
                 new ConcurrentCache<uint, IBinaryDeserializer>())
         {
-            binaryDeserializationFactory = new OrxSerializationFactory(new OrxRecyclingFactory());
+            binaryDeserializationFactory = new OrxSerializationFactory(new Recycler());
             StreamToPublisher = new Mock<IBinaryStreamPublisher>().Object;
         }
 

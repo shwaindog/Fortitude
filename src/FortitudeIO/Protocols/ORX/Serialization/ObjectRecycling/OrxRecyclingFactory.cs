@@ -41,6 +41,8 @@ public class OrxRecyclingFactory : IRecycler
         return borrow;
     }
 
+    public object Borrow(Type type) => throw new NotImplementedException();
+
     public void Recycle(object trash)
     {
         if (poolFactoryMap.TryGetValue(trash.GetType(), out var poolFactoryContainer))

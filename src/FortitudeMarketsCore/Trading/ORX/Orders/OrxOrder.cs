@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -22,6 +23,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders;
 
 public class OrxOrder : ReusableObject<IOrder>, IOrder
 {
+    private IOrderPublisher? orderPublisher;
     private OrxProductOrder? product;
 
     public OrxOrder()
@@ -145,7 +147,16 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
         set => Parties = value as OrxParties;
     }
 
-    public IOrderPublisher? OrderPublisher { get; set; }
+    public IOrderPublisher? OrderPublisher
+    {
+        get => orderPublisher;
+        set
+        {
+            if (orderPublisher == value) return;
+            if (value != null) value.IncrementRefCount();
+            orderPublisher = value;
+        }
+    }
 
     IVenueCriteria? IOrder.VenueSelectionCriteria
     {
@@ -182,6 +193,7 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
         DoneTime = DateTimeConstants.UnixEpoch;
         Parties?.DecrementRefCount();
         Parties = null;
+        OrderPublisher?.DecrementRefCount();
         OrderPublisher = null;
         VenueSelectionCriteria?.DecrementRefCount();
         VenueSelectionCriteria = null;
@@ -259,5 +271,31 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
             hashCode = (hashCode * 397) ^ Message.GetHashCode();
             return hashCode;
         }
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append("OrxOrder(");
+        sb.Append("OrderId: ").Append(OrderId).Append(", ");
+        if (TimeInForce != TimeInForce.None) sb.Append("TimeInForce: ").Append(TimeInForce).Append(", ");
+        if (CreationTime != DateTimeConstants.UnixEpoch) sb.Append("CreationTime: ").Append(CreationTime).Append(", ");
+        if (Status != OrderStatus.Unknown) sb.Append("Status: ").Append(Status).Append(", ");
+        if (Product != null) sb.Append("Product: ").Append(Product).Append(", ");
+        if (SubmitTime != DateTimeConstants.UnixEpoch) sb.Append("SubmitTime: ").Append(SubmitTime).Append(", ");
+        if (DoneTime != DateTimeConstants.UnixEpoch) sb.Append("DoneTime: ").Append(DoneTime).Append(", ");
+        if (Parties != null) sb.Append("Parties: ").Append(Parties).Append(", ");
+        if (OrderPublisher != null) sb.Append("OrderPublisher: ").Append(OrderPublisher).Append(", ");
+        if (VenueSelectionCriteria != null)
+            sb.Append("VenueSelectionCriteria: ").Append(VenueSelectionCriteria).Append(", ");
+        if (VenueOrders != null) sb.Append("VenueOrders: ").Append(VenueOrders).Append(", ");
+        if (Executions != null) sb.Append("Executions: ").Append(Executions).Append(", ");
+        if (sb[^2] == ',')
+        {
+            sb[^2] = ')';
+            sb.Length -= 1;
+        }
+
+        return sb.ToString();
     }
 }

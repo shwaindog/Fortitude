@@ -1,9 +1,9 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsCore.Trading;
 using FortitudeMarketsCore.Trading.ORX.CounterParties;
@@ -46,7 +46,7 @@ public class OrxPartiesTests
             byteBuffer, 0, 0);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<TestParties>(new OrxDeserializerLookup(
-            new OrxRecyclingFactory()));
+            new Recycler()));
 
         var deserializedOrxClientOrderId = (TestParties)orderSubmitRequestsDeserializer
             .Deserialize(dispatchContext);

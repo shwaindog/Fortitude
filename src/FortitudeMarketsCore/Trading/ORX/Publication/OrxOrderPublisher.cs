@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Sockets;
 using FortitudeMarketsApi.Trading.Orders;
@@ -10,7 +11,7 @@ using FortitudeMarketsCore.Trading.ORX.Orders.Server;
 
 namespace FortitudeMarketsCore.Trading.ORX.Publication;
 
-public class OrxOrderPublisher : IOrderPublisher
+public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
 {
     private bool errorSupport;
 

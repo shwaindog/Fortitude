@@ -18,6 +18,7 @@ public interface IAsyncResponseSource : IValueTaskSource, IRecyclableObject
 }
 
 public interface IReusableAsyncResponseSource<T> : IAsyncResponseSource
+    , IReusableObject<IReusableAsyncResponseSource<T>>
 {
     // ReSharper disable once UnusedMemberInSuper.Global
     Task<T> AsTask { get; }
@@ -49,9 +50,11 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     private static int totalInstances;
     private readonly TaskCompletionSource<T> taskCompletionSource = new();
     protected ManualResetValueTaskSourceCore<T> Core; // mutable struct; do not make this readonly
+    private int decrementCountDownTimerSet;
     protected int InstanceNumber;
     private ITimerUpdate? lastTimerActive;
     private int refCount;
+    private int shouldRecycle;
 
     static ReusableValueTaskSource()
     {
@@ -78,6 +81,12 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
 
     public ReusableValueTaskSource() => InstanceNumber = Interlocked.Increment(ref totalInstances);
 
+    private ReusableValueTaskSource(ReusableValueTaskSource<T> toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
     public bool RunContinuationsAsynchronously
     {
         get => Core.RunContinuationsAsynchronously;
@@ -85,7 +94,10 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     }
 
     public IActionTimer? RecycleTimer { get; set; }
-    public bool AutoRecycledByProducer { get; set; }
+
+    private bool ShouldPerformRecycle => Interlocked.CompareExchange(ref shouldRecycle, 1, 0) == 0;
+
+    private bool ShouldStartDecrementCounter => Interlocked.CompareExchange(ref decrementCountDownTimerSet, 1, 0) == 0;
 
     public short Version => Core.Version;
 
@@ -140,7 +152,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     }
 
     public int RefCount => refCount;
-    public bool AutoRecycleAtRefCountZero { get; set; }
+    public bool AutoRecycleAtRefCountZero { get; set; } = true;
     public bool IsInRecycler { get; set; }
     public IRecycler? Recycler { get; set; }
 
@@ -148,8 +160,9 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     {
         // logger.Debug("instanceNumber: {0} DecrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
         //     , refCount, new StackTrace());
-        if (refCount > 0 && Interlocked.Decrement(ref refCount) <= 0)
-            if (AutoRecycleAtRefCountZero)
+        if (AutoRecycleAtRefCountZero && Interlocked.Decrement(ref refCount) <= 0)
+            if (ShouldPerformRecycle)
+            {
                 if (RecycleTimer != null)
                 {
                     if (lastTimerActive != null) lastTimerActive.DecrementRefCount();
@@ -161,6 +174,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
                 {
                     Recycle();
                 }
+            }
 
         return refCount;
     }
@@ -172,11 +186,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
 
     public bool Recycle()
     {
-        if (!IsInRecycler && (refCount <= 0 || !AutoRecycleAtRefCountZero || AutoRecycledByProducer))
-        {
-            Reset();
-            Recycler!.Recycle(this);
-        }
+        if (!IsInRecycler && (refCount <= 0 || !AutoRecycleAtRefCountZero)) Recycler?.Recycle(this);
 
         return IsInRecycler;
     }
@@ -209,7 +219,37 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     }
 
     public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        (IStoreState)CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
+        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
+
+    public virtual void Reset()
+    {
+        refCount = 0;
+        shouldRecycle = 0;
+        decrementCountDownTimerSet = 0;
+        AwaitingValueTask = null;
+        ResetTaskAction(taskCompletionSource.Task);
+        RunContinuationsAsynchronously = false;
+        Core.Reset();
+    }
+
+
+    public IReusableAsyncResponseSource<T> CopyFrom(IReusableAsyncResponseSource<T> source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is ReusableValueTaskSource<T> reusableValueTaskSource)
+        {
+            AwaitingValueTask = reusableValueTaskSource.AwaitingValueTask;
+            RunContinuationsAsynchronously = reusableValueTaskSource.RunContinuationsAsynchronously;
+            Core = reusableValueTaskSource.Core;
+        }
+
+        return this;
+    }
+
+    object ICloneable.Clone() => Clone();
+
+    public IReusableAsyncResponseSource<T> Clone() =>
+        Recycler?.Borrow<ReusableValueTaskSource<T>>().CopyFrom(this) ?? new ReusableValueTaskSource<T>(this);
 
     public virtual ReusableValueTaskSource<T> CopyFrom(ReusableValueTaskSource<T> source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -275,6 +315,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
 
     private void StartRecycleDecrementRefCountTimer()
     {
+        if (!ShouldStartDecrementCounter) return;
         if (RecycleTimer != null)
             switch (lastTimerActive)
             {
@@ -286,14 +327,8 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
                     lastTimerActive = RecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this, DecrementUsageAction);
                     break;
             }
-    }
-
-    public virtual void Reset()
-    {
-        AwaitingValueTask = null;
-        ResetTaskAction(taskCompletionSource.Task);
-        RunContinuationsAsynchronously = false;
-        Core.Reset();
+        else
+            DecrementRefCount();
     }
 
     // ReSharper disable once UnusedMember.Global

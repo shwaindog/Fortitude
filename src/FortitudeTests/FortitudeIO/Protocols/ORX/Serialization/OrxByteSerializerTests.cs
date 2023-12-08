@@ -1,10 +1,10 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
 using FortitudeIO.Protocols.Serialization;
 
 #endregion
@@ -44,7 +44,7 @@ public class OrxByteSerializerTests
             byteBuffer, 0, 0);
 
         var orxDoubleStringArrayDeserializer = new OrxByteDeserializer<DoubleStringArray>(new OrxDeserializerLookup(
-            new OrxRecyclingFactory()));
+            new Recycler()));
 
         var deserializedDblStrArry = (DoubleStringArray)orxDoubleStringArrayDeserializer
             .Deserialize(dispatchContext);
@@ -69,7 +69,7 @@ public class OrxByteSerializerTests
             byteBuffer, 0, 0);
 
         var orxLongsDeserializer = new OrxByteDeserializer<Longs>(new OrxDeserializerLookup(
-            new OrxRecyclingFactory()));
+            new Recycler()));
 
         var deserializedLongs = (Longs)orxLongsDeserializer
             .Deserialize(dispatchContext);
@@ -94,7 +94,7 @@ public class OrxByteSerializerTests
             byteBuffer, 0, 0);
 
         var orxStringsDeserializer = new OrxByteDeserializer<Strings>(new OrxDeserializerLookup(
-            new OrxRecyclingFactory()));
+            new Recycler()));
 
         var deserializedStrings = (Strings)orxStringsDeserializer
             .Deserialize(dispatchContext);
@@ -119,7 +119,7 @@ public class OrxByteSerializerTests
             byteBuffer, 0, 0);
 
         var orxStringsDeserializer = new OrxByteDeserializer<MutableStrings>(new OrxDeserializerLookup(
-            new OrxRecyclingFactory()));
+            new Recycler()));
 
         var deserializedStrings = (MutableStrings)orxStringsDeserializer
             .Deserialize(dispatchContext);

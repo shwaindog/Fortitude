@@ -1,6 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.DataStructures.Memory;
+using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -19,26 +21,73 @@ public class ReusableValueTaskSourceTests
         objectReusableValueTaskSource = new ReusableValueTaskSource<object>();
     }
 
-    [TestMethod]
-    public void ReusableValueTaskSourceClearsTaskOnReset()
+    [TestCleanup]
+    public void TearDown()
     {
-        RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
-        decimalReusableValueTaskSource.Reset();
-        RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
-        RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
-        objectReusableValueTaskSource.Reset();
-        RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
+        ReusableValueTaskSource<decimal>.AfterGetResultRecycleInstanceMs = 10_000;
+        ReusableValueTaskSource<object>.AfterGetResultRecycleInstanceMs = 10_000;
     }
 
     [TestMethod]
-    public void ResetClearsCompletionsAddedOnPriorTaskAdditions()
+    [Timeout(10_000)]
+    public async Task ReusableValueTaskSourceClearsTaskOnReset()
     {
-        RunResetAfterSettingCompletionThenPerformNormalOperations(decimalReusableValueTaskSource, 123.456789m);
-        RunResetAfterSettingCompletionThenPerformNormalOperations(objectReusableValueTaskSource
+        await RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
+        decimalReusableValueTaskSource.Reset();
+        await RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
+        await RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
+        objectReusableValueTaskSource.Reset();
+        await RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
+    }
+
+    [TestMethod]
+    [Timeout(10_000)]
+    public async Task ResetClearsCompletionsAddedOnPriorTaskAdditions()
+    {
+        await RunResetAfterSettingCompletionThenPerformNormalOperations(decimalReusableValueTaskSource, 123.456789m);
+        await RunResetAfterSettingCompletionThenPerformNormalOperations(objectReusableValueTaskSource
             , "Some Expected String Obj");
     }
 
-    private void RunResetAfterSettingCompletionThenPerformNormalOperations<T>(
+    [TestMethod]
+    public async Task ReusableDecimalTaskIsReturnedToRecyclerAfterValueIsRead()
+    {
+        var recycler = new Recycler();
+        decimalReusableValueTaskSource.Recycler = recycler;
+        objectReusableValueTaskSource.Recycler = recycler;
+        var threadPoolTimer = new Timer();
+        decimalReusableValueTaskSource.RecycleTimer = threadPoolTimer;
+        objectReusableValueTaskSource.RecycleTimer = threadPoolTimer;
+        ReusableValueTaskSource<decimal>.AfterGetResultRecycleInstanceMs = 10;
+        ReusableValueTaskSource<object>.AfterGetResultRecycleInstanceMs = 10;
+
+        Assert.IsFalse(decimalReusableValueTaskSource.IsInRecycler);
+        Assert.IsFalse(objectReusableValueTaskSource.IsInRecycler);
+        await RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
+        await RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
+        await Task.Delay(50);
+
+        Assert.IsTrue(decimalReusableValueTaskSource.IsInRecycler);
+        Assert.IsTrue(objectReusableValueTaskSource.IsInRecycler);
+
+        var checkDecimalReusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<decimal>>();
+        var checkObjReusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<object>>();
+
+        Assert.AreSame(decimalReusableValueTaskSource, checkDecimalReusableValueTaskSource);
+        Assert.AreSame(objectReusableValueTaskSource, checkObjReusableValueTaskSource);
+
+        Assert.IsFalse(checkDecimalReusableValueTaskSource.IsInRecycler);
+        Assert.IsFalse(checkObjReusableValueTaskSource.IsInRecycler);
+
+        await RunReusableValueTaskAndTaskOperations(checkDecimalReusableValueTaskSource, 123.456789m);
+        await RunReusableValueTaskAndTaskOperations(checkObjReusableValueTaskSource, "Some Expected String Obj");
+
+        await Task.Delay(50);
+        Assert.IsTrue(checkDecimalReusableValueTaskSource.IsInRecycler);
+        Assert.IsTrue(checkObjReusableValueTaskSource.IsInRecycler);
+    }
+
+    private async Task RunResetAfterSettingCompletionThenPerformNormalOperations<T>(
         ReusableValueTaskSource<T> reusableVTaskSource, T expectedResult)
     {
         var valueTask = reusableVTaskSource.GenerateValueTask();
@@ -47,9 +96,9 @@ public class ReusableValueTaskSourceTests
         Assert.IsFalse(valueTask.IsCompleted);
         Assert.IsFalse(toTask.IsCompleted);
 
-        var shouldNeverRun = false;
-        valueTask.GetAwaiter().OnCompleted(() => shouldNeverRun = true);
-        toTask.ContinueWith((_, _) => shouldNeverRun = true, null);
+        var shouldNeverRun = new bool[1];
+        valueTask.GetAwaiter().OnCompleted(() => shouldNeverRun[0] = true);
+        toTask.GetAwaiter().OnCompleted(() => shouldNeverRun[0] = true);
 
         reusableVTaskSource.Reset();
 
@@ -57,19 +106,18 @@ public class ReusableValueTaskSourceTests
         var toTask2 = valueTask.ToTask();
         Assert.AreSame(toTask, toTask2);
 
-        var valueTaskCompleteCalled = false;
-        var taskCompleteCalled = false;
+        var valueTaskCompleteCalled = new bool[1];
+        var taskCompleteCalled = new bool[1];
 
-        valueTask2.GetAwaiter().OnCompleted(() => valueTaskCompleteCalled = true);
-        toTask2.ContinueWith((_, _) => taskCompleteCalled = true, null);
+        valueTask2.GetAwaiter().OnCompleted(() => valueTaskCompleteCalled[0] = true);
+        toTask.GetAwaiter().OnCompleted(() => taskCompleteCalled[0] = true);
 
-        SetResultAssertComplete(reusableVTaskSource, expectedResult, valueTask2, toTask2, valueTaskCompleteCalled
+        await SetResultAssertComplete(reusableVTaskSource, expectedResult, valueTask2, toTask2, valueTaskCompleteCalled
             , taskCompleteCalled);
-        Assert.IsFalse(shouldNeverRun);
+        Assert.IsFalse(shouldNeverRun[0]);
     }
 
-
-    private void RunReusableValueTaskAndTaskOperations<T>(ReusableValueTaskSource<T> reusableVTaskSource
+    private async Task RunReusableValueTaskAndTaskOperations<T>(ReusableValueTaskSource<T> reusableVTaskSource
         , T expectedResult)
     {
         var valueTask = reusableVTaskSource.GenerateValueTask();
@@ -78,28 +126,30 @@ public class ReusableValueTaskSourceTests
         Assert.IsFalse(valueTask.IsCompleted);
         Assert.IsFalse(toTask.IsCompleted);
 
-        var valueTaskCompleteCalled = false;
-        var taskCompleteCalled = false;
+        var valueTaskCompleteCalled = new bool[1];
+        var taskCompleteCalled = new bool[1];
 
-        valueTask.GetAwaiter().OnCompleted(() => valueTaskCompleteCalled = true);
-        toTask.ContinueWith((_, _) => taskCompleteCalled = true, null);
+        valueTask.GetAwaiter().OnCompleted(() => valueTaskCompleteCalled[0] = true);
+        toTask.GetAwaiter().OnCompleted(() => taskCompleteCalled[0] = true);
 
-        SetResultAssertComplete(reusableVTaskSource, expectedResult, valueTask, toTask, valueTaskCompleteCalled
+        await SetResultAssertComplete(reusableVTaskSource, expectedResult, valueTask, toTask, valueTaskCompleteCalled
             , taskCompleteCalled);
     }
 
-    private static void SetResultAssertComplete<T>(ReusableValueTaskSource<T> reusableVTaskSource, T expectedResult
-        , ValueTask<T> valueTask, Task<T> toTask, in bool valueTaskCompleteCalled, in bool taskCompleteCalled)
+    private static async Task SetResultAssertComplete<T>(ReusableValueTaskSource<T> reusableVTaskSource
+        , T expectedResult
+        , ValueTask<T> valueTask, Task<T> toTask, bool[] valueTaskCompleteCalled, bool[] taskCompleteCalled)
     {
         reusableVTaskSource.TrySetResult(expectedResult);
 
         Assert.IsTrue(valueTask.IsCompleted);
         Assert.IsTrue(toTask.IsCompleted);
-        Assert.IsTrue(valueTaskCompleteCalled);
-        Thread.Sleep(20); // time to run on thread pool
-        Assert.IsTrue(taskCompleteCalled);
-
-        Assert.AreEqual(expectedResult, valueTask.Result);
-        Assert.AreEqual(expectedResult, toTask.Result);
+        Assert.IsTrue(valueTaskCompleteCalled[0]);
+        var valueTaskResult = await valueTask;
+        var toTaskResult = await toTask;
+        Assert.AreEqual(expectedResult, valueTaskResult);
+        Assert.AreEqual(expectedResult, toTaskResult);
+        await Task.Delay(20); // time for the completion to finish
+        Assert.IsTrue(taskCompleteCalled[0]);
     }
 }

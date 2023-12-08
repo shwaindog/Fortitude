@@ -1,12 +1,15 @@
-﻿using FortitudeIO.Protocols.ORX.Serialization.ObjectRecycling;
+﻿#region
+
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Transports.Sockets.Publishing;
 
-namespace FortitudeIO.Protocols.ORX.ClientServer
+#endregion
+
+namespace FortitudeIO.Protocols.ORX.ClientServer;
+
+public interface IOrxPublisher : ITcpSocketPublisher
 {
-    public interface IOrxPublisher : ITcpSocketPublisher
-    {
-        OrxRecyclingFactory RecyclingFactory { get; }
-        void RegisterSerializer<T>() where T : class, IVersionedMessage, new();
-        IOrxSubscriber StreamFromSubscriber { get; }
-    }
+    IRecycler RecyclingFactory { get; }
+    IOrxSubscriber StreamFromSubscriber { get; }
+    void RegisterSerializer<T>() where T : class, IVersionedMessage, new();
 }

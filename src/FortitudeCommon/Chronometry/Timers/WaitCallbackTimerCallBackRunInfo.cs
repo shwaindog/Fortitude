@@ -8,6 +8,8 @@ namespace FortitudeCommon.Chronometry.Timers;
 
 internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
 {
+    private WaitCallback? cleanUpWaitCallback;
+    private WaitCallback? waitCallback;
     public WaitCallbackTimerCallBackRunInfo() { }
 
     private WaitCallbackTimerCallBackRunInfo(WaitCallbackTimerCallBackRunInfo toCLone)
@@ -16,7 +18,22 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
         CopyFrom(toCLone);
     }
 
-    public WaitCallback? WaitCallback { get; set; }
+    public WaitCallback? WaitCallback
+    {
+        get => waitCallback;
+        set
+        {
+            waitCallback = value;
+            cleanUpWaitCallback ??= state =>
+            {
+                Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.Executing
+                    , (int)RunStateEnum.Queued);
+                waitCallback!(state);
+                AsyncPostRunRecycleCheck();
+            };
+        }
+    }
+
     public object? State { get; set; }
 
     public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
@@ -34,16 +51,23 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
     public override bool RunCallbackOnThreadPool()
     {
         if (!IsFinished)
-        {
-            Interlocked.Increment(ref CurrentInvocations);
-            if (!IsFinished)
-                NextScheduleTime += IntervalPeriodTimeSpan;
-            else
-                NextScheduleTime = DateTime.MaxValue;
+            if (Interlocked.Increment(ref QueueCount) > 0 && Interlocked.CompareExchange(ref RunState
+                    , (int)RunStateEnum.Queued, (int)RunStateEnum.NotRunning) !=
+                (int)RunStateEnum.RecycleRequested)
+            {
+                Interlocked.Increment(ref CurrentInvocations);
+                if (!IsFinished)
+                    NextScheduleTime += IntervalPeriodTimeSpan;
+                else
+                    NextScheduleTime = DateTime.MaxValue;
 
-            LastRunTime = TimeContext.UtcNow;
-            return ThreadPool.QueueUserWorkItem(WaitCallback!, State);
-        }
+                LastRunTime = TimeContext.UtcNow;
+                return ThreadPool.QueueUserWorkItem(cleanUpWaitCallback!, State);
+            }
+            else
+            {
+                AsyncPostRunRecycleCheck();
+            }
 
         return false;
     }

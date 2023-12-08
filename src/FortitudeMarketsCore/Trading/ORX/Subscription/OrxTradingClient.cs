@@ -153,6 +153,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
             Subscriber.Logger.Info(new NewOrderLog((ISpotOrder)order.Product!));
             lock (ActiveOrders)
             {
+                order.IncrementRefCount();
                 ActiveOrders.Add(order.OrderId.ClientOrderId.ToString(), order);
             }
 
@@ -173,9 +174,10 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         if (IsAvailable)
         {
             bool isActive;
+            var orderKey = order.OrderId.ClientOrderId.ToString();
             lock (ActiveOrders)
             {
-                isActive = ActiveOrders.ContainsKey(order.OrderId.ClientOrderId.ToString());
+                isActive = ActiveOrders.ContainsKey(orderKey);
             }
 
             if (!isActive)
@@ -186,14 +188,15 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
             lock (AmendingOrders)
             {
-                if (AmendingOrders.ContainsKey(order.OrderId.ClientOrderId.ToString()))
+                if (AmendingOrders.ContainsKey(orderKey))
                 {
                     Subscriber.Logger.Warn("Cannot execute amend on " + ServerName +
                                            " as the order is already waiting for an amend reply.");
                     return;
                 }
 
-                AmendingOrders.Add(order.OrderId.ClientOrderId.ToString(), amendOrderRequest);
+                amendOrderRequest.IncrementRefCount();
+                AmendingOrders.Add(orderKey, amendOrderRequest);
             }
 
             if ((SupportedVenueFeatures & VenueFeatures.Amends) > 0)
@@ -215,7 +218,11 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                     Subscriber.Logger.Info(new OrderAmendLog((ISpotOrder)order.Product));
                     lock (AmendingOrders)
                     {
-                        AmendingOrders.Remove(order.OrderId.ClientOrderId.ToString());
+                        if (AmendingOrders.TryGetValue(orderKey, out var amendOrder))
+                        {
+                            AmendingOrders.Remove(orderKey);
+                            amendOrder.DecrementRefCount();
+                        }
                     }
 
                     OnOrderAmend(order);
@@ -420,19 +427,9 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
     private void HandleSubmitReject(OrxSubmitReject message, object? context, ISession? cx)
     {
-        IOrder? order;
-        lock (ActiveOrders)
-        {
-            ActiveOrders.TryGetValue(message.OrderId!.ClientOrderId.ToString(), out order);
-            ActiveOrders.Remove(message.OrderId.ClientOrderId.ToString());
-        }
-
-        if (order == null)
-        {
-            Subscriber.Logger.Warn("SubmitReject received for unknown order (Id=" + message.OrderId.ClientOrderId +
-                                   ")");
-            return;
-        }
+        var orderKey = message.OrderId!.ClientOrderId.ToString();
+        var order = GetActiveOrder(orderKey);
+        RemoveActiveOrder(orderKey);
 
         Subscriber.Logger.Info(new OrderUpdateLog((ISpotOrder)order.Product!));
         OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.OrderRejected, TimeContext.UtcNow));
@@ -443,12 +440,26 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
     private void HandleAmendReject(OrxAmendReject message, object? context, ISession? cx)
     {
         Subscriber.Logger.Warn("AmendReject received for order Id={0}: {1}", message.OrderId, message.Reason);
-        lock (AmendingOrders)
-        {
-            AmendingOrders.Remove(message.OrderId!.ClientOrderId.ToString());
-        }
+        RemoveActiveOrder(message.OrderId!.ClientOrderId.ToString());
 
         CancelAfterAmendReject(message.OrderId);
+    }
+
+    private void RemoveActiveOrder(string clientOrderId)
+    {
+        lock (AmendingOrders)
+        {
+            if (ActiveOrders.TryGetValue(clientOrderId, out var toRemove))
+            {
+                ActiveOrders.Remove(clientOrderId);
+                toRemove.DecrementRefCount();
+            }
+            else
+            {
+                Subscriber.Logger.Warn("Unexpected state tried to deactivate for unknown order (Id=" + clientOrderId +
+                                       ")");
+            }
+        }
     }
 
     private void HandleVenueOrder(OrxVenueOrderUpdate venueOrderUpdate, object? context, ISession? sessionRepo)
@@ -465,7 +476,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
     private void HandleOrderUpdate(OrxOrderUpdate update, object? context, ISession? cx)
     {
         var orderOrderId = update.Order!.OrderId.Clone();
-        Subscriber.Logger.Info("*** OrderEvt {0} {1}", orderOrderId, update.OrderUpdateType);
+        Subscriber.Logger.Info("*** OrderEvt {0} {1}", update.Order.ToString(), update.OrderUpdateType);
 
         if (update.OrderUpdateType == OrderUpdateEventType.OrderCancelSent)
         {
@@ -481,12 +492,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                 adapterOrderId, update.Info);
         }
 
-        IOrder? order;
-        lock (ActiveOrders)
-        {
-            ActiveOrders.TryGetValue(orderOrderId.ClientOrderId.ToString(), out order);
-        }
-
+        var order = GetActiveOrder(orderOrderId.ClientOrderId.ToString());
         if (order == null)
         {
             Subscriber.Logger.Warn("OrderUpdate received for unknown order (Id=" + orderOrderId + ")");
@@ -496,8 +502,13 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         IOrderAmend? amend;
         lock (AmendingOrders)
         {
-            if (AmendingOrders.TryGetValue(orderOrderId.ClientOrderId.ToString(), out amend))
-                AmendingOrders.Remove(orderOrderId.ClientOrderId.ToString());
+            var orderKey = orderOrderId.ClientOrderId.ToString();
+
+            if (AmendingOrders.TryGetValue(orderKey, out amend))
+            {
+                AmendingOrders.Remove(orderKey);
+                amend.DecrementRefCount();
+            }
         }
 
         order.OrderId = orderOrderId;
@@ -525,24 +536,19 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
             order.Status = NormalLifecycleToOrderStatus(update.OrderUpdateType);
         }
 
-        if (order.Status != OrderStatus.Dead)
+        if (oldStatus != order.Status)
         {
-            if (oldStatus != order.Status)
-            {
-                Subscriber.Logger.Info(new OrderUpdateLog((ISpotOrder)order.Product!));
-                OnOrderUpdate(update);
-            }
-            else if (amend != null)
-            {
-                order.Product!.ApplyAmendment(amend);
-                Subscriber.Logger.Info(new OrderAmendLog((ISpotOrder)order.Product));
-                OnOrderAmend(order.Clone());
-            }
+            Subscriber.Logger.Info(new OrderUpdateLog((ISpotOrder)order.Product!));
+            OnOrderUpdate(update);
         }
-        else
+        else if (amend != null)
         {
-            HandleOrderEol(update);
+            order.Product!.ApplyAmendment(amend);
+            Subscriber.Logger.Info(new OrderAmendLog((ISpotOrder)order.Product));
+            OnOrderAmend(order.Clone());
         }
+
+        if (order.Status == OrderStatus.Dead) HandleOrderEol(update);
     }
 
     protected virtual void HandleExecution(OrxExecutionUpdate update, object? context, ISession? cx)
@@ -552,17 +558,12 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
     protected void HandleExecution(OrxExecutionUpdate update)
     {
+        var order = GetActiveOrder(update.Execution.OrderId.ClientOrderId.ToString());
         if (PreTradeAsFinal && update.Execution!.ExecutionStageType == ExecutionStageType.PreTrade)
         {
             var executionId = update.Execution.ExecutionId;
             Subscriber.Logger.Info("*** PenExec {0} {1} {2}", executionId,
                 update.Execution.CumulativeQuantity, update.Execution.CumulativeVwapPrice);
-            IOrder? order;
-            lock (ActiveOrders)
-            {
-                ActiveOrders.TryGetValue(update.Execution.OrderId.ClientOrderId.ToString(), out order);
-            }
-
             if (order != null)
             {
                 if (PreTradeAsFinal)
@@ -589,12 +590,6 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         {
             Subscriber.Logger.Info("*** AckExec {0} {1} {2}", update.Execution!.ExecutionId, update.Execution.Quantity,
                 update.Execution.Quantity);
-            IOrder? order;
-            lock (ActiveOrders)
-            {
-                ActiveOrders.TryGetValue(update.Execution.OrderId.ClientOrderId.ToString(), out order);
-            }
-
             if (order == null)
             {
                 Subscriber.Logger.Warn("Execution received for unknown order on " + ServerName + " (ExecutionID=" +
@@ -618,16 +613,23 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
     }
 
+    private IOrder? GetActiveOrder(string clientOrderId)
+    {
+        IOrder? order;
+        lock (ActiveOrders)
+        {
+            ActiveOrders.TryGetValue(clientOrderId, out order);
+        }
+
+        return order;
+    }
+
     private void HandleOrderEol(IOrderUpdate orderUpdate)
     {
         if (!orderUpdate.Order!.IsPending() && !orderUpdate.Order!.HasPendingExecutions())
         {
             Subscriber.Logger.Info(new OrderUpdateLog((ISpotOrder)orderUpdate.Order!.Product!));
-            OnOrderUpdate(orderUpdate);
-            lock (ActiveOrders)
-            {
-                ActiveOrders.Remove(orderUpdate.Order.OrderId.ClientOrderId.ToString());
-            }
+            RemoveActiveOrder(orderUpdate.Order.OrderId.ClientOrderId.ToString());
         }
     }
 

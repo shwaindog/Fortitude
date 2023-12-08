@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeMarketsApi.Trading.Orders.Client;
 using FortitudeMarketsApi.Trading.Orders.Products;
@@ -8,7 +10,7 @@ using FortitudeMarketsApi.Trading.Orders.Products;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders.Client;
 
-public class OrxOrderAmend : IOrderAmend
+public class OrxOrderAmend : ReusableObject<IOrderAmend>, IOrderAmend
 {
     public OrxOrderAmend() { }
 
@@ -35,6 +37,27 @@ public class OrxOrderAmend : IOrderAmend
     [OrxOptionalField(3)] public decimal NewPrice { get; set; }
 
     [OrxOptionalField(4)] public OrderSide NewSide { get; set; }
+
+
+    public override void Reset()
+    {
+        NewDisplaySize = 0;
+        NewQuantity = 0;
+        NewPrice = 0;
+        NewSide = OrderSide.None;
+        base.Reset();
+    }
+
+    public override IOrderAmend CopyFrom(IOrderAmend source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        NewDisplaySize = source.NewDisplaySize;
+        NewQuantity = source.NewQuantity;
+        NewPrice = source.NewPrice;
+        NewSide = source.NewSide;
+        return this;
+    }
+
+    public override IOrderAmend Clone() => Recycler?.Borrow<OrxOrderAmend>().CopyFrom(this) ?? new OrxOrderAmend(this);
 
     protected bool Equals(OrxOrderAmend other)
     {

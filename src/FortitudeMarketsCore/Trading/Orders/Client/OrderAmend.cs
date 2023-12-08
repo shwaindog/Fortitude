@@ -1,31 +1,56 @@
-﻿using FortitudeMarketsApi.Trading.Orders.Client;
+﻿#region
+
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
+using FortitudeMarketsApi.Trading.Orders.Client;
 using FortitudeMarketsApi.Trading.Orders.Products;
 
-namespace FortitudeMarketsCore.Trading.Orders.Client
+#endregion
+
+namespace FortitudeMarketsCore.Trading.Orders.Client;
+
+public class OrderAmend : ReusableObject<IOrderAmend>, IOrderAmend
 {
-    public class OrderAmend : IOrderAmend
+    public OrderAmend() { }
+
+    public OrderAmend(IOrderAmend toClone)
     {
-        public OrderAmend(IOrderAmend toClone)
-        {
-            NewQuantity = toClone.NewQuantity;
-            NewPrice = toClone.NewPrice;
-            NewSide = toClone.NewSide;
-            NewDisplaySize = toClone.NewDisplaySize;
-        }
-
-        public OrderAmend(decimal newQuantity, decimal newPrice = -1m, OrderSide newSide = OrderSide.None,
-            decimal newDisplaySize = -1m)
-        {
-            NewQuantity = newQuantity;
-            NewPrice = newPrice;
-            NewSide = newSide;
-            NewDisplaySize = newDisplaySize;
-        }
-
-        public decimal NewDisplaySize { get; set; }
-
-        public decimal NewQuantity { get; set; }
-        public decimal NewPrice { get; set; }
-        public OrderSide NewSide { get; set; }
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
     }
+
+    public OrderAmend(decimal newQuantity, decimal newPrice = -1m, OrderSide newSide = OrderSide.None,
+        decimal newDisplaySize = -1m)
+    {
+        NewQuantity = newQuantity;
+        NewPrice = newPrice;
+        NewSide = newSide;
+        NewDisplaySize = newDisplaySize;
+    }
+
+    public decimal NewDisplaySize { get; set; }
+
+    public decimal NewQuantity { get; set; }
+    public decimal NewPrice { get; set; }
+    public OrderSide NewSide { get; set; }
+
+    public override void Reset()
+    {
+        NewDisplaySize = 0;
+        NewQuantity = 0;
+        NewPrice = 0;
+        NewSide = OrderSide.None;
+        base.Reset();
+    }
+
+    public override IOrderAmend CopyFrom(IOrderAmend source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        NewDisplaySize = source.NewDisplaySize;
+        NewQuantity = source.NewQuantity;
+        NewPrice = source.NewPrice;
+        NewSide = source.NewSide;
+        return this;
+    }
+
+    public override IOrderAmend Clone() => Recycler?.Borrow<OrderAmend>().CopyFrom(this) ?? new OrderAmend(this);
 }

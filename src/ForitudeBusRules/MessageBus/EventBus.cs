@@ -106,8 +106,7 @@ public class EventBus : IEventBus
     {
         var count = 0;
         var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.DispatchResult ??= sender.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.Reset();
+        processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.RecycleTimer = sender.Context.Timer;
@@ -142,8 +141,7 @@ public class EventBus : IEventBus
         , IDispatchOptions dispatchOptions)
     {
         var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.DispatchResult ??= sender.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.Reset();
+        processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.RecycleTimer = sender.Context.Timer;

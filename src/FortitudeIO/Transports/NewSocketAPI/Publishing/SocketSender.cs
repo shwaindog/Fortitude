@@ -87,6 +87,7 @@ public sealed class SocketSender : ISocketSender
 
     public void Enqueue(IVersionedMessage message)
     {
+        message.IncrementRefCount();
         sendLock.Acquire();
         try
         {

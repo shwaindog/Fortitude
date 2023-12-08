@@ -11,7 +11,7 @@ public class OrxDeserializerLookup : IOrxDeserializerLookup
     private readonly IDictionary<Type, IDictionary<byte, IOrxDeserializer>> versionLookup =
         new Dictionary<Type, IDictionary<byte, IOrxDeserializer>>();
 
-    public OrxDeserializerLookup(IRecycler orxRecyclingFactory) => OrxRecyclingFactory = orxRecyclingFactory;
+    public OrxDeserializerLookup(IRecycler orxRecyclingFactory) => Recycler = orxRecyclingFactory;
 
     public IOrxDeserializer? GetDeserializerForVersion(Type variableType, byte version)
     {
@@ -47,7 +47,7 @@ public class OrxDeserializerLookup : IOrxDeserializerLookup
         }
     }
 
-    public IRecycler OrxRecyclingFactory { get; }
+    public IRecycler Recycler { get; }
 
     private byte HighestUnsetVersionBelowVersionForType(Type variableType, byte upperLimit)
     {

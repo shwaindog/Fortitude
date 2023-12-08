@@ -8,9 +8,12 @@ using FortitudeCommon.Types;
 namespace FortitudeCommon.Chronometry.Timers;
 
 public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo>, IComparable<TimerCallBackRunInfo>
-    , IRecyclableObject
 {
     protected int CurrentInvocations;
+
+    internal int QueueCount;
+
+    internal int RunState;
     public DateTime FirstScheduledTime { get; set; }
     public DateTime? LastRunTime { get; set; }
     public DateTime NextScheduleTime { get; set; }
@@ -33,8 +36,56 @@ public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo
         return tickDiff < 0L ? -1 : tickDiff > 0L ? 1 : 0;
     }
 
+    public override bool Recycle()
+    {
+        if (!IsInRecycler)
+        {
+            Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.RecycleRequested
+                , (int)RunStateEnum.CheckQueueCount);
+            Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.RecycleRequested
+                , (int)RunStateEnum.Executing);
+            var currentState = Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.RecycleRequested
+                , (int)RunStateEnum.Queued);
+
+            if (currentState == (int)RunStateEnum.NotRunning)
+                Recycler?.Recycle(this);
+        }
+
+        return IsInRecycler;
+    }
+
+    protected void AsyncPostRunRecycleCheck()
+    {
+        if (Interlocked.Decrement(ref QueueCount) <= 0)
+        {
+            if (Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.NotRunning
+                    , (int)RunStateEnum.RecycleRequested) == (int)RunStateEnum.RecycleRequested)
+            {
+                Recycle();
+            }
+            else
+            {
+                var lastRunState = Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.CheckQueueCount
+                    , (int)RunStateEnum.Executing);
+                if (lastRunState == (int)RunStateEnum.Executing && Thread.VolatileRead(ref QueueCount) > 0)
+                    Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.Queued
+                        , (int)RunStateEnum.CheckQueueCount);
+                else if (lastRunState == (int)RunStateEnum.Executing)
+                    Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.NotRunning
+                        , (int)RunStateEnum.CheckQueueCount);
+            }
+        }
+        else
+        {
+            Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.Queued
+                , (int)RunStateEnum.Executing);
+        }
+    }
+
     public override void Reset()
     {
+        RunState = (int)RunStateEnum.NotRunning;
+        QueueCount = 0;
         CurrentInvocations = 0;
         FirstScheduledTime = DateTime.MaxValue;
         LastRunTime = DateTime.MaxValue;
@@ -61,4 +112,13 @@ public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo
     public abstract bool RunCallbackOnThreadPool();
 
     public abstract bool RunCallbackOnThisThread();
+
+    protected enum RunStateEnum
+    {
+        NotRunning = 0
+        , Queued = 1
+        , Executing = 2
+        , CheckQueueCount = 3
+        , RecycleRequested = 4
+    }
 }

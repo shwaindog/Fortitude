@@ -46,7 +46,12 @@ public class AuthenticationData : ReusableObject<IAuthenticationData>, IAuthenti
     public override void Reset()
     {
         AuthenticationType = default;
-        if (AuthenticationBytes != null) Recycler?.Recycle(AuthenticationBytes);
+        if (AuthenticationBytes != null)
+        {
+            AuthenticationBytes.Clear();
+            Recycler?.Recycle(AuthenticationBytes);
+        }
+
         AuthenticationBytes = null;
         base.Reset();
     }

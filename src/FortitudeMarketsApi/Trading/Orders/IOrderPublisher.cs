@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Sockets;
 using FortitudeMarketsApi.Trading.Orders.Server;
 
@@ -7,7 +8,7 @@ using FortitudeMarketsApi.Trading.Orders.Server;
 
 namespace FortitudeMarketsApi.Trading.Orders;
 
-public interface IOrderPublisher : IDisposable
+public interface IOrderPublisher : IDisposable, IRecyclableObject
 {
     ISession? UnderlyingSession { get; }
     bool Publish(IOrderUpdate orderUpdate);
