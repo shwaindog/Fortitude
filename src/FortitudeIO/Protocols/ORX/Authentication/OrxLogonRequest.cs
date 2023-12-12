@@ -41,7 +41,7 @@ public sealed class OrxLogonRequest : OrxVersionedMessage
 
     [OrxMandatoryField(14)] public uint HbInterval { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Login?.DecrementRefCount();
         Login = null;
@@ -52,7 +52,7 @@ public sealed class OrxLogonRequest : OrxVersionedMessage
         ClientVersion?.DecrementRefCount();
         ClientVersion = null;
         HbInterval = 0;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVersionedMessage CopyFrom(IVersionedMessage source

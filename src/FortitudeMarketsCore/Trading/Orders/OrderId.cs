@@ -50,7 +50,7 @@ public class OrderId : ReusableObject<IOrderId>, IOrderId
     public IOrderId? ParentOrderId { get; set; }
     public IMutableString? TrackingId { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         AdapterOrderId = 0;
         ClientOrderId = 0;
@@ -62,7 +62,7 @@ public class OrderId : ReusableObject<IOrderId>, IOrderId
         VenueClientOrderId = null;
         ParentOrderId?.DecrementRefCount();
         ParentOrderId = null;
-        base.Reset();
+        base.StateReset();
     }
 
 

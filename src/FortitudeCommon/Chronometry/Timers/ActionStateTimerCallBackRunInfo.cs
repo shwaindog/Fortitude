@@ -25,12 +25,29 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
         set
         {
             backingAction = value;
-            actionAsWaitCallback ??= stateObj =>
+            actionAsWaitCallback ??= objState =>
             {
-                Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.Executing
-                    , (int)RunStateEnum.Queued);
-                backingAction!((T?)stateObj);
-                AsyncPostRunRecycleCheck();
+                var reusuableDateTimeSource = NextExecutionComplete;
+                try
+                {
+                    backingAction!((T?)objState);
+                    reusuableDateTimeSource?.TrySetResult(DateTime.Now);
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn("Timer Call '{0}' with state {1} back caught exception {2}", this, objState, e);
+                    reusuableDateTimeSource?.SetException(e);
+                }
+                finally
+                {
+                    if (reusuableDateTimeSource != null)
+                    {
+                        reusuableDateTimeSource.DecrementRefCount();
+                        Interlocked.CompareExchange(ref NextExecutionComplete, null, reusuableDateTimeSource);
+                    }
+
+                    DecrementRefCount();
+                }
             };
         }
     }
@@ -52,9 +69,7 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
     public override bool RunCallbackOnThreadPool()
     {
         if (!IsFinished)
-            if (Interlocked.Increment(ref QueueCount) > 0 && Interlocked.CompareExchange(ref RunState
-                    , (int)RunStateEnum.Queued, (int)RunStateEnum.NotRunning) !=
-                (int)RunStateEnum.RecycleRequested)
+            if (IncrementRefCount() > 1) // 1 means it was already at Zero
             {
                 Interlocked.Increment(ref CurrentInvocations);
                 if (!IsFinished)
@@ -67,7 +82,7 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
             }
             else
             {
-                AsyncPostRunRecycleCheck();
+                DecrementRefCount();
             }
 
         return false;

@@ -34,7 +34,7 @@ public class OrxAuthenticationData : ReusableObject<IAuthenticationData>, IAuthe
         Recycler?.Borrow<OrxAuthenticationData>().CopyFrom(this) ?? new OrxAuthenticationData(this);
 
 
-    public override void Reset()
+    public override void StateReset()
     {
         if (AuthenticationBytes != null)
         {
@@ -44,7 +44,7 @@ public class OrxAuthenticationData : ReusableObject<IAuthenticationData>, IAuthe
 
         AuthenticationBytes = null;
         AuthenticationType = AuthenticationType.None;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticationData CopyFrom(IAuthenticationData authData

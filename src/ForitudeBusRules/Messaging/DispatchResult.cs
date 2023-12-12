@@ -1,13 +1,12 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.Messaging;
+namespace FortitudeBusRules.Messaging;
 
 public interface IDispatchResult : IReusableObject<IDispatchResult>
 {
@@ -17,7 +16,6 @@ public interface IDispatchResult : IReusableObject<IDispatchResult>
     DateTime SentTime { get; }
     DateTime FinishedDispatchTime { get; }
     IReadOnlyList<RuleExecutionTime> RulesReceived { get; }
-    IProcessorRegistry? OwningProcessorRegistry { get; set; }
     void AddRuleTime(RuleExecutionTime ruleExecutionTime);
 }
 
@@ -55,48 +53,20 @@ public class DispatchResult : ReusableObject<IDispatchResult>, IDispatchResult
     public long TotalAwaitingTimeTicks { get; set; }
     public DateTime SentTime { get; set; }
     public DateTime FinishedDispatchTime { get; set; }
-    public IProcessorRegistry? OwningProcessorRegistry { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         SentTime = DateTime.MinValue;
         FinishedDispatchTime = DateTime.MaxValue;
         TotalExecutionTimeTicks = 0;
         TotalExecutionAwaitingTimeTicks = 0;
         rulesTimes.Clear();
-        base.Reset();
+        base.StateReset();
     }
 
     public void AddRuleTime(RuleExecutionTime ruleExecutionTime)
     {
         rulesTimes.Add(ruleExecutionTime);
-    }
-
-    public override int DecrementRefCount()
-    {
-        if (OwningProcessorRegistry != null)
-        {
-            OwningProcessorRegistry.DecrementRefCount();
-            return OwningProcessorRegistry.RefCount;
-        }
-        else
-        {
-            if (Interlocked.Increment(ref refCount) <= 0 && AutoRecycleAtRefCountZero) Recycle();
-            return refCount;
-        }
-    }
-
-    public override int IncrementRefCount()
-    {
-        if (OwningProcessorRegistry != null)
-        {
-            OwningProcessorRegistry.IncrementRefCount();
-            return OwningProcessorRegistry.RefCount;
-        }
-        else
-        {
-            return Interlocked.Increment(ref refCount);
-        }
     }
 
     public override IDispatchResult Clone() =>

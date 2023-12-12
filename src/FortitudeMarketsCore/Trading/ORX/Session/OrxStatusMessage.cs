@@ -48,12 +48,12 @@ public sealed class OrxStatusMessage : OrxTradingMessage
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         ExchangeStatus = OrxExchangeStatus.Down;
         ExchangeName?.DecrementRefCount();
         ExchangeName = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public void Configure(OrxExchangeStatus orxExchangeStatus, string exchangeName,

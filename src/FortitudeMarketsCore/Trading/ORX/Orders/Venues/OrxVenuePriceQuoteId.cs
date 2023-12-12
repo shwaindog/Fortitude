@@ -45,14 +45,14 @@ public class OrxVenuePriceQuoteId : ReusableObject<IVenuePriceQuoteId>, IVenuePr
 
     public override IVenuePriceQuoteId Clone() => new OrxVenuePriceQuoteId(this);
 
-    public override void Reset()
+    public override void StateReset()
     {
         SourceId = 0;
         TickerId = 0;
         VenueQuoteTime = DateTimeConstants.UnixEpoch;
         SourceRefId = 0;
         PQSequenceNumber = 0;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVenuePriceQuoteId CopyFrom(IVenuePriceQuoteId venuePriceQuoteId

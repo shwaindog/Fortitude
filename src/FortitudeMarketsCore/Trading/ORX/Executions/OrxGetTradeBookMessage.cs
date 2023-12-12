@@ -43,11 +43,11 @@ public class OrxGetTradeBookMessage : OrxTradingMessage
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         OrxAccount?.DecrementRefCount();
         OrxAccount = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticatedMessage Clone() =>

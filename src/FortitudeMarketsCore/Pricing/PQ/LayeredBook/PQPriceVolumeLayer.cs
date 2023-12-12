@@ -83,7 +83,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
 
     public virtual bool IsEmpty => Price == 0m && Volume == 0m;
 
-    public override void Reset()
+    public override void StateReset()
     {
         Price = 0m;
         Volume = 0m;

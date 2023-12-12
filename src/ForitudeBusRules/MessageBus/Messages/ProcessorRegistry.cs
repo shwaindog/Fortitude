@@ -1,12 +1,12 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Messages;
+namespace FortitudeBusRules.MessageBus.Messages;
 
 public interface IProcessorRegistry : IReusableAsyncResponseSource<IDispatchResult>
 {
@@ -36,12 +36,7 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
     public DispatchResult? DispatchResult
     {
         get => dispatchResult;
-        set
-        {
-            if (value == dispatchResult && dispatchResult != null) dispatchResult.OwningProcessorRegistry = null;
-            dispatchResult = value;
-            if (dispatchResult != null) dispatchResult.OwningProcessorRegistry = this;
-        }
+        set => dispatchResult = value;
     }
 
     public IRule? RulePayLoad { get; set; }
@@ -81,17 +76,17 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
         return base.DecrementRefCount();
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         havePublishedResults = false;
         ruleTimes.Clear();
         if (dispatchResult != null)
         {
-            dispatchResult.Reset();
+            dispatchResult.StateReset();
             dispatchResult.SentTime = DateTime.Now;
         }
 
-        base.Reset();
+        base.StateReset();
     }
 
     private void CollectDispatchStats()

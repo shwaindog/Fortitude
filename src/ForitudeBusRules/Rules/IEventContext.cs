@@ -1,15 +1,15 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus;
-using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
-using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines.Timers;
+using FortitudeBusRules.MessageBus;
+using FortitudeBusRules.MessageBus.Pipelines;
+using FortitudeBusRules.MessageBus.Pipelines.Timers;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
 using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.Rules;
+namespace FortitudeBusRules.Rules;
 
 public interface IEventContext
 {

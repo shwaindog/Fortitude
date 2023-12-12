@@ -101,7 +101,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
     public virtual bool IsEmpty => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
 
-    public override void Reset()
+    public override void StateReset()
     {
         TradeTime = DateTimeConstants.UnixEpoch;
         TradePrice = 0m;
@@ -161,7 +161,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     {
         if (source == null)
         {
-            Reset();
+            StateReset();
             return this;
         }
 

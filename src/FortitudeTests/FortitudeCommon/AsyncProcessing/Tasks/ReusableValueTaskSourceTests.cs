@@ -33,10 +33,10 @@ public class ReusableValueTaskSourceTests
     public async Task ReusableValueTaskSourceClearsTaskOnReset()
     {
         await RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
-        decimalReusableValueTaskSource.Reset();
+        decimalReusableValueTaskSource.StateReset();
         await RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
         await RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
-        objectReusableValueTaskSource.Reset();
+        objectReusableValueTaskSource.StateReset();
         await RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
     }
 
@@ -53,37 +53,49 @@ public class ReusableValueTaskSourceTests
     public async Task ReusableDecimalTaskIsReturnedToRecyclerAfterValueIsRead()
     {
         var recycler = new Recycler();
+        decimalReusableValueTaskSource.AutoRecycleAtRefCountZero = true;
         decimalReusableValueTaskSource.Recycler = recycler;
-        objectReusableValueTaskSource.Recycler = recycler;
+        Assert.AreEqual(1, decimalReusableValueTaskSource.RefCount);
         var threadPoolTimer = new Timer();
         decimalReusableValueTaskSource.RecycleTimer = threadPoolTimer;
-        objectReusableValueTaskSource.RecycleTimer = threadPoolTimer;
         ReusableValueTaskSource<decimal>.AfterGetResultRecycleInstanceMs = 10;
-        ReusableValueTaskSource<object>.AfterGetResultRecycleInstanceMs = 10;
 
         Assert.IsFalse(decimalReusableValueTaskSource.IsInRecycler);
-        Assert.IsFalse(objectReusableValueTaskSource.IsInRecycler);
         await RunReusableValueTaskAndTaskOperations(decimalReusableValueTaskSource, 123.456789m);
-        await RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
-        await Task.Delay(50);
-
+        await Task.Delay(200);
         Assert.IsTrue(decimalReusableValueTaskSource.IsInRecycler);
-        Assert.IsTrue(objectReusableValueTaskSource.IsInRecycler);
 
         var checkDecimalReusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<decimal>>();
-        var checkObjReusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<object>>();
-
         Assert.AreSame(decimalReusableValueTaskSource, checkDecimalReusableValueTaskSource);
-        Assert.AreSame(objectReusableValueTaskSource, checkObjReusableValueTaskSource);
-
         Assert.IsFalse(checkDecimalReusableValueTaskSource.IsInRecycler);
-        Assert.IsFalse(checkObjReusableValueTaskSource.IsInRecycler);
 
         await RunReusableValueTaskAndTaskOperations(checkDecimalReusableValueTaskSource, 123.456789m);
-        await RunReusableValueTaskAndTaskOperations(checkObjReusableValueTaskSource, "Some Expected String Obj");
-
-        await Task.Delay(50);
+        await Task.Delay(200);
         Assert.IsTrue(checkDecimalReusableValueTaskSource.IsInRecycler);
+    }
+
+    [TestMethod]
+    public async Task ReusableObjTaskIsReturnedToRecyclerAfterValueIsRead()
+    {
+        var recycler = new Recycler();
+        objectReusableValueTaskSource.AutoRecycleAtRefCountZero = true;
+        objectReusableValueTaskSource.Recycler = recycler;
+        Assert.AreEqual(1, objectReusableValueTaskSource.RefCount);
+        var threadPoolTimer = new Timer();
+        objectReusableValueTaskSource.RecycleTimer = threadPoolTimer;
+        ReusableValueTaskSource<object>.AfterGetResultRecycleInstanceMs = 10;
+
+        Assert.IsFalse(objectReusableValueTaskSource.IsInRecycler);
+        await RunReusableValueTaskAndTaskOperations(objectReusableValueTaskSource, "Some Expected String Obj");
+        await Task.Delay(200);
+        Assert.IsTrue(objectReusableValueTaskSource.IsInRecycler);
+
+        var checkObjReusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<object>>();
+        Assert.AreSame(objectReusableValueTaskSource, checkObjReusableValueTaskSource);
+        Assert.IsFalse(checkObjReusableValueTaskSource.IsInRecycler);
+
+        await RunReusableValueTaskAndTaskOperations(checkObjReusableValueTaskSource, "Some Expected String Obj");
+        await Task.Delay(200);
         Assert.IsTrue(checkObjReusableValueTaskSource.IsInRecycler);
     }
 
@@ -100,7 +112,7 @@ public class ReusableValueTaskSourceTests
         valueTask.GetAwaiter().OnCompleted(() => shouldNeverRun[0] = true);
         toTask.GetAwaiter().OnCompleted(() => shouldNeverRun[0] = true);
 
-        reusableVTaskSource.Reset();
+        reusableVTaskSource.StateReset();
 
         var valueTask2 = reusableVTaskSource.GenerateValueTask();
         var toTask2 = valueTask.ToTask();

@@ -132,9 +132,9 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
     public IExecutions? Executions { get; set; }
     public IMutableString Message { get; set; } = new MutableString();
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         PendingExecutedSize = 0;
         OrderId.DecrementRefCount();
         Parties?.DecrementRefCount();

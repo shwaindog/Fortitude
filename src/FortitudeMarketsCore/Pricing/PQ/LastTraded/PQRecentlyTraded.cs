@@ -69,7 +69,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
             while (lastTrades.Count < value)
             {
                 var firstLastTrade = lastTrades[0]?.Clone();
-                firstLastTrade?.Reset();
+                firstLastTrade?.StateReset();
                 if (firstLastTrade != null) lastTrades.Add(firstLastTrade);
             }
         }
@@ -102,10 +102,10 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
 
     public bool HasLastTrades => Count > 0;
 
-    public override void Reset()
+    public override void StateReset()
     {
-        foreach (var lastTrade in lastTrades) lastTrade?.Reset();
-        base.Reset();
+        foreach (var lastTrade in lastTrades) lastTrade?.StateReset();
+        base.StateReset();
     }
 
     public void Add(IMutableLastTrade newLastTrade)
@@ -178,7 +178,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
             sourcelayer = source[i];
             if (i < lastTrades.Count && (sourcelayer == null || sourcelayer.IsEmpty))
             {
-                lastTrades[i]?.Reset();
+                lastTrades[i]?.StateReset();
                 continue;
             }
 
@@ -200,7 +200,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
             destinationLayer?.CopyFrom(sourcelayer!);
         }
 
-        for (var i = source.Capacity; i < lastTrades.Count; i++) lastTrades[i]?.Reset();
+        for (var i = source.Capacity; i < lastTrades.Count; i++) lastTrades[i]?.StateReset();
         return this;
     }
 

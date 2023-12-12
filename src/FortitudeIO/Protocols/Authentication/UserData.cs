@@ -40,13 +40,13 @@ public class UserData : ReusableObject<IUserData>, IUserData
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         AuthData?.DecrementRefCount();
         AuthData = null;
         UserId?.DecrementRefCount();
         UserId = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IUserData Clone() => Recycler?.Borrow<UserData>().CopyFrom(this) ?? new UserData(this);

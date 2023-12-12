@@ -98,7 +98,7 @@ public class SourcePriceVolumeLayerTests
         Assert.AreNotEqual(0m, populatedPvl.Volume);
         Assert.IsNotNull(populatedPvl.SourceName);
         Assert.IsTrue(populatedPvl.Executable);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);

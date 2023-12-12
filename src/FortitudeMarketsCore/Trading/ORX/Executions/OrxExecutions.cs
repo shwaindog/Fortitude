@@ -48,10 +48,10 @@ public class OrxExecutions : ReusableObject<IExecutions>, IExecutions
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public override void Reset()
+    public override void StateReset()
     {
         ExecutionsList.Clear();
-        base.Reset();
+        base.StateReset();
     }
 
     public override IExecutions CopyFrom(IExecutions executions, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

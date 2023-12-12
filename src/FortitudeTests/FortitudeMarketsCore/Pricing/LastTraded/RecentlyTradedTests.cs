@@ -136,7 +136,7 @@ public class RecentlyTradedTests
             for (var i = MaxNumberOfEntries - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedRecentlyTraded.Count - 1);
-                populatedRecentlyTraded[i]?.Reset();
+                populatedRecentlyTraded[i]?.StateReset();
             }
 
             Assert.AreEqual(0, populatedRecentlyTraded.Count);
@@ -157,7 +157,7 @@ public class RecentlyTradedTests
         {
             Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
             foreach (var pvl in populatedRecentlyTraded) Assert.IsFalse(pvl.IsEmpty);
-            populatedRecentlyTraded.Reset();
+            populatedRecentlyTraded.StateReset();
             Assert.AreEqual(0, populatedRecentlyTraded.Count);
             foreach (var pvl in populatedRecentlyTraded) Assert.IsTrue(pvl.IsEmpty);
         }
@@ -197,7 +197,7 @@ public class RecentlyTradedTests
         {
             if (!WholeyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
             var newEmpty = new RecentlyTraded(populatedOrderBook);
-            newEmpty.Reset();
+            newEmpty.StateReset();
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             newEmpty.CopyFrom(subType);
             Assert.IsTrue(subType.AreEquivalent(newEmpty));
@@ -341,7 +341,7 @@ public class RecentlyTradedTests
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable<ILastTrade>)rt).Count());
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable)rt).OfType<ILastTrade>().Count());
 
-        rt.Reset();
+        rt.StateReset();
 
         Assert.AreEqual(0, rt.Count);
         Assert.AreEqual(0, rt.Count());
@@ -351,7 +351,7 @@ public class RecentlyTradedTests
     private static RecentlyTraded CreateNewEmpty(RecentlyTraded populatedOrderBook)
     {
         var cloneGensis = populatedOrderBook[0]!.Clone();
-        cloneGensis.Reset();
+        cloneGensis.StateReset();
         var clonedEmptyEntries = new List<ILastTrade>(MaxNumberOfEntries);
         for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGensis.Clone());
         var newEmpty = new RecentlyTraded(clonedEmptyEntries);

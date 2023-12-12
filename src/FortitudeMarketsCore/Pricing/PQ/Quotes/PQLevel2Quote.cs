@@ -134,8 +134,8 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     public override void ResetFields()
     {
-        bidBook.Reset();
-        askBook.Reset();
+        bidBook.StateReset();
+        askBook.StateReset();
         base.ResetFields();
     }
 

@@ -1,8 +1,7 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus;
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion

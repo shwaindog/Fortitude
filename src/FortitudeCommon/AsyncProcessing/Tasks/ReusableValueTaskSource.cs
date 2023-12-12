@@ -18,7 +18,6 @@ public interface IAsyncResponseSource : IValueTaskSource, IRecyclableObject
 }
 
 public interface IReusableAsyncResponseSource<T> : IAsyncResponseSource
-    , IReusableObject<IReusableAsyncResponseSource<T>>
 {
     // ReSharper disable once UnusedMemberInSuper.Global
     Task<T> AsTask { get; }
@@ -34,8 +33,7 @@ public interface IReusableAsyncResponseSource<T> : IAsyncResponseSource
 
 // credit here to Microsoft.AspNetCore.Server.Kestrel.Core.Internal.ManualResetValueTaskSource
 // copy taken from Microsoft.AspNetCore.Server.Kestrel.Core.Internal.ManualResetValueTaskSource in Microsoft.AspNetCore.Server.IIS
-public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncResponseSource<T>
-    , IStoreState<ReusableValueTaskSource<T>>
+public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>, IReusableAsyncResponseSource<T>
 {
     // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ReusableValueTaskSource<T>));
@@ -53,7 +51,6 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     private int decrementCountDownTimerSet;
     protected int InstanceNumber;
     private ITimerUpdate? lastTimerActive;
-    private int refCount;
     private int shouldRecycle;
 
     static ReusableValueTaskSource()
@@ -80,12 +77,6 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     }
 
     public ReusableValueTaskSource() => InstanceNumber = Interlocked.Increment(ref totalInstances);
-
-    private ReusableValueTaskSource(ReusableValueTaskSource<T> toClone)
-    {
-        // ReSharper disable once VirtualMemberCallInConstructor
-        CopyFrom(toClone);
-    }
 
     public bool RunContinuationsAsynchronously
     {
@@ -151,16 +142,11 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
         }
     }
 
-    public int RefCount => refCount;
-    public bool AutoRecycleAtRefCountZero { get; set; } = true;
-    public bool IsInRecycler { get; set; }
-    public IRecycler? Recycler { get; set; }
-
-    public virtual int DecrementRefCount()
+    public override int DecrementRefCount()
     {
         // logger.Debug("instanceNumber: {0} DecrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
         //     , refCount, new StackTrace());
-        if (AutoRecycleAtRefCountZero && Interlocked.Decrement(ref refCount) <= 0)
+        if (!IsInRecycler && AutoRecycleAtRefCountZero && Interlocked.Decrement(ref refCount) <= 0)
             if (ShouldPerformRecycle)
             {
                 if (RecycleTimer != null)
@@ -179,17 +165,10 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
         return refCount;
     }
 
-    public int IncrementRefCount() =>
+    public override int IncrementRefCount() =>
         // logger.Debug("instanceNumber: {0} IncrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
         //     , refCount, new StackTrace());
         Interlocked.Increment(ref refCount);
-
-    public bool Recycle()
-    {
-        if (!IsInRecycler && (refCount <= 0 || !AutoRecycleAtRefCountZero)) Recycler?.Recycle(this);
-
-        return IsInRecycler;
-    }
 
     void IValueTaskSource.GetResult(short token)
     {
@@ -218,15 +197,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
         }
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
-
-    public IReusableObject<IReusableAsyncResponseSource<T>> CopyFrom(
-        IReusableObject<IReusableAsyncResponseSource<T>> source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
-
-    public virtual void Reset()
+    public override void StateReset()
     {
         refCount = 0;
         shouldRecycle = 0;
@@ -235,32 +206,7 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
         ResetTaskAction(taskCompletionSource.Task);
         RunContinuationsAsynchronously = false;
         Core.Reset();
-    }
-
-
-    public IReusableAsyncResponseSource<T> CopyFrom(IReusableAsyncResponseSource<T> source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        if (source is ReusableValueTaskSource<T> reusableValueTaskSource)
-        {
-            AwaitingValueTask = reusableValueTaskSource.AwaitingValueTask;
-            RunContinuationsAsynchronously = reusableValueTaskSource.RunContinuationsAsynchronously;
-            Core = reusableValueTaskSource.Core;
-        }
-
-        return this;
-    }
-
-    object ICloneable.Clone() => Clone();
-
-    public IReusableAsyncResponseSource<T> Clone() =>
-        Recycler?.Borrow<ReusableValueTaskSource<T>>().CopyFrom(this) ?? new ReusableValueTaskSource<T>(this);
-
-    public virtual ReusableValueTaskSource<T> CopyFrom(ReusableValueTaskSource<T> source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        Core = source.Core;
-        return this;
+        base.StateReset();
     }
 
     public T GetResult(short token) => Core.GetResult(token);
@@ -269,11 +215,6 @@ public class ReusableValueTaskSource<T> : IValueTaskSource<T>, IReusableAsyncRes
     public void OnCompleted(Action<object?> continuation, object? state, short token
         , ValueTaskSourceOnCompletedFlags flags) =>
         Core.OnCompleted(continuation, state, token, flags);
-
-    public void CopyFrom(IAsyncResponseSource source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((ReusableValueTaskSource<T>)source, copyMergeFlags);
-    }
 
     private static void RecycleCompleted(IAsyncResponseSource? toRecycle)
     {

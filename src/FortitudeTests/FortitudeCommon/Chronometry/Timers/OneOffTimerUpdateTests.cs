@@ -73,12 +73,12 @@ public class OneOffTimerUpdateTests
     [TestMethod]
     public void IncrementAndDecrementRefCountTest()
     {
-        Assert.AreEqual(0, oneOffTimerUpdate.RefCount);
-        Assert.AreEqual(1, oneOffTimerUpdate.IncrementRefCount());
         Assert.AreEqual(1, oneOffTimerUpdate.RefCount);
+        Assert.AreEqual(2, oneOffTimerUpdate.IncrementRefCount());
+        Assert.AreEqual(2, oneOffTimerUpdate.RefCount);
         oneOffTimerUpdate.AutoRecycleAtRefCountZero = false;
-        Assert.AreEqual(0, oneOffTimerUpdate.DecrementRefCount());
-        Assert.AreEqual(0, oneOffTimerUpdate.RefCount);
+        Assert.AreEqual(1, oneOffTimerUpdate.DecrementRefCount());
+        Assert.AreEqual(1, oneOffTimerUpdate.RefCount);
     }
 
     [TestMethod]

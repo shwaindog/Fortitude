@@ -91,7 +91,7 @@ public class ValueDatePriceVolumeLayerTests
         Assert.AreNotEqual(0m, populatedPvl.Price);
         Assert.AreNotEqual(0m, populatedPvl.Volume);
         Assert.AreNotEqual(DateTimeConstants.UnixEpoch, populatedPvl.ValueDate);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);

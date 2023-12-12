@@ -27,10 +27,27 @@ internal class ActionTimerCallBackRunInfo : TimerCallBackRunInfo
             backingAction = value;
             actionAsWaitCallback ??= _ =>
             {
-                Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.Executing
-                    , (int)RunStateEnum.Queued);
-                backingAction!();
-                AsyncPostRunRecycleCheck();
+                var reusuableDateTimeSource = NextExecutionComplete;
+                try
+                {
+                    backingAction!();
+                    reusuableDateTimeSource?.TrySetResult(DateTime.Now);
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn("Timer Call '{0}' back caught exception {1}", this, e);
+                    reusuableDateTimeSource?.SetException(e);
+                }
+                finally
+                {
+                    if (reusuableDateTimeSource != null)
+                    {
+                        reusuableDateTimeSource.DecrementRefCount();
+                        Interlocked.CompareExchange(ref NextExecutionComplete, null, reusuableDateTimeSource);
+                    }
+
+                    DecrementRefCount();
+                }
             };
         }
     }
@@ -46,9 +63,7 @@ internal class ActionTimerCallBackRunInfo : TimerCallBackRunInfo
     public override bool RunCallbackOnThreadPool()
     {
         if (!IsFinished)
-            if (Interlocked.Increment(ref QueueCount) > 0 && Interlocked.CompareExchange(ref RunState
-                    , (int)RunStateEnum.Queued, (int)RunStateEnum.NotRunning) !=
-                (int)RunStateEnum.RecycleRequested)
+            if (IncrementRefCount() > 1) // 1 means it was already at Zero
             {
                 Interlocked.Increment(ref CurrentInvocations);
                 if (!IsFinished)
@@ -61,7 +76,7 @@ internal class ActionTimerCallBackRunInfo : TimerCallBackRunInfo
             }
             else
             {
-                AsyncPostRunRecycleCheck();
+                DecrementRefCount();
             }
 
         return false;
@@ -85,10 +100,10 @@ internal class ActionTimerCallBackRunInfo : TimerCallBackRunInfo
         return false;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         backingAction = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override TimerCallBackRunInfo Clone() =>

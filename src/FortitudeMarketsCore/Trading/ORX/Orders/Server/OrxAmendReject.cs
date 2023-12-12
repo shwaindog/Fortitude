@@ -41,13 +41,13 @@ public class OrxAmendReject : OrxTradingMessage
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Reason?.DecrementRefCount();
         Reason = null;
         OrderId?.DecrementRefCount();
         OrderId = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticatedMessage Clone() =>

@@ -1,10 +1,10 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Rules;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.Injection;
+namespace FortitudeBusRules.Injection;
 
 public class BasicDependencyResolver : IDependencyResolver, IBasicDependencyConfigurer
 {

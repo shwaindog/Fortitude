@@ -36,9 +36,9 @@ public class VenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
     public int Count => venues.Count;
     public VenueSelectionMethod VenueSelectionMethod { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         venues.Clear();
     }
 

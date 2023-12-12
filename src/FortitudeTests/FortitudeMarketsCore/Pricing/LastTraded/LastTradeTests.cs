@@ -81,7 +81,7 @@ public class LastTradeTests
         Assert.IsFalse(populatedLt.IsEmpty);
         Assert.AreNotEqual(0m, populatedLt.TradePrice);
         Assert.AreNotEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
-        populatedLt.Reset();
+        populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);

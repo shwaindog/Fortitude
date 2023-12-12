@@ -101,14 +101,14 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
 
     public bool RemoveAt(int index)
     {
-        TraderDetails[index]?.Reset();
+        TraderDetails[index]?.StateReset();
         return true;
     }
 
     public void SetTradersCountOnly(int numberOfTraders)
     {
         AssertMaxTraderSizeNotExceeded(numberOfTraders);
-        Reset();
+        StateReset();
         for (var i = 0; i < numberOfTraders; i++)
         {
             var traderInfo = this[i];
@@ -120,10 +120,10 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         }
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
-        foreach (var traderLayerInfo in TraderDetails) traderLayerInfo?.Reset();
-        base.Reset();
+        foreach (var traderLayerInfo in TraderDetails) traderLayerInfo?.StateReset();
+        base.StateReset();
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
@@ -146,7 +146,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
                 }
 
             for (var i = TraderDetails.Count - 1; i >= sourceTraderPriceVolumeLayer.Count; i--)
-                TraderDetails[i]?.Reset();
+                TraderDetails[i]?.StateReset();
         }
 
         return this;

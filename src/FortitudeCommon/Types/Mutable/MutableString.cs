@@ -441,10 +441,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     }
 
 
-    public override void Reset()
+    public override void StateReset()
     {
         sb.Clear();
-        base.Reset();
+        base.StateReset();
     }
 
     object ICloneable.Clone() => Clone();

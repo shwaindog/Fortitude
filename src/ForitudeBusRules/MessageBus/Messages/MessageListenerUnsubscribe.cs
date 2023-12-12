@@ -1,11 +1,11 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Messages;
+namespace FortitudeBusRules.MessageBus.Messages;
 
 public interface ISubscription
 {

@@ -40,12 +40,12 @@ public class OrxOrderAmendResponse : OrxOrderUpdate, IOrderAmendResponse
         set => OldOrderId = value as OrxOrderId;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         OldOrderId?.DecrementRefCount();
         OldOrderId = null;
         AmendType = default;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IOrderAmendResponse Clone() =>

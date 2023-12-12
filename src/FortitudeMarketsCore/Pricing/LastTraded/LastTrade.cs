@@ -33,11 +33,11 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
 
     public virtual bool IsEmpty => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
 
-    public override void Reset()
+    public override void StateReset()
     {
         TradeTime = DateTimeConstants.UnixEpoch;
         TradePrice = 0m;
-        base.Reset();
+        base.StateReset();
     }
 
     public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

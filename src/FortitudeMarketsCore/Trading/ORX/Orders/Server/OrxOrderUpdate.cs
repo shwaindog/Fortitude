@@ -48,13 +48,13 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
 
     public DateTime ClientReceivedTime { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         OrderUpdateType = OrderUpdateEventType.Unknown;
         AdapterUpdateTime = DateTimeConstants.UnixEpoch;
         Order?.DecrementRefCount();
         Order = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVersionedMessage CopyFrom(IVersionedMessage versionedMessage

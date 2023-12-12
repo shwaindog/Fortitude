@@ -52,13 +52,13 @@ public class OrxGetOrderBookMessage : OrxTradingMessage
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         OrxAccount?.DecrementRefCount();
         OrxAccount = null;
         OrxInactiveTrades?.DecrementRefCount();
         OrxInactiveTrades = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticatedMessage Clone() =>

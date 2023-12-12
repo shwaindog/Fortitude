@@ -30,11 +30,11 @@ public class TraderLayerInfo : ReusableObject<ITraderLayerInfo>, IMutableTraderL
 
     public decimal TraderVolume { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         TraderVolume = 0m;
         TraderName = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override ITraderLayerInfo CopyFrom(ITraderLayerInfo source

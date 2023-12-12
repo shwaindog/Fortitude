@@ -39,12 +39,14 @@ public class Recycler : IRecycler
         }
 
         var borrowed = (T)poolFactoryContainer!.Borrow();
-        if (borrowed is IRecyclableObject recycleable)
+        if (borrowed is IRecyclableObject recyclable)
         {
-            recycleable.Recycler = this;
-            if (shouldAutoRecycleOnRefCountZero) recycleable.IncrementRefCount();
-            recycleable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
-            recycleable.IsInRecycler = false;
+            recyclable.Recycler = this;
+
+            while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount < 1) recyclable.IncrementRefCount();
+            while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount > 1) recyclable.DecrementRefCount();
+            recyclable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
+            recyclable.IsInRecycler = false;
         }
 
         return borrowed;
@@ -62,12 +64,13 @@ public class Recycler : IRecycler
         }
 
         var borrowed = poolFactoryContainer!.Borrow();
-        if (borrowed is IRecyclableObject recycleable)
+        if (borrowed is IRecyclableObject recyclable)
         {
-            recycleable.Recycler = this;
-            if (shouldAutoRecycleOnRefCountZero) recycleable.IncrementRefCount();
-            recycleable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
-            recycleable.IsInRecycler = false;
+            recyclable.Recycler = this;
+            while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount < 1) recyclable.IncrementRefCount();
+            while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount > 1) recyclable.DecrementRefCount();
+            recyclable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
+            recyclable.IsInRecycler = false;
         }
 
         return borrowed;
@@ -77,8 +80,18 @@ public class Recycler : IRecycler
     {
         var type = trash.GetType();
         var recyclable = trash as IRecyclableObject;
+        if (recyclable != null)
+        {
+            if (!recyclable.IsInRecycler)
+                throw new ArgumentException("Attempted to recycle object without setting IsInRecycler to true.");
+            if (recyclable.RefCount != 0 && recyclable.AutoRecycleAtRefCountZero &&
+                throwWhenAttemptToRecycleRefCountNoZero)
+                throw new ArgumentException("Attempted to recycle ref counted object that is not at RefCount == 0");
+            recyclable.StateReset();
+        }
+
         if (!poolFactoryMap.TryGetValue(type, out var poolFactoryContainer))
-            if (acceptNonCreatedObjects || (recyclable != null && recyclable.Recycler == this))
+            if (acceptNonCreatedObjects || recyclable?.Recycler == this)
             {
                 var newInstanceFunc = ReflectionHelper.CreateEmptyConstructorFactoryAsFuncType(type);
 
@@ -91,16 +104,6 @@ public class Recycler : IRecycler
             {
                 throw new ArgumentException("Attempted to return an object that was never created from recycler");
             }
-
-        if (recyclable != null)
-        {
-            if (recyclable.RefCount > 0 && recyclable.AutoRecycleAtRefCountZero &&
-                throwWhenAttemptToRecycleRefCountNoZero)
-                throw new ArgumentException("Attempted to recycle ref counted object that is not at RefCount == 0");
-            recyclable.IsInRecycler = true;
-        }
-
-        if (trash is IReusableObject reusableObject) reusableObject.Reset();
 
         poolFactoryContainer!.ReturnBorrowed(trash);
     }

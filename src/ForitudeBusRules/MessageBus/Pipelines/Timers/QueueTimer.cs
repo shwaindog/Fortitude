@@ -1,13 +1,13 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines.Timers;
+namespace FortitudeBusRules.MessageBus.Pipelines.Timers;
 
 public class QueueTimer : Rule, IActionTimer
 {

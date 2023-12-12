@@ -394,7 +394,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(populatedLt.IsWasGivenUpdated);
         Assert.IsTrue(populatedLt.IsWasPaidUpdated);
         Assert.IsTrue(populatedLt.IsTraderNameUpdated);
-        populatedLt.Reset();
+        populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);

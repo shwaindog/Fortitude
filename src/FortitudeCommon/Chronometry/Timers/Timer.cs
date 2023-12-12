@@ -12,21 +12,26 @@ namespace FortitudeCommon.Chronometry.Timers;
 public class Timer : IUpdateableTimer
 {
     public const uint MaxTimerMs = uint.MaxValue - 1;
+    private static int totalTimers;
     private static ITimer? instance;
     private static readonly object SyncLock = new();
     internal static readonly TimeSpan MaxTimerSpan = TimeSpan.FromMilliseconds(MaxTimerMs);
     private readonly TimeSpan heartBeatCheck = TimeSpan.FromSeconds(10);
     private readonly List<TimerCallBackRunInfo> intervalCallBacks = new();
+    private readonly string name;
     private readonly List<TimerCallBackRunInfo> oneOffCallbacks = new();
     private readonly ISyncLock oneOffSpinLock = new SpinLockLight();
     private readonly System.Threading.Timer oneOffTimer;
     private readonly IRecycler recycler;
+    private int instanceNum;
     private bool isDead;
     private DateTime nextOneOffTimerTickDateTime = DateTime.MinValue;
     private volatile bool pauseAll;
 
-    public Timer()
+    public Timer(string? name = "Unnamed-Timer")
     {
+        instanceNum = Interlocked.Increment(ref totalTimers);
+        this.name = name + "-" + instanceNum;
         recycler = new Recycler();
         oneOffTimer = new System.Threading.Timer(OneOffTimerTicker, this, Timeout.Infinite, Timeout.Infinite);
     }
@@ -554,4 +559,6 @@ public class Timer : IUpdateableTimer
             oneOffSpinLock.Release();
         }
     }
+
+    public override string ToString() => $"Timer({name})";
 }

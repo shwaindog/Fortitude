@@ -5,7 +5,7 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+namespace FortitudeBusRules.MessageBus.Tasks;
 
 internal class TaskExecuteAction : ReusableObject<TaskExecuteAction>
 {
@@ -20,7 +20,7 @@ internal class TaskExecuteAction : ReusableObject<TaskExecuteAction>
     public SendOrPostCallback TaskAction { get; set; } = null!;
     public object? State { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         TaskAction = null!;
         State = null;

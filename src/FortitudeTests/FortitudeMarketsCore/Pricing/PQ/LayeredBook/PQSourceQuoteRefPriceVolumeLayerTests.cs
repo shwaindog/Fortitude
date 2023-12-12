@@ -283,7 +283,7 @@ public class PQSourceQuoteRefPriceVolumeLayerTests
         Assert.IsTrue(populatedPvl.IsSourceNameUpdated);
         Assert.IsTrue(populatedPvl.IsExecutableUpdated);
         Assert.IsTrue(populatedPvl.IsSourceQuoteReferenceUpdated);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);

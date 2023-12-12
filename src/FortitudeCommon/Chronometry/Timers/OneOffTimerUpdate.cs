@@ -49,23 +49,14 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
     public override int DecrementRefCount()
     {
         CallBackRunInfo?.DecrementRefCount();
-        if (Interlocked.Decrement(ref refCount) == 0 && AutoRecycleAtRefCountZero) Recycle();
-        return refCount;
+        return base.DecrementRefCount();
     }
 
     public override int IncrementRefCount()
     {
         CallBackRunInfo?.IncrementRefCount();
-        return Interlocked.Increment(ref refCount);
+        return base.IncrementRefCount();
     }
-
-    public override bool Recycle()
-    {
-        if (refCount <= 0 || !AutoRecycleAtRefCountZero) Recycler!.Recycle(this);
-
-        return IsInRecycler;
-    }
-
 
     public virtual bool Cancel()
     {
@@ -137,12 +128,12 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         CallBackRunInfo?.DecrementRefCount();
         CallBackRunInfo = null;
         updateableTimer = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override ITimerUpdate Clone() =>

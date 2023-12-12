@@ -44,7 +44,7 @@ public abstract class AuthenticatedMessage : VersionedMessage, IAuthenticatedMes
     public IUserData? UserData { get; set; }
     public IMutableString? Info { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         SenderName?.DecrementRefCount();
         SenderName = null;

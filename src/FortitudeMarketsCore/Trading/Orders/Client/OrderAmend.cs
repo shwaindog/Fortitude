@@ -34,13 +34,13 @@ public class OrderAmend : ReusableObject<IOrderAmend>, IOrderAmend
     public decimal NewPrice { get; set; }
     public OrderSide NewSide { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         NewDisplaySize = 0;
         NewQuantity = 0;
         NewPrice = 0;
         NewSide = OrderSide.None;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IOrderAmend CopyFrom(IOrderAmend source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

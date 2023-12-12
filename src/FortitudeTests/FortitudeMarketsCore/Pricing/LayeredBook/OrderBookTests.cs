@@ -279,7 +279,7 @@ public class OrderBookTests
             for (var i = MaxNumberOfLayers - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedOrderBook.Count - 1);
-                populatedOrderBook[i]?.Reset();
+                populatedOrderBook[i]?.StateReset();
             }
 
             Assert.AreEqual(0, populatedOrderBook.Count);
@@ -299,7 +299,7 @@ public class OrderBookTests
         {
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Count);
             foreach (var pvl in populatedOrderBook) Assert.IsFalse(pvl.IsEmpty);
-            populatedOrderBook.Reset();
+            populatedOrderBook.StateReset();
             Assert.AreEqual(0, populatedOrderBook.Count);
             foreach (var pvl in populatedOrderBook) Assert.IsTrue(pvl.IsEmpty);
         }
@@ -311,7 +311,7 @@ public class OrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
             var newEmpty = new OrderBook(populatedOrderBook);
-            newEmpty.Reset();
+            newEmpty.StateReset();
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             newEmpty.CopyFrom(populatedOrderBook);
             Assert.AreEqual(populatedOrderBook, newEmpty);
@@ -326,7 +326,7 @@ public class OrderBookTests
         {
             if (!WholeyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
             var newEmpty = new OrderBook(populatedOrderBook);
-            newEmpty.Reset();
+            newEmpty.StateReset();
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             newEmpty.CopyFrom(subType);
             Assert.IsTrue(subType.AreEquivalent(newEmpty));
@@ -447,7 +447,7 @@ public class OrderBookTests
         Assert.AreEqual(MaxNumberOfLayers, ((IEnumerable)rt).Cast<IPriceVolumeLayer>().Count());
         Assert.AreEqual(MaxNumberOfLayers, ((IEnumerable<IPriceVolumeLayer>)rt).Count());
 
-        rt.Reset();
+        rt.StateReset();
 
         Assert.AreEqual(0, rt.Count);
         Assert.AreEqual(0, ((IEnumerable)rt).Cast<IPriceVolumeLayer>().Count());

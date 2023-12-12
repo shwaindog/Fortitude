@@ -57,7 +57,7 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, IS
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IExecutionUpdate)source, copyMergeFlags);
 
-    public override void Reset()
+    public override void StateReset()
     {
         Execution?.DecrementRefCount();
         Execution = null;
@@ -65,7 +65,7 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, IS
         SocketReceivedTime = DateTimeConstants.UnixEpoch;
         AdapterProcessedTime = DateTimeConstants.UnixEpoch;
         ClientReceivedTime = DateTimeConstants.UnixEpoch;
-        base.Reset();
+        base.StateReset();
     }
 
     public IExecutionUpdate CopyFrom(IExecutionUpdate executionUpdate

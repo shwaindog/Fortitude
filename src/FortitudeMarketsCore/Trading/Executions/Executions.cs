@@ -34,9 +34,9 @@ public class Executions : ReusableObject<IExecutions>, IExecutions
         executions.Add(execution);
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         executions.Clear();
     }
 

@@ -34,9 +34,9 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
 
     public override bool IsEmpty => base.IsEmpty && SourceName == null;
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         SourceName = null;
         Executable = false;
     }

@@ -36,11 +36,11 @@ public sealed class OrxCancelRequest : OrxTradingMessage
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         OrderId?.DecrementRefCount();
         OrderId = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticatedMessage Clone() =>

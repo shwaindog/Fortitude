@@ -50,10 +50,10 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
 
     public override bool IsEmpty => base.IsEmpty && SourceQuoteReference == 0;
 
-    public override void Reset()
+    public override void StateReset()
     {
         SourceQuoteReference = 0;
-        base.Reset();
+        base.StateReset();
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)

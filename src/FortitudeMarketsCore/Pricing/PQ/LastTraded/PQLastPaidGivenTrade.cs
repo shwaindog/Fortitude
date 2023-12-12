@@ -126,11 +126,11 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     public override bool IsEmpty => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
 
-    public override void Reset()
+    public override void StateReset()
     {
         WasGiven = WasPaid = false;
         TradeVolume = 0m;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,

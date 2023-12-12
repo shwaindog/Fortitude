@@ -50,7 +50,7 @@ public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyT
         if (original == null)
         {
             var cloneOfSrc = (IPQLastTrade?)ConvertToExpectedImplementation(desired)?.Clone();
-            cloneOfSrc?.Reset();
+            cloneOfSrc?.StateReset();
             return cloneOfSrc;
         }
 

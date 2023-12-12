@@ -1,12 +1,12 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Config;
-using Fortitude.EventProcessing.BusRules.MessageBus;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Config;
+using FortitudeBusRules.MessageBus;
+using FortitudeBusRules.Rules;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules;
+namespace FortitudeBusRules;
 
 public class BusRules
 {

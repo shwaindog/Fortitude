@@ -48,7 +48,7 @@ public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
     public int AttemptNumber { get; set; }
     public IMutableString? Tag { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         OrderDetails?.DecrementRefCount();
         OrderDetails = null;
@@ -57,7 +57,7 @@ public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
         AttemptNumber = 0;
         Tag?.DecrementRefCount();
         Tag = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVersionedMessage CopyFrom(IVersionedMessage source

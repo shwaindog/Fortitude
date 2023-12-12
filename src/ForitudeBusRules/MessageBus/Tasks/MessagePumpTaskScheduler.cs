@@ -4,7 +4,7 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+namespace FortitudeBusRules.MessageBus.Tasks;
 
 public class MessagePumpTaskScheduler : TaskScheduler
 {

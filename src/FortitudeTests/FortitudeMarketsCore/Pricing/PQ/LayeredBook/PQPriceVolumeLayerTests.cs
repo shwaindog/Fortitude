@@ -211,7 +211,7 @@ public class PQPriceVolumeLayerTests
         Assert.AreNotEqual(0m, populatedPvl.Volume);
         Assert.IsTrue(populatedPvl.IsPriceUpdated);
         Assert.IsTrue(populatedPvl.IsVolumeUpdated);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);

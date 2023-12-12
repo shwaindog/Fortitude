@@ -59,9 +59,9 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         base.IsEmpty && SourceName == null && !Executable
         && ValueDate == DateTimeConstants.UnixEpoch && SourceQuoteReference == 0;
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         SourceName = null;
         Executable = false;
         ValueDate = DateTimeConstants.UnixEpoch;

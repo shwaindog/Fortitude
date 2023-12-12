@@ -25,10 +25,10 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
     public string? TraderName { get; set; }
     public override bool IsEmpty => base.IsEmpty && TraderName == null;
 
-    public override void Reset()
+    public override void StateReset()
     {
         TraderName = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

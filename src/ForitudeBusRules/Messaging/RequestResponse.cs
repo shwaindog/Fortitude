@@ -1,4 +1,4 @@
-﻿namespace Fortitude.EventProcessing.BusRules.Messaging;
+﻿namespace FortitudeBusRules.Messaging;
 
 public struct RequestResponse<T>
 {

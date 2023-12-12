@@ -1,10 +1,10 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
-using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines.Timers;
-using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Pipelines.Timers;
+using FortitudeBusRules.MessageBus.Tasks;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
@@ -15,7 +15,7 @@ using FortitudeCommon.Monitoring.Logging;
 #endregion
 
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
+namespace FortitudeBusRules.MessageBus.Pipelines;
 
 public class MessagePump : RingPoller<Message>
 {

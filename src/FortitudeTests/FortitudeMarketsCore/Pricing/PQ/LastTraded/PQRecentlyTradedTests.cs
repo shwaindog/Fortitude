@@ -145,7 +145,7 @@ public class PQRecentlyTradedTests
             for (var i = MaxNumberOfEntries - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedRecentlyTraded.Count - 1);
-                populatedRecentlyTraded[i]?.Reset();
+                populatedRecentlyTraded[i]?.StateReset();
             }
 
             Assert.AreEqual(0, populatedRecentlyTraded.Count);
@@ -227,7 +227,7 @@ public class PQRecentlyTradedTests
         {
             Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
             foreach (var pvl in populatedRecentlyTraded) Assert.IsFalse(pvl.IsEmpty);
-            populatedRecentlyTraded.Reset();
+            populatedRecentlyTraded.StateReset();
             Assert.AreEqual(0, populatedRecentlyTraded.Count);
             foreach (var pvl in populatedRecentlyTraded) Assert.IsTrue(pvl.IsEmpty);
         }
@@ -322,7 +322,7 @@ public class PQRecentlyTradedTests
         {
             if (!WholeyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
             var newEmpty = new PQRecentlyTraded((IRecentlyTraded)populatedOrderBook);
-            newEmpty.Reset();
+            newEmpty.StateReset();
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             newEmpty.CopyFrom(subType);
             Assert.IsTrue(subType.AreEquivalent(newEmpty));
@@ -538,7 +538,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable<ILastTrade>)rt).Count());
         Assert.AreEqual(MaxNumberOfEntries, rt.OfType<ILastTrade>().Count());
 
-        rt.Reset();
+        rt.StateReset();
 
         Assert.AreEqual(0, rt.Count);
         Assert.AreEqual(0, ((IEnumerable<IPQLastTrade>)rt).Count());
@@ -584,7 +584,7 @@ public class PQRecentlyTradedTests
     private static PQRecentlyTraded CreateNewEmpty(PQRecentlyTraded populatedOrderBook)
     {
         var cloneGensis = populatedOrderBook[0]!.Clone();
-        cloneGensis.Reset();
+        cloneGensis.StateReset();
         if (cloneGensis is IPQLastTraderPaidGivenTrade traderLastTrade)
             traderLastTrade.TraderNameIdLookup = new PQNameIdLookupGenerator(
                 PQFieldKeys.LastTraderDictionaryUpsertCommand,

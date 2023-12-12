@@ -43,7 +43,7 @@ public class AuthenticationData : ReusableObject<IAuthenticationData>, IAuthenti
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         AuthenticationType = default;
         if (AuthenticationBytes != null)
@@ -53,7 +53,7 @@ public class AuthenticationData : ReusableObject<IAuthenticationData>, IAuthenti
         }
 
         AuthenticationBytes = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticationData Clone() =>

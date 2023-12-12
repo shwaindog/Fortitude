@@ -132,7 +132,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
 
     public bool RemoveAt(int index)
     {
-        TraderDetails[index]?.Reset();
+        TraderDetails[index]?.StateReset();
         return true;
     }
 
@@ -147,15 +147,15 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
     public void SetTradersCountOnly(int numberOfTraders)
     {
         AssertMaxTraderSizeNotExceeded(numberOfTraders);
-        foreach (var pqTraderLayerInfo in TraderDetails) pqTraderLayerInfo?.Reset();
+        foreach (var pqTraderLayerInfo in TraderDetails) pqTraderLayerInfo?.StateReset();
         var traderCountId = TraderNameIdLookup.GetId(TraderCountTraderName);
         for (var i = 0; i < numberOfTraders; i++) UpsertTraderName(i, traderCountId);
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
-        foreach (var pqTraderLayerInfo in TraderDetails) pqTraderLayerInfo?.Reset();
+        base.StateReset();
+        foreach (var pqTraderLayerInfo in TraderDetails) pqTraderLayerInfo?.StateReset();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,

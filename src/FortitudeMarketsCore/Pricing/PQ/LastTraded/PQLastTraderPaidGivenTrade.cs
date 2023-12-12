@@ -109,10 +109,10 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
     public override bool IsEmpty => base.IsEmpty && TraderName == null;
 
-    public override void Reset()
+    public override void StateReset()
     {
         TraderId = 0;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
