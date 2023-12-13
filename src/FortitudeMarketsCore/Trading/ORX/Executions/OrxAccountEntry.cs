@@ -44,12 +44,12 @@ public class OrxAccountEntry : OrxTradingMessage, IStoreState<OrxAccountEntry>
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Account?.DecrementRefCount();
         Account = null;
 
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticatedMessage Clone() =>

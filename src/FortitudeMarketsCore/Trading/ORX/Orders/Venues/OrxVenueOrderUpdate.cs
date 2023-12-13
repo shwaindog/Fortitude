@@ -53,7 +53,7 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
 
     public DateTime ClientReceivedTime { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         VenueOrder?.DecrementRefCount();
         VenueOrder = null;
@@ -61,7 +61,7 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
         AdapterSocketReceivedTime = DateTimeConstants.UnixEpoch;
         AdapterProcessedTime = DateTimeConstants.UnixEpoch;
         ClientReceivedTime = DateTimeConstants.UnixEpoch;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVenueOrderUpdate Clone() =>

@@ -80,16 +80,16 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             while (BookLayers.Count < value)
             {
                 var cloneFirstLayer = (IMutablePriceVolumeLayer?)BookLayers[0]?.Clone();
-                cloneFirstLayer?.Reset();
+                cloneFirstLayer?.StateReset();
                 if (cloneFirstLayer != null) BookLayers.Add(cloneFirstLayer);
             }
         }
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
-        for (var i = 0; i < BookLayers.Count; i++) (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
-        base.Reset();
+        for (var i = 0; i < BookLayers.Count; i++) (BookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
+        base.StateReset();
     }
 
     public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -105,7 +105,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
                 else if (sourceLayerToCopy != null)
                     mutableLayer.CopyFrom(sourceLayerToCopy);
                 else
-                    (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
+                    (BookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
             }
             else
             {
@@ -114,7 +114,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         }
 
         for (var i = sourceDeepestLayerSet; i < BookLayers.Count; i++)
-            (BookLayers[i] as IMutablePriceVolumeLayer)?.Reset();
+            (BookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
         return this;
     }
 

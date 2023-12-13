@@ -143,7 +143,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
 
     public override void ResetFields()
     {
-        recentlyTraded?.Reset();
+        recentlyTraded?.StateReset();
         BatchId = SourceQuoteReference = 0;
         SourceQuoteReference = 0u;
         ValueDate = DateTimeConstants.UnixEpoch;

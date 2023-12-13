@@ -115,7 +115,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
         Assert.IsNotNull(populatedPvl.SourceName);
         Assert.IsTrue(populatedPvl.Executable);
         Assert.AreNotEqual(0u, populatedPvl.SourceQuoteReference);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);

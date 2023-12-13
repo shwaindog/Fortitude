@@ -222,9 +222,9 @@ public class PricingClientServerPubSubscribeTests
 
     private void ResetL2QuoteLayers(ILevel2Quote level2PriceQuote)
     {
-        ((OrderBook)level2PriceQuote.BidBook).Reset();
+        ((OrderBook)level2PriceQuote.BidBook).StateReset();
         ((IMutableLevel2Quote)level2PriceQuote).IsBidBookChanged = true;
-        ((OrderBook)level2PriceQuote.AskBook).Reset();
+        ((OrderBook)level2PriceQuote.AskBook).StateReset();
         ((IMutableLevel2Quote)level2PriceQuote).IsAskBookChanged = true;
     }
 

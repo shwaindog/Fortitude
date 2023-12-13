@@ -182,13 +182,13 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         }
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         ValueDate = DateTimeConstants.UnixEpoch;
         SourceName = null;
         Executable = false;
         SourceQuoteReference = 0u;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,

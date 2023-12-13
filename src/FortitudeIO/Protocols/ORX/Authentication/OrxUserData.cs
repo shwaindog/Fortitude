@@ -44,13 +44,13 @@ public class OrxUserData : ReusableObject<IUserData>, IUserData
 
     public override IUserData Clone() => Recycler?.Borrow<OrxUserData>().CopyFrom(this) ?? new OrxUserData(this);
 
-    public override void Reset()
+    public override void StateReset()
     {
         UserId?.DecrementRefCount();
         UserId = null;
         AuthData?.DecrementRefCount();
         AuthData = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IUserData CopyFrom(IUserData userData, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

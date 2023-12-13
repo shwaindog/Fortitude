@@ -56,11 +56,11 @@ public class OrxOrderStatusUpdate : OrxTradingMessage, IOrderStatusUpdate
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         NewOrderStatus = OrderStatus.Unknown;
         EventType = OrderUpdateEventType.Unknown;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticatedMessage Clone() =>

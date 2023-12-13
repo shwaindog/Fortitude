@@ -70,19 +70,49 @@ public class WaitCallbackTimerCallBackRunInfoTests
     }
 
     [TestMethod]
-    public void RunCallbackOnThreadPoolTest()
+    [Timeout(10_000)]
+    public async Task RunCallbackOnThreadPoolTest()
     {
         Assert.AreEqual(0, callbackCounter);
-        timerCallBackRunInfo.RunCallbackOnThreadPool();
-        autoResetEvent.WaitOne(1_000);
+        timerCallBackRunInfo.MaxNumberOfCalls = 2;
+        var nextExecutionVTask = timerCallBackRunInfo.NextThreadPoolExecutionAsync();
+        var wasScheduled = timerCallBackRunInfo.RunCallbackOnThreadPool();
+        Assert.IsTrue(wasScheduled);
+        Assert.AreEqual(2, timerCallBackRunInfo.RefCount);
+        var firstTime = await nextExecutionVTask;
+        var now = DateTime.Now;
+        Assert.IsTrue(firstTime + TimeSpan.FromMilliseconds(100) > now
+            , $"firstTime {firstTime} is more than 100ms less than {now}");
         Assert.AreEqual(1, callbackCounter);
+        await Task.Delay(50);
+        Assert.AreEqual(1, timerCallBackRunInfo.RefCount);
+        var secondExecutionTask = timerCallBackRunInfo.NextThreadPoolExecutionAsync();
+        wasScheduled = timerCallBackRunInfo.RunCallbackOnThreadPool();
+        Assert.IsTrue(wasScheduled);
+        Assert.AreEqual(2, timerCallBackRunInfo.RefCount);
+        var secondTime = await secondExecutionTask;
+        now = DateTime.Now;
+        Assert.IsTrue(secondTime + TimeSpan.FromMilliseconds(100) > now
+            , $"secondTime {secondTime} is more than 100ms less than {now}");
+        await Task.Delay(50);
+        Assert.AreEqual(1, timerCallBackRunInfo.RefCount);
+        Assert.AreEqual(2, callbackCounter);
 
+        // Paused callbacks can still be run manually
         var pausedTimerCallbackInfo = CreateTimerCallBackRunInfo(timerCallBackRunInfo.FirstScheduledTime);
         pausedTimerCallbackInfo.IsPaused = true;
-        Assert.AreEqual(1, callbackCounter);
-        pausedTimerCallbackInfo.RunCallbackOnThreadPool();
-        autoResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, callbackCounter);
+        var thirdExecutionTask = pausedTimerCallbackInfo.NextThreadPoolExecutionAsync();
+        wasScheduled = pausedTimerCallbackInfo.RunCallbackOnThreadPool();
+        Assert.IsTrue(wasScheduled);
+        Assert.AreEqual(2, pausedTimerCallbackInfo.RefCount);
+        var thirdTime = await thirdExecutionTask;
+        now = DateTime.Now;
+        Assert.IsTrue(thirdTime + TimeSpan.FromMilliseconds(100) > now
+            , $"thirdTime {thirdTime} is more than 100ms less than {now}");
+        await Task.Delay(50);
+        Assert.AreEqual(1, pausedTimerCallbackInfo.RefCount);
+        Assert.AreEqual(3, callbackCounter);
     }
 
     [TestMethod]

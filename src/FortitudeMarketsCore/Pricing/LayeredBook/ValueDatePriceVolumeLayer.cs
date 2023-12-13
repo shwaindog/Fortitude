@@ -27,9 +27,9 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
     public DateTime ValueDate { get; set; }
     public override bool IsEmpty => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         ValueDate = DateTimeConstants.UnixEpoch;
     }
 

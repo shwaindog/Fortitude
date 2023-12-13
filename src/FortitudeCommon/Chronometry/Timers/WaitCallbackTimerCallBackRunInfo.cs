@@ -24,12 +24,29 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
         set
         {
             waitCallback = value;
-            cleanUpWaitCallback ??= state =>
+            cleanUpWaitCallback ??= objState =>
             {
-                Interlocked.CompareExchange(ref RunState, (int)RunStateEnum.Executing
-                    , (int)RunStateEnum.Queued);
-                waitCallback!(state);
-                AsyncPostRunRecycleCheck();
+                var reusuableDateTimeSource = NextExecutionComplete;
+                try
+                {
+                    waitCallback!(objState);
+                    reusuableDateTimeSource?.TrySetResult(DateTime.Now);
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn("Timer Call '{0}' with state {1} back caught exception {2}", ToString(), objState, e);
+                    reusuableDateTimeSource?.SetException(e);
+                }
+                finally
+                {
+                    if (reusuableDateTimeSource != null)
+                    {
+                        reusuableDateTimeSource.DecrementRefCount();
+                        Interlocked.CompareExchange(ref NextExecutionComplete, null, reusuableDateTimeSource);
+                    }
+
+                    DecrementRefCount();
+                }
             };
         }
     }
@@ -51,9 +68,7 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
     public override bool RunCallbackOnThreadPool()
     {
         if (!IsFinished)
-            if (Interlocked.Increment(ref QueueCount) > 0 && Interlocked.CompareExchange(ref RunState
-                    , (int)RunStateEnum.Queued, (int)RunStateEnum.NotRunning) !=
-                (int)RunStateEnum.RecycleRequested)
+            if (IncrementRefCount() > 1) // 1 means it was already at Zero
             {
                 Interlocked.Increment(ref CurrentInvocations);
                 if (!IsFinished)
@@ -66,7 +81,7 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
             }
             else
             {
-                AsyncPostRunRecycleCheck();
+                DecrementRefCount();
             }
 
         return false;
@@ -90,11 +105,11 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
         return false;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         WaitCallback = null;
         State = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override TimerCallBackRunInfo Clone() =>

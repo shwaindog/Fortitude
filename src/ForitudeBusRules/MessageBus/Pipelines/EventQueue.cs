@@ -1,9 +1,9 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
-using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Tasks;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Extensions;
@@ -11,24 +11,28 @@ using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
+namespace FortitudeBusRules.MessageBus.Pipelines;
 
 public interface IEventQueue
 {
     string Name { get; }
+    EventQueueType QueueType { get; }
+    int Id { get; }
+
+    bool IsRunning { get; }
     void Start();
     void EnqueueMessage(Message msg);
 
     ValueTask<IDispatchResult> EnqueuePayloadWithStats<TPayload>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish);
+        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null);
 
     void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
-        string? destinationAddress = null, MessageType msgType = MessageType.Publish);
+        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null);
 
     ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.RequestResponse);
+        , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null);
 
     ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule);
 
@@ -43,35 +47,24 @@ public interface IEventQueue
     void Shutdown();
 }
 
-public enum EventQueueType
-{
-    Event
-    , Worker
-    , IOInbound
-    , IOOutbound
-    , Custom
-}
-
 public class EventQueue : IEventQueue
 {
     public const int MessageCountHistoryEntries = 60;
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(EventQueue));
 
     private readonly EventContext eventContext;
-    private readonly int id;
     private readonly MessagePump messagePump;
     private readonly string name;
 
     private readonly uint[] recentMessageCountReceived = new uint[MessageCountHistoryEntries];
     private readonly PollingRing<Message> ring;
-    private readonly EventQueueType type;
     private DateTime lastUpDateTime = DateTime.Now;
 
-    public EventQueue(IEventBus eventBus, EventQueueType type, int id, int size)
+    public EventQueue(IEventBus eventBus, EventQueueType queueType, int id, int size)
     {
-        this.type = type;
-        this.id = id;
-        name = $"{type}-{id}";
+        QueueType = queueType;
+        Id = id;
+        name = $"{queueType}-{id}";
         ring = new PollingRing<Message>(
             $"EventQueue-{name}",
             size,
@@ -83,6 +76,12 @@ public class EventQueue : IEventQueue
     }
 
     public string Name => name;
+
+    public EventQueueType QueueType { get; }
+
+    public int Id { get; }
+
+    public bool IsRunning => messagePump.IsRunning;
 
     public void EnqueueMessage(Message msg)
     {
@@ -96,13 +95,14 @@ public class EventQueue : IEventQueue
         evt.Sender = msg.Sender;
         evt.SentTime = msg.SentTime;
         evt.ProcessorRegistry = msg.ProcessorRegistry;
+        evt.RuleFilter = msg.RuleFilter;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
     }
 
     public ValueTask<IDispatchResult> EnqueuePayloadWithStats<TPayload>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish)
+        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null)
     {
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
@@ -115,6 +115,7 @@ public class EventQueue : IEventQueue
         evt.SentTime = DateTime.Now;
         // logger.Debug("EnqueuePayloadWithStats processorRegistry: {0}", processorRegistry.ToString());
         evt.ProcessorRegistry = processorRegistry;
+        evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
         return processorRegistry.GenerateValueTask();
@@ -122,7 +123,7 @@ public class EventQueue : IEventQueue
 
     public ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.RequestResponse)
+        , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null)
     {
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
@@ -139,6 +140,7 @@ public class EventQueue : IEventQueue
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
         evt.ProcessorRegistry = processorRegistry;
+        evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
         return reusableValueTaskSource.GenerateValueTask();
@@ -185,7 +187,7 @@ public class EventQueue : IEventQueue
     }
 
     public void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
-        string? destinationAddress = null, MessageType msgType = MessageType.Publish)
+        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null)
     {
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
@@ -197,6 +199,7 @@ public class EventQueue : IEventQueue
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
         evt.ProcessorRegistry = null;
+        evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
         messagePump.WakeIfAsleep();
     }

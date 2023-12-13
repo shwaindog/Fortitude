@@ -1,26 +1,42 @@
-﻿namespace Fortitude.EventProcessing.BusRules.Rules;
+﻿#region
 
-public interface IDeploymentOptions
-{
-    uint Instances { get; }
-    bool IsWorker { get; }
-    bool IsIOOutbound { get; }
-    bool IsIOInbound { get; }
-}
+using FortitudeBusRules.MessageBus.Pipelines;
+using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
+using FortitudeCommon.Types;
 
-internal class DeploymentOptions : IDeploymentOptions
+#endregion
+
+namespace FortitudeBusRules.Rules;
+
+public readonly struct DeploymentOptions
 {
-    public DeploymentOptions(uint instances = 1, bool isWorker = false, bool isIoOutbound = false
-        , bool isIoInbound = false)
+    public readonly EventQueueType EventGroupType;
+    public readonly RoutingStrategySelectionFlags RoutingStrategySelectionFlags;
+    public readonly uint Instances;
+    public readonly string? SpecificEventQueueName = null;
+
+    public DeploymentOptions(uint instances = 1, EventQueueType eventGroupType = EventQueueType.Event
+        , RoutingStrategySelectionFlags routingStrategySelectionFlags
+            = RoutingStrategySelectionFlags.DefaultPublish | RoutingStrategySelectionFlags.LeastBusyQueue
+        , string? specificEventQueueName = null)
     {
         Instances = instances;
-        IsWorker = isWorker;
-        IsIOOutbound = isIoOutbound;
-        IsIOInbound = isIoInbound;
+        EventGroupType = eventGroupType;
+        SpecificEventQueueName = specificEventQueueName;
+        RoutingStrategySelectionFlags = routingStrategySelectionFlags;
     }
+}
 
-    public uint Instances { get; }
-    public bool IsWorker { get; }
-    public bool IsIOOutbound { get; }
-    public bool IsIOInbound { get; }
+public static class DeploymentOptionsExtensions
+{
+    public static DeploymentOptions Copy(this DeploymentOptions original, uint? instances = null
+        , EventQueueType xorEventGroupType = EventQueueType.None
+        , RoutingStrategySelectionFlags xorRoutingStrategySelectionFlags = RoutingStrategySelectionFlags.None
+        , string? specificEventQueueName = null) =>
+        new(instances ?? original.Instances, xorEventGroupType ^ original.EventGroupType
+            , xorRoutingStrategySelectionFlags ^ original.RoutingStrategySelectionFlags
+            , specificEventQueueName ?? original.SpecificEventQueueName);
+
+    public static bool RequiresSpecificEventQueue(this DeploymentOptions check) =>
+        check.SpecificEventQueueName.IsNotNullOrEmpty();
 }

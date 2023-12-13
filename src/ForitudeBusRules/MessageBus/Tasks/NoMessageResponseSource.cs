@@ -7,7 +7,7 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+namespace FortitudeBusRules.MessageBus.Tasks;
 
 public class NoMessageResponseSource : IAsyncResponseSource
 {
@@ -43,6 +43,8 @@ public class NoMessageResponseSource : IAsyncResponseSource
     public int IncrementRefCount() => 0;
 
     public bool Recycle() => false;
+
+    public void StateReset() { }
 
     public void CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) { }
 

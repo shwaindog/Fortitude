@@ -5,7 +5,7 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+namespace FortitudeBusRules.MessageBus.Tasks;
 
 public interface ITaskPayload : IReusableObject<ITaskPayload>
 {
@@ -30,11 +30,11 @@ public class TaskPayload : ReusableObject<ITaskPayload>, ITaskPayload
         Callback(State);
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Callback = null!;
         State = null!;
-        base.Reset();
+        base.StateReset();
     }
 
     public override ITaskPayload CopyFrom(ITaskPayload source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

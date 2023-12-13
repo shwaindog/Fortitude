@@ -1,11 +1,11 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Messaging;
+using FortitudeBusRules.Messaging;
 using FortitudeCommon.AsyncProcessing.Tasks;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
+namespace FortitudeBusRules.MessageBus.Tasks;
 
 public interface IResponseValueTaskSource<T> : IReusableAsyncResponseSource<RequestResponse<T>>
 {
@@ -61,9 +61,9 @@ public class ReusableResponseValueTaskSource<T> : ReusableValueTaskSource<Reques
 
     public void SetResult(T result) => SetResult(new RequestResponse<T>(DispatchResult, result));
 
-    public override void Reset()
+    public override void StateReset()
     {
         DispatchResult = null;
-        base.Reset();
+        base.StateReset();
     }
 }

@@ -118,11 +118,11 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
 
     public bool IsEmpty => TraderName == null && TraderVolume == 0;
 
-    public override void Reset()
+    public override void StateReset()
     {
         TraderName = null;
         TraderVolume = 0;
-        base.Reset();
+        base.StateReset();
     }
 
     public override ITraderLayerInfo CopyFrom(ITraderLayerInfo source

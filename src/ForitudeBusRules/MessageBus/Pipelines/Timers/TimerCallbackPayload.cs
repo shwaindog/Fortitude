@@ -5,7 +5,7 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Pipelines.Timers;
+namespace FortitudeBusRules.MessageBus.Pipelines.Timers;
 
 public interface ITimerCallbackPayload : IRecyclableObject
 {
@@ -38,12 +38,12 @@ public class TimerCallbackPayload<T> : ReusableObject<TimerCallbackPayload<T>>, 
             throw new InvalidDataException("Expected either Action or ActionState to be set");
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Action = null;
         ActionState = null;
         State = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override TimerCallbackPayload<T> CopyFrom(TimerCallbackPayload<T> source

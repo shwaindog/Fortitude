@@ -31,9 +31,9 @@ public class VenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
         set => venueOrders[index] = value;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         venueOrders.Clear();
     }
 

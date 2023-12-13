@@ -253,7 +253,7 @@ public class PQLastTradeTests
         Assert.IsTrue(populatedLt.IsTradePriceUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeSubHourUpdated);
-        populatedLt.Reset();
+        populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);

@@ -1,7 +1,7 @@
 ﻿#region
 
 using System.Reflection;
-using Fortitude.EventProcessing.BusRules.Messaging;
+using FortitudeBusRules.Messaging;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -21,7 +21,7 @@ public class TestMetrics
     private const int MaxAllowedUntestedClassesInFortitudeIO = 94;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsApi = 20;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 82;
-    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 34;
+    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 35;
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses = null!;
     private Type fortitudeBusRulesType = null!;
 

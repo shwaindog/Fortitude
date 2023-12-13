@@ -1,16 +1,16 @@
 ﻿#region
 
 using System.Threading.Tasks.Sources;
-using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.MessageBus.Tasks;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus.Messages;
+namespace FortitudeBusRules.MessageBus.Messages;
 
 public interface IMessageListenerSubscription
 {
@@ -51,7 +51,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
 
     private void CallbackTaskCompleted(Task<TResponse> completed, object? state)
     {
-        if (state is IMessage msgState)
+        if (state is IMessage<TPayLoad> msgState)
         {
             if (msgState.Type is MessageType.Publish)
             {
@@ -77,7 +77,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
 
     private void CallbackValueTaskCompleted(object? state)
     {
-        if (state is IMessage msgState)
+        if (state is IMessage<TPayLoad> msgState)
         {
             if (msgState.Type is MessageType.Publish)
             {
@@ -109,6 +109,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         Handler = message =>
         {
+            if (!message.RuleFilter(SubscriberRule)) return;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
@@ -122,13 +123,13 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     if (responseAsReusable != null)
                     {
                         responseAsReusable.AwaitingValueTask = response;
-                        responseAsReusable.OnCompleted(onDependentValueTaskCompleted, message
+                        responseAsReusable.OnCompleted(onDependentValueTaskCompleted, typeMessage
                             , responseAsReusable.Version, ValueTaskSourceOnCompletedFlags.None);
                     }
                     else
                     {
                         var responseAsTask = response.ToTask();
-                        responseAsTask.ContinueWith(onDependentTaskCompleted, message);
+                        responseAsTask.ContinueWith(onDependentTaskCompleted, typeMessage);
                     }
                 }
                 else if (response.IsCompletedSuccessfully || response.IsFaulted)
@@ -155,13 +156,13 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                         if (responseAsReusable != null)
                         {
                             responseAsReusable.AwaitingValueTask = response;
-                            responseAsReusable.OnCompleted(onDependentValueTaskCompleted, message
+                            responseAsReusable.OnCompleted(onDependentValueTaskCompleted, typeMessage
                                 , responseAsReusable.Version, ValueTaskSourceOnCompletedFlags.None);
                         }
                         else
                         {
                             var responseAsTask = response.ToTask();
-                            responseAsTask.ContinueWith(onDependentTaskCompleted, message);
+                            responseAsTask.ContinueWith(onDependentTaskCompleted, typeMessage);
                         }
                     }
                     else if (response.IsCompletedSuccessfully || response.IsFaulted)
@@ -184,6 +185,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         Handler = message =>
         {
+            if (!message.RuleFilter(SubscriberRule)) return;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
@@ -193,7 +195,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                 if (!response.IsCompleted)
                 {
                     message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
-                    response.ContinueWith(onDependentTaskCompleted, message);
+                    response.ContinueWith(onDependentTaskCompleted, typeMessage);
                 }
                 else if (response.IsCompletedSuccessfully || response.IsFaulted)
                 {
@@ -216,7 +218,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     if (!response.IsCompleted)
                     {
                         message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
-                        response.ContinueWith(onDependentTaskCompleted, message);
+                        response.ContinueWith(onDependentTaskCompleted, typeMessage);
                     }
                     else if (response.IsCompletedSuccessfully || response.IsFaulted)
                     {
@@ -238,6 +240,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         Handler = message =>
         {
+            if (!message.RuleFilter(SubscriberRule)) return;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
@@ -299,6 +302,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     {
         Handler = message =>
         {
+            if (!message.RuleFilter(SubscriberRule)) return;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);

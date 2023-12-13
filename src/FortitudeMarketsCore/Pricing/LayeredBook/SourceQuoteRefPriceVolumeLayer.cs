@@ -25,9 +25,9 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
     public uint SourceQuoteReference { get; set; }
     public override bool IsEmpty => base.IsEmpty && SourceQuoteReference == 0u;
 
-    public override void Reset()
+    public override void StateReset()
     {
-        base.Reset();
+        base.StateReset();
         SourceQuoteReference = 0;
     }
 

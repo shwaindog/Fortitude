@@ -73,13 +73,13 @@ public abstract class OrxTradingMessage : OrxAuthenticatedMessage, ITradingMessa
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         MachineName?.DecrementRefCount();
         SequenceNumber = 0;
         IsReplay = false;
         OriginalSendTime = DateTimeConstants.UnixEpoch;
-        base.Reset();
+        base.StateReset();
     }
 
     public abstract override IAuthenticatedMessage Clone();

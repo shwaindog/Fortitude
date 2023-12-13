@@ -1,11 +1,11 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Messaging;
+using FortitudeBusRules.Messaging;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.Rules;
+namespace FortitudeBusRules.Rules;
 
 public enum RuleLifeCycle
 {
@@ -26,9 +26,10 @@ public interface IRule
     string? Id { get; set; }
     RuleLifeCycle LifeCycleState { get; set; }
     IEnumerable<IRule> ChildRules { get; }
+    RuleFilter AppliesToThisRule { get; }
+    RuleFilter NotAppliesToThisRule { get; }
 
     event LifeCycleChangeHandler LifeCycleChanged;
-
     ValueTask StartAsync();
     ValueTask StopAsync();
     void AddChild(IRule child);
@@ -58,6 +59,8 @@ public class Rule : IListeningRule
     };
 
     private readonly List<IRule> children = new();
+    private RuleFilter? appliesToThisRuleFilter;
+    private RuleFilter? notAppliesToThisRuleFilter;
     private IRule? parentRule;
 
     private int refCount;
@@ -121,6 +124,10 @@ public class Rule : IListeningRule
             ruleLifeCycle = value;
         }
     }
+
+    public RuleFilter AppliesToThisRule => appliesToThisRuleFilter ??= check => ReferenceEquals(check, this);
+
+    public RuleFilter NotAppliesToThisRule => notAppliesToThisRuleFilter ??= check => !ReferenceEquals(check, this);
 
     public int IncrementLifeTimeCount() => Interlocked.Increment(ref refCount);
 

@@ -24,11 +24,11 @@ public class OrxLoggedOutMessage : OrxVersionedMessage
 
     [OrxMandatoryField(10)] public MutableString? Reason { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Reason?.DecrementRefCount();
         Reason = null;
-        base.Reset();
+        base.StateReset();
     }
 
 

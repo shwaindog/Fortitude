@@ -67,7 +67,7 @@ public sealed class OrxTickerMessage : OrxTradingMessage
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Exchange?.DecrementRefCount();
         Exchange = null;
@@ -80,7 +80,7 @@ public sealed class OrxTickerMessage : OrxTradingMessage
         PriceIncrement = 0;
         Mql = 0;
         Tradeable = false;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IAuthenticatedMessage Clone() =>

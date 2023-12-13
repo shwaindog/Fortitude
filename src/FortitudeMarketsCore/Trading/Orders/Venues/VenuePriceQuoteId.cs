@@ -38,14 +38,14 @@ public class VenuePriceQuoteId : ReusableObject<IVenuePriceQuoteId>, IVenuePrice
     public uint PQSequenceNumber { get; set; }
     public DateTime VenueQuoteTime { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         SourceId = 0;
         TickerId = 0;
         SourceRefId = 0;
         PQSequenceNumber = 0;
         VenueQuoteTime = DateTimeConstants.UnixEpoch;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVenuePriceQuoteId CopyFrom(IVenuePriceQuoteId source

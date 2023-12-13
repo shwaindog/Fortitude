@@ -67,7 +67,7 @@ public class TraderLayerInfoTests
         Assert.IsNotNull(populatedTli.TraderName);
         Assert.AreNotEqual(0m, populatedTli.TraderVolume);
         Assert.IsFalse(populatedTli.IsEmpty);
-        populatedTli.Reset();
+        populatedTli.StateReset();
         Assert.IsTrue(populatedTli.IsEmpty);
         Assert.IsNull(populatedTli.TraderName);
         Assert.AreEqual(0m, populatedTli.TraderVolume);

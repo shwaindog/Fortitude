@@ -196,7 +196,7 @@ public class PQValueDatePriceVolumeLayerTests
         Assert.IsTrue(populatedPvl.IsPriceUpdated);
         Assert.IsTrue(populatedPvl.IsVolumeUpdated);
         Assert.IsTrue(populatedPvl.IsValueDateUpdated);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);

@@ -92,7 +92,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             for (var i = AllLayers.Count; i < value && AllLayers.Count > 0; i++)
             {
                 var clonedFirstLayer = AllLayers[0]?.Clone();
-                clonedFirstLayer?.Reset();
+                clonedFirstLayer?.StateReset();
                 if (clonedFirstLayer != null) AllLayers.Add(clonedFirstLayer);
             }
         }
@@ -121,10 +121,10 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         }
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
-        for (var i = 0; i < AllLayers.Count; i++) AllLayers[i]?.Reset();
-        base.Reset();
+        for (var i = 0; i < AllLayers.Count; i++) AllLayers[i]?.StateReset();
+        base.StateReset();
     }
 
     public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
@@ -200,7 +200,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             var sourcelayer = source[i];
             if (sourcelayer == null || sourcelayer.IsEmpty)
             {
-                AllLayers[i]?.Reset();
+                AllLayers[i]?.StateReset();
                 continue;
             }
 
@@ -220,7 +220,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             destinationLayer?.CopyFrom(sourcelayer);
         }
 
-        for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i]?.Reset();
+        for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i]?.StateReset();
         return this;
     }
 

@@ -62,7 +62,7 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
             while (LastTrades.Count < value)
             {
                 var cloneFirstLastTrade = LastTrades[0]?.Clone();
-                cloneFirstLastTrade?.Reset();
+                cloneFirstLastTrade?.StateReset();
                 if (cloneFirstLastTrade != null) LastTrades.Add(cloneFirstLastTrade);
             }
         }
@@ -98,10 +98,10 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
         }
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         LastTrades.Clear();
-        base.Reset();
+        base.StateReset();
     }
 
     public void Add(IMutableLastTrade newLastTrade)
@@ -136,7 +136,7 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
         }
 
         for (var i = Math.Min(currentDeepestLayerSet, LastTrades.Count) - 1; i >= sourceDeepestLayerSet; i--)
-            LastTrades[i]?.Reset();
+            LastTrades[i]?.StateReset();
         return this;
     }
 

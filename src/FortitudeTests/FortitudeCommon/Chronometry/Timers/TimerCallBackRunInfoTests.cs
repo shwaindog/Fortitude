@@ -76,12 +76,12 @@ public class TimerCallBackRunInfoTests
     [TestMethod]
     public void IncrementAndDecrementRefCountTest()
     {
-        Assert.AreEqual(0, timerCallBackRunInfo.RefCount);
-        Assert.AreEqual(1, timerCallBackRunInfo.IncrementRefCount());
         Assert.AreEqual(1, timerCallBackRunInfo.RefCount);
+        Assert.AreEqual(2, timerCallBackRunInfo.IncrementRefCount());
+        Assert.AreEqual(2, timerCallBackRunInfo.RefCount);
         timerCallBackRunInfo.AutoRecycleAtRefCountZero = false;
-        Assert.AreEqual(0, timerCallBackRunInfo.DecrementRefCount());
-        Assert.AreEqual(0, timerCallBackRunInfo.RefCount);
+        Assert.AreEqual(1, timerCallBackRunInfo.DecrementRefCount());
+        Assert.AreEqual(1, timerCallBackRunInfo.RefCount);
     }
 
 

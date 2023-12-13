@@ -82,7 +82,7 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         return this;
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         OrderDetails?.DecrementRefCount();
         OrderDetails = null;
@@ -91,7 +91,7 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         AttemptNumber = 0;
         CurrentAttemptTime = DateTimeConstants.UnixEpoch;
         OriginalAttemptTime = DateTimeConstants.UnixEpoch;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IOrderSubmitRequest Clone() =>

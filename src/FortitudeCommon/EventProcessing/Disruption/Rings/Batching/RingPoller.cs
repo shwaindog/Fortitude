@@ -15,7 +15,7 @@ public abstract class RingPoller<T> : IDisposable where T : class
     protected readonly IPollingRing<T> Ring;
     private readonly IOSThread thread;
     private readonly int timeoutMs;
-    private volatile bool running = true;
+    private volatile bool isRunning;
 
     protected RingPoller(IPollingRing<T> ring, uint timeoutMs, IOSParallelController? parallelController = null)
     {
@@ -25,7 +25,7 @@ public abstract class RingPoller<T> : IDisposable where T : class
         thread = osParallelController.CreateNewOSThread(delegate()
         {
             InitializeInPollingThread();
-            while (running)
+            while (isRunning)
             {
                 are.WaitOne(this.timeoutMs);
                 foreach (var data in Ring)
@@ -45,9 +45,11 @@ public abstract class RingPoller<T> : IDisposable where T : class
 
     private IObservable<T> Events => eventSubject.AsObservable();
 
+    public bool IsRunning => isRunning;
+
     public void Dispose()
     {
-        running = false;
+        isRunning = false;
         are.Set();
         thread.Join();
         foreach (var data in Ring)
@@ -64,6 +66,7 @@ public abstract class RingPoller<T> : IDisposable where T : class
 
     public void StartPolling()
     {
+        isRunning = true;
         thread.Start();
     }
 

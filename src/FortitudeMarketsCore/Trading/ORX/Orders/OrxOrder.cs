@@ -182,7 +182,7 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
         set => Message = value as MutableString ?? Recycler?.Borrow<MutableString>() ?? new MutableString();
     }
 
-    public override void Reset()
+    public override void StateReset()
     {
         TimeInForce = TimeInForce.None;
         CreationTime = DateTimeConstants.UnixEpoch;
@@ -201,7 +201,7 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
         VenueOrders = null;
         Executions?.DecrementRefCount();
         Executions = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IOrder Clone() => Recycler?.Borrow<OrxOrder>().CopyFrom(this) ?? new OrxOrder(this);

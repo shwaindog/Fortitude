@@ -71,7 +71,7 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IOrderBookLaye
         if (original == null)
         {
             var cloneOfSrc = (IPQPriceVolumeLayer?)ConvertToExpectedImplementation(desired)?.Clone();
-            cloneOfSrc?.Reset();
+            cloneOfSrc?.StateReset();
             return cloneOfSrc;
         }
 

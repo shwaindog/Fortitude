@@ -1,13 +1,15 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus;
-using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.MessageBus;
+using FortitudeBusRules.MessageBus.Pipelines;
+using FortitudeBusRules.MessageBus.Pipelines.Groups;
+using FortitudeBusRules.Rules;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeTests.FortitudeBusRules.Rules;
 
 #endregion
 
-namespace FortitudeTests.FortitudeBusRules.MessageBus;
+namespace FortitudeTests.FortitudeBusRules.MessageBus.Pipelines;
 
 [TestClass]
 public class EventQueueTests
@@ -21,7 +23,10 @@ public class EventQueueTests
         eventBus = new EventBus(evtBus =>
         {
             eventQueue = new EventQueue(evtBus, EventQueueType.Event, 1, 12);
-            return new List<IEventQueue> { eventQueue };
+            var eventGroupContainer = new EventQueueGroupContainer(evtBus, evBus =>
+                new SpecificEventQueueGroup(evtBus, EventQueueType.Event, new Recycler(), 12)
+                    { eventQueue });
+            return eventGroupContainer;
         });
         eventBus.Start();
     }

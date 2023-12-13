@@ -309,7 +309,7 @@ public class PQOrderBookTests
             for (var i = MaxNumberOfLayers - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedOrderBook.Count - 1);
-                populatedOrderBook[i]?.Reset();
+                populatedOrderBook[i]?.StateReset();
             }
 
             Assert.AreEqual(0, populatedOrderBook.Count);
@@ -391,7 +391,7 @@ public class PQOrderBookTests
         {
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Count);
             foreach (var pvl in populatedOrderBook) Assert.IsFalse(pvl.IsEmpty);
-            populatedOrderBook.Reset();
+            populatedOrderBook.StateReset();
             Assert.AreEqual(0, populatedOrderBook.Count);
             foreach (var pvl in populatedOrderBook) Assert.IsTrue(pvl.IsEmpty);
         }
@@ -672,7 +672,7 @@ public class PQOrderBookTests
         Assert.AreEqual(MaxNumberOfLayers, ((IEnumerable<IPriceVolumeLayer>)rt).Count());
         Assert.AreEqual(MaxNumberOfLayers, rt.OfType<IPriceVolumeLayer>().Count());
 
-        rt.Reset();
+        rt.StateReset();
 
         Assert.AreEqual(0, rt.Count);
         Assert.AreEqual(0, ((IEnumerable<IPQPriceVolumeLayer>)rt).Count());
@@ -804,7 +804,7 @@ public class PQOrderBookTests
     private static PQOrderBook CreateNewEmpty(PQOrderBook populatedOrderBook)
     {
         var cloneGensis = populatedOrderBook[0]!.Clone();
-        cloneGensis.Reset();
+        cloneGensis.StateReset();
         if (cloneGensis is IPQSourcePriceVolumeLayer sourcePvl)
             sourcePvl.SourceNameIdLookup = new PQNameIdLookupGenerator(
                 PQFieldKeys.LayerNameDictionaryUpsertCommand,

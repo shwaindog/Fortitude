@@ -1,28 +1,29 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.Config;
-using Fortitude.EventProcessing.BusRules.Injection;
-using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
-using Fortitude.EventProcessing.BusRules.MessageBus.Pipelines;
-using Fortitude.EventProcessing.BusRules.Messaging;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.Config;
+using FortitudeBusRules.Injection;
+using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Pipelines;
+using FortitudeBusRules.MessageBus.Pipelines.Groups;
+using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Rules;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.MessageBus;
+namespace FortitudeBusRules.MessageBus;
 
 public interface IEventBus
 {
     IDependencyResolver DependencyResolver { get; set; }
 
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
-        , IDispatchOptions dispatchOptions);
+        , DispatchOptions dispatchOptions);
 
     ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
-        , IDispatchOptions dispatchOptions);
+        , DispatchOptions dispatchOptions);
 
-    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, IDeploymentOptions options);
-    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, IDeploymentOptions options);
+    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, DeploymentOptions options);
+    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, DeploymentOptions options);
 
     ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule rule);
 
@@ -43,87 +44,49 @@ public interface IConfigureEventBus : IEventBus
 {
     void Start();
     void Stop();
-    IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, IDeploymentOptions queueDeploymentOptions);
+    IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, DeploymentOptions queueDeploymentOptions);
 }
 
 public class EventBus : IEventBus, IConfigureEventBus
 {
-    // ideal minimum number of cores is 6 to avoid excessive context switching
-    public const int ReservedCoresForIO = 3; // inbound, outbound, logging
-    public const int MinimumEventQueues = 2; // at least two
-    public const int MinimumWorkerQueues = 1; // at least one
-
-    private readonly List<IEventQueue> allQueues = new();
-    private readonly List<IEventQueue> eventQueues = new();
-    private readonly IEventQueue ioInboundQueue;
-    private readonly IEventQueue ioOutboundQueue;
-    private readonly List<IEventQueue> workerQueues = new();
-    private int lastRequestIndex;
+    private readonly IEventQueueGroupContainer allEventQueues;
 
     public EventBus(BusRulesConfig config)
     {
         DependencyResolver = config.Resolver ?? new BasicDependencyResolver();
-        var queueSize = Math.Max(config.EventQueueSize, 1);
-        ioInboundQueue = new EventQueue(this, EventQueueType.IOInbound, 1, queueSize);
-        ioOutboundQueue = new EventQueue(this, EventQueueType.IOOutbound, 1, queueSize);
-        var eventQueueNum = Math.Max(Math.Min(config.MaxEventLoops, Environment.ProcessorCount - ReservedCoresForIO)
-            , MinimumEventQueues);
-
-        for (var i = 1; i <= eventQueueNum; i++)
-            eventQueues.Add(new EventQueue(this, EventQueueType.Event, i, queueSize));
-        var workerQueueNum
-            = Math.Max(Math.Min(config.MaxWorkerLoops, Environment.ProcessorCount - ReservedCoresForIO)
-                , MinimumWorkerQueues);
-        for (var i = 1; i <= eventQueueNum; i++)
-            eventQueues.Add(new EventQueue(this, EventQueueType.Worker, i, queueSize));
-        allQueues.Add(ioOutboundQueue);
-        allQueues.AddRange(eventQueues);
-        allQueues.AddRange(workerQueues);
-        allQueues.Add(ioInboundQueue);
+        allEventQueues = new EventQueueGroupContainer(this, config);
     }
 
-
-    internal EventBus(Func<IEventBus, List<IEventQueue>?>? eventQueues = null
-        , IDependencyResolver? dependencyResolver = null
-        , Func<IEventBus, List<IEventQueue>?>? workerQueues = null,
-        Func<IEventBus, IEventQueue?>? ioInboundQueue = null, Func<IEventBus, IEventQueue?>? ioOutboundQueue = null)
+    internal EventBus(Func<IEventBus, IEventQueueGroupContainer> createGroupContainerFunc
+        , IDependencyResolver? dependencyResolver = null)
     {
         DependencyResolver = dependencyResolver ?? new BasicDependencyResolver();
-        this.eventQueues = eventQueues != null ? eventQueues(this) ?? new List<IEventQueue>() : new List<IEventQueue>();
-        this.workerQueues = workerQueues != null ?
-            workerQueues(this) ?? new List<IEventQueue>() :
-            new List<IEventQueue>();
-        this.ioInboundQueue = ioInboundQueue != null ? ioInboundQueue(this) ?? null! : null!;
-        this.ioOutboundQueue = ioOutboundQueue != null ? ioOutboundQueue(this) ?? null! : null!;
-        allQueues.AddRange(this.eventQueues);
-        allQueues.AddRange(this.workerQueues);
-        if (ioInboundQueue != null) allQueues.Add(this.ioInboundQueue);
-        if (ioOutboundQueue != null) allQueues.Add(this.ioOutboundQueue);
+        allEventQueues = createGroupContainerFunc(this);
     }
 
     public void Start()
     {
-        foreach (var eventQueue in allQueues) eventQueue.Start();
+        allEventQueues.Start();
     }
 
     public void Stop()
     {
-        foreach (var eventQueue in allQueues) eventQueue.Shutdown();
+        allEventQueues.Stop();
     }
 
-    public IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, IDeploymentOptions queueDeploymentOptions) =>
+    public IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, DeploymentOptions queueDeploymentOptions) =>
         throw new NotImplementedException();
 
     public IDependencyResolver DependencyResolver { get; set; }
 
-    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, IDeploymentOptions options)
+    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, DeploymentOptions options)
     {
         var resolvedRuled = DependencyResolver.Resolve<IRule>();
         return DeployRuleAsync(sender, resolvedRuled, options);
     }
 
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
-        , IDispatchOptions dispatchOptions)
+        , DispatchOptions dispatchOptions)
     {
         var count = 0;
         var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
@@ -131,7 +94,7 @@ public class EventBus : IEventBus, IConfigureEventBus
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.RecycleTimer = sender.Context.Timer;
-        foreach (var eventQueue in allQueues.Where(eq => eq.IsListeningToAddress(publishAddress)))
+        foreach (var eventQueue in allEventQueues.Where(eq => eq.IsListeningToAddress(publishAddress)))
         {
             count++;
             processorRegistry.IncrementRefCount();
@@ -144,41 +107,12 @@ public class EventBus : IEventBus, IConfigureEventBus
         return processorRegistry.GenerateValueTask();
     }
 
-    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, IDeploymentOptions options)
-    {
-        if (options.IsIOOutbound) return ioOutboundQueue.LaunchRule(sender, rule);
-        if (options.IsIOInbound) return ioInboundQueue.LaunchRule(sender, rule);
-        if (options.IsWorker)
-        {
-            var workQueueIndex = ResolveLeastBusy(workerQueues);
-            return workerQueues[workQueueIndex].LaunchRule(sender, rule);
-        }
-
-        var eventQueueIndex = ResolveLeastBusy(eventQueues);
-        return eventQueues[eventQueueIndex].LaunchRule(sender, rule);
-    }
+    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, DeploymentOptions options) =>
+        allEventQueues.LaunchRule(sender, rule, options);
 
     public ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
-        , IDispatchOptions dispatchOptions)
-    {
-        var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount();
-        processorRegistry.DispatchResult.SentTime = DateTime.Now;
-        processorRegistry.RecycleTimer = sender.Context.Timer;
-        for (var i = lastRequestIndex + 1; i < lastRequestIndex + 1 + allQueues.Count; i++)
-        {
-            var currIndex = i % allQueues.Count;
-            var currQueue = allQueues[currIndex];
-            if (currQueue.IsListeningToAddress(publishAddress))
-            {
-                lastRequestIndex = currIndex;
-                return currQueue.RequestFromPayload<T, U>(msg, sender, processorRegistry, publishAddress);
-            }
-        }
-
-        throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
-    }
+        , DispatchOptions dispatchOptions) =>
+        allEventQueues.RequestAsync<T, U>(sender, publishAddress, msg, dispatchOptions);
 
     public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
         , Action<IMessage<TPayload>> handler)
@@ -230,23 +164,4 @@ public class EventBus : IEventBus, IConfigureEventBus
 
     public ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule toUndeploy) =>
         toUndeploy.Context.RegisteredOn.StopRule(sender, toUndeploy);
-
-    public int ResolveLeastBusy(List<IEventQueue> queues)
-    {
-        var minIndex = 0;
-        var currentMinMessageCount = uint.MaxValue;
-
-        for (var i = 0; i < queues.Count; i++)
-        {
-            var checkQueue = queues[i];
-            var checkQueueMessageCount = checkQueue.NumOfMessagesReceivedRecently();
-            if (checkQueueMessageCount < currentMinMessageCount)
-            {
-                minIndex = i;
-                currentMinMessageCount = checkQueueMessageCount;
-            }
-        }
-
-        return minIndex;
-    }
 }

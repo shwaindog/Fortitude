@@ -39,14 +39,14 @@ public class OrderUpdate : TradingMessage, IOrderUpdate
     public DateTime AdapterUpdateTime { get; set; }
     public DateTime ClientReceivedTime { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Order?.DecrementRefCount();
         Order = null;
         OrderUpdateType = OrderUpdateEventType.Unknown;
         AdapterUpdateTime = DateTimeConstants.UnixEpoch;
         ClientReceivedTime = DateTimeConstants.UnixEpoch;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVersionedMessage CopyFrom(IVersionedMessage source

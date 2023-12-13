@@ -20,10 +20,10 @@ public abstract class OrxVersionedMessage : ReusableObject<IVersionedMessage>, I
 
     [OrxMandatoryField(0)] public byte Version { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         Version = 0;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVersionedMessage CopyFrom(IVersionedMessage tradingMessage

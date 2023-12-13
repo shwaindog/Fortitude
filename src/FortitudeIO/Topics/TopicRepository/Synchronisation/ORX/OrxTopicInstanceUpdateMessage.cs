@@ -38,7 +38,7 @@ public class OrxTopicInstanceUpdateMessage : OrxAuthenticatedMessage, ITopicInst
 
     [OrxOptionalField(15)] public MutableString? Reason { get; set; }
 
-    public override void Reset()
+    public override void StateReset()
     {
         TopicUpdateType = TopicUpdateType.Unknown;
         UpdateType = EventType.Unknown;
@@ -47,7 +47,7 @@ public class OrxTopicInstanceUpdateMessage : OrxAuthenticatedMessage, ITopicInst
         TopicsAffected = TopicsAffected.RecycleNonNull(Recycler);
         Reason?.DecrementRefCount();
         Reason = null;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IVersionedMessage CopyFrom(IVersionedMessage tradingMessage

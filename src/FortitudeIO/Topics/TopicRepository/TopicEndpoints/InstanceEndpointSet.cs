@@ -1,74 +1,55 @@
-﻿using System;
+﻿#region
+
 using System.Collections;
-using System.Collections.Generic;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 
-namespace FortitudeIO.Topics.TopicRepository.TopicEndpoints
+#endregion
+
+namespace FortitudeIO.Topics.TopicRepository.TopicEndpoints;
+
+public interface IInstanceEndpointSet : ICollection<ITopicEndpointInfo> { }
+
+public class InstanceEndpointSet : IInstanceEndpointSet
 {
-    public interface IInstanceEndpointSet : ICollection<ITopicEndpointInfo>
+    private AutoRecycleEnumerator<ITopicEndpointInfo> singleEnumerator = new();
+    private List<ITopicEndpointInfo> topicEndpoints;
+
+    public InstanceEndpointSet() => topicEndpoints = new List<ITopicEndpointInfo>();
+
+    public InstanceEndpointSet(int capacity) => topicEndpoints = new List<ITopicEndpointInfo>(capacity);
+
+    public InstanceEndpointSet(IEnumerable<ITopicEndpointInfo> collection) => topicEndpoints = collection.ToList();
+
+    public IEnumerator<ITopicEndpointInfo> GetEnumerator()
     {
+        singleEnumerator.Clear();
+        singleEnumerator.AddRange(topicEndpoints);
+        return singleEnumerator;
     }
 
-    public class InstanceEndpointSet : IInstanceEndpointSet
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Add(ITopicEndpointInfo item)
     {
-        private ReuseIteratorList<ITopicEndpointInfo> backingList;
-
-        public InstanceEndpointSet()
-        {
-            backingList = new ReuseIteratorList<ITopicEndpointInfo>();
-        }
-
-        public InstanceEndpointSet(int capacity)
-        {
-            backingList = new ReuseIteratorList<ITopicEndpointInfo>(capacity);
-        }
-
-        public InstanceEndpointSet(IEnumerable<ITopicEndpointInfo> collection)
-        {
-            backingList = new ReuseIteratorList<ITopicEndpointInfo>(collection);
-        }
-
-        public IEnumerator<ITopicEndpointInfo> GetEnumerator()
-        {
-            return backingList.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public void Add(ITopicEndpointInfo item)
-        {
-            if (Contains(item))
-            {
-                throw new ArgumentException("Trying to add duplicate InstanceConnectionDetails");
-            }
-            backingList.Add(item);
-        }
-
-        public void Clear()
-        {
-            backingList.Clear();
-        }
-
-        public bool Contains(ITopicEndpointInfo item)
-        {
-            return backingList.Contains(item);
-        }
-
-        public void CopyTo(ITopicEndpointInfo[] array, int arrayIndex)
-        {
-            backingList.CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(ITopicEndpointInfo item)
-        {
-            return backingList.Remove(item);
-        }
-
-        public int Count => backingList.Count;
-        public bool IsReadOnly => false;
+        if (Contains(item)) throw new ArgumentException("Trying to add duplicate InstanceConnectionDetails");
+        topicEndpoints.Add(item);
     }
+
+    public void Clear()
+    {
+        topicEndpoints.Clear();
+    }
+
+    public bool Contains(ITopicEndpointInfo item) => topicEndpoints.Contains(item);
+
+    public void CopyTo(ITopicEndpointInfo[] array, int arrayIndex)
+    {
+        topicEndpoints.CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(ITopicEndpointInfo item) => topicEndpoints.Remove(item);
+
+    public int Count => topicEndpoints.Count;
+    public bool IsReadOnly => false;
 }

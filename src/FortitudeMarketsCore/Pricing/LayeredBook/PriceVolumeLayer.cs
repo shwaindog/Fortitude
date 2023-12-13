@@ -28,10 +28,10 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
     public decimal Volume { get; set; }
     public virtual bool IsEmpty => Price == 0m && Volume == 0m;
 
-    public override void Reset()
+    public override void StateReset()
     {
         Price = Volume = 0m;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source

@@ -118,11 +118,11 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
 
     public override bool IsEmpty => base.IsEmpty && SourceId == 0 && !Executable;
 
-    public override void Reset()
+    public override void StateReset()
     {
         SourceId = 0;
         Executable = false;
-        base.Reset();
+        base.StateReset();
     }
 
     public override bool HasUpdates

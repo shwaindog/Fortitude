@@ -49,14 +49,14 @@ public class OrxReplayMessage : OrxTradingMessage, IReplayMessage
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IReplayMessage)source, copyMergeFlags);
 
-    public override void Reset()
+    public override void StateReset()
     {
         PastOrder?.DecrementRefCount();
         PastOrder = null;
         PastExecutionUpdate?.DecrementRefCount();
         PastExecutionUpdate = null;
         ReplayMessageType = ReplayMessageType.PastOrder;
-        base.Reset();
+        base.StateReset();
     }
 
     IReplayMessage IReplayMessage.Clone() => (IReplayMessage)Clone();

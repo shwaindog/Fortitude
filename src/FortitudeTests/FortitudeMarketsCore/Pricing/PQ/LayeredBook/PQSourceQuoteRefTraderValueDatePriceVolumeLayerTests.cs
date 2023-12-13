@@ -632,7 +632,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
             Assert.IsFalse(sourceTraderLayer.IsEmpty);
         }
 
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);

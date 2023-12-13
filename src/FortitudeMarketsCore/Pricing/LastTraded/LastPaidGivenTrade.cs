@@ -34,11 +34,11 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     public decimal TradeVolume { get; set; }
     public override bool IsEmpty => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
 
-    public override void Reset()
+    public override void StateReset()
     {
         TradeVolume = 0;
         WasPaid = WasGiven = false;
-        base.Reset();
+        base.StateReset();
     }
 
     public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

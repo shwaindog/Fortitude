@@ -450,11 +450,11 @@ public class PQTraderPriceVolumeLayerTests
         Assert.AreEqual(populatedNumberOfTraders, populatedPvl.Count);
         populatedPvl.Add("NewTraderAtEnd", 12345m);
         Assert.AreEqual(populatedNumberOfTraders + 1, populatedPvl.Count);
-        populatedPvl[populatedNumberOfTraders]?.Reset();
+        populatedPvl[populatedNumberOfTraders]?.StateReset();
         Assert.AreEqual(populatedNumberOfTraders, populatedPvl.Count);
         populatedPvl.Add("NewTraderAtEnd", 12345m);
         Assert.AreEqual(populatedNumberOfTraders + 1, populatedPvl.Count);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.AreEqual(0, populatedPvl.Count);
         populatedPvl.Add("NewTraderAtEnd", 12345m);
         Assert.AreEqual(1, populatedPvl.Count);
@@ -491,7 +491,7 @@ public class PQTraderPriceVolumeLayerTests
 
         Assert.AreEqual(populatedNumberOfTraders, copyPopulated.Count);
         Assert.IsFalse(copyPopulated.IsTraderCountOnly);
-        copyPopulated.Reset();
+        copyPopulated.StateReset();
         Assert.AreEqual(0, copyPopulated.Count);
         Assert.IsTrue(copyPopulated.IsTraderCountOnly);
         copyPopulated.SetTradersCountOnly(50);
@@ -525,7 +525,7 @@ public class PQTraderPriceVolumeLayerTests
 
         Assert.AreEqual(populatedNumberOfTraders, populatedPvl.Count);
         Assert.IsFalse(populatedPvl.IsEmpty);
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);
@@ -836,7 +836,7 @@ public class PQTraderPriceVolumeLayerTests
         Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl).Count());
         Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<ITraderLayerInfo>)populatedPvl).Count());
 
-        populatedPvl.Reset();
+        populatedPvl.StateReset();
 
         Assert.AreEqual(0, populatedPvl.Count);
         Assert.AreEqual(0, ((IEnumerable<IPQTraderLayerInfo>)populatedPvl).Count());

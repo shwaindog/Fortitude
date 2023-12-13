@@ -49,10 +49,10 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
 
     public override bool IsEmpty => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
 
-    public override void Reset()
+    public override void StateReset()
     {
         ValueDate = DateTimeConstants.UnixEpoch;
-        base.Reset();
+        base.StateReset();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,

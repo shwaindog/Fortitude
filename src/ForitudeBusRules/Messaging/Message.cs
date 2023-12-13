@@ -1,17 +1,18 @@
 ﻿#region
 
-using Fortitude.EventProcessing.BusRules.MessageBus.Messages;
-using Fortitude.EventProcessing.BusRules.MessageBus.Tasks;
-using Fortitude.EventProcessing.BusRules.Rules;
+using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Tasks;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
 #endregion
 
-namespace Fortitude.EventProcessing.BusRules.Messaging;
+namespace FortitudeBusRules.Messaging;
 
-public interface IPayLoad
+public interface IPayLoad : IRecyclableObject
 {
     Type BodyType { get; }
 
@@ -23,7 +24,7 @@ public interface IPayLoad<T> : IPayLoad
     T? Body { get; }
 }
 
-public struct PayLoad<T> : IPayLoad<T>
+public class PayLoad<T> : RecyclableObject, IPayLoad<T>
 {
     public PayLoad() { }
     public PayLoad(T? body) => Body = body;
@@ -38,8 +39,27 @@ public struct PayLoad<T> : IPayLoad<T>
     public T? Body { get; set; }
     public object? BodyObj => Body;
 
+    public override int DecrementRefCount()
+    {
+        if (Body is IRecyclableObject recyclableBody) recyclableBody.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (Body is IRecyclableObject recyclableBody) recyclableBody.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
+    public override void StateReset()
+    {
+        Body = default;
+    }
+
     public override string ToString() => $"{GetType().Name}[{typeof(T).Name}]({nameof(Body)}: {Body})";
 }
+
+public delegate bool RuleFilter(IRule appliesToRule);
 
 public interface IMessage : IStoreState<IMessage>
 {
@@ -50,17 +70,17 @@ public interface IMessage : IStoreState<IMessage>
     IPayLoad? PayLoad { get; }
     IAsyncResponseSource Response { get; }
     IProcessorRegistry? ProcessorRegistry { get; }
+    RuleFilter RuleFilter { get; }
     void IncrementCargoRefCounts();
     void DecrementCargoRefCounts();
-    int IncrementRefCount();
-    int DecrementRefCount();
     IMessage<TAsPayLoad> BorrowCopy<TAsPayLoad>(IEventContext messageContext);
     IRespondingMessage<TAsPayLoad, TAsResponse> BorrowCopy<TAsPayLoad, TAsResponse>(IEventContext messageContext);
 }
 
 public enum MessageType
 {
-    Publish
+    Unknown
+    , Publish
     , RunActionPayload
     , TimerPayload
     , RequestResponse
@@ -74,8 +94,6 @@ public enum MessageType
 public interface IMessage<TPayLoad> : IMessage, IRecyclableObject
 {
     new PayLoad<TPayLoad> PayLoad { get; }
-    new int IncrementRefCount();
-    new int DecrementRefCount();
 }
 
 public interface IRespondingMessage<TPayLoad, TResponse> : IMessage<TPayLoad>
@@ -86,6 +104,7 @@ public interface IRespondingMessage<TPayLoad, TResponse> : IMessage<TPayLoad>
 public class Message : IMessage
 {
     public static readonly NoMessageResponseSource NoOpCompletionSource = new();
+    public static readonly RuleFilter AppliesToAll = _ => true;
 
     public MessageType Type { get; set; }
     public IRule? Sender { get; set; }
@@ -93,25 +112,22 @@ public class Message : IMessage
     public DateTime? SentTime { get; set; }
     public IPayLoad? PayLoad { get; set; }
     public IAsyncResponseSource Response { get; set; } = NoOpCompletionSource;
-
     public IProcessorRegistry? ProcessorRegistry { get; set; }
 
-    public virtual int IncrementRefCount() => 0;
-
-    public virtual int DecrementRefCount() => 0;
+    public RuleFilter RuleFilter { get; set; } = AppliesToAll;
 
     public void IncrementCargoRefCounts()
     {
-        if (PayLoad?.BodyObj is IRecyclableObject recyclePayLoad) recyclePayLoad.IncrementRefCount();
-        if (ProcessorRegistry is IRecyclableObject recycleRegistry) recycleRegistry.IncrementRefCount();
-        if (Response is IRecyclableObject recycleResponse) recycleResponse.IncrementRefCount();
+        PayLoad?.IncrementRefCount();
+        ProcessorRegistry?.IncrementRefCount();
+        Response?.IncrementRefCount();
     }
 
     public void DecrementCargoRefCounts()
     {
-        if (PayLoad?.BodyObj is IRecyclableObject recyclePayLoad) recyclePayLoad.DecrementRefCount();
-        if (ProcessorRegistry is IRecyclableObject recycleRegistry) recycleRegistry.DecrementRefCount();
-        if (Response is IRecyclableObject recycleResponse) recycleResponse.DecrementRefCount();
+        PayLoad?.DecrementRefCount();
+        ProcessorRegistry?.DecrementRefCount();
+        Response?.DecrementRefCount();
     }
 
     public IRespondingMessage<TPayLoad, TResponse> BorrowCopy<TPayLoad, TResponse>(IEventContext messageContext)
@@ -134,6 +150,7 @@ public class Message : IMessage
         PayLoad = source.PayLoad;
         Response = source.Response;
         ProcessorRegistry = source.ProcessorRegistry;
+        RuleFilter = source.RuleFilter;
         return this;
     }
 
@@ -154,8 +171,8 @@ public class Message : IMessage
 
 public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad, TResponse>
 {
+    private int isInRecycler;
     private int refCount;
-    public bool AutoRecycledByProducer { get; set; }
 
     public new PayLoad<TPayLoad> PayLoad
     {
@@ -170,18 +187,24 @@ public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad
     }
 
     public int RefCount => refCount;
-    public bool AutoRecycleAtRefCountZero { get; set; } = true;
-    public bool IsInRecycler { get; set; }
+    public bool AutoRecycleAtRefCountZero { get; set; }
+
+    public bool IsInRecycler
+    {
+        get => isInRecycler != 0;
+        set => isInRecycler = value ? 1 : 0;
+    }
+
     public IRecycler? Recycler { get; set; }
 
-    public override int DecrementRefCount()
+    public virtual int DecrementRefCount()
     {
         DecrementCargoRefCounts();
-        if (Interlocked.Decrement(ref refCount) <= 0 && AutoRecycleAtRefCountZero) Recycle();
+        if (!IsInRecycler && Interlocked.Decrement(ref refCount) <= 0 && AutoRecycleAtRefCountZero) Recycle();
         return refCount;
     }
 
-    public override int IncrementRefCount()
+    public virtual int IncrementRefCount()
     {
         if (!IsInRecycler) IncrementCargoRefCounts();
         return Interlocked.Increment(ref refCount);
@@ -189,9 +212,23 @@ public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad
 
     public bool Recycle()
     {
-        if (Recycler != null && !IsInRecycler && (refCount == 0 || !AutoRecycleAtRefCountZero))
-            Recycler!.Recycle(this);
+        if (!IsInRecycler)
+            if (Interlocked.CompareExchange(ref isInRecycler, 1, 0) == 0)
+                Recycler?.Recycle(this);
+
         return IsInRecycler;
+    }
+
+    public void StateReset()
+    {
+        RuleFilter = AppliesToAll;
+        Type = MessageType.Unknown;
+        Sender = null;
+        DestinationAddress = null;
+        SentTime = DateTimeConstants.UnixEpoch;
+        base.PayLoad = null;
+        base.Response = NoOpCompletionSource;
+        refCount = 0;
     }
 
     public override string ToString() =>

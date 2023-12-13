@@ -1,4 +1,4 @@
-﻿namespace Fortitude.EventProcessing.BusRules.Injection;
+﻿namespace FortitudeBusRules.Injection;
 
 public interface IDependencyConfigurer
 {
