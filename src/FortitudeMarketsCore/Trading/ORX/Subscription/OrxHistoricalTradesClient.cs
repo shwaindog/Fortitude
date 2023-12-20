@@ -3,7 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;

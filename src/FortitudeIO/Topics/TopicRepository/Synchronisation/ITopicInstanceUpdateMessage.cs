@@ -3,12 +3,11 @@
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Topics.TopicRepository.ORX;
-using FortitudeIO.Topics.TopicRepository.ORX.Resolver;
+using FortitudeIO.Topics.TopicRepository.Synchronisation.ORX;
 
 #endregion
 
-namespace FortitudeIO.Topics.TopicRepository.Resolver;
+namespace FortitudeIO.Topics.TopicRepository.Synchronisation;
 
 public interface ITopicInstanceUpdateMessage : IAuthenticatedMessage
 {

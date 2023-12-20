@@ -1,13 +1,10 @@
-﻿using FortitudeCommon.Types;
+﻿namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig
+public interface ISourceTickerClientAndPublicationConfig : ISourceTickerPublicationConfig
 {
-    public interface ISourceTickerClientAndPublicationConfig : ISourceTickerPublicationConfig
-    {
-        uint SyncRetryIntervalMs { get; }
+    uint SyncRetryIntervalMs { get; }
 
-        bool AllowUpdatesCatchup { get; }
+    bool AllowUpdatesCatchup { get; }
 
-        new ISourceTickerClientAndPublicationConfig Clone();
-    }
+    new ISourceTickerClientAndPublicationConfig Clone();
 }

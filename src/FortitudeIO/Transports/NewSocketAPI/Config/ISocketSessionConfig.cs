@@ -1,11 +1,14 @@
-﻿using System.Net;
+﻿#region
+
+using System.Net;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 
-namespace FortitudeIO.Transports.NewSocketAPI.Config
+#endregion
+
+namespace FortitudeIO.Transports.NewSocketAPI.Config;
+
+public interface ISocketSessionInfo : ITopicEndpointInfo
 {
-    public interface ISocketSessionInfo : ITopicEndpointInfo
-    {
-        ushort ConnectedPort { get; set; }
-        IPAddress ConnectedIPAddress { get; set; }
-    }
+    ushort ConnectedPort { get; set; }
+    IPAddress ConnectedIPAddress { get; set; }
 }

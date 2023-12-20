@@ -1,7 +1,6 @@
 ﻿#region
 
-using FortitudeIO.Transports;
-using FortitudeIO.Transports.NewSocketAPI.Conversations;
+using FortitudeIO.Conversations;
 
 #endregion
 

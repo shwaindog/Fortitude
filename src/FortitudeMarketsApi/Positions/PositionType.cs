@@ -1,10 +1,9 @@
-namespace FortitudeMarketsApi.Positions
+namespace FortitudeMarketsApi.Positions;
+
+public enum PositionType
 {
-    public enum PositionType
-    {
-        Unknown,
-        Long,
-        Short,
-        Flat
-    }
+    Unknown
+    , Long
+    , Short
+    , Flat
 }

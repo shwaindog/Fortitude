@@ -1,12 +1,12 @@
 ﻿#region
 
-using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
+namespace FortitudeIO.Conversations;
 
 public interface IRequestResponseResponderConversation : IConversation
 {

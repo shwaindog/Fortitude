@@ -1,13 +1,12 @@
-namespace FortitudeMarketsApi.Trading.Orders
+namespace FortitudeMarketsApi.Trading.Orders;
+
+public enum OrderStatus
 {
-    public enum OrderStatus
-    {
-        New = 'N',
-        PendingNew = 'P',
-        Active = 'A',
-        Cancelling = 'C',
-        Dead = 'D',
-        Frozen = 'F',
-        Unknown = 'U'
-    }
+    New = 'N'
+    , PendingNew = 'P'
+    , Active = 'A'
+    , Cancelling = 'C'
+    , Dead = 'D'
+    , Frozen = 'F'
+    , Unknown = 'U'
 }

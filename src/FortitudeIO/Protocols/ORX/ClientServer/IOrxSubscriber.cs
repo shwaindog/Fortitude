@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Subscription;
 
 #endregion

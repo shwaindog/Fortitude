@@ -1,11 +1,14 @@
-﻿using FortitudeCommon.Types;
+﻿#region
 
-namespace FortitudeMarketsApi.Pricing
+using FortitudeCommon.Types;
+
+#endregion
+
+namespace FortitudeMarketsApi.Pricing;
+
+[TestClassNotRequired]
+public class PricingConstants
 {
-    [TestClassNotRequired]
-    public class PricingConstants
-    {
-        public const string UniversalPriceFormating = "N5";
-        public const string UniversalVolumeFormating = "N2";
-    }
+    public const string UniversalPriceFormating = "N5";
+    public const string UniversalVolumeFormating = "N2";
 }

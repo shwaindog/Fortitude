@@ -1,11 +1,14 @@
+#region
+
 using FortitudeCommon.Types;
 
-namespace FortitudeMarketsApi.Pricing.LayeredBook
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.LayeredBook;
+
+public interface ISourceQuoteRefPriceVolumeLayer : ISourcePriceVolumeLayer,
+    ICloneable<ISourceQuoteRefPriceVolumeLayer>
 {
-    public interface ISourceQuoteRefPriceVolumeLayer : ISourcePriceVolumeLayer, 
-        ICloneable<ISourceQuoteRefPriceVolumeLayer>
-    {
-        uint SourceQuoteReference { get; }
-        new ISourceQuoteRefPriceVolumeLayer Clone();
-    }
+    uint SourceQuoteReference { get; }
+    new ISourceQuoteRefPriceVolumeLayer Clone();
 }

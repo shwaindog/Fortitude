@@ -1,9 +1,12 @@
-﻿using FortitudeIO.Protocols;
+﻿#region
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription
+using FortitudeIO.Protocols;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+
+public interface IPQSnapshotIdsRequest : IVersionedMessage
 {
-    public interface IPQSnapshotIdsRequest : IVersionedMessage
-    {
-        uint[] RequestSourceTickerIds { get; set; }
-    }
+    uint[] RequestSourceTickerIds { get; set; }
 }

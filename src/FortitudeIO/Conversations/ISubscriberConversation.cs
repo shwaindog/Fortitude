@@ -1,10 +1,8 @@
 ﻿#region
 
-using FortitudeIO.Conversations;
-
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
+namespace FortitudeIO.Conversations;
 
 public interface ISubscriberConversation : IConversation
 {

@@ -1,8 +1,3 @@
-using FortitudeIO.Sockets;
+namespace FortitudeIO.Transports.Sockets.Subscription;
 
-namespace FortitudeIO.Transports.Sockets.Subscription
-{
-    public interface ISocketStreamSubscriber : ISocketLinkInitiator
-    {
-    }
-}
+public interface ISocketStreamSubscriber : ISocketLinkInitiator { }

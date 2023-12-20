@@ -1,8 +1,7 @@
-﻿namespace FortitudeMarketsCore.Pricing.PQ.DeltaUpdates
+﻿namespace FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+
+public interface IPQQuotePublicationPrecisionSettings
 {
-    public interface IPQQuotePublicationPrecisionSettings
-    {
-        byte PriceScalingPrecision { get; }
-        byte VolumeScalingPrecision { get; }
-    }
+    byte PriceScalingPrecision { get; }
+    byte VolumeScalingPrecision { get; }
 }

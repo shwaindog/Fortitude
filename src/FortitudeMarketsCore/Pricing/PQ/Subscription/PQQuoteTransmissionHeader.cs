@@ -1,17 +1,20 @@
-﻿using FortitudeCommon.Types;
+﻿#region
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription
+using FortitudeCommon.Types;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+
+[TestClassNotRequired]
+internal class PQQuoteTransmissionHeader
 {
-    [TestClassNotRequired]
-    internal class PQQuoteTransmissionHeader
-    {
-        public readonly PQFeedType Origin;
-        public uint SequenceId;
+    public readonly PQFeedType Origin;
+    public uint SequenceId;
 
-        public PQQuoteTransmissionHeader(PQFeedType origin)
-        {
-            Origin = origin;
-            SequenceId = 0;
-        }
+    public PQQuoteTransmissionHeader(PQFeedType origin)
+    {
+        Origin = origin;
+        SequenceId = 0;
     }
 }

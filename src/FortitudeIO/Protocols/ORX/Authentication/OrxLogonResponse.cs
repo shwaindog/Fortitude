@@ -1,4 +1,10 @@
-﻿namespace FortitudeIO.Protocols.ORX.Authentication;
+﻿#region
+
+using FortitudeIO.Protocols.Authentication;
+
+#endregion
+
+namespace FortitudeIO.Protocols.ORX.Authentication;
 
 public sealed class OrxLogonResponse : OrxVersionedMessage
 {

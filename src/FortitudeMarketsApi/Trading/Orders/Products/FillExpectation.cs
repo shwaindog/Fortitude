@@ -1,10 +1,9 @@
-﻿namespace FortitudeMarketsApi.Trading.Orders.Products
+﻿namespace FortitudeMarketsApi.Trading.Orders.Products;
+
+public enum FillExpectation
 {
-    public enum FillExpectation
-    {
-        Unknown,
-        None,
-        Partial,
-        Complete
-    }
+    Unknown
+    , None
+    , Partial
+    , Complete
 }

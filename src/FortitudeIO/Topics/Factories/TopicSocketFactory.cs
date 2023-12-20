@@ -2,14 +2,14 @@
 
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Topics.Config.ConnectionConfig;
-using FortitudeIO.Topics.Factories;
 using FortitudeIO.Topics.TopicTransports;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;
-using FortitudeIO.Transports.NewSocketAPI.SocketFactory;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
-namespace FortitudeIO.Topics.TopicRepository;
+namespace FortitudeIO.Topics.Factories;
 
 public class TopicSocketFactory : ITopicTransportFactory
 {

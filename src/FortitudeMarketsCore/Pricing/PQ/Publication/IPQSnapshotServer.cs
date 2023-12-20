@@ -1,9 +1,12 @@
-﻿using FortitudeIO.Transports.Sockets.Publishing;
+﻿#region
 
-namespace FortitudeMarketsCore.Pricing.PQ.Publication
+using FortitudeIO.Transports.Sockets.Publishing;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Publication;
+
+public interface IPQSnapshotServer : ISocketPublisher
 {
-    public interface IPQSnapshotServer : ISocketPublisher
-    {
-        IPQSnapshotStreamSubscriber SnapshotClientStreamFromSubscriber { get; }
-    }
+    IPQSnapshotStreamSubscriber SnapshotClientStreamFromSubscriber { get; }
 }

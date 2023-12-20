@@ -1,10 +1,13 @@
-﻿using FortitudeIO.Protocols;
+﻿#region
+
+using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Sockets.Publishing;
 
-namespace FortitudeMarketsCore.Pricing.PQ
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ;
+
+public interface IPQUpdateServer : IPQPublisher
 {
-    public interface IPQUpdateServer : IPQPublisher
-    {
-        void Send(IVersionedMessage message);
-    }
+    void Send(IVersionedMessage message);
 }

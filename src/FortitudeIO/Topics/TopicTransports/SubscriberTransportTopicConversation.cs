@@ -1,27 +1,26 @@
-﻿using FortitudeIO.Topics.Config.ConnectionConfig;
-using FortitudeIO.Transports.NewSocketAPI.Conversations;
+﻿#region
 
-namespace FortitudeIO.Topics.TopicTransports
+using FortitudeIO.Conversations;
+using FortitudeIO.Topics.Config.ConnectionConfig;
+
+#endregion
+
+namespace FortitudeIO.Topics.TopicTransports;
+
+public interface ISubscriberTransportTopicConversation : ITransportTopicConversation
 {
-    public interface ISubscriberTransportTopicConversation : ITransportTopicConversation
-    {
-        ISubscriberConversation SubscriberConversation { get; }
-    }
+    ISubscriberConversation SubscriberConversation { get; }
+}
 
-    public class SubscriberTransportTopicConversation : TransportTopicConversation, ISubscriberTransportTopicConversation
-    {
-        public SubscriberTransportTopicConversation(ITopicEndpointInfo endpoint,
-            ISubscriberConversation subscriberConversation) : base(endpoint)
-        {
-            SubscriberConversation = subscriberConversation;
-        }
+public class SubscriberTransportTopicConversation : TransportTopicConversation, ISubscriberTransportTopicConversation
+{
+    public SubscriberTransportTopicConversation(ITopicEndpointInfo endpoint,
+        ISubscriberConversation subscriberConversation) : base(endpoint) =>
+        SubscriberConversation = subscriberConversation;
 
-        public SubscriberTransportTopicConversation(ITopicConnectionConfig connectionConfig,
-            ISubscriberConversation subscriberConversation) : base(connectionConfig)
-        {
-            SubscriberConversation = subscriberConversation;
-        }
+    public SubscriberTransportTopicConversation(ITopicConnectionConfig connectionConfig,
+        ISubscriberConversation subscriberConversation) : base(connectionConfig) =>
+        SubscriberConversation = subscriberConversation;
 
-        public ISubscriberConversation SubscriberConversation { get; }
-    }
+    public ISubscriberConversation SubscriberConversation { get; }
 }

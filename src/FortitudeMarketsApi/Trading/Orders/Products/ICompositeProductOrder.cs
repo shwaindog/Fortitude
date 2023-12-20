@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿#region
+
 using FortitudeMarketsApi.Trading.Orders.Venues;
 
-namespace FortitudeMarketsApi.Trading.Orders.Products
+#endregion
+
+namespace FortitudeMarketsApi.Trading.Orders.Products;
+
+public interface ICompositeProductOrder : IProductOrder
 {
-    public interface ICompositeProductOrder : IProductOrder
-    {
-        int NumberOfLegs { get; }
-        List<string> AllTickers { get; }
-        List<IVenue> Markets { get; }
-    }
+    int NumberOfLegs { get; }
+    List<string> AllTickers { get; }
+    List<IVenue> Markets { get; }
 }

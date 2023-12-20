@@ -3,11 +3,12 @@
 using System.Net;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Topics.Config.ConnectionConfig;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using TransportType = FortitudeIO.Topics.Config.ConnectionConfig.TransportType;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.SocketFactory;
+namespace FortitudeIO.Transports.NewSocketAPI.Config;
 
 public interface ISocketConnectionConfig : ITopicConnectionConfig
 {

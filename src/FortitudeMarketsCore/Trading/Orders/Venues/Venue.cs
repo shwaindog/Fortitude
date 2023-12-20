@@ -3,10 +3,11 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarketsApi.Trading.Orders.Venues;
 
 #endregion
 
-namespace FortitudeMarketsApi.Trading.Orders.Venues;
+namespace FortitudeMarketsCore.Trading.Orders.Venues;
 
 public class Venue : ReusableObject<IVenue>, IVenue
 {

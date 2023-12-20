@@ -6,6 +6,7 @@ using FortitudeMarketsApi.Trading.Counterparties;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Venues;
+using FortitudeMarketsCore.Trading.Orders.Venues;
 
 #endregion
 

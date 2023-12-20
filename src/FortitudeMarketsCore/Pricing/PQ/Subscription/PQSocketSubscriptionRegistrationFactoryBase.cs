@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;

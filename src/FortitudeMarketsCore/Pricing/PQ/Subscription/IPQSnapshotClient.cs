@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿#region
+
 using FortitudeIO.Transports.Sockets.Subscription;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+
+public interface IPQSnapshotClient : ISocketSubscriber
 {
-    public interface IPQSnapshotClient : ISocketSubscriber
-    {
-        void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds);
-    }
+    void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds);
 }

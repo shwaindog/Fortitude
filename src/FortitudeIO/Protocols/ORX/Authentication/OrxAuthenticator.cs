@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 
 #endregion
 

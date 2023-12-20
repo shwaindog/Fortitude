@@ -7,7 +7,7 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
 using FortitudeMarketsApi.Monitoring.Logging;

@@ -4,7 +4,7 @@ using FortitudeIO.Protocols.Serialization;
 
 #endregion
 
-namespace FortitudeIO.Transports;
+namespace FortitudeIO.Conversations;
 
 public interface IConversationListener
 {

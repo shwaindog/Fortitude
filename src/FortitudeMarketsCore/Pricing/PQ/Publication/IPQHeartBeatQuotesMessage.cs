@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿#region
+
 using FortitudeIO.Protocols;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
-namespace FortitudeMarketsCore.Pricing.PQ.Publication
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Publication;
+
+public interface IPQHeartBeatQuotesMessage : IVersionedMessage
 {
-    public interface IPQHeartBeatQuotesMessage : IVersionedMessage
-    {
-        IList<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; }
-    }
+    IList<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; }
 }

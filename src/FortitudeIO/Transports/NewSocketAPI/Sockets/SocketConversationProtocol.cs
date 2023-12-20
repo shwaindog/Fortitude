@@ -1,11 +1,10 @@
-﻿namespace FortitudeIO.Transports.NewSocketAPI.Sockets
+﻿namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+
+public enum SocketConversationProtocol
 {
-    public enum SocketConversationProtocol
-    {
-        Unknown,
-        TCPClient,
-        TCPAcceptor,
-        UDPPublisher,
-        UDPSubscriber
-    }
+    Unknown
+    , TCPClient
+    , TCPAcceptor
+    , UDPPublisher
+    , UDPSubscriber
 }

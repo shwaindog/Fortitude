@@ -1,7 +1,6 @@
-namespace FortitudeIO.Transports.Sockets.Logging
+namespace FortitudeIO.Transports.Sockets.Logging;
+
+public interface ISocketDataLatencyLoggerFactory
 {
-    public interface ISocketDataLatencyLoggerFactory
-    {
-        ISocketDataLatencyLogger GetSocketDataLatencyLogger(string key);
-    }
+    ISocketDataLatencyLogger GetSocketDataLatencyLogger(string key);
 }

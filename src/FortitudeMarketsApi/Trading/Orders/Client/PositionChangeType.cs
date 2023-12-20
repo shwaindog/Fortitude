@@ -1,11 +1,10 @@
-﻿namespace FortitudeMarketsApi.Trading.Orders.Client
+﻿namespace FortitudeMarketsApi.Trading.Orders.Client;
+
+public enum PositionChangeType
 {
-    public enum PositionChangeType
-    {
-        Unknown,
-        EnterPosition,
-        IncreasePosition,
-        ReducePosition,
-        ExitPosition,
-    }
+    Unknown
+    , EnterPosition
+    , IncreasePosition
+    , ReducePosition
+    , ExitPosition
 }

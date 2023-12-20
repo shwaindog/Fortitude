@@ -1,12 +1,11 @@
-﻿namespace FortitudeIO.Transports.NewSocketAPI.Sockets
+﻿namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+
+public enum SocketSessionState
 {
-    public enum SocketSessionState
-    {
-        New,
-        Connecting,
-        Connected,
-        Reconnecting,
-        Disconnecting,
-        Disconnected
-    }
+    New
+    , Connecting
+    , Connected
+    , Reconnecting
+    , Disconnecting
+    , Disconnected
 }

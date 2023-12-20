@@ -8,11 +8,10 @@ using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.Serialization;
-using FortitudeIO.Topics.TopicRepository.Resolver;
 
 #endregion
 
-namespace FortitudeIO.Topics.TopicRepository.ORX.Resolver;
+namespace FortitudeIO.Topics.TopicRepository.Synchronisation.ORX;
 
 public class OrxTopicInstanceUpdateMessage : OrxAuthenticatedMessage, ITopicInstanceUpdateMessage
 {

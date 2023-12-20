@@ -1,13 +1,16 @@
-﻿using FortitudeIO.Protocols;
+﻿#region
+
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serialization;
 
-namespace FortitudeIO.Transports
+#endregion
+
+namespace FortitudeIO.Conversations;
+
+public interface IConversationPublisher
 {
-    public interface IConversationPublisher
-    {
-        void RegisterSerializer(uint messageId, IBinarySerializer serializer);
-        void Enqueue(IVersionedMessage message);
-        void Send(IVersionedMessage message);
-        bool SendEnqueued();
-    }
+    void RegisterSerializer(uint messageId, IBinarySerializer serializer);
+    void Enqueue(IVersionedMessage message);
+    void Send(IVersionedMessage message);
+    bool SendEnqueued();
 }

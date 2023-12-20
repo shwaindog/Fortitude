@@ -1,12 +1,12 @@
 ﻿#region
 
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Topics.Config.ConnectionConfig;
-using FortitudeIO.Transports;
 
 #endregion
 
-namespace FortitudeIO.Topics.TopicRepository.ORX;
+namespace FortitudeIO.Topics.TopicRepository.Synchronisation.ORX;
 
 public class OrxTopicClientConnectionDetails : ITopicInstanceConnectionDetails
 {

@@ -2,10 +2,10 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
-using FortitudeIO.Transports.NewSocketAPI.SocketFactory;
 
 #endregion
 

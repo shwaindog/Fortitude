@@ -1,8 +1,7 @@
-﻿namespace FortitudeMarketsApi.Trading.Replay
+﻿namespace FortitudeMarketsApi.Trading.Replay;
+
+public enum ReplayMessageType
 {
-    public enum ReplayMessageType
-    {
-        PastOrder,
-        PastExecutionUpdate
-    }
+    PastOrder
+    , PastExecutionUpdate
 }

@@ -1,9 +1,9 @@
 ﻿#region
 
 using FortitudeCommon.EventProcessing;
+using FortitudeIO.Conversations;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using FortitudeIO.Topics.TopicRepository.TopicEndpoints;
-using FortitudeIO.Transports;
 
 #endregion
 
@@ -11,10 +11,10 @@ namespace FortitudeIO.Topics.TopicTransports;
 
 public class TopicTransportRepository
 {
-    private IDictionary<string, IDictionary<ConversationType, ITopic>> changed
+    private readonly IDictionary<string, IDictionary<ConversationType, ITopic>> started
         = new Dictionary<string, IDictionary<ConversationType, ITopic>>();
 
-    private readonly IDictionary<string, IDictionary<ConversationType, ITopic>> started
+    private IDictionary<string, IDictionary<ConversationType, ITopic>> changed
         = new Dictionary<string, IDictionary<ConversationType, ITopic>>();
 
     private IDictionary<string, IDictionary<ConversationType, ITopic>> stopped

@@ -4,7 +4,6 @@ using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
 using FortitudeIO.Transports.Sockets.SessionConnection;

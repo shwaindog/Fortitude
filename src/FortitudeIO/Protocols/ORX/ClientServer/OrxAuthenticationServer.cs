@@ -5,8 +5,9 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Authentication;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 
 #endregion
