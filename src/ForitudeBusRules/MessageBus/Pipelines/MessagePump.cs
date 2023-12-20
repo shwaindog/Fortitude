@@ -199,7 +199,7 @@ public class MessagePump : RingPoller<Message>
         if (parentRule.ChildRules.Any())
             foreach (var child in parentRule.ChildRules)
                 if (child.LifeCycleState == RuleLifeCycle.Started)
-                    child.Context.RegisteredOn.StopRule(parentRule, child);
+                    child.Context.RegisteredOn.StopRuleAsync(parentRule, child);
     }
 
     private void UnsubscribeAllListenersForRule(IRule removeListeners)

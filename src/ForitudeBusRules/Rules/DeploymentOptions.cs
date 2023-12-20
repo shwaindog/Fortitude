@@ -15,6 +15,13 @@ public readonly struct DeploymentOptions
     public readonly uint Instances;
     public readonly string? SpecificEventQueueName = null;
 
+    public DeploymentOptions()
+    {
+        RoutingFlags = RoutingFlags.DefaultDeploy;
+        EventGroupType = EventQueueType.Event;
+        Instances = 1;
+    }
+
     public DeploymentOptions(RoutingFlags routingFlags = RoutingFlags.DefaultDeploy
         , EventQueueType eventGroupType = EventQueueType.Event
         , uint instances = 1, string? specificEventQueueName = null)

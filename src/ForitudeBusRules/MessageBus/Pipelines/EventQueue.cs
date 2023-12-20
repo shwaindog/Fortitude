@@ -26,20 +26,20 @@ public interface IEventQueue : IComparable<IEventQueue>
     void Start();
     void EnqueueMessage(Message msg);
 
-    ValueTask<IDispatchResult> EnqueuePayloadWithStats<TPayload>(TPayload payload, IRule sender,
+    ValueTask<IDispatchResult> EnqueuePayloadWithStatsAsync<TPayload>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null);
 
     void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
         string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null);
 
-    ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
+    ValueTask<RequestResponse<TResponse>> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null);
 
-    ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, RouteSelectionResult selectionResult);
+    ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult);
 
-    ValueTask<IDispatchResult> StopRule(IRule sender, IRule rule);
+    ValueTask<IDispatchResult> StopRuleAsync(IRule sender, IRule rule);
 
     bool IsListeningToAddress(string destinationAddress);
     int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress);
@@ -102,7 +102,7 @@ public class EventQueue : IEventQueue
         messagePump.WakeIfAsleep();
     }
 
-    public ValueTask<IDispatchResult> EnqueuePayloadWithStats<TPayload>(TPayload payload, IRule sender,
+    public ValueTask<IDispatchResult> EnqueuePayloadWithStatsAsync<TPayload>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null)
     {
@@ -123,7 +123,8 @@ public class EventQueue : IEventQueue
         return processorRegistry.GenerateValueTask();
     }
 
-    public ValueTask<RequestResponse<TResponse>> RequestFromPayload<TPayload, TResponse>(TPayload payload, IRule sender,
+    public ValueTask<RequestResponse<TResponse>> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload
+        , IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null)
     {
@@ -148,7 +149,7 @@ public class EventQueue : IEventQueue
         return reusableValueTaskSource.GenerateValueTask();
     }
 
-    public ValueTask<IDispatchResult> StopRule(IRule sender, IRule rule)
+    public ValueTask<IDispatchResult> StopRuleAsync(IRule sender, IRule rule)
     {
         rule.LifeCycleState = RuleLifeCycle.ShuttingDown;
         rule.Context = eventContext;
@@ -156,7 +157,7 @@ public class EventQueue : IEventQueue
         processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
         processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.RecycleTimer = eventContext.Timer;
-        return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.UnloadRule);
+        return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.UnloadRule);
     }
 
     public bool IsListeningToAddress(string destinationAddress) =>
@@ -251,7 +252,7 @@ public class EventQueue : IEventQueue
         messagePump.Dispose();
     }
 
-    public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, RouteSelectionResult selectionResult)
+    public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult)
     {
         rule.LifeCycleState = RuleLifeCycle.Starting;
         rule.Context = eventContext;
@@ -260,7 +261,7 @@ public class EventQueue : IEventQueue
         processorRegistry.DispatchResult.DeploymentSelectionResult = selectionResult;
         processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
         processorRegistry.RecycleTimer = eventContext.Timer;
-        return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.LoadRule);
+        return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.LoadRule);
     }
 
     private void IncrementRecentMessageReceived()

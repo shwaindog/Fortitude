@@ -52,6 +52,56 @@ public class DeployDispatchStrategySelectorTests
     }
 
     [TestMethod]
+    public void LeastBusyDeploySelectsLeastBusyAndFixedOrderSelectionStrategy()
+    {
+        var result = selector.SelectDeployStrategy(rule, rule
+            , new DeploymentOptions(RoutingFlags.LeastBusyQueue));
+
+        var strategies = NonPublicInvocator.GetInstanceField<ReusableList<ISelectionStrategy>>(result, "backingList");
+
+        Assert.IsTrue(strategies.Count == 2);
+        Assert.AreEqual(LeastBusySelectionStrategy.StrategyName, strategies[0].Name);
+        Assert.AreEqual(FixedOrderSelectionStrategy.StrategyName, strategies[1].Name);
+    }
+
+    [TestMethod]
+    public void NoFlagsDeploySelectsFixedOrderSelectionStrategy()
+    {
+        var result = selector.SelectDeployStrategy(rule, rule
+            , new DeploymentOptions(RoutingFlags.None));
+
+        var strategies = NonPublicInvocator.GetInstanceField<ReusableList<ISelectionStrategy>>(result, "backingList");
+
+        Assert.IsTrue(strategies.Count == 1);
+        Assert.AreEqual(FixedOrderSelectionStrategy.StrategyName, strategies[0].Name);
+    }
+
+    [TestMethod]
+    public void ReuseLastCacheDeploySelectsReuseLastCacheFixedOrderSelectionStrategy()
+    {
+        var result = selector.SelectDeployStrategy(rule, rule
+            , new DeploymentOptions(RoutingFlags.UseLastCacheEntry | RoutingFlags.DestinationCacheLast));
+
+        var strategies = NonPublicInvocator.GetInstanceField<ReusableList<ISelectionStrategy>>(result, "backingList");
+
+        Assert.IsTrue(strategies.Count == 2);
+        Assert.AreEqual(ReuseLastCachedResultSelectionStrategy.StrategyName, strategies[0].Name);
+        Assert.AreEqual(FixedOrderSelectionStrategy.StrategyName, strategies[1].Name);
+    }
+
+    [TestMethod]
+    public void TargetSpecificDeploySelectsTargetSpecificSelectionStrategy()
+    {
+        var result = selector.SelectDeployStrategy(rule, rule
+            , new DeploymentOptions(RoutingFlags.TargetSpecific));
+
+        var strategies = NonPublicInvocator.GetInstanceField<ReusableList<ISelectionStrategy>>(result, "backingList");
+
+        Assert.IsTrue(strategies.Count == 1);
+        Assert.AreEqual(TargetSpecificSelectionStrategy.StrategyName, strategies[0].Name);
+    }
+
+    [TestMethod]
     public void DispatchDefaultPublishSelectsReuseLastCachedAndFixedOrderSelectionStrategy()
     {
         var result = selector.SelectDispatchStrategy(rule
@@ -100,5 +150,17 @@ public class DeployDispatchStrategySelectorTests
 
         Assert.IsTrue(strategies.Count == 1);
         Assert.AreEqual(FixedOrderSelectionStrategy.StrategyName, strategies[0].Name);
+    }
+
+    [TestMethod]
+    public void DispatchTargetSpecificResponseSelectsOnlyTargetSpecificSelectionStrategy()
+    {
+        var result = selector.SelectDispatchStrategy(rule
+            , new DispatchOptions(RoutingFlags.TargetSpecific));
+
+        var strategies = NonPublicInvocator.GetInstanceField<ReusableList<ISelectionStrategy>>(result, "backingList");
+
+        Assert.IsTrue(strategies.Count == 1);
+        Assert.AreEqual(TargetSpecificSelectionStrategy.StrategyName, strategies[0].Name);
     }
 }

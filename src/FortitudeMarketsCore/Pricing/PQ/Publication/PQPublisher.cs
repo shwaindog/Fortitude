@@ -29,7 +29,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
             foreach (var tickerRef in tickersIdRef)
             {
                 var picture = pqServer.Register(tickerRef.Ticker);
-                if (picture != null) pictures.Add(tickerRef.Ticker, picture);
+                if (picture != null) pictures.AddOrUpdate(tickerRef.Ticker, picture);
             }
     }
 

@@ -39,7 +39,7 @@ public class EventQueueTests
     public async Task EventQueueCanLoadNewRuleAndRunStart()
     {
         var incRule = new IncrementingRule();
-        var results = eventQueue.LaunchRule(incRule, incRule, selectionResult);
+        var results = eventQueue.LaunchRuleAsync(incRule, incRule, selectionResult);
         var incRuleDispatchResult = await results;
         Assert.IsNotNull(results.IsCompleted);
         Assert.AreEqual(1, incRule.StartCount);
@@ -54,19 +54,19 @@ public class EventQueueTests
     {
         var publishRule = new PublishingRule(2);
         var listeningRule = new ListeningRule(publishRule.PublishAddress);
-        var listenDeploy = eventQueue.LaunchRule(listeningRule, listeningRule, selectionResult);
+        var listenDeploy = eventQueue.LaunchRuleAsync(listeningRule, listeningRule, selectionResult);
         var listenDispatchResult = await listenDeploy;
         Assert.IsTrue(listenDeploy.IsCompleted);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, listenDispatchResult.DecrementRefCount());
-        var publishDispatchResult = await eventQueue.LaunchRule(publishRule, publishRule, selectionResult);
+        var publishDispatchResult = await eventQueue.LaunchRuleAsync(publishRule, publishRule, selectionResult);
         await Task.Delay(45); // time for 2 timer events to complete
         Assert.AreEqual(0, publishDispatchResult.DecrementRefCount());
         Assert.AreEqual(2, publishRule.PublishNumber);
         Assert.AreEqual(2, listeningRule.ReceiveCount);
         Assert.AreEqual(2, listeningRule.LastReceivedPublishNumber);
         var publishRule2 = new PublishingRule(4);
-        var publish2DispatchResult = await eventQueue.LaunchRule(publishRule2, publishRule2, selectionResult);
+        var publish2DispatchResult = await eventQueue.LaunchRuleAsync(publishRule2, publishRule2, selectionResult);
         await Task.Delay(105); // time for 4 timer events to complete
         Assert.AreEqual(0, publish2DispatchResult.DecrementRefCount());
         Assert.AreEqual(4, publishRule2.PublishNumber);
@@ -79,11 +79,13 @@ public class EventQueueTests
     public async Task StartResponderThenStartRequesterEachReceiveExpectedNumberOfInvocations()
     {
         var respondingRule = new RespondingRule();
-        var respondingDispatchResult = await eventQueue.LaunchRule(respondingRule, respondingRule, selectionResult);
+        var respondingDispatchResult
+            = await eventQueue.LaunchRuleAsync(respondingRule, respondingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, respondingDispatchResult.DecrementRefCount());
         var requestingRule = new RequestingRule(respondingRule.ListenAddress);
-        var requestingDispatchResult = await eventQueue.LaunchRule(requestingRule, requestingRule, selectionResult);
+        var requestingDispatchResult
+            = await eventQueue.LaunchRuleAsync(requestingRule, requestingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, requestingDispatchResult.DecrementRefCount());
         Assert.AreEqual(3, requestingRule.PublishNumber);
@@ -97,16 +99,18 @@ public class EventQueueTests
         StartResponderThenAsyncValueTaskResponderThenStartRequesterEachReceiveExpectedNumberOfInvocations()
     {
         var respondingRule = new RespondingRule();
-        var respondingDispatchResult = await eventQueue.LaunchRule(respondingRule, respondingRule, selectionResult);
+        var respondingDispatchResult
+            = await eventQueue.LaunchRuleAsync(respondingRule, respondingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, respondingDispatchResult.DecrementRefCount());
         var asyncRespondingRule = new AsyncValueTaskRespondingRule(requestAddress: respondingRule.ListenAddress);
         var asyncRespondingDispatchResult
-            = await eventQueue.LaunchRule(asyncRespondingRule, asyncRespondingRule, selectionResult);
+            = await eventQueue.LaunchRuleAsync(asyncRespondingRule, asyncRespondingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, asyncRespondingDispatchResult.DecrementRefCount());
         var requestingRule = new RequestingRule(asyncRespondingRule.ListenAddress);
-        var requestingDispatchResult = await eventQueue.LaunchRule(requestingRule, requestingRule, selectionResult);
+        var requestingDispatchResult
+            = await eventQueue.LaunchRuleAsync(requestingRule, requestingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, requestingDispatchResult.DecrementRefCount());
         Assert.AreEqual(3, requestingRule.PublishNumber);
@@ -122,16 +126,18 @@ public class EventQueueTests
     public async Task StartResponderThenAsyncTaskResponderThenStartRequesterEachReceiveExpectedNumberOfInvocations()
     {
         var respondingRule = new RespondingRule();
-        var respondingDisptachResult = await eventQueue.LaunchRule(respondingRule, respondingRule, selectionResult);
+        var respondingDisptachResult
+            = await eventQueue.LaunchRuleAsync(respondingRule, respondingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, respondingDisptachResult.DecrementRefCount());
         var asyncRespondingRule = new AsyncTaskRespondingRule(requestAddress: respondingRule.ListenAddress);
         var asyncRespondingDispatchResult
-            = await eventQueue.LaunchRule(asyncRespondingRule, asyncRespondingRule, selectionResult);
+            = await eventQueue.LaunchRuleAsync(asyncRespondingRule, asyncRespondingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, asyncRespondingDispatchResult.DecrementRefCount());
         var requestingRule = new RequestingRule(asyncRespondingRule.ListenAddress);
-        var requestingDispatchResult = await eventQueue.LaunchRule(requestingRule, requestingRule, selectionResult);
+        var requestingDispatchResult
+            = await eventQueue.LaunchRuleAsync(requestingRule, requestingRule, selectionResult);
         await Task.Delay(10); // time for message queue to decrement at end of processing message
         Assert.AreEqual(0, requestingDispatchResult.DecrementRefCount());
         Assert.AreEqual(3, requestingRule.PublishNumber);
