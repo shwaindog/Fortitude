@@ -68,7 +68,7 @@ public class PublishingRule : Rule
         try
         {
             logger.Info("Started PublishingRule instance {0}", Id);
-            Context.EventBus.PublishAsync(this, PublishAddress, ++PublishNumber, new DispatchOptions());
+            this.PublishAsync(PublishAddress, ++PublishNumber, new DispatchOptions());
             Context.Timer.RunIn(20, PublishInt);
             Interlocked.Increment(ref startCount);
         }
@@ -89,7 +89,7 @@ public class PublishingRule : Rule
         try
         {
             logger.Info("PublishingRule instance {0} publishing message {1}", Id, PublishNumber + 1);
-            Context.EventBus.PublishAsync(this, PublishAddress, ++PublishNumber, new DispatchOptions());
+            this.PublishAsync(PublishAddress, ++PublishNumber, new DispatchOptions());
             if (PublishNumber < maxPublishCount) Context.Timer.RunIn(20, PublishInt);
         }
         catch (Exception ex)
@@ -140,7 +140,7 @@ public class ListeningRule : Rule
     {
         base.Start();
         logger.Info("Started ListeningRule instance {0}", Id);
-        Context.EventBus.RegisterListener<int>(this, ListenAddress, ReceivePublishIntMessage);
+        this.RegisterListener<int>(ListenAddress, ReceivePublishIntMessage);
         Interlocked.Increment(ref startCount);
         return Task.CompletedTask;
     }
@@ -205,7 +205,7 @@ public class RespondingRule : Rule
     {
         base.Start();
         logger.Info("Started RespondingRule instance {0}", Id);
-        Context.EventBus.RegisterRequestListener<int, int>(this, ListenAddress, ReceivePublishIntMessage);
+        this.RegisterRequestListener<int, int>(ListenAddress, ReceivePublishIntMessage);
         Interlocked.Increment(ref startCount);
         return new ValueTask();
     }
@@ -257,15 +257,15 @@ public class RequestingRule : Rule
     public override async ValueTask StartAsync()
     {
         logger.Info("Started RequestingRule instance {0}", Id);
-        var result = await Context.EventBus.RequestAsync<int, int>(this, RequestAddress, ++PublishNumber
+        var result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
             , new DispatchOptions());
         ReceiveCount++;
         logger.Info("RequestingRule received first result: {0}", result.Response);
-        result = await Context.EventBus.RequestAsync<int, int>(this, RequestAddress, ++PublishNumber
+        result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
             , new DispatchOptions());
         ReceiveCount++;
         logger.Info("RequestingRule received second result: {0}", result.Response);
-        result = await Context.EventBus.RequestAsync<int, int>(this, RequestAddress, ++PublishNumber
+        result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
             , new DispatchOptions());
         ReceiveCount++;
         logger.Info("RequestingRule received third result: {0}", result.Response);
@@ -317,7 +317,7 @@ public class AsyncValueTaskRespondingRule : Rule
     {
         base.Start();
         logger.Info("Started AsyncValueTaskRespondingRule instance {0}", Id);
-        Context.EventBus.RegisterRequestListener<int, int>(this, ListenAddress, ReceivePublishIntMessage);
+        this.RegisterRequestListener<int, int>(ListenAddress, ReceivePublishIntMessage);
         Interlocked.Increment(ref startCount);
         return Task.CompletedTask;
     }
@@ -327,7 +327,7 @@ public class AsyncValueTaskRespondingRule : Rule
         logger.Info("AsyncValueTaskRespondingRule instance {0} received {1}", Id, requestMessage.ToString());
         ReceiveCount++;
         LastReceivedRequestNumber = requestMessage.PayLoad.Body;
-        var calculatedResult = await Context.EventBus.RequestAsync<int, int>(this, RequestAddress
+        var calculatedResult = await this.RequestAsync<int, int>(RequestAddress
             , LastReceivedRequestNumber
             , new DispatchOptions());
         LastReceivedResponseNumber = calculatedResult.Response;
@@ -380,7 +380,7 @@ public class AsyncTaskRespondingRule : Rule
     {
         base.Start();
         logger.Info("Started AsyncTaskRespondingRule instance {0}", Id);
-        Context.EventBus.RegisterRequestListener<int, int>(this, ListenAddress, ReceivePublishIntMessage);
+        this.RegisterRequestListener<int, int>(ListenAddress, ReceivePublishIntMessage);
         Interlocked.Increment(ref startCount);
         return Task.CompletedTask;
     }
@@ -390,8 +390,7 @@ public class AsyncTaskRespondingRule : Rule
         logger.Info("AsyncTaskRespondingRule instance {0} received {1}", Id, requestMessage.ToString());
         ReceiveCount++;
         LastReceivedRequestNumber = requestMessage.PayLoad.Body;
-        var calculatedResult = await Context.EventBus.RequestAsync<int, int>(this, RequestAddress
-            , LastReceivedRequestNumber
+        var calculatedResult = await this.RequestAsync<int, int>(RequestAddress, LastReceivedRequestNumber
             , new DispatchOptions());
         LastReceivedResponseNumber = calculatedResult.Response;
         logger.Info("AsyncTaskRespondingRule instance {0} received response {1}", Id, LastReceivedResponseNumber);

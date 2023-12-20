@@ -164,7 +164,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         {
             var routeSelectionResult = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.EventQueue;
-            return destinationEventQueue.LaunchRule(sender, rule, routeSelectionResult);
+            return destinationEventQueue.LaunchRuleAsync(sender, rule, routeSelectionResult);
         }
 
         var message
@@ -189,7 +189,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
             var requestResponseSelectionResult = selectionResult.First();
             var destinationEventQueue = requestResponseSelectionResult.EventQueue;
             var destinationRule = requestResponseSelectionResult.Rule;
-            return destinationEventQueue.RequestFromPayload<T, U>(msg, sender, processorRegistry, publishAddress
+            return destinationEventQueue.RequestFromPayloadAsync<T, U>(msg, sender, processorRegistry, publishAddress
                 , ruleFilter: destinationRule?.AppliesToThisRule);
         }
 
@@ -215,7 +215,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
             {
                 var destinationEventQueue = routeResult.EventQueue;
                 var destinationRule = routeResult.Rule;
-                destinationEventQueue.EnqueuePayloadWithStats(msg, sender, processorRegistry, publishAddress
+                destinationEventQueue.EnqueuePayloadWithStatsAsync(msg, sender, processorRegistry, publishAddress
                     , ruleFilter: destinationRule?.AppliesToThisRule);
             }
 
@@ -340,13 +340,5 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         if (selector.IsCustom()) result.AddRange(CustomGroup);
 
         return result;
-    }
-
-    public IReusableList<IEventQueue> GetAllQueues()
-    {
-        var reusableEventQueues = recycler.Borrow<ReusableList<IEventQueue>>();
-        reusableEventQueues.AddRange(IOOutboundGroup).AddRange(IOInboundGroup).AddRange(EventGroup)
-            .AddRange(WorkerGroup).AddRange(CustomGroup);
-        return reusableEventQueues;
     }
 }

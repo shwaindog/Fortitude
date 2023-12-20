@@ -23,6 +23,7 @@ public class DeployDispatchStrategySelector : UsesRecycler, IDeployDispatchStrat
     private readonly LeastBusySelectionStrategy leastBusySelectionStrategy;
     private readonly ReuseLastCachedResultSelectionStrategy reuseLastCachedResultSelectionStrategy;
     private readonly RotateEvenlySelectionStrategy rotateEvenlySelectionStrategy;
+    private readonly TargetSpecificSelectionStrategy targetSpecificSelectionStrategy;
 
 
     public DeployDispatchStrategySelector(IRecycler recycler)
@@ -36,6 +37,7 @@ public class DeployDispatchStrategySelector : UsesRecycler, IDeployDispatchStrat
         reuseLastCachedResultSelectionStrategy
             = new ReuseLastCachedResultSelectionStrategy(deployDispatchDestinationCache);
         leastBusySelectionStrategy = new LeastBusySelectionStrategy(recycler);
+        targetSpecificSelectionStrategy = new TargetSpecificSelectionStrategy(recycler);
     }
 
     public ISelectionStrategy SelectDeployStrategy(IRule senderRule, IRule deployRule
@@ -43,6 +45,12 @@ public class DeployDispatchStrategySelector : UsesRecycler, IDeployDispatchStrat
     {
         var selectionAggregator = Recycler!.Borrow<SelectionStrategiesAggregator>();
         var flags = deploymentOptions.RoutingFlags;
+        if (flags.IsTargetSpecific())
+        {
+            selectionAggregator.Add(targetSpecificSelectionStrategy);
+            return selectionAggregator;
+        }
+
         if (flags.IsRotateEvenly()) selectionAggregator.Add(rotateEvenlySelectionStrategy);
         if (flags.IsUseLastCacheEntry() && !flags.IsRecalculateCache())
             selectionAggregator.Add(reuseLastCachedResultSelectionStrategy);
@@ -60,6 +68,12 @@ public class DeployDispatchStrategySelector : UsesRecycler, IDeployDispatchStrat
     {
         var selectionAggregator = Recycler!.Borrow<SelectionStrategiesAggregator>();
         var flags = deploymentOptions.RoutingFlags;
+        if (flags.IsTargetSpecific())
+        {
+            selectionAggregator.Add(targetSpecificSelectionStrategy);
+            return selectionAggregator;
+        }
+
         if (flags.IsRotateEvenly() && flags.IsSendToOne()) selectionAggregator.Add(rotateEvenlySelectionStrategy);
         if (flags.IsUseLastCacheEntry() && !flags.IsRecalculateCache())
             selectionAggregator.Add(reuseLastCachedResultSelectionStrategy);

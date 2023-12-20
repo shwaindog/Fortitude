@@ -17,9 +17,7 @@ public interface IEventQueueGroup : IEnumerable<IEventQueue>
     bool Contains(IEventQueue item);
     int AddNewQueues(DeploymentOptions deploymentOptions);
     void Add(IEventQueue toAdd);
-    int IndexOf(IEventQueue item);
     bool StopRemoveEventQueue(IEventQueue eventQueue);
-    int IndexOfLeastBusy();
     new IEnumerator<IEventQueue> GetEnumerator();
 }
 
@@ -107,31 +105,5 @@ public class SpecificEventQueueGroup : IEventQueueGroup
         return true;
     }
 
-    public int IndexOf(IEventQueue item) => eventQueues.IndexOf(item);
-
     public bool Contains(IEventQueue item) => eventQueues.Contains(item);
-
-
-    public int IndexOfLeastBusy()
-    {
-        var leastBusyIndex = 0;
-        var currentMinMessageCount = uint.MaxValue;
-
-
-        for (var i = 0; i < eventQueues.Count; i++)
-        {
-            var checkQueue = eventQueues[i];
-            if (checkQueue != null)
-            {
-                var checkQueueMessageCount = checkQueue.RecentlyReceivedMessagesCount;
-                if (checkQueueMessageCount < currentMinMessageCount)
-                {
-                    leastBusyIndex = i;
-                    currentMinMessageCount = checkQueueMessageCount;
-                }
-            }
-        }
-
-        return leastBusyIndex;
-    }
 }

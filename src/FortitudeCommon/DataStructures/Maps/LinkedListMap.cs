@@ -26,7 +26,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
             throw new KeyNotFoundException($"Could not find '{key}' in SafeChainMap");
         }
-        set => Add(key, value!);
+        set => AddOrUpdate(key, value!);
     }
 
     public TV? GetValue(TK key)
@@ -108,19 +108,13 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
             var currentNode = Chain.Head;
             var foundInExisting = false;
             for (; currentNode != null; currentNode = currentNode.Next)
-                if (currentNode.Payload.Key?.Equals(key) ?? false)
-                {
-                    duplicate.AddFirst(
-                        new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                            new KeyValuePair<TK, TV>(key, value)));
-                    foundInExisting = true;
-                }
-                else
-                {
-                    duplicate.AddFirst(
-                        new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                            currentNode.Payload));
-                }
+            {
+                if (currentNode.Payload.Key?.Equals(key) ?? false) foundInExisting = true;
+
+                duplicate.AddFirst(
+                    new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
+                        currentNode.Payload));
+            }
 
             if (!foundInExisting)
             {

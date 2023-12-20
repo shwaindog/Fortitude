@@ -22,10 +22,10 @@ public interface IEventBus
     ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions);
 
-    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, DeploymentOptions options);
-    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, DeploymentOptions options);
+    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options);
+    ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type toDeployRuleType, DeploymentOptions options);
 
-    ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule rule);
+    ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule toUndeployRule);
 
     ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
         , Action<IMessage<TPayload>> handler);
@@ -44,10 +44,10 @@ public interface IConfigureEventBus : IEventBus
 {
     void Start();
     void Stop();
-    IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, DeploymentOptions queueDeploymentOptions);
+    void StartNewEventQueue(IEventQueue freshEventQueue);
 }
 
-public class EventBus : IEventBus, IConfigureEventBus
+public class EventBus : IConfigureEventBus
 {
     private readonly IEventQueueGroupContainer allEventQueues;
 
@@ -74,12 +74,15 @@ public class EventBus : IEventBus, IConfigureEventBus
         allEventQueues.Stop();
     }
 
-    public IEventQueue StartNewEventQueue(IEventQueue freshEventQueoe, DeploymentOptions queueDeploymentOptions) =>
-        throw new NotImplementedException();
+    public void StartNewEventQueue(IEventQueue freshEventQueue)
+    {
+        allEventQueues.Add(freshEventQueue);
+        if (!freshEventQueue.IsRunning) freshEventQueue.Start();
+    }
 
     public IDependencyResolver DependencyResolver { get; set; }
 
-    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type ruleType, DeploymentOptions options)
+    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type toDeployRuleType, DeploymentOptions options)
     {
         var resolvedRuled = DependencyResolver.Resolve<IRule>();
         return DeployRuleAsync(sender, resolvedRuled, options);
@@ -89,8 +92,8 @@ public class EventBus : IEventBus, IConfigureEventBus
         , DispatchOptions dispatchOptions) =>
         allEventQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
-    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, DeploymentOptions options) =>
-        allEventQueues.LaunchRule(sender, rule, options);
+    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options) =>
+        allEventQueues.LaunchRule(sender, toDeployRule, options);
 
     public ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions) =>
@@ -144,6 +147,6 @@ public class EventBus : IEventBus, IConfigureEventBus
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
-    public ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule toUndeploy) =>
-        toUndeploy.Context.RegisteredOn.StopRule(sender, toUndeploy);
+    public ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule toUndeployRule) =>
+        toUndeployRule.Context.RegisteredOn.StopRuleAsync(sender, toUndeployRule);
 }

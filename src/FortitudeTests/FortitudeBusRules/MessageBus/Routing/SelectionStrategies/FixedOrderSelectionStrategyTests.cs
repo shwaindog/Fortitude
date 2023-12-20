@@ -25,6 +25,7 @@ public class FixedOrderSelectionStrategyTests
     private readonly IRule respondingRuleFirstQueue = new RespondingRule();
     private readonly IRule respondingRuleSecondQueue = new RespondingRule();
     private readonly IRule sendingRule = new RequestingRule();
+
     private IEventQueueGroupContainer allQueues = null!;
     private Mock<IEventQueue> firstCustomQueue = null!;
     private Mock<IEventQueue> firstEventQueue = null!;
@@ -57,10 +58,8 @@ public class FixedOrderSelectionStrategyTests
         secondCustomQueue = new Mock<IEventQueue>();
         ruleContext = new Mock<IEventContext>();
 
-
         var oneFirstQueueRules = new InsertionOrderSet<IRule> { respondingRuleFirstQueue };
         var oneSecondQueueRules = new InsertionOrderSet<IRule> { respondingRuleSecondQueue };
-
 
         Action<ISet<IRule>, string> addNoRules = (rule, ruleName) => { };
         Action<ISet<IRule>, string> addOneFirstQueueRule = (toAddTo, _) => toAddTo.UnionWith(oneFirstQueueRules);
