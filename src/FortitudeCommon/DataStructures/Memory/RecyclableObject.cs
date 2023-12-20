@@ -1,18 +1,27 @@
 ﻿namespace FortitudeCommon.DataStructures.Memory;
 
-public interface IRecyclableObject
+public interface IUsesRecycler
+{
+    IRecycler? Recycler { get; set; }
+}
+
+public class UsesRecycler : IUsesRecycler
+{
+    public IRecycler? Recycler { get; set; }
+}
+
+public interface IRecyclableObject : IUsesRecycler
 {
     int RefCount { get; }
     bool AutoRecycleAtRefCountZero { get; set; }
     bool IsInRecycler { get; set; }
-    IRecycler? Recycler { get; set; }
     int DecrementRefCount();
     int IncrementRefCount();
     bool Recycle();
     void StateReset();
 }
 
-public class RecyclableObject : IRecyclableObject
+public class RecyclableObject : UsesRecycler, IRecyclableObject
 {
     private const int NumRecentRecycleTimes = 5;
 
@@ -30,8 +39,6 @@ public class RecyclableObject : IRecyclableObject
         get => isInRecycler != 0;
         set => isInRecycler = value ? 1 : 0;
     }
-
-    public IRecycler? Recycler { get; set; }
 
     public virtual int DecrementRefCount()
     {

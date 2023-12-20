@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Maps;
+using System.Collections.Concurrent;
 using FortitudeCommon.Types;
 
 #endregion
@@ -18,9 +18,11 @@ public interface IRecycler
 public class Recycler : IRecycler
 {
     private readonly bool acceptNonCreatedObjects;
-    private readonly IMap<Type, IPooledFactory> poolFactoryMap = new ConcurrentMap<Type, IPooledFactory>();
+    private readonly ConcurrentDictionary<Type, IPooledFactory> poolFactoryMap = new();
     private readonly bool shouldAutoRecycleOnRefCountZero;
     private readonly bool throwWhenAttemptToRecycleRefCountNoZero;
+
+    public Recycler() : this(true, true, false) { }
 
     public Recycler(bool shouldAutoRecycleOnRefCountZero = true, bool acceptNonCreatedObjects = true,
         bool throwWhenAttemptToRecycleRefCountNoZero = true)
@@ -35,7 +37,7 @@ public class Recycler : IRecycler
         if (!poolFactoryMap.TryGetValue(typeof(T), out var poolFactoryContainer))
         {
             poolFactoryContainer = new GarbageAndLockFreePooledFactory<T>(() => new T());
-            poolFactoryMap.Add(typeof(T), poolFactoryContainer);
+            poolFactoryMap.TryAdd(typeof(T), poolFactoryContainer);
         }
 
         var borrowed = (T)poolFactoryContainer!.Borrow();
@@ -60,7 +62,7 @@ public class Recycler : IRecycler
             poolFactoryContainer = (IPooledFactory)ReflectionHelper
                 .InstantiateGenericType(typeof(GarbageAndLockFreePooledFactory<>)
                     , new[] { type }, newInstanceFunc, 4);
-            poolFactoryMap.Add(type, poolFactoryContainer);
+            poolFactoryMap.TryAdd(type, poolFactoryContainer);
         }
 
         var borrowed = poolFactoryContainer!.Borrow();
@@ -98,7 +100,7 @@ public class Recycler : IRecycler
                 poolFactoryContainer = (IPooledFactory)ReflectionHelper
                     .InstantiateGenericType(typeof(GarbageAndLockFreePooledFactory<>)
                         , new[] { type }, newInstanceFunc, 4);
-                poolFactoryMap.Add(trash.GetType(), poolFactoryContainer);
+                poolFactoryMap.TryAdd(trash.GetType(), poolFactoryContainer);
             }
             else
             {

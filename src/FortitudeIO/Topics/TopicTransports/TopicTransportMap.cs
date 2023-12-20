@@ -13,12 +13,11 @@ public class TopicTransportMap<T> : IMap<ITopicEndpointInfo, T> where T : ITrans
     private readonly IMap<ITopicEndpointInfo, T> backingMap = new GarbageAndLockFreeMap<ITopicEndpointInfo, T>(
         (lhs, rhs) => lhs.EquivalentEndpoint(rhs));
 
-    public IEnumerator<FortitudeCommon.DataStructures.Maps.KeyValuePair<ITopicEndpointInfo, T>> GetEnumerator() =>
-        backingMap.GetEnumerator();
+    public IEnumerator<KeyValuePair<ITopicEndpointInfo, T>> GetEnumerator() => backingMap.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public T this[ITopicEndpointInfo key]
+    public T? this[ITopicEndpointInfo key]
     {
         get => backingMap[key];
         set => backingMap[key] = value;
@@ -26,12 +25,28 @@ public class TopicTransportMap<T> : IMap<ITopicEndpointInfo, T> where T : ITrans
 
     public int Count => backingMap.Count;
 
+    public T? GetValue(ITopicEndpointInfo key)
+    {
+        TryGetValue(key, out var value);
+        return value;
+    }
+
     public bool TryGetValue(ITopicEndpointInfo key, out T? value) => backingMap.TryGetValue(key, out value);
 
-    public void Add(ITopicEndpointInfo key, T value)
+    public T GetOrPut(ITopicEndpointInfo key, Func<ITopicEndpointInfo, T> createFunc)
     {
-        backingMap.Add(key, value);
+        if (!TryGetValue(key, out var value))
+        {
+            value = createFunc(key);
+            backingMap.Add(key, value);
+        }
+
+        return value!;
     }
+
+    public T AddOrUpdate(ITopicEndpointInfo key, T value) => backingMap.AddOrUpdate(key, value);
+
+    public bool Add(ITopicEndpointInfo key, T value) => backingMap.Add(key, value);
 
     public bool Remove(ITopicEndpointInfo key) => backingMap.Remove(key);
 
@@ -42,7 +57,7 @@ public class TopicTransportMap<T> : IMap<ITopicEndpointInfo, T> where T : ITrans
 
     public bool ContainsKey(ITopicEndpointInfo key) => backingMap.ContainsKey(key);
 
-    public event Action<IEnumerable<FortitudeCommon.DataStructures.Maps.KeyValuePair<ITopicEndpointInfo, T>>> OnUpdate
+    public event Action<IEnumerable<KeyValuePair<ITopicEndpointInfo, T>>> OnUpdate
     {
         add => backingMap.OnUpdate += value;
         remove => backingMap.OnUpdate -= value;

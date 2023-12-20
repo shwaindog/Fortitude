@@ -171,6 +171,8 @@ public class Message : IMessage
 
 public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad, TResponse>
 {
+    public static readonly NoMessageResponseSource<TResponse> NoTypedOpCompletionSource = new();
+
     private int isInRecycler;
     private int refCount;
 
@@ -182,7 +184,12 @@ public class Message<TPayLoad, TResponse> : Message, IRespondingMessage<TPayLoad
 
     public new IResponseValueTaskSource<TResponse> Response
     {
-        get => (IResponseValueTaskSource<TResponse>)base.Response;
+        get
+        {
+            var underlyingResponse = base.Response;
+            if (underlyingResponse is NoMessageResponseSource) return NoTypedOpCompletionSource;
+            return (IResponseValueTaskSource<TResponse>)underlyingResponse;
+        }
         set => base.Response = value;
     }
 

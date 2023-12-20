@@ -1,31 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region
+
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 
-namespace FortitudeIO.Topics.TopicTransports
+#endregion
+
+namespace FortitudeIO.Topics.TopicTransports;
+
+public interface IRequestResponseResponderTransportTopicConversation : ITransportTopicConversation
 {
-    public interface IRequestResponseResponderTransportTopicConversation : ITransportTopicConversation
-    {
-        IRequestResponseResponderConversation RequestResponseResponderConversation { get; }
-    }
+    IRequestResponseResponderConversation RequestResponseResponderConversation { get; }
+}
 
-    public class RequestResponseResponderTransportTopicConversation : TransportTopicConversation, IRequestResponseResponderTransportTopicConversation
-    {
-        public RequestResponseResponderTransportTopicConversation(ITopicEndpointInfo endpoint,
-            IRequestResponseResponderConversation requestResponseResponderConversation) : base(endpoint)
-        {
-            RequestResponseResponderConversation = requestResponseResponderConversation;
-        }
-        public RequestResponseResponderTransportTopicConversation(ITopicConnectionConfig connectionConfig,
-            IRequestResponseResponderConversation requestResponseResponderConversation) : base(connectionConfig)
-        {
-            RequestResponseResponderConversation = requestResponseResponderConversation;
-        }
+public class RequestResponseResponderTransportTopicConversation : TransportTopicConversation
+    , IRequestResponseResponderTransportTopicConversation
+{
+    public RequestResponseResponderTransportTopicConversation(ITopicEndpointInfo endpoint,
+        IRequestResponseResponderConversation requestResponseResponderConversation) : base(endpoint) =>
+        RequestResponseResponderConversation = requestResponseResponderConversation;
 
-        public IRequestResponseResponderConversation RequestResponseResponderConversation { get; }
-    }
+    public RequestResponseResponderTransportTopicConversation(ITopicConnectionConfig connectionConfig,
+        IRequestResponseResponderConversation requestResponseResponderConversation) : base(connectionConfig) =>
+        RequestResponseResponderConversation = requestResponseResponderConversation;
+
+    public IRequestResponseResponderConversation RequestResponseResponderConversation { get; }
 }

@@ -86,26 +86,8 @@ public class EventBus : IEventBus, IConfigureEventBus
     }
 
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
-        , DispatchOptions dispatchOptions)
-    {
-        var count = 0;
-        var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount();
-        processorRegistry.DispatchResult.SentTime = DateTime.Now;
-        processorRegistry.RecycleTimer = sender.Context.Timer;
-        foreach (var eventQueue in allEventQueues.Where(eq => eq.IsListeningToAddress(publishAddress)))
-        {
-            count++;
-            processorRegistry.IncrementRefCount();
-            eventQueue.EnqueuePayloadWithStats(msg, sender, processorRegistry, publishAddress);
-        }
-
-        if (count == 0) throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
-        processorRegistry.DecrementRefCount();
-
-        return processorRegistry.GenerateValueTask();
-    }
+        , DispatchOptions dispatchOptions) =>
+        allEventQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
     public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule rule, DeploymentOptions options) =>
         allEventQueues.LaunchRule(sender, rule, options);

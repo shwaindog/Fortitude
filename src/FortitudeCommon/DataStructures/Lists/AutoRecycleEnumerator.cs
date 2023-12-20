@@ -8,7 +8,7 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.DataStructures.Lists;
 
-public interface IAutoRecycleEnumerator : IAutoRecycledObject, IEnumerator
+public interface IAutoRecycleEnumerator : IAutoRecycledObject, IEnumerator, IDisposable
 {
     IAutoRecycleEnumerator Add(object? append);
     IAutoRecycleEnumerator AddRange(IEnumerable appendAll);
@@ -87,7 +87,7 @@ public class AutoRecycleEnumerator : AutoRecycledObject, IAutoRecycleEnumerator
         base.StateReset();
     }
 
-    private void Dispose()
+    public void Dispose()
     {
         StateReset();
         Recycle();

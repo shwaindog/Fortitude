@@ -14,7 +14,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
     protected DoublyLinkedList<
         DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>> Chain = new();
 
-    public TV this[TK key]
+    public TV? this[TK key]
     {
         get
         {
@@ -26,7 +26,13 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
             throw new KeyNotFoundException($"Could not find '{key}' in SafeChainMap");
         }
-        set => Add(key, value);
+        set => Add(key, value!);
+    }
+
+    public TV? GetValue(TK key)
+    {
+        TryGetValue(key, out var value);
+        return value;
     }
 
     public virtual bool TryGetValue(TK key, out TV? value)
@@ -43,7 +49,18 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
         return false;
     }
 
-    public void Add(TK key, TV value)
+    public TV GetOrPut(TK key, Func<TK, TV> createFunc)
+    {
+        if (!TryGetValue(key, out var value))
+        {
+            value = createFunc(key);
+            Add(key, value);
+        }
+
+        return value!;
+    }
+
+    public TV AddOrUpdate(TK key, TV value)
     {
         lock (sync)
         {
@@ -57,7 +74,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
                 {
                     duplicate.AddFirst(
                         new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                            new KeyValuePair<TK, TV>(key, value, true)));
+                            new KeyValuePair<TK, TV>(key, value)));
                     foundInExisting = true;
                 }
                 else
@@ -68,12 +85,55 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
                 }
 
             if (!foundInExisting)
+            {
                 duplicate.AddFirst(
                     new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                        new KeyValuePair<TK, TV>(key, value, true)));
+                        new KeyValuePair<TK, TV>(key, value)));
 
-            OnUpdate?.Invoke(duplicate.Select(wn => wn.Payload));
-            Chain = duplicate;
+                OnUpdate?.Invoke(duplicate.Select(wn => wn.Payload));
+                Chain = duplicate;
+            }
+
+            return value;
+        }
+    }
+
+    public bool Add(TK key, TV value)
+    {
+        lock (sync)
+        {
+            var duplicate =
+                new DoublyLinkedList<DoublyLinkedListWrapperNode<
+                    KeyValuePair<TK, TV>>>();
+            var currentNode = Chain.Head;
+            var foundInExisting = false;
+            for (; currentNode != null; currentNode = currentNode.Next)
+                if (currentNode.Payload.Key?.Equals(key) ?? false)
+                {
+                    duplicate.AddFirst(
+                        new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
+                            new KeyValuePair<TK, TV>(key, value)));
+                    foundInExisting = true;
+                }
+                else
+                {
+                    duplicate.AddFirst(
+                        new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
+                            currentNode.Payload));
+                }
+
+            if (!foundInExisting)
+            {
+                duplicate.AddFirst(
+                    new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
+                        new KeyValuePair<TK, TV>(key, value)));
+
+                OnUpdate?.Invoke(duplicate.Select(wn => wn.Payload));
+                Chain = duplicate;
+                return true;
+            }
+
+            return false;
         }
     }
 

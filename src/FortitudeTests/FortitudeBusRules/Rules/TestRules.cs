@@ -65,18 +65,41 @@ public class PublishingRule : Rule
 
     public override ValueTask StartAsync()
     {
-        logger.Info("Started PublishingRule instance {0}", Id);
-        Context.EventBus.PublishAsync(this, PublishAddress, ++PublishNumber, new DispatchOptions());
-        Context.Timer.RunIn(20, PublishInt);
-        Interlocked.Increment(ref startCount);
+        try
+        {
+            logger.Info("Started PublishingRule instance {0}", Id);
+            Context.EventBus.PublishAsync(this, PublishAddress, ++PublishNumber, new DispatchOptions());
+            Context.Timer.RunIn(20, PublishInt);
+            Interlocked.Increment(ref startCount);
+        }
+        catch (Exception ex)
+        {
+            logger.Warn("PublishingRule caught exception on timer callback StartAsync.  {0}", ex);
+        }
+        finally
+        {
+            logger.Info("PublishingRule finished StartAsync");
+        }
+
         return new ValueTask();
     }
 
     public void PublishInt()
     {
-        logger.Info("PublishingRule instance {0} publishing message {1}", Id, PublishNumber + 1);
-        Context.EventBus.PublishAsync(this, PublishAddress, ++PublishNumber, new DispatchOptions());
-        if (PublishNumber < maxPublishCount) Context.Timer.RunIn(20, PublishInt);
+        try
+        {
+            logger.Info("PublishingRule instance {0} publishing message {1}", Id, PublishNumber + 1);
+            Context.EventBus.PublishAsync(this, PublishAddress, ++PublishNumber, new DispatchOptions());
+            if (PublishNumber < maxPublishCount) Context.Timer.RunIn(20, PublishInt);
+        }
+        catch (Exception ex)
+        {
+            logger.Warn("PublishingRule caught exception on timer callback PublishInt.  {0}", ex);
+        }
+        finally
+        {
+            logger.Info("PublishingRule finished PublishInt");
+        }
     }
 
     public override ValueTask StopAsync()
@@ -124,9 +147,20 @@ public class ListeningRule : Rule
 
     public void ReceivePublishIntMessage(IMessage<int> currentMessage)
     {
-        logger.Info("ListeningRule instance {0} recevied {1}", Id, currentMessage);
-        ReceiveCount++;
-        LastReceivedPublishNumber = currentMessage.PayLoad.Body;
+        try
+        {
+            logger.Info($"ListeningRule instance {Id} received {currentMessage}");
+            ReceiveCount++;
+            LastReceivedPublishNumber = currentMessage.PayLoad.Body;
+        }
+        catch (Exception ex)
+        {
+            logger.Warn("ListeningRule got error processing ReceivePublishIntMessage {0}", ex);
+        }
+        finally
+        {
+            logger.Info("ListeningRule finished ReceivePublishIntMessage");
+        }
     }
 
     public override Task StopTaskAsync()

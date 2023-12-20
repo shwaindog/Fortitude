@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeBusRules.MessageBus.Pipelines;
+using FortitudeBusRules.MessageBus.Pipelines.Groups;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
@@ -10,18 +10,19 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 
-public class SelectionStrategiesAggregator : RecyclableObject, ISelectionStrategy
+public class SelectionStrategiesAggregator : AutoRecycledObject, ISelectionStrategy
 {
     private readonly ReusableList<ISelectionStrategy> backingList = new();
 
-    private ISaveSelectionResult? CacheResult { get; set; }
+    public ISaveSelectionResult? CacheResult { get; set; }
 
     public string Name => "StrategySelector";
 
-    public SelectionResult? Select(IReusableList<IEventQueue> availableEventQueues, IRule senderRule, IRule deployRule
+    public RouteSelectionResult? Select(IEventQueueGroupContainer availableEventQueues, IRule senderRule
+        , IRule deployRule
         , DeploymentOptions deploymentOptions)
     {
-        SelectionResult? found = null;
+        RouteSelectionResult? found = null;
         foreach (var selectionStrategy in backingList)
             if (found == null)
             {
@@ -35,21 +36,21 @@ public class SelectionStrategiesAggregator : RecyclableObject, ISelectionStrateg
         return found;
     }
 
-    public IDispatchSelectionResultSet Select(IReusableList<IEventQueue> availableEventQueues
+    public IDispatchSelectionResultSet Select(IEventQueueGroupContainer availableEventQueues
         , IRule senderRule
         , DispatchOptions dispatchOptions
-        , string? destinationAddress = null)
+        , string destinationAddress)
     {
         IDispatchSelectionResultSet? found = null;
         foreach (var selectionStrategy in backingList)
-            if (found is not { HasFinished: true })
+            if (found is not { HasItems: true })
             {
                 var checkResult = selectionStrategy
                     .Select(availableEventQueues, senderRule, dispatchOptions, destinationAddress);
-                if (checkResult.HasItems) found = checkResult;
+                if (checkResult?.HasItems == true) found = checkResult;
             }
 
-        if (found is { HasFinished: true }) CacheResult?.Save(senderRule, dispatchOptions, destinationAddress, found);
+        if (found is { HasItems: true }) CacheResult?.Save(senderRule, dispatchOptions, destinationAddress, found);
         DecrementRefCount();
         return found ?? Recycler?.Borrow<DispatchSelectionResultSet>() ?? new DispatchSelectionResultSet();
     }

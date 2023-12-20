@@ -1,51 +1,61 @@
 ﻿#region
 
 using FortitudeBusRules.MessageBus.Pipelines;
+using FortitudeBusRules.MessageBus.Pipelines.Groups;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
-using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
 namespace FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 
-public readonly struct SelectionResult
+public readonly struct RouteSelectionResult
 {
-    public SelectionResult(IEventQueue eventQueue, string strategyName
-        , RoutingStrategySelectionFlags routingStrategySelectionFlags
+    public RouteSelectionResult(IEventQueue eventQueue, string strategyName
+        , RoutingFlags routingFlags
         , IRule? rule = null)
     {
         EventQueue = eventQueue;
         StrategyName = strategyName;
-        RoutingStrategySelectionFlags = routingStrategySelectionFlags;
+        RoutingFlags = routingFlags;
         Rule = rule;
     }
 
     public readonly IEventQueue EventQueue;
     public readonly IRule? Rule;
     public readonly string StrategyName;
-    public readonly RoutingStrategySelectionFlags RoutingStrategySelectionFlags;
+    public readonly RoutingFlags RoutingFlags;
 }
 
-public interface ISelectionStrategy : IRecyclableObject
+public interface ISelectionStrategy
 {
     string Name { get; }
 
-    SelectionResult? Select(IReusableList<IEventQueue> availableEventQueues, IRule senderRule, IRule deployRule
+    RouteSelectionResult? Select(IEventQueueGroupContainer availableEventQueues, IRule senderRule, IRule deployRule
         , DeploymentOptions deploymentOptions);
 
-    IDispatchSelectionResultSet Select(IReusableList<IEventQueue> availableEventQueues, IRule senderRule
+    IDispatchSelectionResultSet? Select(IEventQueueGroupContainer availableEventQueues, IRule senderRule
         , DispatchOptions dispatchOptions
-        , string? destinationAddress = null);
+        , string destinationAddress);
 }
 
-public interface ISaveSelectionResult : IRecyclableObject
+public interface IPreviouslyCachedSelections
+{
+    IDispatchSelectionResultSet? LastDestinationSelectionResultSet(string destinationAddress
+        , DispatchOptions requestOptions);
+
+    IDispatchSelectionResultSet? LastSenderDestinationSelectionResultSet(IRule sender, string destinationAddress
+        , DispatchOptions requestOptions);
+
+    RouteSelectionResult? LastDeploySelectionResult(EventQueueType eventQueueType, DeploymentOptions requestOptions);
+}
+
+public interface ISaveSelectionResult
 {
     void Save(IRule senderRule, IRule deployRule
-        , DeploymentOptions deploymentOptions, SelectionResult selectionResult);
+        , DeploymentOptions deploymentOptions, RouteSelectionResult routeSelectionResult);
 
     void Save(IRule senderRule
-        , DispatchOptions deploymentOptions, string? destinationAddress
+        , DispatchOptions dispatchOptions, string destinationAddress
         , IDispatchSelectionResultSet selectionResult);
 }
