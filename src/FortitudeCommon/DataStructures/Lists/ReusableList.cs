@@ -11,6 +11,9 @@ namespace FortitudeCommon.DataStructures.Lists;
 public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>
 {
     IReusableList<T> AddRange(IEnumerable<T> addAll);
+    void Sort();
+    void Sort(Comparison<T> comparison);
+    void ShiftToEnd(int indexToBeAtEnd);
 }
 
 public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T>
@@ -28,6 +31,16 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+
+    public void Sort()
+    {
+        backingList.Sort();
+    }
+
+    public void Sort(Comparison<T> comparison)
+    {
+        backingList.Sort(comparison);
+    }
 
     public void Add(T item)
     {
@@ -68,6 +81,19 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         backingList.RemoveAt(index);
     }
 
+    public void ShiftToEnd(int indexToBeAtEnd)
+    {
+        var toBeAtEnd = backingList[indexToBeAtEnd];
+        for (var i = indexToBeAtEnd; i < backingList.Count; i++)
+        {
+            var j = i + 1;
+            if (j < backingList.Count)
+                backingList[i] = backingList[j];
+            else
+                backingList[i] = toBeAtEnd;
+        }
+    }
+
     public T this[int index]
     {
         get => backingList[index];
@@ -80,6 +106,12 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         backingList.Clear();
         backingList.AddRange(source);
         return this;
+    }
+
+    public override void StateReset()
+    {
+        backingList.Clear();
+        base.StateReset();
     }
 
     public override IReusableList<T> Clone() =>

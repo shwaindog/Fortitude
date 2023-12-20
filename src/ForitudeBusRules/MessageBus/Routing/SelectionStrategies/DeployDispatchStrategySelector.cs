@@ -2,7 +2,6 @@
 
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 
 #endregion
@@ -17,26 +16,41 @@ public interface IDeployDispatchStrategySelector
         , string? destinationAddress = null);
 }
 
-public class DeployDispatchStrategySelector : IDeployDispatchStrategySelector
+public class DeployDispatchStrategySelector : UsesRecycler, IDeployDispatchStrategySelector
 {
-    private readonly EventQueueTypeOrderSelectionStrategy eventQueueTypeOrderSelectionStrategy = new();
+    private readonly SwitchingBroadcastSenderDestinationCache deployDispatchDestinationCache;
+    private readonly FixedOrderSelectionStrategy fixedOrderSelectionStrategy;
+    private readonly LeastBusySelectionStrategy leastBusySelectionStrategy;
+    private readonly ReuseLastCachedResultSelectionStrategy reuseLastCachedResultSelectionStrategy;
+    private readonly RotateEvenlySelectionStrategy rotateEvenlySelectionStrategy;
 
-    private IMap<string, SelectionResult> destinationStrategies
-        = new ConcurrentMap<string, SelectionResult>();
 
-    private IRecycler recycler;
-
-    private IMap<IRule, IMap<string, ISelectionStrategy>> stickySourceDestinationStrategy
-        = new ConcurrentMap<IRule, IMap<string, ISelectionStrategy>>();
-
-    public DeployDispatchStrategySelector(IRecycler recycler) => this.recycler = recycler;
+    public DeployDispatchStrategySelector(IRecycler recycler)
+    {
+        Recycler = recycler;
+        deployDispatchDestinationCache = new SwitchingBroadcastSenderDestinationCache();
+        fixedOrderSelectionStrategy = new FixedOrderSelectionStrategy(recycler);
+        rotateEvenlySelectionStrategy = new RotateEvenlySelectionStrategy(recycler, deployDispatchDestinationCache);
+        reuseLastCachedResultSelectionStrategy
+            = new ReuseLastCachedResultSelectionStrategy(deployDispatchDestinationCache);
+        reuseLastCachedResultSelectionStrategy
+            = new ReuseLastCachedResultSelectionStrategy(deployDispatchDestinationCache);
+        leastBusySelectionStrategy = new LeastBusySelectionStrategy(recycler);
+    }
 
     public ISelectionStrategy SelectDeployStrategy(IRule senderRule, IRule deployRule
         , DeploymentOptions deploymentOptions)
     {
-        var selectionAggregator = recycler.Borrow<SelectionStrategiesAggregator>();
-        selectionAggregator.Add(eventQueueTypeOrderSelectionStrategy);
+        var selectionAggregator = Recycler!.Borrow<SelectionStrategiesAggregator>();
+        var flags = deploymentOptions.RoutingFlags;
+        if (flags.IsRotateEvenly()) selectionAggregator.Add(rotateEvenlySelectionStrategy);
+        if (flags.IsUseLastCacheEntry() && !flags.IsRecalculateCache())
+            selectionAggregator.Add(reuseLastCachedResultSelectionStrategy);
+        if (flags.IsDestinationCacheLast() || flags.IsSenderCacheLast())
+            selectionAggregator.CacheResult = deployDispatchDestinationCache;
+        if (flags.IsLeastBusyQueue()) selectionAggregator.Add(leastBusySelectionStrategy);
 
+        selectionAggregator.Add(fixedOrderSelectionStrategy);
 
         return selectionAggregator;
     }
@@ -44,9 +58,16 @@ public class DeployDispatchStrategySelector : IDeployDispatchStrategySelector
     public ISelectionStrategy SelectDispatchStrategy(IRule senderRule, DispatchOptions deploymentOptions
         , string? destinationAddress = null)
     {
-        var selectionAggregator = recycler.Borrow<SelectionStrategiesAggregator>();
-        selectionAggregator.Add(eventQueueTypeOrderSelectionStrategy);
+        var selectionAggregator = Recycler!.Borrow<SelectionStrategiesAggregator>();
+        var flags = deploymentOptions.RoutingFlags;
+        if (flags.IsRotateEvenly() && flags.IsSendToOne()) selectionAggregator.Add(rotateEvenlySelectionStrategy);
+        if (flags.IsUseLastCacheEntry() && !flags.IsRecalculateCache())
+            selectionAggregator.Add(reuseLastCachedResultSelectionStrategy);
+        if (flags.IsDestinationCacheLast() || flags.IsSenderCacheLast())
+            selectionAggregator.CacheResult = deployDispatchDestinationCache;
+        if (flags.IsLeastBusyQueue() && flags.IsSendToOne()) selectionAggregator.Add(leastBusySelectionStrategy);
 
+        selectionAggregator.Add(fixedOrderSelectionStrategy);
 
         return selectionAggregator;
     }

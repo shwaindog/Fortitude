@@ -34,10 +34,10 @@ public class DispatchSelectionResultSetTests
     public void OnlyUniqueEventQueuesAreSelected()
     {
         dispatchSelectionResultSet.MaxUniqueResults = 2;
-        dispatchSelectionResultSet.Add(new SelectionResult(firstEventQueue.Object, "Something"
-            , RoutingStrategySelectionFlags.DefaultPublish));
-        dispatchSelectionResultSet.Add(new SelectionResult(firstEventQueue.Object, "Something"
-            , RoutingStrategySelectionFlags.DefaultPublish));
+        dispatchSelectionResultSet.Add(new RouteSelectionResult(firstEventQueue.Object, "Something"
+            , RoutingFlags.DefaultPublish));
+        dispatchSelectionResultSet.Add(new RouteSelectionResult(firstEventQueue.Object, "Something"
+            , RoutingFlags.DefaultPublish));
 
         Assert.IsTrue(dispatchSelectionResultSet.HasItems);
         Assert.IsFalse(dispatchSelectionResultSet.HasFinished);
@@ -48,10 +48,10 @@ public class DispatchSelectionResultSetTests
     public void OnlyAcceptsUpToMaxUniqueResults()
     {
         dispatchSelectionResultSet.MaxUniqueResults = 1;
-        dispatchSelectionResultSet.Add(new SelectionResult(firstEventQueue.Object, "Something"
-            , RoutingStrategySelectionFlags.DefaultPublish));
-        dispatchSelectionResultSet.Add(new SelectionResult(secondEventQueue.Object, "SomethingElse"
-            , RoutingStrategySelectionFlags.DefaultPublish));
+        dispatchSelectionResultSet.Add(new RouteSelectionResult(firstEventQueue.Object, "Something"
+            , RoutingFlags.DefaultPublish));
+        dispatchSelectionResultSet.Add(new RouteSelectionResult(secondEventQueue.Object, "SomethingElse"
+            , RoutingFlags.DefaultPublish));
 
         Assert.IsTrue(dispatchSelectionResultSet.HasItems);
         Assert.IsTrue(dispatchSelectionResultSet.HasFinished);
@@ -64,12 +64,12 @@ public class DispatchSelectionResultSetTests
     {
         dispatchSelectionResultSet.MaxUniqueResults = 1;
 
-        SelectionResult[] selectionResults =
+        RouteSelectionResult[] selectionResults =
         {
             new(firstEventQueue.Object, "Something"
-                , RoutingStrategySelectionFlags.DefaultPublish)
+                , RoutingFlags.DefaultPublish)
             , new(secondEventQueue.Object, "SomethingElse"
-                , RoutingStrategySelectionFlags.DefaultPublish)
+                , RoutingFlags.DefaultPublish)
         };
 
         dispatchSelectionResultSet.AddRange(selectionResults);

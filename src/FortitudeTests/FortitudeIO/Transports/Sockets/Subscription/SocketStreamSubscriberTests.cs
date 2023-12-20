@@ -246,7 +246,7 @@ public class SocketStreamSubscriberTests
         public DummySocketStreamSubscriber() :
             base(FLoggerFactory.Instance.GetLogger(typeof(DummySocketStreamSubscriber)),
                 new Mock<ISocketDispatcher>().Object, "", 1,
-                new ConcurrentCache<uint, IBinaryDeserializer>())
+                new ConcurrentMap<uint, IBinaryDeserializer>())
         {
             binaryDeserializationFactory = new OrxSerializationFactory(new Recycler());
             StreamToPublisher = new Mock<IBinaryStreamPublisher>().Object;

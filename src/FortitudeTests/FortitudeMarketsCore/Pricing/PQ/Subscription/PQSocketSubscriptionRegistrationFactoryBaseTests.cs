@@ -89,7 +89,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
 
         dummySocketSubscriber = new SocketSubscriberTests.DummySocketSubscriber(moqFlogger.Object,
             moqDispatcher.Object, moqNetworkingController.Object, moqServerConnectionConfig.Object,
-            testSessionDescription, wholeMessagesPerReceive, new ConcurrentCache<uint, IBinaryDeserializer>()
+            testSessionDescription, wholeMessagesPerReceive, new ConcurrentMap<uint, IBinaryDeserializer>()
             , recvBufferSize,
             moqBinaryStreamPublisher.Object, moqFeedDecoder.Object, moqBinaryDeserializationFactory.Object,
             moqOsSocket.Object);

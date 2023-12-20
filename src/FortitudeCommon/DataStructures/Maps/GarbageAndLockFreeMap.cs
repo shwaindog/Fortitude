@@ -8,11 +8,11 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.DataStructures.Maps;
 
-public interface DisposableEnumerable<Tkvp> : IEnumerable<Tkvp>, IDisposable { }
+public interface IDisposableEnumerable<Tkvp> : IEnumerable<Tkvp>, IDisposable { }
 
 public interface IGarbageFreeMap<TK, TV> : IMap<TK, TV> where TK : notnull
 {
-    DisposableEnumerable<KeyValuePair<TK, TV>> DisposableEnumerableEnumerator();
+    IDisposableEnumerable<KeyValuePair<TK, TV>> DisposableEnumerableEnumerator();
 }
 
 /// <summary>
@@ -36,7 +36,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     public GarbageAndLockFreeMap(Func<TK, TK, bool> keyComparison) => this.keyComparison = keyComparison;
 
-    public TV this[TK key]
+    public TV? this[TK key]
     {
         get
         {
@@ -50,12 +50,12 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
             foreach (var container in queueWithElements)
                 if (keyComparison(container.KeyValuePair.Key, key))
                 {
-                    container.KeyValuePair = new KeyValuePair<TK, TV>(key, value, true);
+                    container.KeyValuePair = new KeyValuePair<TK, TV>(key, value!);
                     return;
                 }
 
             var newContainer = surplusContainers.Borrow();
-            newContainer.KeyValuePair = new KeyValuePair<TK, TV>(key, value, true);
+            newContainer.KeyValuePair = new KeyValuePair<TK, TV>(key, value!);
             queueWithElements.ReturnBorrowed(newContainer);
             var foundItemTime = 0;
             foreach (var container in queueWithElements)
@@ -72,6 +72,12 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     public int Count => queueWithElements.Count();
 
+    public TV? GetValue(TK key)
+    {
+        TryGetValue(key, out var value);
+        return value;
+    }
+
     public bool TryGetValue(TK key, out TV? value)
     {
         foreach (var container in queueWithElements)
@@ -85,13 +91,28 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         return false;
     }
 
-    public void Add(TK key, TV value)
+    public TV GetOrPut(TK key, Func<TK, TV> createFunc)
+    {
+        if (!TryGetValue(key, out var value))
+        {
+            value = createFunc(key);
+            Add(key, value);
+        }
+
+        return value!;
+    }
+
+    public TV AddOrUpdate(TK key, TV value)
     {
         foreach (var container in queueWithElements)
             if (keyComparison(container.KeyValuePair.Key, key))
-                throw new ArgumentException("A key with the same name already exists.  " + key);
+            {
+                container.KeyValuePair = new KeyValuePair<TK, TV>(key, value);
+                return value;
+            }
+
         var newContainer = surplusContainers.Borrow();
-        var kvPair = new KeyValuePair<TK, TV>(key, value, true);
+        var kvPair = new KeyValuePair<TK, TV>(key, value);
         newContainer.KeyValuePair = kvPair;
         reusableListOfKeyValuePairs.Clear();
         reusableListOfKeyValuePairs.Add(kvPair);
@@ -102,8 +123,33 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
             if (keyComparison(container.KeyValuePair.Key, key) && foundItemTime++ > 0)
             {
                 if (queueWithElements.Remove(container)) surplusContainers.ReturnBorrowed(container);
-                return;
+                return value;
             }
+
+        return value;
+    }
+
+    public bool Add(TK key, TV value)
+    {
+        foreach (var container in queueWithElements)
+            if (keyComparison(container.KeyValuePair.Key, key))
+                return false;
+        var newContainer = surplusContainers.Borrow();
+        var kvPair = new KeyValuePair<TK, TV>(key, value);
+        newContainer.KeyValuePair = kvPair;
+        reusableListOfKeyValuePairs.Clear();
+        reusableListOfKeyValuePairs.Add(kvPair);
+        OnUpdate?.Invoke(reusableListOfKeyValuePairs);
+        queueWithElements.ReturnBorrowed(newContainer);
+        var foundItemTime = 0;
+        foreach (var container in queueWithElements)
+            if (keyComparison(container.KeyValuePair.Key, key) && foundItemTime++ > 0)
+            {
+                if (queueWithElements.Remove(container)) surplusContainers.ReturnBorrowed(container);
+                return true;
+            }
+
+        return true;
     }
 
     public bool Remove(TK key)
@@ -137,7 +183,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     public event Action<IEnumerable<KeyValuePair<TK, TV>>>? OnUpdate;
 
-    public DisposableEnumerable<KeyValuePair<TK, TV>> DisposableEnumerableEnumerator() =>
+    public IDisposableEnumerable<KeyValuePair<TK, TV>> DisposableEnumerableEnumerator() =>
         enumeratorPool.Borrow().SourceEnumerator(queueWithElements.GetEnumerator());
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -146,7 +192,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         enumeratorPool.Borrow().SourceEnumerator(queueWithElements.GetEnumerator());
 
     private class KvpEnumerator : IEnumerator<KeyValuePair<TK, TV>>,
-        DisposableEnumerable<KeyValuePair<TK, TV>>
+        IDisposableEnumerable<KeyValuePair<TK, TV>>
     {
         private readonly GarbageAndLockFreePooledFactory<KvpEnumerator> thisPool;
         private IEnumerator<Container> toConvert = Container.SingletonContainer;

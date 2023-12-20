@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Globalization;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics;
 using NLog;
 
@@ -65,6 +66,9 @@ public class NLogFactory : IFLoggerFactory
         public void Debug(string fmt, params object?[] args)
         {
             logger.Debug(fmt, args);
+            foreach (var checkRecyclable in args)
+                if (checkRecyclable is IRecyclableObject recyclableObject)
+                    recyclableObject.DecrementRefCount();
         }
 
         public void Debug(string msg)
@@ -82,6 +86,9 @@ public class NLogFactory : IFLoggerFactory
         public void Info(string fmt, params object?[] args)
         {
             logger.Info(fmt, args);
+            foreach (var checkRecyclable in args)
+                if (checkRecyclable is IRecyclableObject recyclableObject)
+                    recyclableObject.DecrementRefCount();
         }
 
         public void Info(string msg)
@@ -99,6 +106,9 @@ public class NLogFactory : IFLoggerFactory
         public void Warn(string fmt, params object?[] args)
         {
             logger.Warn(fmt, args);
+            foreach (var checkRecyclable in args)
+                if (checkRecyclable is IRecyclableObject recyclableObject)
+                    recyclableObject.DecrementRefCount();
         }
 
         public void Warn(string msg)
@@ -116,6 +126,9 @@ public class NLogFactory : IFLoggerFactory
         public void Error(string fmt, params object?[] args)
         {
             logger.Error(fmt, args);
+            foreach (var checkRecyclable in args)
+                if (checkRecyclable is IRecyclableObject recyclableObject)
+                    recyclableObject.DecrementRefCount();
         }
 
         public void Error(string msg)

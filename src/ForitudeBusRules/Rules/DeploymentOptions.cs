@@ -11,30 +11,29 @@ namespace FortitudeBusRules.Rules;
 public readonly struct DeploymentOptions
 {
     public readonly EventQueueType EventGroupType;
-    public readonly RoutingStrategySelectionFlags RoutingStrategySelectionFlags;
+    public readonly RoutingFlags RoutingFlags;
     public readonly uint Instances;
     public readonly string? SpecificEventQueueName = null;
 
-    public DeploymentOptions(uint instances = 1, EventQueueType eventGroupType = EventQueueType.Event
-        , RoutingStrategySelectionFlags routingStrategySelectionFlags
-            = RoutingStrategySelectionFlags.DefaultPublish | RoutingStrategySelectionFlags.LeastBusyQueue
-        , string? specificEventQueueName = null)
+    public DeploymentOptions(RoutingFlags routingFlags = RoutingFlags.DefaultDeploy
+        , EventQueueType eventGroupType = EventQueueType.Event
+        , uint instances = 1, string? specificEventQueueName = null)
     {
         Instances = instances;
         EventGroupType = eventGroupType;
         SpecificEventQueueName = specificEventQueueName;
-        RoutingStrategySelectionFlags = routingStrategySelectionFlags;
+        RoutingFlags = routingFlags;
     }
 }
 
 public static class DeploymentOptionsExtensions
 {
-    public static DeploymentOptions Copy(this DeploymentOptions original, uint? instances = null
-        , EventQueueType xorEventGroupType = EventQueueType.None
-        , RoutingStrategySelectionFlags xorRoutingStrategySelectionFlags = RoutingStrategySelectionFlags.None
+    public static DeploymentOptions Copy(this DeploymentOptions original
+        , RoutingFlags xorRoutingFlags = RoutingFlags.None
+        , EventQueueType xorEventGroupType = EventQueueType.None, uint? instances = null
         , string? specificEventQueueName = null) =>
-        new(instances ?? original.Instances, xorEventGroupType ^ original.EventGroupType
-            , xorRoutingStrategySelectionFlags ^ original.RoutingStrategySelectionFlags
+        new(xorRoutingFlags ^ original.RoutingFlags, xorEventGroupType ^ original.EventGroupType
+            , instances ?? original.Instances
             , specificEventQueueName ?? original.SpecificEventQueueName);
 
     public static bool RequiresSpecificEventQueue(this DeploymentOptions check) =>

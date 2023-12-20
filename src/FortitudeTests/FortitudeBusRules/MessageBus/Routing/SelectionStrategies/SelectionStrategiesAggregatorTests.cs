@@ -1,12 +1,15 @@
 ﻿#region
 
+using FortitudeBusRules.MessageBus;
 using FortitudeBusRules.MessageBus.Pipelines;
+using FortitudeBusRules.MessageBus.Pipelines.Groups;
 using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
-using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeTests.FortitudeBusRules.Rules;
 using Moq;
+using static FortitudeBusRules.MessageBus.Pipelines.EventQueueType;
 
 #endregion
 
@@ -15,12 +18,15 @@ namespace FortitudeTests.FortitudeBusRules.MessageBus.Routing.SelectionStrategie
 [TestClass]
 public class SelectionStrategiesAggregatorTests
 {
-    private IReusableList<IEventQueue> allQueues = null!;
+    private const string FixedOrderStrategyName = FixedOrderSelectionStrategy.StrategyName;
+    private IEventQueueGroupContainer allQueues = null!;
     private Mock<IEventQueue> customQueue = null!;
     private Mock<IEventQueue> eventQueue = null!;
     private Mock<IEventQueue> ioInboundQueue = null!;
     private Mock<IEventQueue> ioOutboundQueue = null!;
-    private IRule rule = new IncrementingRule();
+    private IRecycler recycler = null!;
+    private IRule respondingRuleFirstQueue = new RespondingRule();
+    private IRule rule = null!;
     private Mock<IEventContext> ruleContext = null!;
     private SelectionStrategiesAggregator selectionStrategyAggregator = null!;
     private Mock<IEventQueue> workerQueue = null!;
@@ -28,6 +34,7 @@ public class SelectionStrategiesAggregatorTests
     [TestInitialize]
     public void Setup()
     {
+        recycler = new Recycler();
         selectionStrategyAggregator = new SelectionStrategiesAggregator();
 
         ioOutboundQueue = new Mock<IEventQueue>();
@@ -37,64 +44,91 @@ public class SelectionStrategiesAggregatorTests
         customQueue = new Mock<IEventQueue>();
         ruleContext = new Mock<IEventContext>();
 
-        ioOutboundQueue.SetupGet(eq => eq.QueueType).Returns(EventQueueType.IOOutbound);
-        ioInboundQueue.SetupGet(eq => eq.QueueType).Returns(EventQueueType.IOInbound);
-        eventQueue.SetupGet(eq => eq.QueueType).Returns(EventQueueType.Event);
-        workerQueue.SetupGet(eq => eq.QueueType).Returns(EventQueueType.Worker);
-        customQueue.SetupGet(eq => eq.QueueType).Returns(EventQueueType.Custom);
+        ioOutboundQueue.SetupGet(eq => eq.QueueType).Returns(IOOutbound);
+        ioInboundQueue.SetupGet(eq => eq.QueueType).Returns(IOInbound);
+        eventQueue.SetupGet(eq => eq.QueueType).Returns(Event);
+        eventQueue.Setup(eq => eq.IsListeningToAddress(It.IsAny<string>())).Returns(true);
+        eventQueue.Setup(eq => eq.RulesListeningToAddress(It.IsAny<ISet<IRule>>(), It.IsAny<string>()))
+            .Callback((ISet<IRule> toAddTo, string destination) => toAddTo.Add(respondingRuleFirstQueue));
+        workerQueue.SetupGet(eq => eq.QueueType).Returns(Worker);
+        customQueue.SetupGet(eq => eq.QueueType).Returns(Custom);
+        customQueue.Setup(eq => eq.IsListeningToAddress(It.IsAny<string>())).Returns(true);
+        customQueue.Setup(eq => eq.RulesListeningToAddress(It.IsAny<ISet<IRule>>(), It.IsAny<string>()))
+            .Callback((ISet<IRule> toAddTo, string destination) => toAddTo.Add(respondingRuleFirstQueue));
 
+        rule = new IncrementingRule();
         ruleContext.SetupGet(ec => ec.RegisteredOn).Returns(eventQueue.Object);
         rule.Context = ruleContext.Object;
 
-        allQueues = new ReusableList<IEventQueue>()
+        allQueues = new EventQueueGroupContainer(new Mock<IEventBus>().Object, new[]
         {
             ioOutboundQueue.Object, ioInboundQueue.Object, eventQueue.Object, workerQueue.Object, customQueue.Object
-        };
+        });
     }
 
     [TestMethod]
-    public void WithOrderSelectionStrategyCustomRuleReturnsCustomEventQueueType()
+    public void DefaultPublishWithCustomQueueTypeFixedOrderSelectionStrategyReturnsFirstCustomQueue()
     {
-        selectionStrategyAggregator.Add(new EventQueueTypeOrderSelectionStrategy());
+        selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
         var expectedStrategySelection
-            = RoutingStrategySelectionFlags.DefaultPublish | RoutingStrategySelectionFlags.LeastBusyQueue;
+            = RoutingFlags.DefaultPublish;
         var resultEnum = selectionStrategyAggregator.Select(allQueues, rule
-            , new DispatchOptions(targetEventQueueType: EventQueueType.Custom));
+            , new DispatchOptions(expectedStrategySelection, Custom), "SomeAddress");
 
         Assert.IsTrue(resultEnum.HasItems);
         Assert.AreEqual(1, resultEnum.Count);
         var result = resultEnum.First();
-        Assert.AreEqual(EventQueueType.Custom, result.EventQueue.QueueType);
+        Assert.AreEqual(Custom, result.EventQueue.QueueType);
         Assert.IsNull(result.Rule);
-        Assert.AreEqual("EventQueueTypeOrderStrategy", result.StrategyName);
-        Assert.AreEqual(expectedStrategySelection, result.RoutingStrategySelectionFlags);
+        Assert.AreEqual(FixedOrderStrategyName, result.StrategyName);
+        Assert.AreEqual(expectedStrategySelection, result.RoutingFlags);
     }
 
     [TestMethod]
-    public void WithOrderSelectionStrategyCustomRuleDeployReturnsCustomEventQueueType()
+    public void DefaultDeployCustomEventQueueTypeFixedOrderStrategyReturnsFirstCustomQueue()
     {
-        selectionStrategyAggregator.Add(new EventQueueTypeOrderSelectionStrategy());
+        selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
         var expectedStrategySelection
-            = RoutingStrategySelectionFlags.DefaultPublish | RoutingStrategySelectionFlags.LeastBusyQueue;
+            = RoutingFlags.DefaultDeploy;
         var resultEnum = selectionStrategyAggregator.Select(allQueues, rule, rule
-            , new DeploymentOptions(eventGroupType: EventQueueType.Custom));
+            , new DeploymentOptions(expectedStrategySelection, Custom));
 
         Assert.IsNotNull(resultEnum);
         var result = resultEnum.Value;
-        Assert.AreEqual(EventQueueType.Custom, result.EventQueue.QueueType);
+        Assert.AreEqual(Custom, result.EventQueue.QueueType);
         Assert.AreSame(customQueue.Object, result.EventQueue);
-        Assert.IsNull(result.Rule);
-        Assert.AreEqual("EventQueueTypeOrderStrategy", result.StrategyName);
-        Assert.AreEqual(expectedStrategySelection, result.RoutingStrategySelectionFlags);
+        Assert.IsNotNull(result.Rule);
+        Assert.AreEqual(rule, result.Rule);
+        Assert.AreEqual(FixedOrderStrategyName, result.StrategyName);
+        Assert.AreEqual(expectedStrategySelection, result.RoutingFlags);
     }
 
+    [TestMethod]
+    public void DefaultRequestResponseSelectEventQueueTypeReturnsEventQueue()
+    {
+        selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
+        var expectedStrategySelection
+            = RoutingFlags.DefaultRequestResponse;
+        var resultEnum = selectionStrategyAggregator.Select(allQueues, rule
+            , new DispatchOptions(expectedStrategySelection, Event), "SomeAddress");
+
+        Assert.IsTrue(resultEnum.HasItems);
+        Assert.AreEqual(1, resultEnum.Count);
+        var result = resultEnum.First();
+        Assert.AreEqual(Event, result.EventQueue.QueueType);
+        Assert.AreSame(eventQueue.Object, result.EventQueue);
+        Assert.IsNotNull(result.Rule);
+        Assert.AreEqual(respondingRuleFirstQueue, result.Rule);
+        Assert.AreEqual(FixedOrderStrategyName, result.StrategyName);
+        Assert.AreEqual(expectedStrategySelection, result.RoutingFlags);
+    }
 
     [TestMethod]
     public void WithOrderSelectionStrategyNoneEventQueueRuleReturnsEmptySelectionResults()
     {
-        selectionStrategyAggregator.Add(new EventQueueTypeOrderSelectionStrategy());
+        selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
         var resultEnum = selectionStrategyAggregator.Select(allQueues, rule
-            , new DispatchOptions(targetEventQueueType: EventQueueType.None));
+            , new DispatchOptions(targetEventQueueType: None), "SomeAddress");
 
         Assert.IsFalse(resultEnum.HasItems);
     }
@@ -102,9 +136,9 @@ public class SelectionStrategiesAggregatorTests
     [TestMethod]
     public void WithOrderSelectionStrategyNoneEventQueueDeployRuleReturnsNull()
     {
-        selectionStrategyAggregator.Add(new EventQueueTypeOrderSelectionStrategy());
+        selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
         var resultEnum = selectionStrategyAggregator.Select(allQueues, rule, rule
-            , new DeploymentOptions(eventGroupType: EventQueueType.None));
+            , new DeploymentOptions(eventGroupType: None));
 
         Assert.IsNull(resultEnum);
     }

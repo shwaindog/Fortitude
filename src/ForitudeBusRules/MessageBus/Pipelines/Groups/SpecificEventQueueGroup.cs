@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Collections;
-using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
@@ -10,19 +9,26 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeBusRules.MessageBus.Pipelines.Groups;
 
-public interface IEventQueueGroup : IList<IEventQueue>
+public interface IEventQueueGroup : IEnumerable<IEventQueue>
 {
+    int Count { get; }
     bool HasStarted { get; }
+    IEventQueue? this[int index] { get; set; }
+    bool Contains(IEventQueue item);
     int AddNewQueues(DeploymentOptions deploymentOptions);
-    ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, DeploymentOptions deployment);
+    void Add(IEventQueue toAdd);
+    int IndexOf(IEventQueue item);
+    bool StopRemoveEventQueue(IEventQueue eventQueue);
+    int IndexOfLeastBusy();
+    new IEnumerator<IEventQueue> GetEnumerator();
 }
 
 public class SpecificEventQueueGroup : IEventQueueGroup
 {
     private readonly int defaultNewQueueSize;
+    private readonly List<IEventQueue?> eventQueues = new();
     private readonly EventQueueType groupType;
     private readonly IEventBus owningEventBus;
-    private List<IEventQueue> eventQueues = new();
 
     public SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
         , int defaultNewQueueSize = 10_000)
@@ -40,60 +46,39 @@ public class SpecificEventQueueGroup : IEventQueueGroup
     public IEnumerator<IEventQueue> GetEnumerator()
     {
         var freshEnumerator = Recycler.Borrow<AutoRecycleEnumerator<IEventQueue>>();
-        freshEnumerator.AddRange(eventQueues);
+        for (var i = 0; i < eventQueues.Count; i++)
+        {
+            var checkQueue = eventQueues[i];
+            if (checkQueue != null) freshEnumerator.Add(checkQueue);
+        }
+
         return freshEnumerator;
     }
 
-    public void Add(IEventQueue item)
-    {
-        if (item.QueueType != groupType)
-            throw new InvalidOperationException(
-                $"Can not add EventQueue of type {item.QueueType} to EventQueueGroup of type {groupType}");
-        eventQueues.Add(item);
-    }
-
-    public void Clear()
-    {
-        eventQueues.Clear();
-    }
-
-    public bool Contains(IEventQueue item) => eventQueues.Contains(item);
-
-    public void CopyTo(IEventQueue[] array, int arrayIndex)
-    {
-        eventQueues.CopyTo(array, arrayIndex);
-    }
-
-    public bool Remove(IEventQueue item) => eventQueues.Remove(item);
-
     public int Count => eventQueues.Count;
-    public bool IsReadOnly => false;
 
-    public bool HasStarted => eventQueues.Any(eq => eq.IsRunning);
-    public int IndexOf(IEventQueue item) => eventQueues.IndexOf(item);
+    public bool HasStarted => eventQueues.Any(eq => eq?.IsRunning ?? false);
 
-    public void Insert(int index, IEventQueue item)
-    {
-        if (item.QueueType != groupType)
-            throw new InvalidOperationException(
-                $"Can not add EventQueue of type {item.QueueType} to EventQueueGroup of type {groupType}");
-        eventQueues.Insert(index, item);
-    }
-
-    public void RemoveAt(int index)
-    {
-        eventQueues.RemoveAt(index);
-    }
-
-    public IEventQueue this[int index]
+    public IEventQueue? this[int index]
     {
         get => eventQueues[index];
         set
         {
-            if (value.QueueType != groupType)
+            if (value != null && value.QueueType != groupType)
                 throw new InvalidOperationException(
                     $"Can not add EventQueue of type {value.QueueType} to EventQueueGroup of type {groupType}");
-            eventQueues[index] = value;
+
+            if (index < eventQueues.Count)
+            {
+                if (value != null || eventQueues[index] != null)
+                    throw new ArgumentException(
+                        "You can only append new queues to the end of an EventQueueGroup or replace a stopped queue.");
+
+                var existingValue = eventQueues[index];
+                if (value == null && existingValue is { IsRunning: true }) existingValue.Shutdown();
+            }
+
+            eventQueues.Add(value);
         }
     }
 
@@ -105,29 +90,48 @@ public class SpecificEventQueueGroup : IEventQueueGroup
         return eventQueues.Count;
     }
 
-    public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, DeploymentOptions deploymentOptions)
+    public void Add(IEventQueue item)
     {
-        var leastBusy = ResolveLeastBusy();
-        return eventQueues[leastBusy].LaunchRule(sender, rule);
+        if (item.QueueType != groupType)
+            throw new InvalidOperationException(
+                $"Can not add EventQueue of type {item.QueueType} to EventQueueGroup of type {groupType}");
+        eventQueues.Add(item);
     }
 
-    public int ResolveLeastBusy()
+    public bool StopRemoveEventQueue(IEventQueue item)
     {
-        var minIndex = 0;
+        var indexOf = eventQueues.IndexOf(item);
+        if (indexOf < 0) return false;
+        if (item.IsRunning) item.Shutdown();
+        eventQueues[indexOf] = null;
+        return true;
+    }
+
+    public int IndexOf(IEventQueue item) => eventQueues.IndexOf(item);
+
+    public bool Contains(IEventQueue item) => eventQueues.Contains(item);
+
+
+    public int IndexOfLeastBusy()
+    {
+        var leastBusyIndex = 0;
         var currentMinMessageCount = uint.MaxValue;
 
 
         for (var i = 0; i < eventQueues.Count; i++)
         {
             var checkQueue = eventQueues[i];
-            var checkQueueMessageCount = checkQueue.NumOfMessagesReceivedRecently();
-            if (checkQueueMessageCount < currentMinMessageCount)
+            if (checkQueue != null)
             {
-                minIndex = i;
-                currentMinMessageCount = checkQueueMessageCount;
+                var checkQueueMessageCount = checkQueue.RecentlyReceivedMessagesCount;
+                if (checkQueueMessageCount < currentMinMessageCount)
+                {
+                    leastBusyIndex = i;
+                    currentMinMessageCount = checkQueueMessageCount;
+                }
             }
         }
 
-        return minIndex;
+        return leastBusyIndex;
     }
 }

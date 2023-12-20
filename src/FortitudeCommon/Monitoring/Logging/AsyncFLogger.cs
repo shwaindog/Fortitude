@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 
 #endregion
@@ -29,6 +30,9 @@ internal sealed class AsyncFLogger : IFLogger
 
     public void Debug(string fmt, params object?[] args)
     {
+        foreach (var checkRecyclable in args)
+            if (checkRecyclable is IRecyclableObject recyclableObject)
+                recyclableObject.IncrementRefCount();
         PushFormat(FLogLevel.Debug, fmt, args);
     }
 
@@ -46,6 +50,9 @@ internal sealed class AsyncFLogger : IFLogger
 
     public void Info(string fmt, params object?[] args)
     {
+        foreach (var checkRecyclable in args)
+            if (checkRecyclable is IRecyclableObject recyclableObject)
+                recyclableObject.IncrementRefCount();
         PushFormat(FLogLevel.Info, fmt, args);
     }
 
@@ -63,6 +70,9 @@ internal sealed class AsyncFLogger : IFLogger
 
     public void Warn(string fmt, params object?[] args)
     {
+        foreach (var checkRecyclable in args)
+            if (checkRecyclable is IRecyclableObject recyclableObject)
+                recyclableObject.IncrementRefCount();
         PushFormat(FLogLevel.Warn, fmt, args);
     }
 
@@ -80,6 +90,9 @@ internal sealed class AsyncFLogger : IFLogger
 
     public void Error(string fmt, params object?[] args)
     {
+        foreach (var checkRecyclable in args)
+            if (checkRecyclable is IRecyclableObject recyclableObject)
+                recyclableObject.IncrementRefCount();
         PushFormat(FLogLevel.Error, fmt, args);
     }
 

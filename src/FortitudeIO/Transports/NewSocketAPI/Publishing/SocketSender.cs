@@ -93,7 +93,7 @@ public sealed class SocketSender : ISocketSender
         {
             var encoder = encoders.Claim();
             encoder.Message = message;
-            encoder.Serializer = serializers[message.MessageId];
+            encoder.Serializer = serializers[message.MessageId]!;
         }
         finally
         {

@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
@@ -13,13 +14,15 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeBusRules.MessageBus.Pipelines;
 
-public interface IEventQueue
+public interface IEventQueue : IComparable<IEventQueue>
 {
     string Name { get; }
     EventQueueType QueueType { get; }
     int Id { get; }
 
     bool IsRunning { get; }
+
+    uint RecentlyReceivedMessagesCount { get; }
     void Start();
     void EnqueueMessage(Message msg);
 
@@ -34,15 +37,14 @@ public interface IEventQueue
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null);
 
-    ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule);
+    ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, RouteSelectionResult selectionResult);
 
     ValueTask<IDispatchResult> StopRule(IRule sender, IRule rule);
 
     bool IsListeningToAddress(string destinationAddress);
+    int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress);
 
     void RunOn(IRule sender, Action action);
-
-    uint NumOfMessagesReceivedRecently();
 
     void Shutdown();
 }
@@ -146,17 +148,6 @@ public class EventQueue : IEventQueue
         return reusableValueTaskSource.GenerateValueTask();
     }
 
-    public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule)
-    {
-        rule.LifeCycleState = RuleLifeCycle.Starting;
-        rule.Context = eventContext;
-        var processorRegistry = eventContext.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
-        processorRegistry.RecycleTimer = eventContext.Timer;
-        return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.LoadRule);
-    }
-
     public ValueTask<IDispatchResult> StopRule(IRule sender, IRule rule)
     {
         rule.LifeCycleState = RuleLifeCycle.ShuttingDown;
@@ -170,6 +161,21 @@ public class EventQueue : IEventQueue
 
     public bool IsListeningToAddress(string destinationAddress) =>
         messagePump.Listeners.ContainsKey(destinationAddress);
+
+    public int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress)
+    {
+        var listenersAtDestination = messagePump.Listeners[destinationAddress];
+        var count = 0;
+        if (listenersAtDestination == null) return count;
+        foreach (var subscription in listenersAtDestination)
+            if (subscription.SubscriberRule.LifeCycleState is RuleLifeCycle.Started)
+            {
+                count++;
+                toAddRules.Add(subscription.SubscriberRule);
+            }
+
+        return count;
+    }
 
     public void RunOn(IRule sender, Action action)
     {
@@ -204,12 +210,36 @@ public class EventQueue : IEventQueue
         messagePump.WakeIfAsleep();
     }
 
-    public uint NumOfMessagesReceivedRecently()
+    public uint RecentlyReceivedMessagesCount
     {
-        uint total = 0;
-        for (var i = 0; i < MessageCountHistoryEntries; i++) total += recentMessageCountReceived[i];
-        return total;
+        get
+        {
+            uint total = 0;
+            var currentTimeToSecond = DateTime.Now.TruncToSecond();
+            if (currentTimeToSecond != lastUpDateTime)
+            {
+                var timeSpanBetweenLastMessage = currentTimeToSecond - lastUpDateTime;
+                if (timeSpanBetweenLastMessage > TimeSpan.FromSeconds(60))
+                {
+                    for (var i = 0; i < MessageCountHistoryEntries; i++) recentMessageCountReceived[i] = 0;
+                }
+                else
+                {
+                    var secondsSinceLastMessage = (int)timeSpanBetweenLastMessage.TotalSeconds;
+                    for (var i = lastUpDateTime.Second + 1; i < secondsSinceLastMessage; i++)
+                        recentMessageCountReceived[i % MessageCountHistoryEntries] = 0;
+                }
+
+                lastUpDateTime = currentTimeToSecond;
+            }
+
+            for (var i = 0; i < MessageCountHistoryEntries; i++) total += recentMessageCountReceived[i];
+            return total;
+        }
     }
+
+    public int CompareTo(IEventQueue? other) =>
+        (int)RecentlyReceivedMessagesCount - (int)(other?.RecentlyReceivedMessagesCount ?? 0);
 
     public void Start()
     {
@@ -219,6 +249,18 @@ public class EventQueue : IEventQueue
     public void Shutdown()
     {
         messagePump.Dispose();
+    }
+
+    public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, RouteSelectionResult selectionResult)
+    {
+        rule.LifeCycleState = RuleLifeCycle.Starting;
+        rule.Context = eventContext;
+        var processorRegistry = eventContext.PooledRecycler.Borrow<ProcessorRegistry>();
+        processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
+        processorRegistry.DispatchResult.DeploymentSelectionResult = selectionResult;
+        processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
+        processorRegistry.RecycleTimer = eventContext.Timer;
+        return EnqueuePayloadWithStats(rule, sender, processorRegistry, null, MessageType.LoadRule);
     }
 
     private void IncrementRecentMessageReceived()

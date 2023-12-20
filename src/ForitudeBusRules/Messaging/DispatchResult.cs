@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -13,6 +14,8 @@ public interface IDispatchResult : IReusableObject<IDispatchResult>
     long TotalExecutionTimeTicks { get; set; }
     long TotalExecutionAwaitingTimeTicks { get; set; }
     long TotalAwaitingTimeTicks { get; set; }
+    RouteSelectionResult? DeploymentSelectionResult { get; set; }
+    IDispatchSelectionResultSet? DispatchSelectionResultSet { get; set; }
     DateTime SentTime { get; }
     DateTime FinishedDispatchTime { get; }
     IReadOnlyList<RuleExecutionTime> RulesReceived { get; }
@@ -51,6 +54,8 @@ public class DispatchResult : ReusableObject<IDispatchResult>, IDispatchResult
     public long TotalExecutionTimeTicks { get; set; }
     public long TotalExecutionAwaitingTimeTicks { get; set; }
     public long TotalAwaitingTimeTicks { get; set; }
+    public RouteSelectionResult? DeploymentSelectionResult { get; set; }
+    public IDispatchSelectionResultSet? DispatchSelectionResultSet { get; set; }
     public DateTime SentTime { get; set; }
     public DateTime FinishedDispatchTime { get; set; }
 
@@ -58,6 +63,9 @@ public class DispatchResult : ReusableObject<IDispatchResult>, IDispatchResult
     {
         SentTime = DateTime.MinValue;
         FinishedDispatchTime = DateTime.MaxValue;
+        DispatchSelectionResultSet?.DecrementRefCount();
+        DispatchSelectionResultSet = null;
+        DeploymentSelectionResult = null;
         TotalExecutionTimeTicks = 0;
         TotalExecutionAwaitingTimeTicks = 0;
         rulesTimes.Clear();
