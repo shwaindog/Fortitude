@@ -2,7 +2,7 @@
 
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeMarketsApi.Trading;
 using FortitudeMarketsApi.Trading.Executions;

@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Transports.NewSocketAPI.SocketFactory;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Client;
 

@@ -1,13 +1,12 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serialization;
 
 #endregion
 
-namespace FortitudeMarketsCore.Trading.ORX.Serialization;
+namespace FortitudeIO.Protocols.ORX.Serialization;
 
 public sealed class OrxSerializationFactory : IBinarySerializationFactory,
     IBinaryDeserializationFactory

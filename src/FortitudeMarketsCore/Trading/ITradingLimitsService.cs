@@ -1,7 +1,6 @@
-﻿namespace FortitudeMarketsCore.Trading
+﻿namespace FortitudeMarketsCore.Trading;
+
+public interface ITradingLimitsService
 {
-    public interface ITradingLimitsService
-    {
-        string[] GetAuthorizedAccounts();
-    }
+    string[] GetAuthorizedAccounts();
 }

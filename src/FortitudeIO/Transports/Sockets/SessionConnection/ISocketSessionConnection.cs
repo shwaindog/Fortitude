@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeIO.Sockets;
 
 #endregion
 

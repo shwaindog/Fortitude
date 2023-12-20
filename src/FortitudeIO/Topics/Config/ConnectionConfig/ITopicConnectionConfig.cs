@@ -1,10 +1,9 @@
-﻿namespace FortitudeIO.Topics.Config.ConnectionConfig
+﻿namespace FortitudeIO.Topics.Config.ConnectionConfig;
+
+public interface ITopicConnectionConfig
 {
-    public interface ITopicConnectionConfig
-    {
-        TransportType TransportType { get; }
-        int SendBufferSize { get; set; }
-        int ReceiveBufferSize { get; set; }
-        string InstanceName { get; set; }
-    }
+    TransportType TransportType { get; }
+    int SendBufferSize { get; set; }
+    int ReceiveBufferSize { get; set; }
+    string InstanceName { get; set; }
 }

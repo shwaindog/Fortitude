@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Sockets;
 
 #endregion
 

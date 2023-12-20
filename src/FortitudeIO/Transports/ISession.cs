@@ -4,7 +4,7 @@ using FortitudeIO.Protocols.Authentication;
 
 #endregion
 
-namespace FortitudeIO.Sockets;
+namespace FortitudeIO.Transports;
 
 public interface ISession
 {

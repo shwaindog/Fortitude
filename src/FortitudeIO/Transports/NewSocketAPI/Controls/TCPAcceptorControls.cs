@@ -3,12 +3,13 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+namespace FortitudeIO.Transports.NewSocketAPI.Controls;
 
 public interface IAcceptorControls : IStreamControls
 {

@@ -1,12 +1,15 @@
-﻿using FortitudeMarketsApi.Pricing.LayeredBook;
+﻿#region
 
-namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook
+using FortitudeMarketsApi.Pricing.LayeredBook;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
+
+public interface IPQSourceQuoteRefPriceVolumeLayer : IMutableSourceQuoteRefPriceVolumeLayer,
+    IPQSourcePriceVolumeLayer
+
 {
-    public interface IPQSourceQuoteRefPriceVolumeLayer : IMutableSourceQuoteRefPriceVolumeLayer,
-        IPQSourcePriceVolumeLayer
-        
-    {
-        bool IsSourceQuoteReferenceUpdated { get; set; }
-        new IPQSourceQuoteRefPriceVolumeLayer Clone();
-    }
+    bool IsSourceQuoteReferenceUpdated { get; set; }
+    new IPQSourceQuoteRefPriceVolumeLayer Clone();
 }

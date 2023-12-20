@@ -1,9 +1,8 @@
-namespace FortitudeIO.Transports.Sockets
+namespace FortitudeIO.Transports.Sockets;
+
+public interface ISocketConnector
 {
-    public interface ISocketConnector
-    {
-        bool IsConnected { get; }
-        void Connect();
-        void Disconnect();
-    }
+    bool IsConnected { get; }
+    void Connect();
+    void Disconnect();
 }

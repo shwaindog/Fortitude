@@ -3,12 +3,10 @@
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Transports;
-using FortitudeIO.Transports.NewSocketAPI.Conversations;
 
 #endregion
 
-namespace FortitudeIO.Topics.TopicRepository;
+namespace FortitudeIO.Topics.Factories;
 
 public class ResponderToPublisherAdapter : IPublisherConversation
 {
@@ -58,8 +56,8 @@ public class ResponderToPublisherAdapter : IPublisherConversation
 
     private class ConversationPulbisherAdapter : IConversationPublisher
     {
-        private IList<IVersionedMessage> queuedMessages = new List<IVersionedMessage>();
         private readonly IRequestResponseResponderConversation requestResponseResponderConversation;
+        private IList<IVersionedMessage> queuedMessages = new List<IVersionedMessage>();
         private IList<IVersionedMessage> sendMessages = new List<IVersionedMessage>();
 
 

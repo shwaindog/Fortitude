@@ -1,10 +1,9 @@
-﻿namespace FortitudeMarketsApi.Trading.Executions
+﻿namespace FortitudeMarketsApi.Trading.Executions;
+
+public enum ExecutionUpdateType
 {
-    public enum ExecutionUpdateType
-    {
-        Unknown = 0,
-        Created = 1,
-        Updated = 2,
-        Deleted = 3
-    }
+    Unknown = 0
+    , Created = 1
+    , Updated = 2
+    , Deleted = 3
 }

@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿#region
+
 using FortitudeIO.Topics.Config.ConnectionConfig;
 
-namespace FortitudeIO.Topics.Config
+#endregion
+
+namespace FortitudeIO.Topics.Config;
+
+public interface ITopicConfig
 {
-    public interface ITopicConfig
-    {
-        string TopicName { get; }
-        string Description { get; }
-        IList<ITopicConnectionConfig> TopicConnectionConfigs { get; }
-    }
+    string TopicName { get; }
+    string Description { get; }
+    IList<ITopicConnectionConfig> TopicConnectionConfigs { get; }
 }

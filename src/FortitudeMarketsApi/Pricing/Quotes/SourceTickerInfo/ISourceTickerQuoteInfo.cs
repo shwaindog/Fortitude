@@ -1,20 +1,22 @@
-﻿using FortitudeCommon.Types;
+﻿#region
+
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 
-namespace FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+
+public interface ISourceTickerQuoteInfo : IUniqueSourceTickerIdentifier
 {
-    public interface ISourceTickerQuoteInfo : IUniqueSourceTickerIdentifier
-    {
-        decimal RoundingPrecision { get;  }
-        decimal MinSubmitSize { get; }
-        decimal MaxSubmitSize { get; }
-        decimal IncrementSize { get; }
-        ushort MinimumQuoteLife { get; }
-        LayerFlags LayerFlags { get; }
-        byte MaximumPublishedLayers { get; }
-        LastTradedFlags LastTradedFlags { get; }
-        string FormatPrice { get; }
-        new ISourceTickerQuoteInfo Clone();
-    }
+    decimal RoundingPrecision { get; }
+    decimal MinSubmitSize { get; }
+    decimal MaxSubmitSize { get; }
+    decimal IncrementSize { get; }
+    ushort MinimumQuoteLife { get; }
+    LayerFlags LayerFlags { get; }
+    byte MaximumPublishedLayers { get; }
+    LastTradedFlags LastTradedFlags { get; }
+    string FormatPrice { get; }
+    new ISourceTickerQuoteInfo Clone();
 }

@@ -1,28 +1,28 @@
-using System;
+#region
 
-namespace FortitudeIO.Transports.Sockets.Client
+using System.Runtime.InteropServices;
+
+#endregion
+
+namespace FortitudeIO.Transports.Sockets.Client;
+
+[StructLayout(LayoutKind.Explicit)]
+internal struct KeepAlive
 {
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Explicit)]
-    internal struct KeepAlive
+    [FieldOffset(0)] public uint OnOff;
+    [FieldOffset(4)] public uint KeepAliveTimeMillisecs;
+    [FieldOffset(8)] public uint KeepAliveIntervalMillisecs;
+
+    public byte[] ToByteArray()
     {
-        [System.Runtime.InteropServices.FieldOffset(0)]
-        public uint OnOff;
-        [System.Runtime.InteropServices.FieldOffset(4)]
-        public uint KeepAliveTimeMillisecs;
-        [System.Runtime.InteropServices.FieldOffset(8)]
-        public uint KeepAliveIntervalMillisecs;
+        var size = 12;
+        var arr = new byte[size];
+        var ptr = Marshal.AllocHGlobal(size);
 
-        public byte[] ToByteArray()
-        {
-            int size = 12;
-            byte[] arr = new byte[size];
-            IntPtr ptr = System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
+        Marshal.StructureToPtr(this, ptr, true);
+        Marshal.Copy(ptr, arr, 0, size);
+        Marshal.FreeHGlobal(ptr);
 
-            System.Runtime.InteropServices.Marshal.StructureToPtr(this, ptr, true);
-            System.Runtime.InteropServices.Marshal.Copy(ptr, arr, 0, size);
-            System.Runtime.InteropServices.Marshal.FreeHGlobal(ptr);
-
-            return arr;
-        }
+        return arr;
     }
 }

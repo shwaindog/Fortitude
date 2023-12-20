@@ -1,9 +1,8 @@
-namespace FortitudeMarketsApi.Trading.Orders.Products
+namespace FortitudeMarketsApi.Trading.Orders.Products;
+
+public enum OrderSide
 {
-    public enum OrderSide
-    {
-        None = 'N',
-        Bid = 'B',
-        Offer = 'O'
-    }
+    None = 'N'
+    , Bid = 'B'
+    , Offer = 'O'
 }

@@ -1,14 +1,16 @@
-﻿using FortitudeIO.Conversations;
-using FortitudeIO.Transports;
+﻿#region
 
-namespace FortitudeIO.Topics.Config.ConnectionConfig
+using FortitudeIO.Conversations;
+
+#endregion
+
+namespace FortitudeIO.Topics.Config.ConnectionConfig;
+
+public interface ITopicEndpointInfo
 {
-    public interface ITopicEndpointInfo
-    {
-        TransportType TransportType { get; }
-        ConversationType ConversationType { get; }
-        ConversationState ConversationState { get; }
-        string InstanceName { get; set; }
-        bool EquivalentEndpoint(ITopicEndpointInfo test);
-    }
+    TransportType TransportType { get; }
+    ConversationType ConversationType { get; }
+    ConversationState ConversationState { get; }
+    string InstanceName { get; set; }
+    bool EquivalentEndpoint(ITopicEndpointInfo test);
 }

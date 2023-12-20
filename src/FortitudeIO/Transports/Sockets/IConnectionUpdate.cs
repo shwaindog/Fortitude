@@ -1,22 +1,25 @@
-﻿using FortitudeCommon.Configuration;
+﻿#region
+
 using FortitudeCommon.EventProcessing;
 
-namespace FortitudeIO.Transports.Sockets
+#endregion
+
+namespace FortitudeIO.Transports.Sockets;
+
+public interface IConnectionUpdate
 {
-    public interface IConnectionUpdate
+    IConnectionConfig ConnectionConfig { get; }
+    EventType EventType { get; }
+}
+
+public class ConnectionUpdate : IConnectionUpdate
+{
+    public ConnectionUpdate(IConnectionConfig connectionConfig, EventType eventType)
     {
-        IConnectionConfig ConnectionConfig { get; }
-        EventType EventType { get; }
+        ConnectionConfig = connectionConfig;
+        EventType = eventType;
     }
 
-    public class ConnectionUpdate : IConnectionUpdate
-    {
-        public ConnectionUpdate(IConnectionConfig connectionConfig, EventType eventType)
-        {
-            ConnectionConfig = connectionConfig;
-            EventType = eventType;
-        }
-        public IConnectionConfig ConnectionConfig { get; private set; }
-        public EventType EventType { get; private set; }
-    }
+    public IConnectionConfig ConnectionConfig { get; }
+    public EventType EventType { get; }
 }

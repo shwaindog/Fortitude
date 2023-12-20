@@ -2,7 +2,6 @@
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Sockets;
 
 #endregion
 

@@ -1,11 +1,13 @@
-using System;
+#region
+
 using FortitudeCommon.Types;
 
-namespace FortitudeIO.Transports.Sockets
+#endregion
+
+namespace FortitudeIO.Transports.Sockets;
+
+[TestClassNotRequired]
+public class SocketBufferTooFullException : Exception
 {
-    [TestClassNotRequired]
-    public class SocketBufferTooFullException : Exception
-    {
-        public SocketBufferTooFullException(string message) : base(message) {}
-    }
+    public SocketBufferTooFullException(string message) : base(message) { }
 }

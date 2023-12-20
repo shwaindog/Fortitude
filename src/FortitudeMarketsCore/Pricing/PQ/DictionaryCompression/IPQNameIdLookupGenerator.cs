@@ -1,11 +1,14 @@
+#region
+
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
-namespace FortitudeMarketsCore.Pricing.PQ.DictionaryCompression
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.DictionaryCompression;
+
+public interface IPQNameIdLookupGenerator : INameIdLookupGenerator,
+    IPQSupportsStringUpdates<INameIdLookup>
 {
-    public interface IPQNameIdLookupGenerator : INameIdLookupGenerator, 
-        IPQSupportsStringUpdates<INameIdLookup>
-    {
-        new IPQNameIdLookupGenerator Clone();
-    }
+    new IPQNameIdLookupGenerator Clone();
 }

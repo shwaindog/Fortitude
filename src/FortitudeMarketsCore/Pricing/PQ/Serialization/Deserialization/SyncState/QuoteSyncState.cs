@@ -1,11 +1,10 @@
-﻿namespace FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization.SyncState
+﻿namespace FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization.SyncState;
+
+public enum QuoteSyncState
 {
-    public enum QuoteSyncState
-    {
-        InitializationState,
-        Synchronising,
-        InSync,
-        Stale,
-        Replay
-    }
+    InitializationState
+    , Synchronising
+    , InSync
+    , Stale
+    , Replay
 }

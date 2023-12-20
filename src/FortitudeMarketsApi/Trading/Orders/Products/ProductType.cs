@@ -1,12 +1,11 @@
-﻿namespace FortitudeMarketsApi.Trading.Orders.Products
+﻿namespace FortitudeMarketsApi.Trading.Orders.Products;
+
+public enum ProductType : ushort
 {
-    public enum ProductType : ushort
-    {
-        Unknown,
-        Spot,
-        Forward,
-        Swap,
-        Block,
-        Future
-    }
+    Unknown
+    , Spot
+    , Forward
+    , Swap
+    , Block
+    , Future
 }

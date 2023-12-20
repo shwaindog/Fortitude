@@ -1,9 +1,12 @@
-﻿using FortitudeIO.Transports.Sockets.Subscription;
+﻿#region
 
-namespace FortitudeIO.Transports.Sockets.Publishing
+using FortitudeIO.Transports.Sockets.Subscription;
+
+#endregion
+
+namespace FortitudeIO.Transports.Sockets.Publishing;
+
+public interface IPQPublisher : ISocketPublisher
 {
-    public interface IPQPublisher : ISocketPublisher
-    {
-       ISocketSubscriber SocketStreamFromSubscriber { get; }
-    }
+    ISocketSubscriber SocketStreamFromSubscriber { get; }
 }

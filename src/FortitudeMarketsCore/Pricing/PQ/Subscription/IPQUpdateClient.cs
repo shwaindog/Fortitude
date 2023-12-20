@@ -1,8 +1,9 @@
-﻿using FortitudeIO.Transports.Sockets.Subscription;
+﻿#region
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription
-{
-    public interface IPQUpdateClient : ISocketSubscriber
-    {
-    }
-}
+using FortitudeIO.Transports.Sockets.Subscription;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+
+public interface IPQUpdateClient : ISocketSubscriber { }

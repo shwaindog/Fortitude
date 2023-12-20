@@ -3,7 +3,6 @@
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Sockets;
 
 #endregion
 

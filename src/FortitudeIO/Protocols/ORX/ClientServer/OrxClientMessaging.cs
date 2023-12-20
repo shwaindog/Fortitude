@@ -4,15 +4,15 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Client;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
 using FortitudeIO.Transports.Sockets.Subscription;
-using FortitudeMarketsCore.Trading.ORX.Serialization;
 
 #endregion
 

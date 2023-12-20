@@ -1,9 +1,12 @@
-﻿using FortitudeIO.Protocols.Serialization;
+﻿#region
 
-namespace FortitudeIO.Transports.NewSocketAPI.Sockets
+using FortitudeIO.Protocols.Serialization;
+
+#endregion
+
+namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+
+public interface ISocketStreamDecoderFactory : IStreamDecoderFactory
 {
-    public interface ISocketStreamDecoderFactory : IStreamDecoderFactory
-    {
-        new IStreamDecoder Supply();
-    }
+    new IStreamDecoder Supply();
 }

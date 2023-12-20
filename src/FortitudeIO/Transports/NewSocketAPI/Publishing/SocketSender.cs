@@ -6,6 +6,7 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;

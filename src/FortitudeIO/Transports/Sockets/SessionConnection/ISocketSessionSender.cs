@@ -1,7 +1,5 @@
 ﻿#region
 
-using FortitudeIO.Sockets;
-
 #endregion
 
 namespace FortitudeIO.Transports.Sockets.SessionConnection;

@@ -1,11 +1,8 @@
-using System;
+namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook.LayerSelector;
 
-namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook.LayerSelector
+public interface IOrderBookLayerFactory
 {
-    public interface IOrderBookLayerFactory
-    {
-        Type LayerCreationType { get; }
-        IPQPriceVolumeLayer CreateNewLayer();
-        IPQPriceVolumeLayer UpgradeLayer(IPQPriceVolumeLayer original);
-    }
+    Type LayerCreationType { get; }
+    IPQPriceVolumeLayer CreateNewLayer();
+    IPQPriceVolumeLayer UpgradeLayer(IPQPriceVolumeLayer original);
 }

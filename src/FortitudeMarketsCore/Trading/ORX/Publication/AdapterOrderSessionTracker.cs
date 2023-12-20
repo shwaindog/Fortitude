@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsCore.Trading.ORX.Orders;
 

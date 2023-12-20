@@ -1,11 +1,11 @@
 ﻿#region
 
+using FortitudeIO.Conversations;
 using FortitudeIO.Topics.Config.ConnectionConfig;
-using FortitudeIO.Transports;
 
 #endregion
 
-namespace FortitudeIO.Topics.TopicRepository;
+namespace FortitudeIO.Topics.TopicRepository.Synchronisation;
 
 public interface ITopicInstanceConnectionDetails
 {

@@ -7,7 +7,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Sockets;
+using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeTests.FortitudeCommon.OSWrapper.NetworkingWrappers;

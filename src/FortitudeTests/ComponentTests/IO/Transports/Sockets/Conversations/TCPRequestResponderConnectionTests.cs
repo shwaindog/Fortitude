@@ -2,10 +2,10 @@
 
 using System.Net;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Transports;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;
-using FortitudeIO.Transports.NewSocketAPI.SocketFactory;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.FortitudeIO.Protocols.Serialization;
 using FortitudeTests.TestEnvironment;

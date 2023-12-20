@@ -1,9 +1,4 @@
-﻿using System;
+﻿namespace FortitudeIO.Protocols.ORX.Serialization;
 
-namespace FortitudeIO.Protocols.ORX.Serialization
-{
-    [AttributeUsage(AttributeTargets.Class)]
-    public class OrxHasPreviousVersions : Attribute
-    {
-    }
-}
+[AttributeUsage(AttributeTargets.Class)]
+public class OrxHasPreviousVersions : Attribute { }

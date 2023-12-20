@@ -1,8 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
-using FortitudeIO.Sockets;
 using FortitudeIO.Transports;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 
 #endregion

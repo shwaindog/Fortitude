@@ -1,19 +1,22 @@
-﻿using FortitudeCommon.Types;
+﻿#region
 
-namespace FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo
+using FortitudeCommon.Types;
+
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+
+public interface IUniqueSourceTickerIdentifier : ICloneable<IUniqueSourceTickerIdentifier>,
+    IInterfacesComparable<IUniqueSourceTickerIdentifier>
 {
-    public interface IUniqueSourceTickerIdentifier : ICloneable<IUniqueSourceTickerIdentifier>,
-        IInterfacesComparable<IUniqueSourceTickerIdentifier>
-    {
-        uint Id { get; }
-        string Source { get; }
-        string Ticker { get; }
-    }
+    uint Id { get; }
+    string Source { get; }
+    string Ticker { get; }
+}
 
-    public interface IMutableUniqueSourceTickerIdentifier : IUniqueSourceTickerIdentifier
-    {
-        new uint Id { get; set; }
-        new string Source { get; set; }
-        new string Ticker { get; set; }
-    }
+public interface IMutableUniqueSourceTickerIdentifier : IUniqueSourceTickerIdentifier
+{
+    new uint Id { get; set; }
+    new string Source { get; set; }
+    new string Ticker { get; set; }
 }

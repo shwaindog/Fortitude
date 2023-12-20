@@ -2,10 +2,10 @@
 
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Conversations;
 using FortitudeIO.Topics.Config.ConnectionConfig;
-using FortitudeIO.Topics.TopicRepository.ORX;
-using FortitudeIO.Topics.TopicRepository.Resolver;
-using FortitudeIO.Transports;
+using FortitudeIO.Topics.TopicRepository.Synchronisation;
+using FortitudeIO.Topics.TopicRepository.Synchronisation.ORX;
 
 #endregion
 

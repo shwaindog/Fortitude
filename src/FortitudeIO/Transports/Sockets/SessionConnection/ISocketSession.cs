@@ -1,13 +1,14 @@
-﻿using System;
-using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Sockets;
+﻿#region
 
-namespace FortitudeIO.Transports.Sockets.SessionConnection
+using FortitudeCommon.OSWrapper.NetworkingWrappers;
+
+#endregion
+
+namespace FortitudeIO.Transports.Sockets.SessionConnection;
+
+public interface ISocketSession : ISession
 {
-    public interface ISocketSession : ISession
-    {
-        IOSSocket Socket { get; }
-        long Id { get; }
-        IntPtr Handle { get; }
-    }
+    IOSSocket Socket { get; }
+    long Id { get; }
+    IntPtr Handle { get; }
 }

@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeIO.Protocols;
-using FortitudeIO.Sockets;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 
 #endregion

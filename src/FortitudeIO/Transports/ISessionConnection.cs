@@ -6,7 +6,7 @@ using FortitudeIO.Protocols.Serialization;
 
 #endregion
 
-namespace FortitudeIO.Sockets;
+namespace FortitudeIO.Transports;
 
 public interface ISessionConnection : IDoublyLinkedListNode<ISessionConnection>, ISession
 {

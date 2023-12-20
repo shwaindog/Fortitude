@@ -1,12 +1,8 @@
-using System;
-using FortitudeMarketsApi.Configuration.ClientServerConfig;
+namespace FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
 
-namespace FortitudeIO.Sockets.Config
+public interface IClientSocketConfig : IMarketServerConfig<IClientSocketConfig>
 {
-    public interface IClientSocketConfig : IMarketServerConfig<IClientSocketConfig>
-    {
-        uint ReconnectIntervalMs { get; }
+    uint ReconnectIntervalMs { get; }
 
-        event Action OnConfigUpdate;
-    }
+    event Action OnConfigUpdate;
 }

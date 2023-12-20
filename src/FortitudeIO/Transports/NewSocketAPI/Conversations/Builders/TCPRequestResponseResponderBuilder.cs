@@ -1,7 +1,9 @@
 ﻿#region
 
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Transports.NewSocketAPI.SocketFactory;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion

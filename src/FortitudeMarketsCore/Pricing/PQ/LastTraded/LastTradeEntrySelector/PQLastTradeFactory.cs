@@ -1,20 +1,16 @@
-﻿using System;
+﻿#region
+
 using FortitudeCommon.Chronometry;
 
-namespace FortitudeMarketsCore.Pricing.PQ.LastTraded.LastTradeEntrySelector
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.LastTraded.LastTradeEntrySelector;
+
+public class PQLastTradeFactory : IPQRecentlyTradedFactory
 {
-    public class PQLastTradeFactory : IPQRecentlyTradedFactory
-    {
-        public virtual Type EntryCreationType => typeof(PQLastTrade);
+    public virtual Type EntryCreationType => typeof(PQLastTrade);
 
-        public IPQLastTrade CreateNewLastTradeEntry()
-        {
-            return new PQLastTrade(0m, DateTimeConstants.UnixEpoch);
-        }
+    public IPQLastTrade CreateNewLastTradeEntry() => new PQLastTrade(0m, DateTimeConstants.UnixEpoch);
 
-        public IPQLastTrade UpgradeLayer(IPQLastTrade original)
-        {
-            return new PQLastTrade(original);
-        }
-    }
+    public IPQLastTrade UpgradeLayer(IPQLastTrade original) => new PQLastTrade(original);
 }

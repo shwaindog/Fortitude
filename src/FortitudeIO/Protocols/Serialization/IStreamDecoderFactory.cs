@@ -1,7 +1,6 @@
-﻿namespace FortitudeIO.Protocols.Serialization
+﻿namespace FortitudeIO.Protocols.Serialization;
+
+public interface IStreamDecoderFactory
 {
-    public interface IStreamDecoderFactory
-    {
-        IStreamDecoder Supply();
-    }
+    IStreamDecoder Supply();
 }

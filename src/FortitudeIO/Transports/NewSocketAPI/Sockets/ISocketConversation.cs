@@ -4,7 +4,7 @@ using FortitudeIO.Conversations;
 
 #endregion
 
-namespace FortitudeIO.Transports;
+namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 public interface ISocketConversation : IConversationState
 {

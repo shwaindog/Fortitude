@@ -1,11 +1,10 @@
-﻿namespace FortitudeIO.Transports
+﻿namespace FortitudeIO.Conversations;
+
+public enum ConversationType
 {
-    public enum ConversationType
-    {
-        Unknown,
-        Publisher,
-        Subscriber,
-        RequestResponseRequester,
-        RequestResponseResponder
-    }
+    Unknown
+    , Publisher
+    , Subscriber
+    , RequestResponseRequester
+    , RequestResponseResponder
 }

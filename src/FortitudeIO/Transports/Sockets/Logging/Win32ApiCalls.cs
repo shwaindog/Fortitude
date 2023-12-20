@@ -1,19 +1,13 @@
-﻿using FortitudeCommon.Types;
+﻿#region
 
-namespace FortitudeIO.Transports.Sockets.Logging
-{
-    [TestClassNotRequired]
-    public class Win32ApiCalls
-    {
-    }
+using FortitudeCommon.Types;
 
-    [TestClassNotRequired]
-    public class UserCallback
-    {
-    }
+#endregion
 
-    [TestClassNotRequired]
-    public class SocketProcessing
-    {
-    }
-}
+namespace FortitudeIO.Transports.Sockets.Logging;
+
+[TestClassNotRequired] public class Win32ApiCalls { }
+
+[TestClassNotRequired] public class UserCallback { }
+
+[TestClassNotRequired] public class SocketProcessing { }

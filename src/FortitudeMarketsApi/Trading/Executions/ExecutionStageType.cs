@@ -1,9 +1,8 @@
-﻿namespace FortitudeMarketsApi.Trading.Executions
+﻿namespace FortitudeMarketsApi.Trading.Executions;
+
+public enum ExecutionStageType : byte
 {
-    public enum ExecutionStageType : byte
-    {
-        Unknown = 0,
-        PreTrade = 1,
-        Trade = 2
-    }
+    Unknown = 0
+    , PreTrade = 1
+    , Trade = 2
 }

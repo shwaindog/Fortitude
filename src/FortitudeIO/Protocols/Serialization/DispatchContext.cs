@@ -3,7 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 
 #endregion

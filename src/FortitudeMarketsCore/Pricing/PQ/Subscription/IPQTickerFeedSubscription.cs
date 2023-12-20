@@ -1,12 +1,15 @@
+#region
+
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+
+public interface IPQTickerFeedSubscription
 {
-    public interface IPQTickerFeedSubscription
-    {
-        string Source { get; }
-        string Ticker { get; }
-        ISnapshotUpdatePricingServerConfig Feed { get; }
-        void Unsubscribe();
-    }
+    string Source { get; }
+    string Ticker { get; }
+    ISnapshotUpdatePricingServerConfig Feed { get; }
+    void Unsubscribe();
 }

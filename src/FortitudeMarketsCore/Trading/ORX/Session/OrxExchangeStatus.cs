@@ -1,8 +1,7 @@
-﻿namespace FortitudeMarketsCore.Trading.ORX.Session
+﻿namespace FortitudeMarketsCore.Trading.ORX.Session;
+
+public enum OrxExchangeStatus : uint
 {
-    public enum OrxExchangeStatus : uint
-    {
-        Up = 1,
-        Down = 0
-    }
+    Up = 1
+    , Down = 0
 }

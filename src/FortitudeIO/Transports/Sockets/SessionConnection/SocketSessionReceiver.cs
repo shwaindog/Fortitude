@@ -5,7 +5,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serialization;
-using FortitudeIO.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 
 #endregion
