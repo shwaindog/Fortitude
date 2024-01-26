@@ -1,6 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeCommon.Serdes;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
@@ -9,9 +11,15 @@ using FortitudeIO.Transports.Sockets.Logging;
 
 namespace FortitudeIO.Protocols.Serialization;
 
-public abstract class BinaryDeserializer<TM> : ICallbackBinaryDeserializer<TM> where TM : class
+public abstract class MessageDeserializer<TM> : ICallbackMessageDeserializer<TM>
+    where TM : class, IVersionedMessage, new()
 {
-    public abstract object? Deserialize(DispatchContext dispatchContext);
+    object? IMessageDeserializer.Deserialize(DispatchContext dispatchContext) => Deserialize(dispatchContext);
+
+    public MarshalType MarshalType => MarshalType.Binary;
+    public abstract TM? Deserialize(ISerdeContext readContext);
+
+    TM? IMessageDeserializer<TM>.Deserialize(DispatchContext dispatchContext) => Deserialize(dispatchContext);
 
     //[Obsolete]  TODO restore when switched over
     public event Action<TM, object?, ISession?>? Deserialized;

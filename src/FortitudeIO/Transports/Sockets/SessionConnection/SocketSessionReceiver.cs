@@ -4,6 +4,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Logging;
 
@@ -27,7 +29,7 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
     private readonly IPerfLoggerPool receiveSocketCxLatencyTraceLoggerPool;
     private readonly int wholeMessagesPerReceive;
     private int bufferFullCounter;
-    private IStreamDecoder? decoder;
+    private IMessageStreamDecoder? decoder;
     private DateTime firstReadTime;
     private DateTime lastReportOfHighDataOutburts = DateTime.MinValue;
     private long numberOfMessages;
@@ -35,11 +37,11 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
 
     internal SocketSessionReceiver(IOSSocket socket, IDirectOSNetworkingApi directOSNetworkingApi,
         Action<ISocketSessionConnection> acceptHandler, string sessionDescription)
-        : this(socket, directOSNetworkingApi, (IStreamDecoder?)null, sessionDescription) =>
+        : this(socket, directOSNetworkingApi, (IMessageStreamDecoder?)null, sessionDescription) =>
         Accept = acceptHandler;
 
     public SocketSessionReceiver(IOSSocket socket, IDirectOSNetworkingApi directOSNetworkingApi,
-        IStreamDecoder? decoder, string sessionDescription, int wholeMessagesPerReceive = 1,
+        IMessageStreamDecoder? decoder, string sessionDescription, int wholeMessagesPerReceive = 1,
         bool zeroBytesReadIsDisconnection = true)
         : base(socket, directOSNetworkingApi, sessionDescription)
     {
@@ -67,9 +69,9 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
     public bool IsAcceptor => Accept != null;
 
 
-    public void SetFeedDecoder(IStreamDecoder addThisDecoder)
+    public void SetFeedDecoder(IMessageStreamDecoder addThisMessageStreamDecoder)
     {
-        decoder = addThisDecoder;
+        decoder = addThisMessageStreamDecoder;
     }
 
     public bool ReceiveData(DispatchContext dispatchContext)
@@ -80,12 +82,12 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
         var recvLen = PrepareBufferAndReceiveData(dispatchContext.DispatchLatencyLogger);
         if (recvLen == 0)
             return !ZeroBytesReadIsDisconnection;
-        if (receiveBuffer.UnreadBytesRemaining() > LargeBufferSize
+        if (receiveBuffer.UnreadBytesRemaining > LargeBufferSize
             && dispatchContext.DetectTimestamp > lastReportOfHighDataOutburts.AddMinutes(1))
         {
             lastReportOfHighDataOutburts = dispatchContext.DetectTimestamp;
             dispatchContext.DispatchLatencyLogger?.Add("High outburst of incoming data received read ",
-                receiveBuffer.UnreadBytesRemaining());
+                receiveBuffer.UnreadBytesRemaining);
             if (dispatchContext.DispatchLatencyLogger != null) dispatchContext.DispatchLatencyLogger.WriteTrace = true;
         }
 
@@ -140,7 +142,7 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
     {
         int messageRecvLen;
         var bufferRecvLen = 0;
-        var availableLocalBuffer = receiveBuffer.RemainingStorage();
+        var availableLocalBuffer = receiveBuffer.RemainingStorage;
         fixed (byte* ptr = receiveBuffer.Buffer)
         {
             socketTraceLogger.Add("before ioctlsocket");

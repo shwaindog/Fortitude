@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Client;
@@ -31,7 +32,7 @@ public class TcpSocketClientTests
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IFLogger> moqFLogger = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
-    private Mock<IMap<uint, IBinaryDeserializer>> moqSerialzierCache = null!;
+    private Mock<IMap<uint, IMessageDeserializer>> moqSerialzierCache = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<IOSSocket> moqSocket = null!;
 
@@ -48,7 +49,7 @@ public class TcpSocketClientTests
         moqBinUnserialFac = new Mock<IBinaryDeserializationFactory>();
         moqSocket = new Mock<IOSSocket>();
         moqSocket.SetupAllProperties();
-        moqSerialzierCache = new Mock<IMap<uint, IBinaryDeserializer>>();
+        moqSerialzierCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqServerConnectionConfig = new Mock<IConnectionConfig>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
 
@@ -141,7 +142,7 @@ public class TcpSocketClientTests
         public DummyTcpSocketClient(IFLogger logger, ISocketDispatcher dispatcher,
             IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
             string sessionDescription,
-            int wholeMessagesPerReceive, IMap<uint, IBinaryDeserializer> serializerCache, bool keepalive,
+            int wholeMessagesPerReceive, IMap<uint, IMessageDeserializer> serializerCache, bool keepalive,
             IBinaryDeserializationFactory binaryDeserializationFactory, int recvBuffrSize,
             IBinaryStreamPublisher streamToPublisher)
             : base(logger, dispatcher, networkingController, connectionConfig, sessionDescription,
@@ -160,6 +161,8 @@ public class TcpSocketClientTests
 
         public IOSSocket CallCreateAndConnect(string host, int port) => CreateAndConnect(host, port);
 
-        public override IStreamDecoder? GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers) => null;
+        public override IMessageStreamDecoder?
+            GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
+            null;
     }
 }

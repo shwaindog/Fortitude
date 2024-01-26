@@ -6,7 +6,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 
@@ -29,7 +29,7 @@ public abstract class SocketSubscriber : SocketStreamSubscriber, ISocketSubscrib
     protected SocketSubscriber(IFLogger logger, ISocketDispatcher dispatcher,
         IOSNetworkingController networkingController, IConnectionConfig? connectionConfig,
         string sessionDescription, int wholeMessagesPerReceive,
-        IMap<uint, IBinaryDeserializer>? serializerCache = null)
+        IMap<uint, IMessageDeserializer>? serializerCache = null)
         : base(logger, dispatcher, sessionDescription, wholeMessagesPerReceive, serializerCache)
     {
         ParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;

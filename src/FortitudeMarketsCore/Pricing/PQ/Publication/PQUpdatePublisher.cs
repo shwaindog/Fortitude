@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -28,8 +29,8 @@ public sealed class PQUpdatePublisher : UdpPublisher, IPQUpdateServer
             networkingController, connectionConfig, socketUseDescription + " PQUpdatePublisher", networkAddress)
     {
         this.networkingController = networkingController;
-        RegisterSerializer<PQLevel0Quote>(0);
-        RegisterSerializer<List<PQLevel0Quote>>(1);
+        RegisterSerializer<PQLevel0Quote>((uint)PricingMessageIds.PricingMessage);
+        RegisterSerializer<PQHeartBeatQuotesMessage>((uint)PricingMessageIds.HeartBeatMessage);
     }
 
     public override int SendBufferSize => 2097152;
@@ -58,6 +59,8 @@ public sealed class PQUpdatePublisher : UdpPublisher, IPQUpdateServer
 
         protected override IBinaryDeserializationFactory? GetFactory() => null;
 
-        public override IStreamDecoder? GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers) => null;
+        public override IMessageStreamDecoder?
+            GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
+            null;
     }
 }

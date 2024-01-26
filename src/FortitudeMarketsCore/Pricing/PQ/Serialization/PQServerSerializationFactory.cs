@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
@@ -21,7 +23,7 @@ internal sealed class PQServerSerializationFactory : IBinarySerializationFactory
         hbSerializer = new PQHeartbeatSerializer();
     }
 
-    public IBinarySerializer GetSerializer<Tm>(uint msgId) where Tm : class, new()
+    public IMessageSerializer GetSerializer<Tm>(uint msgId) where Tm : class, IVersionedMessage, new()
     {
         if (typeof(IPQLevel0Quote).IsAssignableFrom(typeof(Tm)) && msgId == 0) return pqQuoteSerializer;
         if (typeof(IEnumerable<IPQLevel0Quote>).IsAssignableFrom(typeof(Tm)) && msgId == 1) return hbSerializer;

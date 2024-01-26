@@ -2,7 +2,8 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeCommon.Serdes;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
@@ -27,19 +28,27 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
 
     protected override bool ShouldPublish => true;
 
-    public override object Deserialize(DispatchContext dispatchContext)
+
+    public override PQLevel0Quote? Deserialize(ISerdeContext readContext)
     {
-        dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
-        var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
-        if (msgHeader == null || msgHeader.Origin != PQFeedType.Update) return PublishedQuote;
-        UpdateQuote(dispatchContext, PublishedQuote, msgHeader.SequenceId);
-        PushQuoteToSubscribers(PQSyncStatus.Good, dispatchContext.DispatchLatencyLogger);
-        if (feedIsStopped)
-            OnSyncOk(this);
+        if (readContext is DispatchContext dispatchContext)
+        {
+            dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
+            var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
+            if (msgHeader == null || msgHeader.Origin != PQFeedType.Update) return PublishedQuote as PQLevel0Quote;
+            UpdateQuote(dispatchContext, PublishedQuote, msgHeader.SequenceId);
+            PushQuoteToSubscribers(PQSyncStatus.Good, dispatchContext.DispatchLatencyLogger);
+            if (feedIsStopped)
+                OnSyncOk(this);
+            else
+                OnReceivedUpdate(this);
+            feedIsStopped = false;
+            return PublishedQuote as PQLevel0Quote;
+        }
         else
-            OnReceivedUpdate(this);
-        feedIsStopped = false;
-        return PublishedQuote;
+        {
+            throw new ArgumentException("Expected readContext to be of type DispatchContext");
+        }
     }
 
     public override bool HasTimedOutAndNeedsSnapshot(DateTime utcNow)

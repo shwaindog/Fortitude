@@ -13,6 +13,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHeartBeatQuotesMessage
     , IEnumerable<IPQLevel0Quote>
 {
+    public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQLevel0Quote>();
+
     public PQHeartBeatQuotesMessage(IList<IPQLevel0Quote> quotesToSendHeartBeats) =>
         QuotesToSendHeartBeats = quotesToSendHeartBeats;
 

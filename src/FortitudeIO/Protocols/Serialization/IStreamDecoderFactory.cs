@@ -2,5 +2,5 @@
 
 public interface IStreamDecoderFactory
 {
-    IStreamDecoder Supply();
+    IMessageStreamDecoder Supply();
 }

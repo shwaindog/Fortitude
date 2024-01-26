@@ -1,6 +1,6 @@
-namespace FortitudeIO.Protocols.Serialization;
+namespace FortitudeCommon.Serdes.Binary;
 
-public class ReadWriteBuffer
+public class ReadWriteBuffer : IBuffer
 {
     public ReadWriteBuffer(byte[] buffer) => Buffer = buffer;
 
@@ -10,7 +10,7 @@ public class ReadWriteBuffer
 
     public bool AllRead => ReadCursor == WrittenCursor;
 
-    public int UnreadBytesRemaining() => WrittenCursor - ReadCursor;
+    public int UnreadBytesRemaining => WrittenCursor - ReadCursor;
 
     public void Reset()
     {
@@ -29,7 +29,7 @@ public class ReadWriteBuffer
 
     public bool HasStorageForBytes(int bytes) => WrittenCursor - 1 + bytes < Buffer.Length;
 
-    public int RemainingStorage() => Buffer.Length - WrittenCursor;
+    public int RemainingStorage => Buffer.Length - WrittenCursor;
 
-    public int Size() => Buffer.Length;
+    public int Size => Buffer.Length;
 }

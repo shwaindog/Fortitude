@@ -4,10 +4,11 @@ using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Authentication;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeTests.FortitudeCommon.OSWrapper.NetworkingWrappers;
 using Moq;
@@ -21,7 +22,7 @@ public class SocketSessionSenderTests
 {
     private bool calledApiSend;
     private DirectOSNetworkingStub directOSNetworkingStub = null!;
-    private Mock<IBinarySerializer> moqBinMock = null!;
+    private Mock<IMessageSerializer> moqBinMock = null!;
     private Mock<IOSSocket> moqSocket = null!;
     private Mock<ISyncLock> moqSyncLock = null!;
     private Func<IntPtr, byte[], int, SocketFlags, int> sendCallBack = null!;
@@ -33,7 +34,7 @@ public class SocketSessionSenderTests
     {
         moqSocket = new Mock<IOSSocket>();
         moqSyncLock = new Mock<ISyncLock>();
-        moqBinMock = new Mock<IBinarySerializer>();
+        moqBinMock = new Mock<IMessageSerializer>();
         moqSocket.SetupGet(oss => oss.SendBufferSize).Returns(1000);
         calledApiSend = false;
         sendCallBack = (scktHndl, buffPtr, len, flags) =>
@@ -77,11 +78,14 @@ public class SocketSessionSenderTests
     [TestMethod]
     public void OneQueuedMessage_SendData_SerializesMessageSendsToDirectOsNetworkingApi()
     {
-        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<IVersionedMessage>()))
-            .Callback<byte[], int, object>((byteArry, startPos, obj) =>
+        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>((obj, buffContext) =>
             {
-                for (var i = 0; i < 10; i++) byteArry[startPos + i] = (byte)(i + 1);
-            }).Returns(10).Verifiable();
+                for (var i = 0; i < 10; i++)
+                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
+                buffContext.EncodedBuffer!.WrittenCursor += 10;
+                buffContext.LastWriteLength = 10;
+            }).Verifiable();
         NewSessionSender_Enqueue_QueuesItemForSendDuringSyncLock();
         var sendSuccess = socketSessionSender.SendData();
         Assert.IsTrue(sendSuccess);
@@ -110,25 +114,34 @@ public class SocketSessionSenderTests
             directOSNetworkingStub, testSessionDescription);
 
         var serializeNum = 0;
-        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<IVersionedMessage>()))
-            .Callback<byte[], int, object>((byteArry, startPos, obj) =>
+        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>((obj, buffContext) =>
             {
                 if (serializeNum == 0)
                 {
                     serializeNum++;
-                    for (var i = 0; i < 10; i++) byteArry[startPos + i] = (byte)(i + 1);
+                    for (var i = 0; i < 10; i++)
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
+                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                    buffContext.LastWriteLength = 10;
                 }
                 else if (serializeNum == 1)
                 {
                     serializeNum++;
-                    for (var i = 0; i < 10; i++) byteArry[startPos + i] = (byte)(i + 11);
+                    for (var i = 0; i < 10; i++)
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 11);
+                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                    buffContext.LastWriteLength = 10;
                 }
                 else if (serializeNum == 2)
                 {
                     serializeNum++;
-                    for (var i = 0; i < 10; i++) byteArry[startPos + i] = (byte)(i + 21);
+                    for (var i = 0; i < 10; i++)
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 21);
+                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                    buffContext.LastWriteLength = 10;
                 }
-            }).Returns(10).Verifiable();
+            }).Verifiable();
         NewSessionSender_Enqueue_QueuesItemForSendDuringSyncLock();
         var message = new OrxLogonResponse();
         socketSessionSender.Enqueue(message, moqBinMock.Object);
@@ -143,16 +156,24 @@ public class SocketSessionSenderTests
     public void TwoMsgsCantSerialize2ndMsgFullBuffer_SendData_SendsFirstMsgToClearBuffThenSends2ndMsg()
     {
         var calledSerializeAtBufferStartNum = 0;
-        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<byte[]>(), 0, It.IsAny<IVersionedMessage>()))
-            .Returns(10)
-            .Callback<byte[], int, object>((byteArry, startPos, obj) =>
+        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>((obj, buffContext) =>
             {
-                calledSerializeAtBufferStartNum++;
-                for (var i = 0; i < 10; i++) byteArry[startPos + i] = (byte)(i + 1);
+                if (buffContext.EncodedBuffer!.WrittenCursor < 10)
+                {
+                    calledSerializeAtBufferStartNum++;
+                    for (var i = 0; i < 10; i++)
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
+
+                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                    buffContext.LastWriteLength = 10;
+                }
+                else
+                {
+                    buffContext.LastWriteLength = -1;
+                }
             }).Verifiable();
 
-        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<byte[]>(), 10, It.IsAny<IVersionedMessage>()))
-            .Returns(-1).Verifiable();
         NewSessionSender_Enqueue_QueuesItemForSendDuringSyncLock();
         var message = new OrxLogonResponse();
         socketSessionSender.Enqueue(message, moqBinMock.Object);
@@ -167,8 +188,11 @@ public class SocketSessionSenderTests
     [ExpectedException(typeof(Exception))]
     public void OneMsgCantSerializeToBuffer_SendData_ThrowsExceptionMsgTooBig()
     {
-        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<IVersionedMessage>()))
-            .Returns(-1).Verifiable();
+        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>((obj, bufferedContext) =>
+            {
+                bufferedContext.LastWriteLength = -1;
+            }).Verifiable();
         socketSessionSender.Enqueue(new OrxLogonResponse(), moqBinMock.Object);
         socketSessionSender.SendData();
         Assert.Fail("Show not reach here");
@@ -190,11 +214,16 @@ public class SocketSessionSenderTests
         socketSessionSender = new SocketSessionSender(moqSocket.Object,
             directOSNetworkingStub, testSessionDescription);
 
-        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<IVersionedMessage>()))
-            .Callback<byte[], int, object>((byteArry, startPos, obj) =>
+        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>((obj, buffContext) =>
             {
-                for (var i = 0; i < 20; i++) byteArry[startPos + i] = (byte)(i + 1);
-            }).Returns(20).Verifiable();
+                for (var i = 0; i < 20; i++)
+                {
+                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
+                    buffContext.EncodedBuffer!.WrittenCursor += 20;
+                    buffContext.LastWriteLength = 20;
+                }
+            }).Verifiable();
         NewSessionSender_Enqueue_QueuesItemForSendDuringSyncLock();
         try
         {
@@ -218,11 +247,16 @@ public class SocketSessionSenderTests
         socketSessionSender = new SocketSessionSender(moqSocket.Object,
             directOSNetworkingStub, testSessionDescription);
 
-        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<IVersionedMessage>()))
-            .Callback<byte[], int, object>((byteArry, startPos, obj) =>
+        moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>((obj, buffContext) =>
             {
-                for (var i = 0; i < 20; i++) byteArry[startPos + i] = (byte)(i + 1);
-            }).Returns(20).Verifiable();
+                for (var i = 0; i < 20; i++)
+                {
+                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
+                    buffContext.EncodedBuffer!.WrittenCursor += 20;
+                    buffContext.LastWriteLength = 20;
+                }
+            }).Verifiable();
         NewSessionSender_Enqueue_QueuesItemForSendDuringSyncLock();
         var sendData = socketSessionSender.SendData();
         Assert.IsFalse(sendData);

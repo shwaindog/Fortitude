@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -21,6 +21,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serialization.Deseriali
 public class PQQuoteFeedDeserializerTests
 {
     private readonly bool allowCatchup = true;
+    private readonly uint retryWaitMs = 2000;
     private bool compareQuoteWithExpected;
     private int countLevel0SerializerPublishes;
     private int countLevel0SerializerUpdates;
@@ -57,7 +58,6 @@ public class PQQuoteFeedDeserializerTests
     private PQQuoteFeedDeserializer<IPQLevel3Quote> pqLevel3QuoteDeserializer = null!;
     private PQQuoteDeserializationSequencedTestDataBuilder quoteDeserializerSequencedTestDataBuilder = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private readonly uint retryWaitMs = 2000;
     private ISourceTickerClientAndPublicationConfig sourceTickerQuoteInfo = null!;
 
     [TestInitialize]

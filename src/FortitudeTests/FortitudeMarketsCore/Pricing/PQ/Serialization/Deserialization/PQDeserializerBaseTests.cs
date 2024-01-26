@@ -3,8 +3,10 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -611,7 +613,8 @@ public class PQDeserializerBaseTests
     {
         public DummyPQQuoateDeserializerBase(ISourceTickerQuoteInfo identifier) : base(identifier) { }
 
-        public override object Deserialize(DispatchContext dispatchContext) => throw new NotImplementedException();
+
+        public override PQLevel0Quote? Deserialize(ISerdeContext readContext) => throw new NotImplementedException();
 
         public void InvokeOnReceivedUpdate(IPQDeserializer quoteDeserializer)
         {

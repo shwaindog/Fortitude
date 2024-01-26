@@ -1,18 +1,44 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serialization;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization;
 
-public class PQSnapshotIdsRequestSerializer : IBinarySerializer<uint[]>
+public class PQSnapshotIdsRequestSerializer : IMessageSerializer<IPQSnapshotIdsRequest>
 {
     private const int FixedSize = 2 * sizeof(byte) + sizeof(ushort);
+
+    public MarshalType MarshalType => MarshalType.Binary;
+
+    public void Serialize(IVersionedMessage message, IBufferContext writeContext)
+    {
+        Serialize((IPQSnapshotIdsRequest)message, (ISerdeContext)writeContext);
+    }
+
+    public void Serialize(IPQSnapshotIdsRequest obj, ISerdeContext writeContext)
+    {
+        if ((writeContext.Direction & ContextDirection.Write) == 0)
+            throw new ArgumentException("Expected readContext to support writing");
+        if (writeContext is IBufferContext bufferContext)
+        {
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WrittenCursor
+                , obj);
+            bufferContext.EncodedBuffer.WrittenCursor += writeLength;
+            bufferContext.LastWriteLength = writeLength;
+        }
+        else
+        {
+            throw new ArgumentException("Expected writeContext to be IBufferContext");
+        }
+    }
 
     public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
     {

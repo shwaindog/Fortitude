@@ -5,8 +5,9 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -65,10 +66,10 @@ public class PQSnapshotServerTests
     public void NewPQSnapShotServer_RegisterSerializer_ForPQFullSnapshot()
     {
         var registeredSerializers = NonPublicInvocator
-            .GetInstanceField<IMap<uint, IBinarySerializer>>(pqSnapshotServer, "serializers");
+            .GetInstanceField<IMap<uint, IMessageSerializer>>(pqSnapshotServer, "serializers");
 
         Assert.IsTrue(registeredSerializers.TryGetValue(0, out var pqSnapshotSerializer));
-        Assert.IsInstanceOfType(pqSnapshotSerializer, typeof(IBinarySerializer<IPQLevel0Quote>));
+        Assert.IsInstanceOfType(pqSnapshotSerializer, typeof(IMessageSerializer<IPQLevel0Quote>));
     }
 
 

@@ -5,9 +5,10 @@ using System.Reflection;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Serdes;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Logging;
 
 #endregion
@@ -52,16 +53,6 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
     public IOrxDeserializerLookup OrxDeserializerLookup { get; set; }
 
-    public unsafe object Deserialize(DispatchContext dispatchContext)
-    {
-        dispatchContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
-        fixed (byte* fptr = dispatchContext.EncodedBuffer!.Buffer)
-        {
-            return Deserialize(fptr + dispatchContext.EncodedBuffer.ReadCursor,
-                dispatchContext.MessageSize, dispatchContext.MessageVersion);
-        }
-    }
-
     public unsafe object Deserialize(byte* ptr, int length, byte messageVersion)
     {
         if (messageVersion >= thisVersion) return DeserializeCurrentType(ptr, length);
@@ -73,6 +64,25 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
             DeserializeCurrentType(ptr, length);
 
         return messagePart;
+    }
+
+    object? IMessageDeserializer.Deserialize(DispatchContext dispatchContext) => Deserialize(dispatchContext);
+
+    public unsafe Tm Deserialize(ISerdeContext readContext)
+    {
+        if (readContext is DispatchContext dispatchContext)
+        {
+            dispatchContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
+            fixed (byte* fptr = dispatchContext.EncodedBuffer!.Buffer)
+            {
+                return (Tm)Deserialize(fptr + dispatchContext.EncodedBuffer.ReadCursor,
+                    dispatchContext.MessageSize, dispatchContext.MessageVersion);
+            }
+        }
+        else
+        {
+            throw new ArgumentException("Expected readContext to be of type DispatchContext");
+        }
     }
 
     private void SetCorrectMessageVersion(byte messageVersion, Type currentType)

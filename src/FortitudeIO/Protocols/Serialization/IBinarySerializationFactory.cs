@@ -1,11 +1,17 @@
-﻿namespace FortitudeIO.Protocols.Serialization;
+﻿#region
+
+using FortitudeIO.Protocols.Serdes.Binary;
+
+#endregion
+
+namespace FortitudeIO.Protocols.Serialization;
 
 public interface IBinarySerializationFactory
 {
-    IBinarySerializer? GetSerializer<TM>(uint msgId) where TM : class, new();
+    IMessageSerializer? GetSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
 }
 
 public interface IBinaryDeserializationFactory
 {
-    ICallbackBinaryDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, new();
+    ICallbackMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
 }

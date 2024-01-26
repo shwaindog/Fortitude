@@ -1,21 +1,23 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 
 #endregion
 
 namespace FortitudeTests.FortitudeIO.Protocols.Serialization;
 
-public class SimpleStreamDecoder : IStreamDecoder
+public class SimpleMessageStreamDecoder : IMessageStreamDecoder
 {
-    private readonly IDictionary<uint, IBinaryDeserializer> deserializers = new Dictionary<uint, IBinaryDeserializer>();
+    private readonly IDictionary<uint, IMessageDeserializer> deserializers
+        = new Dictionary<uint, IMessageDeserializer>();
 
     public bool ZeroByteReadIsDisconnection { get; } = true;
     public int ExpectedSize { get; } = 1;
     public int NumberOfReceivesPerPoll { get; } = 1;
 
-    public bool AddMessageDecoder(uint msgId, IBinaryDeserializer deserializer)
+    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer)
     {
         deserializers.Add(msgId, deserializer);
         return true;
@@ -54,14 +56,14 @@ public class SimpleStreamDecoder : IStreamDecoder
 
     public class SimpleDeserializerFactory : IStreamDecoderFactory
     {
-        private readonly IDictionary<uint, IBinaryDeserializer> deserializers;
+        private readonly IDictionary<uint, IMessageDeserializer> deserializers;
 
-        public SimpleDeserializerFactory(IDictionary<uint, IBinaryDeserializer> deserializers) =>
+        public SimpleDeserializerFactory(IDictionary<uint, IMessageDeserializer> deserializers) =>
             this.deserializers = deserializers;
 
-        public IStreamDecoder Supply()
+        public IMessageStreamDecoder Supply()
         {
-            var streamDecoder = new SimpleStreamDecoder();
+            var streamDecoder = new SimpleMessageStreamDecoder();
             foreach (var binaryDeserializerEntry in deserializers)
                 streamDecoder.AddMessageDecoder(binaryDeserializerEntry.Key, binaryDeserializerEntry.Value);
             return streamDecoder;

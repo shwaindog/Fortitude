@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 
 #endregion
@@ -16,12 +17,12 @@ public interface ISessionConnection : IDoublyLinkedListNode<ISessionConnection>,
 
 public interface ISessionSender
 {
-    void Enqueue(IVersionedMessage message, IBinarySerializer serializer);
+    void Enqueue(IVersionedMessage message, IMessageSerializer serializer);
     bool SendData();
 }
 
 public interface ISessionReceiver
 {
-    void SetFeedDecoder(IStreamDecoder addThisDecoder);
+    void SetFeedDecoder(IMessageStreamDecoder addThisMessageStreamDecoder);
     bool ReceiveData(DispatchContext dispatchContext);
 }

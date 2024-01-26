@@ -2,7 +2,7 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
@@ -38,7 +38,7 @@ public class RequestResponseResponder : SocketConversation, IAcceptorControls, I
 
     public void Broadcast(IVersionedMessage message) => acceptorControls.Broadcast(message);
 
-    public void RegisterSerializer(uint messageId, IBinarySerializer serializer)
+    public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
     {
         SocketSessionContext.SerdesFactory.StreamSerializers[messageId] = serializer;
         foreach (var client in acceptorControls.Clients.Values)

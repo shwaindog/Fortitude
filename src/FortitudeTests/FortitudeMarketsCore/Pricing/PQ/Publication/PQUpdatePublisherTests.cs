@@ -4,7 +4,7 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -62,9 +62,9 @@ public class PQUpdatePublisherTests
     public void NewPQSnapShotServer_RegisterSerializer_ForPQFullSnapshot()
     {
         var registeredSerializers = NonPublicInvocator
-            .GetInstanceField<IMap<uint, IBinarySerializer>>(pqUpdatePublisher, "serializers");
+            .GetInstanceField<IMap<uint, IMessageSerializer>>(pqUpdatePublisher, "serializers");
 
-        IBinarySerializer? pqSnapshotSerializer;
+        IMessageSerializer? pqSnapshotSerializer;
         Assert.IsTrue(registeredSerializers.TryGetValue(0, out pqSnapshotSerializer));
         Assert.IsInstanceOfType(pqSnapshotSerializer, typeof(PQQuoteSerializer));
 
@@ -82,7 +82,7 @@ public class PQUpdatePublisherTests
         var pqMessageSerializer = serializeFac.GetSerializer<PQLevel0Quote>(0u);
 
         Assert.IsNotNull(pqMessageSerializer);
-        var pqHeartBeatSerializer = serializeFac.GetSerializer<List<IPQLevel0Quote>>(1u);
+        var pqHeartBeatSerializer = serializeFac.GetSerializer<PQHeartBeatQuotesMessage>(1u);
 
         Assert.IsNotNull(pqHeartBeatSerializer);
     }

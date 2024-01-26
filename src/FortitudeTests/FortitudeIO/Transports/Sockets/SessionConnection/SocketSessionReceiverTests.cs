@@ -5,7 +5,9 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets;
@@ -27,7 +29,7 @@ public class SocketSessionReceiverTests
     private DispatchContext dispatchContext = null!;
     private Func<int> getLastErrorCallback = null!;
     private Mock<IPerfLogger> moqDispatchPerfLogger = null!;
-    private Mock<IStreamDecoder> moqFeedDecoder = null!;
+    private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IPerfLoggerPool> moqPerfLoggerPool = null!;
     private Mock<IPerfLoggingPoolFactory> moqPerfPoolFac = null!;
@@ -63,7 +65,7 @@ public class SocketSessionReceiverTests
         PerfLoggingPoolFactory.Instance = moqPerfPoolFac.Object;
 
         testSessionDescription = "Test Session Description";
-        moqFeedDecoder = new Mock<IStreamDecoder>();
+        moqFeedDecoder = new Mock<IMessageStreamDecoder>();
         socketSessionReceiverAsDataReceiver = new SocketSessionReceiver(moqOsSocket.Object,
             directOsNetworkingApiStub, moqFeedDecoder.Object, testSessionDescription);
 

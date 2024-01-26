@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Net;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
@@ -18,12 +19,12 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 [NoMatchingProductionClass]
 public class UDPPubSubConnectionTests
 {
-    private readonly Dictionary<uint, IBinarySerializer> serializers = new()
+    private readonly Dictionary<uint, IMessageSerializer> serializers = new()
     {
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
-    private Dictionary<uint, IBinaryDeserializer> deserializers = null!;
+    private Dictionary<uint, IMessageDeserializer> deserializers = null!;
 
     private PublisherConversation publisherConversation = null!;
 
@@ -40,12 +41,12 @@ public class UDPPubSubConnectionTests
     [TestInitialize]
     public void Setup()
     {
-        deserializers = new Dictionary<uint, IBinaryDeserializer>
+        deserializers = new Dictionary<uint, IMessageDeserializer>
         {
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var streamDecoderFactory = new SimpleStreamDecoder.SimpleDeserializerFactory(deserializers);
+        var streamDecoderFactory = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(deserializers);
         var serdesFactory = new SerdesFactory(streamDecoderFactory, serializers);
         // create server
         var udpPublisherBuilder = new UDPPublisherBuilder();
@@ -70,7 +71,8 @@ public class UDPPubSubConnectionTests
         publisherConversation.Connect();
         subscriberConversation.Connect();
 
-        foreach (ICallbackBinaryDeserializer<SimpleVersionedMessage> deserializersValue in deserializers.Values)
+        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
+                 deserializers.Values)
             deserializersValue.Deserialized2 += ReceivedFromClientDeserializerCallback;
 
         var v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 345678.0, MessageId = 2345 };

@@ -2,9 +2,8 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Topics.TopicTransports;
-using FortitudeIO.Transports;
 
 #endregion
 
@@ -44,7 +43,7 @@ public abstract class Topic : ITopic
         public PublisherConversationPublisher(IList<IPublisherTransportTopicConversation> publisherTransportSessions) =>
             this.publisherTransportSessions = publisherTransportSessions;
 
-        public void RegisterSerializer(uint messageId, IBinarySerializer serializer)
+        public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
         {
             foreach (var pts in publisherTransportSessions)
                 pts.PublisherConversation.ConversationPublisher!.RegisterSerializer(messageId, serializer);
