@@ -4,6 +4,7 @@ using System.Reflection;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
@@ -11,7 +12,7 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-internal sealed class PQClientDecoder : IStreamDecoder
+internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
 {
     private const int TransmissionHeaderSize = sizeof(byte) * 2 + sizeof(uint);
     private const int TickerSourceIdSequenceNumberBodySize = 2 * sizeof(uint);
@@ -19,7 +20,7 @@ internal sealed class PQClientDecoder : IStreamDecoder
     private static readonly IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
-    private readonly IMap<uint, IBinaryDeserializer> deserializers;
+    private readonly IMap<uint, IMessageDeserializer> deserializers;
 
     private readonly PQQuoteTransmissionHeader msgHeader;
     private PQBinaryMessageFlags messageFlags;
@@ -28,7 +29,7 @@ internal sealed class PQClientDecoder : IStreamDecoder
     private uint messagesTotalSize;
     private uint streamId;
 
-    public PQClientDecoder(IMap<uint, IBinaryDeserializer> deserializers, PQFeedType feed)
+    public PQClientMessageStreamDecoder(IMap<uint, IMessageDeserializer> deserializers, PQFeedType feed)
     {
         this.deserializers = deserializers;
         messageSection = MessageSection.TransmissionHeader;
@@ -43,7 +44,7 @@ internal sealed class PQClientDecoder : IStreamDecoder
 
     public int NumberOfReceivesPerPoll => 50;
 
-    public bool AddMessageDecoder(uint msgId, IBinaryDeserializer deserializer) =>
+    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer) =>
         throw new NotImplementedException("No deserializers required for this stream");
 
     public unsafe int Process(DispatchContext dispatchContext)

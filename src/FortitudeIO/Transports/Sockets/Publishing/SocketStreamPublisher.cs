@@ -4,6 +4,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -18,7 +19,7 @@ public abstract class SocketStreamPublisher : ISocketLinkListener
     protected readonly ISocketDispatcher Dispatcher;
     protected readonly IFLogger Logger;
 
-    private readonly IMap<uint, IBinarySerializer> serializers = new LinkedListCache<uint, IBinarySerializer>();
+    private readonly IMap<uint, IMessageSerializer> serializers = new LinkedListCache<uint, IMessageSerializer>();
 
     protected SocketStreamPublisher(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription)
     {
@@ -66,7 +67,7 @@ public abstract class SocketStreamPublisher : ISocketLinkListener
         foreach (var cx in cxs) Enqueue(cx, message);
     }
 
-    public void RegisterSerializer<Tm>(uint msgId) where Tm : class, new()
+    public void RegisterSerializer<Tm>(uint msgId) where Tm : class, IVersionedMessage, new()
     {
         if (!serializers.TryGetValue(msgId, out var binSerializer) || binSerializer == null)
             serializers.Add(msgId, GetFactory().GetSerializer<Tm>(msgId)!);
@@ -84,6 +85,6 @@ public abstract class SocketStreamPublisher : ISocketLinkListener
     public int RegisteredSerializersCount => serializers.Count;
     public abstract IBinarySerializationFactory GetFactory();
 
-    protected virtual IMap<uint, IBinaryDeserializer> CreateEmptySerialisesCache() =>
-        new LinkedListCache<uint, IBinaryDeserializer>();
+    protected virtual IMap<uint, IMessageDeserializer> CreateEmptySerialisesCache() =>
+        new LinkedListCache<uint, IMessageDeserializer>();
 }

@@ -28,7 +28,7 @@ public class PQUpdateClientRegistrationFactoryTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializationFactory = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
-    private Mock<ICallbackBinaryDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private PQUpdateClientRegistrationFactory pqUpdateClientRegFactory = null!;
     private string testHostName = null!;
     private int testHostPort;
@@ -46,7 +46,7 @@ public class PQUpdateClientRegistrationFactoryTests
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqServerConnectionConfig = new Mock<IConnectionConfig>();
         moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerFactory>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackBinaryDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
 

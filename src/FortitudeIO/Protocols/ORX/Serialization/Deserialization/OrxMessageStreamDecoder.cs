@@ -2,23 +2,25 @@
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 
 #endregion
 
 namespace FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 
-public sealed class OrxDecoder : IStreamDecoder
+public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
 {
     public const int HeaderSize = 2 * OrxConstants.UInt16Sz + OrxConstants.UInt8Sz;
 
-    private readonly IMap<uint, IBinaryDeserializer> deserializers;
+    private readonly IMap<uint, IMessageDeserializer> deserializers;
 
     private ushort messageId;
 
     private State state = State.Header;
 
-    public OrxDecoder(IMap<uint, IBinaryDeserializer> deserializers) => this.deserializers = deserializers;
+    public OrxMessageStreamDecoder(IMap<uint, IMessageDeserializer> deserializers) =>
+        this.deserializers = deserializers;
 
     public int ExpectedSize { get; private set; } = HeaderSize;
 
@@ -26,7 +28,7 @@ public sealed class OrxDecoder : IStreamDecoder
 
     public bool ZeroByteReadIsDisconnection => true;
 
-    public bool AddMessageDecoder(uint msgId, IBinaryDeserializer deserializer)
+    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer)
     {
         deserializers.Add(msgId, deserializer);
         return deserializers[msgId] == deserializer;

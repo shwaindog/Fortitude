@@ -6,13 +6,16 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;
+using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using Moq;
 
 #endregion
@@ -29,7 +32,7 @@ public class SocketStreamSubscriberTests
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IFLogger> moqFLogger = null!;
     private Mock<ISyncLock> moqSerializerLock = null!;
-    private Mock<IMap<uint, IBinaryDeserializer>> moqSerialzierCache = null!;
+    private Mock<IMap<uint, IMessageDeserializer>> moqSerialzierCache = null!;
     private Mock<IOSSocket> moqSocket = null!;
     private int recvBufferSize;
     private string sessionDescription = null!;
@@ -44,7 +47,7 @@ public class SocketStreamSubscriberTests
         moqBinUnserialFac = new Mock<IBinaryDeserializationFactory>();
         moqSocket = new Mock<IOSSocket>();
         moqSocket.SetupAllProperties();
-        moqSerialzierCache = new Mock<IMap<uint, IBinaryDeserializer>>();
+        moqSerialzierCache = new Mock<IMap<uint, IMessageDeserializer>>();
 
         moqSerializerLock = new Mock<ISyncLock>();
 
@@ -105,11 +108,11 @@ public class SocketStreamSubscriberTests
         NonPublicInvocator.SetInstanceField(dummySocketSubscriber, "deserializersCallbackCount",
             moqSerializerCount.Object);
 
-        var moqBinPQ0Deserializer = new Mock<ICallbackBinaryDeserializer<SocketStreamSubscriberTests>>();
-        moqBinUnserialFac.Setup(buf => buf.GetDeserializer<SocketStreamSubscriberTests>(0))
+        var moqBinPQ0Deserializer = new Mock<ICallbackMessageDeserializer<DummyMessage>>();
+        moqBinUnserialFac.Setup(buf => buf.GetDeserializer<DummyMessage>(0))
             .Returns(moqBinPQ0Deserializer.Object).Verifiable();
 
-        Action<SocketStreamSubscriberTests, object?, ISession?> msgHandler = (msgId, msg, connSession) => { };
+        Action<DummyMessage, object?, ISession?> msgHandler = (msgId, msg, connSession) => { };
         dummySocketSubscriber.RegisterDeserializer(0u, msgHandler);
 
         Assert.IsFalse(inSerializerLock);
@@ -122,23 +125,23 @@ public class SocketStreamSubscriberTests
     [ExpectedException(typeof(Exception))]
     public void NoDeserializersRegistered_RegisterDeserializerWithNoCallBackMethod_ThrowsException()
     {
-        dummySocketSubscriber.RegisterDeserializer<SocketStreamSubscriberTests>(0u, null);
+        dummySocketSubscriber.RegisterDeserializer<DummyMessage>(0u, null);
     }
 
     [TestMethod]
     [ExpectedException(typeof(Exception))]
     public void AlreadyRegisteredMsg_RegisterDeserializerWithDiffTypeCallback_ThrowsException()
     {
-        var moqBinPQ0Deserializer = new Mock<ICallbackBinaryDeserializer<SocketStreamSubscriberTests>>();
-        moqBinUnserialFac.Setup(buf => buf.GetDeserializer<SocketStreamSubscriberTests>(0))
+        var moqBinPQ0Deserializer = new Mock<ICallbackMessageDeserializer<DummyMessage>>();
+        moqBinUnserialFac.Setup(buf => buf.GetDeserializer<DummyMessage>(0))
             .Returns(moqBinPQ0Deserializer.Object).Verifiable();
-        var dummySafeMap = new LinkedListCache<uint, IBinaryDeserializer>();
+        var dummySafeMap = new LinkedListCache<uint, IMessageDeserializer>();
 
         NonPublicInvocator.SetInstanceField(dummySocketSubscriber, "deserializers", dummySafeMap);
 
-        Action<SocketStreamSubscriberTests, object?, ISession?> msgHandler = (msgId, msg, connSession) => { };
+        Action<DummyMessage, object?, ISession?> msgHandler = (msgId, msg, connSession) => { };
         dummySocketSubscriber.RegisterDeserializer(0u, msgHandler);
-        Action<DummySocketStreamSubscriber, object?, ISession?> diffTypeMsgHandler = (msgId, msg, connSession) => { };
+        Action<PQLevel0Quote, object?, ISession?> diffTypeMsgHandler = (msgId, msg, connSession) => { };
         dummySocketSubscriber.RegisterDeserializer(0u, diffTypeMsgHandler);
     }
 
@@ -146,13 +149,13 @@ public class SocketStreamSubscriberTests
     [ExpectedException(typeof(Exception))]
     public void AlreadyRegisteredMsg_RegisterDeserializerTwice_ThrowsException()
     {
-        Action<SocketStreamSubscriberTests, object?, ISession?> msgHandler = (msgId, msg, connSession) => { };
-        var moqBinPQ0Deserializer = new Mock<ICallbackBinaryDeserializer<SocketStreamSubscriberTests>>();
-        moqBinUnserialFac.Setup(buf => buf.GetDeserializer<SocketStreamSubscriberTests>(0))
+        Action<DummyMessage, object?, ISession?> msgHandler = (msgId, msg, connSession) => { };
+        var moqBinPQ0Deserializer = new Mock<ICallbackMessageDeserializer<DummyMessage>>();
+        moqBinUnserialFac.Setup(buf => buf.GetDeserializer<DummyMessage>(0))
             .Returns(moqBinPQ0Deserializer.Object).Verifiable();
         moqBinPQ0Deserializer.Setup(bu => bu.IsRegistered(msgHandler))
             .Returns(true).Verifiable();
-        var dummySafeMap = new LinkedListCache<uint, IBinaryDeserializer>();
+        var dummySafeMap = new LinkedListCache<uint, IMessageDeserializer>();
 
         NonPublicInvocator.SetInstanceField(dummySocketSubscriber, "deserializers", dummySafeMap);
 
@@ -177,14 +180,14 @@ public class SocketStreamSubscriberTests
             "deserializersCallbackCount", moqSerializerCount.Object);
 
         var hasCalledCallback = false;
-        Action<SocketStreamSubscriberTests, object, ISession> msgHandler =
+        Action<DummyMessage, object, ISession> msgHandler =
             (msgId, msg, connSession) => { hasCalledCallback = true; };
-        var moqBinPQ0Deserializer = new Mock<ICallbackBinaryDeserializer<SocketStreamSubscriberTests>>();
+        var moqBinPQ0Deserializer = new Mock<ICallbackMessageDeserializer<DummyMessage>>();
         moqBinPQ0Deserializer.Object.Deserialized += msgHandler;
         moqBinPQ0Deserializer.Setup(bu => bu.IsRegistered(msgHandler))
             .Returns(true).Verifiable();
         // ReSharper disable once RedundantAssignment
-        IBinaryDeserializer? returnDeserializer = moqBinPQ0Deserializer.Object;
+        IMessageDeserializer? returnDeserializer = moqBinPQ0Deserializer.Object;
         moqSerialzierCache.Setup(sm => sm.TryGetValue(0, out returnDeserializer)).Returns(true).Verifiable();
         moqSerialzierCache.Setup(sm => sm.Remove(0))
             .Callback(() => { Assert.IsTrue(inSerializerLock); })
@@ -205,9 +208,9 @@ public class SocketStreamSubscriberTests
     [ExpectedException(typeof(Exception))]
     public void NonRegisteredMsg_UnregisterDeserializer_ThrowsException()
     {
-        var dummySafeMap = new LinkedListCache<uint, IBinaryDeserializer>();
+        var dummySafeMap = new LinkedListCache<uint, IMessageDeserializer>();
         NonPublicInvocator.SetInstanceField(dummySocketSubscriber, "deserializers", dummySafeMap);
-        Action<SocketStreamSubscriberTests, object, ISession> msgHandler = (msgId, msg, connSession) => { };
+        Action<DummyMessage, object, ISession> msgHandler = (msgId, msg, connSession) => { };
 
         dummySocketSubscriber.UnregisterDeserializer(0u, msgHandler);
     }
@@ -216,10 +219,10 @@ public class SocketStreamSubscriberTests
     [ExpectedException(typeof(Exception))]
     public void RegisteredDifferentCallbackTypeMsg_UnregisterDeserializer_ThrowsException()
     {
-        var dummySafeMap = new LinkedListCache<uint, IBinaryDeserializer>();
+        var dummySafeMap = new LinkedListCache<uint, IMessageDeserializer>();
         NonPublicInvocator.SetInstanceField(dummySocketSubscriber, "deserializers", dummySafeMap);
-        Action<SocketStreamSubscriberTests, object, ISession> msgHandler = (msgId, msg, connSession) => { };
-        var moqBinPQ0Deserializer = new Mock<ICallbackBinaryDeserializer<SocketStreamSubscriberTests>>();
+        Action<DummyMessage, object, ISession> msgHandler = (msgId, msg, connSession) => { };
+        var moqBinPQ0Deserializer = new Mock<ICallbackMessageDeserializer<DummyMessage>>();
         dummySafeMap.Add(0, moqBinPQ0Deserializer.Object);
 
         dummySocketSubscriber.UnregisterDeserializer(0u, msgHandler);
@@ -229,14 +232,20 @@ public class SocketStreamSubscriberTests
     [ExpectedException(typeof(Exception))]
     public void NonRegisteredCallbackTypeMsg_UnregisterDeserializer_ThrowsException()
     {
-        var dummySafeMap = new LinkedListCache<uint, IBinaryDeserializer>();
+        var dummySafeMap = new LinkedListCache<uint, IMessageDeserializer>();
         NonPublicInvocator.SetInstanceField(dummySocketSubscriber, "deserializers", dummySafeMap);
-        Action<SocketStreamSubscriberTests, object, ISession> msgHandler = (msgId, msg, connSession) => { };
-        var moqBinPQ0Deserializer = new Mock<ICallbackBinaryDeserializer<SocketStreamSubscriberTests>>();
+        Action<DummyMessage, object, ISession> msgHandler = (msgId, msg, connSession) => { };
+        var moqBinPQ0Deserializer = new Mock<ICallbackMessageDeserializer<DummyMessage>>();
         moqBinPQ0Deserializer.Setup(sbu => sbu.IsRegistered(msgHandler)).Returns(false);
         dummySafeMap.Add(0, moqBinPQ0Deserializer.Object);
 
         dummySocketSubscriber.UnregisterDeserializer(0u, msgHandler);
+    }
+
+    public class DummyMessage : VersionedMessage
+    {
+        public override uint MessageId => 99999;
+        public override IVersionedMessage Clone() => this;
     }
 
     internal class DummySocketStreamSubscriber : SocketStreamSubscriber
@@ -246,14 +255,14 @@ public class SocketStreamSubscriberTests
         public DummySocketStreamSubscriber() :
             base(FLoggerFactory.Instance.GetLogger(typeof(DummySocketStreamSubscriber)),
                 new Mock<ISocketDispatcher>().Object, "", 1,
-                new ConcurrentMap<uint, IBinaryDeserializer>())
+                new ConcurrentMap<uint, IMessageDeserializer>())
         {
             binaryDeserializationFactory = new OrxSerializationFactory(new Recycler());
             StreamToPublisher = new Mock<IBinaryStreamPublisher>().Object;
         }
 
         public DummySocketStreamSubscriber(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription,
-            int wholeMessagesPerReceive, IMap<uint, IBinaryDeserializer> serializerCache,
+            int wholeMessagesPerReceive, IMap<uint, IMessageDeserializer> serializerCache,
             IBinaryDeserializationFactory binaryDeserializationFactory, int recvBuffrSize,
             IBinaryStreamPublisher streamToPublisher)
             : base(logger, dispatcher, sessionDescription, wholeMessagesPerReceive, serializerCache)
@@ -271,6 +280,8 @@ public class SocketStreamSubscriberTests
 
         public override void OnCxError(ISocketSessionConnection cx, string errorMsg, int proposedReconnect) { }
 
-        public override IStreamDecoder? GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers) => null;
+        public override IMessageStreamDecoder?
+            GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
+            null;
     }
 }

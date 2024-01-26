@@ -2,7 +2,8 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeCommon.Serdes;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -38,14 +39,21 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
 
     public bool AllowUpdatesCatchup { get; }
 
-    public override object Deserialize(DispatchContext dispatchContext)
+    public override PQLevel0Quote? Deserialize(ISerdeContext readContext)
     {
-        dispatchContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
-        dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
+        if (readContext is DispatchContext dispatchContext)
+        {
+            dispatchContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
+            dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
 
-        currentSyncState.ProcessInState(dispatchContext);
+            currentSyncState.ProcessInState(dispatchContext);
 
-        return PublishedQuote;
+            return PublishedQuote;
+        }
+        else
+        {
+            throw new ArgumentException("Expected readContext to be of type DispatchContext");
+        }
     }
 
     public void ClearSyncRing()

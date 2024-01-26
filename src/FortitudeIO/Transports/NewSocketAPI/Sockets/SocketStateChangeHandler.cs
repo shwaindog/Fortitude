@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
@@ -15,8 +16,8 @@ public interface ISocketConnectivityChanged
 
 public class SocketStateChangeHandler : ISocketConnectivityChanged
 {
-    private static readonly IDictionary<uint, IBinarySerializer> emptyStreamMap
-        = new Dictionary<uint, IBinarySerializer>();
+    private static readonly IDictionary<uint, IMessageSerializer> emptyStreamMap
+        = new Dictionary<uint, IMessageSerializer>();
 
     private readonly ISerdesFactory serdesFactory;
 

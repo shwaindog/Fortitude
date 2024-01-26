@@ -6,6 +6,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -76,8 +77,8 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
 
         IOrxPublisher IOrxSubscriber.StreamToPublisher => publisher;
 
-        public override IStreamDecoder GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers) =>
-            new OrxDecoder(decoderDeserializers);
+        public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
+            new OrxMessageStreamDecoder(decoderDeserializers);
 
         protected override IBinaryDeserializationFactory GetFactory() => publisher.Factory;
 

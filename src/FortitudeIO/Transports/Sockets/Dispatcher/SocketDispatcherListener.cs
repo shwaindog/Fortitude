@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;

@@ -4,8 +4,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -29,7 +30,7 @@ public class PQQuoteSerializerTests
     private const int BufferReadWriteOffset = 5;
     private readonly bool allowCatchup = true;
     private readonly uint retryWaitMs = 2000;
-    private IMap<uint, IBinaryDeserializer> binaryDeserializers = null!;
+    private IMap<uint, IMessageDeserializer> binaryDeserializers = null!;
 
     private IReadOnlyList<IPQLevel0Quote> differingQuotes = null!;
     private PQLevel2Quote everyLayerL2Quote = null!;
@@ -41,7 +42,7 @@ public class PQQuoteSerializerTests
     private ISourceTickerClientAndPublicationConfig level1QuoteInfo = null!;
 
     private Mock<ITimeContext> moqTimeContext = null!;
-    private PQClientDecoder pqClientDecoder = null!;
+    private PQClientMessageStreamDecoder pqClientMessageStreamDecoder = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
     private PQLevel3Quote simpleNoRecentlyTradedL3Quote = null!;
@@ -131,7 +132,7 @@ public class PQQuoteSerializerTests
 
         TimeContext.Provider = moqTimeContext.Object;
 
-        binaryDeserializers = new LinkedListCache<uint, IBinaryDeserializer>
+        binaryDeserializers = new LinkedListCache<uint, IMessageDeserializer>
         {
             { level0QuoteInfo.Id, new PQQuoteDeserializer<PQLevel0Quote>(level0QuoteInfo) }
             , { level1QuoteInfo.Id, new PQQuoteDeserializer<PQLevel1Quote>(level1QuoteInfo) }
@@ -148,7 +149,7 @@ public class PQQuoteSerializerTests
                 , new PQQuoteDeserializer<PQLevel3Quote>(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo)
             }
         };
-        pqClientDecoder = new PQClientDecoder(binaryDeserializers, PQFeedType.Snapshot);
+        pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(binaryDeserializers, PQFeedType.Snapshot);
 
 
         testBuffer = new byte[400];
@@ -223,7 +224,7 @@ public class PQQuoteSerializerTests
                 , DeserializerTimestamp = frozenDateTime
             };
 
-            var bytesConsumed = pqClientDecoder.Process(dispatchContext);
+            var bytesConsumed = pqClientMessageStreamDecoder.Process(dispatchContext);
 
             Assert.AreEqual(amtWritten, bytesConsumed);
 

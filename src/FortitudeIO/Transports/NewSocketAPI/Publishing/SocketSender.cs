@@ -6,9 +6,11 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 
@@ -32,22 +34,23 @@ public sealed class SocketSender : ISocketSender
         new(1024,
             () => new SocketSessionSender.SocketEncoder(), false);
 
-    private readonly byte[] sendBuffer;
     private readonly ISyncLock sendLock = new SpinLockLight();
-    private readonly IMap<uint, IBinarySerializer> serializers = new LinkedListCache<uint, IBinarySerializer>();
+    private readonly IMap<uint, IMessageSerializer> serializers = new LinkedListCache<uint, IMessageSerializer>();
 
     private readonly ISocketSessionContext socketSocketSessionContext;
+
+    private readonly BufferContext writeBufferContext;
     private volatile bool sendActive;
     private int sentCursor;
-    private int toSendCursor;
 
     internal SocketSender(ISocketSessionContext socketSocketSessionContext)
     {
         Socket = socketSocketSessionContext.SocketConnection!.OSSocket;
         this.socketSocketSessionContext = socketSocketSessionContext;
         directOSNetworkingApi = socketSocketSessionContext.SocketFactories.NetworkingController!.DirectOSNetworkingApi;
-        sendBuffer = new byte[Socket.SendBufferSize];
-        sentCursor = toSendCursor = 0;
+        writeBufferContext = new BufferContext(new ReadWriteBuffer(new byte[Socket.SendBufferSize]))
+            { Direction = ContextDirection.Write };
+        sentCursor = 0;
     }
 
     public IOSSocket Socket { get; set; }
@@ -60,7 +63,7 @@ public sealed class SocketSender : ISocketSender
         private set => sendActive = value;
     }
 
-    public void RegisterSerializer(uint messageId, IBinarySerializer serializer)
+    public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
     {
         if (!serializers.TryGetValue(messageId, out var binSerializer) || binSerializer == null)
             serializers.Add(messageId, serializer);
@@ -104,7 +107,7 @@ public sealed class SocketSender : ISocketSender
 
     public bool SendEnqueued()
     {
-        while (encoders.Count > 0 || sentCursor < toSendCursor)
+        while (encoders.Count > 0 || sentCursor < writeBufferContext.EncodedBuffer!.WrittenCursor)
         {
             while (encoders.Count > 0)
             {
@@ -119,10 +122,11 @@ public sealed class SocketSender : ISocketSender
                     sendLock.Release();
                 }
 
-                var writtenSize = encoder.Serializer!.Serialize(sendBuffer, toSendCursor, encoder.Message!);
+                encoder.Serializer!.Serialize(encoder.Message, writeBufferContext);
+                var writtenSize = writeBufferContext.LastWriteLength;
                 if (writtenSize < 0)
                 {
-                    if (toSendCursor == 0)
+                    if (writeBufferContext.EncodedBuffer!.WrittenCursor == 0)
                         throw new Exception("Message could not be serialized or was too big for the buffer");
                     break;
                 }
@@ -139,8 +143,6 @@ public sealed class SocketSender : ISocketSender
                 {
                     sendLock.Release();
                 }
-
-                toSendCursor += writtenSize;
             }
 
             if (!Send()) return false;
@@ -164,16 +166,16 @@ public sealed class SocketSender : ISocketSender
 
     private unsafe bool Send()
     {
-        if (sentCursor == toSendCursor)
+        if (sentCursor == writeBufferContext.EncodedBuffer!.WrittenCursor)
         {
-            sentCursor = toSendCursor = 0;
+            sentCursor = writeBufferContext.EncodedBuffer!.WrittenCursor = 0;
             return true;
         }
 
         int sentSize;
-        fixed (byte* ptr = sendBuffer)
+        fixed (byte* ptr = writeBufferContext.EncodedBuffer.Buffer)
         {
-            var amtDataSent = toSendCursor - sentCursor;
+            var amtDataSent = writeBufferContext.EncodedBuffer!.WrittenCursor - sentCursor;
             sentSize = directOSNetworkingApi.Send(Socket.Handle, ptr + sentCursor,
                 amtDataSent, SocketFlags.None);
         }
@@ -182,9 +184,9 @@ public sealed class SocketSender : ISocketSender
             throw new Exception("Win32 error " +
                                 directOSNetworkingApi.GetLastCallError() + " on send call");
         sentCursor += sentSize;
-        if (sentCursor == toSendCursor)
+        if (sentCursor == writeBufferContext.EncodedBuffer!.WrittenCursor)
         {
-            sentCursor = toSendCursor = 0;
+            sentCursor = writeBufferContext.EncodedBuffer!.WrittenCursor = 0;
             return true;
         }
 

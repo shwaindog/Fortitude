@@ -6,6 +6,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -29,9 +30,9 @@ public class PQUpdateClientTests
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializationFactory = null!;
-    private Mock<IMap<uint, IBinaryDeserializer>> moqSerializerCache = null!;
+    private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
-    private Mock<ICallbackBinaryDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private PQUpdateClient pqUpdateClient = null!;
     private string testHostName = null!;
     private int testHostPort;
@@ -49,7 +50,7 @@ public class PQUpdateClientTests
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqServerConnectionConfig = new Mock<IConnectionConfig>();
         moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerFactory>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackBinaryDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
 
@@ -59,7 +60,7 @@ public class PQUpdateClientTests
         moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
         moqServerConnectionConfig.SetupProperty(scc => scc.Updates, configUpdateSubject);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
-        moqSerializerCache = new Mock<IMap<uint, IBinaryDeserializer>>();
+        moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqOsSocket.SetupAllProperties();
 
         moqSocketBinaryDeserializer.SetupAllProperties();
@@ -95,7 +96,7 @@ public class PQUpdateClientTests
     {
         var decoder = pqUpdateClient.GetDecoder(moqSerializerCache.Object);
 
-        Assert.IsInstanceOfType(decoder, typeof(PQClientDecoder));
+        Assert.IsInstanceOfType(decoder, typeof(PQClientMessageStreamDecoder));
     }
 
     [TestMethod]

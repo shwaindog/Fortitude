@@ -10,7 +10,7 @@ public interface IBinaryStreamPublisher
 {
     int SendBufferSize { get; }
     int RegisteredSerializersCount { get; }
-    void RegisterSerializer<TM>(uint msgId) where TM : class, new();
+    void RegisterSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
     void UnregisterSerializer(uint msgId);
     void Enqueue(ISessionConnection cx, IVersionedMessage message);
 }

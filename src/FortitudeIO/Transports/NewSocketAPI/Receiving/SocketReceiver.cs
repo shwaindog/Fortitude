@@ -4,7 +4,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets;
@@ -89,7 +91,7 @@ public sealed class SocketReceiver : ISocketReceiver
         }
     }
 
-    public IStreamDecoder? Decoder { get; set; }
+    public IMessageStreamDecoder? Decoder { get; set; }
 
     public bool Poll(DispatchContext dispatchContext)
     {
@@ -99,12 +101,12 @@ public sealed class SocketReceiver : ISocketReceiver
         var recvLen = PrepareBufferAndReceiveData(dispatchContext.DispatchLatencyLogger);
         if (recvLen == 0)
             return !ZeroBytesReadIsDisconnection;
-        if (receiveBuffer.UnreadBytesRemaining() > LargeBufferSize
+        if (receiveBuffer.UnreadBytesRemaining > LargeBufferSize
             && dispatchContext.DetectTimestamp > lastReportOfHighDataOutburts.AddMinutes(1))
         {
             lastReportOfHighDataOutburts = dispatchContext.DetectTimestamp;
             dispatchContext.DispatchLatencyLogger?.Add("High outburst of incoming data received read ",
-                receiveBuffer.UnreadBytesRemaining());
+                receiveBuffer.UnreadBytesRemaining);
             if (dispatchContext.DispatchLatencyLogger != null) dispatchContext.DispatchLatencyLogger.WriteTrace = true;
         }
 
@@ -162,7 +164,7 @@ public sealed class SocketReceiver : ISocketReceiver
     {
         int messageRecvLen;
         var bufferRecvLen = 0;
-        var availableLocalBuffer = receiveBuffer.RemainingStorage();
+        var availableLocalBuffer = receiveBuffer.RemainingStorage;
         fixed (byte* ptr = receiveBuffer.Buffer)
         {
             socketTraceLogger.Add("before ioctlsocket");

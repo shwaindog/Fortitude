@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 
@@ -8,7 +9,7 @@ using FortitudeIO.Transports.Sockets.SessionConnection;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
-internal sealed class PQServerDecoder : IStreamDecoder
+internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
 {
     private const int HeaderSize = 2 * sizeof(byte) + 2 * sizeof(ushort);
     private const int RequestSize = sizeof(uint);
@@ -17,7 +18,7 @@ internal sealed class PQServerDecoder : IStreamDecoder
 
     private ushort requestsCount;
 
-    public PQServerDecoder(Action<ISocketSessionConnection, uint[]> requestsHandler)
+    public PQServerMessageStreamDecoder(Action<ISocketSessionConnection, uint[]> requestsHandler)
     {
         messageSection = MessageSection.Header;
         ExpectedSize = HeaderSize;
@@ -29,7 +30,7 @@ internal sealed class PQServerDecoder : IStreamDecoder
 
     public bool ZeroByteReadIsDisconnection => false;
 
-    public bool AddMessageDecoder(uint msgId, IBinaryDeserializer deserializer) =>
+    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer) =>
         throw new NotImplementedException("No deserializers required for this stream");
 
     public unsafe int Process(DispatchContext dispatchContext)

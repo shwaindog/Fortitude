@@ -4,6 +4,7 @@ using System.Reflection;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -25,11 +26,11 @@ public sealed class PQUpdateClient : UdpSubscriber, IPQUpdateClient
         int wholeMessagesPerReceive, IPQQuoteSerializerFactory pqQuoteSerializerFactory)
         : base(FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher,
             networkingController, connectionConfig, socketUseDescription + " PQUpdateClient", networkAddress,
-            wholeMessagesPerReceive, new LinkedListUintKeyMap<IBinaryDeserializer>()) =>
+            wholeMessagesPerReceive, new LinkedListUintKeyMap<IMessageDeserializer>()) =>
         factory = pqQuoteSerializerFactory ?? factory;
 
-    public override IStreamDecoder GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers) =>
-        new PQClientDecoder(decoderDeserializers, PQFeedType.Update);
+    public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
+        new PQClientMessageStreamDecoder(decoderDeserializers, PQFeedType.Update);
 
     public override int RecvBufferSize => PQReceiveBufferSize;
 

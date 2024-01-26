@@ -8,5 +8,5 @@ namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 public interface ISocketStreamDecoderFactory : IStreamDecoderFactory
 {
-    new IStreamDecoder Supply();
+    new IMessageStreamDecoder Supply();
 }

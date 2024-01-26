@@ -8,7 +8,9 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -35,7 +37,7 @@ public class PQSnapshotClientTests
     private string expectedHost = null!;
     private byte[] expectedIpAddress = null!;
     private int expectedPort;
-    private Mock<IBinaryDeserializer> moqDecoderDeserializer = null!;
+    private Mock<IMessageDeserializer> moqDecoderDeserializer = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
@@ -45,9 +47,9 @@ public class PQSnapshotClientTests
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializationFactory = null!;
-    private Mock<IMap<uint, IBinaryDeserializer>> moqSerializerCache = null!;
+    private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
-    private Mock<ICallbackBinaryDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<IBinaryStreamPublisher> moqStreamToPublisher = null!;
     private Mock<ITimerCallbackSubscription> moqTimerCallbackSubscription = null!;
     private PQSnapshotClient pqSnapshotClient = null!;
@@ -71,7 +73,7 @@ public class PQSnapshotClientTests
         moqServerConnectionConfig = new Mock<IConnectionConfig>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerFactory>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackBinaryDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
         moqStreamToPublisher = new Mock<IBinaryStreamPublisher>();
@@ -93,8 +95,8 @@ public class PQSnapshotClientTests
         moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(expectedPort);
         moqServerConnectionConfig.SetupProperty(scc => scc.Updates, configUpdateSubject);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
-        moqSerializerCache = new Mock<IMap<uint, IBinaryDeserializer>>();
-        moqDecoderDeserializer = new Mock<IBinaryDeserializer>();
+        moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
+        moqDecoderDeserializer = new Mock<IMessageDeserializer>();
         moqOsSocket.SetupAllProperties();
 
         sendSrcTkrIds = new List<IUniqueSourceTickerIdentifier>
@@ -247,7 +249,7 @@ public class PQSnapshotClientTests
                 WrittenCursor = 14
             }
         });
-        Assert.IsInstanceOfType(decoder, typeof(PQClientDecoder));
+        Assert.IsInstanceOfType(decoder, typeof(PQClientMessageStreamDecoder));
         moqParallelControler.Verify();
         moqTimerCallbackSubscription.Verify();
         moqDecoderDeserializer.Verify();
@@ -301,7 +303,7 @@ public class PQSnapshotClientTests
             new PQQuoteSerializerFactory());
 
         var streamToPublisher = pqSnapshotClient.StreamToPublisher;
-        var registeredSerializers = NonPublicInvocator.GetInstanceField<IMap<uint, IBinarySerializer>>(
+        var registeredSerializers = NonPublicInvocator.GetInstanceField<IMap<uint, IMessageSerializer>>(
             streamToPublisher, "serializers");
 
         Assert.AreEqual(1, registeredSerializers.Count);

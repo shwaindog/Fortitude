@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Net;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
@@ -18,7 +19,7 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 [NoMatchingProductionClass]
 public class TCPRequestResponderConnectionTests
 {
-    private readonly Dictionary<uint, IBinarySerializer> serializers = new()
+    private readonly Dictionary<uint, IMessageSerializer> serializers = new()
     {
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
@@ -26,9 +27,9 @@ public class TCPRequestResponderConnectionTests
     private RequestResponseRequester reqRespRequester = null!;
 
     private RequestResponseResponder reqRespResponder = null!;
-    private Dictionary<uint, IBinaryDeserializer> requesterDeserializers = null!;
+    private Dictionary<uint, IMessageDeserializer> requesterDeserializers = null!;
     private SimpleVersionedMessage requesterReceivedResponseMessage = null!;
-    private Dictionary<uint, IBinaryDeserializer> responderDeserializers = null!;
+    private Dictionary<uint, IMessageDeserializer> responderDeserializers = null!;
 
     private SimpleVersionedMessage responderReceivedMessage = null!;
 
@@ -43,23 +44,25 @@ public class TCPRequestResponderConnectionTests
     [TestInitialize]
     public void Setup()
     {
-        responderDeserializers = new Dictionary<uint, IBinaryDeserializer>
+        responderDeserializers = new Dictionary<uint, IMessageDeserializer>
         {
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var responderStreamDecoderFactory = new SimpleStreamDecoder.SimpleDeserializerFactory(responderDeserializers);
+        var responderStreamDecoderFactory
+            = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(responderDeserializers);
         var responderSerdesFactory = new SerdesFactory(responderStreamDecoderFactory, serializers);
         // create server
         var tcpReqRespResponderBuilder = new TCPRequestResponseResponderBuilder();
         reqRespResponder = tcpReqRespResponderBuilder.Build(serverSocketConfig, responderSerdesFactory);
 
-        requesterDeserializers = new Dictionary<uint, IBinaryDeserializer>
+        requesterDeserializers = new Dictionary<uint, IMessageDeserializer>
         {
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var requesterStreamDecoderFactory = new SimpleStreamDecoder.SimpleDeserializerFactory(requesterDeserializers);
+        var requesterStreamDecoderFactory
+            = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(requesterDeserializers);
         var requesterSerdesFactory = new SerdesFactory(requesterStreamDecoderFactory, serializers);
         // create client
         var tcpReqRespRequestorBuilder = new TCPRequestResponseRequesterBuilder();
@@ -83,7 +86,7 @@ public class TCPRequestResponderConnectionTests
         reqRespRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-        foreach (ICallbackBinaryDeserializer<SimpleVersionedMessage> deserializersValue in
+        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
                  responderDeserializers.Values)
             deserializersValue.Deserialized2 += ReceivedFromClientDeserializerCallback;
 
@@ -106,11 +109,11 @@ public class TCPRequestResponderConnectionTests
         reqRespRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-        foreach (ICallbackBinaryDeserializer<SimpleVersionedMessage> deserializersValue in
+        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
                  responderDeserializers.Values) deserializersValue.Deserialized2 += RespondToClientMessage;
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-        foreach (ICallbackBinaryDeserializer<SimpleVersionedMessage> deserializersValue in
+        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
                  requesterDeserializers.Values)
             deserializersValue.Deserialized2 += ReceivedFromResponderDeserializerCallback;
 

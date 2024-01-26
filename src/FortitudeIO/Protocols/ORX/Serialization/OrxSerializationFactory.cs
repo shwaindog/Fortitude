@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 
 #endregion
@@ -16,9 +17,10 @@ public sealed class OrxSerializationFactory : IBinarySerializationFactory,
     public OrxSerializationFactory(IRecycler recyclingFactory) => this.recyclingFactory = recyclingFactory;
 
 
-    public ICallbackBinaryDeserializer<TM> GetDeserializer<TM>(uint msgId) where TM : class, new() =>
+    public ICallbackMessageDeserializer<TM> GetDeserializer<TM>(uint msgId)
+        where TM : class, IVersionedMessage, new() =>
         new OrxDeserializer<TM>(recyclingFactory);
 
-    public IBinarySerializer GetSerializer<TM>(uint msgId) where TM : class, new() =>
+    public IMessageSerializer GetSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new() =>
         new OrxSerializer<TM>((ushort)msgId);
 }

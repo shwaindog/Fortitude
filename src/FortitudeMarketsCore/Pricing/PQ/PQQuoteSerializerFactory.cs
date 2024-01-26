@@ -1,6 +1,8 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -36,15 +38,15 @@ public sealed class PQQuoteSerializerFactory : IPQQuoteSerializerFactory
         deserializers.Remove(identifier.Id);
     }
 
-    public ICallbackBinaryDeserializer<T>? GetDeserializer<T>(uint msgId) where T : class, new()
+    public ICallbackMessageDeserializer<T>? GetDeserializer<T>(uint msgId) where T : class, IVersionedMessage, new()
     {
         if (typeof(T) == typeof(PQLevel0Quote))
             if (deserializers.TryGetValue(msgId, out var quoteDeserializer))
-                return quoteDeserializer as ICallbackBinaryDeserializer<T>;
+                return quoteDeserializer as ICallbackMessageDeserializer<T>;
         throw new NotSupportedException();
     }
 
-    public IBinarySerializer? GetSerializer<T>(uint msgId) where T : class, new()
+    public IMessageSerializer? GetSerializer<T>(uint msgId) where T : class, IVersionedMessage, new()
     {
         if (typeof(T) == typeof(PQSnapshotClient.SnapShotStreamPublisher)) return new PQSnapshotIdsRequestSerializer();
         throw new NotSupportedException();

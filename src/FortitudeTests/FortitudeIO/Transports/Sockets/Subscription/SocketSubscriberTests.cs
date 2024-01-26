@@ -6,6 +6,7 @@ using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -27,13 +28,13 @@ public class SocketSubscriberTests
     private Mock<IBinaryDeserializationFactory> moqBinaryDeserializationFactory = null!;
     private Mock<IBinaryStreamPublisher> moqBinaryStreamPublisher = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
-    private Mock<IStreamDecoder> moqFeedDecoder = null!;
+    private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IMap<uint, IBinaryDeserializer>> moqSerializerCache = null!;
+    private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
     private bool onConnectedCalled;
     private bool onDisconnectedCalled;
@@ -56,12 +57,12 @@ public class SocketSubscriberTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqServerConnectionConfig = new Mock<IConnectionConfig>();
-        moqSerializerCache = new Mock<IMap<uint, IBinaryDeserializer>>();
+        moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         testSessionDescription = "TestSessionDescription";
         wholeMessagesPerReceive = 23;
         recvBufferSize = 1234567;
         moqBinaryStreamPublisher = new Mock<IBinaryStreamPublisher>();
-        moqFeedDecoder = new Mock<IStreamDecoder>();
+        moqFeedDecoder = new Mock<IMessageStreamDecoder>();
         moqBinaryDeserializationFactory = new Mock<IBinaryDeserializationFactory>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
@@ -423,18 +424,18 @@ public class SocketSubscriberTests
     {
         private readonly IBinaryDeserializationFactory binaryDeserializationFactory;
         private readonly IOSSocket socket;
-        private readonly IStreamDecoder streamDecoder;
+        private readonly IMessageStreamDecoder streamMessageStreamDecoder;
 
         public DummySocketSubscriber(IFLogger logger, ISocketDispatcher dispatcher,
             IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
             string sessionDescription, int wholeMessagesPerReceive,
-            IMap<uint, IBinaryDeserializer> serializerCache, int recvBufferSize,
-            IBinaryStreamPublisher streamToPublisher, IStreamDecoder streamDecoder,
+            IMap<uint, IMessageDeserializer> serializerCache, int recvBufferSize,
+            IBinaryStreamPublisher streamToPublisher, IMessageStreamDecoder streamMessageStreamDecoder,
             IBinaryDeserializationFactory factory, IOSSocket socket)
             : base(logger, dispatcher, networkingController, connectionConfig,
                 sessionDescription, wholeMessagesPerReceive, serializerCache)
         {
-            this.streamDecoder = streamDecoder;
+            this.streamMessageStreamDecoder = streamMessageStreamDecoder;
             RecvBufferSize = recvBufferSize;
             StreamToPublisher = streamToPublisher;
             binaryDeserializationFactory = factory;
@@ -447,8 +448,8 @@ public class SocketSubscriberTests
 
         public Action<ISocketSessionConnection, string, int> CxErrorCallback => OnCxError;
 
-        public override IStreamDecoder GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers) =>
-            streamDecoder;
+        public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
+            streamMessageStreamDecoder;
 
         protected override IBinaryDeserializationFactory GetFactory() => binaryDeserializationFactory;
 

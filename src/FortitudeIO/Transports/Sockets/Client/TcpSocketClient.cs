@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
 
@@ -21,7 +21,7 @@ public abstract class TcpSocketClient : SocketSubscriber
     protected TcpSocketClient(IFLogger logger, ISocketDispatcher dispatcher,
         IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
         string sessionDescription, int wholeMessagesPerReceive,
-        IMap<uint, IBinaryDeserializer>? serializerCache = null,
+        IMap<uint, IMessageDeserializer>? serializerCache = null,
         bool keepalive = false)
         : base(logger, dispatcher, networkingController, connectionConfig, sessionDescription,
             wholeMessagesPerReceive, serializerCache

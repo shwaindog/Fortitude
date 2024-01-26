@@ -2,7 +2,7 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
@@ -29,7 +29,7 @@ public class RequestResponseResponderTopic : Topic, IRequestResponseResponderTop
         throw new NotImplementedException();
     }
 
-    public void RegisterSerializer(uint messageId, IBinarySerializer serializer) { }
+    public void RegisterSerializer(uint messageId, IMessageSerializer serializer) { }
 
     public IReadOnlyDictionary<int, ISocketConversation>? Clients { get; set; }
     public IConversationListener? ConversationListener { get; set; }

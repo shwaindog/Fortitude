@@ -2,7 +2,7 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion
 
@@ -65,7 +65,7 @@ public class ResponderToPublisherAdapter : IPublisherConversation
             IRequestResponseResponderConversation requestResponseResponderConversation) =>
             this.requestResponseResponderConversation = requestResponseResponderConversation;
 
-        public void RegisterSerializer(uint messageId, IBinarySerializer serializer)
+        public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
         {
             requestResponseResponderConversation.RegisterSerializer(messageId, serializer);
         }

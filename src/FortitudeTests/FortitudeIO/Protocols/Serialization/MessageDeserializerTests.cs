@@ -1,6 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeCommon.Serdes;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Logging;
@@ -11,15 +13,15 @@ using Moq;
 namespace FortitudeTests.FortitudeIO.Protocols.Serialization;
 
 [TestClass]
-public class BinaryDeserializerTests
+public class MessageDeserializerTests
 {
     [TestMethod]
     public void RegisteredDeserializerWithCallbacks_Dispatch_LogsBeforePublishThenCallsRegisteredCallbacks()
     {
-        var binaryDeserializer = new DummyBinaryDeserializer<object>();
+        var binaryDeserializer = new DummyMessageDeserializer<DummyMessage>();
 
-        var expectedData = new object();
-        var expectedState = new object();
+        var expectedData = new DummyMessage();
+        var expectedState = new DummyMessage();
 
         var moqSession = new Mock<ISession>();
         var moqPerfLogger = new Mock<IPerfLogger>();
@@ -62,11 +64,17 @@ public class BinaryDeserializerTests
         Assert.IsTrue(secondCallbackCalled);
     }
 
-    internal class DummyBinaryDeserializer<Tm> : BinaryDeserializer<Tm> where Tm : class
+    private class DummyMessage : VersionedMessage
     {
-        public override object? Deserialize(DispatchContext dispatchContext) => null;
+        public override uint MessageId => 88888;
+        public override IVersionedMessage Clone() => this;
+    }
 
-        public void CallDispatch(Tm data, object state, ISession repositorySession,
+    internal class DummyMessageDeserializer<TM> : MessageDeserializer<TM> where TM : class, IVersionedMessage, new()
+    {
+        public override TM? Deserialize(ISerdeContext dispatchContext) => null;
+
+        public void CallDispatch(TM data, object state, ISession repositorySession,
             IPerfLogger detectionToPublishLatencyLogger)
         {
             Dispatch(data, state, repositorySession, detectionToPublishLatencyLogger);

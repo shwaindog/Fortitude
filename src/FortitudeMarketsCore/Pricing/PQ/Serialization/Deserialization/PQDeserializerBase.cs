@@ -5,6 +5,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -16,7 +17,7 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
 
-public abstract class PQDeserializerBase : BinaryDeserializer<PQLevel0Quote>, IPQDeserializer
+public abstract class PQDeserializerBase : MessageDeserializer<PQLevel0Quote>, IPQDeserializer
 {
     protected PQDeserializerBase(IUniqueSourceTickerIdentifier identifier) => Identifier = identifier;
 

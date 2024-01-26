@@ -3,6 +3,8 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -20,15 +22,15 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
     private readonly ISyncLock serializerLock = new SpinLockLight();
 
     // ReSharper disable once InconsistentNaming
-    protected IMap<uint, IBinaryDeserializer> deserializers;
+    protected IMap<uint, IMessageDeserializer> deserializers;
 
     protected SocketStreamSubscriber(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription,
-        int wholeMessagesPerReceive, IMap<uint, IBinaryDeserializer>? map = null)
+        int wholeMessagesPerReceive, IMap<uint, IMessageDeserializer>? map = null)
     {
         this.logger = logger;
         Dispatcher = dispatcher;
         // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-        deserializers = map ?? new LinkedListCache<uint, IBinaryDeserializer>();
+        deserializers = map ?? new LinkedListCache<uint, IMessageDeserializer>();
         SessionDescription = sessionDescription;
         WholeMessagesPerReceive = wholeMessagesPerReceive;
     }
@@ -51,7 +53,7 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
     public abstract IBinaryStreamPublisher? StreamToPublisher { get; }
 
 
-    public abstract IStreamDecoder? GetDecoder(IMap<uint, IBinaryDeserializer> deserializers);
+    public abstract IMessageStreamDecoder? GetDecoder(IMap<uint, IMessageDeserializer> deserializers);
     public string SessionDescription { get; }
     public int WholeMessagesPerReceive { get; }
 
@@ -62,12 +64,13 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
 
     public int RegisteredDeserializersCount => deserializers.Count;
 
-    public void RegisterDeserializer<TM>(uint msgId, Action<TM, object?, ISession?>? msgHandler) where TM : class, new()
+    public void RegisterDeserializer<TM>(uint msgId, Action<TM, object?, ISession?>? msgHandler)
+        where TM : class, IVersionedMessage, new()
     {
         if (msgHandler == null)
             throw new Exception("Message Handler cannot be null");
-        IBinaryDeserializer? u;
-        ICallbackBinaryDeserializer<TM>? mu;
+        IMessageDeserializer? u;
+        ICallbackMessageDeserializer<TM>? mu;
         if (!deserializers.TryGetValue(msgId, out u))
         {
             deserializers.Add(msgId, mu = GetFactory()!.GetDeserializer<TM>(msgId)!);
@@ -76,7 +79,7 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
                 deserializersCallbackCount[msgId] = 0;
             }
         }
-        else if ((mu = u as ICallbackBinaryDeserializer<TM>) == null)
+        else if ((mu = u as ICallbackMessageDeserializer<TM>) == null)
         {
             throw new Exception("Two different message types cannot be registered to the same Id");
         }
@@ -97,11 +100,12 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
         }
     }
 
-    public void UnregisterDeserializer<TM>(uint msgId, Action<TM, object, ISession> msgHandler) where TM : class, new()
+    public void UnregisterDeserializer<TM>(uint msgId, Action<TM, object, ISession> msgHandler)
+        where TM : class, IVersionedMessage, new()
     {
-        IBinaryDeserializer? u;
-        ICallbackBinaryDeserializer<TM>? mu;
-        if (!deserializers.TryGetValue(msgId, out u) || (mu = u as ICallbackBinaryDeserializer<TM>) == null)
+        IMessageDeserializer? u;
+        ICallbackMessageDeserializer<TM>? mu;
+        if (!deserializers.TryGetValue(msgId, out u) || (mu = u as ICallbackMessageDeserializer<TM>) == null)
             throw new Exception("Message Type could not be matched with the provided Id");
         if (!mu.IsRegistered(msgHandler))
             throw new Exception("Unknown Message Handler");

@@ -7,7 +7,9 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Authentication;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -24,7 +26,7 @@ public class TcpSocketPublisherTests
 {
     private DummyTcpSocketPublisher dummyTcpSocketPublisher = null!;
     private Mock<IBinarySerializationFactory> moqBinSerialFac = null!;
-    private Mock<IBinarySerializer> moqBinSerializer = null!;
+    private Mock<IMessageSerializer> moqBinSerializer = null!;
     private Mock<IBinaryStreamSubscriber> moqBinStreamSubscriber = null!;
     private Mock<ISyncLock> moqClientsLock = null!;
     private Mock<ISyncLock> moqConnLock = null!;
@@ -68,7 +70,7 @@ public class TcpSocketPublisherTests
         NonPublicInvocator.SetInstanceField(dummyTcpSocketPublisher, "connSync", moqConnLock.Object);
         NonPublicInvocator.SetInstanceField(dummyTcpSocketPublisher, "clientsSync", moqClientsLock.Object);
 
-        moqBinSerializer = new Mock<IBinarySerializer>();
+        moqBinSerializer = new Mock<IMessageSerializer>();
         moqNetworkingController.Setup(nc => nc.CreateOSSocket(AddressFamily.InterNetwork,
             SocketType.Stream, ProtocolType.Tcp)).Returns(moqSocket.Object).Verifiable();
     }
@@ -260,9 +262,9 @@ public class TcpSocketPublisherTests
     public void ConnectedRegisteredMessage_Send_EnquesMessageWithSerializer()
     {
         var toBeSentToCx = new OrxLogonResponse();
-        moqBinSerialFac.Setup(d => d.GetSerializer<TcpSocketPublisherTests>(toBeSentToCx.MessageId))
+        moqBinSerialFac.Setup(d => d.GetSerializer<DummyMessage>(toBeSentToCx.MessageId))
             .Returns(moqBinSerializer.Object);
-        dummyTcpSocketPublisher.RegisterSerializer<TcpSocketPublisherTests>(toBeSentToCx.MessageId);
+        dummyTcpSocketPublisher.RegisterSerializer<DummyMessage>(toBeSentToCx.MessageId);
         var moqSocketSessionSender = new Mock<ISocketSessionSender>();
         moqSocketSessionSender.SetupAllProperties();
         var socketSessionConnection = new SocketSessionConnection(null, moqSocketSessionSender.Object, null);
@@ -410,9 +412,9 @@ public class TcpSocketPublisherTests
 
 
         var message = new OrxLogonResponse();
-        moqBinSerialFac.Setup(d => d.GetSerializer<TcpSocketPublisherTests>(message.MessageId))
+        moqBinSerialFac.Setup(d => d.GetSerializer<DummyMessage>(message.MessageId))
             .Returns(moqBinSerializer.Object);
-        dummyTcpSocketPublisher.RegisterSerializer<TcpSocketPublisherTests>(message.MessageId);
+        dummyTcpSocketPublisher.RegisterSerializer<DummyMessage>(message.MessageId);
 
         var inClientSyncLock = false;
 
@@ -447,6 +449,12 @@ public class TcpSocketPublisherTests
         moqSocketDispatcher.Verify();
         moqSocketSession1Sender.Verify();
         moqSocketSession2Sender.Verify();
+    }
+
+    private class DummyMessage : VersionedMessage
+    {
+        public override uint MessageId => 66666;
+        public override IVersionedMessage Clone() => this;
     }
 
     public class DummyTcpSocketPublisher : TcpSocketPublisher

@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 
 #endregion
@@ -21,7 +21,7 @@ public abstract class UdpSubscriber : SocketSubscriber
     protected UdpSubscriber(IFLogger logger, ISocketDispatcher dispatcher,
         IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
         string sessionDescription, string? multicastInterface, int wholeMessagesPerReceive,
-        IMap<uint, IBinaryDeserializer> serializerCache)
+        IMap<uint, IMessageDeserializer> serializerCache)
         : base(logger, dispatcher, networkingController, connectionConfig,
             sessionDescription, wholeMessagesPerReceive, serializerCache)
     {

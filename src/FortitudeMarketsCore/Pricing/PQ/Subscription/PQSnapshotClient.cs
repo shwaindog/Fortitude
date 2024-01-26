@@ -6,6 +6,8 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Client;
@@ -41,7 +43,7 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
             FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher,
             networkingController, connectionConfig,
             socketUseDescription + " PQSnapshotClient", wholeMessagesPerReceive,
-            new LinkedListUintKeyMap<IBinaryDeserializer>())
+            new LinkedListUintKeyMap<IMessageDeserializer>())
     {
         intraOSThreadSignal = ParallelController.SingleOSThreadActivateSignal(false);
         OnConnected += OnResponse;
@@ -89,9 +91,9 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
         }
     }
 
-    public override IStreamDecoder GetDecoder(IMap<uint, IBinaryDeserializer> decoderDeserializers)
+    public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers)
     {
-        var decoder = new PQClientDecoder(deserializers, PQFeedType.Snapshot);
+        var decoder = new PQClientMessageStreamDecoder(deserializers, PQFeedType.Snapshot);
         decoder.OnResponse += OnResponse;
         return decoder;
     }
@@ -142,9 +144,22 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
         EnableTimeout();
     }
 
-    public class SnapShotStreamPublisher
+    public class SnapShotStreamPublisher : VersionedMessage
     {
-        private uint[] Ids { get; set; } = Array.Empty<uint>();
+        public SnapShotStreamPublisher() { }
+        public SnapShotStreamPublisher(IVersionedMessage toClone) : base(toClone) { }
+        public SnapShotStreamPublisher(byte version) : base(version) { }
+
+        public SnapShotStreamPublisher(SnapShotStreamPublisher toClone)
+        {
+            Version = toClone.Version;
+            Ids = toClone.Ids.ToArray();
+        }
+
+        public override uint MessageId { get; } = 2121502;
+        private uint[] Ids { get; } = Array.Empty<uint>();
+
+        public override IVersionedMessage Clone() => throw new NotImplementedException();
     }
 
     internal class PQSnapshotStreamPublisher : TcpSocketPublisher

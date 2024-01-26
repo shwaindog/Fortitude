@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
@@ -21,6 +21,8 @@ public class PQHeartbeatSerializerTests
     private const int BufferReadWriteOffset = 5;
     private readonly bool allowCatchup = true;
 
+    private readonly uint retryWaitMs = 2000;
+
     private PQHeartBeatQuotesMessage firstBatchOfQuotes = null!;
 
     private PQLevel0Quote firstQuote = null!;
@@ -30,8 +32,6 @@ public class PQHeartbeatSerializerTests
     private SourceTickerQuoteInfo fourthQuoteInfo = null!;
     private PQHeartbeatSerializer pqHeartBeatSerializer = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
-
-    private readonly uint retryWaitMs = 2000;
     private PQHeartBeatQuotesMessage secondBatchOfQuotes = null!;
     private PQLevel1Quote secondQuote = null!;
     private SourceTickerQuoteInfo secondQuoteInfo = null!;

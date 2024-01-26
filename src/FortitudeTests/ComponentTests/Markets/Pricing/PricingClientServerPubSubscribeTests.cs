@@ -153,6 +153,7 @@ public class PricingClientServerPubSubscribeTests
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
         logger.Info("Second diff.");
         logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
+        Thread.Sleep(5_000);
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
         logger.Info("Finished Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
         //FLoggerFactory.GracefullyTerminateProcessLogging();

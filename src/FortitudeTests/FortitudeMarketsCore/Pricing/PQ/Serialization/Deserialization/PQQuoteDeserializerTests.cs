@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;

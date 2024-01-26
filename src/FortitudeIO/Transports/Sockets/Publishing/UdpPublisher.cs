@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -66,7 +66,7 @@ public abstract class UdpPublisher : SocketPublisherBase, IPQPublisher
         protected UdpSubscriber(UdpPublisher udpPublisher, IFLogger logger, ISocketDispatcher dispatcher,
             IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
             string sessionDescription, int wholeMessagesPerReceive,
-            IMap<uint, IBinaryDeserializer>? serializerCache = null)
+            IMap<uint, IMessageDeserializer>? serializerCache = null)
             : base(logger, dispatcher, networkingController, connectionConfig,
                 sessionDescription, wholeMessagesPerReceive, serializerCache) =>
             UdpPublisher = udpPublisher;

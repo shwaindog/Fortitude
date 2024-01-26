@@ -5,6 +5,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Authentication;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -23,7 +24,7 @@ public class SocketStreamPublisherTests
     private Action<ISocketSessionConnection, string, int> dummyOnCxError = null!;
     private DummySocketStreamPublisher dummySocketStreamPublisher = null!;
     private Mock<IBinarySerializationFactory> moqBinSerialFac = null!;
-    private Mock<IBinarySerializer> moqBinSerializer = null!;
+    private Mock<IMessageSerializer> moqBinSerializer = null!;
     private Mock<IBinaryStreamSubscriber> moqBinStreamSubscriber = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IFLogger> moqFLogger = null!;
@@ -48,7 +49,7 @@ public class SocketStreamPublisherTests
         moqSocketSessionConnection = new Mock<ISocketSessionConnection>();
         moqSocketSessionSender = new Mock<ISocketSessionSender>();
         moqSocketSessionConnection.SetupGet(ssc => ssc.SessionSender).Returns(moqSocketSessionSender.Object);
-        moqBinSerializer = new Mock<IBinarySerializer>();
+        moqBinSerializer = new Mock<IMessageSerializer>();
     }
 
     [TestMethod]
@@ -78,10 +79,10 @@ public class SocketStreamPublisherTests
     [TestMethod]
     public void NewSocketStream_RegisterSerializer_FindsSerializerAddsItToLookup()
     {
-        moqBinSerialFac.Setup(d => d.GetSerializer<SocketStreamPublisherTests>(0)).Returns(moqBinSerializer.Object)
+        moqBinSerialFac.Setup(d => d.GetSerializer<DummyMessage>(0)).Returns(moqBinSerializer.Object)
             .Verifiable();
 
-        dummySocketStreamPublisher.RegisterSerializer<SocketStreamPublisherTests>(0);
+        dummySocketStreamPublisher.RegisterSerializer<DummyMessage>(0);
 
         Assert.AreEqual(1, dummySocketStreamPublisher.RegisteredSerializersCount);
         moqBinSerialFac.Verify();
@@ -91,23 +92,23 @@ public class SocketStreamPublisherTests
     [ExpectedException(typeof(Exception))]
     public void AlreadyRegisteredId_RegisterSerializer_ThrowsException()
     {
-        moqBinSerialFac.Setup(d => d.GetSerializer<SocketStreamPublisherTests>(0)).Returns(moqBinSerializer.Object)
+        moqBinSerialFac.Setup(d => d.GetSerializer<DummyMessage>(0)).Returns(moqBinSerializer.Object)
             .Verifiable();
 
-        dummySocketStreamPublisher.RegisterSerializer<SocketStreamPublisherTests>(0);
+        dummySocketStreamPublisher.RegisterSerializer<DummyMessage>(0);
 
         Assert.AreEqual(1, dummySocketStreamPublisher.RegisteredSerializersCount);
         moqBinSerialFac.Verify();
 
-        dummySocketStreamPublisher.RegisterSerializer<SocketStreamPublisherTests>(0);
+        dummySocketStreamPublisher.RegisterSerializer<DummyMessage>(0);
     }
 
     [TestMethod]
     public void NewSocketStream_UnregisterSerializer_FindsSerializerAddsItToLookup()
     {
-        moqBinSerialFac.Setup(d => d.GetSerializer<SocketStreamPublisherTests>(0)).Returns(moqBinSerializer.Object)
+        moqBinSerialFac.Setup(d => d.GetSerializer<DummyMessage>(0)).Returns(moqBinSerializer.Object)
             .Verifiable();
-        dummySocketStreamPublisher.RegisterSerializer<SocketStreamPublisherTests>(0);
+        dummySocketStreamPublisher.RegisterSerializer<DummyMessage>(0);
         Assert.AreEqual(1, dummySocketStreamPublisher.RegisteredSerializersCount);
         moqBinSerialFac.Verify();
 
@@ -127,9 +128,9 @@ public class SocketStreamPublisherTests
     public void RegisteredSerializer_EnqueSingleCx_AlertsCxWithMessageSerializerAndDispatcher()
     {
         IVersionedMessage toBeSentToCx = new OrxLogonResponse();
-        moqBinSerialFac.Setup(d => d.GetSerializer<SocketStreamPublisherTests>(toBeSentToCx.MessageId))
+        moqBinSerialFac.Setup(d => d.GetSerializer<DummyMessage>(toBeSentToCx.MessageId))
             .Returns(moqBinSerializer.Object);
-        dummySocketStreamPublisher.RegisterSerializer<SocketStreamPublisherTests>(toBeSentToCx.MessageId);
+        dummySocketStreamPublisher.RegisterSerializer<DummyMessage>(toBeSentToCx.MessageId);
         var socketSessCx = new SocketSessionConnection(null, moqSocketSessionSender.Object, null);
         moqSocketSessionSender.Setup(ssc => ssc.Enqueue(toBeSentToCx, moqBinSerializer.Object)).Verifiable();
         moqDispatcher.Setup(d => d.Sender.AddToSendQueue(socketSessCx)).Verifiable();
@@ -154,9 +155,9 @@ public class SocketStreamPublisherTests
     public void RegisteredSerializer_EnqueMultipleCx_AlertsEachCxWithMessageSerializerAndDispatcher()
     {
         IVersionedMessage toBeSentToCx = new OrxLogonResponse();
-        moqBinSerialFac.Setup(d => d.GetSerializer<SocketStreamPublisherTests>(toBeSentToCx.MessageId))
+        moqBinSerialFac.Setup(d => d.GetSerializer<DummyMessage>(toBeSentToCx.MessageId))
             .Returns(moqBinSerializer.Object);
-        dummySocketStreamPublisher.RegisterSerializer<SocketStreamPublisherTests>(toBeSentToCx.MessageId);
+        dummySocketStreamPublisher.RegisterSerializer<DummyMessage>(toBeSentToCx.MessageId);
         var firstSocketCx = new SocketSessionConnection(null, moqSocketSessionSender.Object, null);
 
         var moqSecondCxSender = new Mock<ISocketSessionSender>();
@@ -176,6 +177,12 @@ public class SocketStreamPublisherTests
         moqSecondCxSender.Verify();
         moqSocketSessionSender.Verify();
         moqDispatcher.Verify();
+    }
+
+    private class DummyMessage : VersionedMessage
+    {
+        public override uint MessageId => 77777;
+        public override IVersionedMessage Clone() => this;
     }
 
     internal class DummySocketStreamPublisher : SocketStreamPublisher

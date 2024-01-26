@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
@@ -7,7 +8,8 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Protocols.Serialization;
 
-public interface ICallbackBinaryDeserializer<out TM> : IBinaryDeserializer where TM : class
+public interface ICallbackMessageDeserializer<out TM> : IMessageDeserializer<TM>
+    where TM : class, IVersionedMessage, new()
 {
     //[Obsolete]  TODO restore when switched over
     event Action<TM, object?, ISession?>? Deserialized;

@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -25,7 +26,7 @@ public class PQServerSerializationFactoryTests
         var quoteSerializer = snapshotServerSerializationFactory.GetSerializer<PQLevel0Quote>(0);
         Assert.IsInstanceOfType(quoteSerializer, typeof(PQQuoteSerializer));
 
-        var heartBeatSerializer = snapshotServerSerializationFactory.GetSerializer<List<PQLevel0Quote>>(1);
+        var heartBeatSerializer = snapshotServerSerializationFactory.GetSerializer<PQHeartBeatQuotesMessage>(1);
         Assert.IsInstanceOfType(heartBeatSerializer, typeof(PQHeartbeatSerializer));
     }
 
@@ -40,6 +41,6 @@ public class PQServerSerializationFactoryTests
     [ExpectedException(typeof(NotSupportedException))]
     public void HeartBeatSerializerWrongId_GetSerializerWrongIdsForType_ThrowsNotSupportedException()
     {
-        snapshotServerSerializationFactory.GetSerializer<List<PQLevel0Quote>>(0);
+        snapshotServerSerializationFactory.GetSerializer<PQHeartBeatQuotesMessage>(0);
     }
 }

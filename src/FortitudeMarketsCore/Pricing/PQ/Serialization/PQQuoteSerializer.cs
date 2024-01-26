@@ -3,8 +3,10 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
@@ -12,7 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization;
 
-internal sealed class PQQuoteSerializer : IBinarySerializer<IPQLevel0Quote>
+internal sealed class PQQuoteSerializer : IMessageSerializer<IPQLevel0Quote>
 {
     private const int HeaderSize = 2 * sizeof(byte) + sizeof(ushort)
                                                     + sizeof(ushort) + sizeof(uint) + sizeof(uint);
@@ -24,6 +26,30 @@ internal sealed class PQQuoteSerializer : IBinarySerializer<IPQLevel0Quote>
     private IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteSerializer));
 
     public PQQuoteSerializer(UpdateStyle updateStyle) => this.updateStyle = updateStyle;
+
+    public MarshalType MarshalType => MarshalType.Binary;
+
+    public void Serialize(IVersionedMessage message, IBufferContext writeContext)
+    {
+        Serialize((IPQLevel0Quote)message, (ISerdeContext)writeContext);
+    }
+
+    public void Serialize(IPQLevel0Quote obj, ISerdeContext writeContext)
+    {
+        if ((writeContext.Direction & ContextDirection.Write) == 0)
+            throw new ArgumentException("Expected readContext to support writing");
+        if (writeContext is IBufferContext bufferContext)
+        {
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WrittenCursor
+                , obj);
+            bufferContext.EncodedBuffer.WrittenCursor += writeLength;
+            bufferContext.LastWriteLength = writeLength;
+        }
+        else
+        {
+            throw new ArgumentException("Expected writeContext to be IBufferContext");
+        }
+    }
 
     public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
     {

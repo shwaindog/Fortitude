@@ -1,8 +1,11 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 
 #endregion
@@ -40,39 +43,71 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
         Recycler?.Borrow<SimpleVersionedMessage>().CopyFrom(this) ?? new SimpleVersionedMessage(this);
 
 
-    public class SimpleDeserializer : BinaryDeserializer<SimpleVersionedMessage>
+    public class SimpleDeserializer : MessageDeserializer<SimpleVersionedMessage>
     {
-        public override unsafe object Deserialize(DispatchContext dispatchContext)
+        public override unsafe SimpleVersionedMessage Deserialize(ISerdeContext readContext)
         {
-            var simpleMessage = new SimpleVersionedMessage();
+            if (readContext is DispatchContext dispatchContext)
+            {
+                var simpleMessage = new SimpleVersionedMessage();
 
-            if (dispatchContext.MessageVersion == 1 && dispatchContext.MessageSize == 9)
-                fixed (byte* ptr = dispatchContext.EncodedBuffer!.Buffer)
-                {
-                    var currPtr = ptr + 1;
-                    simpleMessage.Version = dispatchContext.MessageVersion;
-                    simpleMessage.MessageId = StreamByteOps.ToUShort(ref currPtr);
-                    StreamByteOps.ToUShort(ref currPtr);
-                    simpleMessage.PayLoad = StreamByteOps.ToInt(ref currPtr);
-                }
+                if (dispatchContext.MessageVersion == 1 && dispatchContext.MessageSize == 9)
+                    fixed (byte* ptr = dispatchContext.EncodedBuffer!.Buffer)
+                    {
+                        var currPtr = ptr + 1;
+                        simpleMessage.Version = dispatchContext.MessageVersion;
+                        simpleMessage.MessageId = StreamByteOps.ToUShort(ref currPtr);
+                        StreamByteOps.ToUShort(ref currPtr);
+                        simpleMessage.PayLoad = StreamByteOps.ToInt(ref currPtr);
+                    }
+                else
+                    fixed (byte* ptr = dispatchContext.EncodedBuffer!.Buffer)
+                    {
+                        var currPtr = ptr + 1;
+                        simpleMessage.Version = dispatchContext.MessageVersion;
+                        simpleMessage.MessageId = StreamByteOps.ToUShort(ref currPtr);
+                        StreamByteOps.ToUShort(ref currPtr);
+                        simpleMessage.PayLoad2 = StreamByteOps.ToDouble(ref currPtr);
+                    }
+
+                Dispatch(simpleMessage, dispatchContext.MessageHeader, dispatchContext.Conversation
+                    , dispatchContext.DispatchLatencyLogger);
+                return simpleMessage;
+            }
             else
-                fixed (byte* ptr = dispatchContext.EncodedBuffer!.Buffer)
-                {
-                    var currPtr = ptr + 1;
-                    simpleMessage.Version = dispatchContext.MessageVersion;
-                    simpleMessage.MessageId = StreamByteOps.ToUShort(ref currPtr);
-                    StreamByteOps.ToUShort(ref currPtr);
-                    simpleMessage.PayLoad2 = StreamByteOps.ToDouble(ref currPtr);
-                }
-
-            Dispatch(simpleMessage, dispatchContext.MessageHeader, dispatchContext.Conversation
-                , dispatchContext.DispatchLatencyLogger);
-            return simpleMessage;
+            {
+                throw new ArgumentException("Expected readContext to be of type DispatchContext");
+            }
         }
     }
 
-    public class SimpleSerializer : IBinarySerializer<SimpleVersionedMessage>
+    public class SimpleSerializer : IMessageSerializer<SimpleVersionedMessage>
     {
+        public MarshalType MarshalType => MarshalType.Binary;
+
+        public void Serialize(IVersionedMessage message, IBufferContext writeContext)
+        {
+            Serialize((SimpleVersionedMessage)message, (ISerdeContext)writeContext);
+        }
+
+        public void Serialize(SimpleVersionedMessage obj, ISerdeContext writeContext)
+        {
+            if ((writeContext.Direction & ContextDirection.Write) == 0)
+                throw new ArgumentException("Expected readContext to support writing");
+            if (writeContext is IBufferContext bufferContext)
+            {
+                var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer
+                    , bufferContext.EncodedBuffer.WrittenCursor
+                    , obj);
+                bufferContext.EncodedBuffer.WrittenCursor += writeLength;
+                bufferContext.LastWriteLength = writeLength;
+            }
+            else
+            {
+                throw new ArgumentException("Expected writeContext to be IBufferContext");
+            }
+        }
+
         public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
         {
             var simpleVersionedMsg = (SimpleVersionedMessage)message;

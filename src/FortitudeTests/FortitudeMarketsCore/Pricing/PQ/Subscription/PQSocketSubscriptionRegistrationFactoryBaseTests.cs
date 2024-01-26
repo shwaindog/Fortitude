@@ -6,6 +6,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets;
@@ -34,7 +35,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
     private Mock<IBinaryDeserializationFactory> moqBinaryDeserializationFactory = null!;
     private Mock<IBinaryStreamPublisher> moqBinaryStreamPublisher = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
-    private Mock<IStreamDecoder> moqFeedDecoder = null!;
+    private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
@@ -42,7 +43,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializationFactory = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
-    private Mock<ICallbackBinaryDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private int recvBufferSize;
     private string testHostName = null!;
     private int testHostPort;
@@ -66,9 +67,9 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         recvBufferSize = 1234567;
         moqBinaryStreamPublisher = new Mock<IBinaryStreamPublisher>();
         moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerFactory>();
-        moqFeedDecoder = new Mock<IStreamDecoder>();
+        moqFeedDecoder = new Mock<IMessageStreamDecoder>();
         moqBinaryDeserializationFactory = new Mock<IBinaryDeserializationFactory>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackBinaryDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
 
@@ -89,7 +90,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
 
         dummySocketSubscriber = new SocketSubscriberTests.DummySocketSubscriber(moqFlogger.Object,
             moqDispatcher.Object, moqNetworkingController.Object, moqServerConnectionConfig.Object,
-            testSessionDescription, wholeMessagesPerReceive, new ConcurrentMap<uint, IBinaryDeserializer>()
+            testSessionDescription, wholeMessagesPerReceive, new ConcurrentMap<uint, IMessageDeserializer>()
             , recvBufferSize,
             moqBinaryStreamPublisher.Object, moqFeedDecoder.Object, moqBinaryDeserializationFactory.Object,
             moqOsSocket.Object);
