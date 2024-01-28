@@ -5,8 +5,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -56,6 +57,8 @@ public abstract class PQDeserializerBase : MessageDeserializer<PQLevel0Quote>, I
 public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserializer<T>
     where T : class, IPQLevel0Quote
 {
+    private const byte SupportFromVersion = 1;
+    private const byte SupportToVersion = 1;
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQDeserializerBase<>));
 
     // ReSharper disable once StaticMemberInGenericType
@@ -102,18 +105,30 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
         });
     }
 
-    public unsafe void UpdateQuote(DispatchContext dispatchContext, T ent, uint sequenceId)
+    public unsafe void UpdateQuote(IBufferContext readContext, T ent, uint sequenceId)
     {
-        ent.ClientReceivedTime = dispatchContext.DetectTimestamp;
-        ent.SocketReceivingTime = dispatchContext.ReceivingTimestamp;
-        ent.ProcessedTime = dispatchContext.DeserializerTimestamp;
+        var sockBuffContext = readContext as ReadSocketBufferContext;
+        ent.ClientReceivedTime = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
+        ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
+        ent.ProcessedTime = sockBuffContext?.DeserializerTimestamp ?? DateTime.Now;
         ent.PQSequenceId = sequenceId;
-        var offset = dispatchContext.EncodedBuffer!.ReadCursor;
+        var offset = readContext.EncodedBuffer!.ReadCursor;
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");
-        fixed (byte* fptr = dispatchContext.EncodedBuffer.Buffer)
+        fixed (byte* fptr = readContext.EncodedBuffer.Buffer)
         {
-            var ptr = fptr + offset;
-            var end = ptr + dispatchContext.MessageSize;
+            var msgHeader = fptr + offset;
+            var msgSizePtr = msgHeader + PQQuoteMessageHeader.MessageSizeOffset;
+            var msgSize = StreamByteOps.ToUInt(ref msgSizePtr);
+            var end = msgHeader + msgSize;
+            var version = *msgHeader;
+            if (version < SupportFromVersion || version > SupportToVersion)
+            {
+                logger.Warn("Received unsupported message version {0} will skip processing", version);
+                return;
+            }
+
+            var ptr = msgHeader + PQQuoteMessageHeader.HeaderSize;
+
             while (ptr < end)
             {
                 var flags = *ptr++;

@@ -26,7 +26,7 @@ public abstract class PQSocketSubscriptionRegistrationFactoryBase<T> : IPQSocket
 
     public T RegisterSocketSubscriber(string socketUseDescription, IConnectionConfig cfg, uint streamId,
         ISocketDispatcher dispatcher, int wholeMessagesPerReceive,
-        IPQQuoteSerializerFactory pqQuoteSerializerFactory, string? multicastInterface = null)
+        IPQQuoteSerializerRepository ipqQuoteSerializerRepository, string? multicastInterface = null)
     {
         T? socketClient;
         lock (syncLock)
@@ -34,7 +34,7 @@ public abstract class PQSocketSubscriptionRegistrationFactoryBase<T> : IPQSocket
             if (!socketSubscriptions.TryGetValue(cfg, out socketClient))
             {
                 socketClient = CreateNewSocketSubscriptionType(dispatcher, networkingController, cfg,
-                    socketUseDescription, 5, wholeMessagesPerReceive, pqQuoteSerializerFactory, multicastInterface);
+                    socketUseDescription, 5, wholeMessagesPerReceive, ipqQuoteSerializerRepository, multicastInterface);
                 socketSubscriptions[cfg] = socketClient;
             }
 
@@ -68,7 +68,7 @@ public abstract class PQSocketSubscriptionRegistrationFactoryBase<T> : IPQSocket
         IOSNetworkingController networkingController,
         IConnectionConfig connectionConfig,
         string socketUseDescription, uint cxTimeoutS, int wholeMessagesPerReceive,
-        IPQQuoteSerializerFactory pqQuoteSerializerFactory, string? multicastInterface);
+        IPQQuoteSerializerRepository ipqQuoteSerializerRepository, string? multicastInterface);
 
 
     private static void NoOp(IPQLevel0Quote ent, object state, ISession cx) { }

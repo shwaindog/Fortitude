@@ -49,17 +49,16 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
                 var ptr = fptr + writeOffset;
                 var messageStart = ptr;
                 var end = fptr + buffer.Length;
-
-                *ptr++ = message.Version;
-                *ptr++ = (byte)PQBinaryMessageFlags.IsHeartBeat;
-
                 var quotes = message as IEnumerable<IPQLevel0Quote>;
-                var messageSize = ptr;
-                ptr += sizeof(uint);
-
                 if (quotes != null)
                     foreach (var quote in quotes)
                     {
+                        *ptr++ = message.Version;
+                        *ptr++ = (byte)PQBinaryMessageFlags.IsHeartBeat;
+
+                        var messageSize = ptr;
+                        ptr += sizeof(uint);
+
                         if (ptr + HeartbeatSize > end) return -1;
                         quote.Lock.Acquire();
                         try
@@ -71,14 +70,12 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
                         {
                             quote.Lock.Release();
                         }
-                        /*Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} {quote.SourceTickerQuoteInfo.Source}-" +
-                                              $"{quote.SourceTickerQuoteInfo.Ticker}:" +
-                                              $"{quote.PQSequenceId} -> heartbeat");*/
+
+                        StreamByteOps.ToBytes(ref messageSize
+                            , PQQuoteMessageHeader.HeaderSize); // just a heartbeat header
                     }
 
-                StreamByteOps.ToBytes(ref messageSize, (uint)(ptr - messageStart));
                 message.DecrementRefCount();
-
                 return (int)(ptr - messageStart);
             }
 

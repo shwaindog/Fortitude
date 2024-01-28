@@ -12,7 +12,7 @@ public interface IPQSocketSubscriptionRegristrationFactory<out T> where T : ISoc
 {
     T RegisterSocketSubscriber(string socketUseDescription, IConnectionConfig cfg, uint streamId,
         ISocketDispatcher dispatcher, int wholeMessagesPerReceive,
-        IPQQuoteSerializerFactory pqQuoteSerializerFactory, string? multicastInterface = null);
+        IPQQuoteSerializerRepository ipqQuoteSerializerRepository, string? multicastInterface = null);
 
     void UnregisterSocketSubscriber(IConnectionConfig cfg, uint streamId);
     T? FindSocketSubscription(IConnectionConfig configKey);

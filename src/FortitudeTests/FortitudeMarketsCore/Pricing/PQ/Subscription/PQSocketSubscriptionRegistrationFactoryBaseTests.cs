@@ -7,7 +7,6 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -32,7 +31,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         dummySktSubRegFctryBs = null!;
 
     private SocketSubscriberTests.DummySocketSubscriber dummySocketSubscriber = null!;
-    private Mock<IBinaryDeserializationFactory> moqBinaryDeserializationFactory = null!;
+    private Mock<IMessageIdDeserializationRepository> moqBinaryDeserializationFactory = null!;
     private Mock<IBinaryStreamPublisher> moqBinaryStreamPublisher = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
@@ -41,7 +40,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializationFactory = null!;
+    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private int recvBufferSize;
@@ -66,9 +65,9 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         wholeMessagesPerReceive = 23;
         recvBufferSize = 1234567;
         moqBinaryStreamPublisher = new Mock<IBinaryStreamPublisher>();
-        moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerFactory>();
+        moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqFeedDecoder = new Mock<IMessageStreamDecoder>();
-        moqBinaryDeserializationFactory = new Mock<IBinaryDeserializationFactory>();
+        moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
@@ -110,7 +109,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
     {
         var socketClient = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
             moqServerConnectionConfig.Object, uint.MaxValue, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationFactory.Object, "multicastInterfaceIP");
+            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
 
         Assert.IsNotNull(socketClient);
         Assert.AreSame(dummySocketSubscriber, socketClient);
@@ -131,7 +130,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
     {
         var socketClient = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
             moqServerConnectionConfig.Object, uint.MaxValue, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationFactory.Object, "multicastInterfaceIP");
+            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
 
         var socketSubscriptions = NonPublicInvocator.GetInstanceField<IDictionary<IConnectionConfig,
             SocketSubscriberTests.DummySocketSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
@@ -161,10 +160,10 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
 
         var socketClient = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
             moqServerConnectionConfig.Object, uint.MaxValue, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationFactory.Object, "multicastInterfaceIP");
+            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
         var socketClient2 = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
             moqServerConnectionConfig.Object, 1, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationFactory.Object, "multicastInterfaceIP");
+            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
 
         var socketSubscriptions = NonPublicInvocator.GetInstanceField<IDictionary<IConnectionConfig,
             SocketSubscriberTests.DummySocketSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
@@ -209,7 +208,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         protected override T CreateNewSocketSubscriptionType(ISocketDispatcher dispatcher,
             IOSNetworkingController networkingController,
             IConnectionConfig connectionConfig, string socketUseDescription, uint cxTimeoutS,
-            int wholeMessagesPerReceive, IPQQuoteSerializerFactory pqQuoteSerializerFactory,
+            int wholeMessagesPerReceive, IPQQuoteSerializerRepository ipqQuoteSerializerRepository,
             string? multicastInterface) =>
             ReturnedSocketSubscriber;
     }

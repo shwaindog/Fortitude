@@ -1,6 +1,6 @@
 #region
 
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion
 

@@ -3,7 +3,7 @@
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Logging;
@@ -18,7 +18,6 @@ namespace FortitudeTests.FortitudeIO.Transports.Sockets.Dispatcher;
 [TestClass]
 public class SocketDispatcherListenerTests
 {
-    private DispatchContext dispatchContext = null!;
     private List<ISocketSessionConnection> firstListOfSocketsWithUpdate = null!;
     private Mock<IOSThread> moqOsThread = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
@@ -31,6 +30,7 @@ public class SocketDispatcherListenerTests
     private Mock<ISocketSelector> moqSocketSelector = null!;
     private Mock<ISocketSessionConnection> moqSocketSessionConnection = null!;
     private Mock<ISocketSessionReceiver> moqSocketSessionReceiver = null!;
+    private ReadSocketBufferContext readSocketBufferContext = null!;
     private ThreadStart rootMethod = null!;
     private SocketDispatcherListener socketDispatcherListener = null!;
     private DateTime wakeTime;
@@ -65,8 +65,8 @@ public class SocketDispatcherListenerTests
         moqSocketSessionConnection = new Mock<ISocketSessionConnection>();
         moqSocketSessionReceiver = new Mock<ISocketSessionReceiver>();
         moqSocketSessionConnection.SetupGet(ssc => ssc.SessionReceiver).Returns(moqSocketSessionReceiver.Object);
-        dispatchContext = NonPublicInvocator.GetInstanceField<DispatchContext>(
-            socketDispatcherListener, "dispatchContext");
+        readSocketBufferContext = NonPublicInvocator.GetInstanceField<ReadSocketBufferContext>(
+            socketDispatcherListener, "readSocketBufferContext");
     }
 
     [TestCleanup]
@@ -128,11 +128,11 @@ public class SocketDispatcherListenerTests
     public void SocketWithUpdate_ReceiveDataReturnsFalse_ErrorIsLoggedAndConnectionErrorIsRaised()
     {
         PrepareOneSuccessfulReceive();
-        moqSocketSessionReceiver.Setup(ssc => ssc.ReceiveData(dispatchContext))
+        moqSocketSessionReceiver.Setup(ssc => ssc.ReceiveData(readSocketBufferContext))
             .Callback(() =>
             {
-                Assert.AreEqual(wakeTime, dispatchContext.DetectTimestamp);
-                Assert.AreEqual(moqPerfLogger.Object, dispatchContext.DispatchLatencyLogger);
+                Assert.AreEqual(wakeTime, readSocketBufferContext.DetectTimestamp);
+                Assert.AreEqual(moqPerfLogger.Object, readSocketBufferContext.DispatchLatencyLogger);
                 NonPublicInvocator.SetInstanceField(socketDispatcherListener, "Running", false);
             })
             .Returns(false).Verifiable();
@@ -170,7 +170,7 @@ public class SocketDispatcherListenerTests
             .Returns(moqSocketSessionReceiverThrowsException.Object);
         moqSocketSessionReceiverThrowsException.SetupGet(ssc => ssc.IsAcceptor).Returns(false).Verifiable();
         moqSocketSessionReceiverThrowsException.Setup(ssc =>
-                ssc.ReceiveData(dispatchContext))
+                ssc.ReceiveData(readSocketBufferContext))
             .Throws(new SocketBufferTooFullException("Test Socket Buffer full")).Verifiable();
         moqSocketSessionThrowsException.Setup(scc =>
             scc.OnError(moqSocketSessionThrowsException.Object, It.IsRegex("Read error:.+"), 0)).Verifiable();
@@ -271,11 +271,11 @@ public class SocketDispatcherListenerTests
         moqSocketSessionReceiver.SetupGet(ssc => ssc.IsAcceptor).Returns(false).Verifiable();
         wakeTime = new DateTime(2017, 04, 21, 22, 33, 23);
         moqSocketSelector.SetupGet(ss => ss.WakeTs).Returns(wakeTime).Verifiable();
-        moqSocketSessionReceiver.Setup(ssc => ssc.ReceiveData(dispatchContext))
+        moqSocketSessionReceiver.Setup(ssc => ssc.ReceiveData(readSocketBufferContext))
             .Callback(() =>
             {
-                Assert.AreEqual(wakeTime, dispatchContext.DetectTimestamp);
-                Assert.AreEqual(moqPerfLogger.Object, dispatchContext.DispatchLatencyLogger);
+                Assert.AreEqual(wakeTime, readSocketBufferContext.DetectTimestamp);
+                Assert.AreEqual(moqPerfLogger.Object, readSocketBufferContext.DispatchLatencyLogger);
                 NonPublicInvocator.SetInstanceField(socketDispatcherListener, "Running", false);
             })
             .Returns(true).Verifiable();

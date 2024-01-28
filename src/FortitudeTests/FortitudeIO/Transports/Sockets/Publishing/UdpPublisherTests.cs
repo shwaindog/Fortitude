@@ -8,7 +8,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -41,8 +40,8 @@ public class UdpPublisherTests
     private static Mock<NetworkInterface> moqAllGoodNic = null!;
     private DummyUdpPublisher dummyUdpPublisher = null!;
     private string hostname = null!;
-    private Mock<IBinaryDeserializationFactory> moqBinaryDeserializationFactory = null!;
-    private Mock<IBinarySerializationFactory> moqBinSerialFac = null!;
+    private Mock<IMessageIdDeserializationRepository> moqBinaryDeserializationFactory = null!;
+    private Mock<IMessageIdSerializationRepository> moqBinSerialFac = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
     private Mock<IFLogger> moqFLogger = null!;
@@ -71,11 +70,11 @@ public class UdpPublisherTests
         multicaseInterface = "testMulticastInterface";
         hostname = "testHostName";
         multiCastIPAddress = IPAddress.Parse("192.168.1.50");
-        moqBinSerialFac = new Mock<IBinarySerializationFactory>();
+        moqBinSerialFac = new Mock<IMessageIdSerializationRepository>();
         moqSocket = new Mock<IOSSocket>();
         moqSocket.SetupAllProperties();
         moqFeedDecoder = new Mock<IMessageStreamDecoder>();
-        moqBinaryDeserializationFactory = new Mock<IBinaryDeserializationFactory>();
+        moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqNetworkingController.Setup(nc => nc.GetIpAddress(It.IsAny<string>()))
             .Callback<string>(requestedResolve => { receivedMulticastLookupRequest = requestedResolve; })
@@ -277,50 +276,50 @@ public class UdpPublisherTests
 
     private class DummyUdpPublisher : UdpPublisher
     {
-        private readonly IBinarySerializationFactory binarySerializationFactory;
-        private readonly IBinaryDeserializationFactory deserializationFactory;
-        private readonly IMessageStreamDecoder streamMessageStreamDecoder;
+        private readonly IMessageIdDeserializationRepository deserializationRepository;
+        private readonly IMessageIdSerializationRepository messageIdSerializationRepository;
+        private readonly IMessageStreamDecoder messageStreamDecoder;
 
         public DummyUdpPublisher(IFLogger logger, ISocketDispatcher dispatcher,
             IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
             string sessionDescription, string? multicastInterface,
-            IBinarySerializationFactory binarySerializationFactory
-            , IMessageStreamDecoder streamMessageStreamDecoder,
-            IBinaryDeserializationFactory deserializationFactory)
+            IMessageIdSerializationRepository messageIdSerializationRepository
+            , IMessageStreamDecoder messageStreamDecoder,
+            IMessageIdDeserializationRepository deserializationRepository)
             : base(logger, dispatcher, networkingController,
                 connectionConfig, sessionDescription, multicastInterface)
         {
-            this.binarySerializationFactory = binarySerializationFactory;
-            this.streamMessageStreamDecoder = streamMessageStreamDecoder;
-            this.deserializationFactory = deserializationFactory;
+            this.messageIdSerializationRepository = messageIdSerializationRepository;
+            this.messageStreamDecoder = messageStreamDecoder;
+            this.deserializationRepository = deserializationRepository;
         }
 
         public override int SendBufferSize => 34567;
 
         public ISocketSessionConnection? UdpPublisherAcceptor => PublisherConnection;
 
-        public override IBinarySerializationFactory GetFactory() => binarySerializationFactory;
+        public override IMessageIdSerializationRepository GetFactory() => messageIdSerializationRepository;
 
         protected override UdpSubscriber BuildSubscriber(UdpPublisher publisher) =>
             new DummyUdpSubscriber(this, Logger, Dispatcher, NetworkingController, ConnectionConfig,
-                SessionDescription, 1, null, streamMessageStreamDecoder, deserializationFactory);
+                SessionDescription, 1, null, messageStreamDecoder, deserializationRepository);
 
         internal class DummyUdpSubscriber : UdpSubscriber
         {
-            private readonly IBinaryDeserializationFactory deserializationFactory;
-            private readonly IMessageStreamDecoder streamMessageStreamDecoder;
+            private readonly IMessageIdDeserializationRepository deserializationRepository;
+            private readonly IMessageStreamDecoder messageStreamDecoder;
 
             public DummyUdpSubscriber(UdpPublisher udpPublisher, IFLogger logger, ISocketDispatcher dispatcher,
                 IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
                 string sessionDescription, int wholeMessagesPerReceive,
                 IMap<uint, IMessageDeserializer>? serializerCache,
-                IMessageStreamDecoder streamMessageStreamDecoder
-                , IBinaryDeserializationFactory deserializationFactory)
+                IMessageStreamDecoder messageStreamDecoder
+                , IMessageIdDeserializationRepository deserializationRepository)
                 : base(udpPublisher, logger, dispatcher, networkingController,
                     connectionConfig, sessionDescription, wholeMessagesPerReceive, serializerCache)
             {
-                this.streamMessageStreamDecoder = streamMessageStreamDecoder;
-                this.deserializationFactory = deserializationFactory;
+                this.messageStreamDecoder = messageStreamDecoder;
+                this.deserializationRepository = deserializationRepository;
             }
 
             public override int RecvBufferSize => 123456;
@@ -333,9 +332,9 @@ public class UdpPublisherTests
 
             public override IMessageStreamDecoder GetDecoder(
                 IMap<uint, IMessageDeserializer> decoderDeserializers) =>
-                streamMessageStreamDecoder;
+                messageStreamDecoder;
 
-            protected override IBinaryDeserializationFactory GetFactory() => deserializationFactory;
+            protected override IMessageIdDeserializationRepository GetFactory() => deserializationRepository;
 
             public IOSSocket UdpSubscriberCreateAndConnect(string host, int port) => CreateAndConnect(host, port);
         }

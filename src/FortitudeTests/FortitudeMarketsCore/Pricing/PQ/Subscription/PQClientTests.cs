@@ -40,7 +40,7 @@ public class PQClientTests
     private Mock<IPQDeserializer<PQLevel2Quote>> moqPQLvl2QuoteSerializer = null!;
     private Mock<IPQDeserializer<PQLevel3Quote>> moqPQLvl3QuoteSerializer = null!;
     private Mock<IPQDeserializer> moqPQQuoteSerializer = null!;
-    private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializerFactory = null!;
+    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializerRepo = null!;
     private Mock<IPricingServersConfigRepository> moqPricingServersConfigRepo = null!;
     private Mock<IMutableSourceTickerPublicationConfig> moqSecondTestTickerPublicationConfig = null!;
     private Mock<IIntraOSThreadSignal> moqSingleOsThreadSignal = null!;
@@ -160,7 +160,8 @@ public class PQClientTests
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.CheckStartMonitoring()).Verifiable();
 
         NonPublicInvocator.SetInstanceField(pqClient, "pqClientSyncMonitoring", moqPQClientSyncMonitoring.Object);
-        NonPublicInvocator.SetInstanceField(pqClient, "factory", moqPQQuoteSerializerFactory.Object);
+        NonPublicInvocator.SetInstanceField(pqClient, "snapshotSerializationRepository"
+            , moqPQQuoteSerializerRepo.Object);
 
         moqUpdateServerConfig = new Mock<IConnectionConfig>();
         moqUpdateServerConfig.SetupGet(scc => scc.NetworkSubAddress).Returns("123.0.0.123").Verifiable();
@@ -174,11 +175,11 @@ public class PQClientTests
 
         moqUpdateClientFactory.Setup(sscf => sscf.RegisterSocketSubscriber(It.IsAny<string>(),
                 moqUpdateServerConfig.Object, firstSourceTickerPublicationConfigId, moqFirstSocketDispatcher.Object, 1,
-                moqPQQuoteSerializerFactory.Object, It.IsAny<string>())).Returns(new Mock<IPQUpdateClient>().Object)
+                moqPQQuoteSerializerRepo.Object, It.IsAny<string>())).Returns(new Mock<IPQUpdateClient>().Object)
             .Verifiable();
         moqSnapshotClientFactory.Setup(sscf => sscf.RegisterSocketSubscriber(It.IsAny<string>(),
             moqSnapshotServerConfig.Object, firstSourceTickerPublicationConfigId, moqFirstSocketDispatcher.Object, 1,
-            moqPQQuoteSerializerFactory.Object, null)).Returns(new Mock<IPQSnapshotClient>().Object).Verifiable();
+            moqPQQuoteSerializerRepo.Object, null)).Returns(new Mock<IPQSnapshotClient>().Object).Verifiable();
     }
 
     private void PrepareQuoteLevelMocks()
@@ -207,17 +208,17 @@ public class PQClientTests
                 pql0Qs.Subscribe(It.IsAny<PQTickerFeedSubscriptionQuoteStream<PQLevel3Quote>>()))
             .Returns(moqDeserializerSubscription.Object).Verifiable();
 
-        moqPQQuoteSerializerFactory = new Mock<IPQQuoteSerializerFactory>();
-        moqPQQuoteSerializerFactory.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel0Quote>(
+        moqPQQuoteSerializerRepo = new Mock<IPQQuoteSerializerRepository>();
+        moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel0Quote>(
                 It.IsAny<ISourceTickerClientAndPublicationConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
-        moqPQQuoteSerializerFactory.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel1Quote>(
+        moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel1Quote>(
                 It.IsAny<ISourceTickerClientAndPublicationConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
-        moqPQQuoteSerializerFactory.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel2Quote>(
+        moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel2Quote>(
                 It.IsAny<ISourceTickerClientAndPublicationConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
-        moqPQQuoteSerializerFactory.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel3Quote>(
+        moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel3Quote>(
                 It.IsAny<ISourceTickerClientAndPublicationConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
 
@@ -310,7 +311,7 @@ public class PQClientTests
         Assert.IsNotNull(result);
         sourceTickerQuoteInfo.Verify();
         moqPricingServersConfigRepo.Verify();
-        moqPQQuoteSerializerFactory.Verify();
+        moqPQQuoteSerializerRepo.Verify();
         moqPQClientSyncMonitoring.Verify();
         moqFirstSocketDispatcher.Verify();
         moqUpdateClientFactory.Verify();
@@ -352,7 +353,7 @@ public class PQClientTests
 
         subQuoteStream!.Unsubscribe();
 
-        moqPQQuoteSerializerFactory.Verify();
+        moqPQQuoteSerializerRepo.Verify();
         moqUpdateClientFactory.Verify();
         moqSnapshotClientFactory.Verify();
         moqPQClientSyncMonitoring.Verify();
@@ -360,9 +361,9 @@ public class PQClientTests
 
     private void PrepareUnsubscribeMocks()
     {
-        moqPQQuoteSerializerFactory.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
+        moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
             moqFirstTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object);
-        moqPQQuoteSerializerFactory.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
+        moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
             moqSecondTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object);
         moqUpdateClientFactory.Setup(sscf => sscf.UnregisterSocketSubscriber(moqUpdateServerConfig.Object,
             firstSourceTickerPublicationConfigId)).Verifiable();
@@ -371,7 +372,7 @@ public class PQClientTests
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.UnregisterSerializer(It.IsAny<IPQDeserializer>()))
             .Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.CheckStopMonitoring()).Verifiable();
-        moqPQQuoteSerializerFactory.SetupGet(pqqsf => pqqsf.HasPictureDeserializers).Returns(false).Verifiable();
+        moqPQQuoteSerializerRepo.SetupGet(pqqsf => pqqsf.HasPictureDeserializers).Returns(false).Verifiable();
     }
 
     [TestMethod]
@@ -414,7 +415,7 @@ public class PQClientTests
             moqSecondTestTickerPublicationConfig);
 
         Assert.AreNotEqual(firstSub, secondSub);
-        moqPQQuoteSerializerFactory.Reset();
+        moqPQQuoteSerializerRepo.Reset();
         moqPQQuoteSerializer.Reset();
         moqFirstTestTickerPublicationConfig.Reset();
         moqFirstTestTickerPublicationConfig.SetupGet(stpc => stpc.Ticker)
@@ -425,7 +426,7 @@ public class PQClientTests
             .Returns(secondTestTicker);
         moqFirstTestTickerPublicationConfig.As<ISourceTickerQuoteInfo>().SetupGet(stpc => stpc.Source)
             .Returns(secondTestSourceName);
-        moqPQQuoteSerializerFactory.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
+        moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
             moqFirstTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object).Verifiable();
         moqUpdateClientFactory.Setup(sscf => sscf.UnregisterSocketSubscriber(moqUpdateServerConfig.Object,
             firstSourceTickerPublicationConfigId)).Verifiable();
@@ -433,11 +434,11 @@ public class PQClientTests
             firstSourceTickerPublicationConfigId)).Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.UnregisterSerializer(It.IsAny<IPQDeserializer>()))
             .Verifiable();
-        moqPQQuoteSerializerFactory.SetupGet(pqqsf => pqqsf.HasPictureDeserializers).Returns(true).Verifiable();
+        moqPQQuoteSerializerRepo.SetupGet(pqqsf => pqqsf.HasPictureDeserializers).Returns(true).Verifiable();
 
         firstSub.Unsubscribe();
 
-        moqPQQuoteSerializerFactory.Verify();
+        moqPQQuoteSerializerRepo.Verify();
         moqUpdateClientFactory.Verify();
         moqSnapshotClientFactory.Verify();
         moqPQClientSyncMonitoring.Verify();
@@ -453,7 +454,7 @@ public class PQClientTests
             moqSecondTestTickerPublicationConfig);
 
         Assert.AreNotEqual(firstSub, secondSub);
-        moqPQQuoteSerializerFactory.Reset();
+        moqPQQuoteSerializerRepo.Reset();
         moqFirstTestTickerPublicationConfig.Reset();
         moqSecondTestTickerPublicationConfig.Reset();
         moqPQQuoteSerializer.Reset();
@@ -465,12 +466,12 @@ public class PQClientTests
             .Returns(secondTestTicker);
         moqSecondTestTickerPublicationConfig.As<ISourceTickerPublicationConfig>().SetupGet(stpc => stpc.Id)
             .Returns(secondSourceTickerPublicationConfigId);
-        moqPQQuoteSerializerFactory.SetupGet(pqqsf => pqqsf.HasPictureDeserializers).Returns(false).Verifiable();
+        moqPQQuoteSerializerRepo.SetupGet(pqqsf => pqqsf.HasPictureDeserializers).Returns(false).Verifiable();
         PrepareUnsubscribeMocks();
 
         pqClient.Dispose();
 
-        moqPQQuoteSerializerFactory.Verify();
+        moqPQQuoteSerializerRepo.Verify();
         moqUpdateClientFactory.Verify();
         moqSnapshotClientFactory.Verify();
         moqPQClientSyncMonitoring.Verify();

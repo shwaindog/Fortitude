@@ -95,14 +95,16 @@ public class PQHeartbeatSerializerTests
         {
             var startWritten = bufferPtr + BufferReadWriteOffset;
             var currPtr = bufferPtr + BufferReadWriteOffset;
-            var protocolVersion = *currPtr++;
-            Assert.AreEqual(1, protocolVersion);
-            var messageFlags = *currPtr++;
-            Assert.AreEqual((byte)PQBinaryMessageFlags.IsHeartBeat, messageFlags);
-            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual((uint)amtWritten, messagesTotalSize);
+            Assert.AreEqual(amtWritten
+                , PQQuoteMessageHeader.HeaderSize * firstBatchOfQuotes.QuotesToSendHeartBeats.Count);
             foreach (var firstBatchOfQuote in firstBatchOfQuotes)
             {
+                var protocolVersion = *currPtr++;
+                Assert.AreEqual(1, protocolVersion);
+                var messageFlags = *currPtr++;
+                Assert.AreEqual((byte)PQBinaryMessageFlags.IsHeartBeat, messageFlags);
+                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize);
                 var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
                 Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
                 var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
@@ -120,14 +122,16 @@ public class PQHeartbeatSerializerTests
         {
             var startWritten = bufferPtr + readWriteBuffer.ReadCursor;
             var currPtr = bufferPtr + readWriteBuffer.ReadCursor;
-            var protocolVersion = *currPtr++;
-            Assert.AreEqual(1, protocolVersion);
-            var messageFlags = *currPtr++;
-            Assert.AreEqual((byte)PQBinaryMessageFlags.IsHeartBeat, messageFlags);
-            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual((uint)amtWritten, messagesTotalSize);
+            Assert.AreEqual(amtWritten
+                , PQQuoteMessageHeader.HeaderSize * secondBatchOfQuotes.QuotesToSendHeartBeats.Count);
             foreach (var firstBatchOfQuote in secondBatchOfQuotes)
             {
+                var protocolVersion = *currPtr++;
+                Assert.AreEqual(1, protocolVersion);
+                var messageFlags = *currPtr++;
+                Assert.AreEqual((byte)PQBinaryMessageFlags.IsHeartBeat, messageFlags);
+                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize);
                 var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
                 Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
                 var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);

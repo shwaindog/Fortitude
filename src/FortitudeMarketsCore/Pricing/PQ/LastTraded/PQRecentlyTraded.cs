@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -11,6 +12,15 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.LastTraded;
+
+public interface IPQRecentlyTraded : IMutableRecentlyTraded,
+    IPQSupportsFieldUpdates<IRecentlyTraded>, IPQSupportsStringUpdates<IRecentlyTraded>,
+    IEnumerable<IPQLastTrade>, IRelatedItem<IPQSourceTickerQuoteInfo>, IRelatedItem<IPQLastTrade>
+{
+    new IPQLastTrade? this[int index] { get; set; }
+    new IPQRecentlyTraded Clone();
+    new IEnumerator<IPQLastTrade> GetEnumerator();
+}
 
 public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTraded
 {

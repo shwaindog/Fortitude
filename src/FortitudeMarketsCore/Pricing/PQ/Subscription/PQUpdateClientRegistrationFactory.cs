@@ -16,10 +16,10 @@ public class PQUpdateClientRegistrationFactory : PQSocketSubscriptionRegistratio
     protected override PQUpdateClient CreateNewSocketSubscriptionType(ISocketDispatcher dispatcher,
         IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
         string socketUseDescription, uint cxTimeoutS, int wholeMessagesPerReceive,
-        IPQQuoteSerializerFactory pqQuoteSerializerFactory, string? multicastInterface)
+        IPQQuoteSerializerRepository ipqQuoteSerializerRepository, string? multicastInterface)
     {
         var pqUpdateClient = new PQUpdateClient(dispatcher, networkingController, connectionConfig,
-            socketUseDescription, multicastInterface, wholeMessagesPerReceive, pqQuoteSerializerFactory);
+            socketUseDescription, multicastInterface, wholeMessagesPerReceive, ipqQuoteSerializerRepository);
         pqUpdateClient.Connect();
         return pqUpdateClient;
     }

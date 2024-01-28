@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization.SyncState;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -17,28 +16,15 @@ public class InitializationStateTests : SynchronisingStateTests
 
     protected override void BuildSyncState()
     {
-        syncState = new InitializationState<PQLevel0Quote>(MoqPqQuoteStreamDeserializer.Object);
+        syncState = new InitializationState<PQLevel0Quote>(pqQuoteStreamDeserializer);
     }
 
     [TestMethod]
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 0);
-        var dispatchContext = deserializeInputList.First();
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(true).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 0))
-            .Verifiable();
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.OnSyncOk(MoqPqQuoteStreamDeserializer.Object)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.SwitchSyncState(QuoteSyncState.InSync)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.PushQuoteToSubscribers(PQSyncStatus.Good,
-            MoqDispatchPerfLogger.Object)).Verifiable();
-
-
+            PQFeedType.Update, uint.MaxValue); // sequenceId will roll over to 0 as is incremented during serialization;
+        var sockBuffContext = deserializeInputList.First();
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
             {
@@ -49,25 +35,18 @@ public class InitializationStateTests : SynchronisingStateTests
                 Assert.AreEqual(0u, strParams[1]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
     [TestMethod]
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdateCantSync_LogsProblem()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 0);
-        var dispatchContext = deserializeInputList.First();
-
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(false).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 0))
-            .Verifiable();
+            PQFeedType.Update, 10);
+        var sockBuffContext = deserializeInputList.First();
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -78,13 +57,14 @@ public class InitializationStateTests : SynchronisingStateTests
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
                 Assert.AreEqual(0u, strParams[1]);
                 Assert.AreEqual(0u, strParams[2]);
-                Assert.AreEqual(0u, strParams[3]);
+                Assert.AreEqual(11u, strParams[3]);
             }).Verifiable();
-
-        syncState.ProcessInState(dispatchContext);
+        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
+            PQFeedType.Update, uint.MaxValue); // will roll over to SequenceId = 0 on update generation.
+        sockBuffContext = deserializeInputList.First();
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
     [TestMethod]
@@ -92,20 +72,7 @@ public class InitializationStateTests : SynchronisingStateTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Snapshot, 0);
-        var dispatchContext = deserializeInputList.First();
-
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(true).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 0))
-            .Verifiable();
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.OnSyncOk(MoqPqQuoteStreamDeserializer.Object)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.SwitchSyncState(QuoteSyncState.InSync)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.PushQuoteToSubscribers(PQSyncStatus.Good,
-            MoqDispatchPerfLogger.Object)).Verifiable();
-
+        var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -119,25 +86,18 @@ public class InitializationStateTests : SynchronisingStateTests
                 Assert.AreEqual(0u, strParams[3]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
-
     [TestMethod]
-    public override void NewSyncState_ProcessInStateProcessSnapshotCantSync_LogsProblem()
+    public void NewSyncState_ProcessInStateProcessSnapshotCantSync_LogsProblem()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Snapshot, 0);
-        var dispatchContext = deserializeInputList.First();
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(false).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 0))
-            .Verifiable();
+            PQFeedType.Update, 10);
+        var sockBuffContext = deserializeInputList.First();
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -148,12 +108,15 @@ public class InitializationStateTests : SynchronisingStateTests
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
                 Assert.AreEqual(0u, strParams[1]);
                 Assert.AreEqual(0u, strParams[2]);
-                Assert.AreEqual(0u, strParams[3]);
+                Assert.AreEqual(11u, strParams[3]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
+            PQFeedType.Snapshot, 0);
+        sockBuffContext = deserializeInputList.First();
+
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 }

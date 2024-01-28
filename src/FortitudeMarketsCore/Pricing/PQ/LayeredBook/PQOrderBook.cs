@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
@@ -12,6 +13,18 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
+
+public interface IPQOrderBook : IMutableOrderBook, IPQSupportsFieldUpdates<IOrderBook>,
+    IPQSupportsStringUpdates<IOrderBook>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBook>,
+    IRelatedItem<IPQSourceTickerQuoteInfo>, IRelatedItem<IPQPriceVolumeLayer>
+
+{
+    new IPQPriceVolumeLayer? this[int level] { get; set; }
+    IList<IPQPriceVolumeLayer?> AllLayers { get; set; }
+    new bool HasUpdates { get; set; }
+    new IPQOrderBook Clone();
+    new IEnumerator<IPQPriceVolumeLayer> GetEnumerator();
+}
 
 public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 {
@@ -54,6 +67,10 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public static IPQOrderBookLayerFactorySelector LayerSelector { get; set; }
         = new PQOrderBookLayerFactorySelector();
+
+    protected string PQOrderBookToStringMembers =>
+        $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, " +
+        $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
 
     public IPQPriceVolumeLayer? this[int level]
     {
@@ -208,14 +225,12 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             var foundAtIndex = false;
             if (i < AllLayers.Count)
             {
-                var newDestinationLayer = AllLayers[i] ?? destinationLayer;
+                var newDestinationLayer = AllLayers[i];
                 foundAtIndex = !ReferenceEquals(newDestinationLayer, destinationLayer);
                 destinationLayer = newDestinationLayer;
             }
 
-            destinationLayer = LayerSelector.SelectPriceVolumeLayer(
-                foundAtIndex ? destinationLayer : destinationLayer?.Clone()
-                , sourcelayer);
+            destinationLayer = LayerSelector.SelectPriceVolumeLayer(destinationLayer, sourcelayer);
             AllLayers[i] = destinationLayer;
             destinationLayer?.CopyFrom(sourcelayer);
         }
@@ -275,7 +290,5 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public override int GetHashCode() => AllLayers != null ? AllLayers.GetHashCode() : 0;
 
-    public override string ToString() =>
-        $"PQOrderBook {{ {nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, " +
-        $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}] }}";
+    public override string ToString() => $"{GetType().Name}({PQOrderBookToStringMembers})";
 }

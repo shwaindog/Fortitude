@@ -11,6 +11,17 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
 
+public interface IPQSourcePriceVolumeLayer : IMutableSourcePriceVolumeLayer, IPQPriceVolumeLayer,
+    IPQSupportsStringUpdates<IPriceVolumeLayer>
+{
+    ushort SourceId { get; set; }
+    bool IsSourceNameUpdated { get; set; }
+    bool IsExecutableUpdated { get; set; }
+    IPQNameIdLookupGenerator SourceNameIdLookup { get; set; }
+
+    new IPQSourcePriceVolumeLayer Clone();
+}
+
 public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolumeLayer
 {
     protected LayerBooleanFlags LayerBooleanFlags;
@@ -54,6 +65,10 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
 
         SetFlagsSame(toClone);
     }
+
+    protected string PQSourcePriceVolumeLayerToStringMembers =>
+        $"{PQPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, " +
+        $"{nameof(Executable)}: {Executable}";
 
     public ushort SourceId
     {
@@ -257,8 +272,5 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
-    public override string ToString() =>
-        $"PQSourcePriceVolumeLayer {{ {nameof(Price)}: {Price:N5}, " +
-        $"{nameof(Volume)}: {Volume:N2}, {nameof(SourceName)}: {SourceName}, " +
-        $"{nameof(Executable)}: {Executable} }}";
+    public override string ToString() => $"{GetType().Name}({PQSourcePriceVolumeLayerToStringMembers})";
 }

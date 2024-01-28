@@ -9,6 +9,12 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
 
+public interface IPQValueDatePriceVolumeLayer : IMutableValueDatePriceVolumeLayer, IPQPriceVolumeLayer
+{
+    bool IsValueDateUpdated { get; set; }
+    new IPQValueDatePriceVolumeLayer Clone();
+}
+
 public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePriceVolumeLayer
 {
     private DateTime valueDate = DateTimeConstants.UnixEpoch;
@@ -24,6 +30,9 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
 
         SetFlagsSame(toClone);
     }
+
+    protected string PQValueDatePriceVolumeLayerToStringMembers =>
+        $"{PQPriceVolumeLayerToStringMembers}, {nameof(ValueDate)}: {ValueDate}";
 
     public DateTime ValueDate
     {
@@ -126,7 +135,5 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         }
     }
 
-    public override string ToString() =>
-        $"PQValueDatePriceVolumeLayer {{ {nameof(Price)}: {Price:N5}, " +
-        $"{nameof(Volume)}: {Volume:N2}, {nameof(ValueDate)}: {ValueDate} }}";
+    public override string ToString() => $"{GetType().Name}({PQValueDatePriceVolumeLayerToStringMembers})";
 }

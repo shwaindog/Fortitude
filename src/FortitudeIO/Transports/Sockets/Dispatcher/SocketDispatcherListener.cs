@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -19,7 +19,7 @@ public interface ISocketDispatcherListener : ISocketDispatcherCommon
 
 public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherListener
 {
-    private readonly DispatchContext dispatchContext = new();
+    private readonly ReadSocketBufferContext readSocketBufferContext = new();
     private readonly IPerfLoggerPool receiveSocketDispatcherLatencyTraceLoggerPool;
     private readonly ISocketSelector selector;
     private readonly ISocketDataLatencyLogger socketDataLatencyLogger;
@@ -72,7 +72,7 @@ public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherL
             try
             {
                 detectionToPublishLatencyTraceLogger = receiveSocketDispatcherLatencyTraceLoggerPool.StartNewTrace();
-                dispatchContext.DispatchLatencyLogger = detectionToPublishLatencyTraceLogger;
+                readSocketBufferContext.DispatchLatencyLogger = detectionToPublishLatencyTraceLogger;
                 numSockets = 0;
                 var sccWithSelectReturn = selector.WatchSocketsForRecv(detectionToPublishLatencyTraceLogger);
                 foreach (var scc in sccWithSelectReturn)
@@ -87,8 +87,8 @@ public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherL
                         bool connected;
                         try
                         {
-                            dispatchContext.DetectTimestamp = selector.WakeTs;
-                            connected = scc.SessionReceiver.ReceiveData(dispatchContext);
+                            readSocketBufferContext.DetectTimestamp = selector.WakeTs;
+                            connected = scc.SessionReceiver.ReceiveData(readSocketBufferContext);
                         }
                         catch (Exception ex)
                         {

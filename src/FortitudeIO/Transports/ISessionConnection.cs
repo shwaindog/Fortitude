@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -24,5 +24,5 @@ public interface ISessionSender
 public interface ISessionReceiver
 {
     void SetFeedDecoder(IMessageStreamDecoder addThisMessageStreamDecoder);
-    bool ReceiveData(DispatchContext dispatchContext);
+    bool ReceiveData(ReadSocketBufferContext readSocketBufferContext);
 }

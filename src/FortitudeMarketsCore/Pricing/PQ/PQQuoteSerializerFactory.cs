@@ -3,7 +3,6 @@
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
@@ -15,7 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 namespace FortitudeMarketsCore.Pricing.PQ;
 
-public sealed class PQQuoteSerializerFactory : IPQQuoteSerializerFactory
+public sealed class PQQuoteSerializerRepository : IPQQuoteSerializerRepository
 {
     private readonly IMap<uint, PQDeserializerBase> deserializers =
         new LinkedListCache<uint, PQDeserializerBase>();

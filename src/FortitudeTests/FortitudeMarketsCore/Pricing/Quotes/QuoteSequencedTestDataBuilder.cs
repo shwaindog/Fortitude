@@ -15,7 +15,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
 public class QuoteSequencedTestDataBuilder
 {
-    public void InitializeQuotes(IList<IPQLevel0Quote> initializeQuotes, int batchId)
+    public void InitializeQuotes(IList<IPQLevel0Quote> initializeQuotes, uint batchId)
     {
         foreach (var quote in initializeQuotes)
         {
@@ -26,7 +26,7 @@ public class QuoteSequencedTestDataBuilder
         }
     }
 
-    public void InitializeQuote(IMutableLevel0Quote initializeQuotes, int batchId)
+    public void InitializeQuote(IMutableLevel0Quote initializeQuotes, uint batchId)
     {
         SetupLevel0Quote(initializeQuotes, batchId);
         SetupLevel1Quote(initializeQuotes as IMutableLevel1Quote, batchId);
@@ -34,7 +34,7 @@ public class QuoteSequencedTestDataBuilder
         SetupLevel3Quote(initializeQuotes as IMutableLevel3Quote, batchId);
     }
 
-    public void InitalizePeriodSummary(IMutablePeriodSummary periodSummary, int batchId)
+    public void InitalizePeriodSummary(IMutablePeriodSummary periodSummary, uint batchId)
     {
         periodSummary.StartTime = new DateTime(2017, 11, 18, 20, 09, 11);
         periodSummary.StartBidPrice = 0.79324m;
@@ -50,11 +50,11 @@ public class QuoteSequencedTestDataBuilder
         periodSummary.EndTime = new DateTime(2017, 11, 18, 20, 09, 12);
     }
 
-    private void SetupLevel3Quote(IMutableLevel3Quote? pqLevel3Quote, int batchId)
+    private void SetupLevel3Quote(IMutableLevel3Quote? pqLevel3Quote, uint batchId)
     {
         if (pqLevel3Quote == null) return;
-        pqLevel3Quote.BatchId = (uint)batchId;
-        pqLevel3Quote.SourceQuoteReference = (uint)batchId;
+        pqLevel3Quote.BatchId = batchId;
+        pqLevel3Quote.SourceQuoteReference = batchId;
         pqLevel3Quote.ValueDate = new DateTime(2018, 1, 1, 14, 0, 0).AddHours(batchId);
 
         var toggleGivenBool = false;
@@ -80,7 +80,7 @@ public class QuoteSequencedTestDataBuilder
         }
     }
 
-    private void SetupLevel2Quote(IMutableLevel2Quote? level2Quote, int batchId)
+    private void SetupLevel2Quote(IMutableLevel2Quote? level2Quote, uint batchId)
     {
         if (level2Quote == null) return;
         var numLayers = level2Quote.BidBook.Capacity;
@@ -115,14 +115,13 @@ public class QuoteSequencedTestDataBuilder
         }
     }
 
-    private void SetupValueDateOnLayer(IMutableValueDatePriceVolumeLayer layer, bool isBidBook, int batchId)
+    private void SetupValueDateOnLayer(IMutableValueDatePriceVolumeLayer layer, bool isBidBook, uint batchId)
     {
-        if (layer == null) return;
         // can only transmit to hour fidelity.  It's only supposed to be Date not DateTime.
         layer.ValueDate = new DateTime(2017, 11, 26, 18, 0, 0).AddDays(batchId);
     }
 
-    private void SetupTraderDetailsOnLayer(IMutableTraderPriceVolumeLayer? layer, bool isBidBook, int batchId)
+    private void SetupTraderDetailsOnLayer(IMutableTraderPriceVolumeLayer? layer, bool isBidBook, uint batchId)
     {
         if (layer == null) return;
         for (var i = 0; i < 2; i++)
@@ -132,20 +131,20 @@ public class QuoteSequencedTestDataBuilder
         }
     }
 
-    private void SetupSourceQuoteRefOnLayer(IMutableSourceQuoteRefPriceVolumeLayer? layer, bool isBidBook, int batchId)
+    private void SetupSourceQuoteRefOnLayer(IMutableSourceQuoteRefPriceVolumeLayer? layer, bool isBidBook, uint batchId)
     {
         if (layer == null) return;
-        layer.SourceQuoteReference = (isBidBook ? 1000u : 5000u) + (uint)batchId;
+        layer.SourceQuoteReference = (isBidBook ? 1000u : 5000u) + batchId;
     }
 
-    private void SetupSourceNameOnLayer(IMutableSourcePriceVolumeLayer? layer, bool isBidBook, int batchId)
+    private void SetupSourceNameOnLayer(IMutableSourcePriceVolumeLayer? layer, bool isBidBook, uint batchId)
     {
         if (layer == null) return;
         layer.SourceName = "TestSourceName" + (isBidBook ? "_Bid_" : "_Ask_") + batchId;
         layer.Executable = true;
     }
 
-    private void SetupLevel1Quote(IMutableLevel1Quote? level1Quote, int batchId)
+    private void SetupLevel1Quote(IMutableLevel1Quote? level1Quote, uint batchId)
     {
         if (level1Quote == null) return;
         level1Quote.IsReplay = true;
@@ -170,7 +169,7 @@ public class QuoteSequencedTestDataBuilder
         InitalizePeriodSummary(level1Quote.PeriodSummary, batchId);
     }
 
-    private void SetupLevel0Quote(IMutableLevel0Quote level0Quote, int batchId)
+    private void SetupLevel0Quote(IMutableLevel0Quote level0Quote, uint batchId)
     {
         level0Quote.SinglePrice = 0.78568m + batchId * 0.00001m;
         level0Quote.SourceTime = new DateTime(2017, 07, 16, 15, 46, 00).Add(TimeSpan.FromSeconds(batchId * 10));
@@ -179,7 +178,7 @@ public class QuoteSequencedTestDataBuilder
         if (level0Quote is IPQLevel0Quote pqLevel0Quote)
         {
             pqLevel0Quote.PQSyncStatus = PQSyncStatus.Good;
-            pqLevel0Quote.PQSequenceId = (uint)batchId;
+            pqLevel0Quote.PQSequenceId = batchId;
             pqLevel0Quote.DispatchedTime = pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
             pqLevel0Quote.SocketReceivingTime =
                 pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 12));

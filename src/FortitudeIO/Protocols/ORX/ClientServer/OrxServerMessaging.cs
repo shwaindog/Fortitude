@@ -7,7 +7,6 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -28,14 +27,14 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
             socketUseDescription + " OrxServer")
     {
         RecyclingFactory = new Recycler();
-        Factory = new OrxSerializationFactory(RecyclingFactory);
+        OrxSerializationRepository = new OrxSerializationRepository(RecyclingFactory);
     }
 
     public override IBinaryStreamSubscriber StreamFromSubscriber =>
         clientStreamSubscriber ??= new OrxClientStreamSubscriber(
             Logger, Dispatcher, NetworkingController, SessionDescription, this);
 
-    internal OrxSerializationFactory Factory { get; }
+    internal OrxSerializationRepository OrxSerializationRepository { get; }
 
     public override int SendBufferSize => 131072;
 
@@ -50,7 +49,7 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
         instanceOfTypeToSerialize.DecrementRefCount();
     }
 
-    public override IBinarySerializationFactory GetFactory() => Factory;
+    public override IMessageIdSerializationRepository GetFactory() => OrxSerializationRepository;
 
     private class OrxClientStreamSubscriber : SocketSubscriber, IOrxSubscriber
     {
@@ -80,7 +79,7 @@ public sealed class OrxServerMessaging : TcpSocketPublisher, IOrxPublisher
         public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
             new OrxMessageStreamDecoder(decoderDeserializers);
 
-        protected override IBinaryDeserializationFactory GetFactory() => publisher.Factory;
+        protected override IMessageIdDeserializationRepository GetFactory() => publisher.OrxSerializationRepository;
 
         protected override IOSSocket CreateAndConnect(string host, int port) =>
             throw new NotImplementedException(); // relies on the publish to establish connection

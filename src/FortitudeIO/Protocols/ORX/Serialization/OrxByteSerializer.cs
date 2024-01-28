@@ -51,7 +51,16 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
     {
         fixed (byte* fptr = buffer)
         {
-            return Serialize(message, fptr + msgOffset + headerOffset, fptr + msgOffset, fptr + buffer.Length);
+            var pureDataSize = Serialize(message, fptr + msgOffset + headerOffset, fptr + msgOffset
+                , fptr + buffer.Length);
+            if (headerOffset == OrxMessageHeader.HeaderSize)
+            {
+                var msgSize = (ushort)(pureDataSize + headerOffset);
+                var msgSizePtr = fptr + msgOffset + OrxMessageHeader.MessageSizeOffset;
+                StreamByteOps.ToBytes(ref msgSizePtr, msgSize);
+            }
+
+            return pureDataSize;
         }
     }
 

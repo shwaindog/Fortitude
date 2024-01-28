@@ -525,11 +525,11 @@ public class PQLevel1QuoteTests
         fullyPopulatedPqLevel1Quote.HasUpdates = false;
         emptyQuote.CopyFrom(fullyPopulatedPqLevel1Quote);
         Assert.AreEqual(fullyPopulatedPqLevel1Quote.PQSequenceId, emptyQuote.PQSequenceId);
-        Assert.AreEqual(fullyPopulatedPqLevel1Quote.SourceTime, emptyQuote.SourceTime);
+        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
         Assert.IsTrue(
             fullyPopulatedPqLevel1Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
-        Assert.AreEqual(fullyPopulatedPqLevel1Quote.IsReplay, emptyQuote.IsReplay);
-        Assert.AreEqual(fullyPopulatedPqLevel1Quote.SinglePrice, emptyQuote.SinglePrice);
+        Assert.AreEqual(false, emptyQuote.IsReplay);
+        Assert.AreEqual(0m, emptyQuote.SinglePrice);
         Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);

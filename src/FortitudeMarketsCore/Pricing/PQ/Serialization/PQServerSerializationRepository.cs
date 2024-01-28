@@ -2,7 +2,6 @@
 
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -11,12 +10,12 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization;
 
-internal sealed class PQServerSerializationFactory : IBinarySerializationFactory
+internal sealed class PQServerSerializationRepository : IMessageIdSerializationRepository
 {
     private readonly PQHeartbeatSerializer hbSerializer;
     private readonly PQQuoteSerializer pqQuoteSerializer;
 
-    public PQServerSerializationFactory(PQFeedType feed)
+    public PQServerSerializationRepository(PQFeedType feed)
     {
         pqQuoteSerializer
             = new PQQuoteSerializer(feed == PQFeedType.Snapshot ? UpdateStyle.FullSnapshot : UpdateStyle.Updates);

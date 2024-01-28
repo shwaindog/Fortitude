@@ -11,7 +11,7 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -46,7 +46,7 @@ public class PQSnapshotClientTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializationFactory = null!;
+    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
@@ -72,7 +72,7 @@ public class PQSnapshotClientTests
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqServerConnectionConfig = new Mock<IConnectionConfig>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
-        moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerFactory>();
+        moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
@@ -110,12 +110,12 @@ public class PQSnapshotClientTests
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
-        moqPQQuoteSerializationFactory.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
+        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqSnapshotClient = new PQSnapshotClient(moqDispatcher.Object, moqNetworkingController.Object,
             moqServerConnectionConfig.Object, "TestSocketDescription", 5, 50,
-            moqPQQuoteSerializationFactory.Object);
+            moqPQQuoteSerializationRepo.Object);
 
         moqFlogger.Setup(fl => fl.Info("Attempting TCP connection to {0} on {1}:{2}",
             sessionDescription, expectedHost, expectedPort)).Verifiable();
@@ -140,11 +140,11 @@ public class PQSnapshotClientTests
     {
         pqSnapshotClient = new PQSnapshotClient(moqDispatcher.Object, moqNetworkingController.Object,
             moqServerConnectionConfig.Object, "TestSocketDescription", 5, 50,
-            new PQQuoteSerializerFactory());
+            new PQQuoteSerializerRepository());
 
-        var binaryDeserializationFactory = NonPublicInvocator.RunInstanceMethod<IBinaryDeserializationFactory>(
+        var binaryDeserializationFactory = NonPublicInvocator.RunInstanceMethod<IMessageIdDeserializationRepository>(
             pqSnapshotClient, "GetFactory");
-        Assert.IsInstanceOfType(binaryDeserializationFactory, typeof(PQQuoteSerializerFactory));
+        Assert.IsInstanceOfType(binaryDeserializationFactory, typeof(PQQuoteSerializerRepository));
     }
 
     [TestMethod]
@@ -230,7 +230,7 @@ public class PQSnapshotClientTests
     {
         ConnectMoqSetup();
         pqSnapshotClient.Connect();
-        moqDecoderDeserializer.Setup(dd => dd.Deserialize(It.IsAny<DispatchContext>())).Verifiable();
+        moqDecoderDeserializer.Setup(dd => dd.Deserialize(It.IsAny<ReadSocketBufferContext>())).Verifiable();
         var result = moqDecoderDeserializer.Object;
         moqSerializerCache.Setup(m => m.TryGetValue(19579, out result)).Returns(true).Verifiable();
 
@@ -239,7 +239,7 @@ public class PQSnapshotClientTests
         var decoder = pqSnapshotClient.GetDecoder(moqSerializerCache.Object);
         moqTimerCallbackSubscription.Setup(tcs => tcs.Unregister(moqIntraOsThreadSignal.Object)).Verifiable();
 
-        decoder.Process(new DispatchContext
+        decoder.Process(new ReadSocketBufferContext
         {
             EncodedBuffer = new ReadWriteBuffer(new byte[]
             {
@@ -300,7 +300,7 @@ public class PQSnapshotClientTests
     {
         pqSnapshotClient = new PQSnapshotClient(moqDispatcher.Object, moqNetworkingController.Object,
             moqServerConnectionConfig.Object, "TestSocketDescription", 5, 50,
-            new PQQuoteSerializerFactory());
+            new PQQuoteSerializerRepository());
 
         var streamToPublisher = pqSnapshotClient.StreamToPublisher;
         var registeredSerializers = NonPublicInvocator.GetInstanceField<IMap<uint, IMessageSerializer>>(

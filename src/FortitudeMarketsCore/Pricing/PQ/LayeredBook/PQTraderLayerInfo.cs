@@ -18,6 +18,16 @@ public enum TraderLayerInfoFlags : byte
     , TraderVolumeUpdatedFlag = 0x02
 }
 
+public interface IPQTraderLayerInfo : IMutableTraderLayerInfo
+{
+    bool HasUpdates { get; set; }
+    int TraderNameId { get; set; }
+    bool IsTraderNameUpdated { get; set; }
+    bool IsTraderVolumeUpdated { get; set; }
+    IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
+    new IPQTraderLayerInfo Clone();
+}
+
 public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLayerInfo
 {
     private int traderNameId;
@@ -50,6 +60,9 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
 
         if (pqTraderLayerInfo != null) UpdatedFlags = pqTraderLayerInfo.UpdatedFlags;
     }
+
+    protected string PQTraderLayerInfoToStringMembers =>
+        $"{nameof(TraderName)}: {TraderName}, {nameof(TraderVolume)}: {TraderVolume:N2}";
 
     public int TraderNameId
     {
@@ -183,7 +196,5 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
-    public override string ToString() =>
-        $"PQTraderLayerInfo {{ {nameof(TraderName)}: {TraderName}, " +
-        $"{nameof(TraderVolume)}: {TraderVolume:N2} }}";
+    public override string ToString() => $"{GetType().Name}({PQTraderLayerInfoToStringMembers})";
 }

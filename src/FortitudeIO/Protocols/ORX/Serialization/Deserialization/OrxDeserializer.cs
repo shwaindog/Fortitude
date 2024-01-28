@@ -2,8 +2,9 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -22,16 +23,26 @@ public sealed class OrxDeserializer<Tm> : MessageDeserializer<Tm> where Tm : cla
 
     public override Tm Deserialize(ISerdeContext readContext)
     {
-        if (readContext is DispatchContext dispatchContext)
+        if ((readContext.Direction & ContextDirection.Read) == 0)
+            throw new ArgumentException("Expected readContext to allow reading");
+        if ((readContext.MarshalType & MarshalType.Binary) == 0)
+            throw new ArgumentException("Expected readContext to be a binary buffer context");
+        var tradingMessage = orxByteDeserializer.Deserialize(readContext);
+        if (readContext is ReadSocketBufferContext sockBuffContext)
         {
-            var tradingMessage = (Tm)orxByteDeserializer.Deserialize(dispatchContext);
-            Dispatch(tradingMessage, dispatchContext.MessageHeader!,
-                dispatchContext.Session, dispatchContext.DispatchLatencyLogger);
-            return tradingMessage;
+            Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
+                sockBuffContext.Session, sockBuffContext.DispatchLatencyLogger);
+        }
+        else if (readContext is IBufferContext bufferContext)
+        {
+            var messageHeader = bufferContext.ReadBasicMessageHeader();
+            Dispatch(tradingMessage, messageHeader);
         }
         else
         {
-            throw new ArgumentException("Expected readContext to be of type DispatchContext");
+            throw new ArgumentException("Expected readContext to be of type IBufferContext");
         }
+
+        return tradingMessage;
     }
 }

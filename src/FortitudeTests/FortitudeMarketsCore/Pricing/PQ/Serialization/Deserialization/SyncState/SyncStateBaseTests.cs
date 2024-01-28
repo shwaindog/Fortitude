@@ -29,8 +29,9 @@ public class SyncStateBaseTests
     protected List<IPQLevel0Quote> ExpectedQuotes = null!;
     protected Mock<IPerfLogger> MoqDispatchPerfLogger = null!;
     protected Mock<IFLogger> MoqFlogger = null!;
-    protected Mock<IPQQuoteDeserializer<PQLevel0Quote>> MoqPqQuoteStreamDeserializer = null!;
+    protected PQQuoteDeserializer<PQLevel0Quote> pqQuoteStreamDeserializer = null!;
     protected PQQuoteDeserializationSequencedTestDataBuilder QuoteSequencedTestDataBuilder = null!;
+    protected PQLevel0Quote SendPqLevel0Quote = null!;
     protected ISourceTickerClientAndPublicationConfig SourceTickerQuoteInfo = null!;
     protected PQLevel0Quote SyncSlotPqLevel0Quote = null!;
     protected SyncStateBase<PQLevel0Quote> syncState = null!;
@@ -42,9 +43,9 @@ public class SyncStateBaseTests
     {
         InitializeStateInputs();
 
-        BuildSyncState();
-
         SetupPostStateMoqs();
+
+        BuildSyncState();
     }
 
     [TestCleanup]
@@ -56,7 +57,7 @@ public class SyncStateBaseTests
 
     protected virtual void BuildSyncState()
     {
-        syncState = new DummySyncStateBase<PQLevel0Quote>(MoqPqQuoteStreamDeserializer.Object,
+        syncState = new DummySyncStateBase<PQLevel0Quote>(pqQuoteStreamDeserializer,
             QuoteSyncState.InitializationState);
     }
 
@@ -69,7 +70,7 @@ public class SyncStateBaseTests
 
     private void InitializeSequenceBuilder()
     {
-        ExpectedQuotes = new EditableList<IPQLevel0Quote> { DesersializerPqLevel0Quote };
+        ExpectedQuotes = new EditableList<IPQLevel0Quote> { SendPqLevel0Quote };
         MoqDispatchPerfLogger = new Mock<IPerfLogger>();
         QuoteSequencedTestDataBuilder = new PQQuoteDeserializationSequencedTestDataBuilder(ExpectedQuotes,
             MoqDispatchPerfLogger.Object);
@@ -84,21 +85,19 @@ public class SyncStateBaseTests
                                                                   | LastTradedFlags.LastTradedVolume |
                                                                   LastTradedFlags.LastTradedTime,
             null, retryWaitMs, allowCatchup);
-
-        DesersializerPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
+        pqQuoteStreamDeserializer
+            = new PQQuoteDeserializer<PQLevel0Quote>(new SourceTickerClientAndPublicationConfig(SourceTickerQuoteInfo));
+        SendPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
             { PQSyncStatus = PQSyncStatus.Good };
+        DesersializerPqLevel0Quote = pqQuoteStreamDeserializer.PublishedQuote;
         SyncSlotPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
             { PQSyncStatus = PQSyncStatus.Good };
+
 
         SetupQuoteStreamDeserializerExpectations();
     }
 
-    protected void SetupQuoteStreamDeserializerExpectations()
-    {
-        MoqPqQuoteStreamDeserializer.SetupGet(qsd => qsd.PublishedQuote).Returns(DesersializerPqLevel0Quote);
-        MoqPqQuoteStreamDeserializer.SetupGet(qsd => qsd.Identifier).Returns(SourceTickerQuoteInfo);
-        MoqPqQuoteStreamDeserializer.SetupGet(qsd => qsd.SyncRetryMs).Returns(2000);
-    }
+    protected void SetupQuoteStreamDeserializerExpectations() { }
 
     private void SetLogger()
     {
@@ -107,15 +106,12 @@ public class SyncStateBaseTests
     }
 
 
-    protected void InitializeStateInputs()
-    {
-        MoqPqQuoteStreamDeserializer = new Mock<IPQQuoteDeserializer<PQLevel0Quote>>();
-    }
+    protected void InitializeStateInputs() { }
 
     [TestMethod]
     public void NewSyncState_LinkedDeserializerAndState_SetAsExpected()
     {
-        Assert.AreEqual(MoqPqQuoteStreamDeserializer.Object, syncState.LinkedDeserializer);
+        Assert.AreEqual(pqQuoteStreamDeserializer, syncState.LinkedDeserializer);
         Assert.AreEqual(ExpectedQuoteState, syncState.State);
     }
 
@@ -138,14 +134,9 @@ public class SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 1))
-            .Verifiable();
-
-        syncState.ProcessInState(dispatchContext);
-
-        MoqPqQuoteStreamDeserializer.Verify();
+        syncState.ProcessInState(sockBuffContext);
 
         NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour();
     }
@@ -156,11 +147,17 @@ public class SyncStateBaseTests
     public virtual void NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 0);
-        var dispatchContext = deserializeInputList.First();
+            PQFeedType.Update, 2);
+        var sockBuffContext = deserializeInputList.First();
+        syncState.ProcessInState(sockBuffContext);
 
-        var dispatchContextDeserializerTimestamp = new DateTime(2017, 09, 23, 19, 47, 32);
-        dispatchContext.DeserializerTimestamp = dispatchContextDeserializerTimestamp;
+        SendPqLevel0Quote.HasUpdates = true;
+        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
+            PQFeedType.Update, uint.MaxValue);
+        sockBuffContext = deserializeInputList.First();
+
+        var sockBuffContextDeserializerTimestamp = new DateTime(2017, 09, 23, 19, 47, 32);
+        sockBuffContext.DeserializerTimestamp = sockBuffContextDeserializerTimestamp;
         DesersializerPqLevel0Quote.PQSequenceId = 4;
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -174,20 +171,19 @@ public class SyncStateBaseTests
                 Assert.AreEqual(4u, strParams[2]);
                 Assert.AreEqual(0u, strParams[3]);
                 Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.ClientReceivedTimestamp(
-                            PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(0))
+                            PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(uint.MaxValue))
                         .ToString(ExpectedDateFormat),
                     strParams[4]);
-                Assert.AreEqual(dispatchContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[5]);
+                Assert.AreEqual(sockBuffContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[5]);
                 Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.RecevingTimestampBaseTime(
-                            PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(0))
+                            PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(uint.MaxValue))
                         .ToString(ExpectedDateFormat),
                     strParams[6]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
     [TestMethod]
@@ -195,7 +191,7 @@ public class SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Snapshot, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
         var hitCallback = false;
 
@@ -208,10 +204,9 @@ public class SyncStateBaseTests
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
             });
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         Assert.IsTrue(hitCallback);
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
     public class DummySyncStateBase<T> : SyncStateBase<T> where T : PQLevel0Quote, new()

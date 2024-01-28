@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
@@ -18,12 +18,12 @@ public class PQServerMessageStreamDecoderTests
     private const int BufferReadWriteOffset = 5;
 
     private Action<ISocketSessionConnection, uint[]> deserializerCallBack = null!;
-    private DispatchContext dispatchContext = null!;
     private ISocketSessionConnection lastReceivedSessionConnection = null!;
 
     private uint[] lastReceivedSnapshotRequestIds = null!;
     private PQServerMessageStreamDecoder pqServerMessageStreamDecoder = null!;
     private PQSnapshotIdsRequestSerializer pqSnapshotIdsRequestSerializer = null!;
+    private ReadSocketBufferContext readSocketBufferContext = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
 
     private Mock<ISocketSessionConnection> socketSessionConnection = null!;
@@ -33,7 +33,7 @@ public class PQServerMessageStreamDecoderTests
     {
         socketSessionConnection = new Mock<ISocketSessionConnection>();
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
-        dispatchContext = new DispatchContext
+        readSocketBufferContext = new ReadSocketBufferContext
         {
             EncodedBuffer = readWriteBuffer, Session = socketSessionConnection.Object
         };
@@ -66,7 +66,7 @@ public class PQServerMessageStreamDecoderTests
             BufferReadWriteOffset, snapshotIdsRequest);
         readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
 
-        pqServerMessageStreamDecoder.Process(dispatchContext);
+        pqServerMessageStreamDecoder.Process(readSocketBufferContext);
 
         Assert.IsTrue(expectedIdsToReceive.SequenceEqual(lastReceivedSnapshotRequestIds));
         Assert.AreSame(socketSessionConnection.Object, lastReceivedSessionConnection);
@@ -78,7 +78,7 @@ public class PQServerMessageStreamDecoderTests
             readWriteBuffer.WrittenCursor, snapshotIdsRequest);
         readWriteBuffer.WrittenCursor = readWriteBuffer.WrittenCursor + amtWritten;
 
-        pqServerMessageStreamDecoder.Process(dispatchContext);
+        pqServerMessageStreamDecoder.Process(readSocketBufferContext);
 
         Assert.IsTrue(lastReceivedSnapshotRequestIds.SequenceEqual(nextExpectedIdsToReceive));
         Assert.AreSame(socketSessionConnection.Object, lastReceivedSessionConnection);

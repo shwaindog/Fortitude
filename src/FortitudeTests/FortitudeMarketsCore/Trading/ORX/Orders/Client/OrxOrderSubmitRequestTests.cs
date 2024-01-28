@@ -5,7 +5,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Products;
 using FortitudeMarketsApi.Trading.Orders.Venues;
@@ -27,14 +27,14 @@ public class OrxOrderSubmitRequestTests
 {
     private const int BufferSize = 2048;
     private byte[] byteBuffer = null!;
-    private DispatchContext dispatchContext = null!;
+    private ReadSocketBufferContext readSocketBufferContext = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        dispatchContext = new DispatchContext
+        readSocketBufferContext = new ReadSocketBufferContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
@@ -52,14 +52,13 @@ public class OrxOrderSubmitRequestTests
             , ThirdRequest = BuildSubmitRequest(), FourthRequest = BuildSubmitRequest()
         };
 
-        dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
-            byteBuffer, 0, 0);
+        readSocketBufferContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<OrderSubmitRequests>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedOrxClientOrderId = (OrderSubmitRequests)orderSubmitRequestsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(readSocketBufferContext);
 
         Assert.AreEqual(originalClientOrderId.FirstRequest, deserializedOrxClientOrderId.FirstRequest);
         Assert.AreEqual(originalClientOrderId.SecondRequest, deserializedOrxClientOrderId.SecondRequest);

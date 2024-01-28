@@ -9,7 +9,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -35,7 +34,7 @@ public class UdpSubscriberTests
     private IPEndPoint expectedIpEndPoint = null!;
     private int expectedPort;
     private Mock<IBinaryStreamPublisher> moqBinStreamPublisher = null!;
-    private Mock<IBinaryDeserializationFactory> moqBinUnserialFac = null!;
+    private Mock<IMessageIdDeserializationRepository> moqBinUnserialFac = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IFLogger> moqFLogger = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
@@ -86,7 +85,7 @@ public class UdpSubscriberTests
         moqFLogger = new Mock<IFLogger>();
         moqDispatcher = new Mock<ISocketDispatcher>();
         moqBinStreamPublisher = new Mock<IBinaryStreamPublisher>();
-        moqBinUnserialFac = new Mock<IBinaryDeserializationFactory>();
+        moqBinUnserialFac = new Mock<IMessageIdDeserializationRepository>();
         moqSocket = new Mock<IOSSocket>();
         moqSocket.SetupAllProperties();
         moqSerialzierCache = new Mock<IMap<uint, IMessageDeserializer>>();
@@ -261,27 +260,27 @@ public class UdpSubscriberTests
 
     internal class DummyUdpSubscriber : UdpSubscriber
     {
-        private readonly IBinaryDeserializationFactory binaryDeserializationFactory;
+        private readonly IMessageIdDeserializationRepository messageIdDeserializationRepository;
 
         public DummyUdpSubscriber(IFLogger logger, ISocketDispatcher dispatcher,
             IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
             string sessionDescription, string? multicastInterface,
             int wholeMessagesPerReceive, IMap<uint, IMessageDeserializer> serializerCache,
-            IBinaryDeserializationFactory binaryDeserializationFactory, int recvBuffrSize,
+            IMessageIdDeserializationRepository messageIdDeserializationRepository, int recvBuffrSize,
             IBinaryStreamPublisher streamToPublisher)
             : base(logger, dispatcher, networkingController, connectionConfig, sessionDescription,
                 multicastInterface, wholeMessagesPerReceive, serializerCache)
         {
             RecvBufferSize = recvBuffrSize;
             StreamToPublisher = streamToPublisher;
-            this.binaryDeserializationFactory = binaryDeserializationFactory;
+            this.messageIdDeserializationRepository = messageIdDeserializationRepository;
         }
 
         public override int RecvBufferSize { get; }
 
         public override IBinaryStreamPublisher StreamToPublisher { get; }
 
-        protected override IBinaryDeserializationFactory GetFactory() => binaryDeserializationFactory;
+        protected override IMessageIdDeserializationRepository GetFactory() => messageIdDeserializationRepository;
 
         public IOSSocket CallCreateAndConnect(string host, int port) => CreateAndConnect(host, port);
 

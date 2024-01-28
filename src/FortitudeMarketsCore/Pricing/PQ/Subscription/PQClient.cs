@@ -20,7 +20,6 @@ public class PQClient : IDisposable
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQClient));
     private readonly bool allowUpdatesCatchup;
     private readonly ISocketDispatcher[] dispatchers;
-    private readonly IPQQuoteSerializerFactory factory = new PQQuoteSerializerFactory();
 
     private readonly IDictionary<string, PQPricingServerSubscriptionContext> feeds =
         new Dictionary<string, PQPricingServerSubscriptionContext>();
@@ -30,6 +29,7 @@ public class PQClient : IDisposable
     private readonly IPricingServersConfigRepository pricingServersConfigRepository;
     private readonly IIntraOSThreadSignal shutDownSignal;
     private readonly IPQSocketSubscriptionRegristrationFactory<IPQSnapshotClient> snapshotClientFactory;
+    private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
 
     private readonly object unsubscribeSyncLock = new();
     private readonly IPQSocketSubscriptionRegristrationFactory<IPQUpdateClient> updateClientFactory;
@@ -136,13 +136,14 @@ public class PQClient : IDisposable
                 tii => tii.Ticker == sourceTickerQuoteInfo.Ticker);
         if (sourceTickerPublicationConfig != null)
         {
-            var quoteDeserializer = factory.GetQuoteDeserializer(sourceTickerPublicationConfig);
+            var quoteDeserializer = snapshotSerializationRepository.GetQuoteDeserializer(sourceTickerPublicationConfig);
             if (quoteDeserializer != null)
                 throw new Exception("Subscription for " + sourceTickerQuoteInfo.Ticker + " on " +
                                     marketsServerConfig?.Name +
                                     " already exists");
-            quoteDeserializer = factory.CreateQuoteDeserializer<T>(new SourceTickerClientAndPublicationConfig(
-                sourceTickerPublicationConfig, syncRetryMsOverride, allowUpdatesCatchup));
+            quoteDeserializer = snapshotSerializationRepository.CreateQuoteDeserializer<T>(
+                new SourceTickerClientAndPublicationConfig(
+                    sourceTickerPublicationConfig, syncRetryMsOverride, allowUpdatesCatchup));
 
             if (quoteDeserializer is IPQDeserializer<T> pqQuoteDeserializer)
             {
@@ -163,13 +164,13 @@ public class PQClient : IDisposable
             var socketDescription = marketsServerConfig!.Name!;
             updateClientFactory.RegisterSocketSubscriber(socketDescription,
                 marketsServerConfig.UpdateConnectionConfig!, sourceTickerPublicationConfig.Id,
-                dispatcher, wholeMessagesPerReceive, factory
+                dispatcher, wholeMessagesPerReceive, snapshotSerializationRepository
                 , string.IsNullOrEmpty(alternativeMulticast) ?
                     marketsServerConfig.UpdateConnectionConfig!.NetworkSubAddress :
                     alternativeMulticast);
             snapshotClientFactory.RegisterSocketSubscriber(socketDescription,
                 marketsServerConfig.SnapshotConnectionConfig!, sourceTickerPublicationConfig.Id, dispatcher,
-                wholeMessagesPerReceive, factory);
+                wholeMessagesPerReceive, snapshotSerializationRepository);
 
             pqClientSyncMonitoring.CheckStartMonitoring();
 
@@ -191,7 +192,7 @@ public class PQClient : IDisposable
             feedRef.SourceTickerPublicationConfigs!.FirstOrDefault(tii => tii.Ticker == ticker);
         if (sourceTickerPublicationConfig != null)
         {
-            var quoteDeserializer = factory.GetQuoteDeserializer(sourceTickerPublicationConfig);
+            var quoteDeserializer = snapshotSerializationRepository.GetQuoteDeserializer(sourceTickerPublicationConfig);
             if (quoteDeserializer == null)
                 throw new Exception($"Subscription for {ticker} on {feedRef.Name} does not exists");
 
@@ -205,9 +206,9 @@ public class PQClient : IDisposable
                 pqClientSyncMonitoring.UnregisterSerializer(quoteDeserializer);
             }
 
-            factory.RemoveQuoteDeserializer(sourceTickerPublicationConfig);
+            snapshotSerializationRepository.RemoveQuoteDeserializer(sourceTickerPublicationConfig);
 
-            if (!factory.HasPictureDeserializers)
+            if (!snapshotSerializationRepository.HasPictureDeserializers)
                 pqClientSyncMonitoring.CheckStopMonitoring();
 
             Logger.Info($"Unsubscribed from {sourceTickerPublicationConfig}");

@@ -8,6 +8,7 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -111,7 +112,7 @@ public class PQSnapshotServerTests
             onSnapshotRequestCalled = true;
         };
 
-        var encodedBuffer = new DispatchContext
+        var encodedBuffer = new ReadSocketBufferContext
         {
             DetectTimestamp = TimeContext.UtcNow, ReceivingTimestamp = TimeContext.UtcNow
             , EncodedBuffer = readWriteBuffer, Session = moqSocketSessionConnection.Object

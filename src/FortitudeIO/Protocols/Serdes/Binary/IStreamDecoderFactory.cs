@@ -1,4 +1,9 @@
-﻿namespace FortitudeIO.Protocols.Serialization;
+﻿#region
+
+
+#endregion
+
+namespace FortitudeIO.Protocols.Serdes.Binary;
 
 public interface IStreamDecoderFactory
 {

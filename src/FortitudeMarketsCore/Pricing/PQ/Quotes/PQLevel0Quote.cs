@@ -56,6 +56,16 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         if (toClone is PQLevel0Quote plLevel0Quote) UpdatedFlags = plLevel0Quote.UpdatedFlags;
     }
 
+    protected string Level0ToStringMembers =>
+        $"{nameof(PQSourceTickerQuoteInfo)}: {PQSourceTickerQuoteInfo}, {nameof(PQSequenceId)}: {PQSequenceId}, " +
+        $"{nameof(PQSyncStatus)}: {PQSyncStatus}, {nameof(LastPublicationTime)}: {LastPublicationTime}, " +
+        $"{nameof(SourceTime)}: {SourceTime}, {nameof(DispatchedTime)}: {DispatchedTime}, " +
+        $"{nameof(ProcessedTime)}: {ProcessedTime}, {nameof(IsSourceTimeDateUpdated)}: {IsSourceTimeDateUpdated}, " +
+        $"{nameof(IsSourceTimeSubHourUpdated)}: {IsSourceTimeSubHourUpdated}, " +
+        $"{nameof(IsSyncStatusUpdated)}: {IsSyncStatusUpdated}, {nameof(SinglePrice)}: {SinglePrice}, " +
+        $"{nameof(IsSinglePriceUpdated)}: {IsSinglePriceUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
+        $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
+
     public uint MessageId => (uint)PricingMessageIds.PricingMessage;
 
     public uint PQSequenceId { get; set; }
@@ -357,11 +367,6 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        ClientReceivedTime = source.ClientReceivedTime;
-        SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
-        SourceTime = source.SourceTime;
-        IsReplay = source.IsReplay;
-        SinglePrice = source.SinglePrice;
         if (source is IPQLevel0Quote ipq0)
         {
             if (PQSourceTickerQuoteInfo != null)
@@ -377,6 +382,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             if (ipq0.IsSinglePriceUpdated) SinglePrice = ipq0.SinglePrice;
             if (ipq0.IsSyncStatusUpdated) PQSyncStatus = ipq0.PQSyncStatus;
             //PQ tracks its own changes only copy explicit changes
+
             PQSequenceId = ipq0.PQSequenceId;
             SocketReceivingTime = ipq0.SocketReceivingTime;
             DispatchedTime = ipq0.DispatchedTime;
@@ -388,6 +394,14 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                 UpdatedFlags = pq0.UpdatedFlags;
                 LastPublicationTime = pq0.LastPublicationTime;
             }
+        }
+        else
+        {
+            ClientReceivedTime = source.ClientReceivedTime;
+            SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
+            SourceTime = source.SourceTime;
+            IsReplay = source.IsReplay;
+            SinglePrice = source.SinglePrice;
         }
 
         return this;
@@ -501,4 +515,6 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             return hashCode;
         }
     }
+
+    public override string ToString() => $"{GetType().Name}({Level0ToStringMembers})";
 }

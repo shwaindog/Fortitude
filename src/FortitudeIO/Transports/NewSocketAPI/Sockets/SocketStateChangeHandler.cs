@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
 

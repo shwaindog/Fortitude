@@ -3,7 +3,7 @@
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Logging;
 using Moq;
@@ -72,7 +72,7 @@ public class MessageDeserializerTests
 
     internal class DummyMessageDeserializer<TM> : MessageDeserializer<TM> where TM : class, IVersionedMessage, new()
     {
-        public override TM? Deserialize(ISerdeContext dispatchContext) => null;
+        public override TM? Deserialize(ISerdeContext serdeContext) => null;
 
         public void CallDispatch(TM data, object state, ISession repositorySession,
             IPerfLogger detectionToPublishLatencyLogger)

@@ -52,6 +52,9 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         EnsureRelatedItemsAreConfigured(this);
     }
 
+    protected string Level2ToStringMembers =>
+        $"{base.ToString()}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, {nameof(BidBook)}: {BidBook}, {nameof(AskBook)}: {AskBook}, {nameof(BidPriceTop)}: {BidPriceTop}, {nameof(AskPriceTop)}: {AskPriceTop}";
+
     public bool IsBidBookChanged
     {
         get => bidBook.HasUpdates;
@@ -295,4 +298,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
             return hashCode;
         }
     }
+
+    public override string ToString() =>
+        $"{GetType().Name}({Level0ToStringMembers}, {Level1ToStringMembers}, {Level2ToStringMembers})";
 }

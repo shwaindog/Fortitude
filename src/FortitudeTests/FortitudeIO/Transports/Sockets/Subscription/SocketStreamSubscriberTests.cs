@@ -9,7 +9,6 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -28,7 +27,7 @@ public class SocketStreamSubscriberTests
     private readonly int wholeMessagesPerReceive = 20;
     private DummySocketStreamSubscriber dummySocketSubscriber = null!;
     private Mock<IBinaryStreamPublisher> moqBinStreamPublisher = null!;
-    private Mock<IBinaryDeserializationFactory> moqBinUnserialFac = null!;
+    private Mock<IMessageIdDeserializationRepository> moqBinUnserialFac = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IFLogger> moqFLogger = null!;
     private Mock<ISyncLock> moqSerializerLock = null!;
@@ -44,7 +43,7 @@ public class SocketStreamSubscriberTests
         moqDispatcher = new Mock<ISocketDispatcher>();
         sessionDescription = "testSessionDescription";
         moqBinStreamPublisher = new Mock<IBinaryStreamPublisher>();
-        moqBinUnserialFac = new Mock<IBinaryDeserializationFactory>();
+        moqBinUnserialFac = new Mock<IMessageIdDeserializationRepository>();
         moqSocket = new Mock<IOSSocket>();
         moqSocket.SetupAllProperties();
         moqSerialzierCache = new Mock<IMap<uint, IMessageDeserializer>>();
@@ -250,33 +249,33 @@ public class SocketStreamSubscriberTests
 
     internal class DummySocketStreamSubscriber : SocketStreamSubscriber
     {
-        private readonly IBinaryDeserializationFactory binaryDeserializationFactory;
+        private readonly IMessageIdDeserializationRepository messageIdDeserializationRepository;
 
         public DummySocketStreamSubscriber() :
             base(FLoggerFactory.Instance.GetLogger(typeof(DummySocketStreamSubscriber)),
                 new Mock<ISocketDispatcher>().Object, "", 1,
                 new ConcurrentMap<uint, IMessageDeserializer>())
         {
-            binaryDeserializationFactory = new OrxSerializationFactory(new Recycler());
+            messageIdDeserializationRepository = new OrxSerializationRepository(new Recycler());
             StreamToPublisher = new Mock<IBinaryStreamPublisher>().Object;
         }
 
         public DummySocketStreamSubscriber(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription,
             int wholeMessagesPerReceive, IMap<uint, IMessageDeserializer> serializerCache,
-            IBinaryDeserializationFactory binaryDeserializationFactory, int recvBuffrSize,
+            IMessageIdDeserializationRepository messageIdDeserializationRepository, int recvBuffrSize,
             IBinaryStreamPublisher streamToPublisher)
             : base(logger, dispatcher, sessionDescription, wholeMessagesPerReceive, serializerCache)
         {
             RecvBufferSize = recvBuffrSize;
             StreamToPublisher = streamToPublisher;
-            this.binaryDeserializationFactory = binaryDeserializationFactory;
+            this.messageIdDeserializationRepository = messageIdDeserializationRepository;
         }
 
         public override int RecvBufferSize { get; }
 
         public override IBinaryStreamPublisher StreamToPublisher { get; }
 
-        protected override IBinaryDeserializationFactory GetFactory() => binaryDeserializationFactory;
+        protected override IMessageIdDeserializationRepository GetFactory() => messageIdDeserializationRepository;
 
         public override void OnCxError(ISocketSessionConnection cx, string errorMsg, int proposedReconnect) { }
 

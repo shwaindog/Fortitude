@@ -5,7 +5,6 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -19,15 +18,15 @@ public sealed class PQUpdateClient : UdpSubscriber, IPQUpdateClient
 {
     public const int PQReceiveBufferSize = 2097152;
 
-    private readonly IPQQuoteSerializerFactory factory = new PQQuoteSerializerFactory();
+    private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
 
     public PQUpdateClient(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
         IConnectionConfig connectionConfig, string socketUseDescription, string? networkAddress,
-        int wholeMessagesPerReceive, IPQQuoteSerializerFactory pqQuoteSerializerFactory)
+        int wholeMessagesPerReceive, IPQQuoteSerializerRepository ipqQuoteSerializerRepository)
         : base(FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher,
             networkingController, connectionConfig, socketUseDescription + " PQUpdateClient", networkAddress,
             wholeMessagesPerReceive, new LinkedListUintKeyMap<IMessageDeserializer>()) =>
-        factory = pqQuoteSerializerFactory ?? factory;
+        snapshotSerializationRepository = ipqQuoteSerializerRepository ?? snapshotSerializationRepository;
 
     public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
         new PQClientMessageStreamDecoder(decoderDeserializers, PQFeedType.Update);
@@ -36,5 +35,5 @@ public sealed class PQUpdateClient : UdpSubscriber, IPQUpdateClient
 
     public override IBinaryStreamPublisher? StreamToPublisher => null;
 
-    protected override IBinaryDeserializationFactory GetFactory() => factory;
+    protected override IMessageIdDeserializationRepository GetFactory() => snapshotSerializationRepository;
 }

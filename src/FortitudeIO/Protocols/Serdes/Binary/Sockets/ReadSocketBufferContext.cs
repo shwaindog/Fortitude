@@ -10,10 +10,10 @@ using FortitudeIO.Transports.Sockets.SessionConnection;
 
 #endregion
 
-namespace FortitudeIO.Protocols.Serdes.Binary;
+namespace FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 [TestClassNotRequired]
-public class DispatchContext : IBufferContext
+public class ReadSocketBufferContext : IBufferContext
 {
     public DateTime DetectTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
     public DateTime ReceivingTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
@@ -28,5 +28,5 @@ public class DispatchContext : IBufferContext
     public MarshalType MarshalType => MarshalType.Binary;
     public int LastReadLength { get; set; } = -1;
     public int LastWriteLength { get; set; } = -1;
-    public ContextDirection Direction { get; set; } = ContextDirection.Unknown;
+    public ContextDirection Direction { get; set; } = ContextDirection.Read;
 }

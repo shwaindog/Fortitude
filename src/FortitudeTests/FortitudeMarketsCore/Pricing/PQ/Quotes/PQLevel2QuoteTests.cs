@@ -1149,10 +1149,10 @@ public class PQLevel2QuoteTests
             populatedL2Quote.HasUpdates = false;
             emptyQuote.CopyFrom(populatedL2Quote);
             Assert.AreEqual(populatedL2Quote.PQSequenceId, emptyQuote.PQSequenceId);
-            Assert.AreEqual(populatedL2Quote.SourceTime, emptyQuote.SourceTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
             Assert.IsTrue(populatedL2Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
-            Assert.AreEqual(populatedL2Quote.IsReplay, emptyQuote.IsReplay);
-            Assert.AreEqual(populatedL2Quote.SinglePrice, emptyQuote.SinglePrice);
+            Assert.AreEqual(false, emptyQuote.IsReplay);
+            Assert.AreEqual(0m, emptyQuote.SinglePrice);
             Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);

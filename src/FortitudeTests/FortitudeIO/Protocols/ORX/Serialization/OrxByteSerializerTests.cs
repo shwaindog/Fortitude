@@ -6,7 +6,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -17,14 +17,14 @@ public class OrxByteSerializerTests
 {
     private const int BufferSize = 2048;
     private byte[] byteBuffer = Array.Empty<byte>();
-    private DispatchContext dispatchContext = new();
+    private ReadSocketBufferContext readSocketBufferContext = new();
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        dispatchContext = new DispatchContext
+        readSocketBufferContext = new ReadSocketBufferContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, ""), MessageVersion = 1
@@ -41,14 +41,13 @@ public class OrxByteSerializerTests
             , SecondStringArray = new[] { "Second1", "Second2", "Second3" }
         };
 
-        dispatchContext.MessageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+        readSocketBufferContext.MessageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxDoubleStringArrayDeserializer = new OrxByteDeserializer<DoubleStringArray>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedDblStrArry = (DoubleStringArray)orxDoubleStringArrayDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedDblStrArry = orxDoubleStringArrayDeserializer.Deserialize(readSocketBufferContext);
 
         Assert.IsTrue(originalDoubleStringArray.FirstStringArray
             .SequenceEqual(deserializedDblStrArry.FirstStringArray!));
@@ -66,14 +65,13 @@ public class OrxByteSerializerTests
             , FourthLong = long.MinValue / 2
         };
 
-        dispatchContext.MessageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+        readSocketBufferContext.MessageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxLongsDeserializer = new OrxByteDeserializer<Longs>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedLongs = (Longs)orxLongsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedLongs = orxLongsDeserializer.Deserialize(readSocketBufferContext);
 
         Assert.AreEqual(long.MaxValue, deserializedLongs.FirstLong);
         Assert.AreEqual(long.MinValue, deserializedLongs.SecondLong);
@@ -91,14 +89,14 @@ public class OrxByteSerializerTests
             , FourthString = "FourthString"
         };
 
-        dispatchContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+        readSocketBufferContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<Strings>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedStrings = (Strings)orxStringsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedStrings = orxStringsDeserializer
+            .Deserialize(readSocketBufferContext);
 
         Assert.AreEqual("FirstString", deserializedStrings.FirstString);
         Assert.AreEqual("SecondString", deserializedStrings.SecondString);
@@ -116,14 +114,13 @@ public class OrxByteSerializerTests
             , FourthString = "FourthString"
         };
 
-        dispatchContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+        readSocketBufferContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<MutableStrings>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedStrings = (MutableStrings)orxStringsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedStrings = orxStringsDeserializer.Deserialize(readSocketBufferContext);
 
         Assert.AreEqual("FirstString", deserializedStrings.FirstString);
         Assert.AreEqual("SecondString", deserializedStrings.SecondString);
