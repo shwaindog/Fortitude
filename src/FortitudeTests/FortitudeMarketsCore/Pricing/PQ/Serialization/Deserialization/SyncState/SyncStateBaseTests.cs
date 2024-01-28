@@ -134,9 +134,9 @@ public class SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour();
     }
@@ -148,16 +148,16 @@ public class SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, 2);
-        var dispatchContext = deserializeInputList.First();
-        syncState.ProcessInState(dispatchContext);
+        var sockBuffContext = deserializeInputList.First();
+        syncState.ProcessInState(sockBuffContext);
 
         SendPqLevel0Quote.HasUpdates = true;
         deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, uint.MaxValue);
-        dispatchContext = deserializeInputList.First();
+        sockBuffContext = deserializeInputList.First();
 
-        var dispatchContextDeserializerTimestamp = new DateTime(2017, 09, 23, 19, 47, 32);
-        dispatchContext.DeserializerTimestamp = dispatchContextDeserializerTimestamp;
+        var sockBuffContextDeserializerTimestamp = new DateTime(2017, 09, 23, 19, 47, 32);
+        sockBuffContext.DeserializerTimestamp = sockBuffContextDeserializerTimestamp;
         DesersializerPqLevel0Quote.PQSequenceId = 4;
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -174,14 +174,14 @@ public class SyncStateBaseTests
                             PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(uint.MaxValue))
                         .ToString(ExpectedDateFormat),
                     strParams[4]);
-                Assert.AreEqual(dispatchContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[5]);
+                Assert.AreEqual(sockBuffContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[5]);
                 Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.RecevingTimestampBaseTime(
                             PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(uint.MaxValue))
                         .ToString(ExpectedDateFormat),
                     strParams[6]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
     }
@@ -191,7 +191,7 @@ public class SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Snapshot, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
         var hitCallback = false;
 
@@ -204,7 +204,7 @@ public class SyncStateBaseTests
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
             });
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         Assert.IsTrue(hitCallback);
     }

@@ -5,7 +5,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
@@ -38,13 +38,13 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IBufferContext bufferContext)
         {
-            var dispatchContext = bufferContext as DispatchContext;
-            if (dispatchContext != null) dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
+            var sockBuffContext = bufferContext as ReadSocketBufferContext;
+            if (sockBuffContext != null) sockBuffContext.DeserializerTimestamp = TimeContext.UtcNow;
 
             var sequenceId = StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
                 , bufferContext.EncodedBuffer.ReadCursor + PQQuoteMessageHeader.SequenceIdOffset);
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
-            PushQuoteToSubscribers(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger);
+            PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)
                 OnSyncOk(this);
             else

@@ -3,18 +3,17 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 
 #endregion
 
 namespace FortitudeIO.Protocols.ORX.Serialization;
 
-public sealed class OrxSerializationFactory : IBinarySerializationFactory,
-    IBinaryDeserializationFactory
+public sealed class OrxSerializationRepository : IMessageIdSerializationRepository,
+    IMessageIdDeserializationRepository
 {
     private readonly IRecycler recyclingFactory;
 
-    public OrxSerializationFactory(IRecycler recyclingFactory) => this.recyclingFactory = recyclingFactory;
+    public OrxSerializationRepository(IRecycler recyclingFactory) => this.recyclingFactory = recyclingFactory;
 
 
     public ICallbackMessageDeserializer<TM> GetDeserializer<TM>(uint msgId)

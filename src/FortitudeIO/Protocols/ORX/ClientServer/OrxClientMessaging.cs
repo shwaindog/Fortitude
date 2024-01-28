@@ -7,7 +7,6 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Client;
@@ -21,7 +20,7 @@ namespace FortitudeIO.Protocols.ORX.ClientServer;
 
 public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 {
-    private readonly OrxSerializationFactory orxSerializationFactory;
+    private readonly OrxSerializationRepository orxSerializationRepository;
 
     protected readonly object SyncLock = new();
 
@@ -36,12 +35,12 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
             connectionConfig, socketUseDescription + "OrxClient", wholeMessagesPerReceive, null, keepalive)
     {
         RecyclingFactory = new Recycler();
-        orxSerializationFactory = new OrxSerializationFactory(RecyclingFactory);
+        orxSerializationRepository = new OrxSerializationRepository(RecyclingFactory);
     }
 
-    protected IBinaryDeserializationFactory DeserializationFactory => orxSerializationFactory;
+    protected IMessageIdDeserializationRepository DeserializationRepository => orxSerializationRepository;
 
-    protected IBinarySerializationFactory SerializationFactory => orxSerializationFactory;
+    protected IMessageIdSerializationRepository SerializationRepository => orxSerializationRepository;
 
     public override int RecvBufferSize => 131072;
 
@@ -72,7 +71,7 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
         }
     }
 
-    protected override IBinaryDeserializationFactory GetFactory() => DeserializationFactory;
+    protected override IMessageIdDeserializationRepository GetFactory() => DeserializationRepository;
 
     private class OrxServerStreamPublisher : TcpSocketPublisher, IOrxPublisher
     {
@@ -99,6 +98,6 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 
         IOrxSubscriber IOrxPublisher.StreamFromSubscriber => orxClientMessaging;
 
-        public override IBinarySerializationFactory GetFactory() => orxClientMessaging.SerializationFactory;
+        public override IMessageIdSerializationRepository GetFactory() => orxClientMessaging.SerializationRepository;
     }
 }

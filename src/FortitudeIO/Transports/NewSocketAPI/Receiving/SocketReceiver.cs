@@ -6,8 +6,9 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
@@ -22,7 +23,7 @@ public interface ISocketReceiver : IConversationListener
     bool ListenActive { get; set; }
     IntPtr SocketHandle { get; }
     bool ZeroBytesReadIsDisconnection { get; set; }
-    bool Poll(DispatchContext dispatchContext);
+    bool Poll(ReadSocketBufferContext readSocketBufferContext);
     event Action? Accept;
     void HandleReceiveError(string message, Exception exception);
     IOSSocket AcceptClientSocketRequest();
@@ -93,34 +94,36 @@ public sealed class SocketReceiver : ISocketReceiver
 
     public IMessageStreamDecoder? Decoder { get; set; }
 
-    public bool Poll(DispatchContext dispatchContext)
+    public bool Poll(ReadSocketBufferContext readSocketBufferContext)
     {
         if (Decoder == null) return true;
         var receivingTs = TimeContext.UtcNow;
-        dispatchContext.DispatchLatencyLogger?.Indent();
-        var recvLen = PrepareBufferAndReceiveData(dispatchContext.DispatchLatencyLogger);
+        readSocketBufferContext.DispatchLatencyLogger?.Indent();
+        var recvLen = PrepareBufferAndReceiveData(readSocketBufferContext.DispatchLatencyLogger);
         if (recvLen == 0)
             return !ZeroBytesReadIsDisconnection;
         if (receiveBuffer.UnreadBytesRemaining > LargeBufferSize
-            && dispatchContext.DetectTimestamp > lastReportOfHighDataOutburts.AddMinutes(1))
+            && readSocketBufferContext.DetectTimestamp > lastReportOfHighDataOutburts.AddMinutes(1))
         {
-            lastReportOfHighDataOutburts = dispatchContext.DetectTimestamp;
-            dispatchContext.DispatchLatencyLogger?.Add("High outburst of incoming data received read ",
+            lastReportOfHighDataOutburts = readSocketBufferContext.DetectTimestamp;
+            readSocketBufferContext.DispatchLatencyLogger?.Add("High outburst of incoming data received read ",
                 receiveBuffer.UnreadBytesRemaining);
-            if (dispatchContext.DispatchLatencyLogger != null) dispatchContext.DispatchLatencyLogger.WriteTrace = true;
+            if (readSocketBufferContext.DispatchLatencyLogger != null)
+                readSocketBufferContext.DispatchLatencyLogger.WriteTrace = true;
         }
 
-        dispatchContext.ReceivingTimestamp = receivingTs;
-        dispatchContext.Conversation = socketSessionContext;
-        dispatchContext.EncodedBuffer = receiveBuffer;
-        if (Decoder.Process(dispatchContext) <= 0)
+        readSocketBufferContext.ReceivingTimestamp = receivingTs;
+        readSocketBufferContext.Conversation = socketSessionContext;
+        readSocketBufferContext.EncodedBuffer = receiveBuffer;
+        if (Decoder.Process(readSocketBufferContext) <= 0)
         {
-            dispatchContext.DispatchLatencyLogger?.Add("Data detected but not decoded");
-            if (dispatchContext.DispatchLatencyLogger != null) dispatchContext.DispatchLatencyLogger.WriteTrace = true;
+            readSocketBufferContext.DispatchLatencyLogger?.Add("Data detected but not decoded");
+            if (readSocketBufferContext.DispatchLatencyLogger != null)
+                readSocketBufferContext.DispatchLatencyLogger.WriteTrace = true;
         }
 
-        dispatchContext.DispatchLatencyLogger?.Dedent();
-        dispatchContext.DispatchLatencyLogger?.Dedent();
+        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
+        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
         return true;
     }
 

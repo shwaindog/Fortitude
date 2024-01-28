@@ -2,15 +2,25 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 
 #endregion
 
-namespace FortitudeIO.Protocols.Serialization;
+namespace FortitudeIO.Protocols.Serdes.Binary;
 
+public interface IMessageDeserializer
+{
+    object? Deserialize(ReadSocketBufferContext readSocketBufferContext);
+}
+
+public interface IMessageDeserializer<out TM> : IMessageDeserializer, IDeserializer<TM>
+    where TM : class, IVersionedMessage, new()
+{
+    new TM? Deserialize(ReadSocketBufferContext readSocketBufferContext);
+}
 public struct BasicMessageHeader
 {
     public BasicMessageHeader(byte version, uint messageId, uint messageSize
@@ -31,12 +41,14 @@ public struct BasicMessageHeader
 public abstract class MessageDeserializer<TM> : ICallbackMessageDeserializer<TM>
     where TM : class, IVersionedMessage, new()
 {
-    object? IMessageDeserializer.Deserialize(DispatchContext dispatchContext) => Deserialize(dispatchContext);
+    object? IMessageDeserializer.Deserialize(ReadSocketBufferContext readSocketBufferContext) =>
+        Deserialize(readSocketBufferContext);
 
     public MarshalType MarshalType => MarshalType.Binary;
     public abstract TM? Deserialize(ISerdeContext readContext);
 
-    TM? IMessageDeserializer<TM>.Deserialize(DispatchContext dispatchContext) => Deserialize(dispatchContext);
+    TM? IMessageDeserializer<TM>.Deserialize(ReadSocketBufferContext readSocketBufferContext) =>
+        Deserialize(readSocketBufferContext);
 
     //[Obsolete]  TODO restore when switched over
     public event Action<TM, object?, ISession?>? Deserialized;

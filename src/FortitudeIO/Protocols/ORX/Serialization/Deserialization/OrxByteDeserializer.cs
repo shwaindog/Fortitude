@@ -10,6 +10,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 
 #endregion
@@ -67,12 +68,13 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         return messagePart;
     }
 
-    object? IMessageDeserializer.Deserialize(DispatchContext dispatchContext) => Deserialize(dispatchContext);
+    object? IMessageDeserializer.Deserialize(ReadSocketBufferContext readSocketBufferContext) =>
+        Deserialize(readSocketBufferContext);
 
     public unsafe Tm Deserialize(ISerdeContext readContext)
     {
-        var dispatchContext = readContext as DispatchContext;
-        dispatchContext?.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
+        var sockBuffContext = readContext as ReadSocketBufferContext;
+        sockBuffContext?.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
         if (readContext is IBufferContext bufferContext)
             fixed (byte* fptr = bufferContext.EncodedBuffer!.Buffer)
             {

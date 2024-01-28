@@ -5,7 +5,6 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 
 #endregion
 

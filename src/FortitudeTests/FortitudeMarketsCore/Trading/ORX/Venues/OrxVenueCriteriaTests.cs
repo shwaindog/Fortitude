@@ -5,7 +5,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 using FortitudeMarketsCore.Trading;
 using FortitudeMarketsCore.Trading.ORX.Orders.Venues;
@@ -19,14 +19,14 @@ public class OrxVenueCriteriaTests
 {
     private const int BufferSize = 2048;
     private byte[] byteBuffer = null!;
-    private DispatchContext dispatchContext = null!;
+    private ReadSocketBufferContext readSocketBufferContext = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        dispatchContext = new DispatchContext
+        readSocketBufferContext = new ReadSocketBufferContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
@@ -44,14 +44,14 @@ public class OrxVenueCriteriaTests
             , ThirdVenueCriteria = BuildSpotOrder(), FourthVenueCriteria = BuildSpotOrder()
         };
 
-        dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+        readSocketBufferContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<VenueCriterias>(new OrxDeserializerLookup(
             new Recycler()));
 
         var deserializedOrxClientOrderId = (VenueCriterias)orderSubmitRequestsDeserializer
-            .Deserialize(dispatchContext);
+            .Deserialize(readSocketBufferContext);
 
         Assert.AreEqual(originalClientOrderId.FirstVenueCriteria, deserializedOrxClientOrderId.FirstVenueCriteria);
         Assert.AreEqual(originalClientOrderId.SecondVenueCriteria, deserializedOrxClientOrderId.SecondVenueCriteria);

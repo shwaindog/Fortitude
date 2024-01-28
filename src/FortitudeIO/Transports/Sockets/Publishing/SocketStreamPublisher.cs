@@ -5,7 +5,6 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -83,7 +82,7 @@ public abstract class SocketStreamPublisher : ISocketLinkListener
     }
 
     public int RegisteredSerializersCount => serializers.Count;
-    public abstract IBinarySerializationFactory GetFactory();
+    public abstract IMessageIdSerializationRepository GetFactory();
 
     protected virtual IMap<uint, IMessageDeserializer> CreateEmptySerialisesCache() =>
         new LinkedListCache<uint, IMessageDeserializer>();

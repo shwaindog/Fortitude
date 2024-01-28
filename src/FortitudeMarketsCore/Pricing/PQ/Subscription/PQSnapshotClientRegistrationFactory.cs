@@ -16,7 +16,7 @@ public class PQSnapshotClientRegistrationFactory : PQSocketSubscriptionRegistrat
     protected override PQSnapshotClient CreateNewSocketSubscriptionType(ISocketDispatcher dispatcher,
         IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
         string socketUseDescription, uint cxTimeoutS, int wholeMessagesPerReceive,
-        IPQQuoteSerializerFactory pqQuoteSerializerFactory, string? multicastInterface) =>
+        IPQQuoteSerializerRepository ipqQuoteSerializerRepository, string? multicastInterface) =>
         new(dispatcher, networkingController, connectionConfig,
-            socketUseDescription, 5, wholeMessagesPerReceive, pqQuoteSerializerFactory);
+            socketUseDescription, 5, wholeMessagesPerReceive, ipqQuoteSerializerRepository);
 }

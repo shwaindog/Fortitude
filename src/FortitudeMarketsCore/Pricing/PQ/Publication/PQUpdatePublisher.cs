@@ -6,7 +6,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -20,8 +19,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
 public sealed class PQUpdatePublisher : UdpPublisher, IPQUpdateServer
 {
-    internal readonly PQServerSerializationFactory Factory = new(PQFeedType.Update);
     private readonly IOSNetworkingController networkingController;
+    internal readonly PQServerSerializationRepository OrxSerializationRepository = new(PQFeedType.Update);
 
     public PQUpdatePublisher(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
         IConnectionConfig connectionConfig, string socketUseDescription, string networkAddress)
@@ -40,7 +39,7 @@ public sealed class PQUpdatePublisher : UdpPublisher, IPQUpdateServer
         Enqueue(PublisherConnection!, message);
     }
 
-    public override IBinarySerializationFactory GetFactory() => Factory;
+    public override IMessageIdSerializationRepository GetFactory() => OrxSerializationRepository;
 
     protected override UdpSubscriber BuildSubscriber(UdpPublisher publisher) =>
         new PQUpdatePublisherSubscriber(this, Logger, Dispatcher, networkingController,
@@ -57,7 +56,7 @@ public sealed class PQUpdatePublisher : UdpPublisher, IPQUpdateServer
 
         public override int RecvBufferSize => 0;
 
-        protected override IBinaryDeserializationFactory? GetFactory() => null;
+        protected override IMessageIdDeserializationRepository? GetFactory() => null;
 
         public override IMessageStreamDecoder?
             GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>

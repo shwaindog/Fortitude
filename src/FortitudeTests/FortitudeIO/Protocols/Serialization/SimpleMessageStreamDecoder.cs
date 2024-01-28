@@ -1,8 +1,9 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeIO.Protocols.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -23,33 +24,33 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
         return true;
     }
 
-    public unsafe int Process(DispatchContext dispatchContext)
+    public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
     {
-        var read = dispatchContext.EncodedBuffer!.ReadCursor;
+        var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
         var originalRead = read;
         ushort messageId;
-        while (read < dispatchContext.EncodedBuffer.WrittenCursor)
+        while (read < readSocketBufferContext.EncodedBuffer.WrittenCursor)
         {
-            fixed (byte* fptr = dispatchContext.EncodedBuffer.Buffer)
+            fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
             {
                 var ptr = fptr + read;
-                dispatchContext.MessageVersion = *ptr++;
+                readSocketBufferContext.MessageVersion = *ptr++;
                 messageId = StreamByteOps.ToUShort(ref ptr);
-                dispatchContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
+                readSocketBufferContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
             }
 
             if (deserializers.TryGetValue(messageId, out var u))
             {
-                dispatchContext.EncodedBuffer.ReadCursor = read;
-                u.Deserialize(dispatchContext);
+                readSocketBufferContext.EncodedBuffer.ReadCursor = read;
+                u.Deserialize(readSocketBufferContext);
             }
 
-            read += dispatchContext.MessageSize;
+            read += readSocketBufferContext.MessageSize;
         }
 
-        dispatchContext.DispatchLatencyLogger?.Dedent();
+        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
         var amountRead = read - originalRead;
-        dispatchContext.EncodedBuffer.ReadCursor = read;
+        readSocketBufferContext.EncodedBuffer.ReadCursor = read;
         return amountRead;
     }
 

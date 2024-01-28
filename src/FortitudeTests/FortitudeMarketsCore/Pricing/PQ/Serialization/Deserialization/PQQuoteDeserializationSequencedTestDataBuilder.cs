@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
@@ -30,10 +30,10 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         this.perfLogger = perfLogger;
     }
 
-    internal IList<IList<DispatchContext>> BuildQuotesStartingAt(uint sequenceId, int numberBatches,
+    internal IList<IList<ReadSocketBufferContext>> BuildQuotesStartingAt(uint sequenceId, int numberBatches,
         IList<uint> snapshotSequenceIds)
     {
-        IList<IList<DispatchContext>> sequenceIdBatches = new List<IList<DispatchContext>>();
+        IList<IList<ReadSocketBufferContext>> sequenceIdBatches = new List<IList<ReadSocketBufferContext>>();
 
         for (var i = sequenceId; i < sequenceId + numberBatches; i++)
         {
@@ -47,10 +47,10 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         return sequenceIdBatches;
     }
 
-    internal IList<DispatchContext> BuildSerializeContextForQuotes(
+    internal IList<ReadSocketBufferContext> BuildSerializeContextForQuotes(
         IList<IPQLevel0Quote> serializeQuotes, PQFeedType feedType, uint sequenceId)
     {
-        var deserializeContexts = new List<DispatchContext>(
+        var deserializeContexts = new List<ReadSocketBufferContext>(
             serializeQuotes.Count);
         var quoteSerializer
             = new PQQuoteSerializer(feedType == PQFeedType.Snapshot ? UpdateStyle.FullSnapshot : UpdateStyle.Updates);
@@ -58,7 +58,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         {
             quote.PQSequenceId = sequenceId;
             var sequenceIdTimeSpan = TimeOffsetForSequenceId(sequenceId);
-            var dispatchContext = new DispatchContext
+            var sockBuffContext = new ReadSocketBufferContext
             {
                 DetectTimestamp = ClientReceivedTimestamp(sequenceIdTimeSpan)
                 , ReceivingTimestamp = RecevingTimestampBaseTime(sequenceIdTimeSpan)
@@ -66,15 +66,15 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
                 , DispatchLatencyLogger = perfLogger
             };
 
-            var amountWritten = quoteSerializer.Serialize(dispatchContext.EncodedBuffer.Buffer,
+            var amountWritten = quoteSerializer.Serialize(sockBuffContext.EncodedBuffer.Buffer,
                 BufferReadWriteOffset, quote);
             if (amountWritten < 0) throw new Exception("Serializer wrote less than expected to buffer.");
-            dispatchContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset;
-            dispatchContext.EncodedBuffer.WrittenCursor = BufferReadWriteOffset + amountWritten;
-            dispatchContext.MessageHeader = new PQQuoteTransmissionHeader(feedType) { SequenceId = sequenceId };
-            dispatchContext.MessageSize = amountWritten;
-            dispatchContext.LastWriteLength = amountWritten;
-            deserializeContexts.Add(dispatchContext);
+            sockBuffContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset;
+            sockBuffContext.EncodedBuffer.WrittenCursor = BufferReadWriteOffset + amountWritten;
+            sockBuffContext.MessageHeader = new PQQuoteTransmissionHeader(feedType) { SequenceId = sequenceId };
+            sockBuffContext.MessageSize = amountWritten;
+            sockBuffContext.LastWriteLength = amountWritten;
+            deserializeContexts.Add(sockBuffContext);
         }
 
         return deserializeContexts;
@@ -90,13 +90,13 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
 
     internal class DeserializeContext
     {
-        public DeserializeContext(DispatchContext dispatchContext, int length)
+        public DeserializeContext(ReadSocketBufferContext readSocketBufferContext, int length)
         {
-            DispatchContext = dispatchContext;
+            ReadSocketBufferContext = readSocketBufferContext;
             Length = length;
         }
 
-        public DispatchContext DispatchContext { get; private set; }
+        public ReadSocketBufferContext ReadSocketBufferContext { get; private set; }
         public int Length { get; private set; }
     }
 }

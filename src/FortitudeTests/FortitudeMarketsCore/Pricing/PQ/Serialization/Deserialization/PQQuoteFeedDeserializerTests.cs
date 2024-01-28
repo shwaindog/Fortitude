@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -218,7 +218,7 @@ public class PQQuoteFeedDeserializerTests
     }
 
     private void CallDeserializer(
-        IList<DispatchContext> deserializeInputList)
+        IList<ReadSocketBufferContext> deserializeInputList)
     {
         for (var i = 0; i < deserializers.Count; i++) deserializers[i].Deserialize(deserializeInputList[i]);
     }

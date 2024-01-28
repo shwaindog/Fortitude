@@ -7,6 +7,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -217,14 +218,14 @@ public class PQQuoteSerializerTests
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
             readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
 
-            var dispatchContext = new DispatchContext
+            var sockBuffContext = new ReadSocketBufferContext
             {
                 EncodedBuffer = readWriteBuffer
                 , DispatchLatencyLogger = new PerfLogger("test", TimeSpan.FromSeconds(2), "")
                 , DetectTimestamp = pqQuote.ClientReceivedTime, ReceivingTimestamp = pqQuote.SocketReceivingTime
                 , DeserializerTimestamp = frozenDateTime
             };
-            var bytesConsumed = pqClientMessageStreamDecoder.Process(dispatchContext);
+            var bytesConsumed = pqClientMessageStreamDecoder.Process(sockBuffContext);
 
             Assert.AreEqual(amtWritten, bytesConsumed);
 

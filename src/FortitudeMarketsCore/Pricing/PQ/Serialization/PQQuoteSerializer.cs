@@ -7,7 +7,6 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 

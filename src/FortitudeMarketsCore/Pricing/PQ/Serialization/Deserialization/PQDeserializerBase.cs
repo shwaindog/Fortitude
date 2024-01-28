@@ -7,7 +7,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -107,10 +107,10 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
 
     public unsafe void UpdateQuote(IBufferContext readContext, T ent, uint sequenceId)
     {
-        var dispatchContext = readContext as DispatchContext;
-        ent.ClientReceivedTime = dispatchContext?.DetectTimestamp ?? DateTime.MinValue;
-        ent.SocketReceivingTime = dispatchContext?.ReceivingTimestamp ?? DateTime.MinValue;
-        ent.ProcessedTime = dispatchContext?.DeserializerTimestamp ?? DateTime.Now;
+        var sockBuffContext = readContext as ReadSocketBufferContext;
+        ent.ClientReceivedTime = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
+        ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
+        ent.ProcessedTime = sockBuffContext?.DeserializerTimestamp ?? DateTime.Now;
         ent.PQSequenceId = sequenceId;
         var offset = readContext.EncodedBuffer!.ReadCursor;
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");

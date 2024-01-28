@@ -1,8 +1,8 @@
 ﻿#region
 
 using System.Net;
+using FortitudeIO.Protocols.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;

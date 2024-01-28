@@ -14,7 +14,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Subscription;
 
 public sealed class OrxTradingClientMessaging : OrxClientMessaging
 {
-    private readonly OrxSerializationFactory serializationFactory;
+    private readonly OrxSerializationRepository serializationRepository;
 
     private int nextSequence;
 
@@ -25,7 +25,7 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
             dispatcher, networkingController,
             connectionConfig, socketUseDescription, wholeMessagesPerReceive, keepalive)
     {
-        serializationFactory = new OrxSerializationFactory(RecyclingFactory);
+        serializationRepository = new OrxSerializationRepository(RecyclingFactory);
         OnDisconnected += () => nextSequence = 0;
     }
 

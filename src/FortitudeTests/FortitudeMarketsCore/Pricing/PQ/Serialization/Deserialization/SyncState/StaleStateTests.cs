@@ -24,7 +24,7 @@ public class StaleStateTests : InSyncStateTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, uint.MaxValue);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
         SetupQuoteStreamDeserializerExpectations();
 
@@ -36,7 +36,7 @@ public class StaleStateTests : InSyncStateTests
             Assert.AreEqual(0u, strParams[1]);
         }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
     }

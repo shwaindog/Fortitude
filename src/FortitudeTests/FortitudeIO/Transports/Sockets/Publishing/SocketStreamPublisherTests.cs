@@ -6,7 +6,6 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -23,7 +22,7 @@ public class SocketStreamPublisherTests
     private readonly string sessionDescription = "testSession";
     private Action<ISocketSessionConnection, string, int> dummyOnCxError = null!;
     private DummySocketStreamPublisher dummySocketStreamPublisher = null!;
-    private Mock<IBinarySerializationFactory> moqBinSerialFac = null!;
+    private Mock<IMessageIdSerializationRepository> moqBinSerialFac = null!;
     private Mock<IMessageSerializer> moqBinSerializer = null!;
     private Mock<IBinaryStreamSubscriber> moqBinStreamSubscriber = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
@@ -37,7 +36,7 @@ public class SocketStreamPublisherTests
     {
         moqFLogger = new Mock<IFLogger>();
         moqDispatcher = new Mock<ISocketDispatcher>();
-        moqBinSerialFac = new Mock<IBinarySerializationFactory>();
+        moqBinSerialFac = new Mock<IMessageIdSerializationRepository>();
         moqBinStreamSubscriber = new Mock<IBinaryStreamSubscriber>();
         moqSocket = new Mock<IOSSocket>();
 
@@ -188,15 +187,15 @@ public class SocketStreamPublisherTests
     internal class DummySocketStreamPublisher : SocketStreamPublisher
     {
         private readonly Action<ISocketSessionConnection, string, int> dummyOnCxError;
-        private readonly IBinarySerializationFactory dummySerializationFactory;
+        private readonly IMessageIdSerializationRepository dummySerializationRepository;
 
         public DummySocketStreamPublisher(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription,
-            IBinarySerializationFactory dummySerializationFactory,
+            IMessageIdSerializationRepository dummySerializationRepository,
             Action<ISocketSessionConnection, string, int> dummyOnCxError, int sendBufferSize,
             IBinaryStreamSubscriber streamFromSubscriber)
             : base(logger, dispatcher, sessionDescription)
         {
-            this.dummySerializationFactory = dummySerializationFactory;
+            this.dummySerializationRepository = dummySerializationRepository;
             this.dummyOnCxError = dummyOnCxError;
             SendBufferSize = sendBufferSize;
             StreamFromSubscriber = streamFromSubscriber;
@@ -206,6 +205,6 @@ public class SocketStreamPublisherTests
 
         public override IBinaryStreamSubscriber StreamFromSubscriber { get; }
 
-        public override IBinarySerializationFactory GetFactory() => dummySerializationFactory;
+        public override IMessageIdSerializationRepository GetFactory() => dummySerializationRepository;
     }
 }

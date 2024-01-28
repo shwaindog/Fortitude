@@ -1,10 +1,9 @@
 ﻿#region
 
-using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion
 
-namespace FortitudeIO.Protocols.Serialization;
+namespace FortitudeIO.Protocols.Serdes.Binary;
 
 public interface ISerdesFactory
 {

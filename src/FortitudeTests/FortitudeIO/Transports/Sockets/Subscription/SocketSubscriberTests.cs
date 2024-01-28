@@ -7,7 +7,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -25,7 +24,7 @@ public class SocketSubscriberTests
     private readonly string testCxFailureReason = "Test Failure Reason";
     private ISubject<IConnectionUpdate> configUpdateSubject = null!;
     private DummySocketSubscriber dummySocketSubscriber = null!;
-    private Mock<IBinaryDeserializationFactory> moqBinaryDeserializationFactory = null!;
+    private Mock<IMessageIdDeserializationRepository> moqBinaryDeserializationFactory = null!;
     private Mock<IBinaryStreamPublisher> moqBinaryStreamPublisher = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
@@ -63,7 +62,7 @@ public class SocketSubscriberTests
         recvBufferSize = 1234567;
         moqBinaryStreamPublisher = new Mock<IBinaryStreamPublisher>();
         moqFeedDecoder = new Mock<IMessageStreamDecoder>();
-        moqBinaryDeserializationFactory = new Mock<IBinaryDeserializationFactory>();
+        moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
 
@@ -422,7 +421,7 @@ public class SocketSubscriberTests
 
     public class DummySocketSubscriber : SocketSubscriber
     {
-        private readonly IBinaryDeserializationFactory binaryDeserializationFactory;
+        private readonly IMessageIdDeserializationRepository messageIdDeserializationRepository;
         private readonly IOSSocket socket;
         private readonly IMessageStreamDecoder streamMessageStreamDecoder;
 
@@ -431,14 +430,14 @@ public class SocketSubscriberTests
             string sessionDescription, int wholeMessagesPerReceive,
             IMap<uint, IMessageDeserializer> serializerCache, int recvBufferSize,
             IBinaryStreamPublisher streamToPublisher, IMessageStreamDecoder streamMessageStreamDecoder,
-            IBinaryDeserializationFactory factory, IOSSocket socket)
+            IMessageIdDeserializationRepository repository, IOSSocket socket)
             : base(logger, dispatcher, networkingController, connectionConfig,
                 sessionDescription, wholeMessagesPerReceive, serializerCache)
         {
             this.streamMessageStreamDecoder = streamMessageStreamDecoder;
             RecvBufferSize = recvBufferSize;
             StreamToPublisher = streamToPublisher;
-            binaryDeserializationFactory = factory;
+            messageIdDeserializationRepository = repository;
             this.socket = socket;
         }
 
@@ -451,7 +450,7 @@ public class SocketSubscriberTests
         public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
             streamMessageStreamDecoder;
 
-        protected override IBinaryDeserializationFactory GetFactory() => binaryDeserializationFactory;
+        protected override IMessageIdDeserializationRepository GetFactory() => messageIdDeserializationRepository;
 
         protected override IOSSocket CreateAndConnect(string host, int port) => socket;
     }

@@ -5,7 +5,6 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -22,7 +21,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 public sealed class PQSnapshotServer : TcpSocketPublisher, IPQSnapshotServer
 {
     private readonly IConnectionConfig connectionConfig;
-    private readonly PQServerSerializationFactory factory = new(PQFeedType.Snapshot);
+    private readonly PQServerSerializationRepository snapshotSerializationRepository = new(PQFeedType.Snapshot);
 
     private SnapshotClientStreamSubscriber? snapshotClientStreamSubscriber;
 
@@ -46,7 +45,7 @@ public sealed class PQSnapshotServer : TcpSocketPublisher, IPQSnapshotServer
     public IPQSnapshotStreamSubscriber SnapshotClientStreamFromSubscriber =>
         (SnapshotClientStreamSubscriber)StreamFromSubscriber;
 
-    public override IBinarySerializationFactory GetFactory() => factory;
+    public override IMessageIdSerializationRepository GetFactory() => snapshotSerializationRepository;
 
     public class SnapshotClientStreamSubscriber : SocketSubscriber, IPQSnapshotStreamSubscriber
     {
@@ -77,8 +76,8 @@ public sealed class PQSnapshotServer : TcpSocketPublisher, IPQSnapshotServer
         public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> deserializersLookup) =>
             new PQServerMessageStreamDecoder(OnRequest);
 
-        protected override IBinaryDeserializationFactory GetFactory() =>
-            (IBinaryDeserializationFactory)pqSnapshotServer.GetFactory();
+        protected override IMessageIdDeserializationRepository GetFactory() =>
+            (IMessageIdDeserializationRepository)pqSnapshotServer.GetFactory();
 
         private void OnRequest(ISocketSessionConnection cx, uint[] streamIDs)
         {

@@ -3,7 +3,7 @@
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
@@ -33,13 +33,13 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
 
     public virtual bool HasJustGoneStale(DateTime utcNow) => false;
 
-    public virtual void ProcessInState(IBufferContext dispatchContext)
+    public virtual void ProcessInState(IBufferContext bufferContext)
     {
-        var msgFlags = dispatchContext.EncodedBuffer!.Buffer[dispatchContext.EncodedBuffer.ReadCursor + 1];
+        var msgFlags = bufferContext.EncodedBuffer!.Buffer[bufferContext.EncodedBuffer.ReadCursor + 1];
         if ((msgFlags & (byte)PQBinaryMessageFlags.PublishAll) > 0)
-            ProcessSnapshot(dispatchContext);
+            ProcessSnapshot(bufferContext);
         else
-            ProcessUpdate(dispatchContext);
+            ProcessUpdate(bufferContext);
     }
 
     protected virtual void ProcessUpdate(IBufferContext bufferContext)
@@ -79,13 +79,13 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
         {
             if (LogCounter % 100 == 0)
             {
-                if (bufferContext is DispatchContext dispatchContext)
+                if (bufferContext is ReadSocketBufferContext sockBuffContext)
                     Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, " +
                                 "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
                         LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
-                        sequenceId, dispatchContext.DetectTimestamp.ToString(DateTimeFormat),
-                        dispatchContext.DeserializerTimestamp.ToString(DateTimeFormat),
-                        dispatchContext.ReceivingTimestamp.ToString(DateTimeFormat));
+                        sequenceId, sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
+                        sockBuffContext.DeserializerTimestamp.ToString(DateTimeFormat),
+                        sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
                 else
                     Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3} ",
                         LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,

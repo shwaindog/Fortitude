@@ -6,7 +6,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -29,7 +29,6 @@ public class PQDeserializerBaseTests
 {
     private const int MessageHeaderByteSize = 14;
     private const int BufferReadWriteOffset = 20;
-    private DispatchContext dispatchContext = null!;
     private DummyPQQuoateDeserializerBase<IPQLevel0Quote> dummyLevel0QuoteDeserializer = null!;
     private DummyPQQuoateDeserializerBase<IPQLevel1Quote> dummyLevel1QuoteDeserializer = null!;
     private DummyPQQuoateDeserializerBase<IPQLevel2Quote> dummyLevel2QuoteDeserializer = null!;
@@ -48,6 +47,7 @@ public class PQDeserializerBaseTests
     private Mock<IPQDeserializer> moqQuoteDeserializer = null!;
     private Mock<ISyncLock> moqSyncLock = null!;
     private Mock<IMutableSourceTickerQuoteInfo> moqUniqueSrcTkrId = null!;
+    private ReadSocketBufferContext readSocketBufferContext = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
     private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
     private IDisposable subscribedL0Observer = null!;
@@ -66,7 +66,7 @@ public class PQDeserializerBaseTests
         moqQuoteDeserializer = new Mock<IPQDeserializer>();
 
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
-        dispatchContext = new DispatchContext
+        readSocketBufferContext = new ReadSocketBufferContext
         {
             DetectTimestamp = new DateTime(2017, 07, 01, 18, 59, 22)
             , ReceivingTimestamp = new DateTime(2017, 07, 01, 19, 03, 22)
@@ -282,18 +282,18 @@ public class PQDeserializerBaseTests
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL0Quote);
-        dispatchContext.MessageSize = amountWritten;
-        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
-        dispatchContext.LastWriteLength = amountWritten;
+        readSocketBufferContext.MessageSize = amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 101u;
-        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(dispatchContext, actualL0Quote, expectedSequenceId);
+        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(readSocketBufferContext, actualL0Quote, expectedSequenceId);
 
-        Assert.AreEqual(dispatchContext.DetectTimestamp, actualL0Quote.ClientReceivedTime);
-        Assert.AreEqual(dispatchContext.ReceivingTimestamp, actualL0Quote.SocketReceivingTime);
-        Assert.AreEqual(dispatchContext.DeserializerTimestamp, actualL0Quote.ProcessedTime);
+        Assert.AreEqual(readSocketBufferContext.DetectTimestamp, actualL0Quote.ClientReceivedTime);
+        Assert.AreEqual(readSocketBufferContext.ReceivingTimestamp, actualL0Quote.SocketReceivingTime);
+        Assert.AreEqual(readSocketBufferContext.DeserializerTimestamp, actualL0Quote.ProcessedTime);
         Assert.AreEqual(expectedSequenceId, actualL0Quote.PQSequenceId);
         Assert.AreEqual(expectedL0Quote.SinglePrice, actualL0Quote.SinglePrice);
         Assert.AreEqual(expectedL0Quote.SourceTime, actualL0Quote.SourceTime);
@@ -313,14 +313,14 @@ public class PQDeserializerBaseTests
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL1Quote);
-        dispatchContext.MessageSize = amountWritten;
-        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
-        dispatchContext.LastWriteLength = amountWritten;
+        readSocketBufferContext.MessageSize = amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL1Quote = new PQLevel1Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 102u;
-        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(dispatchContext, actualL1Quote, expectedSequenceId);
+        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(readSocketBufferContext, actualL1Quote, expectedSequenceId);
 
         Assert.AreEqual(expectedL1Quote.Executable, actualL1Quote.Executable);
         Assert.AreEqual(expectedL1Quote.SourceBidTime, actualL1Quote.SourceBidTime);
@@ -349,15 +349,15 @@ public class PQDeserializerBaseTests
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL2Quote);
-        dispatchContext.MessageSize = amountWritten;
-        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
-        dispatchContext.LastWriteLength = amountWritten;
+        readSocketBufferContext.MessageSize = amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL2Quote = new PQLevel2Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 102u;
-        dispatchContext.MessageSize = amountWritten - MessageHeaderByteSize;
-        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(dispatchContext, actualL2Quote, expectedSequenceId);
+        readSocketBufferContext.MessageSize = amountWritten - MessageHeaderByteSize;
+        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(readSocketBufferContext, actualL2Quote, expectedSequenceId);
 
         for (var i = 0; i < numLayers; i++)
         {
@@ -394,15 +394,15 @@ public class PQDeserializerBaseTests
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL3Quote);
-        dispatchContext.MessageSize = amountWritten;
-        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
-        dispatchContext.LastWriteLength = amountWritten;
+        readSocketBufferContext.MessageSize = amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL3Quote = new PQLevel3Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 102u;
-        dispatchContext.MessageSize = amountWritten - MessageHeaderByteSize;
-        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(dispatchContext, actualL3Quote, expectedSequenceId);
+        readSocketBufferContext.MessageSize = amountWritten - MessageHeaderByteSize;
+        dummyLevel0QuoteDeserializer.InvokeUpdateQuote(readSocketBufferContext, actualL3Quote, expectedSequenceId);
 
         for (var i = 0; i < deepestPossibleLayerIndex && i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
         {
@@ -637,9 +637,9 @@ public class PQDeserializerBaseTests
             OnOutOfSync(quoteDeserializer);
         }
 
-        public void InvokeUpdateQuote(DispatchContext dispatchContext, T ent, uint sequenceId)
+        public void InvokeUpdateQuote(ReadSocketBufferContext readSocketBufferContext, T ent, uint sequenceId)
         {
-            UpdateQuote(dispatchContext, ent, sequenceId);
+            UpdateQuote(readSocketBufferContext, ent, sequenceId);
         }
 
         public void InvokePushQuoteToSubscribers(PQSyncStatus syncStatus,

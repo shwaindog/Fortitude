@@ -8,7 +8,6 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Client;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -24,12 +23,12 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
 {
     private readonly uint cxTimeoutS;
 
-    private readonly IPQQuoteSerializerFactory factory = new PQQuoteSerializerFactory();
-
     private readonly IIntraOSThreadSignal intraOSThreadSignal;
 
     private readonly IDictionary<uint, IUniqueSourceTickerIdentifier> requestsQueue =
         new Dictionary<uint, IUniqueSourceTickerIdentifier>();
+
+    private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
 
     private DateTime lastSnapshotSent = DateTime.MinValue;
     private IBinaryStreamPublisher? streamToPublisher;
@@ -38,7 +37,7 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
     public PQSnapshotClient(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
         IConnectionConfig connectionConfig,
         string socketUseDescription, uint cxTimeoutS, int wholeMessagesPerReceive,
-        IPQQuoteSerializerFactory pqQuoteSerializerFactory)
+        IPQQuoteSerializerRepository ipqQuoteSerializerRepository)
         : base(
             FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher,
             networkingController, connectionConfig,
@@ -50,7 +49,7 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
         OnConnected += SendQueuedRequests;
         OnDisconnected += DisableTimeout;
         this.cxTimeoutS = cxTimeoutS;
-        factory = pqQuoteSerializerFactory ?? factory;
+        snapshotSerializationRepository = ipqQuoteSerializerRepository ?? snapshotSerializationRepository;
     }
 
     public override int RecvBufferSize => 131072;
@@ -136,7 +135,7 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
         if (timedOut) Disconnect(false);
     }
 
-    protected override IBinaryDeserializationFactory GetFactory() => factory;
+    protected override IMessageIdDeserializationRepository GetFactory() => snapshotSerializationRepository;
 
     private void OnResponse()
     {
@@ -178,6 +177,7 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
         public override int SendBufferSize => 131_072;
         public override IBinaryStreamSubscriber StreamFromSubscriber => pqSnapshotClient;
 
-        public override IBinarySerializationFactory GetFactory() => pqSnapshotClient.factory;
+        public override IMessageIdSerializationRepository GetFactory() =>
+            pqSnapshotClient.snapshotSerializationRepository;
     }
 }

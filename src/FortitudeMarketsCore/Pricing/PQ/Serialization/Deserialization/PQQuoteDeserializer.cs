@@ -4,7 +4,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -43,7 +43,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
     {
         if (readContext is IBufferContext bufferContext)
         {
-            if (bufferContext is DispatchContext dispachContext)
+            if (bufferContext is ReadSocketBufferContext dispachContext)
             {
                 dispachContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
                 dispachContext.DeserializerTimestamp = TimeContext.UtcNow;

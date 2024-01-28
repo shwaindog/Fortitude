@@ -34,7 +34,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -46,7 +46,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
                 Assert.AreEqual(1u, strParams[1]);
             });
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
         MoqFlogger.Verify();
     }
 
@@ -55,13 +55,13 @@ public class SynchronisingStateTests : SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, 2);
-        var dispatchContext = deserializeInputList.First();
-        syncState.ProcessInState(dispatchContext);
+        var sockBuffContext = deserializeInputList.First();
+        syncState.ProcessInState(sockBuffContext);
 
         SendPqLevel0Quote.HasUpdates = true;
         deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, uint.MaxValue);
-        dispatchContext = deserializeInputList.First();
+        sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -75,7 +75,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
                 Assert.AreEqual(3u, strParams[3]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
     }
@@ -86,9 +86,9 @@ public class SynchronisingStateTests : SyncStateBaseTests
 
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Update, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
     }
 
     [TestMethod]
@@ -96,7 +96,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Snapshot, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -110,7 +110,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
                 Assert.AreEqual(0u, strParams[3]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
     }
@@ -121,7 +121,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Snapshot, 1);
-        var dispatchContext = deserializeInputList.First();
+        var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -135,7 +135,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
                 Assert.AreEqual(0u, strParams[3]);
             }).Verifiable();
 
-        syncState.ProcessInState(dispatchContext);
+        syncState.ProcessInState(sockBuffContext);
 
         MoqFlogger.Verify();
     }

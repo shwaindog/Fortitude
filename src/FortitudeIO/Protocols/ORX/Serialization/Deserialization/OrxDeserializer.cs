@@ -4,7 +4,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -28,10 +28,10 @@ public sealed class OrxDeserializer<Tm> : MessageDeserializer<Tm> where Tm : cla
         if ((readContext.MarshalType & MarshalType.Binary) == 0)
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         var tradingMessage = orxByteDeserializer.Deserialize(readContext);
-        if (readContext is DispatchContext dispatchContext)
+        if (readContext is ReadSocketBufferContext sockBuffContext)
         {
-            Dispatch(tradingMessage, dispatchContext.MessageHeader!,
-                dispatchContext.Session, dispatchContext.DispatchLatencyLogger);
+            Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
+                sockBuffContext.Session, sockBuffContext.DispatchLatencyLogger);
         }
         else if (readContext is IBufferContext bufferContext)
         {

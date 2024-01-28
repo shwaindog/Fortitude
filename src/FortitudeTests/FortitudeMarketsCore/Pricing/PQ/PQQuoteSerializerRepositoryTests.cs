@@ -16,10 +16,10 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ;
 
 [TestClass]
-public class PQQuoteSerializerFactoryTests
+public class PQQuoteSerializerRepositoryTests
 {
     private const uint ExpectedStreamId = uint.MaxValue;
-    private PQQuoteSerializerFactory pqQuoteSerializerFactory = null!;
+    private PQQuoteSerializerRepository pqQuoteSerializerRepository = null!;
     private ISourceTickerClientAndPublicationConfig sourceTickerClientAndPublicationConfig = null!;
 
     [TestInitialize]
@@ -38,28 +38,28 @@ public class PQQuoteSerializerFactoryTests
                     }, null, 0,
                     new List<ISourceTickerPublicationConfig>(), true, true)));
 
-        pqQuoteSerializerFactory = new PQQuoteSerializerFactory();
+        pqQuoteSerializerRepository = new PQQuoteSerializerRepository();
     }
 
     [TestMethod]
     public void NewSerializerFactory_CreateQuoteDeserializer_CreatesNewPQQuoteDeserializer()
     {
-        var level0Deserializer = pqQuoteSerializerFactory
+        var level0Deserializer = pqQuoteSerializerRepository
             .CreateQuoteDeserializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig);
         Assert.IsNotNull(level0Deserializer);
         Assert.AreEqual(level0Deserializer.Identifier, sourceTickerClientAndPublicationConfig);
-        pqQuoteSerializerFactory = new PQQuoteSerializerFactory();
-        var level1Deserializer = pqQuoteSerializerFactory
+        pqQuoteSerializerRepository = new PQQuoteSerializerRepository();
+        var level1Deserializer = pqQuoteSerializerRepository
             .CreateQuoteDeserializer<PQLevel1Quote>(sourceTickerClientAndPublicationConfig);
         Assert.IsNotNull(level1Deserializer);
         Assert.AreEqual(level1Deserializer.Identifier, sourceTickerClientAndPublicationConfig);
-        pqQuoteSerializerFactory = new PQQuoteSerializerFactory();
-        var level2Deserializer = pqQuoteSerializerFactory
+        pqQuoteSerializerRepository = new PQQuoteSerializerRepository();
+        var level2Deserializer = pqQuoteSerializerRepository
             .CreateQuoteDeserializer<PQLevel2Quote>(sourceTickerClientAndPublicationConfig);
         Assert.IsNotNull(level2Deserializer);
         Assert.AreEqual(level2Deserializer.Identifier, sourceTickerClientAndPublicationConfig);
-        pqQuoteSerializerFactory = new PQQuoteSerializerFactory();
-        var level3Deserializer = pqQuoteSerializerFactory
+        pqQuoteSerializerRepository = new PQQuoteSerializerRepository();
+        var level3Deserializer = pqQuoteSerializerRepository
             .CreateQuoteDeserializer<PQLevel3Quote>(sourceTickerClientAndPublicationConfig);
         Assert.IsNotNull(level3Deserializer);
         Assert.AreEqual(level3Deserializer.Identifier, sourceTickerClientAndPublicationConfig);
@@ -68,11 +68,11 @@ public class PQQuoteSerializerFactoryTests
     [TestMethod]
     public void CreateDeserializer_GetQuoteDeserializer_ReturnsPreviouslyCreatedDeserializer()
     {
-        var level0Deserializer = pqQuoteSerializerFactory
+        var level0Deserializer = pqQuoteSerializerRepository
             .CreateQuoteDeserializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig);
         Assert.IsNotNull(level0Deserializer);
 
-        var requestedDeserializer = pqQuoteSerializerFactory
+        var requestedDeserializer = pqQuoteSerializerRepository
             .GetQuoteDeserializer(sourceTickerClientAndPublicationConfig);
 
         Assert.AreSame(level0Deserializer, requestedDeserializer);
@@ -81,29 +81,29 @@ public class PQQuoteSerializerFactoryTests
     [TestMethod]
     public void NoEnteredDeserializer_GetQuoteDeserializer_ReturnsNullDeserializer()
     {
-        Assert.IsNull(pqQuoteSerializerFactory.GetQuoteDeserializer(sourceTickerClientAndPublicationConfig));
+        Assert.IsNull(pqQuoteSerializerRepository.GetQuoteDeserializer(sourceTickerClientAndPublicationConfig));
     }
 
     [TestMethod]
     public void CreateDeserializer_RemoveQuoteDeserializer_RemovesDeserializerAndGetDeserializerReturnsNull()
     {
-        var level0Deserializer = pqQuoteSerializerFactory
+        var level0Deserializer = pqQuoteSerializerRepository
             .CreateQuoteDeserializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig);
         Assert.IsNotNull(level0Deserializer);
 
-        pqQuoteSerializerFactory.RemoveQuoteDeserializer(sourceTickerClientAndPublicationConfig);
+        pqQuoteSerializerRepository.RemoveQuoteDeserializer(sourceTickerClientAndPublicationConfig);
 
-        Assert.IsNull(pqQuoteSerializerFactory.GetQuoteDeserializer(sourceTickerClientAndPublicationConfig));
+        Assert.IsNull(pqQuoteSerializerRepository.GetQuoteDeserializer(sourceTickerClientAndPublicationConfig));
     }
 
     [TestMethod]
     public void CreateDeserializer_GetDeserializer_ReturnsDeserializerThatMatchesId()
     {
-        var level0Deserializer = pqQuoteSerializerFactory
+        var level0Deserializer = pqQuoteSerializerRepository
             .CreateQuoteDeserializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig);
         Assert.IsNotNull(level0Deserializer);
 
-        var getLevel0Deserializer = pqQuoteSerializerFactory
+        var getLevel0Deserializer = pqQuoteSerializerRepository
             .GetDeserializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig.Id);
         Assert.IsNotNull(getLevel0Deserializer);
 
@@ -114,13 +114,14 @@ public class PQQuoteSerializerFactoryTests
     [ExpectedException(typeof(NotSupportedException))]
     public void NoEnteredDeserializer_GetDeserializer_ReturnsDeserializerThatMatchesId()
     {
-        pqQuoteSerializerFactory.GetDeserializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig.Id);
+        pqQuoteSerializerRepository.GetDeserializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig.Id);
     }
 
     [TestMethod]
     public void EmptyQuoteSerializationFactory_GetSerializerUintArray_ReturnsPQRequestSerializer()
     {
-        var uintArraySerializer = pqQuoteSerializerFactory.GetSerializer<PQSnapshotClient.SnapShotStreamPublisher>(0);
+        var uintArraySerializer
+            = pqQuoteSerializerRepository.GetSerializer<PQSnapshotClient.SnapShotStreamPublisher>(0);
         Assert.IsNotNull(uintArraySerializer);
         Assert.IsInstanceOfType(uintArraySerializer, typeof(PQSnapshotIdsRequestSerializer));
     }
@@ -129,6 +130,6 @@ public class PQQuoteSerializerFactoryTests
     [ExpectedException(typeof(NotSupportedException))]
     public void NoEnteredDeserializer_GetSerializerNonSupportedType_ReturnsDeserializerThatMatchesId()
     {
-        pqQuoteSerializerFactory.GetSerializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig.Id);
+        pqQuoteSerializerRepository.GetSerializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig.Id);
     }
 }

@@ -6,7 +6,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -74,9 +74,9 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
                         simpleMessage.PayLoad2 = StreamByteOps.ToDouble(ref currPtr);
                     }
 
-                if (bufferContext is DispatchContext dispatchContext)
-                    Dispatch(simpleMessage, dispatchContext.MessageHeader, dispatchContext.Conversation
-                        , dispatchContext.DispatchLatencyLogger);
+                if (bufferContext is ReadSocketBufferContext sockBuffContext)
+                    Dispatch(simpleMessage, sockBuffContext.MessageHeader, sockBuffContext.Conversation
+                        , sockBuffContext.DispatchLatencyLogger);
                 else
                     Dispatch(simpleMessage
                         , new BasicMessageHeader(version, (ushort)simpleMessage.MessageId, messageSize, bufferContext));
@@ -84,7 +84,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
                 return simpleMessage;
             }
 
-            throw new ArgumentException("Expected readContext to be of type DispatchContext");
+            throw new ArgumentException("Expected readContext to be of type IBufferContext");
         }
     }
 

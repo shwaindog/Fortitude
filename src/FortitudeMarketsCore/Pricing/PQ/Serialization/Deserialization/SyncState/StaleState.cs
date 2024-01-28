@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
@@ -20,8 +20,8 @@ public class StaleState<T> : InSyncState<T> where T : PQLevel0Quote, new()
         Logger.Info("Stream {0} recovered after timeout, RecvSeqID={1}", LinkedDeserializer.Identifier,
             sequenceId);
         SwitchState(QuoteSyncState.InSync);
-        var dispatchContext = bufferContext as DispatchContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger,
+        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
     }
 

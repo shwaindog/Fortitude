@@ -3,7 +3,7 @@
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Serdes;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
 using FortitudeIO.Transports.Sockets.Logging;
 
@@ -19,8 +19,8 @@ public interface ISocketDispatcherListener : ISocketDispatcherCommon
 
 public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherListener
 {
-    private readonly DispatchContext dispatchContext = new() { Direction = ContextDirection.Read };
     private readonly IIntraOSThreadSignal manualResetEvent;
+    private readonly ReadSocketBufferContext readSocketBufferContext = new() { Direction = ContextDirection.Read };
     private readonly IPerfLoggerPool receiveSocketDispatcherLatencyTraceLoggerPool;
     private readonly ISocketSelector selector;
     private readonly ISocketDataLatencyLogger? socketDataLatencyLogger;
@@ -81,7 +81,7 @@ public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherL
             try
             {
                 detectionToPublishLatencyTraceLogger = receiveSocketDispatcherLatencyTraceLoggerPool.StartNewTrace();
-                dispatchContext.DispatchLatencyLogger = detectionToPublishLatencyTraceLogger;
+                readSocketBufferContext.DispatchLatencyLogger = detectionToPublishLatencyTraceLogger;
                 numSockets = 0;
                 var socketReceivers = selector.WatchSocketsForRecv(detectionToPublishLatencyTraceLogger);
                 foreach (var sockRecr in socketReceivers)
@@ -96,8 +96,8 @@ public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherL
                         bool connected;
                         try
                         {
-                            dispatchContext.DetectTimestamp = selector.WakeTs;
-                            connected = sockRecr.Poll(dispatchContext);
+                            readSocketBufferContext.DetectTimestamp = selector.WakeTs;
+                            connected = sockRecr.Poll(readSocketBufferContext);
                         }
                         catch (Exception ex)
                         {

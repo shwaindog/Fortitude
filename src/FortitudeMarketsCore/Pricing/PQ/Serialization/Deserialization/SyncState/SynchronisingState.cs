@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
@@ -35,8 +35,8 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
 
         LogSyncRecoveryMessage(sequenceId);
         SwitchState(QuoteSyncState.InSync);
-        var dispatchContext = bufferContext as DispatchContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger,
+        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
     }
 
@@ -71,8 +71,8 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
             "Stream {0} recovered after snapshot, PrevSeqId={1}, SnapshotSeqId={2}, LastUpdateSeqId={3}",
             LinkedDeserializer.Identifier, prevSeqId, currSeqId, prevSeqId);
 
-        var dispatchContext = bufferContext as DispatchContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger,
+        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
         SwitchState(QuoteSyncState.InSync);
     }

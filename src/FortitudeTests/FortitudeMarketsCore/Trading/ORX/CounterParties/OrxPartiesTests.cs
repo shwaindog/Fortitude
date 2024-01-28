@@ -5,7 +5,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsCore.Trading;
 using FortitudeMarketsCore.Trading.ORX.CounterParties;
 
@@ -18,14 +18,14 @@ public class OrxPartiesTests
 {
     private const int BufferSize = 2048;
     private byte[] byteBuffer = null!;
-    private DispatchContext dispatchContext = null!;
+    private ReadSocketBufferContext readSocketBufferContext = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        dispatchContext = new DispatchContext
+        readSocketBufferContext = new ReadSocketBufferContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
@@ -43,13 +43,13 @@ public class OrxPartiesTests
             , FourthParties = BuildSpotOrder()
         };
 
-        dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+        readSocketBufferContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<TestParties>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(dispatchContext);
+        var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(readSocketBufferContext);
 
         Assert.AreEqual(originalClientOrderId.FirstParties, deserializedOrxClientOrderId.FirstParties);
         Assert.AreEqual(originalClientOrderId.SecondParties, deserializedOrxClientOrderId.SecondParties);

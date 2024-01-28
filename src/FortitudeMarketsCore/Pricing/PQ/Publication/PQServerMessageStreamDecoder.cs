@@ -2,7 +2,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 
 #endregion
@@ -33,21 +33,21 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
     public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer) =>
         throw new NotImplementedException("No deserializers required for this stream");
 
-    public unsafe int Process(DispatchContext dispatchContext)
+    public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
     {
-        var read = dispatchContext.EncodedBuffer!.ReadCursor;
-        var originalRead = dispatchContext.EncodedBuffer.ReadCursor;
+        var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
+        var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
         byte flags = 0;
-        while (ExpectedSize <= dispatchContext.EncodedBuffer.WrittenCursor - read)
+        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WrittenCursor - read)
             switch (messageSection)
             {
                 case MessageSection.Header:
-                    fixed (byte* fptr = dispatchContext.EncodedBuffer.Buffer)
+                    fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + read;
-                        dispatchContext.MessageVersion = *ptr++;
+                        readSocketBufferContext.MessageVersion = *ptr++;
                         flags = *ptr++;
-                        dispatchContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
+                        readSocketBufferContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
                         requestsCount = StreamByteOps.ToUShort(ref ptr);
                     }
 
@@ -66,21 +66,21 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
                     break;
                 case MessageSection.Data:
                     var streamIDs = new uint[requestsCount];
-                    fixed (byte* fptr = dispatchContext.EncodedBuffer.Buffer)
+                    fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + read;
                         for (var i = 0; i < streamIDs.Length; i++) streamIDs[i] = StreamByteOps.ToUInt(ref ptr);
                     }
 
-                    dispatchContext.EncodedBuffer.ReadCursor = read;
-                    requestsHandler(dispatchContext.Session!, streamIDs);
+                    readSocketBufferContext.EncodedBuffer.ReadCursor = read;
+                    requestsHandler(readSocketBufferContext.Session!, streamIDs);
                     read += requestsCount * RequestSize;
                     messageSection = MessageSection.Header;
                     ExpectedSize = HeaderSize;
                     break;
             }
 
-        dispatchContext.EncodedBuffer.ReadCursor = read;
+        readSocketBufferContext.EncodedBuffer.ReadCursor = read;
         return read - originalRead;
     }
 

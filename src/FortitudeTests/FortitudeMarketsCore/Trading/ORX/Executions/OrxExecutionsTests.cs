@@ -6,7 +6,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsCore.Trading;
 using FortitudeMarketsCore.Trading.ORX.CounterParties;
@@ -23,14 +23,14 @@ public class OrxExecutionsTests
 {
     private const int BufferSize = 4096;
     private byte[] byteBuffer = null!;
-    private DispatchContext dispatchContext = null!;
+    private ReadSocketBufferContext readSocketBufferContext = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        dispatchContext = new DispatchContext
+        readSocketBufferContext = new ReadSocketBufferContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
@@ -48,13 +48,13 @@ public class OrxExecutionsTests
             , ThirdExecutions = BuildVenueOrders(), FourthExecutions = BuildVenueOrders()
         };
 
-        dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+        readSocketBufferContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var venueOrdersDeserializer = new OrxByteDeserializer<Executions>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedVenueOrders = venueOrdersDeserializer.Deserialize(dispatchContext);
+        var deserializedVenueOrders = venueOrdersDeserializer.Deserialize(readSocketBufferContext);
 
         Assert.AreEqual(originalClientOrderId.FirstExecutions, deserializedVenueOrders.FirstExecutions);
         Assert.AreEqual(originalClientOrderId.SecondExecutions, deserializedVenueOrders.SecondExecutions);

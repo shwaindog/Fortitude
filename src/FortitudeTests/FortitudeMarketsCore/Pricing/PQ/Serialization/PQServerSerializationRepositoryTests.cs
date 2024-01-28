@@ -10,23 +10,23 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serialization;
 
 [TestClass]
-public class PQServerSerializationFactoryTests
+public class PQServerSerializationRepositoryTests
 {
-    private PQServerSerializationFactory snapshotServerSerializationFactory = null!;
+    private PQServerSerializationRepository snapshotServerSerializationRepository = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        snapshotServerSerializationFactory = new PQServerSerializationFactory(PQFeedType.Snapshot);
+        snapshotServerSerializationRepository = new PQServerSerializationRepository(PQFeedType.Snapshot);
     }
 
     [TestMethod]
     public void NewSerializationFactory_GetSerializer_ReturnsAppropriateSerializerForMessageType()
     {
-        var quoteSerializer = snapshotServerSerializationFactory.GetSerializer<PQLevel0Quote>(0);
+        var quoteSerializer = snapshotServerSerializationRepository.GetSerializer<PQLevel0Quote>(0);
         Assert.IsInstanceOfType(quoteSerializer, typeof(PQQuoteSerializer));
 
-        var heartBeatSerializer = snapshotServerSerializationFactory.GetSerializer<PQHeartBeatQuotesMessage>(1);
+        var heartBeatSerializer = snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>(1);
         Assert.IsInstanceOfType(heartBeatSerializer, typeof(PQHeartbeatSerializer));
     }
 
@@ -34,13 +34,13 @@ public class PQServerSerializationFactoryTests
     [ExpectedException(typeof(NotSupportedException))]
     public void QuoteSerializerWrongId_GetSerializerWrongIdsForType_ThrowsNotSupportedException()
     {
-        snapshotServerSerializationFactory.GetSerializer<PQLevel0Quote>(1);
+        snapshotServerSerializationRepository.GetSerializer<PQLevel0Quote>(1);
     }
 
     [TestMethod]
     [ExpectedException(typeof(NotSupportedException))]
     public void HeartBeatSerializerWrongId_GetSerializerWrongIdsForType_ThrowsNotSupportedException()
     {
-        snapshotServerSerializationFactory.GetSerializer<PQHeartBeatQuotesMessage>(0);
+        snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>(0);
     }
 }

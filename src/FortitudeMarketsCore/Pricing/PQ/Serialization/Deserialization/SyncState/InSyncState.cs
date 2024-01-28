@@ -1,7 +1,7 @@
 #region
 
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
@@ -35,8 +35,8 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
     {
         base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
         LastSuccessfulUpdateSequienceId = sequenceId;
-        var dispatchContext = bufferContext as DispatchContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger,
+        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnReceivedUpdate);
     }
 
@@ -57,20 +57,20 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
         base.ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
         LinkedDeserializer.ClearSyncRing();
         SaveMessageToSyncSlot(bufferContext, sequenceId);
-        var dispatchContext = bufferContext as DispatchContext;
-        if (dispatchContext != null)
+        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        if (sockBuffContext != null)
             Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}, WakeUpTs={3}, " +
                         "DeserializeTs={4}, ReceivingTimestamp={5}",
                 LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId,
-                dispatchContext.DetectTimestamp.ToString(DateTimeFormat),
-                dispatchContext.DeserializerTimestamp.ToString(DateTimeFormat),
-                dispatchContext.ReceivingTimestamp.ToString(DateTimeFormat));
+                sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
+                sockBuffContext.DeserializerTimestamp.ToString(DateTimeFormat),
+                sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
         else
             Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}",
                 LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId);
 
         SwitchState(QuoteSyncState.Synchronising);
-        PublishQuoteRunAction(PQSyncStatus.OutOfSync, dispatchContext?.DispatchLatencyLogger,
+        PublishQuoteRunAction(PQSyncStatus.OutOfSync, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnOutOfSync);
     }
 

@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -32,20 +32,20 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
         return deserializers[msgId] == deserializer;
     }
 
-    public unsafe int Process(DispatchContext dispatchContext)
+    public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
     {
-        var read = dispatchContext.EncodedBuffer!.ReadCursor;
-        var originalRead = dispatchContext.EncodedBuffer.ReadCursor;
-        while (ExpectedSize <= dispatchContext.EncodedBuffer.WrittenCursor - read)
+        var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
+        var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
+        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WrittenCursor - read)
             if (state == State.Header)
             {
-                fixed (byte* fptr = dispatchContext.EncodedBuffer.Buffer)
+                fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
                 {
                     var ptr = fptr + read;
-                    dispatchContext.MessageVersion = *ptr++;
+                    readSocketBufferContext.MessageVersion = *ptr++;
                     messageId = StreamByteOps.ToUShort(ref ptr);
                     ExpectedSize = StreamByteOps.ToUShort(ref ptr);
-                    dispatchContext.MessageSize = ExpectedSize + OrxMessageHeader.HeaderSize;
+                    readSocketBufferContext.MessageSize = ExpectedSize + OrxMessageHeader.HeaderSize;
                 }
 
                 state = State.Data;
@@ -54,8 +54,8 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
             {
                 if (deserializers.TryGetValue(messageId, out var u))
                 {
-                    dispatchContext.EncodedBuffer.ReadCursor = read;
-                    u!.Deserialize(dispatchContext);
+                    readSocketBufferContext.EncodedBuffer.ReadCursor = read;
+                    u!.Deserialize(readSocketBufferContext);
                 }
 
                 read += ExpectedSize + OrxMessageHeader.HeaderSize;
@@ -63,9 +63,9 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
                 ExpectedSize = OrxMessageHeader.HeaderSize;
             }
 
-        dispatchContext.DispatchLatencyLogger?.Dedent();
+        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
         var amountRead = read - originalRead;
-        dispatchContext.EncodedBuffer.ReadCursor = read;
+        readSocketBufferContext.EncodedBuffer.ReadCursor = read;
         return amountRead;
     }
 

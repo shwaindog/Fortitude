@@ -4,7 +4,7 @@ using System.Reactive.Subjects;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Protocols.Serialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeMarketsCore.Pricing.PQ;
@@ -26,7 +26,7 @@ public class PQUpdateClientRegistrationFactoryTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerFactory> moqPQQuoteSerializationFactory = null!;
+    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private PQUpdateClientRegistrationFactory pqUpdateClientRegFactory = null!;
@@ -45,7 +45,7 @@ public class PQUpdateClientRegistrationFactoryTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqServerConnectionConfig = new Mock<IConnectionConfig>();
-        moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerFactory>();
+        moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
@@ -60,7 +60,7 @@ public class PQUpdateClientRegistrationFactoryTests
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
-        moqPQQuoteSerializationFactory.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
+        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqUpdateClientRegFactory = new PQUpdateClientRegistrationFactory(moqNetworkingController.Object);
@@ -71,7 +71,7 @@ public class PQUpdateClientRegistrationFactoryTests
     {
         var socketClient = pqUpdateClientRegFactory.RegisterSocketSubscriber("TestSocketDescription",
             moqServerConnectionConfig.Object, uint.MaxValue, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationFactory.Object, "multicastInterfaceIP");
+            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
 
         Assert.IsNotNull(socketClient);
         Assert.IsInstanceOfType(socketClient, typeof(PQUpdateClient));

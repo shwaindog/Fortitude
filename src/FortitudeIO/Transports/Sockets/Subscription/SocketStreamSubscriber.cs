@@ -5,7 +5,6 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serialization;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -122,6 +121,6 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
         }
     }
 
-    protected abstract IBinaryDeserializationFactory? GetFactory();
+    protected abstract IMessageIdDeserializationRepository? GetFactory();
     public abstract void OnCxError(ISocketSessionConnection cx, string errorMsg, int proposedReconnect);
 }

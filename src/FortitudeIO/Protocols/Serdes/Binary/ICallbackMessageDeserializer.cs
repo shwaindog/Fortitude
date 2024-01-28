@@ -1,12 +1,11 @@
 ﻿#region
 
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
-namespace FortitudeIO.Protocols.Serialization;
+namespace FortitudeIO.Protocols.Serdes.Binary;
 
 public interface ICallbackMessageDeserializer<out TM> : IMessageDeserializer<TM>
     where TM : class, IVersionedMessage, new()
