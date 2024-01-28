@@ -11,6 +11,23 @@ using FortitudeIO.Transports.Sockets.Logging;
 
 namespace FortitudeIO.Protocols.Serialization;
 
+public struct BasicMessageHeader
+{
+    public BasicMessageHeader(byte version, uint messageId, uint messageSize
+        , ISerdeContext? deserializationContext = null)
+    {
+        Version = version;
+        MessageId = messageId;
+        MessageSize = messageSize;
+        DeserializationContext = deserializationContext;
+    }
+
+    public byte Version { get; }
+    public uint MessageId { get; }
+    public uint MessageSize { get; }
+    public ISerdeContext? DeserializationContext { get; }
+}
+
 public abstract class MessageDeserializer<TM> : ICallbackMessageDeserializer<TM>
     where TM : class, IVersionedMessage, new()
 {
@@ -26,6 +43,8 @@ public abstract class MessageDeserializer<TM> : ICallbackMessageDeserializer<TM>
 
     public event Action<TM, object?, ISocketConversation?>? Deserialized2;
 
+    public event Action<TM, BasicMessageHeader>? MessageDeserialized;
+
     public bool IsRegistered(Action<TM, object, ISessionConnection> deserializedHandler)
     {
         return Deserialized != null && Deserialized.GetInvocationList()
@@ -37,6 +56,11 @@ public abstract class MessageDeserializer<TM> : ICallbackMessageDeserializer<TM>
     {
         detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforePublish);
         Deserialized?.Invoke(data, state, repositorySession);
+    }
+
+    protected void Dispatch(TM data, BasicMessageHeader messageHeader)
+    {
+        MessageDeserialized?.Invoke(data, messageHeader);
     }
 
     protected void Dispatch(TM data, object? state, ISocketConversation? sender,

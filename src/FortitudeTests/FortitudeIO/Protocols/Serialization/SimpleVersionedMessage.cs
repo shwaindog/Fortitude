@@ -47,37 +47,44 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
     {
         public override unsafe SimpleVersionedMessage Deserialize(ISerdeContext readContext)
         {
-            if (readContext is DispatchContext dispatchContext)
+            if (readContext is IBufferContext bufferContext)
             {
                 var simpleMessage = new SimpleVersionedMessage();
+                var readOffset = bufferContext.EncodedBuffer!.ReadCursor;
+                var version = bufferContext.EncodedBuffer!.Buffer[bufferContext.EncodedBuffer.ReadCursor];
+                var messageId = StreamByteOps.ToUShort(bufferContext.EncodedBuffer.Buffer
+                    , bufferContext.EncodedBuffer.ReadCursor + 1);
+                var messageSize = StreamByteOps.ToUShort(bufferContext.EncodedBuffer.Buffer
+                    , bufferContext.EncodedBuffer.ReadCursor + 3);
 
-                if (dispatchContext.MessageVersion == 1 && dispatchContext.MessageSize == 9)
-                    fixed (byte* ptr = dispatchContext.EncodedBuffer!.Buffer)
+                if (version == 1 && messageSize == 9)
+                    fixed (byte* ptr = bufferContext.EncodedBuffer!.Buffer)
                     {
-                        var currPtr = ptr + 1;
-                        simpleMessage.Version = dispatchContext.MessageVersion;
-                        simpleMessage.MessageId = StreamByteOps.ToUShort(ref currPtr);
-                        StreamByteOps.ToUShort(ref currPtr);
+                        simpleMessage.Version = version;
+                        simpleMessage.MessageId = messageId;
+                        var currPtr = ptr + readOffset + 5;
                         simpleMessage.PayLoad = StreamByteOps.ToInt(ref currPtr);
                     }
                 else
-                    fixed (byte* ptr = dispatchContext.EncodedBuffer!.Buffer)
+                    fixed (byte* ptr = bufferContext.EncodedBuffer!.Buffer)
                     {
-                        var currPtr = ptr + 1;
-                        simpleMessage.Version = dispatchContext.MessageVersion;
-                        simpleMessage.MessageId = StreamByteOps.ToUShort(ref currPtr);
-                        StreamByteOps.ToUShort(ref currPtr);
+                        simpleMessage.Version = version;
+                        simpleMessage.MessageId = messageId;
+                        var currPtr = ptr + readOffset + 5;
                         simpleMessage.PayLoad2 = StreamByteOps.ToDouble(ref currPtr);
                     }
 
-                Dispatch(simpleMessage, dispatchContext.MessageHeader, dispatchContext.Conversation
-                    , dispatchContext.DispatchLatencyLogger);
+                if (bufferContext is DispatchContext dispatchContext)
+                    Dispatch(simpleMessage, dispatchContext.MessageHeader, dispatchContext.Conversation
+                        , dispatchContext.DispatchLatencyLogger);
+                else
+                    Dispatch(simpleMessage
+                        , new BasicMessageHeader(version, (ushort)simpleMessage.MessageId, messageSize, bufferContext));
+
                 return simpleMessage;
             }
-            else
-            {
-                throw new ArgumentException("Expected readContext to be of type DispatchContext");
-            }
+
+            throw new ArgumentException("Expected readContext to be of type DispatchContext");
         }
     }
 

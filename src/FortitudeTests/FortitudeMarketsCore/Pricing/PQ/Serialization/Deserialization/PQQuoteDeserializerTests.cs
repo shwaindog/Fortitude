@@ -127,8 +127,8 @@ public class PQQuoteDeserializerTests
     {
         FreshSerializerMissedUpdates_DeserializeManyUnexpectedSeqId_StaysUnsync();
 
-        var snapshotSequence1 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(1, 1,
-            new List<int> { 1 }).First();
+        var snapshotSequence1 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(2, 1,
+            new List<uint> { 2 }).First();
 
         quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 4);
         quoteDeserializerSequencedTestDataBuilder.BuildSerializeContextForQuotes(expectedQuotes, PQFeedType.Update, 4);
@@ -142,25 +142,27 @@ public class PQQuoteDeserializerTests
     }
 
     [TestMethod]
-    public void InSyncDeserializer_DeserializeOutofOrderUpdateThenMissingIdSnapshot_GoesOutOfSyncThenInSyncAgain()
+    public void InSyncDeserializer_DeserializeOutofOrderUpdateThenMissingIdUpdate_GoesOutOfSyncThenInSyncAgain()
     {
         AssertQuotesAreInSync(false);
         FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
         AssertQuotesAreInSync();
         AssertPublishCountIs(1);
-        SendsSequenceIdFromTo(2, 3, false);
+        SendsSequenceIdFromTo(1, 3, false);
         AssertQuotesAreInSync(false);
         AssertPublishCountIs(1);
 
-        var snapshotSequence1 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(1, 1,
-            new List<int> { 1 }).First();
+        var missingUpdateSequence = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(0, 1,
+            new List<uint>()).First();
 
-        quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 4);
-        quoteDeserializerSequencedTestDataBuilder.BuildSerializeContextForQuotes(expectedQuotes, PQFeedType.Update, 4);
+        quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes
+            , 3); // gets PQSequenceId is incremented on serialization to 2
+        quoteDeserializerSequencedTestDataBuilder.BuildSerializeContextForQuotes(expectedQuotes, PQFeedType.Update
+            , 3);
 
         SetupMockPublishQuoteIsExpected();
 
-        CallDeserializer(snapshotSequence1);
+        CallDeserializer(missingUpdateSequence);
 
         AssertQuotesAreInSync();
         AssertExpectedQuoteReceivedAndIsSameAsExpected();
@@ -174,12 +176,12 @@ public class PQQuoteDeserializerTests
         FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
         AssertQuotesAreInSync();
         AssertPublishCountIs(1);
-        SendsSequenceIdFromTo(2, 4, false);
+        SendsSequenceIdFromTo(3, 3, false);
         AssertQuotesAreInSync(false);
         AssertPublishCountIs(1);
 
-        var snapshotSequence2 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(6, 1,
-            new List<int> { 6 }).First();
+        var snapshotSequence2 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(8, 1,
+            new List<uint> { 8 }).First();
         SetupMockPublishQuoteIsExpected();
         CallDeserializer(snapshotSequence2);
 
@@ -244,7 +246,7 @@ public class PQQuoteDeserializerTests
     public void TimedOutDeserializer_ReceivesNextUpdate_GoesBackToInSync()
     {
         InSyncDeserializer_Timesout_PublishesTimeoutState();
-        var nextUpdateMessage = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(1, 1, new List<int>())
+        var nextUpdateMessage = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(1, 1, new List<uint>())
             .First();
 
         ResetObserverMockExpectations();
@@ -307,17 +309,23 @@ public class PQQuoteDeserializerTests
     {
         FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
 
-        SendsSequenceIdFromTo(2, PQQuoteDeserializer<PQLevel0Quote>.MaxBufferedUpdates, false);
+        SendsSequenceIdFromTo(1, PQQuoteDeserializer<PQLevel0Quote>.MaxBufferedUpdates, false);
 
         AssertQuotesAreInSync(false);
         AssertPublishCountIs(1);
 
-        var snapshotSequence2 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(1, 1, new List<int>())
+        var snapshotSequence2 = quoteDeserializerSequencedTestDataBuilder
+            .BuildQuotesStartingAt(1, 1, new List<uint> { 1 })
             .First();
         SetupMockPublishQuoteIsExpected();
+        //
+        // quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(PQQuoteDeserializer<PQLevel0Quote>
+        //     .MaxBufferedUpdates + 1, 1, new List<int>());
 
-        quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(PQQuoteDeserializer<PQLevel0Quote>
-            .MaxBufferedUpdates + 1, 1, new List<int>());
+        quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes
+            , PQQuoteDeserializer<PQLevel0Quote>.MaxBufferedUpdates);
+
+
         CallDeserializer(snapshotSequence2);
         AssertQuotesAreInSync();
         AssertExpectedQuoteReceivedAndIsSameAsExpected();
@@ -334,7 +342,7 @@ public class PQQuoteDeserializerTests
         AssertQuotesAreInSync(false);
         AssertPublishCountIs(1);
 
-        var snapshotSequence2 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(1, 1, new List<int>())
+        var snapshotSequence2 = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(1, 1, new List<uint>())
             .First();
 
 
@@ -375,28 +383,39 @@ public class PQQuoteDeserializerTests
         Assert.IsTrue(pqLevel3QuoteDeserializer.CheckResync(new DateTime(2017, 09, 23, 15, 25, 32)));
     }
 
-    private void SendsSequenceIdFromTo(int startId, int batchSize, bool expected)
+    private void SendsSequenceIdFromTo(uint startId, int batchSize, bool expected)
     {
         var quoteBatches
-            = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(startId, batchSize, new List<int>());
+            = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(startId, batchSize, new List<uint>());
 
         ResetObserverMockExpectations();
-        foreach (var quoteBatch in quoteBatches.Take(1)) CallDeserializer(quoteBatch);
         l0QuoteSame = false;
         l1QuoteSame = false;
         l2QuoteSame = false;
         l3QuoteSame = false;
 
         moqL0QObserver.Setup(o => o.OnNext(pqLevel0QuoteDeserializer.PublishedQuote))
-            .Callback<IPQLevel0Quote>(pq => { l0QuoteSame = true; });
+            .Callback<IPQLevel0Quote>(pq =>
+            {
+                if (pq.PQSyncStatus == PQSyncStatus.Good) l0QuoteSame = true;
+            });
         moqL1QObserver.Setup(o => o.OnNext(pqLevel1QuoteDeserializer.PublishedQuote))
-            .Callback<IPQLevel1Quote>(pq => { l1QuoteSame = true; });
+            .Callback<IPQLevel1Quote>(pq =>
+            {
+                if (pq.PQSyncStatus == PQSyncStatus.Good) l1QuoteSame = true;
+            });
         moqL2QObserver.Setup(o => o.OnNext(pqLevel2QuoteDeserializer.PublishedQuote))
-            .Callback<IPQLevel2Quote>(pq => { l2QuoteSame = true; });
+            .Callback<IPQLevel2Quote>(pq =>
+            {
+                if (pq.PQSyncStatus == PQSyncStatus.Good) l2QuoteSame = true;
+            });
         moqL3QObserver.Setup(o => o.OnNext(pqLevel3QuoteDeserializer.PublishedQuote))
-            .Callback<IPQLevel3Quote>(pq => { l3QuoteSame = true; });
+            .Callback<IPQLevel3Quote>(pq =>
+            {
+                if (pq.PQSyncStatus == PQSyncStatus.Good) l3QuoteSame = true;
+            });
 
-        foreach (var quoteBatch in quoteBatches.Skip(1)) CallDeserializer(quoteBatch);
+        foreach (var quoteBatch in quoteBatches) CallDeserializer(quoteBatch);
         Assert.AreEqual(expected, l0QuoteSame);
         Assert.AreEqual(expected, l1QuoteSame);
         Assert.AreEqual(expected, l2QuoteSame);
@@ -406,9 +425,10 @@ public class PQQuoteDeserializerTests
     private void FreshSerializerDeserializeGetsExpected(PQFeedType feedType)
     {
         AssertQuotesAreInSync(false);
+        var batchId = feedType == PQFeedType.Update ? uint.MaxValue : 0u;
         quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 0);
         var deserializeInputList = quoteDeserializerSequencedTestDataBuilder
-            .BuildSerializeContextForQuotes(expectedQuotes, feedType, 0);
+            .BuildSerializeContextForQuotes(expectedQuotes, feedType, batchId);
 
         l0QuoteSame = false;
         l1QuoteSame = false;
@@ -477,14 +497,13 @@ public class PQQuoteDeserializerTests
             Assert.AreEqual(expectedValue, deserializers[i].HasTimedOutAndNeedsSnapshot(currentTime));
     }
 
-    private void CallDeserializer(
-        IList<DispatchContext> deserializeInputList)
+    private void CallDeserializer(IList<DispatchContext> deserializeInputList)
     {
         for (var i = 0; i < deserializers.Count; i++) deserializers[i].Deserialize(deserializeInputList[i]);
         // deserializers[3].Deserialize(deserializeInputList[3]);
     }
 
-    private void SetupMockPublishQuoteIsExpected()
+    private void SetupMockPublishQuoteIsExpected(List<IPQLevel0Quote>? expectedResult = null)
     {
         l0QuoteSame = false;
         l1QuoteSame = false;

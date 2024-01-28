@@ -7,6 +7,7 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
@@ -14,11 +15,59 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization;
 
+public static class PQQuoteMessageHeader
+{
+    public const int VersionOffset = 0;
+    public const int VersionBytes = 1;
+    public const int FlagsOffset = 1;
+    public const int FlagsBytes = 1;
+    public const int MessageSizeOffset = 2;
+    public const int MessageSizeBytes = 4;
+    public const int SourceTickerIdOffset = 6;
+    public const int SourceTickerIdBytes = 4;
+    public const int SequenceIdOffset = 10;
+    public const int SequenceIdBytes = 4;
+
+    public const int HeaderSize = 2 * sizeof(byte) + sizeof(ushort) // feedId
+                                                   + sizeof(ushort) + // tickerId
+                                                   sizeof(uint) + // messageSize
+                                                   sizeof(uint); // sequenceId
+
+    public static readonly Type VersionType = typeof(byte);
+    public static readonly Type FlagsType = typeof(byte);
+    public static readonly Type MessageSizeType = typeof(uint);
+    public static readonly Type SourceTickerIdType = typeof(uint);
+    public static readonly Type SequenceIdType = typeof(uint);
+
+    public static byte ReadCurrentMessageVersion(this IBufferContext bufferContext) =>
+        bufferContext.EncodedBuffer!.Buffer[VersionOffset];
+
+    public static ushort ReadCurrentMessageFlags(this IBufferContext bufferContext) =>
+        bufferContext.EncodedBuffer!.Buffer[FlagsOffset];
+
+    public static uint ReadCurrentMessageSize(this IBufferContext bufferContext) =>
+        StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
+            , bufferContext.EncodedBuffer.ReadCursor + MessageSizeOffset);
+
+    public static uint ReadCurrentMessageSourceTickerId(this IBufferContext bufferContext) =>
+        StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
+            , bufferContext.EncodedBuffer.ReadCursor + SourceTickerIdOffset);
+
+    public static uint ReadCurrentMessageSequenceId(this IBufferContext bufferContext) =>
+        StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
+            , bufferContext.EncodedBuffer.ReadCursor + SequenceIdOffset);
+
+    public static BasicMessageHeader ReadBasicMessageHeader(this IBufferContext bufferContext)
+    {
+        var version = bufferContext.ReadCurrentMessageVersion();
+        var messageId = bufferContext.ReadCurrentMessageSequenceId();
+        var messageSize = bufferContext.ReadCurrentMessageSize();
+        return new BasicMessageHeader(version, messageId, messageSize, bufferContext);
+    }
+}
+
 internal sealed class PQQuoteSerializer : IMessageSerializer<IPQLevel0Quote>
 {
-    private const int HeaderSize = 2 * sizeof(byte) + sizeof(ushort)
-                                                    + sizeof(ushort) + sizeof(uint) + sizeof(uint);
-
     private const int FieldSize = 2 * sizeof(byte) + sizeof(uint);
     private readonly UpdateStyle updateStyle;
 
@@ -54,7 +103,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<IPQLevel0Quote>
     public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
     {
         var publishAll = (updateStyle & UpdateStyle.FullSnapshot) > 0;
-        if ((publishAll ? sizeof(uint) : 0) + HeaderSize > buffer.Length - writeOffset)
+        if ((publishAll ? sizeof(uint) : 0) + PQQuoteMessageHeader.HeaderSize > buffer.Length - writeOffset)
             return FinishProcessingMessageReturnValue(message, -1);
         if (!(message is IPQLevel0Quote level0Quote)) return FinishProcessingMessageReturnValue(message, -1);
         fixed (byte* fptr = buffer)
@@ -71,8 +120,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<IPQLevel0Quote>
             var sequenceIdptr = currentPtr;
             currentPtr += 4;
 
-            var fields = level0Quote.GetDeltaUpdateFields(TimeContext.UtcNow,
-                updateStyle);
+            var fields = level0Quote.GetDeltaUpdateFields(TimeContext.UtcNow, updateStyle);
             level0Quote.Lock.Acquire();
             try
             {

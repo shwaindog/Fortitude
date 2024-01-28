@@ -7,6 +7,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Serialization;
 
 #endregion
 
@@ -14,9 +15,6 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
 {
-    private const int TransmissionHeaderSize = sizeof(byte) * 2 + sizeof(uint);
-    private const int TickerSourceIdSequenceNumberBodySize = 2 * sizeof(uint);
-
     private static readonly IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
@@ -27,13 +25,12 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
     private MessageSection messageSection;
 
     private uint messagesTotalSize;
-    private uint streamId;
 
     public PQClientMessageStreamDecoder(IMap<uint, IMessageDeserializer> deserializers, PQFeedType feed)
     {
         this.deserializers = deserializers;
         messageSection = MessageSection.TransmissionHeader;
-        ExpectedSize = TransmissionHeaderSize;
+        ExpectedSize = PQQuoteMessageHeader.HeaderSize;
 
         msgHeader = new PQQuoteTransmissionHeader(feed);
     }
@@ -62,60 +59,44 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
                         dispatchContext.MessageVersion = *ptr++;
                         messageFlags = (PQBinaryMessageFlags)(*ptr++);
                         messagesTotalSize = StreamByteOps.ToUInt(ref ptr);
-                        read += ExpectedSize;
                         messageSection = (messageFlags & PQBinaryMessageFlags.IsHeartBeat)
                                          == PQBinaryMessageFlags.IsHeartBeat ?
                             MessageSection.HeartBeats :
                             MessageSection.MessageData;
                         if (messagesTotalSize > 0)
-                            ExpectedSize = (int)messagesTotalSize - TransmissionHeaderSize;
+                            ExpectedSize = (int)messagesTotalSize;
                     }
 
                     break;
                 case MessageSection.HeartBeats:
-                    var noBeats = ExpectedSize / TickerSourceIdSequenceNumberBodySize;
                     fixed (byte* fptr = dispatchContext.EncodedBuffer.Buffer)
                     {
-                        var ptr = fptr + read;
-                        for (var i = 0; i < noBeats; i++)
+                        var ptr = fptr + read + PQQuoteMessageHeader.SourceTickerIdOffset;
+                        var sourceTickerId = StreamByteOps.ToUInt(ref ptr);
+                        if (deserializers.TryGetValue(sourceTickerId, out var bu))
                         {
-                            streamId = StreamByteOps.ToUInt(ref ptr);
-                            msgHeader.SequenceId = StreamByteOps.ToUInt(ref ptr);
-                            read += TickerSourceIdSequenceNumberBodySize;
                             dispatchContext.EncodedBuffer.ReadCursor = read;
-                            dispatchContext.MessageSize = 0;
-                            if (deserializers.TryGetValue(streamId, out var bu))
-                            {
-                                dispatchContext.EncodedBuffer.ReadCursor = read;
-                                bu!.Deserialize(dispatchContext);
-                                OnResponse?.Invoke();
-                            }
+                            bu!.Deserialize(dispatchContext);
+                            OnResponse?.Invoke();
                         }
                     }
 
-                    ExpectedSize = TransmissionHeaderSize;
+                    read += ExpectedSize;
+                    ExpectedSize = PQQuoteMessageHeader.HeaderSize;
                     messageSection = MessageSection.TransmissionHeader;
                     break;
                 case MessageSection.MessageData:
-                    fixed (byte* fptr = dispatchContext.EncodedBuffer.Buffer)
-                    {
-                        var ptr = fptr + read;
-                        streamId = StreamByteOps.ToUInt(ref ptr);
-                        msgHeader.SequenceId = StreamByteOps.ToUInt(ref ptr);
-                    }
-
-                    read += TickerSourceIdSequenceNumberBodySize;
-                    ExpectedSize -= TickerSourceIdSequenceNumberBodySize;
+                    dispatchContext.EncodedBuffer.ReadCursor = read;
+                    var streamId = dispatchContext.ReadCurrentMessageSourceTickerId();
                     dispatchContext.MessageSize = ExpectedSize;
                     if (deserializers.TryGetValue(streamId, out var u))
                     {
-                        dispatchContext.EncodedBuffer.ReadCursor = read;
                         u!.Deserialize(dispatchContext);
                         OnResponse?.Invoke();
                     }
 
                     read += ExpectedSize;
-                    ExpectedSize = TransmissionHeaderSize;
+                    ExpectedSize = PQQuoteMessageHeader.HeaderSize;
                     messageSection = MessageSection.TransmissionHeader;
                     break;
             }
@@ -126,10 +107,11 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
                          "expected to be.  Resetting socket read location as it is probably corrupt.");
             read = dispatchContext.EncodedBuffer.WrittenCursor;
             messageSection = MessageSection.TransmissionHeader;
-            ExpectedSize = TransmissionHeaderSize;
+            ExpectedSize = PQQuoteMessageHeader.HeaderSize;
         }
 
         var amountRead = read - originalRead;
+
         dispatchContext.EncodedBuffer.ReadCursor = read;
         return amountRead;
     }

@@ -2,10 +2,11 @@
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -32,47 +33,65 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
 
     public virtual bool HasJustGoneStale(DateTime utcNow) => false;
 
-    public virtual void ProcessInState(DispatchContext dispatchContext)
+    public virtual void ProcessInState(IBufferContext dispatchContext)
     {
-        var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
-        if (msgHeader != null && msgHeader.Origin == PQFeedType.Update)
-            ProcessUpdate(dispatchContext);
-        else
+        var msgFlags = dispatchContext.EncodedBuffer!.Buffer[dispatchContext.EncodedBuffer.ReadCursor + 1];
+        if ((msgFlags & (byte)PQBinaryMessageFlags.PublishAll) > 0)
             ProcessSnapshot(dispatchContext);
-    }
-
-    protected virtual void ProcessUpdate(DispatchContext dispatchContext)
-    {
-        var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
-        if (msgHeader == null) return;
-        if (msgHeader.SequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId + 1)
-            ProcessNextExpectedUpdate(dispatchContext, msgHeader.SequenceId);
         else
-            ProcessUnsyncedUpdateMessage(dispatchContext, msgHeader.SequenceId);
+            ProcessUpdate(dispatchContext);
     }
 
-    public virtual void ProcessSnapshot(DispatchContext dispatchContext)
+    protected virtual void ProcessUpdate(IBufferContext bufferContext)
     {
-        Logger.Info("Received unexpected or no longer required snapshot for stream {0}",
-            LinkedDeserializer.Identifier);
+        var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
+        if (sequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId + 1 ||
+            (sequenceId == 0 && LinkedDeserializer.PublishedQuote.PQSequenceId == 0))
+            ProcessNextExpectedUpdate(bufferContext, sequenceId);
+        else
+            ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
     }
 
-    protected virtual void ProcessNextExpectedUpdate(DispatchContext dispatchContext, uint sequenceId)
+    public virtual void ProcessSnapshot(IBufferContext bufferContext)
     {
-        LinkedDeserializer.UpdateQuote(dispatchContext, LinkedDeserializer.PublishedQuote, sequenceId);
+        var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
+        if (sequenceId > LinkedDeserializer.PublishedQuote.PQSequenceId + 1)
+        {
+            Logger.Info("Received snapshot for {0} with sequence id {1} that is infront of update stream {2}",
+                LinkedDeserializer.Identifier, sequenceId, LinkedDeserializer.PublishedQuote.PQSequenceId);
+            LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
+        }
+        else
+        {
+            Logger.Info("Received unexpected or no longer required snapshot for stream {0}",
+                LinkedDeserializer.Identifier);
+        }
     }
 
-    protected virtual void ProcessUnsyncedUpdateMessage(DispatchContext dispatchContext, uint sequenceId)
+    protected virtual void ProcessNextExpectedUpdate(IBufferContext bufferContext, uint sequenceId)
+    {
+        LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
+    }
+
+    protected virtual void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
     {
         if (sequenceId < LinkedDeserializer.PublishedQuote.PQSequenceId)
         {
             if (LogCounter % 100 == 0)
-                Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, " +
-                            "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
-                    LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
-                    sequenceId, dispatchContext.DetectTimestamp.ToString(DateTimeFormat),
-                    dispatchContext.DeserializerTimestamp.ToString(DateTimeFormat),
-                    dispatchContext.ReceivingTimestamp.ToString(DateTimeFormat));
+            {
+                if (bufferContext is DispatchContext dispatchContext)
+                    Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, " +
+                                "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
+                        LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
+                        sequenceId, dispatchContext.DetectTimestamp.ToString(DateTimeFormat),
+                        dispatchContext.DeserializerTimestamp.ToString(DateTimeFormat),
+                        dispatchContext.ReceivingTimestamp.ToString(DateTimeFormat));
+                else
+                    Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3} ",
+                        LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
+                        sequenceId);
+            }
+
             LogCounter++;
         }
     }
@@ -89,10 +108,10 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
         LinkedDeserializer.SwitchSyncState(newState);
     }
 
-    protected void SaveMessageToSyncSlot(DispatchContext dispatchContext, uint sequenceId)
+    protected void SaveMessageToSyncSlot(IBufferContext bufferContext, uint sequenceId)
     {
         var ent = LinkedDeserializer.ClaimSyncSlotEntry();
         ent.HasUpdates = false;
-        LinkedDeserializer.UpdateQuote(dispatchContext, ent, sequenceId);
+        LinkedDeserializer.UpdateQuote(bufferContext, ent, sequenceId);
     }
 }

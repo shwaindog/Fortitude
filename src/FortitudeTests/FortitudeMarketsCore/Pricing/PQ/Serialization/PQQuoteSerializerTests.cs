@@ -109,14 +109,14 @@ public class PQQuoteSerializerTests
         srcQtRefPdGvnVlmRcntlyTrdedL3Quote = new PQLevel3Quote(srcQtRfPdGvnVlmQuoteInfo);
         trdrPdGvnVlmRcntlyTrdedL3Quote = new PQLevel3Quote(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo);
 
-        quoteSequencedTestDataBuilder.InitializeQuote(level0Quote, 10);
-        quoteSequencedTestDataBuilder.InitializeQuote(level1Quote, 10);
-        quoteSequencedTestDataBuilder.InitializeQuote(valueDateL2Quote, 10);
-        quoteSequencedTestDataBuilder.InitializeQuote(everyLayerL2Quote, 10);
-        quoteSequencedTestDataBuilder.InitializeQuote(simpleNoRecentlyTradedL3Quote, 10);
-        quoteSequencedTestDataBuilder.InitializeQuote(srcNmSmplRctlyTrdedL3Quote, 10);
-        quoteSequencedTestDataBuilder.InitializeQuote(srcQtRefPdGvnVlmRcntlyTrdedL3Quote, 10);
-        quoteSequencedTestDataBuilder.InitializeQuote(trdrPdGvnVlmRcntlyTrdedL3Quote, 10);
+        quoteSequencedTestDataBuilder.InitializeQuote(level0Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(level1Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(valueDateL2Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(everyLayerL2Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(simpleNoRecentlyTradedL3Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(srcNmSmplRctlyTrdedL3Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(srcQtRefPdGvnVlmRcntlyTrdedL3Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(trdrPdGvnVlmRcntlyTrdedL3Quote, 0);
 
         differingQuotes = new List<IPQLevel0Quote>
         {
@@ -212,6 +212,7 @@ public class PQQuoteSerializerTests
         foreach (var pqQuote in differingQuotes)
         {
             readWriteBuffer = new ReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
+            pqQuote.PQSequenceId = uint.MaxValue; // will roll to 0 on
             var amtWritten = updateQuoteSerializer
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
             readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
@@ -223,7 +224,6 @@ public class PQQuoteSerializerTests
                 , DetectTimestamp = pqQuote.ClientReceivedTime, ReceivingTimestamp = pqQuote.SocketReceivingTime
                 , DeserializerTimestamp = frozenDateTime
             };
-
             var bytesConsumed = pqClientMessageStreamDecoder.Process(dispatchContext);
 
             Assert.AreEqual(amtWritten, bytesConsumed);

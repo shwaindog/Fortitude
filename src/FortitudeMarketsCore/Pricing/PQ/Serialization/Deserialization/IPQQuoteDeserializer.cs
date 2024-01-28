@@ -1,7 +1,7 @@
 #region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization.SyncState;
@@ -15,7 +15,7 @@ public interface IPQQuoteDeserializer<T> : IPQDeserializer<T> where T : PQLevel0
     bool AllowUpdatesCatchup { get; }
     uint SyncRetryMs { get; }
 
-    void UpdateQuote(DispatchContext dispatchContext, T ent, uint sequenceId);
+    void UpdateQuote(IBufferContext readContext, T ent, uint sequenceId);
 
     void PushQuoteToSubscribers(PQSyncStatus syncStatus,
         IPerfLogger? detectionToPublishLatencyTraceLogger = null);

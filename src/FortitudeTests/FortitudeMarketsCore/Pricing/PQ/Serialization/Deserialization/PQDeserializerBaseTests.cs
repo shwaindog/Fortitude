@@ -281,13 +281,14 @@ public class PQDeserializerBaseTests
         };
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            BufferReadWriteOffset - MessageHeaderByteSize, expectedL0Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL0Quote);
+        dispatchContext.MessageSize = amountWritten;
+        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        dispatchContext.LastWriteLength = amountWritten;
 
         var actualL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 101u;
-        dispatchContext.MessageSize = amountWritten - MessageHeaderByteSize;
         dummyLevel0QuoteDeserializer.InvokeUpdateQuote(dispatchContext, actualL0Quote, expectedSequenceId);
 
         Assert.AreEqual(dispatchContext.DetectTimestamp, actualL0Quote.ClientReceivedTime);
@@ -311,13 +312,14 @@ public class PQDeserializerBaseTests
         };
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            BufferReadWriteOffset - MessageHeaderByteSize, expectedL1Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL1Quote);
+        dispatchContext.MessageSize = amountWritten;
+        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        dispatchContext.LastWriteLength = amountWritten;
 
         var actualL1Quote = new PQLevel1Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 102u;
-        dispatchContext.MessageSize = amountWritten - MessageHeaderByteSize;
         dummyLevel0QuoteDeserializer.InvokeUpdateQuote(dispatchContext, actualL1Quote, expectedSequenceId);
 
         Assert.AreEqual(expectedL1Quote.Executable, actualL1Quote.Executable);
@@ -346,8 +348,10 @@ public class PQDeserializerBaseTests
         }
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            BufferReadWriteOffset - MessageHeaderByteSize, expectedL2Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL2Quote);
+        dispatchContext.MessageSize = amountWritten;
+        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        dispatchContext.LastWriteLength = amountWritten;
 
         var actualL2Quote = new PQLevel2Quote(sourceTickerQuoteInfo);
 
@@ -389,8 +393,10 @@ public class PQDeserializerBaseTests
             }
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            BufferReadWriteOffset - MessageHeaderByteSize, expectedL3Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL3Quote);
+        dispatchContext.MessageSize = amountWritten;
+        dispatchContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        dispatchContext.LastWriteLength = amountWritten;
 
         var actualL3Quote = new PQLevel3Quote(sourceTickerQuoteInfo);
 

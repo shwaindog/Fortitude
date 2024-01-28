@@ -131,10 +131,10 @@ public class PQQuoteFeedDeserializerTests
             .ClientReceivedTimestamp(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(24)), true);
     }
 
-    private void SendsSequenceIdFromTo(int startId, int batchSize, bool expected)
+    private void SendsSequenceIdFromTo(uint startId, int batchSize, bool expected)
     {
         var quoteBatches
-            = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(startId, batchSize, new List<int>());
+            = quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(startId, batchSize, new List<uint>());
 
         foreach (var quoteBatch in quoteBatches) CallDeserializer(quoteBatch);
         Assert.AreEqual(expected, l0PublicationStateWasExpected);

@@ -1,9 +1,9 @@
 #region
 
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -21,26 +21,26 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
     protected InSyncState(IPQQuoteDeserializer<T> linkedDeserializer, QuoteSyncState state)
         : base(linkedDeserializer, state) { }
 
-    protected override void ProcessUpdate(DispatchContext dispatchContext)
+    protected override void ProcessUpdate(IBufferContext bufferContext)
     {
-        var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
-        if (msgHeader == null) return;
-        if (msgHeader.SequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId + 1 ||
-            msgHeader.SequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId)
-            ProcessNextExpectedUpdate(dispatchContext, msgHeader.SequenceId);
+        var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
+        if (sequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId + 1 ||
+            sequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId)
+            ProcessNextExpectedUpdate(bufferContext, sequenceId);
         else
-            ProcessUnsyncedUpdateMessage(dispatchContext, msgHeader.SequenceId);
+            ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
     }
 
-    protected override void ProcessNextExpectedUpdate(DispatchContext dispatchContext, uint sequenceId)
+    protected override void ProcessNextExpectedUpdate(IBufferContext bufferContext, uint sequenceId)
     {
-        base.ProcessNextExpectedUpdate(dispatchContext, sequenceId);
+        base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
         LastSuccessfulUpdateSequienceId = sequenceId;
-        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext.DispatchLatencyLogger,
+        var dispatchContext = bufferContext as DispatchContext;
+        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnReceivedUpdate);
     }
 
-    protected override void ProcessUnsyncedUpdateMessage(DispatchContext dispatchContext, uint sequenceId)
+    protected override void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
     {
         if (LinkedDeserializer.AllowUpdatesCatchup && sequenceId < LinkedDeserializer.PublishedQuote.PQSequenceId
                                                    && sequenceId > LastSuccessfulUpdateSequienceId &&
@@ -54,17 +54,23 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
             return;
         }
 
-        base.ProcessUnsyncedUpdateMessage(dispatchContext, sequenceId);
+        base.ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
         LinkedDeserializer.ClearSyncRing();
-        SaveMessageToSyncSlot(dispatchContext, sequenceId);
-        Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}, WakeUpTs={3}, " +
-                    "DeserializeTs={4}, ReceivingTimestamp={5}",
-            LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId,
-            dispatchContext.DetectTimestamp.ToString(DateTimeFormat),
-            dispatchContext.DeserializerTimestamp.ToString(DateTimeFormat),
-            dispatchContext.ReceivingTimestamp.ToString(DateTimeFormat));
+        SaveMessageToSyncSlot(bufferContext, sequenceId);
+        var dispatchContext = bufferContext as DispatchContext;
+        if (dispatchContext != null)
+            Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}, WakeUpTs={3}, " +
+                        "DeserializeTs={4}, ReceivingTimestamp={5}",
+                LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId,
+                dispatchContext.DetectTimestamp.ToString(DateTimeFormat),
+                dispatchContext.DeserializerTimestamp.ToString(DateTimeFormat),
+                dispatchContext.ReceivingTimestamp.ToString(DateTimeFormat));
+        else
+            Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}",
+                LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId);
+
         SwitchState(QuoteSyncState.Synchronising);
-        PublishQuoteRunAction(PQSyncStatus.OutOfSync, dispatchContext.DispatchLatencyLogger,
+        PublishQuoteRunAction(PQSyncStatus.OutOfSync, dispatchContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnOutOfSync);
     }
 

@@ -23,7 +23,7 @@ public class PQClientMessageStreamDecoderTests
     private const int BufferReadWriteOffset = 100;
     private const uint ExpectedStreamId = uint.MaxValue;
     private const int TotalDataHeaderByteSize = 14;
-    private const int MessageSizeToQuoteSerializer = 126;
+    private const int MessageSizeToQuoteSerializer = 126 + PQQuoteMessageHeader.HeaderSize;
     private DispatchContext dispatchContext = null!;
     private Mock<IMessageDeserializer> moqBinaryDeserializer = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqDeserializersMap = null!;
@@ -66,7 +66,7 @@ public class PQClientMessageStreamDecoderTests
             .Callback<DispatchContext>(dc =>
             {
                 // ReSharper disable once AccessToModifiedClosure
-                Assert.AreEqual(writeStartOffset + TotalDataHeaderByteSize, dc.EncodedBuffer!.ReadCursor);
+                Assert.AreEqual(writeStartOffset, dc.EncodedBuffer!.ReadCursor);
                 Assert.AreEqual(MessageSizeToQuoteSerializer, dc.MessageSize);
             })
             .Returns(null!).Verifiable();
@@ -106,7 +106,7 @@ public class PQClientMessageStreamDecoderTests
             .Callback<DispatchContext>(dc =>
             {
                 // ReSharper disable once AccessToModifiedClosure
-                Assert.AreEqual(writeStartOffset + TotalDataHeaderByteSize, dc.EncodedBuffer!.ReadCursor);
+                Assert.AreEqual(writeStartOffset, dc.EncodedBuffer!.ReadCursor);
                 Assert.AreEqual(0, dc.MessageSize);
             })
             .Returns(null!).Verifiable();
@@ -129,10 +129,7 @@ public class PQClientMessageStreamDecoderTests
 
         writeStartOffset = readWriteBuffer.WrittenCursor;
         moqBinaryDeserializer.Setup(bu => bu.Deserialize(dispatchContext))
-            .Callback<DispatchContext>(dc =>
-            {
-                Assert.AreEqual(writeStartOffset + TotalDataHeaderByteSize, dc.EncodedBuffer!.ReadCursor);
-            })
+            .Callback<DispatchContext>(dc => { Assert.AreEqual(writeStartOffset, dc.EncodedBuffer!.ReadCursor); })
             .Returns(null!).Verifiable();
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
@@ -154,7 +151,7 @@ public class PQClientMessageStreamDecoderTests
             .Callback<DispatchContext>(dc =>
             {
                 // ReSharper disable once AccessToModifiedClosure
-                Assert.AreEqual(writeStartOffset + TotalDataHeaderByteSize, dc.EncodedBuffer!.ReadCursor);
+                Assert.AreEqual(writeStartOffset, dc.EncodedBuffer!.ReadCursor);
             })
             .Returns(null!).Verifiable();
 
@@ -177,8 +174,8 @@ public class PQClientMessageStreamDecoderTests
         moqBinaryDeserializer.Setup(bu => bu.Deserialize(dispatchContext))
             .Callback<DispatchContext>(dc =>
             {
-                Assert.AreEqual(writeStartOffset + TotalDataHeaderByteSize, dc.EncodedBuffer!.ReadCursor);
-                Assert.AreEqual(0, dc.MessageSize);
+                Assert.AreEqual(writeStartOffset, dc.EncodedBuffer!.ReadCursor);
+                Assert.AreEqual(140, dc.MessageSize);
             })
             .Returns(null!)
             .Verifiable();

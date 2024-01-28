@@ -45,7 +45,7 @@ public class OrxVenueCriteriaTests
         };
 
         dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<VenueCriterias>(new OrxDeserializerLookup(
             new Recycler()));

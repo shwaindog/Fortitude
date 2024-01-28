@@ -352,11 +352,11 @@ public class PQLevel0QuoteTests
         emptyQuote.CopyFrom(fullyPopulatedPqLevel0Quote);
         Assert.AreEqual(fullyPopulatedPqLevel0Quote.ClientReceivedTime, emptyQuote.ClientReceivedTime);
         Assert.AreEqual(fullyPopulatedPqLevel0Quote.PQSequenceId, emptyQuote.PQSequenceId);
-        Assert.AreEqual(fullyPopulatedPqLevel0Quote.SourceTime, emptyQuote.SourceTime);
+        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
         Assert.IsTrue(
             fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
-        Assert.AreEqual(fullyPopulatedPqLevel0Quote.IsReplay, emptyQuote.IsReplay);
-        Assert.AreEqual(fullyPopulatedPqLevel0Quote.SinglePrice, emptyQuote.SinglePrice);
+        Assert.AreEqual(false, emptyQuote.IsReplay);
+        Assert.AreEqual(0m, emptyQuote.SinglePrice);
         Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);

@@ -44,13 +44,12 @@ public class OrxPartyTests
         };
 
         dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<Parties>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedOrxClientOrderId = (Parties)orderSubmitRequestsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(dispatchContext);
 
         Assert.AreEqual(originalClientOrderId.FirstParty, deserializedOrxClientOrderId.FirstParty);
         Assert.AreEqual(originalClientOrderId.SecondParty, deserializedOrxClientOrderId.SecondParty);

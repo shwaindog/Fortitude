@@ -1,14 +1,15 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization.SyncState;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -31,13 +32,19 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
 
     public override PQLevel0Quote? Deserialize(ISerdeContext readContext)
     {
-        if (readContext is DispatchContext dispatchContext)
+        if ((readContext.Direction & ContextDirection.Read) == 0)
+            throw new ArgumentException("Expected readContext to allow reading");
+        if ((readContext.MarshalType & MarshalType.Binary) == 0)
+            throw new ArgumentException("Expected readContext to be a binary buffer context");
+        if (readContext is IBufferContext bufferContext)
         {
-            dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
-            var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
-            if (msgHeader == null || msgHeader.Origin != PQFeedType.Update) return PublishedQuote as PQLevel0Quote;
-            UpdateQuote(dispatchContext, PublishedQuote, msgHeader.SequenceId);
-            PushQuoteToSubscribers(PQSyncStatus.Good, dispatchContext.DispatchLatencyLogger);
+            var dispatchContext = bufferContext as DispatchContext;
+            if (dispatchContext != null) dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
+
+            var sequenceId = StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
+                , bufferContext.EncodedBuffer.ReadCursor + PQQuoteMessageHeader.SequenceIdOffset);
+            UpdateQuote(bufferContext, PublishedQuote, sequenceId);
+            PushQuoteToSubscribers(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger);
             if (feedIsStopped)
                 OnSyncOk(this);
             else
@@ -45,10 +52,8 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
             feedIsStopped = false;
             return PublishedQuote as PQLevel0Quote;
         }
-        else
-        {
-            throw new ArgumentException("Expected readContext to be of type DispatchContext");
-        }
+
+        throw new ArgumentException("Expected readContext to be of type IBufferContext");
     }
 
     public override bool HasTimedOutAndNeedsSnapshot(DateTime utcNow)

@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization.SyncState;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -17,7 +16,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
 
     protected override void BuildSyncState()
     {
-        syncState = new SynchronisingState<PQLevel0Quote>(MoqPqQuoteStreamDeserializer.Object);
+        syncState = new SynchronisingState<PQLevel0Quote>(pqQuoteStreamDeserializer);
     }
 
     [TestMethod]
@@ -37,18 +36,6 @@ public class SynchronisingStateTests : SyncStateBaseTests
             PQFeedType.Update, 1);
         var dispatchContext = deserializeInputList.First();
 
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(true).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 1))
-            .Verifiable();
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.OnSyncOk(MoqPqQuoteStreamDeserializer.Object)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.SwitchSyncState(QuoteSyncState.InSync)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.PushQuoteToSubscribers(PQSyncStatus.Good,
-            MoqDispatchPerfLogger.Object)).Verifiable();
-
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
             {
@@ -61,22 +48,20 @@ public class SynchronisingStateTests : SyncStateBaseTests
 
         syncState.ProcessInState(dispatchContext);
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
     [TestMethod]
     public virtual void NewSyncState_ProcessInStateProcessNextExpectedUpdateCantSync_LogsProblem()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 1);
+            PQFeedType.Update, 2);
         var dispatchContext = deserializeInputList.First();
+        syncState.ProcessInState(dispatchContext);
 
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(false).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 1))
-            .Verifiable();
+        SendPqLevel0Quote.HasUpdates = true;
+        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
+            PQFeedType.Update, uint.MaxValue);
+        dispatchContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -86,14 +71,13 @@ public class SynchronisingStateTests : SyncStateBaseTests
                 Assert.AreEqual(4, strParams.Length);
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
                 Assert.AreEqual(0u, strParams[1]);
-                Assert.AreEqual(1u, strParams[2]);
-                Assert.AreEqual(0u, strParams[3]);
+                Assert.AreEqual(0u, strParams[2]);
+                Assert.AreEqual(3u, strParams[3]);
             }).Verifiable();
 
         syncState.ProcessInState(dispatchContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
     public override void NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour()
@@ -104,14 +88,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
             PQFeedType.Update, 1);
         var dispatchContext = deserializeInputList.First();
 
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.ClaimSyncSlotEntry()).Returns(SyncSlotPqLevel0Quote)
-            .Verifiable();
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, SyncSlotPqLevel0Quote, 1))
-            .Verifiable();
-
         syncState.ProcessInState(dispatchContext);
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
     [TestMethod]
@@ -120,19 +97,6 @@ public class SynchronisingStateTests : SyncStateBaseTests
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Snapshot, 1);
         var dispatchContext = deserializeInputList.First();
-
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(true).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 1))
-            .Verifiable();
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.OnSyncOk(MoqPqQuoteStreamDeserializer.Object)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.SwitchSyncState(QuoteSyncState.InSync)).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.PushQuoteToSubscribers(PQSyncStatus.Good,
-            MoqDispatchPerfLogger.Object)).Verifiable();
-
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
@@ -149,30 +113,21 @@ public class SynchronisingStateTests : SyncStateBaseTests
         syncState.ProcessInState(dispatchContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 
 
     [TestMethod]
-    public virtual void NewSyncState_ProcessInStateProcessSnapshotCantSync_LogsProblem()
+    public virtual void NewSyncState_ProcessInStateProcessSnapshotMovesToSnapshot_LogsRecovery()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             PQFeedType.Snapshot, 1);
         var dispatchContext = deserializeInputList.First();
 
-        uint mistmatchedSeqId;
-
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.Synchronize(out mistmatchedSeqId))
-            .Returns(false).Verifiable();
-        MoqPqQuoteStreamDeserializer.Setup(qsd => qsd.UpdateQuote(dispatchContext, DesersializerPqLevel0Quote, 1))
-            .Verifiable();
-
-
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
             (strTemplt, strParams) =>
             {
-                Assert.AreEqual("Stream {0} could not recover after snapshot, " +
-                                "PrevSeqId={1}, SnapshotSeqId={2}, MismatchedId={3}", strTemplt);
+                Assert.AreEqual("Stream {0} recovered after snapshot, PrevSeqId={1}," +
+                                " SnapshotSeqId={2}, LastUpdateSeqId={3}", strTemplt);
                 Assert.AreEqual(4, strParams.Length);
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
                 Assert.AreEqual(0u, strParams[1]);
@@ -183,6 +138,5 @@ public class SynchronisingStateTests : SyncStateBaseTests
         syncState.ProcessInState(dispatchContext);
 
         MoqFlogger.Verify();
-        MoqPqQuoteStreamDeserializer.Verify();
     }
 }

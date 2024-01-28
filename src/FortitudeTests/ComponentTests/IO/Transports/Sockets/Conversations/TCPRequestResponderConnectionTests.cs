@@ -88,7 +88,10 @@ public class TCPRequestResponderConnectionTests
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
                  responderDeserializers.Values)
+        {
             deserializersValue.Deserialized2 += ReceivedFromClientDeserializerCallback;
+            deserializersValue.MessageDeserialized += ReceivedFromClientDeserializerCallback;
+        }
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message
@@ -136,6 +139,11 @@ public class TCPRequestResponderConnectionTests
 
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, object? header
         , ISocketConversation? client)
+    {
+        responderReceivedMessage = msg;
+    }
+
+    private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, BasicMessageHeader msgHeader)
     {
         responderReceivedMessage = msg;
     }

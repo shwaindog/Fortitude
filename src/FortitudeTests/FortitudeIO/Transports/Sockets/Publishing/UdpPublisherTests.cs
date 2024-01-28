@@ -279,19 +279,19 @@ public class UdpPublisherTests
     {
         private readonly IBinarySerializationFactory binarySerializationFactory;
         private readonly IBinaryDeserializationFactory deserializationFactory;
-        private readonly IMessageStreamDecoder streamMessageStreamDecoder;
+        private readonly IMessageStreamDecoder messageStreamDecoder;
 
         public DummyUdpPublisher(IFLogger logger, ISocketDispatcher dispatcher,
             IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
             string sessionDescription, string? multicastInterface,
             IBinarySerializationFactory binarySerializationFactory
-            , IMessageStreamDecoder streamMessageStreamDecoder,
+            , IMessageStreamDecoder messageStreamDecoder,
             IBinaryDeserializationFactory deserializationFactory)
             : base(logger, dispatcher, networkingController,
                 connectionConfig, sessionDescription, multicastInterface)
         {
             this.binarySerializationFactory = binarySerializationFactory;
-            this.streamMessageStreamDecoder = streamMessageStreamDecoder;
+            this.messageStreamDecoder = messageStreamDecoder;
             this.deserializationFactory = deserializationFactory;
         }
 
@@ -303,23 +303,23 @@ public class UdpPublisherTests
 
         protected override UdpSubscriber BuildSubscriber(UdpPublisher publisher) =>
             new DummyUdpSubscriber(this, Logger, Dispatcher, NetworkingController, ConnectionConfig,
-                SessionDescription, 1, null, streamMessageStreamDecoder, deserializationFactory);
+                SessionDescription, 1, null, messageStreamDecoder, deserializationFactory);
 
         internal class DummyUdpSubscriber : UdpSubscriber
         {
             private readonly IBinaryDeserializationFactory deserializationFactory;
-            private readonly IMessageStreamDecoder streamMessageStreamDecoder;
+            private readonly IMessageStreamDecoder messageStreamDecoder;
 
             public DummyUdpSubscriber(UdpPublisher udpPublisher, IFLogger logger, ISocketDispatcher dispatcher,
                 IOSNetworkingController networkingController, IConnectionConfig connectionConfig,
                 string sessionDescription, int wholeMessagesPerReceive,
                 IMap<uint, IMessageDeserializer>? serializerCache,
-                IMessageStreamDecoder streamMessageStreamDecoder
+                IMessageStreamDecoder messageStreamDecoder
                 , IBinaryDeserializationFactory deserializationFactory)
                 : base(udpPublisher, logger, dispatcher, networkingController,
                     connectionConfig, sessionDescription, wholeMessagesPerReceive, serializerCache)
             {
-                this.streamMessageStreamDecoder = streamMessageStreamDecoder;
+                this.messageStreamDecoder = messageStreamDecoder;
                 this.deserializationFactory = deserializationFactory;
             }
 
@@ -333,7 +333,7 @@ public class UdpPublisherTests
 
             public override IMessageStreamDecoder GetDecoder(
                 IMap<uint, IMessageDeserializer> decoderDeserializers) =>
-                streamMessageStreamDecoder;
+                messageStreamDecoder;
 
             protected override IBinaryDeserializationFactory GetFactory() => deserializationFactory;
 

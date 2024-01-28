@@ -357,11 +357,6 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        ClientReceivedTime = source.ClientReceivedTime;
-        SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
-        SourceTime = source.SourceTime;
-        IsReplay = source.IsReplay;
-        SinglePrice = source.SinglePrice;
         if (source is IPQLevel0Quote ipq0)
         {
             if (PQSourceTickerQuoteInfo != null)
@@ -377,6 +372,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             if (ipq0.IsSinglePriceUpdated) SinglePrice = ipq0.SinglePrice;
             if (ipq0.IsSyncStatusUpdated) PQSyncStatus = ipq0.PQSyncStatus;
             //PQ tracks its own changes only copy explicit changes
+
             PQSequenceId = ipq0.PQSequenceId;
             SocketReceivingTime = ipq0.SocketReceivingTime;
             DispatchedTime = ipq0.DispatchedTime;
@@ -388,6 +384,14 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                 UpdatedFlags = pq0.UpdatedFlags;
                 LastPublicationTime = pq0.LastPublicationTime;
             }
+        }
+        else
+        {
+            ClientReceivedTime = source.ClientReceivedTime;
+            SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
+            SourceTime = source.SourceTime;
+            IsReplay = source.IsReplay;
+            SinglePrice = source.SinglePrice;
         }
 
         return this;

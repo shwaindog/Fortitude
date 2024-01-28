@@ -42,13 +42,12 @@ public class OrxByteSerializerTests
         };
 
         dispatchContext.MessageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxDoubleStringArrayDeserializer = new OrxByteDeserializer<DoubleStringArray>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedDblStrArry = (DoubleStringArray)orxDoubleStringArrayDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedDblStrArry = orxDoubleStringArrayDeserializer.Deserialize(dispatchContext);
 
         Assert.IsTrue(originalDoubleStringArray.FirstStringArray
             .SequenceEqual(deserializedDblStrArry.FirstStringArray!));
@@ -67,13 +66,12 @@ public class OrxByteSerializerTests
         };
 
         dispatchContext.MessageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxLongsDeserializer = new OrxByteDeserializer<Longs>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedLongs = (Longs)orxLongsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedLongs = orxLongsDeserializer.Deserialize(dispatchContext);
 
         Assert.AreEqual(long.MaxValue, deserializedLongs.FirstLong);
         Assert.AreEqual(long.MinValue, deserializedLongs.SecondLong);
@@ -92,12 +90,12 @@ public class OrxByteSerializerTests
         };
 
         dispatchContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<Strings>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedStrings = (Strings)orxStringsDeserializer
+        var deserializedStrings = orxStringsDeserializer
             .Deserialize(dispatchContext);
 
         Assert.AreEqual("FirstString", deserializedStrings.FirstString);
@@ -117,13 +115,12 @@ public class OrxByteSerializerTests
         };
 
         dispatchContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<MutableStrings>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedStrings = (MutableStrings)orxStringsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedStrings = orxStringsDeserializer.Deserialize(dispatchContext);
 
         Assert.AreEqual("FirstString", deserializedStrings.FirstString);
         Assert.AreEqual("SecondString", deserializedStrings.SecondString);

@@ -46,13 +46,12 @@ public class OrxSpotOrderTests
         };
 
         dispatchContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<SpotOrders>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedOrxClientOrderId = (SpotOrders)orderSubmitRequestsDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(dispatchContext);
 
         Assert.AreEqual(originalClientOrderId.FirstSpotOrder, deserializedOrxClientOrderId.FirstSpotOrder);
         Assert.AreEqual(originalClientOrderId.SecondSpotOrder, deserializedOrxClientOrderId.SecondSpotOrder);

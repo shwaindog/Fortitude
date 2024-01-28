@@ -15,5 +15,7 @@ public interface ICallbackMessageDeserializer<out TM> : IMessageDeserializer<TM>
     event Action<TM, object?, ISession?>? Deserialized;
 
     event Action<TM, object?, ISocketConversation?>? Deserialized2;
+
+    event Action<TM, BasicMessageHeader> MessageDeserialized;
     bool IsRegistered(Action<TM, object, ISessionConnection> deserializedHandler);
 }

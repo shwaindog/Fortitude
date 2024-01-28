@@ -11,8 +11,6 @@ namespace FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 
 public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
 {
-    public const int HeaderSize = 2 * OrxConstants.UInt16Sz + OrxConstants.UInt8Sz;
-
     private readonly IMap<uint, IMessageDeserializer> deserializers;
 
     private ushort messageId;
@@ -22,7 +20,7 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
     public OrxMessageStreamDecoder(IMap<uint, IMessageDeserializer> deserializers) =>
         this.deserializers = deserializers;
 
-    public int ExpectedSize { get; private set; } = HeaderSize;
+    public int ExpectedSize { get; private set; } = OrxMessageHeader.HeaderSize;
 
     public int NumberOfReceivesPerPoll => 1;
 
@@ -47,11 +45,10 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
                     dispatchContext.MessageVersion = *ptr++;
                     messageId = StreamByteOps.ToUShort(ref ptr);
                     ExpectedSize = StreamByteOps.ToUShort(ref ptr);
-                    dispatchContext.MessageSize = ExpectedSize;
+                    dispatchContext.MessageSize = ExpectedSize + OrxMessageHeader.HeaderSize;
                 }
 
                 state = State.Data;
-                read += HeaderSize;
             }
             else
             {
@@ -61,9 +58,9 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
                     u!.Deserialize(dispatchContext);
                 }
 
-                read += ExpectedSize;
+                read += ExpectedSize + OrxMessageHeader.HeaderSize;
                 state = State.Header;
-                ExpectedSize = HeaderSize;
+                ExpectedSize = OrxMessageHeader.HeaderSize;
             }
 
         dispatchContext.DispatchLatencyLogger?.Dedent();

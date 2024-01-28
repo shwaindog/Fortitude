@@ -6,6 +6,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -70,19 +71,19 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
     public unsafe Tm Deserialize(ISerdeContext readContext)
     {
-        if (readContext is DispatchContext dispatchContext)
-        {
-            dispatchContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
-            fixed (byte* fptr = dispatchContext.EncodedBuffer!.Buffer)
+        var dispatchContext = readContext as DispatchContext;
+        dispatchContext?.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
+        if (readContext is IBufferContext bufferContext)
+            fixed (byte* fptr = bufferContext.EncodedBuffer!.Buffer)
             {
-                return (Tm)Deserialize(fptr + dispatchContext.EncodedBuffer.ReadCursor,
-                    dispatchContext.MessageSize, dispatchContext.MessageVersion);
+                var messageVersion = bufferContext.ReadCurrentMessageVersion();
+                var messageSize = bufferContext.ReadCurrentMessageSize();
+                return (Tm)Deserialize(
+                    fptr + bufferContext.EncodedBuffer.ReadCursor + OrxMessageHeader.HeaderSize,
+                    messageSize, messageVersion);
             }
-        }
-        else
-        {
-            throw new ArgumentException("Expected readContext to be of type DispatchContext");
-        }
+
+        throw new ArgumentException("Expected readContext to be of type IBufferContext");
     }
 
     private void SetCorrectMessageVersion(byte messageVersion, Type currentType)

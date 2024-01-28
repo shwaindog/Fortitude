@@ -41,13 +41,12 @@ public class OrxOrderIdTests
             , "TrackingId1234");
 
         dispatchContext.MessageSize = orxOrxOrderIdSerializer.Serialize(originalOrderId,
-            byteBuffer, 0, 0);
+            byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxOrderIdDeserializer = new OrxByteDeserializer<OrxOrderId>(
             new OrxDeserializerLookup(new Recycler()));
 
-        var deserializedOrxClientOrderId = (OrxOrderId)orxOrderIdDeserializer
-            .Deserialize(dispatchContext);
+        var deserializedOrxClientOrderId = orxOrderIdDeserializer.Deserialize(dispatchContext);
 
         Assert.AreEqual(originalOrderId.ClientOrderId,
             deserializedOrxClientOrderId.ClientOrderId);

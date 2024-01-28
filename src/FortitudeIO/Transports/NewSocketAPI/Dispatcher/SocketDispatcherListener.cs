@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
+using FortitudeCommon.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
 using FortitudeIO.Transports.Sockets.Logging;
@@ -18,7 +19,7 @@ public interface ISocketDispatcherListener : ISocketDispatcherCommon
 
 public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherListener
 {
-    private readonly DispatchContext dispatchContext = new();
+    private readonly DispatchContext dispatchContext = new() { Direction = ContextDirection.Read };
     private readonly IIntraOSThreadSignal manualResetEvent;
     private readonly IPerfLoggerPool receiveSocketDispatcherLatencyTraceLoggerPool;
     private readonly ISocketSelector selector;

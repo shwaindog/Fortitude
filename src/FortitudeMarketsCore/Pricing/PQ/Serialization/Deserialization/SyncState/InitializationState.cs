@@ -1,8 +1,7 @@
 #region
 
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -13,9 +12,9 @@ public class InitializationState<T> : SynchronisingState<T> where T : PQLevel0Qu
     public InitializationState(IPQQuoteDeserializer<T> linkedDeserializer) : base(linkedDeserializer,
         QuoteSyncState.InitializationState) { }
 
-    protected override void ProcessUnsyncedUpdateMessage(DispatchContext dispatchContext, uint sequenceId)
+    protected override void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
     {
-        base.ProcessUnsyncedUpdateMessage(dispatchContext, sequenceId);
+        base.ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
         SwitchState(QuoteSyncState.Synchronising);
     }
 
@@ -25,13 +24,12 @@ public class InitializationState<T> : SynchronisingState<T> where T : PQLevel0Qu
             LinkedDeserializer.Identifier, sequenceId);
     }
 
-    protected override void ProcessUpdate(DispatchContext dispatchContext)
+    protected override void ProcessUpdate(IBufferContext bufferContext)
     {
-        var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
-        if (msgHeader == null) return;
-        if (msgHeader.SequenceId == 0)
-            ProcessNextExpectedUpdate(dispatchContext, msgHeader.SequenceId);
+        var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
+        if (sequenceId == 0)
+            ProcessNextExpectedUpdate(bufferContext, sequenceId);
         else
-            ProcessUnsyncedUpdateMessage(dispatchContext, msgHeader.SequenceId);
+            ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
     }
 }

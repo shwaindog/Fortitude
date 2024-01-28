@@ -38,7 +38,6 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
                 dispatchContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
             }
 
-            read += 5;
             if (deserializers.TryGetValue(messageId, out var u))
             {
                 dispatchContext.EncodedBuffer.ReadCursor = read;

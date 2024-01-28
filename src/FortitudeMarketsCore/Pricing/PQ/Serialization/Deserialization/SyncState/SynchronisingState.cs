@@ -1,9 +1,9 @@
 ﻿#region
 
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -19,9 +19,9 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
     public SynchronisingState(IPQQuoteDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Synchronising) { }
 
-    protected override void ProcessNextExpectedUpdate(DispatchContext dispatchContext, uint sequenceId)
+    protected override void ProcessNextExpectedUpdate(IBufferContext bufferContext, uint sequenceId)
     {
-        base.ProcessNextExpectedUpdate(dispatchContext, sequenceId);
+        base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
 
         var prevSeqId = LinkedDeserializer.PublishedQuote.PQSequenceId;
         uint mismatchedSeqId;
@@ -35,7 +35,8 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
 
         LogSyncRecoveryMessage(sequenceId);
         SwitchState(QuoteSyncState.InSync);
-        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext.DispatchLatencyLogger,
+        var dispatchContext = bufferContext as DispatchContext;
+        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
     }
 
@@ -45,35 +46,33 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
             LinkedDeserializer.Identifier, sequenceId);
     }
 
-    protected override void ProcessUnsyncedUpdateMessage(DispatchContext dispatchContext, uint sequenceId)
+    protected override void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
     {
-        base.ProcessUnsyncedUpdateMessage(dispatchContext, sequenceId);
-        SaveMessageToSyncSlot(dispatchContext, sequenceId);
+        base.ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
+        SaveMessageToSyncSlot(bufferContext, sequenceId);
     }
 
-    public override void ProcessSnapshot(DispatchContext dispatchContext)
+    public override void ProcessSnapshot(IBufferContext bufferContext)
     {
-        var msgHeader = dispatchContext.MessageHeader as PQQuoteTransmissionHeader;
         var prevSeqId = LinkedDeserializer.PublishedQuote.PQSequenceId;
-        if (msgHeader != null)
+        var currSeqId = bufferContext.ReadCurrentMessageSequenceId();
+        LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote,
+            currSeqId);
+        uint mismatchedSeqId;
+        if (!LinkedDeserializer.Synchronize(out mismatchedSeqId))
         {
-            LinkedDeserializer.UpdateQuote(dispatchContext, LinkedDeserializer.PublishedQuote,
-                msgHeader.SequenceId);
-            uint mismatchedSeqId;
-            if (!LinkedDeserializer.Synchronize(out mismatchedSeqId))
-            {
-                Logger.Info("Stream {0} could not recover after snapshot, " +
-                            "PrevSeqId={1}, SnapshotSeqId={2}, MismatchedId={3}",
-                    LinkedDeserializer.Identifier, prevSeqId, msgHeader.SequenceId, mismatchedSeqId);
-                return;
-            }
-
-            Logger.Info(
-                "Stream {0} recovered after snapshot, PrevSeqId={1}, SnapshotSeqId={2}, LastUpdateSeqId={3}",
-                LinkedDeserializer.Identifier, prevSeqId, msgHeader.SequenceId, prevSeqId);
+            Logger.Info("Stream {0} could not recover after snapshot, " +
+                        "PrevSeqId={1}, SnapshotSeqId={2}, MismatchedId={3}",
+                LinkedDeserializer.Identifier, prevSeqId, currSeqId, mismatchedSeqId);
+            return;
         }
 
-        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext.DispatchLatencyLogger,
+        Logger.Info(
+            "Stream {0} recovered after snapshot, PrevSeqId={1}, SnapshotSeqId={2}, LastUpdateSeqId={3}",
+            LinkedDeserializer.Identifier, prevSeqId, currSeqId, prevSeqId);
+
+        var dispatchContext = bufferContext as DispatchContext;
+        PublishQuoteRunAction(PQSyncStatus.Good, dispatchContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
         SwitchState(QuoteSyncState.InSync);
     }

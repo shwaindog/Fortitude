@@ -3,6 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -22,7 +23,6 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
     private readonly StaticRing<T> syncRing;
     private SyncStateBase<T> currentSyncState;
 
-
     public PQQuoteDeserializer(ISourceTickerClientAndPublicationConfig identifier) : base(identifier)
     {
         SyncRetryMs = identifier.SyncRetryIntervalMs;
@@ -39,21 +39,22 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
 
     public bool AllowUpdatesCatchup { get; }
 
-    public override PQLevel0Quote? Deserialize(ISerdeContext readContext)
+    public override PQLevel0Quote Deserialize(ISerdeContext readContext)
     {
-        if (readContext is DispatchContext dispatchContext)
+        if (readContext is IBufferContext bufferContext)
         {
-            dispatchContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
-            dispatchContext.DeserializerTimestamp = TimeContext.UtcNow;
+            if (bufferContext is DispatchContext dispachContext)
+            {
+                dispachContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
+                dispachContext.DeserializerTimestamp = TimeContext.UtcNow;
+            }
 
-            currentSyncState.ProcessInState(dispatchContext);
+            currentSyncState.ProcessInState(bufferContext);
 
             return PublishedQuote;
         }
-        else
-        {
-            throw new ArgumentException("Expected readContext to be of type DispatchContext");
-        }
+
+        throw new ArgumentException("Expected readContext to be of type IBufferContext");
     }
 
     public void ClearSyncRing()
