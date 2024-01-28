@@ -11,6 +11,13 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook.LayerSelector;
 
+public interface IPQOrderBookLayerFactorySelector :
+    ILayerFlagsSelector<IOrderBookLayerFactory, IPQSourceTickerQuoteInfo>
+{
+    bool TypeCanWholeyContain(Type copySourceType, Type copyDestinationType);
+    IPQPriceVolumeLayer? SelectPriceVolumeLayer(IPQPriceVolumeLayer? original, IPriceVolumeLayer? desired);
+}
+
 public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IOrderBookLayerFactory, IPQSourceTickerQuoteInfo>,
     IPQOrderBookLayerFactorySelector
 {

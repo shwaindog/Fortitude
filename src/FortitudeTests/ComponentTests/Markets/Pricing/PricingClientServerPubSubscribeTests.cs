@@ -113,9 +113,10 @@ public class PricingClientServerPubSubscribeTests
         var pqPublisher = new PQPublisher<PQLevel2Quote>(pqServer);
         pqPublisher.RegisterTickersWithServer(sourceTickerPublicationConfigs);
         var sourcePriceQuote = GenerateL2QuoteWithSourceNameLayer();
-        pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 
         logger.Info("Started PQServer");
+        // logger.Info("About to publish first quote {0}", sourcePriceQuote);
+        pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 
         // setup listener after publish means first message will be missed and snapshot will be required.
         ILevel2Quote? alwaysUpdatedQuote = null;
@@ -125,12 +126,21 @@ public class PricingClientServerPubSubscribeTests
         streamSubscription!.Subscribe(
             pQuote =>
             {
+                // logger.Info("Client Received pQuote {0}", pQuote);
                 alwaysUpdatedQuote = ConvertPQToLevel2QuoteWithSourceNameLayer(pQuote);
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });
         logger.Info("Started PQClient and subscribed");
 
-        autoResetEvent.WaitOne(3000);
+        var count = 0;
+        while ((alwaysUpdatedQuote == null || alwaysUpdatedQuote.SinglePrice == 0m) &&
+               count++ < 10) // depending on pub subscribe first quote may be empty
+        {
+            logger.Info("Awaiting first non-empty quote as alwaysUpdateQuote is {0}.", alwaysUpdatedQuote);
+            autoResetEvent.WaitOne(3_000);
+        }
+
+        Assert.IsNotNull(alwaysUpdatedQuote);
         logger.Info("Received first update {0}", alwaysUpdatedQuote);
         var destinationSnapshot = alwaysUpdatedQuote!.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);

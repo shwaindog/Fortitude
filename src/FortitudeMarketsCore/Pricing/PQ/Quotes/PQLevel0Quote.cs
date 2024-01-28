@@ -56,6 +56,16 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         if (toClone is PQLevel0Quote plLevel0Quote) UpdatedFlags = plLevel0Quote.UpdatedFlags;
     }
 
+    protected string Level0ToStringMembers =>
+        $"{nameof(PQSourceTickerQuoteInfo)}: {PQSourceTickerQuoteInfo}, {nameof(PQSequenceId)}: {PQSequenceId}, " +
+        $"{nameof(PQSyncStatus)}: {PQSyncStatus}, {nameof(LastPublicationTime)}: {LastPublicationTime}, " +
+        $"{nameof(SourceTime)}: {SourceTime}, {nameof(DispatchedTime)}: {DispatchedTime}, " +
+        $"{nameof(ProcessedTime)}: {ProcessedTime}, {nameof(IsSourceTimeDateUpdated)}: {IsSourceTimeDateUpdated}, " +
+        $"{nameof(IsSourceTimeSubHourUpdated)}: {IsSourceTimeSubHourUpdated}, " +
+        $"{nameof(IsSyncStatusUpdated)}: {IsSyncStatusUpdated}, {nameof(SinglePrice)}: {SinglePrice}, " +
+        $"{nameof(IsSinglePriceUpdated)}: {IsSinglePriceUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
+        $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
+
     public uint MessageId => (uint)PricingMessageIds.PricingMessage;
 
     public uint PQSequenceId { get; set; }
@@ -505,4 +515,6 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             return hashCode;
         }
     }
+
+    public override string ToString() => $"{GetType().Name}({Level0ToStringMembers})";
 }

@@ -14,6 +14,15 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
 
+public interface IPQTraderPriceVolumeLayer : IMutableTraderPriceVolumeLayer, IPQPriceVolumeLayer,
+    IEnumerable<IPQTraderLayerInfo>, IPQSupportsStringUpdates<IPriceVolumeLayer>
+{
+    new IPQTraderLayerInfo? this[int index] { get; set; }
+    IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
+    new IPQTraderPriceVolumeLayer Clone();
+    new IEnumerator<IPQTraderLayerInfo> GetEnumerator();
+}
+
 public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolumeLayer
 {
     private const int PositionShift = 24;
@@ -53,6 +62,9 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
             TraderNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
                 PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
     }
+
+    protected string PQTraderPriceVolumeLayerToStringMembers =>
+        $"{PQPriceVolumeLayerToStringMembers}, {nameof(TraderDetails)}: [{string.Join(", ", TraderDetails)}]";
 
     IMutableTraderLayerInfo? IMutableTraderPriceVolumeLayer.this[int i]
     {
@@ -359,10 +371,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         }
     }
 
-    public override string ToString() =>
-        $"PQTraderPriceVolumeLayer {{ {nameof(Price)}: {Price:N5}, " +
-        $"{nameof(Volume)}: {Volume:N2}, {nameof(TraderDetails)}:[ " +
-        $"{string.Join(",", TraderDetails)}], {nameof(Count)}: {Count} }}";
+    public override string ToString() => $"{GetType().Name}({PQTraderPriceVolumeLayerToStringMembers})";
 
     [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
     private void AssertMaxTraderSizeNotExceeded(int proposedNewIndex)

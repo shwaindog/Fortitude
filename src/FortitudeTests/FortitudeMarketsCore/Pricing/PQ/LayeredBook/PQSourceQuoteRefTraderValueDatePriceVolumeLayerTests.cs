@@ -974,7 +974,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.SourceQuoteReference)}: " +
                                         $"{populatedPvl.SourceQuoteReference:N0}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.ValueDate)}: {populatedPvl.ValueDate}"));
-        Assert.IsTrue(toString.Contains("TraderDetails:["));
+        Assert.IsTrue(toString.Contains("TraderDetails: ["));
         for (var i = 0; i < populatedPvl.Count; i++) Assert.IsTrue(toString.Contains(populatedPvl[i]!.ToString()!));
     }
 

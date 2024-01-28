@@ -12,6 +12,13 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
 
+public interface IPQSourceQuoteRefTraderValueDatePriceVolumeLayer : IPQTraderPriceVolumeLayer,
+    IPQValueDatePriceVolumeLayer, IPQSourceQuoteRefPriceVolumeLayer,
+    IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer
+{
+    new IPQSourceQuoteRefTraderValueDatePriceVolumeLayer Clone();
+}
+
 public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolumeLayer,
     IPQSourceQuoteRefTraderValueDatePriceVolumeLayer
 {
@@ -62,6 +69,12 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         if (toClone is IValueDatePriceVolumeLayer valueDatePvl) ValueDate = valueDatePvl.ValueDate;
         SetFlagsSame(toClone);
     }
+
+    protected string PQSourceQuoteRefTraderValueDatePriceVolumeLayerToStringMembers =>
+        $"{nameof(Price)}: {Price:N5}, " +
+        $"{nameof(Volume)}: {Volume:N2}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
+        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, " +
+        $"{nameof(Count)}: {Count} {PQTraderPriceVolumeLayerToStringMembers}";
 
     public DateTime ValueDate
     {
@@ -421,10 +434,5 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
     }
 
     public override string ToString() =>
-        $"PQSourceQuoteRefTraderValueDatePriceVolumeLayer {{ {nameof(Price)}: {Price:N5}, " +
-        $"{nameof(Volume)}: {Volume:N2}, {nameof(TraderDetails)}:[ " +
-        $"{string.Join(",", TraderDetails)}], {nameof(Count)}: {Count}," +
-        $" {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
-        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, " +
-        $"{nameof(ValueDate)}: {ValueDate}, }}";
+        $"{GetType().Name}({PQSourceQuoteRefTraderValueDatePriceVolumeLayerToStringMembers})";
 }

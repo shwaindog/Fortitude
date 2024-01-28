@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -10,6 +11,15 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.LastTraded;
+
+public interface IPQLastTrade : IMutableLastTrade, IPQSupportsFieldUpdates<ILastTrade>,
+    IRelatedItem<ISourceTickerQuoteInfo>, IRelatedItem<IPQLastTrade>
+{
+    bool IsTradeTimeSubHourUpdated { get; set; }
+    bool IsTradeTimeDateUpdated { get; set; }
+    bool IsTradePriceUpdated { get; set; }
+    new IPQLastTrade Clone();
+}
 
 public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 {
@@ -36,6 +46,9 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             IsTradePriceUpdated = pqLastTrade.IsTradePriceUpdated;
         }
     }
+
+    protected string PQLastTradeToStringMembers =>
+        $"{nameof(TradePrice)}: {TradePrice:N5}, {nameof(TradeTime)}: {TradeTime:O}";
 
     public DateTime TradeTime
     {
@@ -221,6 +234,5 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
     }
 
-    public override string ToString() =>
-        $"PQLastTrade {{ {nameof(TradePrice)}: {TradePrice:N5}, {nameof(TradeTime)}: {TradeTime:O} }}";
+    public override string ToString() => $"{GetType().Name}({PQLastTradeToStringMembers})";
 }

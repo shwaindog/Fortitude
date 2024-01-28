@@ -11,6 +11,15 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LastTraded;
 
+public interface IPQLastTraderPaidGivenTrade : IPQLastPaidGivenTrade, IMutableLastTraderPaidGivenTrade,
+    IPQSupportsStringUpdates<ILastTrade>
+{
+    int TraderId { get; set; }
+    bool IsTraderNameUpdated { get; set; }
+    IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
+    new IPQLastTraderPaidGivenTrade Clone();
+}
+
 public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPaidGivenTrade
 {
     private int traderId;
@@ -49,6 +58,11 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
             TraderNameIdLookup = new PQNameIdLookupGenerator(
                 PQFieldKeys.LastTraderDictionaryUpsertCommand, PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
     }
+
+
+    protected string PQLastTraderPaidGivenTradeToStringMembers =>
+        $"{PQLastPaidGivenTradeToStringMembers}, {nameof(TraderName)}: {TraderName}";
+
 
     public int TraderId
     {
@@ -219,9 +233,5 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
     }
 
-    public override string ToString() =>
-        $"PQLastTraderPaidGivenTrade {{ {nameof(TradePrice)}: {TradePrice:N5}," +
-        $" {nameof(TradeTime)}: {TradeTime:O}, {nameof(WasPaid)}: {WasPaid}, " +
-        $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2}, " +
-        $"{nameof(TraderName)}: {TraderName} }}";
+    public override string ToString() => $"{GetType().Name}({PQLastTraderPaidGivenTradeToStringMembers})";
 }

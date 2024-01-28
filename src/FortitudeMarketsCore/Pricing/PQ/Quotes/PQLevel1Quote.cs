@@ -154,6 +154,22 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         }
     }
 
+    protected string Level1ToStringMembers =>
+        $"{base.ToString()}, {nameof(IsSourceAskTimeDateUpdated)}: {IsSourceAskTimeDateUpdated}, " +
+        $"{nameof(IsSourceAskTimeSubHourUpdated)}: {IsSourceAskTimeSubHourUpdated}, " +
+        $"{nameof(IsSourceBidTimeDateUpdated)}: {IsSourceBidTimeDateUpdated}, " +
+        $"{nameof(IsSourceBidTimeSubHourUpdated)}: {IsSourceBidTimeSubHourUpdated}, " +
+        $"{nameof(IsAdapterSentTimeDateUpdated)}: {IsAdapterSentTimeDateUpdated}, " +
+        $"{nameof(IsAdapterSentTimeSubHourUpdated)}: {IsAdapterSentTimeSubHourUpdated}, " +
+        $"{nameof(IsAdapterReceivedTimeDateUpdated)}: {IsAdapterReceivedTimeDateUpdated}, " +
+        $"{nameof(IsAdapterReceivedTimeSubHourUpdated)}: {IsAdapterReceivedTimeSubHourUpdated}, " +
+        $"{nameof(IsExecutableUpdated)}: {IsExecutableUpdated}, {nameof(SourceTime)}: {SourceTime}, " +
+        $"{nameof(SourceAskTime)}: {SourceAskTime}, {nameof(SourceBidTime)}: {SourceBidTime}, " +
+        $"{nameof(AdapterSentTime)}: {AdapterSentTime}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime}, " +
+        $"{nameof(BidPriceTop)}: {BidPriceTop}, {nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, " +
+        $"{nameof(AskPriceTop)}: {AskPriceTop}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
+        $"{nameof(Executable)}: {Executable}";
+
     public override DateTime SourceTime
     {
         get =>
@@ -412,21 +428,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     {
         base.CopyFrom(source);
 
-        var pq1 = source as PQLevel1Quote;
-        if (pq1 == null && source is ILevel1Quote l1Q) // normal copy
-        {
-            AdapterReceivedTime = l1Q.AdapterReceivedTime;
-            AdapterSentTime = l1Q.AdapterSentTime;
-            SourceBidTime = l1Q.SourceBidTime;
-            SourceAskTime = l1Q.SourceAskTime;
-            BidPriceTop = l1Q.BidPriceTop;
-            AskPriceTop = l1Q.AskPriceTop;
-            IsAskPriceTopUpdated = l1Q.IsAskPriceTopUpdated;
-            IsBidPriceTopUpdated = l1Q.IsBidPriceTopUpdated;
-            Executable = l1Q.Executable;
-            PeriodSummary?.CopyFrom(new PQPeriodSummary(l1Q.PeriodSummary!));
-        }
-        else if (pq1 != null)
+        if (source is PQLevel1Quote pq1)
         {
             // between types only copy the changed parts not everything.
             if (pq1.IsAdapterReceivedTimeDateUpdated)
@@ -458,6 +460,19 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             if (pq1.IsExecutableUpdated) executable = pq1.executable;
             // ensure flags still match source
             UpdatedFlags = pq1.UpdatedFlags;
+        }
+        else if (source is ILevel1Quote l1Q) // normal copy
+        {
+            AdapterReceivedTime = l1Q.AdapterReceivedTime;
+            AdapterSentTime = l1Q.AdapterSentTime;
+            SourceBidTime = l1Q.SourceBidTime;
+            SourceAskTime = l1Q.SourceAskTime;
+            BidPriceTop = l1Q.BidPriceTop;
+            AskPriceTop = l1Q.AskPriceTop;
+            IsAskPriceTopUpdated = l1Q.IsAskPriceTopUpdated;
+            IsBidPriceTopUpdated = l1Q.IsBidPriceTopUpdated;
+            Executable = l1Q.Executable;
+            PeriodSummary?.CopyFrom(new PQPeriodSummary(l1Q.PeriodSummary!));
         }
 
         return this;
@@ -540,4 +555,6 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             return hashCode;
         }
     }
+
+    public override string ToString() => $"{GetType().Name}({Level0ToStringMembers}, {Level1ToStringMembers})";
 }

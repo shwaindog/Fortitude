@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -9,6 +10,14 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.LayeredBook;
+
+public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFieldUpdates<IPriceVolumeLayer>,
+    IRelatedItem<ISourceTickerQuoteInfo>, IRelatedItem<IPQPriceVolumeLayer>
+{
+    bool IsPriceUpdated { get; set; }
+    bool IsVolumeUpdated { get; set; }
+    new IPQPriceVolumeLayer Clone();
+}
 
 public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
 {
@@ -30,6 +39,8 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Volume = toClone.Volume;
         SetFlagsSame(toClone);
     }
+
+    protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
 
     public decimal Price
     {
@@ -186,7 +197,5 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
-    public override string ToString() =>
-        $"PQPriceVolumeLayer {{ {nameof(Price)}: {Price:N5}, " +
-        $"{nameof(Volume)}: {Volume:N2} }}";
+    public override string ToString() => $"{GetType().Name}({PQPriceVolumeLayerToStringMembers})";
 }

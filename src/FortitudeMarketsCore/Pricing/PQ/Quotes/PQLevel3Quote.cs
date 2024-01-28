@@ -48,6 +48,12 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         }
     }
 
+    protected string Level3ToStringMembers =>
+        $"{base.ToString()}, {nameof(BatchId)}: {BatchId}, {nameof(IsBatchIdUpdated)}: {IsBatchIdUpdated}, " +
+        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference}, " +
+        $"{nameof(IsSourceQuoteReferenceUpdated)}: {IsSourceQuoteReferenceUpdated}, {nameof(ValueDate)}: {ValueDate}, " +
+        $"{nameof(IsValueDateUpdated)}: {IsValueDateUpdated}, {nameof(RecentlyTraded)}: {RecentlyTraded}";
+
     public uint BatchId
     {
         get => batchId;
@@ -298,4 +304,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
             return hashCode;
         }
     }
+
+    public override string ToString() =>
+        $"{GetType().Name}({Level0ToStringMembers}, {Level1ToStringMembers}, {Level2ToStringMembers}, {Level3ToStringMembers})";
 }

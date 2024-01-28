@@ -63,11 +63,19 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     IPriceVolumeLayer? IOrderBook.this[int level] => BookLayers[level];
 
-    public int Count =>
-        BookLayers.Select((pvl, idx) => new { pvl, idx = (int?)(idx + 1) })
-            .Where(ipvl => ipvl.pvl != null && ipvl.pvl.Price > 0)
-            .Select(ipvl => ipvl.idx)
-            .Max() ?? 0;
+    public int Count
+    {
+        get
+        {
+            for (var i = BookLayers.Count - 1; i >= 0; i--)
+            {
+                var layerAtLevel = BookLayers[i];
+                if ((layerAtLevel?.Price ?? 0) > 0) return i + 1;
+            }
+
+            return 0;
+        }
+    }
 
     public int Capacity
     {

@@ -8,6 +8,14 @@ using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.LastTraded;
 
+public interface IPQLastPaidGivenTrade : IPQLastTrade, IMutableLastPaidGivenTrade
+{
+    bool IsWasPaidUpdated { get; set; }
+    bool IsWasGivenUpdated { get; set; }
+    bool IsTradeVolumeUpdated { get; set; }
+    new IPQLastPaidGivenTrade Clone();
+}
+
 [Flags]
 public enum LastTradeBooleanFlags : byte
 {
@@ -48,6 +56,10 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
         if (toClone is PQLastPaidGivenTrade pqLastPaidGiven) UpdatedFlags = pqLastPaidGiven.UpdatedFlags;
     }
+
+    protected string PQLastPaidGivenTradeToStringMembers =>
+        $"{PQLastTradeToStringMembers}, {nameof(WasPaid)}: {WasPaid}, " +
+        $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2}";
 
     public bool WasPaid
     {
@@ -215,8 +227,5 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
-    public override string ToString() =>
-        $"PQLastPaidGivenTrade {{ {nameof(TradePrice)}: {TradePrice:N5}," +
-        $" {nameof(TradeTime)}: {TradeTime:O}, {nameof(WasPaid)}: {WasPaid}, " +
-        $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2} }}";
+    public override string ToString() => $"{GetType().Name}({PQLastPaidGivenTradeToStringMembers})";
 }

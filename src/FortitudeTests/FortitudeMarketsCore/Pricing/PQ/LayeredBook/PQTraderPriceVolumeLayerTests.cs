@@ -824,7 +824,7 @@ public class PQTraderPriceVolumeLayerTests
         Assert.IsTrue(toString.Contains(populatedPvl.GetType().Name));
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.Price)}: {populatedPvl.Price:N5}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.Volume)}: {populatedPvl.Volume:N2}"));
-        Assert.IsTrue(toString.Contains("TraderDetails:["));
+        Assert.IsTrue(toString.Contains("TraderDetails: ["));
         for (var i = 0; i < populatedPvl.Count; i++) Assert.IsTrue(toString.Contains(populatedPvl[i]!.ToString()!));
     }
 
