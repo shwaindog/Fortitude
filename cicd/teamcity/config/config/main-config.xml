@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server SYSTEM "main-config.dtd">
+
+<server uuid="fd79e95b-daa8-458b-9b4d-fa707dce4130">
+  <version number="1003" />
+  <db-compact enabled="true">
+    <scheduler cron="0 0 3 * * ?" />
+  </db-compact>
+  <artifacts maxArtifactSize="314572800" artifact-paths="system/artifacts" maxArtifactsNumber="1000" />
+  <domain-isolation protection-enabled="true" />
+  <git nativeOperationsEnabled="true" />
+</server>
+
