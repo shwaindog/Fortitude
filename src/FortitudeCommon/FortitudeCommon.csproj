@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 		<Version>0.0.0.1</Version>
@@ -27,14 +27,6 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\code\Fortitude\src\FortitudeCoreCommon\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="C:\code\Fortitude\src\FortitudeCoreCommon\.editorconfig" />
   </ItemGroup>
 
 </Project>
