@@ -22,7 +22,7 @@ public class MarketServerConfigRepository<T> : IMarketServerConfigRepository<T>,
         currentConfigs = serverConfigs.ToDictionary(item => item.Id);
     }
 
-    public IEnumerable<IMarketServerConfig<T>> ServerConfigs => currentConfigs.Cast<IMarketServerConfig<T>>();
+    public IEnumerable<IMarketServerConfig<T>> ServerConfigs => currentConfigs.Values;
 
     public IEnumerable<T> CurrentConfigs => currentConfigs.Values;
 

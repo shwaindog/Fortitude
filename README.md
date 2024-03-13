@@ -1,6 +1,6 @@
 # Fortitude
 
-Is a .NET Core toolkit or library for .NET 7 for building low latency, high throughput 
+Is a .NET Core toolkit or library for .NET 8 for building low latency, high throughput 
 applications with protocols optimised for market trading applications.
 
 ## Goals
