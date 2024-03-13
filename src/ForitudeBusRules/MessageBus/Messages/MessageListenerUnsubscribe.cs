@@ -12,18 +12,12 @@ public interface ISubscription
     void Unsubscribe();
 }
 
-public class MessageListenerUnsubscribe : ISubscription
+public class MessageListenerUnsubscribe(IListeningRule subscriberRule, string publishAddress, string subscriberId)
+    : ISubscription
 {
-    public MessageListenerUnsubscribe(IListeningRule subscriberRule, string publishAddress, string subscriberId)
-    {
-        SubscriberRule = subscriberRule;
-        PublishAddress = publishAddress;
-        SubscriberId = subscriberId;
-    }
-
-    public IListeningRule SubscriberRule { get; set; }
-    public string PublishAddress { get; set; }
-    public string SubscriberId { get; set; }
+    public IListeningRule SubscriberRule { get; set; } = subscriberRule;
+    public string PublishAddress { get; set; } = publishAddress;
+    public string SubscriberId { get; set; } = subscriberId;
 
     public void Unsubscribe() =>
         SubscriberRule.Context.RegisteredOn.EnqueuePayload(this, SubscriberRule, PublishAddress

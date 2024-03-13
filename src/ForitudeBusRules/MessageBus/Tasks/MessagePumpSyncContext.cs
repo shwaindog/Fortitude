@@ -7,16 +7,9 @@ using FortitudeBusRules.Rules;
 
 namespace FortitudeBusRules.MessageBus.Tasks;
 
-public class MessagePumpSyncContext : SynchronizationContext
+public class MessagePumpSyncContext(EventContext pumpContext) : SynchronizationContext
 {
-    private readonly EventContext pumpContext;
-    private readonly MessagePumpSyncContextRule sendingRule;
-
-    public MessagePumpSyncContext(EventContext pumpContext)
-    {
-        this.pumpContext = pumpContext;
-        sendingRule = new MessagePumpSyncContextRule(pumpContext);
-    }
+    private readonly MessagePumpSyncContextRule sendingRule = new(pumpContext);
 
     public override SynchronizationContext CreateCopy() => new MessagePumpSyncContext(pumpContext);
 
@@ -37,10 +30,7 @@ public class MessagePumpSyncContext : SynchronizationContext
             Post(d, state);
     }
 
-    private class MessagePumpSyncContextRule : Rule
-    {
-        public MessagePumpSyncContextRule(EventContext pumpContext) : base(
-            $"MessagePumpSyncContextRule_{pumpContext.RegisteredOn.Name}"
-            , $"MessagePumpSyncContextRule_{pumpContext.RegisteredOn.Name}") { }
-    }
+    private class MessagePumpSyncContextRule(EventContext pumpContext) :
+        Rule($"MessagePumpSyncContextRule_{pumpContext.RegisteredOn.Name}"
+            , $"MessagePumpSyncContextRule_{pumpContext.RegisteredOn.Name}");
 }

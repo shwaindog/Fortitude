@@ -52,15 +52,15 @@ public interface IEventQueue : IComparable<IEventQueue>
 public class EventQueue : IEventQueue
 {
     public const int MessageCountHistoryEntries = 60;
-    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(EventQueue));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(EventQueue));
 
     private readonly EventContext eventContext;
-    private readonly MessagePump messagePump;
     private readonly string name;
 
     private readonly uint[] recentMessageCountReceived = new uint[MessageCountHistoryEntries];
     private readonly PollingRing<Message> ring;
     private DateTime lastUpDateTime = DateTime.Now;
+    private MessagePump? messagePump;
 
     public EventQueue(IEventBus eventBus, EventQueueType queueType, int id, int size)
     {
@@ -74,7 +74,16 @@ public class EventQueue : IEventQueue
             ClaimStrategyType.MultiProducers,
             false);
         eventContext = new EventContext(this, eventBus);
-        messagePump = new MessagePump(eventContext, ring, 30, id);
+    }
+
+    public MessagePump? MessagePump
+    {
+        get => messagePump;
+        set
+        {
+            messagePump = value;
+            if (messagePump != null) messagePump.EventContext = eventContext;
+        }
     }
 
     public string Name => name;
@@ -83,7 +92,7 @@ public class EventQueue : IEventQueue
 
     public int Id { get; }
 
-    public bool IsRunning => messagePump.IsRunning;
+    public bool IsRunning => messagePump?.IsRunning ?? false;
 
     public void EnqueueMessage(Message msg)
     {
@@ -99,7 +108,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = msg.ProcessorRegistry;
         evt.RuleFilter = msg.RuleFilter;
         ring.Publish(seqId);
-        messagePump.WakeIfAsleep();
+        messagePump?.WakeIfAsleep();
     }
 
     public ValueTask<IDispatchResult> EnqueuePayloadWithStatsAsync<TPayload>(TPayload payload, IRule sender,
@@ -119,7 +128,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = processorRegistry;
         evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
-        messagePump.WakeIfAsleep();
+        messagePump?.WakeIfAsleep();
         return processorRegistry.GenerateValueTask();
     }
 
@@ -145,7 +154,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = processorRegistry;
         evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
-        messagePump.WakeIfAsleep();
+        messagePump?.WakeIfAsleep();
         return reusableValueTaskSource.GenerateValueTask();
     }
 
@@ -161,11 +170,11 @@ public class EventQueue : IEventQueue
     }
 
     public bool IsListeningToAddress(string destinationAddress) =>
-        messagePump.Listeners.ContainsKey(destinationAddress);
+        messagePump?.Listeners.ContainsKey(destinationAddress) ?? false;
 
     public int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress)
     {
-        var listenersAtDestination = messagePump.Listeners[destinationAddress];
+        var listenersAtDestination = messagePump?.Listeners[destinationAddress];
         var count = 0;
         if (listenersAtDestination == null) return count;
         foreach (var subscription in listenersAtDestination)
@@ -190,7 +199,7 @@ public class EventQueue : IEventQueue
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
         ring.Publish(seqId);
-        messagePump.WakeIfAsleep();
+        messagePump?.WakeIfAsleep();
     }
 
     public void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
@@ -208,7 +217,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = null;
         evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
-        messagePump.WakeIfAsleep();
+        messagePump?.WakeIfAsleep();
     }
 
     public uint RecentlyReceivedMessagesCount
@@ -244,12 +253,13 @@ public class EventQueue : IEventQueue
 
     public void Start()
     {
-        messagePump.StartPolling();
+        MessagePump ??= new MessagePump(new RingPollerSink<Message>(ring, 30), eventContext);
+        messagePump?.StartPolling();
     }
 
     public void Shutdown()
     {
-        messagePump.Dispose();
+        messagePump?.Dispose();
     }
 
     public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult)

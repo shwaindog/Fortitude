@@ -6,12 +6,14 @@ using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 
 namespace FortitudeCommon.Monitoring.Logging;
 
-internal class FLogEventPoller : RingPoller<FLogEvent>
+internal class FLogEventPoller : IPollSink<FLogEvent>, IRingPoller
 {
-    public FLogEventPoller(PollingRing<FLogEvent> ring, uint timeoutMs)
-        : base(ring, timeoutMs) { }
+    private readonly RingPollerSink<FLogEvent> ringPoller;
 
-    protected override void Processor(long sequence, long batchSize, FLogEvent data, bool startOfBatch,
+    public FLogEventPoller(PollingRing<FLogEvent> ring, uint timeoutMs) =>
+        ringPoller = new RingPollerSink<FLogEvent>(ring, timeoutMs, this);
+
+    public void Processor(long sequence, long batchSize, FLogEvent data, bool startOfBatch,
         bool endOfBatch)
     {
         try
@@ -23,5 +25,22 @@ internal class FLogEventPoller : RingPoller<FLogEvent>
         {
             data.Exception = null;
         }
+    }
+
+    public void Dispose()
+    {
+        ringPoller.Dispose();
+    }
+
+    public bool IsRunning => ringPoller.IsRunning;
+
+    public void WakeIfAsleep()
+    {
+        ringPoller.WakeIfAsleep();
+    }
+
+    public void StartPolling(Action? threadStartInitialize = null)
+    {
+        ringPoller.StartPolling(threadStartInitialize);
     }
 }

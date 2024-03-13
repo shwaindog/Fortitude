@@ -3,15 +3,29 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using FortitudeCommon.EventProcessing;
+using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeIO.Transports.Sockets;
 
+public interface IConnectionConfig : ICloneable<IConnectionConfig>
+{
+    long Id { get; }
+    string ConnectionName { get; }
+    string Hostname { get; }
+    int Port { get; }
+    string? NetworkSubAddress { get; }
+    ConnectionDirectionType ConnectionDirectionType { get; }
+    IObservable<IConnectionUpdate> Updates { get; set; }
+    uint ReconnectIntervalMs { get; }
+    IConnectionConfig? FallBackConnectionConfig { get; }
+}
+
 public class ConnectionConfig : IConnectionConfig
 {
     private readonly IObservable<IConnectionUpdate>? repoUpdateStream;
-    private readonly ISubject<IConnectionUpdate> updateSubject;
+    private readonly Subject<IConnectionUpdate> updateSubject;
     private ConnectionDirectionType connectionDirectionType;
     private string connectionName;
     private IConnectionConfig? fallbackConnectionConfig;
@@ -179,7 +193,7 @@ public class ConnectionConfig : IConnectionConfig
 
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
+        if (obj == null) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
         return Equals((ConnectionConfig)obj);
@@ -189,10 +203,10 @@ public class ConnectionConfig : IConnectionConfig
     {
         unchecked
         {
-            var hashCode = connectionName != null ? connectionName.GetHashCode() : 0;
-            hashCode = (hashCode * 397) ^ (hostname != null ? hostname.GetHashCode() : 0);
+            var hashCode = connectionName.GetHashCode();
+            hashCode = (hashCode * 397) ^ hostname.GetHashCode();
             hashCode = (hashCode * 397) ^ port;
-            hashCode = (hashCode * 397) ^ (networkSubAddress != null ? networkSubAddress.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ networkSubAddress?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ (int)connectionDirectionType;
             hashCode = (hashCode * 397) ^ (int)reconnectIntervalMs;
             hashCode = (hashCode * 397) ^

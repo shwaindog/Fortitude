@@ -21,23 +21,13 @@ public interface IEventQueueGroup : IEnumerable<IEventQueue>
     new IEnumerator<IEventQueue> GetEnumerator();
 }
 
-public class SpecificEventQueueGroup : IEventQueueGroup
-{
-    private readonly int defaultNewQueueSize;
-    private readonly List<IEventQueue?> eventQueues = new();
-    private readonly EventQueueType groupType;
-    private readonly IEventBus owningEventBus;
-
-    public SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+public class SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
         , int defaultNewQueueSize = 10_000)
-    {
-        Recycler = recycler;
-        this.owningEventBus = owningEventBus;
-        this.groupType = groupType;
-        this.defaultNewQueueSize = defaultNewQueueSize;
-    }
+    : IEventQueueGroup
+{
+    private readonly List<IEventQueue?> eventQueues = [];
 
-    public IRecycler Recycler { get; set; }
+    public IRecycler Recycler { get; set; } = recycler;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

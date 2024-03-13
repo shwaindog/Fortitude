@@ -8,55 +8,44 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 
 namespace FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 
-public abstract class RingPoller<T> : IDisposable where T : class
+public interface IPollSink<in T> where T : class
+{
+    void Processor(long sequence, long batchSize, T data, bool startOfBatch, bool endOfBatch);
+}
+
+public interface IRingPoller : IDisposable
+{
+    bool IsRunning { get; }
+    void WakeIfAsleep();
+    void StartPolling(Action? threadStartInitialize = null);
+}
+
+public interface IRingPollerSink<T> : IRingPoller where T : class
+{
+    IPollSink<T>? PollSink { get; set; }
+}
+
+public abstract class RingPollerBase<T>(IPollingRing<T> ring, uint timeoutMs,
+        IOSParallelController? parallelController = null)
+    : IRingPoller where T : class
 {
     private readonly AutoResetEvent are = new(true);
-    private readonly ISubject<T> eventSubject = new Subject<T>();
-    protected readonly IPollingRing<T> Ring;
-    private readonly IOSThread thread;
-    private readonly int timeoutMs;
+    private readonly IOSParallelController osParallelController = parallelController ?? new OSParallelController();
+    protected readonly IPollingRing<T> Ring = ring;
+    private readonly int timeoutMs = (int)timeoutMs;
     private volatile bool isRunning;
-
-    protected RingPoller(IPollingRing<T> ring, uint timeoutMs, IOSParallelController? parallelController = null)
-    {
-        Ring = ring;
-        var osParallelController = parallelController ?? new OSParallelController();
-        this.timeoutMs = (int)timeoutMs;
-        thread = osParallelController.CreateNewOSThread(delegate()
-        {
-            InitializeInPollingThread();
-            while (isRunning)
-            {
-                are.WaitOne(this.timeoutMs);
-                foreach (var data in Ring)
-                {
-                    eventSubject.OnNext(data);
-                    Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
-                }
-
-                CurrentPollingIterationComplete();
-            }
-
-            ShuttingDownPollingThread();
-        });
-        thread.IsBackground = true;
-        thread.Name = Ring.Name + "-Poller";
-    }
-
-    private IObservable<T> Events => eventSubject.AsObservable();
+    private IOSThread? thread;
 
     public bool IsRunning => isRunning;
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         isRunning = false;
         are.Set();
-        thread.Join();
+        thread?.Join();
         foreach (var data in Ring)
-        {
-            eventSubject.OnNext(data);
             Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
-        }
     }
 
     public void WakeIfAsleep()
@@ -64,16 +53,55 @@ public abstract class RingPoller<T> : IDisposable where T : class
         are.Set();
     }
 
-    public void StartPolling()
+    public void StartPolling(Action? threadStartInitialize = null)
     {
         isRunning = true;
+        thread = osParallelController.CreateNewOSThread(delegate()
+        {
+            threadStartInitialize?.Invoke();
+            while (isRunning) Poll();
+        });
+        thread.IsBackground = true;
+        thread.Name = Ring.Name + "-Poller";
         thread.Start();
     }
 
-    protected virtual void InitializeInPollingThread() { }
+    protected virtual void Poll()
+    {
+        are.WaitOne(timeoutMs);
+        foreach (var data in Ring)
+            Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+    }
 
-    protected virtual void ShuttingDownPollingThread() { }
-    protected virtual void CurrentPollingIterationComplete() { }
+    protected abstract void Processor(long ringCurrentSequence, long ringCurrentBatchSize, T data, bool ringStartOfBatch
+        , bool ringEndOfBatch);
+}
 
-    protected virtual void Processor(long sequence, long batchSize, T data, bool startOfBatch, bool endOfBatch) { }
+public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T>? pollSink = null
+        , IOSParallelController? parallelController = null)
+    : RingPollerBase<T>(ring, timeoutMs, parallelController), IRingPollerSink<T>
+    where T : class
+{
+    public IPollSink<T>? PollSink { get; set; } = pollSink;
+
+    protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, T data, bool ringStartOfBatch
+        , bool ringEndOfBatch)
+    {
+        PollSink!.Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+    }
+}
+
+public class RingPollerObservable<T>(IPollingRing<T> ring, uint timeoutMs
+        , IOSParallelController? parallelController = null)
+    : RingPollerBase<T>(ring, timeoutMs, parallelController)
+    where T : class
+{
+    private readonly Subject<T> eventSubject = new();
+    private IObservable<T> Events => eventSubject.AsObservable();
+
+    protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, T data, bool ringStartOfBatch
+        , bool ringEndOfBatch)
+    {
+        eventSubject.OnNext(data);
+    }
 }

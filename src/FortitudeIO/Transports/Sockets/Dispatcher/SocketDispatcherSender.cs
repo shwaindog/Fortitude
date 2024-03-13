@@ -15,17 +15,18 @@ public interface ISocketDispatcherSender : ISocketDispatcherCommon
     void AddToSendQueue(IDoublyLinkedList<ISocketSessionConnection> cxs);
 }
 
-public sealed class SocketDispatcherSender : SocketDispatcherBase, ISocketDispatcherSender
+public sealed class SocketDispatcherSender(string dispatcherDescription) : SocketDispatcherBase(dispatcherDescription)
+    , ISocketDispatcherSender
 {
-    private readonly IIntraOSThreadSignal canSend;
-    private readonly ISyncLock sendLock = new SpinLockLight();
+    // ReSharper disable once FieldCanBeMadeReadOnly.Local
+    private IIntraOSThreadSignal canSend =
+        OSParallelControllerFactory.Instance.GetOSParallelController.SingleOSThreadActivateSignal(false);
+
+    // ReSharper disable once FieldCanBeMadeReadOnly.Local
+    private ISyncLock sendLock = new SpinLockLight();
 
     private IDictionary<long, ISocketSessionConnection> toWrite = new Dictionary<long, ISocketSessionConnection>();
     private IDictionary<long, ISocketSessionConnection> writing = new Dictionary<long, ISocketSessionConnection>();
-
-    public SocketDispatcherSender(string dispatcherDescription)
-        : base(dispatcherDescription) =>
-        canSend = OSParallelControllerFactory.Instance.GetOSParallelController.SingleOSThreadActivateSignal(false);
 
     protected override string WorkerThreadName => "SocketSendingThread";
 
@@ -79,9 +80,7 @@ public sealed class SocketDispatcherSender : SocketDispatcherBase, ISocketDispat
             sendLock.Acquire();
             try
             {
-                var swap = toWrite;
-                toWrite = writing;
-                writing = swap;
+                (toWrite, writing) = (writing, toWrite);
             }
             finally
             {
