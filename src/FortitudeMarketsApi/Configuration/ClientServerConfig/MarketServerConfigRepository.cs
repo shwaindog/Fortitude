@@ -13,9 +13,9 @@ public class MarketServerConfigRepository<T> : IMarketServerConfigRepository<T>,
     where T : class, IMarketServerConfig<T>
 {
     private readonly Dictionary<long, T> currentConfigs;
-    private readonly ISubject<IMarketServerConfigUpdate<T>> updateStream = new Subject<IMarketServerConfigUpdate<T>>();
+    private readonly Subject<IMarketServerConfigUpdate<T>> updateStream = new();
 
-    public MarketServerConfigRepository() => currentConfigs = new Dictionary<long, T>();
+    public MarketServerConfigRepository() => currentConfigs = [];
 
     public MarketServerConfigRepository(IEnumerable<T> serverConfigs)
     {

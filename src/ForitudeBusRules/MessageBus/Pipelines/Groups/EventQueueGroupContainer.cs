@@ -52,11 +52,11 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
 
     public const int MinimumEventQueues = 1; // at least one
     public const int MinimumWorkerQueues = 1; // at least one
-    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(EventQueueGroupContainer));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(EventQueueGroupContainer));
 
     private readonly IEventBus owningEventBus;
-    private readonly IRecycler recycler;
-    private IDeployDispatchStrategySelector strategySelector;
+    private readonly Recycler recycler;
+    private readonly DeployDispatchStrategySelector strategySelector;
 
     public EventQueueGroupContainer(IEventBus owningEventBus, BusRulesConfig config)
     {
@@ -169,7 +169,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
 
         var message
             = $"Could not find the required group to deploy rule {rule} to event Queue type {options.EventGroupType}";
-        logger.Warn(message);
+        Logger.Warn(message);
         throw new ArgumentException(message);
     }
 
@@ -215,7 +215,8 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
             {
                 var destinationEventQueue = routeResult.EventQueue;
                 var destinationRule = routeResult.Rule;
-                destinationEventQueue.EnqueuePayloadWithStatsAsync(msg, sender, processorRegistry, publishAddress
+                var _ = destinationEventQueue.EnqueuePayloadWithStatsAsync(msg, sender, processorRegistry
+                    , publishAddress
                     , ruleFilter: destinationRule?.AppliesToThisRule);
             }
 
@@ -225,7 +226,6 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         selectionResult?.DecrementRefCount();
         throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
     }
-
 
     public IEventQueueGroupContainer Add(IEventQueue item)
     {
@@ -249,7 +249,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
                 break;
             default:
                 var message = $"Can not add queue of type {queueGroup} to EventBus ";
-                logger.Warn(message);
+                Logger.Warn(message);
                 throw new ArgumentException(message);
         }
 
@@ -287,7 +287,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
                 return CustomGroup.StopRemoveEventQueue(item);
             default:
                 var message = $"Can not add queue of type {queueGroup} to EventBus ";
-                logger.Warn(message);
+                Logger.Warn(message);
                 throw new ArgumentException(message);
         }
     }
@@ -317,17 +317,16 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
 
     public IEventQueueGroup SelectEventQueueGroup(EventQueueType selector)
     {
-        switch (selector)
+        return selector switch
         {
-            case IOOutbound: return IOOutboundGroup;
-            case IOInbound: return IOInboundGroup;
-            case Event: return EventGroup;
-            case Worker: return WorkerGroup;
-            case Custom: return CustomGroup;
-            default:
-                throw new ArgumentException(
-                    $"Unexpected selector EventQueueType selector value '{selector}' when selecting a specific event group type");
-        }
+            IOOutbound => IOOutboundGroup
+            , IOInbound => IOInboundGroup
+            , Event => EventGroup
+            , Worker => WorkerGroup
+            , Custom => CustomGroup
+            , _ => throw new ArgumentException(
+                $"Unexpected selector EventQueueType selector value '{selector}' when selecting a specific event group type")
+        };
     }
 
     public IReusableList<IEventQueue> SelectEventQueues(EventQueueType selector)

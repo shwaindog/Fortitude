@@ -6,14 +6,9 @@ public interface ISocketDispatcher : ISocketDispatcherCommon
     ISocketDispatcherSender Sender { get; set; }
 }
 
-public class SocketDispatcher : ISocketDispatcher
+public class SocketDispatcher(ISocketDispatcherListener listener, ISocketDispatcherSender sender)
+    : ISocketDispatcher
 {
-    public SocketDispatcher(ISocketDispatcherListener listener, ISocketDispatcherSender sender)
-    {
-        this.Listener = listener;
-        this.Sender = sender;
-    }
-
     public void Start()
     {
         Listener.Start();
@@ -38,7 +33,7 @@ public class SocketDispatcher : ISocketDispatcher
         }
     }
 
-    public ISocketDispatcherListener Listener { get; set; }
+    public ISocketDispatcherListener Listener { get; set; } = listener;
 
-    public ISocketDispatcherSender Sender { get; set; }
+    public ISocketDispatcherSender Sender { get; set; } = sender;
 }

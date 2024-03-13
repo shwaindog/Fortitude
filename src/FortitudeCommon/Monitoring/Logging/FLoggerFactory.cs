@@ -14,7 +14,7 @@ namespace FortitudeCommon.Monitoring.Logging;
 public class FLoggerFactory : IFLoggerFactory
 {
     private static readonly IFLoggerFactory LoggerFactory;
-    private static readonly Dictionary<string, IFLogger> Loggers;
+    private static readonly Dictionary<string, IFLogger> Loggers = [];
     private static readonly PollingRing<FLogEvent> Ring;
     private static readonly FLogEventPoller RingPoller;
     private static readonly object syncLock = new();
@@ -32,7 +32,6 @@ public class FLoggerFactory : IFLoggerFactory
             LoggerFactory = new NoopFactory();
         }
 
-        Loggers = new Dictionary<string, IFLogger>();
         var configManager = new ConfigurationManager();
         var builder = configManager.AddIniFile("NLog.ini", true, true);
 
@@ -58,7 +57,7 @@ public class FLoggerFactory : IFLoggerFactory
             if (instance != null) return instance;
             lock (syncLock)
             {
-                if (instance == null) instance = new FLoggerFactory();
+                instance ??= new FLoggerFactory();
             }
 
             return instance;

@@ -10,72 +10,58 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.Monitoring.Logging;
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
 #endregion
 
 
 namespace FortitudeBusRules.MessageBus.Pipelines;
 
-public class MessagePump : RingPoller<Message>
+public interface IMessagePump : IPollSink<Message>, IRingPoller { }
+
+public class MessagePump : IMessagePump
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessagePump));
 
     private static readonly Action<ValueTask, object?> RuleStarted = RuleStartedCallback;
     private static readonly Action<ValueTask, object?> RuleStopped = RuleStoppedCallback;
-    private readonly List<string> destinationAddresses = new();
-    private readonly EventContext eventContext;
-    private readonly int id;
+    private readonly List<string> destinationAddresses = [];
 
-    private readonly List<IListeningRule> livingRules = new();
+    private readonly List<IListeningRule> livingRules = [];
+    private readonly IRingPollerSink<Message> ringPoller;
 
     public IMap<string, List<IMessageListenerSubscription>> Listeners
         = new ConcurrentMap<string, List<IMessageListenerSubscription>>();
 
     private MessagePumpSyncContext syncContext = null!;
 
-    public MessagePump(EventContext eventContext, PollingRing<Message> ring, uint timeoutMs, int id)
-        : base(ring, timeoutMs)
+    public MessagePump(IRingPollerSink<Message> ringPoller, EventContext? eventContext = null)
     {
-        this.eventContext = eventContext;
-        this.id = id;
+        this.ringPoller = ringPoller;
+        this.ringPoller.PollSink = this;
+        EventContext = eventContext;
     }
-
 
     public MessagePumpTaskScheduler RingPollerScheduler { get; private set; } = null!;
+    public EventContext? EventContext { get; set; }
 
-    protected override void InitializeInPollingThread()
+    public void Dispose()
     {
-        syncContext = new MessagePumpSyncContext(eventContext);
-        SynchronizationContext.SetSynchronizationContext(syncContext);
-        RingPollerScheduler = new MessagePumpTaskScheduler();
+        GC.SuppressFinalize(this);
+        ringPoller.Dispose();
     }
 
-    protected override void CurrentPollingIterationComplete() { }
+    public bool IsRunning => ringPoller.IsRunning;
 
-    private static void RuleStartedCallback(ValueTask launchTask, object? state)
+    public void WakeIfAsleep()
     {
-        if (state is IProcessorRegistry processorRegistry)
-        {
-            processorRegistry.RulePayLoad!.LifeCycleState = launchTask.IsCompletedSuccessfully ?
-                RuleLifeCycle.Started :
-                RuleLifeCycle.ShuttingDown;
-            processorRegistry.RegisterFinish(processorRegistry.RulePayLoad);
-            processorRegistry.ProcessingComplete();
-        }
+        ringPoller.WakeIfAsleep();
     }
 
-    private static void RuleStoppedCallback(ValueTask launchTask, object? state)
+    public void StartPolling(Action? threadStartInitialize = null)
     {
-        if (state is IProcessorRegistry processorRegistry)
-        {
-            processorRegistry.RulePayLoad!.LifeCycleState = RuleLifeCycle.Stopped;
-            processorRegistry.RegisterFinish(processorRegistry.RulePayLoad);
-            processorRegistry.ProcessingComplete();
-        }
+        ringPoller.StartPolling(InitializeInPollingThread);
     }
 
-    protected override void Processor(long sequence, long batchSize, Message data, bool startOfBatch,
+    public void Processor(long sequence, long batchSize, Message data, bool startOfBatch,
         bool endOfBatch)
     {
         try
@@ -113,7 +99,7 @@ public class MessagePump : RingPoller<Message>
                     var listeningAddress = subscribePayLoad.PublishAddress;
                     if (!Listeners.TryGetValue(listeningAddress, out var ruleListeners))
                     {
-                        ruleListeners = new List<IMessageListenerSubscription>();
+                        ruleListeners = [];
                         Listeners.Add(listeningAddress, ruleListeners);
                     }
 
@@ -163,6 +149,35 @@ public class MessagePump : RingPoller<Message>
         }
     }
 
+    public void InitializeInPollingThread()
+    {
+        syncContext = new MessagePumpSyncContext(EventContext!);
+        SynchronizationContext.SetSynchronizationContext(syncContext);
+        RingPollerScheduler = new MessagePumpTaskScheduler();
+    }
+
+    private static void RuleStartedCallback(ValueTask launchTask, object? state)
+    {
+        if (state is IProcessorRegistry processorRegistry)
+        {
+            processorRegistry.RulePayLoad!.LifeCycleState = launchTask.IsCompletedSuccessfully ?
+                RuleLifeCycle.Started :
+                RuleLifeCycle.ShuttingDown;
+            processorRegistry.RegisterFinish(processorRegistry.RulePayLoad);
+            processorRegistry.ProcessingComplete();
+        }
+    }
+
+    private static void RuleStoppedCallback(ValueTask launchTask, object? state)
+    {
+        if (state is IProcessorRegistry processorRegistry)
+        {
+            processorRegistry.RulePayLoad!.LifeCycleState = RuleLifeCycle.Stopped;
+            processorRegistry.RegisterFinish(processorRegistry.RulePayLoad);
+            processorRegistry.ProcessingComplete();
+        }
+    }
+
     private void UnloadExistingRule(Message data)
     {
         var toShutdown = (IListeningRule)data.PayLoad!.BodyObj!;
@@ -184,7 +199,7 @@ public class MessagePump : RingPoller<Message>
                 {
                     data.ProcessorRegistry!.IncrementRefCount();
                     data.ProcessorRegistry.RulePayLoad = toShutdown;
-                    stopTask.ContinueWith(RuleStopped, data.ProcessorRegistry);
+                    var _ = stopTask.ContinueWith(RuleStopped, data.ProcessorRegistry);
                 }
             }
         }
@@ -194,12 +209,14 @@ public class MessagePump : RingPoller<Message>
         }
     }
 
-    private void UndeployChildren(IRule parentRule)
+    private static void UndeployChildren(IRule parentRule)
     {
         if (parentRule.ChildRules.Any())
             foreach (var child in parentRule.ChildRules)
                 if (child.LifeCycleState == RuleLifeCycle.Started)
-                    child.Context.RegisteredOn.StopRuleAsync(parentRule, child);
+                {
+                    var _ = child.Context.RegisteredOn.StopRuleAsync(parentRule, child);
+                }
     }
 
     private void UnsubscribeAllListenersForRule(IRule removeListeners)
@@ -242,7 +259,7 @@ public class MessagePump : RingPoller<Message>
             {
                 processorRegistry.RegisterAwaiting(newRule);
                 processorRegistry.RulePayLoad = newRule;
-                started.ContinueWith(RuleStarted, processorRegistry);
+                var _ = started.ContinueWith(RuleStarted, processorRegistry);
             }
         }
         catch (Exception ex)

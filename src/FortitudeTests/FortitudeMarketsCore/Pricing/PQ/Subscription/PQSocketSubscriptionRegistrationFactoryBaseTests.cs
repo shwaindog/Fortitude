@@ -25,7 +25,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQSocketSubscriptionRegistrationFactoryBaseTests
 {
-    private ISubject<IConnectionUpdate> configUpdateSubject = null!;
+    private ISubject<ConnectionUpdate> configUpdateSubject = null!;
 
     private DummySktSubRegFctryBse<SocketSubscriberTests.DummySocketSubscriber>
         dummySktSubRegFctryBs = null!;
@@ -70,7 +70,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
-        configUpdateSubject = new Subject<IConnectionUpdate>();
+        configUpdateSubject = new Subject<ConnectionUpdate>();
 
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);

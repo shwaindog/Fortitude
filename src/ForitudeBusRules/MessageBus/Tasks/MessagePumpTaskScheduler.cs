@@ -8,13 +8,13 @@ namespace FortitudeBusRules.MessageBus.Tasks;
 
 public class MessagePumpTaskScheduler : TaskScheduler
 {
+    private readonly SynchronizationContext messagePumpSyncContext = SynchronizationContext.Current!;
+
     private readonly Action<Task> threadPoolQueueTask =
         NonPublicInvocator.GetInstanceMethodAction<Task>(Default, "QueueTask");
 
     private readonly Func<Task, bool, bool> threadPoolTryExecuteTaskInline =
         NonPublicInvocator.GetInstanceMethodFunc<Task, bool, bool>(Default, "TryExecuteTaskInline");
-
-    private SynchronizationContext messagePumpSyncContext = SynchronizationContext.Current!;
 
     public override int MaximumConcurrencyLevel => 1;
 

@@ -8,7 +8,7 @@ namespace FortitudeBusRules.Injection;
 
 public class BasicDependencyResolver : IDependencyResolver, IBasicDependencyConfigurer
 {
-    private readonly Dictionary<Type, Func<object>> typeResolver = new();
+    private readonly Dictionary<Type, Func<object>> typeResolver = [];
 
     public IDependencyConfigurer Configure() => this;
 
