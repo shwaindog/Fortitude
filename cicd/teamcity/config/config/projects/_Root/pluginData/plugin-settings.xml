@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <tools>
+    <default-versions>
+      <tool-version tool-type="NuGet.CommandLine" id="NuGet.CommandLine.6.8.0" />
+    </default-versions>
+  </tools>
+</settings>
+

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "hooks": [
+    {
+      "url": "https://api.github.com/repos/shwaindog/Fortitude/hooks/466245979",
+      "callbackUrl": "http://14.2.52.100:8111/app/hooks/github/c0b1d083-2764-4ab7-a5cc-366812c7e8cd",
+      "status": "PAYLOAD_DELIVERY_FAILED"
+    }
+  ]
+}

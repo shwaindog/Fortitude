@@ -5,7 +5,41 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>FortitudeBusRules</RootNamespace>
+    <PackageId>Fortitude.BusRules</PackageId>
+    <Title>Fortitude Bus Rules - Actor Model Framework for .NET</Title>
+    <Version>0.0.0.1</Version>
+    <Authors>Alexis Sawenko</Authors>
+    <Company>Chromodynamics Computing</Company>
+    <Product>Fortitude.BusRules</Product>
+    <Description>Fortitude Bus Rule</Description>
+    <Copyright>Fortitude Project all rights reserved</Copyright>
+    <PackageProjectUrl>https://github.com/shwaindog/Fortitude/wiki</PackageProjectUrl>
+    <PackageIcon>wingedHelmet.jpg</PackageIcon>
+    <PackageReadmeFile>NugetReadme.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/shwaindog/Fortitude</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>actor model;message pump;vertx alternative;akka alternative;message eventbus</PackageTags>
+    <PackageReleaseNotes>v0.1.1 2024-02-02
+First and Beta release of Foritude.BusRules as part of testing out the nuget package.
+Expect updates to follow to increase testing and add inter-BusRules instance communication</PackageReleaseNotes>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>symbols.nupkg</SymbolPackageFormat>
+    <NeutralLanguage>en</NeutralLanguage>
+    <FileVersion>$(Version)</FileVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\wingedHelmet.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
@@ -13,6 +47,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NugetReadme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
