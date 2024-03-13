@@ -115,7 +115,6 @@ public class SynchronisingStateTests : SyncStateBaseTests
         MoqFlogger.Verify();
     }
 
-
     [TestMethod]
     public virtual void NewSyncState_ProcessInStateProcessSnapshotMovesToSnapshot_LogsRecovery()
     {

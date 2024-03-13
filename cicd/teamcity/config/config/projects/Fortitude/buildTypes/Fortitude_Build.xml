@@ -4,7 +4,8 @@
   <description />
   <settings>
     <options>
-      <option name="buildNumberPattern" value="0.1.%build.counter%.%build.vcs.number.Fortitude_SshGitGithubComShwaindogFortitudeGitRefsHeadsMain%" />
+      <option name="buildNumberPattern" value="0.1.1.%build.counter%" />
+      <option name="publishArtifactCondition" value="SUCCESSFUL" />
     </options>
     <parameters>
       <param name="Version" value="%build.number%" />
@@ -53,6 +54,14 @@
       <extension id="perfmon" type="perfmon">
         <parameters>
           <param name="teamcity.perfmon.feature.enabled" value="true" />
+        </parameters>
+      </extension>
+      <extension id="BUILD_EXT_1" type="commit-status-publisher">
+        <parameters>
+          <param name="github_authentication_type" value="token" />
+          <param name="github_host" value="https://api.github.com" />
+          <param name="publisherId" value="githubStatusPublisher" />
+          <param name="secure:github_access_token" value="zxxf3b98268d4d676e764f6bb5fe3cadb9ab81c41b395e89cd9e2d0c5be8814528a2eac57d3f6b9d89c775d03cbe80d301b" />
         </parameters>
       </extension>
     </build-extensions>

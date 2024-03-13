@@ -210,7 +210,7 @@ public class PricingClientServerPubSubscribeTests
         var sourcePriceQuote = GenerateL3QuoteWithTraderLayerAndLastTrade();
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 
-        autoResetEvent.WaitOne(1_000); // 30 ms seems to work expand wait time if errors 
+        autoResetEvent.WaitOne(2_000); // 30 ms seems to work expand wait time if errors 
         var destinationSnapshot = alwaysUpdatedQuote!.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
         Console.Out.WriteLine(sourcePriceQuote.DiffQuotes(destinationSnapshot));
@@ -221,7 +221,7 @@ public class PricingClientServerPubSubscribeTests
         SetExpectedDiffFieldsToSame(sourcePriceQuote, destinationSnapshot);
         // adapter becomes sourceTime on Send
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
-        autoResetEvent.WaitOne(1_000); // 20 ms seems to work expand wait time if errors
+        autoResetEvent.WaitOne(2_000); // 20 ms seems to work expand wait time if errors
         pqClient.Dispose();
         pqPublisher.Dispose();
         destinationSnapshot = alwaysUpdatedQuote.Clone();

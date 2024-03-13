@@ -3,6 +3,18 @@
   <name>Fortitude</name>
   <description>GitHub build and release pipeline</description>
   <parameters />
+  <project-extensions>
+    <extension id="PROJECT_EXT_2" type="OAuthProvider">
+      <parameters>
+        <param name="clientId" value="be718b51b196f3dc4fe8" />
+        <param name="defaultTokenScope" value="public_repo,repo,repo:status,write:repo_hook" />
+        <param name="displayName" value="GitHub.com" />
+        <param name="gitHubUrl" value="https://github.com/" />
+        <param name="providerType" value="GitHub" />
+        <param name="secure:clientSecret" value="zxx9f423c035297ec187ab919b28a20b604d36ab96e15bb77d4d825c8d64fb87c251ca6155a0dcefc87775d03cbe80d301b" />
+      </parameters>
+    </extension>
+  </project-extensions>
   <cleanup />
 </project>
 

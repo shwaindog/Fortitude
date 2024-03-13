@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <vcs-root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="870191ea-f8e4-40f3-bb6e-d8fcbc16e3f2" type="jetbrains.git" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2021.1/project-config.xsd">
-  <name>ssh://git@github.com:shwaindog/Fortitude.git#refs/heads/main</name>
+  <name>ssh://git@github.com:shwaindog/Fortitude.git</name>
   <param name="agentCleanFilesPolicy" value="ALL_UNTRACKED" />
   <param name="agentCleanPolicy" value="ON_BRANCH_CHANGE" />
   <param name="authMethod" value="TEAMCITY_SSH_KEY" />

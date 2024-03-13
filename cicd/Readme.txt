@@ -9,9 +9,11 @@ jdbc:postgresql://host.docker.internal:8101/teamcity
 where host.docker.internal points to the docker hostmachine.
 
 Teamcity can install the database if given an endpoint and user with valid permissions. 
-
+scripts to recreate are found in the ./teamcity folder from this readme.
 
 Windows
+
+Ensure all the files and directories in <project root>/cicd/teamcity are not read-only on your disk as the teamcity server will need to write to these directories and files.
 
 docker run -it -d --name teamcity-server-instance -u root -v %cd%\teamcity\config:/data/teamcity_server/datadir -v %cd%\teamcity\logs:/opt/teamcity/logs -p 8111:8111 jetbrains/teamcity-server
 

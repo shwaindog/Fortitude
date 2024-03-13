@@ -3,7 +3,12 @@
   <name>Build</name>
   <description />
   <settings>
-    <parameters />
+    <options>
+      <option name="buildNumberPattern" value="0.1.1.%build.counter%" />
+    </options>
+    <parameters>
+      <param name="Version" value="%build.number%" />
+    </parameters>
     <build-runners>
       <runner id="dotnet" name="" type="dotnet">
         <parameters>

@@ -19,6 +19,9 @@ EXIT /B
 
 :CREATE_NEW_CONTAINER
 ECHO launching new container 'teamcity-server-instance'
-docker run -it -d --name teamcity-server-instance -v %cd%\teamcity\config:/data/teamcity_server/datadir -v %cd%\teamcity\logs:/opt/teamcity/logs -p 8111:8111 jetbrains/teamcity-server 
+del /s /f /q %cd%\teamcity\config\system\caches\*.*
+del /s /f /q %cd%\teamcity\logs\*.*
+mkdir %cd%\teamcity\logs
+docker run -it -d --name teamcity-server-instance -u root -v %cd%\teamcity\config:/data/teamcity_server/datadir -v %cd%\teamcity\logs:/opt/teamcity/logs -p 8111:8111 jetbrains/teamcity-server 
 ECHO Started new teamcity server container
 EXIT /B
