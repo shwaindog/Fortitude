@@ -2,6 +2,7 @@
 
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 
 #endregion
@@ -16,8 +17,10 @@ public interface IPollSink<in T> where T : class
 public interface IRingPoller : IDisposable
 {
     bool IsRunning { get; }
+    int UsageCount { get; }
     void WakeIfAsleep();
-    void StartPolling(Action? threadStartInitialize = null);
+    void Start(Action? threadStartInitialize = null);
+    void Stop();
 }
 
 public interface IRingPollerSink<T> : IRingPoller where T : class
@@ -25,27 +28,55 @@ public interface IRingPollerSink<T> : IRingPoller where T : class
     IPollSink<T>? PollSink { get; set; }
 }
 
-public abstract class RingPollerBase<T>(IPollingRing<T> ring, uint timeoutMs,
-        IOSParallelController? parallelController = null)
+public abstract class RingPollerBase<T>
     : IRingPoller where T : class
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(RingPollerBase<T>));
+
     private readonly AutoResetEvent are = new(true);
-    private readonly IOSParallelController osParallelController = parallelController ?? new OSParallelController();
-    protected readonly IPollingRing<T> Ring = ring;
-    private readonly int timeoutMs = (int)timeoutMs;
+    private readonly object initLock = new();
+    private readonly IOSParallelController osParallelController;
+    private readonly int timeoutMs;
     private volatile bool isRunning;
-    private IOSThread? thread;
+    private string name;
+    protected IPollingRing<T> Ring;
+    private IOSThread? ringPollingThread;
+    private Action? threadStartInitialization;
+
+    // ReSharper disable once ConvertToPrimaryConstructor
+    protected RingPollerBase(IPollingRing<T> ring, uint noDataPauseTimeoutMs,
+        IOSParallelController? parallelController = null)
+    {
+        Ring = ring;
+        timeoutMs = (int)noDataPauseTimeoutMs;
+        osParallelController = parallelController ?? new OSParallelController();
+        name = Ring.Name + "-Poller";
+    }
+
+    public virtual string Name
+    {
+        get => name;
+        set => name = value;
+    }
+
+    public int UsageCount { get; private set; }
 
     public bool IsRunning => isRunning;
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        isRunning = false;
-        are.Set();
-        thread?.Join();
-        foreach (var data in Ring)
-            Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+        ForceStop();
+    }
+
+    public virtual void Stop()
+    {
+        lock (initLock)
+        {
+            --UsageCount;
+            if (UsageCount != 0 || !isRunning) return;
+            ForceStop();
+        }
     }
 
     public void WakeIfAsleep()
@@ -53,24 +84,66 @@ public abstract class RingPollerBase<T>(IPollingRing<T> ring, uint timeoutMs,
         are.Set();
     }
 
-    public void StartPolling(Action? threadStartInitialize = null)
+    public void Start(Action? threadStartInitialize = null)
     {
-        isRunning = true;
-        thread = osParallelController.CreateNewOSThread(delegate()
+        lock (initLock)
         {
-            threadStartInitialize?.Invoke();
-            while (isRunning) Poll();
-        });
-        thread.IsBackground = true;
-        thread.Name = Ring.Name + "-Poller";
-        thread.Start();
+            ++UsageCount;
+            if (!isRunning)
+            {
+                threadStartInitialization = threadStartInitialize;
+                isRunning = true;
+                ringPollingThread = osParallelController.CreateNewOSThread(ThreadStart);
+                ringPollingThread.IsBackground = true;
+                ringPollingThread.Name = Name;
+                ringPollingThread.Start();
+            }
+        }
     }
 
-    protected virtual void Poll()
+    protected void ForceStop()
+    {
+        try
+        {
+            isRunning = false;
+            are.Set();
+            ringPollingThread?.Join();
+            foreach (var data in Ring)
+                try
+                {
+                    Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch
+                        , Ring.EndOfBatch);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn($"RingPoller '{Ring.Name}' caught exception while " +
+                                $"stopping and processing event: {data}.  {ex}");
+                }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn($"RingPoller '{Ring.Name}' caught exception when trying to stop.  {ex}");
+        }
+    }
+
+    protected void ThreadStart()
+    {
+        threadStartInitialization?.Invoke();
+        while (isRunning) PollAttempt();
+    }
+
+    protected virtual void PollAttempt()
     {
         are.WaitOne(timeoutMs);
         foreach (var data in Ring)
-            Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+            try
+            {
+                Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"RingPoller '{Ring.Name}' caught exception while processing event: {data}.  {ex}");
+            }
     }
 
     protected abstract void Processor(long ringCurrentSequence, long ringCurrentBatchSize, T data, bool ringStartOfBatch
@@ -91,10 +164,9 @@ public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T
     }
 }
 
-public class RingPollerObservable<T>(IPollingRing<T> ring, uint timeoutMs
-        , IOSParallelController? parallelController = null)
-    : RingPollerBase<T>(ring, timeoutMs, parallelController)
-    where T : class
+public class RingPollerObservable<T>(IPollingRing<T> ring, uint timeoutMs,
+        IOSParallelController? parallelController = null)
+    : RingPollerBase<T>(ring, timeoutMs, parallelController) where T : class
 {
     private readonly Subject<T> eventSubject = new();
     private IObservable<T> Events => eventSubject.AsObservable();

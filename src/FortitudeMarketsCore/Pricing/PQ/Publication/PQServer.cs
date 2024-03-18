@@ -5,6 +5,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -26,7 +28,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     private readonly Func<ISourceTickerQuoteInfo, T> quoteFactory;
     private readonly IPQServerHeartBeatSender serverHeartBeatSender;
 
-    private readonly Func<ISocketDispatcher, IConnectionConfig, string, IPQSnapshotServer>
+    private readonly Func<ISocketConnectionConfig, IPQSnapshotServer>
         snapShotServerFactory;
 
     private readonly ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig;
@@ -40,7 +42,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     public PQServer(ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig,
         IPQServerHeartBeatSender serverHeartBeatSender,
         ISocketDispatcher socketDispatcher,
-        Func<ISocketDispatcher, IConnectionConfig, string, IPQSnapshotServer> snapShotServerFactory,
+        Func<ISocketConnectionConfig, IPQSnapshotServer> snapShotServerFactory,
         Func<ISocketDispatcher, IConnectionConfig, string, string, IPQUpdateServer> updateServerFactory,
         Func<ISourceTickerQuoteInfo, T>? quoteFactory = null)
     {
@@ -141,6 +143,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         entities.Clear();
         heartBeatSync.Acquire();
         try
@@ -176,6 +179,13 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
                 snapshotServer!.Send(cx, ent!);
     }
 
+    private void OnSnapshotContextRequest(ISocketSessionContext cx, uint[] streamIDs)
+    {
+        foreach (var streamId in streamIDs)
+            if (entities.TryGetValue(streamId, out var ent))
+                cx.SocketSender!.Send(ent!);
+    }
+
     #region FeedReferential management
 
     public bool IsStarted { get; private set; }
@@ -184,10 +194,11 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         if (!IsStarted)
         {
-            snapshotServer = snapShotServerFactory(dispatcher,
-                snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!,
-                snapshotUpdatePricingServerConfig.Name!);
-            snapshotServer.SnapshotClientStreamFromSubscriber.OnSnapshotRequest += OnSnapshotRequest;
+            var socketConConfig
+                = snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!.ToSocketConnectionConfig();
+
+            snapshotServer = snapShotServerFactory(socketConConfig);
+            snapshotServer.OnSnapshotRequest += OnSnapshotContextRequest;
             snapshotServer.Connect();
             updateServer = updateServerFactory(dispatcher,
                 snapshotUpdatePricingServerConfig.UpdateConnectionConfig!,

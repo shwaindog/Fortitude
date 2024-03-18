@@ -10,22 +10,22 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
-public class RequestResponseResponder : SocketConversation, IAcceptorControls, IRequestResponseResponderConversation
+public class ConversationResponder : SocketConversation, IAcceptorControls, IConversationResponder
 {
     private readonly IAcceptorControls acceptorControls;
 
-    public RequestResponseResponder(SocketSessionContext socketSessionContext,
-        TCPAcceptorControls tcpAcceptorControls)
+    public ConversationResponder(ISocketSessionContext socketSessionContext,
+        IAcceptorControls tcpAcceptorControls)
         : base(socketSessionContext, tcpAcceptorControls) =>
         acceptorControls = tcpAcceptorControls;
 
-    public event Action<ISocketConversation>? OnNewClient
+    public event Action<ISocketSessionContext>? OnNewClient
     {
         add => acceptorControls.OnNewClient += value;
         remove => acceptorControls.OnNewClient -= value;
     }
 
-    public event Action<ISocketConversation>? OnClientRemoved
+    public event Action<ISocketSessionContext>? OnClientRemoved
     {
         add => acceptorControls.OnClientRemoved += value;
         remove => acceptorControls.OnClientRemoved -= value;
@@ -40,7 +40,7 @@ public class RequestResponseResponder : SocketConversation, IAcceptorControls, I
 
     public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
     {
-        SocketSessionContext.SerdesFactory.StreamSerializers[messageId] = serializer;
+        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisterMessageSerializer(messageId, serializer);
         foreach (var client in acceptorControls.Clients.Values)
             client.ConversationPublisher!.RegisterSerializer(messageId, serializer);
     }

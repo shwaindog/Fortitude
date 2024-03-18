@@ -11,8 +11,8 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Transports.NewSocketAPI.SessionConnection;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets.SessionConnection;
 
 #endregion
 
@@ -22,6 +22,7 @@ public interface ISocketSender : IConversationPublisher
 {
     int Id { get; }
     bool SendActive { get; }
+    IEnumerable<KeyValuePair<uint, IMessageSerializer>> RegisteredSerializers { get; }
     void HandleSendError(string message, Exception exception);
 }
 
@@ -43,7 +44,7 @@ public sealed class SocketSender : ISocketSender
     private volatile bool sendActive;
     private int sentCursor;
 
-    internal SocketSender(ISocketSessionContext socketSocketSessionContext)
+    public SocketSender(ISocketSessionContext socketSocketSessionContext)
     {
         Socket = socketSocketSessionContext.SocketConnection!.OSSocket;
         this.socketSocketSessionContext = socketSocketSessionContext;
@@ -70,6 +71,8 @@ public sealed class SocketSender : ISocketSender
         else
             throw new Exception("Two different message types cannot be registered to the same Id");
     }
+
+    public IEnumerable<KeyValuePair<uint, IMessageSerializer>> RegisteredSerializers => serializers;
 
     public void Send(IVersionedMessage message)
     {
@@ -154,7 +157,7 @@ public sealed class SocketSender : ISocketSender
     public void HandleSendError(string message, Exception exception)
     {
         logger.Warn(
-            $"Error trying to send for {socketSocketSessionContext.ConversationDescription} got {message} and {exception}");
+            $"Error trying to send for {socketSocketSessionContext.Name} got {message} and {exception}");
     }
 
     public void UnregisterSerializer(uint msgId)

@@ -14,7 +14,7 @@ namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
 public interface ISocketSessionContext : ISocketConversation
 {
     int Id { get; }
-    new string ConversationDescription { get; set; }
+    new string Name { get; set; }
     SocketSessionState SocketSessionState { get; }
     SocketConversationProtocol SocketConversationProtocol { get; }
     ISocketConnectionConfig SocketConnectionConfig { get; }
@@ -48,7 +48,7 @@ public class SocketSessionContext : ISocketSessionContext
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
         SocketConnectionConfig = socketConnectionConfig;
-        ConversationDescription = sessionDescription;
+        Name = sessionDescription;
         StateChanged = socketFactories.ConnectionChangedHandlerResolver!(this)
             .GetOnConnectionChangedHandler();
         Id = Interlocked.Increment(ref idGen);
@@ -69,8 +69,10 @@ public class SocketSessionContext : ISocketSessionContext
     public ISocketConnection? SocketConnection { get; private set; }
     public ISocketConnectionConfig SocketConnectionConfig { get; }
     public SocketSessionState SocketSessionState { get; set; }
-    public string ConversationDescription { get; set; }
+    public string Name { get; set; }
+
     public ISocketReceiver? SocketReceiver { get; set; }
+
     IConversationListener? ISocketConversation.ConversationListener => SocketReceiver;
     public ISocketSender? SocketSender { get; set; }
     IConversationPublisher? ISocketConversation.ConversationPublisher => SocketSender;
@@ -91,16 +93,16 @@ public class SocketSessionContext : ISocketSessionContext
     {
         get
         {
-            switch (SocketSessionState)
+            return SocketSessionState switch
             {
-                case SocketSessionState.New: return ConversationState.New;
-                case SocketSessionState.Connected: return ConversationState.Started;
-                case SocketSessionState.Connecting: return ConversationState.Starting;
-                case SocketSessionState.Disconnecting: return ConversationState.Stopping;
-                case SocketSessionState.Reconnecting: return ConversationState.Starting;
-                case SocketSessionState.Disconnected: return ConversationState.Stopped;
-                default: return ConversationState.Stopped;
-            }
+                SocketSessionState.New => ConversationState.New
+                , SocketSessionState.Connected => ConversationState.Started
+                , SocketSessionState.Connecting => ConversationState.Starting
+                , SocketSessionState.Disconnecting => ConversationState.Stopping
+                , SocketSessionState.Reconnecting => ConversationState.Starting
+                , SocketSessionState.Disconnected => ConversationState.Stopped
+                , _ => ConversationState.Stopped
+            };
         }
     }
 

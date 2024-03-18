@@ -4,6 +4,10 @@ using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Publishing;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
@@ -38,13 +42,12 @@ public class PQServerTests
     private const ushort TickerId3 = 3;
     private Mock<IPQServerHeartBeatSender> moqHeartBeatSender = null!;
     private Mock<IPQSnapshotServer> moqSnapshotService = null!;
-    private Mock<IPQSnapshotStreamSubscriber> moqSnapshotStreamSubscriber = null!;
     private Mock<ISocketDispatcher> moqSocketDispatcher = null!;
     private Mock<ISocketDispatcherListener> moqSocketDispatcherListener = null!;
     private Mock<ISocketDispatcherSender> moqSocketDispatcherSender = null!;
     private Mock<IPQUpdateServer> moqUpdateService = null!;
     private Mock<ISocketSubscriber> moqUpdateStreamSubscriber = null!;
-    private Func<ISocketDispatcher, IConnectionConfig, string, IPQSnapshotServer> pqSnapshotFactory = null!;
+    private Func<ISocketConnectionConfig, IPQSnapshotServer> pqSnapshotFactory = null!;
     private Func<ISocketDispatcher, IConnectionConfig, string, string, IPQUpdateServer> pqUpdateFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
     private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
@@ -89,11 +92,6 @@ public class PQServerTests
 
         moqSnapshotService = new Mock<IPQSnapshotServer>();
         moqUpdateService = new Mock<IPQUpdateServer>();
-        moqSnapshotStreamSubscriber = new Mock<IPQSnapshotStreamSubscriber>();
-        moqSnapshotStreamSubscriber.SetupAdd(
-            sss => sss.OnSnapshotRequest += null);
-        moqSnapshotService.SetupGet(sss => sss.SnapshotClientStreamFromSubscriber)
-            .Returns(moqSnapshotStreamSubscriber.Object).Verifiable();
         moqSnapshotService.Setup(sss => sss.Connect()).Verifiable();
 
         moqUpdateStreamSubscriber = new Mock<ISocketSubscriber>();
@@ -104,7 +102,7 @@ public class PQServerTests
 
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
-        pqSnapshotFactory = (dispatcher, connConfig, socketUseDescription) => moqSnapshotService.Object;
+        pqSnapshotFactory = (SocketConnectionConfig) => moqSnapshotService.Object;
         pqUpdateFactory = (dispatcher, connConfig, socketUseDescription, networkSubAddress) =>
             moqUpdateService.Object;
     }
@@ -119,7 +117,6 @@ public class PQServerTests
 
         pqServer.StartServices();
 
-        moqSnapshotStreamSubscriber.Verify();
         moqSnapshotService.Verify();
         moqUpdateStreamSubscriber.Verify();
         moqUpdateService.Verify();
@@ -148,8 +145,6 @@ public class PQServerTests
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
             moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
         var moqAction = new Mock<Action<ISocketSessionConnection, uint[]>>();
-        moqSnapshotStreamSubscriber.SetupAdd(
-            sss => sss.OnSnapshotRequest += (_, _) => { });
         // moqSnapshotStreamSubscriber.SetupAdd(
         //     sss => sss.OnSnapshotRequest += It.IsAny<ConnectionIds>());
         // moqSnapshotStreamSubscriber.SetupAdd(
@@ -157,17 +152,11 @@ public class PQServerTests
         pqServer.StartServices();
 
 
-        moqSnapshotStreamSubscriber.VerifyAdd(
-            sss => sss.OnSnapshotRequest += It.IsAny<Action<ISocketSessionConnection, uint[]>?>(), Times.Once);
-        moqSnapshotService.Verify(sss => sss.SnapshotClientStreamFromSubscriber, Times.Once);
         moqUpdateStreamSubscriber.Verify(uss => uss.BlockUntilConnected(), Times.Once);
         moqUpdateService.Verify(us => us.SocketStreamFromSubscriber, Times.Once);
 
         pqServer.StartServices();
 
-        moqSnapshotStreamSubscriber.VerifyAdd(
-            sss => sss.OnSnapshotRequest += It.IsAny<Action<ISocketSessionConnection, uint[]>?>(), Times.Once);
-        moqSnapshotService.Verify(sss => sss.SnapshotClientStreamFromSubscriber, Times.Once);
         moqUpdateStreamSubscriber.Verify(uss => uss.BlockUntilConnected(), Times.Once);
         moqUpdateService.Verify(us => us.SocketStreamFromSubscriber, Times.Once);
     }
@@ -491,6 +480,16 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
+        var moqSocketSessionContext = new Mock<ISocketSessionContext>();
+        var moqSocketSender = new Mock<ISocketSender>();
+        moqSocketSender.Setup(ss => ss.Send(It.IsAny<IVersionedMessage>())).Verifiable(Times.Exactly(3));
+
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketSender).Returns(moqSocketSender.Object);
+        var moqlevel0Quote = new Mock<PQLevel0Quote>();
+
+        moqSnapshotService.SetupAdd(sss => sss.OnSnapshotRequest += (ssc, id) =>
+            moqSnapshotService.Object.Send(moqSocketSessionContext.Object, moqlevel0Quote.Object));
+
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
             moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
 
@@ -500,13 +499,10 @@ public class PQServerTests
         pqServer.Register(TestTicker2);
         pqServer.Register(TestTicker3);
 
-        var moqSocketSessionConnection = new Mock<ISocketSessionConnection>();
-        moqSnapshotStreamSubscriber.Verify();
-        moqSnapshotStreamSubscriber.Raise(sss => sss.OnSnapshotRequest += null, moqSocketSessionConnection.Object,
-            new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id });
+        moqSnapshotService.Raise(sss => sss.OnSnapshotRequest += null, moqSocketSessionContext.Object
+            , new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id });
 
-        moqSnapshotService.Verify(sss => sss.Send(moqSocketSessionConnection.Object, It.IsAny<PQLevel1Quote>()),
-            Times.Exactly(3));
+        moqSocketSender.Verify();
     }
 
     [TestMethod]

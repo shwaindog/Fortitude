@@ -6,9 +6,9 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Transports.NewSocketAPI.Client;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets.Client;
 
 #endregion
 
@@ -36,11 +36,11 @@ public class SocketFactory : ISocketFactory
         var port = GetPort(socketConnectionConfig, attemptNum);
         switch (protocolType)
         {
-            case SocketConversationProtocol.UDPPublisher:
+            case SocketConversationProtocol.UdpPublisher:
                 return CreateNewUdpPublisher(socketConnectionConfig, port);
-            case SocketConversationProtocol.UDPSubscriber:
+            case SocketConversationProtocol.UdpSubscriber:
                 return CreateNewUdpSubscriber(socketConnectionConfig, port);
-            case SocketConversationProtocol.TCPAcceptor:
+            case SocketConversationProtocol.TcpAcceptor:
                 return CreateNewTcpPublisher(socketConnectionConfig, port);
             default: return CreateNewTcpClient(socketConnectionConfig, port);
         }

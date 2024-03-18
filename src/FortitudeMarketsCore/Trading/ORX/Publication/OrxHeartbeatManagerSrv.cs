@@ -9,16 +9,16 @@ namespace FortitudeMarketsCore.Trading.ORX.Publication;
 
 public class OrxHeartbeatManagerSrv
 {
+    private readonly AutoResetEvent are = new(false);
     private readonly int frequencyMs;
     private readonly OrxServerMessaging orxServerMessaging;
-    private readonly AutoResetEvent are = new(false);
 
     public OrxHeartbeatManagerSrv(OrxServerMessaging orxServerMessaging, int frequencyMs)
     {
         this.orxServerMessaging = orxServerMessaging;
         this.frequencyMs = frequencyMs;
 
-        orxServerMessaging.OnConnected += () => SendHeartbeat(new object(), true);
+        orxServerMessaging.Connected += () => SendHeartbeat(new object(), true);
 
         orxServerMessaging.RegisterSerializer<OrxHeartbeatMessage>();
     }

@@ -29,7 +29,7 @@ public class SingletonSocketDispatcherResolver : ISocketDispatcherResolver
 
     public ISocketDispatcher Resolve(ISocketSessionContext socketSessionContext) =>
         new SocketDispatcher(
-            new SocketDispatcherListener(new SocketSelector(timeoutMs, networkingController)
-                , socketSessionContext.ConversationDescription),
-            new SocketDispatcherSender(socketSessionContext.ConversationDescription + descriptionPostFix));
+            new SimpleSocketRingPollerListener($"{socketSessionContext.Name}", 10
+                , new SocketSelector(timeoutMs, networkingController)),
+            new SimpleSocketRingPollerSender(socketSessionContext.Name + descriptionPostFix, 10));
 }

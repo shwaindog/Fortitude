@@ -10,7 +10,7 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;
 
-public class TCPRequestResponseResponderBuilder
+public class TcpConversationResponderBuilder
 {
     private ISocketFactories? socketFactories;
 
@@ -20,19 +20,19 @@ public class TCPRequestResponseResponderBuilder
         set => socketFactories = value;
     }
 
-    public RequestResponseResponder Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
+    public ConversationResponder Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
     {
-        var conversationType = ConversationType.RequestResponseResponder;
-        var conversationProtocol = SocketConversationProtocol.TCPAcceptor;
+        var conversationType = ConversationType.Responder;
+        var conversationProtocol = SocketConversationProtocol.TcpAcceptor;
 
         var socFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socFactories, serdesFactory);
-        socketSessionContext.ConversationDescription += "Responder";
+        socketSessionContext.Name += "Responder";
 
-        var tcpAcceptorControls = new TCPAcceptorControls(socketSessionContext);
+        var tcpAcceptorControls = new TcpAcceptorControls(socketSessionContext);
 
-        return new RequestResponseResponder(socketSessionContext, tcpAcceptorControls);
+        return new ConversationResponder(socketSessionContext, tcpAcceptorControls);
     }
 }

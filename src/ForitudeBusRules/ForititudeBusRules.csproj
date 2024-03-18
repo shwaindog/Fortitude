@@ -47,6 +47,7 @@ Expect updates to follow to increase testing and add inter-BusRules instance com
 
   <ItemGroup>
     <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
+    <ProjectReference Include="..\FortitudeIO\FortitudeIO.csproj" />
   </ItemGroup>
 
   <ItemGroup>

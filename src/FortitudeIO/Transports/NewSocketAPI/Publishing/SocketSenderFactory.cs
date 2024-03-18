@@ -25,9 +25,15 @@ public class SocketSenderFactory : ISocketSenderFactory
         this.directOSNetworkingApi = directOSNetworkingApi;
 
     public bool HasConversationPublisher(ConversationType conversationType) =>
-        conversationType is ConversationType.Publisher or ConversationType.RequestResponseRequester
-            or ConversationType.RequestResponseResponder;
+        conversationType is ConversationType.Publisher or ConversationType.Requester
+            or ConversationType.Responder;
 
-    public SocketSender GetConversationPublisher(ISocketSessionContext socketSocketSessionContext) =>
-        new(socketSocketSessionContext);
+    public SocketSender GetConversationPublisher(ISocketSessionContext socketSocketSessionContext)
+    {
+        var newSocketSender = new SocketSender(socketSocketSessionContext);
+        foreach (var serializerKvp in socketSocketSessionContext.SerdesFactory.StreamEncoderFactory!)
+            newSocketSender.RegisterSerializer(serializerKvp.Key, serializerKvp.Value);
+
+        return newSocketSender;
+    }
 }

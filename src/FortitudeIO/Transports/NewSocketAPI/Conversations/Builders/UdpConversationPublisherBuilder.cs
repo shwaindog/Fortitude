@@ -10,7 +10,7 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;
 
-public class TCPRequestResponseRequesterBuilder
+public class UdpConversationPublisherBuilder
 {
     private ISocketFactories? socketFactories;
 
@@ -20,19 +20,20 @@ public class TCPRequestResponseRequesterBuilder
         set => socketFactories = value;
     }
 
-    public RequestResponseRequester Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
+    public ConversationPublisher Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
     {
-        var conversationType = ConversationType.RequestResponseRequester;
-        var conversationProtocol = SocketConversationProtocol.TCPClient;
+        var conversationType = ConversationType.Publisher;
+        var conversationProtocol = SocketConversationProtocol.UdpPublisher;
 
-        var sockFactories = SocketFactories;
+        var socketFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, sockFactories, serdesFactory);
-        socketSessionContext.ConversationDescription += "Requester";
+            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socketFactories
+            , serdesFactory);
+        socketSessionContext.Name += "Publisher";
 
         var initiateControls = new InitiateControls(socketSessionContext);
 
-        return new RequestResponseRequester(socketSessionContext, initiateControls);
+        return new ConversationPublisher(socketSessionContext, initiateControls);
     }
 }

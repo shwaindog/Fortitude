@@ -9,15 +9,18 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Topics;
 
-public interface IRequestResponseResponderTopic : ITopic, IRequestResponseResponderConversation { }
+public interface IRequestResponseResponderTopic : ITopic, IConversationResponder { }
 
 public class RequestResponseResponderTopic : Topic, IRequestResponseResponderTopic
 {
-    private IRequestResponseResponderConversation sessionConnection;
+    private IConversationResponder sessionConnection;
 
-    public RequestResponseResponderTopic(string description, IRequestResponseResponderConversation sessionConnection) :
-        base(description, ConversationType.RequestResponseRequester) =>
+    public RequestResponseResponderTopic(string description, IConversationResponder sessionConnection) :
+        base(description, ConversationType.Requester) =>
         this.sessionConnection = sessionConnection;
+
+    public IReadOnlyDictionary<int, ISocketConversation>? Clients { get; set; }
+    public IConversationListener? ConversationListener { get; set; }
 
     public override void Start()
     {
@@ -31,9 +34,6 @@ public class RequestResponseResponderTopic : Topic, IRequestResponseResponderTop
 
     public void RegisterSerializer(uint messageId, IMessageSerializer serializer) { }
 
-    public IReadOnlyDictionary<int, ISocketConversation>? Clients { get; set; }
-    public IConversationListener? ConversationListener { get; set; }
-
     public void RemoveClient(ISocketConversation clientSocketSessionContext)
     {
         throw new NotImplementedException();
@@ -45,7 +45,7 @@ public class RequestResponseResponderTopic : Topic, IRequestResponseResponderTop
     }
 
 #pragma warning disable 67
-    public event Action<ISocketConversation>? OnNewClient;
-    public event Action<ISocketConversation>? OnClientRemoved;
+    public event Action<ISocketSessionContext>? OnNewClient;
+    public event Action<ISocketSessionContext>? OnClientRemoved;
 #pragma warning restore 67
 }

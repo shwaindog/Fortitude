@@ -8,11 +8,11 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
-public class SubscriberConversation : SocketConversation, IInitiateControls, ISubscriberConversation
+public class ConversationSubscriber : SocketConversation, IInitiateControls, ISubscriberConversation
 {
     private readonly IInitiateControls initiateControls;
 
-    public SubscriberConversation(SocketSessionContext socketSessionContext,
+    public ConversationSubscriber(SocketSessionContext socketSessionContext,
         IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) =>
         this.initiateControls = initiateControls;
 

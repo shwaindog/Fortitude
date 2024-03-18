@@ -13,13 +13,13 @@ public class ProtocolResolver
         ISocketConnectionConfig socketConnectionConfig)
     {
         var isUdp = IsUdp(conversationType, socketConnectionConfig);
-        if (isUdp && conversationType == ConversationType.Publisher) return SocketConversationProtocol.UDPPublisher;
-        if (isUdp && conversationType == ConversationType.Subscriber) return SocketConversationProtocol.UDPSubscriber;
+        if (isUdp && conversationType == ConversationType.Publisher) return SocketConversationProtocol.UdpPublisher;
+        if (isUdp && conversationType == ConversationType.Subscriber) return SocketConversationProtocol.UdpSubscriber;
 
         if (conversationType == ConversationType.Publisher ||
-            conversationType == ConversationType.RequestResponseResponder)
-            return SocketConversationProtocol.TCPAcceptor;
-        return SocketConversationProtocol.TCPClient;
+            conversationType == ConversationType.Responder)
+            return SocketConversationProtocol.TcpAcceptor;
+        return SocketConversationProtocol.TcpClient;
     }
 
     private bool IsUdp(ConversationType conversationType, ISocketConnectionConfig socketConnectionConfig)

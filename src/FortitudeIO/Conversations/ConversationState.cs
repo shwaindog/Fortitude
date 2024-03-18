@@ -8,3 +8,13 @@ public enum ConversationState
     , Stopping
     , Stopped
 }
+
+public interface IConversationState
+{
+    ConversationType ConversationType { get; }
+    ConversationState ConversationState { get; }
+    string Name { get; }
+    event Action<string, int>? Error;
+    event Action? Started;
+    event Action? Stopped;
+}

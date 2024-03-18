@@ -76,13 +76,13 @@ public class InitiateControls : IInitiateControls
                 catch (Exception ex)
                 {
                     logger.Info("Connection to {0} {1}:{2} rejected: {3}",
-                        socketSessionContext.ConversationDescription, connConfig.Hostname, port, ex);
+                        socketSessionContext.Name, connConfig.Hostname, port, ex);
                 }
 
                 if (socketSessionContext.SocketConnection?.IsConnected ?? false)
                 {
                     logger.Info("Connection to id:{0} {1}:{2} accepted",
-                        socketSessionContext.ConversationDescription, socketSessionContext.Id,
+                        socketSessionContext.Name, socketSessionContext.Id,
                         connConfig.Hostname, port);
                     StartMessaging();
                     break;
@@ -126,7 +126,7 @@ public class InitiateControls : IInitiateControls
                 triggerConnectNowSignal?.Set();
                 StopMessaging();
                 logger.Info("Connection to {0} {1} id {2}:{3} closed",
-                    socketSessionContext.ConversationDescription, socketSessionContext.Id,
+                    socketSessionContext.Name, socketSessionContext.Id,
                     socketSessionContext.SocketConnectionConfig.Hostname,
                     socketSessionContext.SocketConnection.ConnectedPort);
                 socketSessionContext.SocketConnection.OSSocket?.Close();

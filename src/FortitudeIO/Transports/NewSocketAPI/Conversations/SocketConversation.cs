@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
@@ -18,6 +19,8 @@ public class SocketConversation : ISocketConversation
         SocketSessionContext = socketSessionContext;
         this.initiateControls = initiateControls;
     }
+
+    public ISerdesFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
 
     public event Action? Started
     {
@@ -51,10 +54,10 @@ public class SocketConversation : ISocketConversation
 
     public ConversationType ConversationType { get; set; }
 
-    public string ConversationDescription
+    public string Name
     {
-        get => SocketSessionContext.ConversationDescription;
-        set => SocketSessionContext.ConversationDescription = value;
+        get => SocketSessionContext.Name;
+        set => SocketSessionContext.Name = value;
     }
 
     public ConversationState ConversationState => SocketSessionContext.ConversationState;

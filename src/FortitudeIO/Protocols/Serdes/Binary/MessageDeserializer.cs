@@ -21,6 +21,7 @@ public interface IMessageDeserializer<out TM> : IMessageDeserializer, IDeseriali
 {
     new TM? Deserialize(ReadSocketBufferContext readSocketBufferContext);
 }
+
 public struct BasicMessageHeader
 {
     public BasicMessageHeader(byte version, uint messageId, uint messageSize

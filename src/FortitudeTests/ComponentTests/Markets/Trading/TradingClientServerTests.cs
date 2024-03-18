@@ -47,7 +47,7 @@ public class TradingClientServerTests
 {
     private ISocketDispatcher clientSocketDispatcher = null!;
 
-    private IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
     private OSNetworkingController networkingController = null!;
     private ISocketDispatcher serverSocketDispatcher = null!;
     private TradingServerConfig tradingServerConfig = null!;
@@ -133,8 +133,10 @@ public class TradingClientServerTests
                         new BookingInfo("TestAccount", "TestSubAccount"))), new DateTime(2018, 3, 30, 2, 18, 2),
                 new VenueCriteria(new List<IVenue>() { new Venue(23, "TestVenue") },
                     VenueSelectionMethod.Default), null, null, "", null),
-            1, new DateTime(2018, 3, 30, 2, 18, 2), new DateTime(2018, 3, 30, 2, 18, 2), "Tag");
-        orderSubmitRequest.AutoRecycleAtRefCountZero = false;
+            1, new DateTime(2018, 3, 30, 2, 18, 2), new DateTime(2018, 3, 30, 2, 18, 2), "Tag")
+            {
+                AutoRecycleAtRefCountZero = false
+            };
         orderSubmitRequest.IncrementRefCount();
         orxClient.SubmitOrderRequest(orderSubmitRequest);
 
@@ -164,8 +166,10 @@ public class TradingClientServerTests
                 new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(20), "TestTicker", 1.2345m, 100_000m),
             new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(111),
             new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(110),
-            new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(112));
-        serverVenueOrderUpdate.AutoRecycleAtRefCountZero = false;
+            new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(112))
+        {
+            AutoRecycleAtRefCountZero = false
+        };
         serverVenueOrderUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnVenueOrder(serverVenueOrderUpdate);
         venueAutoResetEvent.WaitOne(5_000);
@@ -189,8 +193,10 @@ public class TradingClientServerTests
             new DateTime(2018, 3, 23, 20, 33, 1), 1.23456m, 10_000, 10_000, 1.23456m,
             new Party("TestPartyId", "TestPartyName", null, "MyClientPartyId",
                 new BookingInfo("TestAccount", "TestSubAccount")), new DateTime(2018, 3, 26),
-            ExecutionType.CounterPartyGave, ExecutionStageType.Trade), ExecutionUpdateType.Created);
-        serverExecutionUpdate.AutoRecycleAtRefCountZero = false;
+            ExecutionType.CounterPartyGave, ExecutionStageType.Trade), ExecutionUpdateType.Created)
+            {
+                AutoRecycleAtRefCountZero = false
+            };
         serverExecutionUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnExecution(serverExecutionUpdate);
 

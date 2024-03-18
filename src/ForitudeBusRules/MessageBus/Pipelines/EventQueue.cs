@@ -254,7 +254,7 @@ public class EventQueue : IEventQueue
     public void Start()
     {
         MessagePump ??= new MessagePump(new RingPollerSink<Message>(ring, 30), eventContext);
-        messagePump?.StartPolling();
+        messagePump?.Start();
     }
 
     public void Shutdown()

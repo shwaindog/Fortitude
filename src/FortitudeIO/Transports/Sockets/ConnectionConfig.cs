@@ -4,6 +4,8 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Types;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
@@ -20,6 +22,7 @@ public interface IConnectionConfig : ICloneable<IConnectionConfig>
     IObservable<IConnectionUpdate> Updates { get; set; }
     uint ReconnectIntervalMs { get; }
     IConnectionConfig? FallBackConnectionConfig { get; }
+    SocketConnectionConfig ToSocketConnectionConfig();
 }
 
 public class ConnectionConfig : IConnectionConfig
@@ -66,6 +69,10 @@ public class ConnectionConfig : IConnectionConfig
         updateSubject.Subscribe(ListenToConnectionConfigUpdates);
         isSubscribedExternally = repoUpdateStream?.Subscribe(updateSubject);
     }
+
+    public SocketConnectionConfig ToSocketConnectionConfig() =>
+        new(connectionName, connectionName, SocketConnectionAttributes.None, 2_000_000
+            , 2_000_000, hostname, null, false, (ushort)port, (ushort)port);
 
     public long Id { get; protected set; }
 

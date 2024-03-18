@@ -30,8 +30,12 @@ public sealed class OrxDeserializer<Tm> : MessageDeserializer<Tm> where Tm : cla
         var tradingMessage = orxByteDeserializer.Deserialize(readContext);
         if (readContext is ReadSocketBufferContext sockBuffContext)
         {
-            Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
-                sockBuffContext.Session, sockBuffContext.DispatchLatencyLogger);
+            if (sockBuffContext.Session != null)
+                Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
+                    sockBuffContext.Session, sockBuffContext.DispatchLatencyLogger);
+            else if (sockBuffContext.LegacySession != null)
+                Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
+                    sockBuffContext.LegacySession, sockBuffContext.DispatchLatencyLogger);
         }
         else if (readContext is IBufferContext bufferContext)
         {

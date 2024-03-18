@@ -101,21 +101,18 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
             if (socketSessionContext.SocketSender == null)
             {
                 var socketSender = socketSenderFactory.GetConversationPublisher(socketSessionContext);
-                var streamSerializers = serdesFactory?.StreamSerializers ?? emptyStreamMap;
-                foreach (var streamSerializerEntry in streamSerializers)
-                    socketSender.RegisterSerializer(streamSerializerEntry.Key, streamSerializerEntry.Value);
                 socketSessionContext.SocketSender = socketSender;
             }
 
         if (socketCon.IsConnected &&
-            sockeReceiverFactory!.hasConversationListener(socketSessionContext.ConversationType))
+            sockeReceiverFactory!.HasConversationListener(socketSessionContext.ConversationType))
         {
             if (socketSessionContext.SocketReceiver != null)
                 socketSessionContext.SocketDispatcher.Listener.UnregisterForListen(socketSessionContext.SocketReceiver);
 
-            var socketReceiver = sockeReceiverFactory.getConversationListener(socketSessionContext);
+            var socketReceiver = sockeReceiverFactory.GetConversationListener(socketSessionContext);
             socketSessionContext.SocketReceiver = socketReceiver;
-            socketReceiver.Decoder = socketReceiver.DecoderFactory.Supply();
+            socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.StreamDecoderFactory?.Supply();
             socketSessionContext.SocketDispatcher.Listener.RegisterForListen(socketSessionContext.SocketReceiver);
         }
     }

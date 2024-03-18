@@ -44,7 +44,7 @@ public class FLoggerFactory : IFLoggerFactory
             ClaimStrategyType.MultiProducers,
             false);
         RingPoller = new FLogEventPoller(Ring, configContext["TimeoutMs"]?.ToUInt() ?? 500);
-        RingPoller.StartPolling();
+        RingPoller.Start();
 
         AppDomain.CurrentDomain.DomainUnload += (s, e) => { RingPoller.Dispose(); };
         ///AppDomain.CurrentDomain.ProcessExit += (s, e) => { RingPoller.Dispose(); };

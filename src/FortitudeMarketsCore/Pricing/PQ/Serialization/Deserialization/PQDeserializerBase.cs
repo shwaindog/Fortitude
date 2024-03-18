@@ -18,12 +18,11 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
 
-public abstract class PQDeserializerBase : MessageDeserializer<PQLevel0Quote>, IPQDeserializer
+public abstract class PQDeserializerBase(IUniqueSourceTickerIdentifier identifier) : MessageDeserializer<PQLevel0Quote>
+    , IPQDeserializer
 {
-    protected PQDeserializerBase(IUniqueSourceTickerIdentifier identifier) => Identifier = identifier;
-
     public static IPQImplementationFactory ConcreteFinder { get; set; } = new PQImplementationFactory();
-    public IUniqueSourceTickerIdentifier Identifier { get; }
+    public IUniqueSourceTickerIdentifier Identifier { get; } = identifier;
     public IPQDeserializer? Previous { get; set; }
     public IPQDeserializer? Next { get; set; }
 

@@ -6,6 +6,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -56,7 +57,7 @@ public abstract class TcpSocketPublisher : SocketPublisherBase, ITcpSocketPublis
             StartMessaging();
 
             Logger.Info("Publisher {0} @{1} started", SessionDescription, Port);
-            OnConnected?.Invoke();
+            OnConnected();
         }
         finally
         {
@@ -104,7 +105,7 @@ public abstract class TcpSocketPublisher : SocketPublisherBase, ITcpSocketPublis
 
             disconnecting = false;
 
-            OnDisconnected?.Invoke();
+            OnDisconnected();
         }
         finally
         {
@@ -160,6 +161,11 @@ public abstract class TcpSocketPublisher : SocketPublisherBase, ITcpSocketPublis
         }
     }
 
+    public void Send(ISocketSessionContext client, IVersionedMessage message)
+    {
+        throw new NotImplementedException();
+    }
+
     protected virtual void OnCxError(ISocketSessionConnection client, string errorMsg, int proposedReconnect)
     {
         if (disconnecting) return;
@@ -213,7 +219,5 @@ public abstract class TcpSocketPublisher : SocketPublisherBase, ITcpSocketPublis
 
     public event Action<ISocketSessionConnection>? OnClientRemoved;
 
-    public override event Action? OnConnected;
     public event Action? OnDisconnecting;
-    public override event Action? OnDisconnected;
 }

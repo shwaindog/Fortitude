@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Net;
-using FortitudeIO.Protocols.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
@@ -17,27 +16,27 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 
 [TestClass]
 [NoMatchingProductionClass]
-public class TCPRequestResponderConnectionTests
+public class TcpRequestResponderConnectionTests
 {
     private readonly Dictionary<uint, IMessageSerializer> serializers = new()
     {
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
-    private RequestResponseRequester reqRespRequester = null!;
+    private readonly SocketConnectionConfig serverSocketConfig = new("TestInstanceName", "TestTCPReqRespConn",
+        SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat,
+        1024 * 1024 * 2, 1024 * 1024 * 2,
+        TestMachineConfig.LoopBackIpAddress, IPAddress.Loopback, false,
+        (ushort)TestMachineConfig.ServerUpdatePort, (ushort)TestMachineConfig.ServerUpdatePort);
 
-    private RequestResponseResponder reqRespResponder = null!;
+    private ConversationRequester reqRespRequester = null!;
+
+    private ConversationResponder reqRespResponder = null!;
     private Dictionary<uint, IMessageDeserializer> requesterDeserializers = null!;
     private SimpleVersionedMessage requesterReceivedResponseMessage = null!;
     private Dictionary<uint, IMessageDeserializer> responderDeserializers = null!;
 
     private SimpleVersionedMessage responderReceivedMessage = null!;
-
-    private SocketConnectionConfig serverSocketConfig = new("TestInstanceName", "TestTCPReqRespConn",
-        SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat,
-        1024 * 1024 * 2, 1024 * 1024 * 2,
-        TestMachineConfig.LoopBackIpAddress, IPAddress.Loopback, false,
-        (ushort)TestMachineConfig.ServerUpdatePort, (ushort)TestMachineConfig.ServerUpdatePort);
 
     private SimpleVersionedMessage v2Message = null!;
 
@@ -51,9 +50,10 @@ public class TCPRequestResponderConnectionTests
         };
         var responderStreamDecoderFactory
             = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(responderDeserializers);
-        var responderSerdesFactory = new SerdesFactory(responderStreamDecoderFactory, serializers);
+        var responderSerdesFactory = new SerdesFactory(responderStreamDecoderFactory
+            , new SocketStreamMessageEncoderFactory(serializers));
         // create server
-        var tcpReqRespResponderBuilder = new TCPRequestResponseResponderBuilder();
+        var tcpReqRespResponderBuilder = new TcpConversationResponderBuilder();
         reqRespResponder = tcpReqRespResponderBuilder.Build(serverSocketConfig, responderSerdesFactory);
 
         requesterDeserializers = new Dictionary<uint, IMessageDeserializer>
@@ -63,9 +63,10 @@ public class TCPRequestResponderConnectionTests
         };
         var requesterStreamDecoderFactory
             = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(requesterDeserializers);
-        var requesterSerdesFactory = new SerdesFactory(requesterStreamDecoderFactory, serializers);
+        var requesterSerdesFactory = new SerdesFactory(requesterStreamDecoderFactory
+            , new SocketStreamMessageEncoderFactory(serializers));
         // create client
-        var tcpReqRespRequestorBuilder = new TCPRequestResponseRequesterBuilder();
+        var tcpReqRespRequestorBuilder = new TcpConversationRequesterBuilder();
         reqRespRequester = tcpReqRespRequestorBuilder.Build(serverSocketConfig, requesterSerdesFactory);
 
         v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 234567.0, MessageId = 2345 };

@@ -1,8 +1,4 @@
-﻿#region
-
-#endregion
-
-namespace FortitudeCommon.Serdes;
+﻿namespace FortitudeCommon.Serdes;
 
 [Flags]
 public enum MarshalType

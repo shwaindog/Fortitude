@@ -6,12 +6,10 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Logging;
 
 #endregion
 
@@ -48,7 +46,7 @@ public sealed class SocketReceiver : ISocketReceiver
     private readonly ISocketSessionContext socketSessionContext;
     private int bufferFullCounter;
     private DateTime firstReadTime;
-    private DateTime lastReportOfHighDataOutburts = DateTime.MinValue;
+    private DateTime lastReportOfHighDataOutbursts = DateTime.MinValue;
     private long numberOfMessages;
     private long totalMessageSize;
 
@@ -60,7 +58,7 @@ public sealed class SocketReceiver : ISocketReceiver
         this.socketSessionContext = socketSessionContext;
         this.numberOfReceivesPerPoll = numberOfReceivesPerPoll;
 
-        var socketUseDescriptionNoWhiteSpaces = this.socketSessionContext.ConversationDescription.Replace(" ", "");
+        var socketUseDescriptionNoWhiteSpaces = this.socketSessionContext.Name.Replace(" ", "");
         receiveSocketCxLatencyTraceLoggerPool = PerfLoggingPoolFactory.Instance
             .GetLatencyTracingLoggerPool("Receive." + socketUseDescriptionNoWhiteSpaces,
                 TimeSpan.FromMilliseconds(1), typeof(ISessionConnection));
@@ -82,16 +80,6 @@ public sealed class SocketReceiver : ISocketReceiver
     public event Action? Accept;
     public bool IsAcceptor => Accept != null;
 
-    public IStreamDecoderFactory DecoderFactory
-    {
-        get => socketSessionContext.SerdesFactory.StreamDecoderFactory;
-        set
-        {
-            socketSessionContext.SerdesFactory.StreamDecoderFactory = value;
-            if (value != null && Decoder != null) Decoder = value.Supply();
-        }
-    }
-
     public IMessageStreamDecoder? Decoder { get; set; }
 
     public bool Poll(ReadSocketBufferContext readSocketBufferContext)
@@ -103,9 +91,9 @@ public sealed class SocketReceiver : ISocketReceiver
         if (recvLen == 0)
             return !ZeroBytesReadIsDisconnection;
         if (receiveBuffer.UnreadBytesRemaining > LargeBufferSize
-            && readSocketBufferContext.DetectTimestamp > lastReportOfHighDataOutburts.AddMinutes(1))
+            && readSocketBufferContext.DetectTimestamp > lastReportOfHighDataOutbursts.AddMinutes(1))
         {
-            lastReportOfHighDataOutburts = readSocketBufferContext.DetectTimestamp;
+            lastReportOfHighDataOutbursts = readSocketBufferContext.DetectTimestamp;
             readSocketBufferContext.DispatchLatencyLogger?.Add("High outburst of incoming data received read ",
                 receiveBuffer.UnreadBytesRemaining);
             if (readSocketBufferContext.DispatchLatencyLogger != null)
@@ -143,7 +131,7 @@ public sealed class SocketReceiver : ISocketReceiver
 
         var messageRecvLen = 0;
         detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforeSocketRead
-            , socketSessionContext.ConversationDescription);
+            , socketSessionContext.Name);
         var socketTraceLogger = receiveSocketCxLatencyTraceLoggerPool.StartNewTrace();
         try
         {
@@ -187,11 +175,10 @@ public sealed class SocketReceiver : ISocketReceiver
             if ((firstReadTime == default || firstReadTime.AddSeconds(2) > TimeContext.UtcNow) &&
                 bufferRecvLen > bufferSize * 9.0D / 10.0D)
             {
-                bool haveBouncedFeedOnceAlready;
-                if (!HasBouncedFeedAlready.TryGetValue(socketSessionContext.ConversationDescription
-                        , out haveBouncedFeedOnceAlready))
+                if (!HasBouncedFeedAlready.TryGetValue(socketSessionContext.Name
+                        , out _))
                 {
-                    HasBouncedFeedAlready.Add(socketSessionContext.ConversationDescription, true);
+                    HasBouncedFeedAlready.Add(socketSessionContext.Name, true);
                     throw new SocketBufferTooFullException(
                         "Socket too full to read efficiently on startup.  Closing socket so that it may be" +
                         " reopened whilst socket dispatch is running.");

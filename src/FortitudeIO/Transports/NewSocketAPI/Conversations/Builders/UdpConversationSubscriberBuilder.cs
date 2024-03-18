@@ -10,7 +10,7 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;
 
-public class UDPSubscriberBuilder
+public class UdpConversationSubscriberBuilder
 {
     private ISocketFactories? socketFactories;
 
@@ -20,20 +20,20 @@ public class UDPSubscriberBuilder
         set => socketFactories = value;
     }
 
-    public SubscriberConversation Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
+    public ConversationSubscriber Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
     {
         var conversationType = ConversationType.Subscriber;
-        var conversationProtocol = SocketConversationProtocol.UDPSubscriber;
+        var conversationProtocol = SocketConversationProtocol.UdpSubscriber;
 
         var socketFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socketFactories
             , serdesFactory);
-        socketSessionContext.ConversationDescription += "Subscriber";
+        socketSessionContext.Name += "Subscriber";
 
         var initiateControls = new InitiateControls(socketSessionContext);
 
-        return new SubscriberConversation(socketSessionContext, initiateControls);
+        return new ConversationSubscriber(socketSessionContext, initiateControls);
     }
 }
