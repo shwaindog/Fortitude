@@ -39,7 +39,7 @@ public abstract class SocketStreamControls : IStreamControls
     public virtual void Disconnect()
     {
         StopMessaging();
-        Logger.Info("Server {0} @{0} stopped", SocketSocketSessionContext.ConversationDescription,
+        Logger.Info("Server {0} @{0} stopped", SocketSocketSessionContext.Name,
             SocketSocketSessionContext.SocketConnection!.ConnectedPort);
         SocketSocketSessionContext.OnDisconnected();
     }

@@ -3,7 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Transports.Sockets.Logging;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
 
 #endregion
 
@@ -109,7 +109,7 @@ public sealed class SocketSelector : ISocketSelector
         return rollingFds;
     }
 
-    private IntPtr[] ToIntPtrArray(List<ISocketReceiver> cxs)
+    private static IntPtr[] ToIntPtrArray(List<ISocketReceiver> cxs)
     {
         var set = new IntPtr[cxs.Count + 1];
         set[0] = cxs.Count;

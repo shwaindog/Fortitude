@@ -93,7 +93,7 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
         }
 
         readSocketBufferContext.ReceivingTimestamp = receivingTs;
-        readSocketBufferContext.Session = Parent;
+        readSocketBufferContext.LegacySession = Parent;
         readSocketBufferContext.EncodedBuffer = receiveBuffer;
         if (decoder.Process(readSocketBufferContext) <= 0)
         {

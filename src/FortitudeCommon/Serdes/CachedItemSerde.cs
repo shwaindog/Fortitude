@@ -1,8 +1,4 @@
-﻿#region
-
-#endregion
-
-namespace FortitudeCommon.Serdes;
+﻿namespace FortitudeCommon.Serdes;
 
 public class CachedItemSerde<T> : IDeserializer<T>, ISerializer<T>
 {

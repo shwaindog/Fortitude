@@ -85,6 +85,8 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 
         public override IBinaryStreamSubscriber StreamFromSubscriber => orxClientMessaging;
 
+        public override int SendBufferSize => 131072;
+
         public IRecycler RecyclingFactory => orxClientMessaging.RecyclingFactory;
 
         public void RegisterSerializer<T>() where T : class, IVersionedMessage, new()
@@ -93,8 +95,6 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
             RegisterSerializer<T>(instanceOfTypeToSerialize.MessageId);
             instanceOfTypeToSerialize.DecrementRefCount();
         }
-
-        public override int SendBufferSize => 131072;
 
         IOrxSubscriber IOrxPublisher.StreamFromSubscriber => orxClientMessaging;
 

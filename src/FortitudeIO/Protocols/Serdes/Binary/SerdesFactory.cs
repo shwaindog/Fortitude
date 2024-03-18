@@ -1,25 +1,26 @@
 ﻿#region
 
-
 #endregion
 
 namespace FortitudeIO.Protocols.Serdes.Binary;
 
 public interface ISerdesFactory
 {
-    IStreamDecoderFactory StreamDecoderFactory { get; set; }
-    IDictionary<uint, IMessageSerializer> StreamSerializers { get; }
+    IStreamDecoderFactory? StreamDecoderFactory { get; set; }
+
+    IStreamEncoderFactory? StreamEncoderFactory { get; set; }
 }
 
 public class SerdesFactory : ISerdesFactory
 {
-    public SerdesFactory(IStreamDecoderFactory streamDecoderFactory
-        , IDictionary<uint, IMessageSerializer> streamSerializers)
+    public SerdesFactory(IStreamDecoderFactory? streamDecoderFactory = null
+        , IStreamEncoderFactory? streamEncoderFactory = null)
     {
         StreamDecoderFactory = streamDecoderFactory;
-        StreamSerializers = streamSerializers;
+        StreamEncoderFactory = streamEncoderFactory;
     }
 
-    public IStreamDecoderFactory StreamDecoderFactory { get; set; }
-    public IDictionary<uint, IMessageSerializer> StreamSerializers { get; }
+    public IStreamDecoderFactory? StreamDecoderFactory { get; set; }
+
+    public IStreamEncoderFactory? StreamEncoderFactory { get; set; }
 }

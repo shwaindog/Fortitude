@@ -1,89 +1,101 @@
 ﻿#region
 
-using System.Reflection;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Publishing;
-using FortitudeIO.Transports.Sockets.SessionConnection;
-using FortitudeIO.Transports.Sockets.Subscription;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeIO.Transports;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
+using SocketsAPI = FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
-public sealed class PQSnapshotServer : TcpSocketPublisher, IPQSnapshotServer
+public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 {
-    private readonly IConnectionConfig connectionConfig;
-    private readonly PQServerSerializationRepository snapshotSerializationRepository = new(PQFeedType.Snapshot);
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotServer));
+    private static readonly PQServerSerializationRepository SnapshotSerializationRepository = new(PQFeedType.Snapshot);
+    private static SocketsAPI.ISocketFactories? socketFactories;
 
-    private SnapshotClientStreamSubscriber? snapshotClientStreamSubscriber;
-
-    public PQSnapshotServer(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
-        IConnectionConfig connectionConfig, string socketUseDescription)
-        : base(FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher
-            , networkingController,
-            connectionConfig.Port, socketUseDescription + " PQSnapshotServer")
+    public PQSnapshotServer(SocketsAPI.ISocketSessionContext socketSessionContext, IAcceptorControls acceptorControls)
+        : base(socketSessionContext, acceptorControls)
     {
-        this.connectionConfig = connectionConfig;
-        RegisterSerializer<PQLevel0Quote>(0);
+        socketSessionContext.SerdesFactory.StreamDecoderFactory
+            = new SocketsAPI.SocketStreamDecoderFactory(new PQServerMessageStreamDecoder(OnRequest));
+        socketSessionContext.SerdesFactory.StreamEncoderFactory = SnapshotSerializationRepository;
+        OnNewClient += HandleNewClient;
     }
 
-    public override IBinaryStreamSubscriber StreamFromSubscriber =>
-        snapshotClientStreamSubscriber ??= new SnapshotClientStreamSubscriber(
-            Logger, Dispatcher, NetworkingController, this, connectionConfig,
-            SessionDescription + " Client ");
-
-    public override int SendBufferSize => 131072;
-
-    public IPQSnapshotStreamSubscriber SnapshotClientStreamFromSubscriber =>
-        (SnapshotClientStreamSubscriber)StreamFromSubscriber;
-
-    public override IMessageIdSerializationRepository GetFactory() => snapshotSerializationRepository;
-
-    public class SnapshotClientStreamSubscriber : SocketSubscriber, IPQSnapshotStreamSubscriber
+    public static SocketsAPI.ISocketFactories SocketFactories
     {
-        private readonly PQSnapshotServer pqSnapshotServer;
+        get => socketFactories ??= SocketsAPI.SocketFactories.GetRealSocketFactories();
+        set => socketFactories = value;
+    }
 
-        public SnapshotClientStreamSubscriber(IFLogger logger, ISocketDispatcher dispatcher,
-            IOSNetworkingController networkingController, PQSnapshotServer pqSnapshotServer,
-            IConnectionConfig connectionConfig, string sessionDescription)
-            : base(logger, dispatcher, networkingController, connectionConfig,
-                sessionDescription, 0)
-        {
-            this.pqSnapshotServer = pqSnapshotServer;
-            ZeroBytesReadIsDisconnection = false;
-        }
+    public int RegisteredSerializersCount =>
+        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisteredSerializerCount;
 
-        protected override ISocketSessionConnection? Connector
-        {
-            get => pqSnapshotServer.Acceptor;
-            set => pqSnapshotServer.Acceptor = value;
-        }
+    public event Action<SocketsAPI.ISocketSessionContext, uint[]>? OnSnapshotRequest;
 
-        public override int RecvBufferSize => 131072;
+    public bool IsConnected => SocketSessionContext.SocketConnection?.IsConnected ?? false;
 
-        public override IBinaryStreamPublisher StreamToPublisher => pqSnapshotServer;
+    public void Send(ISession client, IVersionedMessage message)
+    {
+        throw new NotImplementedException();
+    }
 
-        public event Action<ISocketSessionConnection, uint[]>? OnSnapshotRequest;
+    public void Send(SocketsAPI.ISocketSessionContext client, IVersionedMessage message)
+    {
+        client.SocketSender!.Send(message);
+    }
 
-        public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> deserializersLookup) =>
-            new PQServerMessageStreamDecoder(OnRequest);
+    public static PQSnapshotServer BuildTcpResponder(ISocketConnectionConfig socketConnectionConfig)
+    {
+        var conversationType = ConversationType.Responder;
+        var conversationProtocol = SocketsAPI.SocketConversationProtocol.TcpAcceptor;
 
-        protected override IMessageIdDeserializationRepository GetFactory() =>
-            (IMessageIdDeserializationRepository)pqSnapshotServer.GetFactory();
+        var socFactories = SocketFactories;
 
-        private void OnRequest(ISocketSessionConnection cx, uint[] streamIDs)
-        {
-            OnSnapshotRequest?.Invoke(cx, streamIDs);
-        }
+        var serdesFactory = new SerdesFactory();
 
-        protected override IOSSocket? CreateAndConnect(string host, int port) => null;
+        var socketSessionContext = new SocketsAPI.SocketSessionContext(conversationType, conversationProtocol,
+            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socFactories, serdesFactory);
+        socketSessionContext.Name += "Responder";
+
+
+        var tcpAcceptorControls = new TcpAcceptorControls(socketSessionContext);
+
+        return new PQSnapshotServer(socketSessionContext, tcpAcceptorControls);
+    }
+
+    private void HandleNewClient(SocketsAPI.ISocketSessionContext newClient)
+    {
+        logger.Info($"New PQSnapshot Client Request {newClient}");
+    }
+
+    private void OnRequest(SocketsAPI.ISocketSessionContext cx, uint[] streamIDs)
+    {
+        OnSnapshotRequest?.Invoke(cx, streamIDs);
+    }
+
+    public void RegisterSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new()
+    {
+        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisterMessageSerializer(msgId
+            , SnapshotSerializationRepository.GetSerializer<TM>(msgId));
+    }
+
+    public void UnregisterSerializer(uint msgId)
+    {
+        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.UnregisterMessageSerializer(msgId);
+    }
+
+    public void Enqueue(ISessionConnection cx, IVersionedMessage message)
+    {
+        cx.SessionSender!.Enqueue(message, SnapshotSerializationRepository.GetSerializer(message.MessageId));
     }
 }

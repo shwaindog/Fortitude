@@ -14,7 +14,7 @@ public class SocketDispatcher : ISocketDispatcher
         Sender = sender;
     }
 
-    public void Start()
+    public void Start(Action? threadInitialization)
     {
         Listener.Start();
         Sender.Start();
@@ -28,13 +28,13 @@ public class SocketDispatcher : ISocketDispatcher
 
     public int UsageCount => Math.Max(Listener.UsageCount, Sender.UsageCount);
 
-    public string DispatcherDescription
+    public string Name
     {
-        get => Listener.DispatcherDescription;
+        get => Listener.Name;
         set
         {
-            Listener.DispatcherDescription = value;
-            Sender.DispatcherDescription = value;
+            Listener.Name = value;
+            Sender.Name = value;
         }
     }
 

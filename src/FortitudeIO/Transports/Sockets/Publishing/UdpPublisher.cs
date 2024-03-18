@@ -6,7 +6,9 @@ using System.Net.Sockets;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -51,6 +53,11 @@ public abstract class UdpPublisher : SocketPublisherBase, IPQPublisher
     public bool IsConnected => matchSubscriber!.IsConnected;
 
     public void Connect()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Send(ISocketSessionContext client, IVersionedMessage message)
     {
         throw new NotImplementedException();
     }

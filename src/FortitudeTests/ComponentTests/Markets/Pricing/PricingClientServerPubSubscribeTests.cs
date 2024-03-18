@@ -4,6 +4,7 @@ using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -39,11 +40,13 @@ public class PricingClientServerPubSubscribeTests
     private const string TestTicker = "EUR/USD";
     private const ushort TickerId = 1;
 
-    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PricingClientServerPubSubscribeTests));
+    private static readonly IFLogger logger =
+        FLoggerFactory.Instance.GetLogger(typeof(PricingClientServerPubSubscribeTests));
+
     private PQServerHeartBeatSender hbSender = null!;
     private INameIdLookupGenerator nameIdLookupGenerator = null!;
     private OSNetworkingController networkingController = null!;
-    private Func<ISocketDispatcher, IConnectionConfig, string, IPQSnapshotServer> pqSnapshotFactory = null!;
+    private Func<ISocketConnectionConfig, PQSnapshotServer> pqSnapshotFactory = null!;
     private Func<ISocketDispatcher, IConnectionConfig, string, string, IPQUpdateServer> pqUpdateFactory = null!;
     private PricingServersConfigRepository pricingServersConfigRepository = null!;
     private IPQSocketSubscriptionRegristrationFactory<IPQSnapshotClient> snapshotClientFactory = null!;
@@ -90,9 +93,8 @@ public class PricingClientServerPubSubscribeTests
         socketDispatcher = new SocketDispatcher(
             new SocketDispatcherListener(new SocketSelector(1000, networkingController), "socketDispatcher"),
             new SocketDispatcherSender("socketDispatcherSender"));
-        pqSnapshotFactory = (dispatcher, connConfig, socketUseDescription) =>
-            new PQSnapshotServer(dispatcher, networkingController,
-                connConfig, socketUseDescription);
+
+        pqSnapshotFactory = PQSnapshotServer.BuildTcpResponder;
         pqUpdateFactory = (dispatcher, connConfig, socketUseDescription, networkSubAddress) =>
             new PQUpdatePublisher(dispatcher, networkingController, connConfig,
                 socketUseDescription, networkSubAddress);
@@ -231,7 +233,7 @@ public class PricingClientServerPubSubscribeTests
         //FLoggerFactory.GracefullyTerminateProcessLogging();
     }
 
-    private void ResetL2QuoteLayers(ILevel2Quote level2PriceQuote)
+    private static void ResetL2QuoteLayers(ILevel2Quote level2PriceQuote)
     {
         ((OrderBook)level2PriceQuote.BidBook).StateReset();
         ((IMutableLevel2Quote)level2PriceQuote).IsBidBookChanged = true;
@@ -239,7 +241,7 @@ public class PricingClientServerPubSubscribeTests
         ((IMutableLevel2Quote)level2PriceQuote).IsAskBookChanged = true;
     }
 
-    private ILevel3Quote GenerateL3QuoteWithTraderLayerAndLastTrade()
+    private Level3PriceQuote GenerateL3QuoteWithTraderLayerAndLastTrade()
     {
         var sourceBidBook = GenerateBook(20, 1.1123m, -0.0001m, 100000m, 10000m,
             (price, volume) => new TraderPriceVolumeLayer(price, volume));
@@ -282,7 +284,7 @@ public class PricingClientServerPubSubscribeTests
             new DateTime(2017, 12, 29, 21, 0, 0));
     }
 
-    private ILevel2Quote GenerateL2QuoteWithSourceNameLayer()
+    private Level2PriceQuote GenerateL2QuoteWithSourceNameLayer()
     {
         var i = 0;
         var sourceBidBook = GenerateBook(20, 1.1123m, -0.0001m, 100000m, 10000m,
@@ -312,13 +314,12 @@ public class PricingClientServerPubSubscribeTests
             true);
     }
 
-    private Level3PriceQuote ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(IPQLevel3Quote pQuote) =>
+    private static Level3PriceQuote ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(IPQLevel3Quote pQuote) =>
         new(pQuote);
 
-    private ILevel2Quote ConvertPQToLevel2QuoteWithSourceNameLayer(IPQLevel2Quote pQuote) =>
-        new Level2PriceQuote(pQuote);
+    private static Level2PriceQuote ConvertPQToLevel2QuoteWithSourceNameLayer(IPQLevel2Quote pQuote) => new(pQuote);
 
-    private OrderBook GenerateBook<T>(int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
+    private static OrderBook GenerateBook<T>(int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
         where T : IPriceVolumeLayer
     {
@@ -335,7 +336,7 @@ public class PricingClientServerPubSubscribeTests
         return new OrderBook(generatedLayers.Cast<IPriceVolumeLayer>().ToList());
     }
 
-    private RecentlyTraded GenerateRecentlyTraded<T>(int numberOfRecentlyTraded, decimal startingPrice,
+    private static RecentlyTraded GenerateRecentlyTraded<T>(int numberOfRecentlyTraded, decimal startingPrice,
         decimal deltaPrice,
         DateTime startingTime, TimeSpan deltaTime, Func<decimal, DateTime, T> generateLastTraded,
         INameIdLookupGenerator? nameIdLookupGen = null) where T : IMutableLastTrade
@@ -357,7 +358,7 @@ public class PricingClientServerPubSubscribeTests
         return new RecentlyTraded(lastTrades);
     }
 
-    private void UpdateSourceQuoteBook(IOrderBook toUpdate, INameIdLookupGenerator nameLookupGenerator,
+    private static void UpdateSourceQuoteBook(IOrderBook toUpdate, INameIdLookupGenerator nameLookupGenerator,
         int numberOfLayers,
         decimal startingVolume, decimal deltaVolumePerLayer)
     {
@@ -378,7 +379,7 @@ public class PricingClientServerPubSubscribeTests
         }
     }
 
-    private void UpdateTraderQuoteBook(IOrderBook toUpdate, INameIdLookupGenerator nameLookupGenerator,
+    private static void UpdateTraderQuoteBook(IOrderBook toUpdate, INameIdLookupGenerator nameLookupGenerator,
         int numberOfLayers,
         int numberOfTradersPerLayer, decimal startingVolume, decimal deltaVolumePerLayer)
     {

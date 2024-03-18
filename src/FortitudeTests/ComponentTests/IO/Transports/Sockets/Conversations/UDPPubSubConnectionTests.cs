@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Net;
-using FortitudeIO.Protocols.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
@@ -17,26 +16,26 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 
 [TestClass]
 [NoMatchingProductionClass]
-public class UDPPubSubConnectionTests
+public class UdpPubSubConnectionTests
 {
     private readonly Dictionary<uint, IMessageSerializer> serializers = new()
     {
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
-    private Dictionary<uint, IMessageDeserializer> deserializers = null!;
-
-    private PublisherConversation publisherConversation = null!;
-
-    private SimpleVersionedMessage recevedSimpleVersionedMessage = null!;
-
-    private SocketConnectionConfig serverSocketConfig = new("TestInstanceName", "TestTCPReqRespConn",
+    private readonly SocketConnectionConfig serverSocketConfig = new("TestInstanceName", "TestTCPReqRespConn",
         SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast,
         1024 * 1024 * 2, 1024 * 1024 * 2,
         TestMachineConfig.LoopBackIpAddress, IPAddress.Parse(TestMachineConfig.NetworkSubAddress), false,
         (ushort)TestMachineConfig.ServerUpdatePort, (ushort)TestMachineConfig.ServerUpdatePort);
 
-    private SubscriberConversation subscriberConversation = null!;
+    private ConversationPublisher conversationPublisher = null!;
+
+    private ConversationSubscriber conversationSubscriber = null!;
+
+    private Dictionary<uint, IMessageDeserializer> deserializers = null!;
+
+    private SimpleVersionedMessage recevedSimpleVersionedMessage = null!;
 
     [TestInitialize]
     public void Setup()
@@ -47,29 +46,29 @@ public class UDPPubSubConnectionTests
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
         var streamDecoderFactory = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(deserializers);
-        var serdesFactory = new SerdesFactory(streamDecoderFactory, serializers);
+        var serdesFactory = new SerdesFactory(streamDecoderFactory, new SocketStreamMessageEncoderFactory(serializers));
         // create server
-        var udpPublisherBuilder = new UDPPublisherBuilder();
-        publisherConversation = udpPublisherBuilder.Build(serverSocketConfig, serdesFactory);
+        var udpPublisherBuilder = new UdpConversationPublisherBuilder();
+        conversationPublisher = udpPublisherBuilder.Build(serverSocketConfig, serdesFactory);
 
         // create client
-        var udpSubscriberBuilder = new UDPSubscriberBuilder();
-        subscriberConversation = udpSubscriberBuilder.Build(serverSocketConfig, serdesFactory);
+        var udpSubscriberBuilder = new UdpConversationSubscriberBuilder();
+        conversationSubscriber = udpSubscriberBuilder.Build(serverSocketConfig, serdesFactory);
     }
 
     [TestCleanup]
     public void TearDown()
     {
-        subscriberConversation.Disconnect();
-        publisherConversation.Disconnect();
+        conversationSubscriber.Disconnect();
+        conversationPublisher.Disconnect();
     }
 
     [TestMethod]
     public void ClientSendMessageDecodesCorrectlyOnServer()
     {
         // client connects
-        publisherConversation.Connect();
-        subscriberConversation.Connect();
+        conversationPublisher.Connect();
+        conversationSubscriber.Connect();
 
         foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
                  deserializers.Values)
@@ -77,7 +76,7 @@ public class UDPPubSubConnectionTests
 
         var v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 345678.0, MessageId = 2345 };
         // send message
-        publisherConversation.ConversationPublisher!.Send(v2Message);
+        conversationPublisher.ConversationPublisher!.Send(v2Message);
 
         Thread.Sleep(20);
         // assert server receives properly

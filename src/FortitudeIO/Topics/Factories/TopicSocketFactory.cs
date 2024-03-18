@@ -13,8 +13,8 @@ namespace FortitudeIO.Topics.Factories;
 
 public class TopicSocketFactory : ITopicTransportFactory
 {
-    private readonly TCPRequestResponseResponderBuilder tcpRequestResponseResponderBuilder = new();
-    private readonly UDPPublisherBuilder udpPublisherBuilder = new();
+    private readonly TcpConversationResponderBuilder tcpConversationResponderBuilder = new();
+    private readonly UdpConversationPublisherBuilder udpConversationPublisherBuilder = new();
 
     public ISubscriberTransportTopicConversation? CreateSubscriberTransportTopic(
         ISerdesFactory serdesFactory, ITopicEndpointInfo topicEndpointInfo) =>
@@ -27,11 +27,11 @@ public class TopicSocketFactory : ITopicTransportFactory
         if ((scc.ConnectionAttributes & SocketConnectionAttributes.Multicast) > 0 &&
             (scc.ConnectionAttributes & SocketConnectionAttributes.Reliable) == 0)
         {
-            var udpPublisher = udpPublisherBuilder.Build(scc, serdesFactory);
+            var udpPublisher = udpConversationPublisherBuilder.Build(scc, serdesFactory);
             return new PublisherTransportTopicConversation(scc, udpPublisher);
         }
 
-        var tcpResponder = tcpRequestResponseResponderBuilder.Build(scc, serdesFactory);
+        var tcpResponder = tcpConversationResponderBuilder.Build(scc, serdesFactory);
         var wrappedResponderAsPublisher = new ResponderToPublisherAdapter(tcpResponder);
         return new PublisherTransportTopicConversation(scc, wrappedResponderAsPublisher);
     }

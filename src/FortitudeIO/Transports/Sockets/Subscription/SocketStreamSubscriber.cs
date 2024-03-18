@@ -13,26 +13,17 @@ using FortitudeIO.Transports.Sockets.SessionConnection;
 
 namespace FortitudeIO.Transports.Sockets.Subscription;
 
-public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
+public abstract class SocketStreamSubscriber(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription,
+        int wholeMessagesPerReceive, IMap<uint, IMessageDeserializer>? map = null)
+    : ISocketStreamSubscriber
 {
     private readonly IDictionary<uint, uint> deserializersCallbackCount = new Dictionary<uint, uint>();
-    protected readonly ISocketDispatcher Dispatcher;
-    public readonly IFLogger logger;
+    protected readonly ISocketDispatcher Dispatcher = dispatcher;
+    public readonly IFLogger logger = logger;
     private readonly ISyncLock serializerLock = new SpinLockLight();
 
     // ReSharper disable once InconsistentNaming
-    protected IMap<uint, IMessageDeserializer> deserializers;
-
-    protected SocketStreamSubscriber(IFLogger logger, ISocketDispatcher dispatcher, string sessionDescription,
-        int wholeMessagesPerReceive, IMap<uint, IMessageDeserializer>? map = null)
-    {
-        this.logger = logger;
-        Dispatcher = dispatcher;
-        // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-        deserializers = map ?? new LinkedListCache<uint, IMessageDeserializer>();
-        SessionDescription = sessionDescription;
-        WholeMessagesPerReceive = wholeMessagesPerReceive;
-    }
+    protected IMap<uint, IMessageDeserializer> deserializers = map ?? new LinkedListCache<uint, IMessageDeserializer>();
 
     public bool ZeroBytesReadIsDisconnection { get; set; } = true;
 
@@ -53,8 +44,8 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
 
 
     public abstract IMessageStreamDecoder? GetDecoder(IMap<uint, IMessageDeserializer> deserializers);
-    public string SessionDescription { get; }
-    public int WholeMessagesPerReceive { get; }
+    public string SessionDescription { get; } = sessionDescription;
+    public int WholeMessagesPerReceive { get; } = wholeMessagesPerReceive;
 
     public void Unregister(ISocketSessionConnection sessionConnection)
     {
@@ -68,9 +59,8 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
     {
         if (msgHandler == null)
             throw new Exception("Message Handler cannot be null");
-        IMessageDeserializer? u;
         ICallbackMessageDeserializer<TM>? mu;
-        if (!deserializers.TryGetValue(msgId, out u))
+        if (!deserializers.TryGetValue(msgId, out var u))
         {
             deserializers.Add(msgId, mu = GetFactory()!.GetDeserializer<TM>(msgId)!);
             lock (deserializersCallbackCount)
@@ -102,9 +92,8 @@ public abstract class SocketStreamSubscriber : ISocketStreamSubscriber
     public void UnregisterDeserializer<TM>(uint msgId, Action<TM, object, ISession> msgHandler)
         where TM : class, IVersionedMessage, new()
     {
-        IMessageDeserializer? u;
         ICallbackMessageDeserializer<TM>? mu;
-        if (!deserializers.TryGetValue(msgId, out u) || (mu = u as ICallbackMessageDeserializer<TM>) == null)
+        if (!deserializers.TryGetValue(msgId, out var u) || (mu = u as ICallbackMessageDeserializer<TM>) == null)
             throw new Exception("Message Type could not be matched with the provided Id");
         if (!mu.IsRegistered(msgHandler))
             throw new Exception("Unknown Message Handler");

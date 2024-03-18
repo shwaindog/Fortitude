@@ -25,8 +25,7 @@ public class SocketDispatcherListener : SocketDispatcherBase, ISocketDispatcherL
     private readonly ISocketDataLatencyLogger socketDataLatencyLogger;
 
     public SocketDispatcherListener(ISocketSelector socketSelector,
-        string dispatcherDescription)
-        : base(dispatcherDescription)
+        string dispatcherDescription) : base(dispatcherDescription)
     {
         selector = socketSelector;
         socketDataLatencyLogger = SocketDataLatencyLoggerFactory.Instance

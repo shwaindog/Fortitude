@@ -9,19 +9,19 @@ namespace FortitudeIO.Topics.TopicTransports;
 
 public interface IRequestResponseRequesterTransportTopicConversation : ITransportTopicConversation
 {
-    IRequestResponseRequesterConversation RequestResponseRequesterConversation { get; }
+    IConversationRequester RequestResponseRequesterConversation { get; }
 }
 
 public class RequestResponseRequesterTransportTopicConversation : TransportTopicConversation
     , IRequestResponseRequesterTransportTopicConversation
 {
     public RequestResponseRequesterTransportTopicConversation(ITopicEndpointInfo endpoint,
-        IRequestResponseRequesterConversation requestResponseRequesterConversation) : base(endpoint) =>
+        IConversationRequester requestResponseRequesterConversation) : base(endpoint) =>
         RequestResponseRequesterConversation = requestResponseRequesterConversation;
 
     public RequestResponseRequesterTransportTopicConversation(ITopicConnectionConfig connectionConfig,
-        IRequestResponseRequesterConversation requestResponseRequesterConversation) : base(connectionConfig) =>
+        IConversationRequester requestResponseRequesterConversation) : base(connectionConfig) =>
         RequestResponseRequesterConversation = requestResponseRequesterConversation;
 
-    public IRequestResponseRequesterConversation RequestResponseRequesterConversation { get; }
+    public IConversationRequester RequestResponseRequesterConversation { get; }
 }

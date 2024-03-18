@@ -108,7 +108,7 @@ public class TcpSocketPublisherTests
 
         Assert.IsFalse(inConnSyncLock);
         var calledOnConnected = false;
-        dummyTcpSocketPublisher.OnConnected += () => { calledOnConnected = true; };
+        dummyTcpSocketPublisher.Connected += () => { calledOnConnected = true; };
 
         dummyTcpSocketPublisher.Connect();
 
@@ -132,7 +132,7 @@ public class TcpSocketPublisherTests
         moqSocketDispatcher.Setup(d => d.Start()).Verifiable();
         moqFLogger.Setup(d => d.Info(It.IsAny<string>(), It.IsAny<object[]>())).Verifiable();
         var calledOnConnected = false;
-        dummyTcpSocketPublisher.OnConnected += () => { calledOnConnected = true; };
+        dummyTcpSocketPublisher.Connected += () => { calledOnConnected = true; };
         dummyTcpSocketPublisher.Connect();
         Assert.IsTrue(calledOnConnected);
         calledOnConnected = false;
@@ -169,7 +169,7 @@ public class TcpSocketPublisherTests
         var calledOnDisconnecting = false;
         dummyTcpSocketPublisher.OnDisconnecting += () => { calledOnDisconnecting = true; };
         var calledOnDisconnected = false;
-        dummyTcpSocketPublisher.OnDisconnected += () => { calledOnDisconnected = true; };
+        dummyTcpSocketPublisher.Disconnected += () => { calledOnDisconnected = true; };
         Assert.IsFalse(inConnSyncLock);
 
         var moqFirstClient = new Mock<ISocketSessionConnection>();
@@ -225,7 +225,7 @@ public class TcpSocketPublisherTests
         var calledOnDisconnecting = false;
         dummyTcpSocketPublisher.OnDisconnecting += () => { calledOnDisconnecting = true; };
         var calledOnDisconnected = false;
-        dummyTcpSocketPublisher.OnDisconnected += () => { calledOnDisconnected = true; };
+        dummyTcpSocketPublisher.Disconnected += () => { calledOnDisconnected = true; };
 
         dummyTcpSocketPublisher.Disconnect();
 

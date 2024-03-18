@@ -11,7 +11,6 @@ namespace FortitudeIO.Topics;
 
 public interface ITopic : IConversation
 {
-    string Name { get; }
     string InstanceName { get; }
 }
 
@@ -21,8 +20,7 @@ public abstract class Topic : ITopic
 
     protected Topic(string name, ConversationType conversationType, string instanceName = DefaultInstanceName)
     {
-        Name = name;
-        ConversationDescription = name + (instanceName != DefaultInstanceName ? "_" + instanceName : "");
+        Name = name + (instanceName != DefaultInstanceName ? "_" + instanceName : "");
         ConversationType = conversationType;
         InstanceName = instanceName;
     }
@@ -31,7 +29,6 @@ public abstract class Topic : ITopic
     public ConversationState ConversationState { get; protected set; }
     public string Name { get; }
     public string InstanceName { get; }
-    public string ConversationDescription { get; }
     public abstract void Start();
 
     public abstract void Stop();

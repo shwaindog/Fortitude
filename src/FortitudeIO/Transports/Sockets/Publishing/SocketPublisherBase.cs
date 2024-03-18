@@ -26,10 +26,19 @@ public abstract class SocketPublisherBase : SocketStreamPublisher
         Port = port;
     }
 
-#pragma warning disable 67
-    public virtual event Action? OnConnected;
-#pragma warning restore 67
-    public virtual event Action? OnDisconnected;
+    public event Action? Connected;
+    public event Action? Disconnected;
+
+
+    protected void OnConnected()
+    {
+        Connected?.Invoke();
+    }
+
+    protected void OnDisconnected()
+    {
+        Disconnected?.Invoke();
+    }
 
     public void Send(ISession client, IVersionedMessage message)
     {
@@ -50,7 +59,7 @@ public abstract class SocketPublisherBase : SocketStreamPublisher
 
             Logger.Info("Server {0} @{0} stopped", SessionDescription, Port);
 
-            OnDisconnected?.Invoke();
+            OnDisconnected();
         }
         finally
         {

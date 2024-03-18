@@ -5,6 +5,6 @@ public enum ConversationType
     Unknown
     , Publisher
     , Subscriber
-    , RequestResponseRequester
-    , RequestResponseResponder
+    , Requester
+    , Responder
 }

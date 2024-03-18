@@ -1,21 +1,23 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
-using FortitudeIO.Transports;
 
 #endregion
 
 namespace FortitudeIO.Topics;
 
-public interface IRequestResponseRequesterTopic : ITopic, IRequestResponseRequesterConversation { }
+public interface IRequestResponseRequesterTopic : ITopic, IConversationRequester { }
 
 public class RequestResponseRequesterTopic : Topic, IRequestResponseRequesterTopic
 {
-    private IRequestResponseRequesterConversation sessionConnection;
+    private IConversationRequester sessionConnection;
 
-    public RequestResponseRequesterTopic(string description, IRequestResponseRequesterConversation sessionConnection) :
-        base(description, ConversationType.RequestResponseRequester) =>
+    public RequestResponseRequesterTopic(string description, IConversationRequester sessionConnection) :
+        base(description, ConversationType.Requester) =>
         this.sessionConnection = sessionConnection;
+
+    public IConversationListener? ConversationListener { get; set; }
+    public IConversationPublisher? ConversationPublisher { get; set; }
 
     public override void Start()
     {
@@ -26,7 +28,4 @@ public class RequestResponseRequesterTopic : Topic, IRequestResponseRequesterTop
     {
         throw new NotImplementedException();
     }
-
-    public IConversationListener? ConversationListener { get; set; }
-    public IConversationPublisher? ConversationPublisher { get; set; }
 }

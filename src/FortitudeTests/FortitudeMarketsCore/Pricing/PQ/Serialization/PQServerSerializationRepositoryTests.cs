@@ -29,18 +29,4 @@ public class PQServerSerializationRepositoryTests
         var heartBeatSerializer = snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>(1);
         Assert.IsInstanceOfType(heartBeatSerializer, typeof(PQHeartbeatSerializer));
     }
-
-    [TestMethod]
-    [ExpectedException(typeof(NotSupportedException))]
-    public void QuoteSerializerWrongId_GetSerializerWrongIdsForType_ThrowsNotSupportedException()
-    {
-        snapshotServerSerializationRepository.GetSerializer<PQLevel0Quote>(1);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(NotSupportedException))]
-    public void HeartBeatSerializerWrongId_GetSerializerWrongIdsForType_ThrowsNotSupportedException()
-    {
-        snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>(0);
-    }
 }

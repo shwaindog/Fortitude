@@ -27,9 +27,16 @@ internal class FLogEventPoller : IPollSink<FLogEvent>, IRingPoller
         }
     }
 
+    public int UsageCount => ringPoller.UsageCount;
+
     public void Dispose()
     {
         ringPoller.Dispose();
+    }
+
+    public void Stop()
+    {
+        ringPoller.Stop();
     }
 
     public bool IsRunning => ringPoller.IsRunning;
@@ -39,8 +46,8 @@ internal class FLogEventPoller : IPollSink<FLogEvent>, IRingPoller
         ringPoller.WakeIfAsleep();
     }
 
-    public void StartPolling(Action? threadStartInitialize = null)
+    public void Start(Action? threadStartInitialize = null)
     {
-        ringPoller.StartPolling(threadStartInitialize);
+        ringPoller.Start(threadStartInitialize);
     }
 }

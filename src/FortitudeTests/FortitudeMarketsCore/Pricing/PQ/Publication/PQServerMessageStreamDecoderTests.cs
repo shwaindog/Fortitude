@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeIO.Transports.Sockets.SessionConnection;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -17,8 +17,8 @@ public class PQServerMessageStreamDecoderTests
 {
     private const int BufferReadWriteOffset = 5;
 
-    private Action<ISocketSessionConnection, uint[]> deserializerCallBack = null!;
-    private ISocketSessionConnection lastReceivedSessionConnection = null!;
+    private Action<ISocketSessionContext, uint[]> deserializerCallBack = null!;
+    private ISocketSessionContext lastReceivedSessionConnection = null!;
 
     private uint[] lastReceivedSnapshotRequestIds = null!;
     private PQServerMessageStreamDecoder pqServerMessageStreamDecoder = null!;
@@ -26,16 +26,16 @@ public class PQServerMessageStreamDecoderTests
     private ReadSocketBufferContext readSocketBufferContext = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
 
-    private Mock<ISocketSessionConnection> socketSessionConnection = null!;
+    private Mock<ISocketSessionContext> socketSessionConnection = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        socketSessionConnection = new Mock<ISocketSessionConnection>();
+        socketSessionConnection = new Mock<ISocketSessionContext>();
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
         readSocketBufferContext = new ReadSocketBufferContext
         {
-            EncodedBuffer = readWriteBuffer, Session = socketSessionConnection.Object
+            EncodedBuffer = readWriteBuffer, Conversation = socketSessionConnection.Object
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
 

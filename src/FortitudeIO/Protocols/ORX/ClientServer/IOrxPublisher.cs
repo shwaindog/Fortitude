@@ -7,7 +7,7 @@ using FortitudeIO.Transports.Sockets.Publishing;
 
 namespace FortitudeIO.Protocols.ORX.ClientServer;
 
-public interface IOrxPublisher : ITcpSocketPublisher
+public interface IOrxPublisher : ITcpSocketPublisher, IBinaryStreamPublisher
 {
     IRecycler RecyclingFactory { get; }
     IOrxSubscriber StreamFromSubscriber { get; }

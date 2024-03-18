@@ -51,14 +51,21 @@ public class MessagePump : IMessagePump
 
     public bool IsRunning => ringPoller.IsRunning;
 
+    public int UsageCount => ringPoller.UsageCount;
+
     public void WakeIfAsleep()
     {
         ringPoller.WakeIfAsleep();
     }
 
-    public void StartPolling(Action? threadStartInitialize = null)
+    public void Start(Action? threadStartInitialize = null)
     {
-        ringPoller.StartPolling(InitializeInPollingThread);
+        ringPoller.Start(InitializeInPollingThread);
+    }
+
+    public void Stop()
+    {
+        ringPoller.Stop();
     }
 
     public void Processor(long sequence, long batchSize, Message data, bool startOfBatch,

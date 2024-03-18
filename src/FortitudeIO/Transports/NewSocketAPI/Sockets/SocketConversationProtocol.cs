@@ -3,8 +3,8 @@
 public enum SocketConversationProtocol
 {
     Unknown
-    , TCPClient
-    , TCPAcceptor
-    , UDPPublisher
-    , UDPSubscriber
+    , TcpClient
+    , TcpAcceptor
+    , UdpPublisher
+    , UdpSubscriber
 }

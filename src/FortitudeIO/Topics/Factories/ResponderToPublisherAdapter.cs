@@ -10,13 +10,13 @@ namespace FortitudeIO.Topics.Factories;
 
 public class ResponderToPublisherAdapter : IPublisherConversation
 {
-    private readonly ConversationPulbisherAdapter conversationPulbisherAdapter;
-    private readonly IRequestResponseResponderConversation requestResponseResponderConversation;
+    private readonly ConversationPublisherAdapter conversationPublisherAdapter;
+    private readonly IConversationResponder requestResponseResponderConversation;
 
-    public ResponderToPublisherAdapter(IRequestResponseResponderConversation requestResponseResponderConversation)
+    public ResponderToPublisherAdapter(IConversationResponder requestResponseResponderConversation)
     {
         this.requestResponseResponderConversation = requestResponseResponderConversation;
-        conversationPulbisherAdapter = new ConversationPulbisherAdapter(requestResponseResponderConversation);
+        conversationPublisherAdapter = new ConversationPublisherAdapter(requestResponseResponderConversation);
     }
 
     public ConversationType ConversationType => ConversationType.Publisher;
@@ -40,7 +40,7 @@ public class ResponderToPublisherAdapter : IPublisherConversation
     }
 
     public ConversationState ConversationState => requestResponseResponderConversation.ConversationState;
-    public string ConversationDescription => requestResponseResponderConversation.ConversationDescription;
+    public string Name => requestResponseResponderConversation.Name;
 
     public void Start()
     {
@@ -52,17 +52,17 @@ public class ResponderToPublisherAdapter : IPublisherConversation
         requestResponseResponderConversation.Stop();
     }
 
-    public IConversationPublisher ConversationPublisher => conversationPulbisherAdapter;
+    public IConversationPublisher ConversationPublisher => conversationPublisherAdapter;
 
-    private class ConversationPulbisherAdapter : IConversationPublisher
+    private class ConversationPublisherAdapter : IConversationPublisher
     {
-        private readonly IRequestResponseResponderConversation requestResponseResponderConversation;
+        private readonly IConversationResponder requestResponseResponderConversation;
         private IList<IVersionedMessage> queuedMessages = new List<IVersionedMessage>();
         private IList<IVersionedMessage> sendMessages = new List<IVersionedMessage>();
 
 
-        public ConversationPulbisherAdapter(
-            IRequestResponseResponderConversation requestResponseResponderConversation) =>
+        public ConversationPublisherAdapter(
+            IConversationResponder requestResponseResponderConversation) =>
             this.requestResponseResponderConversation = requestResponseResponderConversation;
 
         public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
