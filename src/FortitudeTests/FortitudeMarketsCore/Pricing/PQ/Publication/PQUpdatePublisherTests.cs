@@ -1,16 +1,15 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeCommon.Types;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Subscription;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using Moq;
 
 #endregion
@@ -20,35 +19,68 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 [TestClass]
 public class PQUpdatePublisherTests
 {
-    private Mock<ISocketDispatcher> moqDispatcher = null!;
-    private Mock<IOSNetworkingController> moqNetworkingController = null!;
-    private Mock<IOSParallelController> moqParallelControler = null!;
+    private Mock<IInitiateControls> moqInitiatorControls = null!;
+    private Mock<ISocketSessionContext> moqNewClientContext = null!;
+    private Mock<IOSNetworkingController> moqNeworkingController = null!;
+    private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<ISerdesFactory> moqSerdesFactory = null!;
     private Mock<IOSSocket> moqSocket = null!;
-    private string networkAddress = null!;
-
+    private Mock<ISocketConnection> moqSocketConnection = null!;
+    private Mock<ISocketDispatcher> moqSocketDispatcher = null!;
+    private Mock<ISocketDispatcherListener> moqSocketDispatcherListener = null!;
+    private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
+    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactory> moqSocketFactory = null!;
     private PQUpdatePublisher pqUpdatePublisher = null!;
-    private string sessionDescription = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        moqDispatcher = new Mock<ISocketDispatcher>();
-        sessionDescription = "testSessionDescription";
-        networkAddress = "testNetworkAddress";
-        moqServerConnectionConfig = new Mock<IConnectionConfig>();
-        moqSocket = new Mock<IOSSocket>();
-        moqSocket.SetupAllProperties();
-        moqNetworkingController = new Mock<IOSNetworkingController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
-        moqParallelControler = new Mock<IOSParallelController>();
+        moqNeworkingController = new Mock<IOSNetworkingController>();
+        moqParallelController = new Mock<IOSParallelController>();
+        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactory = new Mock<ISocketFactory>();
+        moqSerdesFactory = new Mock<ISerdesFactory>();
+        moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
+        moqSocketDispatcher = new Mock<ISocketDispatcher>();
+        moqSocket = new Mock<IOSSocket>();
+        moqSocketDispatcherListener = new Mock<ISocketDispatcherListener>();
+        moqInitiatorControls = new Mock<IInitiateControls>();
+        moqNewClientContext = new Mock<ISocketSessionContext>();
+        moqSocketConnection = new Mock<ISocketConnection>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
-            .Returns(moqParallelControler.Object);
+            .Returns(moqParallelController.Object);
+
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
-        pqUpdatePublisher = new PQUpdatePublisher(moqDispatcher.Object, moqNetworkingController.Object,
-            moqServerConnectionConfig.Object, sessionDescription, networkAddress);
+        moqNewClientContext.SetupGet(ssc => ssc.Name).Returns("New Client Connection");
+        moqNewClientContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
+        moqNewClientContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
+        moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqSocket.Object);
+        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketSessionContext>()))
+            .Returns(moqSocketDispatcher.Object);
+        moqSocketDispatcher.SetupGet(sd => sd.Listener).Returns(moqSocketDispatcherListener.Object);
+
+        moqSerdesFactory.SetupProperty(sf => sf.StreamEncoderFactory);
+
+        var moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
+        Func<ISocketSessionContext, ISocketConnectivityChanged> moqCallback = context =>
+            moqSocketConnectivityChanged.Object;
+        moqSocketFactories.SetupGet(pcf => pcf.SocketFactory).Returns(moqSocketFactory.Object);
+        moqSocketFactories.SetupGet(pcf => pcf.NetworkingController).Returns(moqNeworkingController.Object);
+        moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
+        moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
+        // PQSnapshotServer.SocketFactories = moqSocketFactories.Object;
+        var socketConConfig = new SocketConnectionConfig("PQUpdatePublisherTests", "PQSnapshotServerTests",
+            SocketConnectionAttributes.None, 2_000_000, 2_000_000, "testHostName", null,
+            false, 3333, 3333);
+        var socketSessionContext = new SocketSessionContext(ConversationType.Responder
+            , SocketConversationProtocol.TcpAcceptor, "PQUpdatePublisherTests", socketConConfig
+            , moqSocketFactories.Object, moqSerdesFactory.Object);
+
+        pqUpdatePublisher = new PQUpdatePublisher(socketSessionContext, moqInitiatorControls.Object);
     }
 
     [TestCleanup]
@@ -59,45 +91,30 @@ public class PQUpdatePublisherTests
 
 
     [TestMethod]
-    public void NewPQSnapShotServer_RegisterSerializer_ForPQFullSnapshot()
+    public void NewPQUpdateServer_RegisterSerializer_ForPQFullSnapshot()
     {
-        var registeredSerializers = NonPublicInvocator
-            .GetInstanceField<IMap<uint, IMessageSerializer>>(pqUpdatePublisher, "serializers");
+        var registeredSerializers = pqUpdatePublisher.SerdesFactory!;
 
-        IMessageSerializer? pqSnapshotSerializer;
-        Assert.IsTrue(registeredSerializers.TryGetValue(0, out pqSnapshotSerializer));
-        Assert.IsInstanceOfType(pqSnapshotSerializer, typeof(PQQuoteSerializer));
-
-
-        Assert.IsTrue(registeredSerializers.TryGetValue(1u, out pqSnapshotSerializer));
-        Assert.IsInstanceOfType(pqSnapshotSerializer, typeof(PQHeartbeatSerializer));
+        Assert.IsTrue(registeredSerializers.StreamEncoderFactory != null);
+        Assert.AreEqual(2, registeredSerializers.StreamEncoderFactory.RegisteredSerializerCount);
+        Assert.IsTrue(registeredSerializers.StreamDecoderFactory == null);
     }
 
     [TestMethod]
     public void NewPQUpdateServer_GetFactory_ReturnsSerializationFactory()
     {
-        var serializeFac = pqUpdatePublisher.GetFactory();
+        var registeredSerializers = pqUpdatePublisher.SerdesFactory!;
 
-        Assert.IsNotNull(serializeFac);
-        var pqMessageSerializer = serializeFac.GetSerializer<PQLevel0Quote>(0u);
+        Assert.IsTrue(registeredSerializers.StreamEncoderFactory != null);
+        Assert.AreEqual(2, registeredSerializers.StreamEncoderFactory.RegisteredSerializerCount);
+
+        Assert.IsNotNull(registeredSerializers);
+        var pqMessageSerializer = registeredSerializers.StreamEncoderFactory.MessageEncoder<IPQLevel0Quote>(0u);
 
         Assert.IsNotNull(pqMessageSerializer);
-        var pqHeartBeatSerializer = serializeFac.GetSerializer<PQHeartBeatQuotesMessage>(1u);
+        var pqHeartBeatSerializer
+            = registeredSerializers.StreamEncoderFactory.MessageEncoder<PQHeartBeatQuotesMessage>(1u);
 
         Assert.IsNotNull(pqHeartBeatSerializer);
-    }
-
-    [TestMethod]
-    public void NewPQSnapshotServer_SendBufferSize_ReturnsExpectedSize()
-    {
-        Assert.AreEqual(2097152, pqUpdatePublisher.SendBufferSize);
-    }
-
-    [TestMethod]
-    public void StreamFromSubscriber_OnRecvZeroBytes_DoesNotCloseSocket()
-    {
-        var streamFromSubscriber = (SocketSubscriber)pqUpdatePublisher.StreamFromSubscriber;
-
-        Assert.IsFalse(streamFromSubscriber.ZeroBytesReadIsDisconnection);
     }
 }

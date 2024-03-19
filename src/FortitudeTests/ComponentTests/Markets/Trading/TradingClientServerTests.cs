@@ -9,6 +9,8 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Transports;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -45,9 +47,8 @@ namespace FortitudeTests.ComponentTests.Markets.Trading;
 [NoMatchingProductionClass]
 public class TradingClientServerTests
 {
-    private ISocketDispatcher clientSocketDispatcher = null!;
-
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
+    private ISocketDispatcher clientSocketDispatcher = null!;
     private OSNetworkingController networkingController = null!;
     private ISocketDispatcher serverSocketDispatcher = null!;
     private TradingServerConfig tradingServerConfig = null!;
@@ -78,12 +79,13 @@ public class TradingClientServerTests
                 MarketServerType.MarketData,
                 new[]
                 {
-                    new ConnectionConfig("TestSnapshotServer", TestMachineConfig.LoopBackIpAddress,
-                        TestMachineConfig.ServerSnapshotPort,
-                        ConnectionDirectionType.Both, "none", 500)
-                    , new ConnectionConfig("TestUpdateServer", TestMachineConfig.LoopBackIpAddress,
-                        TestMachineConfig.ServerUpdatePort, ConnectionDirectionType.Publisher,
-                        TestMachineConfig.NetworkSubAddress, 500)
+                    new SocketConnectionConfig("TestSnapshotServer", "TestSnapshotServer",
+                        SocketConnectionAttributes.None, 2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress,
+                        null, false, (ushort)TestMachineConfig.ServerSnapshotPort, TestMachineConfig.ServerSnapshotPort)
+                    , new SocketConnectionConfig("TestUpdateServer", "TestUpdateServer",
+                        SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast, 2_000_000, 0
+                        , TestMachineConfig.LoopBackIpAddress,
+                        TestMachineConfig.NetworkSubAddress, false, TestMachineConfig.ServerUpdatePort)
                 }, null, 9000, Enumerable.Empty<ISourceTickerPublicationConfig>(), false, false));
         logger.Info("Ended setup of TradingClientServerTests");
     }
@@ -134,9 +136,9 @@ public class TradingClientServerTests
                 new VenueCriteria(new List<IVenue>() { new Venue(23, "TestVenue") },
                     VenueSelectionMethod.Default), null, null, "", null),
             1, new DateTime(2018, 3, 30, 2, 18, 2), new DateTime(2018, 3, 30, 2, 18, 2), "Tag")
-            {
-                AutoRecycleAtRefCountZero = false
-            };
+        {
+            AutoRecycleAtRefCountZero = false
+        };
         orderSubmitRequest.IncrementRefCount();
         orxClient.SubmitOrderRequest(orderSubmitRequest);
 
@@ -194,9 +196,9 @@ public class TradingClientServerTests
             new Party("TestPartyId", "TestPartyName", null, "MyClientPartyId",
                 new BookingInfo("TestAccount", "TestSubAccount")), new DateTime(2018, 3, 26),
             ExecutionType.CounterPartyGave, ExecutionStageType.Trade), ExecutionUpdateType.Created)
-            {
-                AutoRecycleAtRefCountZero = false
-            };
+        {
+            AutoRecycleAtRefCountZero = false
+        };
         serverExecutionUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnExecution(serverExecutionUpdate);
 

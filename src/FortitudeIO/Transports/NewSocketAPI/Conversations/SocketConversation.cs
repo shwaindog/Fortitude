@@ -11,7 +11,7 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
 public class SocketConversation : ISocketConversation
 {
-    private readonly IStreamControls initiateControls;
+    protected readonly IStreamControls initiateControls;
     protected readonly ISocketSessionContext SocketSessionContext;
 
     public SocketConversation(ISocketSessionContext socketSessionContext, IStreamControls initiateControls)

@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Products;
@@ -14,4 +15,5 @@ public interface ITradingServerConfig : IMarketServerConfig<ITradingServerConfig
     TimeInForce SupportedTimeInForce { get; }
     VenueFeatures SupportedVenueFeatures { get; }
     ISnapshotUpdatePricingServerConfig? SupportsMarketPriceQuoteExecution { get; }
+    new IEnumerable<IConnectionConfig>? ServerConnections { get; set; }
 }

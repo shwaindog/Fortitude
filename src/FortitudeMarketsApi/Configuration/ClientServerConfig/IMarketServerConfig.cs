@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 
 #endregion
 
@@ -13,7 +13,7 @@ public interface IMarketServerConfig
     long Id { get; }
     string? Name { get; }
     MarketServerType MarketServerType { get; }
-    IEnumerable<IConnectionConfig>? ServerConnections { get; }
+    IEnumerable<ISocketConnectionConfig>? ServerConnections { get; }
     ITimeTable? AvailabilityTimeTable { get; }
 }
 

@@ -45,7 +45,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private int recvBufferSize;
     private string testHostName = null!;
-    private int testHostPort;
+    private ushort testHostPort;
     private string testSessionDescription = null!;
     private int wholeMessagesPerReceive;
 
@@ -74,9 +74,8 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
 
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
-        testHostPort = 1979;
         moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
-        moqServerConnectionConfig.SetupProperty(scc => scc.Updates, configUpdateSubject);
+        testHostPort = 1979;
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
 

@@ -6,6 +6,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -29,6 +30,7 @@ public class PQClientSyncMonitoringTests
     private string? lastSourceName;
     private List<IUniqueSourceTickerIdentifier> lastUniqueSourceTickerIdentifiers = null!;
     private ThreadStart monitorAction = null!;
+    private Mock<IConnectionConfig> moqConvertedConnectionConfig = null!;
     private Mock<IPQDeserializer> moqFirstQuoteDeserializer = null!;
     private Mock<IUniqueSourceTickerIdentifier> moqFirstQuoteDeserializerIdentifier = null!;
     private Mock<IFLogger> moqLogger = null!;
@@ -38,12 +40,13 @@ public class PQClientSyncMonitoringTests
     private Mock<IPQDeserializer> moqSecondQuoteDeserializer = null!;
     private Mock<IUniqueSourceTickerIdentifier> moqSecondQuoteDeserializerIdentifier = null!;
     private Mock<ISequencer> moqSequencer = null!;
-    private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<ISocketReceiverConfig> moqSnapshotServerConnectionConfig = null!;
     private Mock<ISnapshotUpdatePricingServerConfig> moqSnapshotUpdatePricingServerConfig = null!;
     private Mock<IIntraOSThreadSignal> moqStopSignal = null!;
     private Mock<IDoublyLinkedList<IPQDeserializer>> moqSyncKo = null!;
     private Mock<IDoublyLinkedList<IPQDeserializer>> moqSyncOk = null!;
     private Mock<ITimeContext> moqTimeContext = null!;
+    private Mock<ISocketConnectionConfig> moqUpdateServerConnectionConfig = null!;
     private PQClientSyncMonitoring pqClientSyncMonitoring = null!;
     private long sequencerSequence;
     private Action<IConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestActionFunc = null!;
@@ -61,10 +64,17 @@ public class PQClientSyncMonitoringTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
         moqSnapshotUpdatePricingServerConfig = new Mock<ISnapshotUpdatePricingServerConfig>();
-        moqServerConnectionConfig = new Mock<IConnectionConfig>();
+        moqSnapshotServerConnectionConfig = new Mock<ISocketReceiverConfig>();
+        moqUpdateServerConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqConvertedConnectionConfig = new Mock<IConnectionConfig>();
         moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
-            .Returns(moqServerConnectionConfig.Object).Callback(() => { pqClientSyncMonitoring.CheckStopMonitoring(); })
+            .Returns(moqSnapshotServerConnectionConfig.Object).Callback(() =>
+            {
+                pqClientSyncMonitoring.CheckStopMonitoring();
+            })
             .Verifiable();
+        moqSnapshotServerConnectionConfig.Setup(ssrc => ssrc.ToConnectionConfig(It.IsAny<ConnectionDirectionType>()))
+            .Returns(moqConvertedConnectionConfig.Object);
         lastSourceName = null;
         getSourceServerConfigFunc = srcName =>
         {
@@ -292,7 +302,7 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializer.Verify();
         moqSecondQuoteDeserializer.Verify();
         Assert.AreEqual("TestFirstSource", lastSourceName);
-        Assert.AreEqual(moqServerConnectionConfig.Object, lastConnectionConfig);
+        Assert.AreEqual(moqConvertedConnectionConfig.Object, lastConnectionConfig);
         Assert.IsNotNull(lastUniqueSourceTickerIdentifiers);
         Assert.AreEqual(1, lastUniqueSourceTickerIdentifiers.Count);
         Assert.AreEqual(moqFirstQuoteDeserializerIdentifier.Object, lastUniqueSourceTickerIdentifiers[0]);
@@ -317,7 +327,7 @@ public class PQClientSyncMonitoringTests
             .Returns(moqFirstQuoteDeserializer.Object).Returns(null as IPQDeserializer);
         var count = 0;
         moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
-            .Returns(moqServerConnectionConfig.Object).Callback(() =>
+            .Returns(moqSnapshotServerConnectionConfig.Object).Callback(() =>
             {
                 if (count++ >= 1) pqClientSyncMonitoring.CheckStopMonitoring();
             }).Verifiable();
@@ -335,7 +345,7 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializer.Verify();
         moqSecondQuoteDeserializer.Verify();
         Assert.AreEqual("TestFirstSource", lastSourceName);
-        Assert.AreEqual(moqServerConnectionConfig.Object, lastConnectionConfig);
+        Assert.AreEqual(moqConvertedConnectionConfig.Object, lastConnectionConfig);
         Assert.IsNotNull(lastUniqueSourceTickerIdentifiers);
         Assert.AreEqual(1, lastUniqueSourceTickerIdentifiers.Count);
         Assert.AreEqual(moqFirstQuoteDeserializerIdentifier.Object, lastUniqueSourceTickerIdentifiers[0]);
@@ -362,7 +372,7 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializer.Verify();
         moqSecondQuoteDeserializer.Verify();
         Assert.AreEqual("TestFirstSource", lastSourceName);
-        Assert.AreEqual(moqServerConnectionConfig.Object, lastConnectionConfig);
+        Assert.AreEqual(moqConvertedConnectionConfig.Object, lastConnectionConfig);
         Assert.IsNotNull(lastUniqueSourceTickerIdentifiers);
         Assert.AreEqual(2, lastUniqueSourceTickerIdentifiers.Count);
         Assert.AreEqual(moqFirstQuoteDeserializerIdentifier.Object, lastUniqueSourceTickerIdentifiers[0]);
@@ -388,7 +398,7 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializer.Verify();
         moqSecondQuoteDeserializer.Verify();
         Assert.AreEqual("TestSecondSource", lastSourceName);
-        Assert.AreEqual(moqServerConnectionConfig.Object, lastConnectionConfig);
+        Assert.AreEqual(moqConvertedConnectionConfig.Object, lastConnectionConfig);
         Assert.IsNotNull(lastUniqueSourceTickerIdentifiers);
         Assert.AreEqual(1, lastUniqueSourceTickerIdentifiers.Count);
         Assert.AreEqual(moqSecondQuoteDeserializerIdentifier.Object, lastUniqueSourceTickerIdentifiers[0]);
@@ -441,7 +451,7 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializer.Verify();
         moqSecondQuoteDeserializer.Verify();
         Assert.AreEqual("TestSecondSource", lastSourceName);
-        Assert.AreEqual(moqServerConnectionConfig.Object, lastConnectionConfig);
+        Assert.AreEqual(moqConvertedConnectionConfig.Object, lastConnectionConfig);
         Assert.IsNotNull(lastUniqueSourceTickerIdentifiers);
         Assert.AreEqual(1, lastUniqueSourceTickerIdentifiers.Count);
         Assert.AreEqual(moqSecondQuoteDeserializerIdentifier.Object, lastUniqueSourceTickerIdentifiers[0]);
@@ -474,7 +484,7 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializer.Verify();
         moqSecondQuoteDeserializer.Verify();
         Assert.AreEqual("TestFirstSource", lastSourceName);
-        Assert.AreEqual(moqServerConnectionConfig.Object, lastConnectionConfig);
+        Assert.AreEqual(moqConvertedConnectionConfig.Object, lastConnectionConfig);
         Assert.IsNotNull(lastUniqueSourceTickerIdentifiers);
         Assert.AreEqual(1, lastUniqueSourceTickerIdentifiers.Count);
         Assert.AreEqual(moqFirstQuoteDeserializerIdentifier.Object, lastUniqueSourceTickerIdentifiers[0]);

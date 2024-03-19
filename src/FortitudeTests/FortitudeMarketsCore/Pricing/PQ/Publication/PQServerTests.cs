@@ -6,12 +6,10 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
+using FortitudeIO.Transports.NewSocketAPI.SessionConnection;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.SessionConnection;
-using FortitudeIO.Transports.Sockets.Subscription;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -46,9 +44,8 @@ public class PQServerTests
     private Mock<ISocketDispatcherListener> moqSocketDispatcherListener = null!;
     private Mock<ISocketDispatcherSender> moqSocketDispatcherSender = null!;
     private Mock<IPQUpdateServer> moqUpdateService = null!;
-    private Mock<ISocketSubscriber> moqUpdateStreamSubscriber = null!;
     private Func<ISocketConnectionConfig, IPQSnapshotServer> pqSnapshotFactory = null!;
-    private Func<ISocketDispatcher, IConnectionConfig, string, string, IPQUpdateServer> pqUpdateFactory = null!;
+    private Func<ISocketConnectionConfig, IPQUpdateServer> pqUpdateFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
     private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
     private SourceTickerPublicationConfig sourceTickerQuoteInfo1 = null!;
@@ -76,11 +73,13 @@ public class PQServerTests
             MarketServerType.MarketData,
             new[]
             {
-                new ConnectionConfig("TestSnapshotServer", TestMachineConfig.LoopBackIpAddress,
-                    TestMachineConfig.ServerSnapshotPort, ConnectionDirectionType.Both, "none", 500)
-                , new ConnectionConfig("TestUpdateServer", TestMachineConfig.LoopBackIpAddress,
-                    TestMachineConfig.ServerUpdatePort, ConnectionDirectionType.Publisher,
-                    TestMachineConfig.NetworkSubAddress, 500)
+                new SocketConnectionConfig("TestSnapshotServer", "TestSnapshotServer", SocketConnectionAttributes.None
+                    , 2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress, null, false,
+                    TestMachineConfig.ServerSnapshotPort)
+                , new SocketConnectionConfig("TestUpdateServer", "TestUpdateServer"
+                    , SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast, 2_000_000, 2_000_0000
+                    , TestMachineConfig.LoopBackIpAddress, TestMachineConfig.NetworkSubAddress, false
+                    , TestMachineConfig.ServerUpdatePort)
             }, null, 9000, sourceTickerPublicationConfigs, false, false);
 
         moqHeartBeatSender = new Mock<IPQServerHeartBeatSender>();
@@ -94,17 +93,10 @@ public class PQServerTests
         moqUpdateService = new Mock<IPQUpdateServer>();
         moqSnapshotService.Setup(sss => sss.Connect()).Verifiable();
 
-        moqUpdateStreamSubscriber = new Mock<ISocketSubscriber>();
-        moqUpdateStreamSubscriber.Setup(uss => uss.BlockUntilConnected()).Verifiable();
-        moqUpdateService.SetupGet(us => us.SocketStreamFromSubscriber)
-            .Returns(moqUpdateStreamSubscriber.Object)
-            .Verifiable();
-
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
         pqSnapshotFactory = (SocketConnectionConfig) => moqSnapshotService.Object;
-        pqUpdateFactory = (dispatcher, connConfig, socketUseDescription, networkSubAddress) =>
-            moqUpdateService.Object;
+        pqUpdateFactory = (SocketConnectionConfig) => moqUpdateService.Object;
     }
 
     [TestMethod]
@@ -118,7 +110,6 @@ public class PQServerTests
         pqServer.StartServices();
 
         moqSnapshotService.Verify();
-        moqUpdateStreamSubscriber.Verify();
         moqUpdateService.Verify();
     }
 
@@ -152,13 +143,7 @@ public class PQServerTests
         pqServer.StartServices();
 
 
-        moqUpdateStreamSubscriber.Verify(uss => uss.BlockUntilConnected(), Times.Once);
-        moqUpdateService.Verify(us => us.SocketStreamFromSubscriber, Times.Once);
-
         pqServer.StartServices();
-
-        moqUpdateStreamSubscriber.Verify(uss => uss.BlockUntilConnected(), Times.Once);
-        moqUpdateService.Verify(us => us.SocketStreamFromSubscriber, Times.Once);
     }
 
     [TestMethod]

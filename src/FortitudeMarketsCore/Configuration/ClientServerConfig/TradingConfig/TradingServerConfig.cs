@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Configuration.Availability;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -61,6 +62,9 @@ public class TradingServerConfig : ITradingServerConfig
     public IEnumerable<IConnectionConfig>? ServerConnections { get; set; }
     public ITimeTable? AvailabilityTimeTable { get; set; }
     public IObservable<IMarketServerConfigUpdate<ITradingServerConfig>>? Updates { get; set; }
+
+    IEnumerable<ISocketConnectionConfig>? IMarketServerConfig.ServerConnections { get; }
+
     public OrderType SupportedOrderTypes { get; set; }
     public TimeInForce SupportedTimeInForce { get; set; }
     public VenueFeatures SupportedVenueFeatures { get; set; }

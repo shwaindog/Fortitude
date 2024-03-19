@@ -161,9 +161,9 @@ public abstract class SocketSubscriber : SocketStreamSubscriber, ISocketSubscrib
     {
         lock (connSync)
         {
+            connecting = false;
             if (Connector != null)
             {
-                connecting = false;
                 triggerConnectNowSignal?.Set();
                 if (Connector == null || connectedConnectionConfig == null) return;
                 if (!inError) OnDisconnecting?.Invoke();

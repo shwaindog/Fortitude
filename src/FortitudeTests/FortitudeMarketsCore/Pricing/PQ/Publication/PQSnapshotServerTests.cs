@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
@@ -20,7 +19,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 public class PQSnapshotServerTests
 {
     private Mock<IAcceptorControls> moqAcceptorControls = null!;
-    private Mock<IPerfLogger> moqLatencyTraceLogger = null!;
     private Mock<ISocketSessionContext> moqNewClientContext = null!;
     private Mock<IOSNetworkingController> moqNeworkingController = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
@@ -85,7 +83,6 @@ public class PQSnapshotServerTests
 
         moqPqSnapshotServerSessionConnection = new Mock<ISocketSessionContext>();
         moqPqSnapshotServerSessionConnection.SetupGet(ssc => ssc.SocketDispatcher).Returns(moqSocketDispatcher.Object);
-        moqLatencyTraceLogger = new Mock<IPerfLogger>();
     }
 
     [TestCleanup]

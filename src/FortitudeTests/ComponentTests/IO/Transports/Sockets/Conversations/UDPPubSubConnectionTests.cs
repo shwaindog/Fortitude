@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Net;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
@@ -26,8 +25,8 @@ public class UdpPubSubConnectionTests
     private readonly SocketConnectionConfig serverSocketConfig = new("TestInstanceName", "TestTCPReqRespConn",
         SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast,
         1024 * 1024 * 2, 1024 * 1024 * 2,
-        TestMachineConfig.LoopBackIpAddress, IPAddress.Parse(TestMachineConfig.NetworkSubAddress), false,
-        (ushort)TestMachineConfig.ServerUpdatePort, (ushort)TestMachineConfig.ServerUpdatePort);
+        TestMachineConfig.LoopBackIpAddress, TestMachineConfig.NetworkSubAddress, false,
+        TestMachineConfig.ServerUpdatePort, TestMachineConfig.ServerUpdatePort);
 
     private ConversationPublisher conversationPublisher = null!;
 

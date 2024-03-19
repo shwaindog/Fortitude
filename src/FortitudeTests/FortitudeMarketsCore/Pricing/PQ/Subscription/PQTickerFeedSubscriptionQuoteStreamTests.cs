@@ -3,7 +3,8 @@
 using System.Reactive.Disposables;
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -37,8 +38,8 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
         feedConfig = new SnapshotUpdatePricingServerConfig("TestServerConfig", MarketServerType.MarketData,
             new[]
             {
-                new ConnectionConfig("testConnectionName", "testhost", 9090,
-                    ConnectionDirectionType.Both, null, 4000)
+                new SocketConnectionConfig("testConnectionName", "testConnectionName", SocketConnectionAttributes.None
+                    , 2_000_000, 2_000_000, "testhost", null, false, 9090)
             }, null, 1234,
             new[] { new SourceTickerPublicationConfig(0, "", "") },
             true, true);

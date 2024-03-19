@@ -38,9 +38,7 @@ public class SourceTickerPublicationConfig : SourceTickerQuoteInfo, IMutableSour
     {
         if (!(other is ISourceTickerPublicationConfig otherSrcTkrId)) return false;
         var baseSame = base.AreEquivalent(other, exactTypes);
-        var mrktPxQtServerSame = true;
-        if (exactTypes)
-            mrktPxQtServerSame = MarketPriceQuoteServer?.AreEquivalent(otherSrcTkrId.MarketPriceQuoteServer)
+        var mrktPxQtServerSame = MarketPriceQuoteServer?.AreEquivalent(otherSrcTkrId.MarketPriceQuoteServer, exactTypes)
                                  ?? otherSrcTkrId.MarketPriceQuoteServer == null;
         return baseSame && mrktPxQtServerSame;
     }

@@ -5,7 +5,8 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
@@ -26,6 +27,8 @@ using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
+using ISocketDispatcher = FortitudeIO.Transports.NewSocketAPI.Dispatcher.ISocketDispatcher;
+using SocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.SocketDispatcher;
 
 #endregion
 
@@ -47,16 +50,19 @@ public class PricingClientServerPubSubscribeTests
     private INameIdLookupGenerator nameIdLookupGenerator = null!;
     private OSNetworkingController networkingController = null!;
     private Func<ISocketConnectionConfig, PQSnapshotServer> pqSnapshotFactory = null!;
-    private Func<ISocketDispatcher, IConnectionConfig, string, string, IPQUpdateServer> pqUpdateFactory = null!;
+    private Func<ISocketConnectionConfig, IPQUpdateServer> pqUpdateFactory = null!;
     private PricingServersConfigRepository pricingServersConfigRepository = null!;
-    private IPQSocketSubscriptionRegristrationFactory<IPQSnapshotClient> snapshotClientFactory = null!;
+    private IPQSocketSubscriptionRegistrationFactory<IPQSnapshotClient> snapshotClientFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
     private ISocketDispatcher socketDispatcher = null!;
-    private Func<string, ISocketDispatcher> socketDispatcherFactory = null!;
+
+    private Func<string, global::FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher> socketDispatcherFactory
+        = null!;
+
     private SourceTickerPublicationConfig sourceTickerPublicationConfig = null!;
     private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
     private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
-    private IPQSocketSubscriptionRegristrationFactory<IPQUpdateClient> updateClientFactory = null!;
+    private IPQSocketSubscriptionRegistrationFactory<IPQUpdateClient> updateClientFactory = null!;
 
     public void Setup(LayerFlags layerDetails, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
@@ -72,12 +78,13 @@ public class PricingClientServerPubSubscribeTests
             MarketServerType.MarketData,
             new[]
             {
-                new ConnectionConfig("TestSnapshotServer", TestMachineConfig.LoopBackIpAddress,
-                    TestMachineConfig.ServerSnapshotPort,
-                    ConnectionDirectionType.Both, "none", 500)
-                , new ConnectionConfig("TestUpdateServer", TestMachineConfig.LoopBackIpAddress,
-                    TestMachineConfig.ServerUpdatePort, ConnectionDirectionType.Publisher,
-                    TestMachineConfig.NetworkSubAddress, 500)
+                new SocketConnectionConfig("TestSnapshotServer", "TestSnapshotServer", SocketConnectionAttributes.None
+                    , 2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress, null, false,
+                    TestMachineConfig.ServerSnapshotPort)
+                , new SocketConnectionConfig("TestUpdateServer", "TestUpdateServer"
+                    , SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast, 2_000_000, 2_000_000
+                    , TestMachineConfig.LoopBackIpAddress, TestMachineConfig.NetworkSubAddress, false,
+                    TestMachineConfig.ServerUpdatePort)
             }, null, 9000, sourceTickerPublicationConfigs, false, false);
         pricingServersConfigRepository =
             new PricingServersConfigRepository(new[] { snapshotUpdatePricingServerConfig });
@@ -90,14 +97,13 @@ public class PricingClientServerPubSubscribeTests
             var socketDispatcherSender = new SocketDispatcherSender("socketDispatcherSender");
             return new SocketDispatcher(socketDispatcherListener, socketDispatcherSender);
         };
-        socketDispatcher = new SocketDispatcher(
-            new SocketDispatcherListener(new SocketSelector(1000, networkingController), "socketDispatcher"),
-            new SocketDispatcherSender("socketDispatcherSender"));
+        socketDispatcher = new global::FortitudeIO.Transports.NewSocketAPI.Dispatcher.SocketDispatcher(
+            new SimpleSocketRingPollerListener("socketDispatcherListener", 5
+                , new global::FortitudeIO.Transports.NewSocketAPI.Receiving.SocketSelector(1000, networkingController)),
+            new SimpleSocketRingPollerSender("socketDispatcherSender", 5));
 
         pqSnapshotFactory = PQSnapshotServer.BuildTcpResponder;
-        pqUpdateFactory = (dispatcher, connConfig, socketUseDescription, networkSubAddress) =>
-            new PQUpdatePublisher(dispatcher, networkingController, connConfig,
-                socketUseDescription, networkSubAddress);
+        pqUpdateFactory = PQUpdatePublisher.BuildUdpMulticastPublisher;
         snapshotClientFactory = new PQSnapshotClientRegistrationFactory(networkingController);
         updateClientFactory = new PQUpdateClientRegistrationFactory(networkingController);
     }
