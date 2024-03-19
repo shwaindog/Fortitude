@@ -1,16 +1,18 @@
 ﻿#region
 
 using System.Net;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.Sockets;
 using TransportType = FortitudeIO.Topics.Config.ConnectionConfig.TransportType;
 
 #endregion
 
 namespace FortitudeIO.Transports.NewSocketAPI.Config;
 
-public interface ISocketConnectionConfig : ITopicConnectionConfig
+public interface ISocketConnectionConfig : ITopicConnectionConfig, ICloneable<ISocketConnectionConfig>
 {
     SocketConnectionAttributes ConnectionAttributes { get; set; }
     MutableString SocketDescription { get; set; }
@@ -19,6 +21,9 @@ public interface ISocketConnectionConfig : ITopicConnectionConfig
     bool PortIsDynamic { get; set; }
     ushort PortStartRange { get; set; }
     ushort PortEndRange { get; set; }
+
+    IConnectionConfig
+        ToConnectionConfig(ConnectionDirectionType connectionDirectionType = ConnectionDirectionType.Both);
 }
 
 public interface ISocketReceiverConfig : ISocketConnectionConfig
@@ -63,12 +68,68 @@ public class SocketConnectionConfig : ISocketReceiverConfig
 
     public int NumberOfReceivesPerPoll { get; }
 
+    object ICloneable.Clone() => Clone();
+
+    public ISocketConnectionConfig Clone() =>
+        new SocketConnectionConfig(InstanceName, SocketDescription,
+            ConnectionAttributes, SendBufferSize, ReceiveBufferSize, Hostname, SubnetMask,
+            PortIsDynamic, PortStartRange, PortEndRange);
+
+    public IConnectionConfig
+        ToConnectionConfig(ConnectionDirectionType connectionDirectionType = ConnectionDirectionType.Both) =>
+        new ConnectionConfig(InstanceName, Hostname?.ToString() ?? "", PortStartRange, connectionDirectionType
+            , SubnetMask?.ToString(), 1_000);
+
+    protected bool Equals(SocketConnectionConfig other)
+    {
+        var instanceNameSame = InstanceName == other.InstanceName;
+        var sendBufferSizeSame = SendBufferSize == other.SendBufferSize;
+        var receiveBufferSizeSame = ReceiveBufferSize == other.ReceiveBufferSize;
+        var connectionAttsSame = ConnectionAttributes == other.ConnectionAttributes;
+        var descriptionSame = SocketDescription.Equals(other.SocketDescription);
+        var hostNameSame = Equals(Hostname, other.Hostname);
+        var subNetSame = Equals(SubnetMask, other.SubnetMask);
+        var portDynamicSame = PortIsDynamic == other.PortIsDynamic;
+        var portStartRangeSame = PortStartRange == other.PortStartRange;
+        var portEndRangeSame = PortEndRange == other.PortEndRange;
+        var numIntervalsPerPollSame = NumberOfReceivesPerPoll == other.NumberOfReceivesPerPoll;
+
+        return instanceNameSame && sendBufferSizeSame && receiveBufferSizeSame &&
+               connectionAttsSame && descriptionSame && hostNameSame && subNetSame &&
+               portDynamicSame && portStartRangeSame && portEndRangeSame && numIntervalsPerPollSame;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((SocketConnectionConfig)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(InstanceName);
+        hashCode.Add(SendBufferSize);
+        hashCode.Add(ReceiveBufferSize);
+        hashCode.Add((int)ConnectionAttributes);
+        hashCode.Add(SocketDescription);
+        hashCode.Add(Hostname);
+        hashCode.Add(SubnetMask);
+        hashCode.Add(PortIsDynamic);
+        hashCode.Add(PortStartRange);
+        hashCode.Add(PortEndRange);
+        hashCode.Add(NumberOfReceivesPerPoll);
+        return hashCode.ToHashCode();
+    }
+
     public override string ToString() =>
-        $"SocketConnectionConfig ({nameof(SocketDescription)}: " +
-        $"{SocketDescription}{nameof(Hostname)}: {Hostname}, {nameof(SubnetMask)}: {SubnetMask}, " +
+        $"SocketConnectionConfig ({nameof(InstanceName)}: {InstanceName}, {nameof(SocketDescription)}: " +
+        $"{SocketDescription}, {nameof(Hostname)}: {Hostname}, {nameof(SubnetMask)}: {SubnetMask}, " +
         $"{nameof(PortIsDynamic)}: {PortIsDynamic}, {nameof(PortStartRange)}: {PortStartRange}, " +
         $"{nameof(PortEndRange)}: {PortEndRange}, {nameof(SendBufferSize)}: {SendBufferSize}, " +
         $"{nameof(ReceiveBufferSize)}: {ReceiveBufferSize}, " +
-        $"{nameof(NumberOfReceivesPerPoll)}: {NumberOfReceivesPerPoll})" +
+        $"{nameof(NumberOfReceivesPerPoll)}: {NumberOfReceivesPerPoll}, " +
         $"{nameof(ConnectionAttributes)}: {ConnectionAttributes})";
 }

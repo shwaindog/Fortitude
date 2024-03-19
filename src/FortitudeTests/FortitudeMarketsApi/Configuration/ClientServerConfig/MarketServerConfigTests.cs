@@ -4,6 +4,8 @@ using System.Reactive.Subjects;
 using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeTests.FortitudeCommon.Configuration.Availability;
@@ -46,8 +48,9 @@ public class MarketServerConfigTests
             ReflectionHelper.GetPropertyName((MarketServerConfig<T> x) => x.MarketServerType),
             marketServerType, true);
         NonPublicInvocator.SetInstanceProperty(updateConfig,
-            ReflectionHelper.GetPropertyName((MarketServerConfig<T> x) => x.ServerConnections),
-            serverConnectionConfigs, true);
+            ReflectionHelper.GetPropertyName((MarketServerConfig<T> x) =>
+                x.LegacyServerConnections),
+            serverConnectionConfigs!, true);
     }
 
     [TestMethod]
@@ -55,7 +58,7 @@ public class MarketServerConfigTests
     {
         var originalServerConnectionConfig = ConnectionConfigTests
             .ServerConnectionConfigWithValues("OriginalConnectionName", "OriginalHostName", 5678,
-                ConnectionDirectionType.Both, "OriginalNetworkSubAddress", 125U);
+                ConnectionDirectionType.Both, "127.0.0.1", 125U);
 
         ISubject<IMarketServerConfigUpdate<IDummyMarketServerConfig>> updatePump
             = new Subject<IMarketServerConfigUpdate<IDummyMarketServerConfig>>();
@@ -68,22 +71,21 @@ public class MarketServerConfigTests
         Assert.IsTrue(
             new[] { originalServerConnectionConfig }.SequenceEqual(updateAbleServerConfig.ServerConnections!));
         ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
-            "OriginalConnectionName", "OriginalHostName", 5678, ConnectionDirectionType.Both,
-            "OriginalNetworkSubAddress", 125U);
+            "OriginalConnectionName", "OriginalConnectionName", "OriginalHostName", 5678, "127.0.0.1");
 
         var firstNewServerConnection = ConnectionConfigTests.DummyConnectionConfig!;
         var secondNewServerConnection = ConnectionConfigTests.DummyConnectionConfig;
         NonPublicInvocator.SetInstanceProperty(secondNewServerConnection,
-            ReflectionHelper.GetPropertyName((ConnectionConfig x) => x.Id),
-            3344L, true);
+            ReflectionHelper.GetPropertyName((SocketConnectionConfig x) => x.InstanceName),
+            "New", true);
         NonPublicInvocator.SetInstanceProperty(secondNewServerConnection,
-            ReflectionHelper.GetPropertyName((ConnectionConfig x) => x.ConnectionName),
-            "SecondNewConnectionName", true);
+            ReflectionHelper.GetPropertyName((SocketConnectionConfig x) => x.SocketDescription),
+            (MutableString)"New", true);
 
         IDummyMarketServerConfig updatedConfig = new DummyMarketServerConfigClass(updateAbleServerConfig);
         Assert.AreNotSame(updatedConfig, updateAbleServerConfig);
         UpdateServerConfigWithValues(updatedConfig, "NewServerName", MarketServerType.Trading,
-            new[] { firstNewServerConnection, secondNewServerConnection });
+            new[] { firstNewServerConnection.ToConnectionConfig(), secondNewServerConnection.ToConnectionConfig() });
         Assert.AreEqual(updateAbleServerConfig.Id, updatedConfig.Id);
 
         updatePump.OnNext(new MarketServerConfigUpdate<IDummyMarketServerConfig>(updatedConfig, EventType.Updated));
@@ -94,13 +96,13 @@ public class MarketServerConfigTests
             new[] { firstNewServerConnection, secondNewServerConnection }.SequenceEqual(updateAbleServerConfig
                 .ServerConnections!));
         ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
-            firstNewServerConnection.ConnectionName, firstNewServerConnection.Hostname, firstNewServerConnection.Port
-            , firstNewServerConnection.ConnectionDirectionType,
-            firstNewServerConnection?.NetworkSubAddress, firstNewServerConnection!.ReconnectIntervalMs);
+            firstNewServerConnection.InstanceName, firstNewServerConnection.InstanceName
+            , firstNewServerConnection.Hostname!.ToString(), firstNewServerConnection.PortStartRange
+            , firstNewServerConnection.SubnetMask?.ToString());
         ConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.Last(),
-            secondNewServerConnection.ConnectionName, secondNewServerConnection.Hostname, secondNewServerConnection.Port
-            , secondNewServerConnection.ConnectionDirectionType,
-            secondNewServerConnection?.NetworkSubAddress, secondNewServerConnection!.ReconnectIntervalMs);
+            secondNewServerConnection.InstanceName, secondNewServerConnection.InstanceName
+            , secondNewServerConnection.Hostname!.ToString(), secondNewServerConnection.PortStartRange
+            , secondNewServerConnection.SubnetMask?.ToString());
     }
 
     public interface IDummyMarketServerConfig : IMarketServerConfig<IDummyMarketServerConfig>
@@ -111,7 +113,7 @@ public class MarketServerConfigTests
     private class DummyMarketServerConfigClass : MarketServerConfig<IDummyMarketServerConfig>, IDummyMarketServerConfig
     {
         public DummyMarketServerConfigClass(string name, MarketServerType marketServerType
-            , IEnumerable<IConnectionConfig> serverConnections,
+            , IEnumerable<ISocketConnectionConfig> serverConnections,
             ITimeTable availabilityTimeTable
             , IObservable<IMarketServerConfigUpdate<IDummyMarketServerConfig>>? repoUpdateStream = null)
             : base(name, marketServerType, serverConnections, availabilityTimeTable, repoUpdateStream) { }

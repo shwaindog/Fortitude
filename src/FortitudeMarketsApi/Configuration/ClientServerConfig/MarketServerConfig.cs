@@ -6,6 +6,7 @@ using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 
 #endregion
@@ -19,12 +20,12 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
     protected ISubject<IConnectionUpdate> ConnectionUpdateStream;
     private MarketServerType marketServerType;
     private string? name;
-    private IEnumerable<IConnectionConfig>? serverConnections;
+    private IEnumerable<ISocketConnectionConfig>? serverConnections;
     protected ISubject<IMarketServerConfigUpdate<T>>? UpdateStream;
     private IDisposable? updateStreamSub;
 
     public MarketServerConfig(string name, MarketServerType marketServerType
-        , IEnumerable<IConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable = null,
+        , IEnumerable<ISocketConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable = null,
         IObservable<IMarketServerConfigUpdate<T>>? repoUpdateStream = null)
     {
         Id = IdGenLong.Next();
@@ -32,8 +33,6 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
         this.name = name;
         this.marketServerType = marketServerType;
         this.serverConnections = serverConnections;
-        foreach (var serverConnectionConfig in serverConnections)
-            serverConnectionConfig.Updates = ConnectionUpdateStream;
         this.availabilityTimeTable = availabilityTimeTable;
         this.repoUpdateStream = repoUpdateStream;
         UpdateStream = new Subject<IMarketServerConfigUpdate<T>>();
@@ -48,14 +47,23 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
         name = toClone.Name;
         marketServerType = toClone.MarketServerType;
         serverConnections = toClone.ServerConnections?.Select(sc => sc.Clone())?.ToArray()
-                            ?? Array.Empty<IConnectionConfig>();
-        foreach (var serverConnectionConfig in serverConnections)
-            serverConnectionConfig.Updates = ConnectionUpdateStream;
+                            ?? Array.Empty<ISocketConnectionConfig>();
         availabilityTimeTable = toClone.AvailabilityTimeTable;
         repoUpdateStream = toClone.repoUpdateStream;
         UpdateStream = new Subject<IMarketServerConfigUpdate<T>>();
         updateStreamSub = repoUpdateStream?.Subscribe(UpdateStream);
         UpdateStream.Subscribe(ListenForUpdates);
+    }
+
+    public IEnumerable<IConnectionConfig>? LegacyServerConnections
+    {
+        get => serverConnections?.Select(scc => scc.ToConnectionConfig());
+        protected set
+        {
+            if (Equals(serverConnections, value?.Select(cc => cc.ToSocketConnectionConfig()).ToList())) return;
+            serverConnections = value?.Select(cc => cc.ToSocketConnectionConfig()).ToList();
+            UpdateStream?.OnNext(new MarketServerConfigUpdate<T>(this as T, EventType.Updated));
+        }
     }
 
     public long Id { get; }
@@ -82,7 +90,7 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
         }
     }
 
-    public IEnumerable<IConnectionConfig>? ServerConnections
+    public IEnumerable<ISocketConnectionConfig>? ServerConnections
     {
         get => serverConnections;
         protected set
@@ -142,18 +150,17 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
 
     protected virtual void UpdateFields(T updatedServerConfig) { }
 
-    private void UpdateConnectionsList(IEnumerable<IConnectionConfig>? newConnectionsList)
+    private void UpdateConnectionsList(IEnumerable<ISocketConnectionConfig>? newConnectionsList)
     {
         var originalServerConnection = serverConnections;
         serverConnections = newConnectionsList?.Select(scc =>
         {
             var clonedScc = scc.Clone();
-            clonedScc.Updates = ConnectionUpdateStream;
             return clonedScc;
         })?.ToList();
-        var diffResults = originalServerConnection?.Diff(serverConnections, scc => scc.Id)
-                          ?? new DiffResults<IConnectionConfig>(Array.Empty<IConnectionConfig>(),
-                              Array.Empty<IConnectionConfig>(), Array.Empty<IConnectionConfig>());
+        var diffResults = originalServerConnection?.Diff(serverConnections, scc => scc.InstanceName)
+                          ?? new DiffResults<ISocketConnectionConfig>(Array.Empty<ISocketConnectionConfig>(),
+                              Array.Empty<ISocketConnectionConfig>(), Array.Empty<ISocketConnectionConfig>());
         foreach (var scc in diffResults.NewItems)
             ConnectionUpdateStream.OnNext(new ConnectionUpdate(scc, EventType.Created));
         foreach (var scc in diffResults.UpdatedItems)

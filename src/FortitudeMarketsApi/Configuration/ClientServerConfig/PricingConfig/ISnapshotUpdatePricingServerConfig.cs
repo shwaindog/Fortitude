@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 
 #endregion
 
@@ -11,8 +11,8 @@ public interface ISnapshotUpdatePricingServerConfig : IMarketServerConfig<ISnaps
     ICloneable<ISnapshotUpdatePricingServerConfig>, IInterfacesComparable<ISnapshotUpdatePricingServerConfig>
 {
     ushort PublicationId { get; }
-    IConnectionConfig? SnapshotConnectionConfig { get; }
-    IConnectionConfig? UpdateConnectionConfig { get; }
+    ISocketReceiverConfig? SnapshotConnectionConfig { get; }
+    ISocketConnectionConfig? UpdateConnectionConfig { get; }
     IList<ISourceTickerPublicationConfig>? SourceTickerPublicationConfigs { get; }
     bool IsLastLook { get; }
     bool SupportsIceBergs { get; }

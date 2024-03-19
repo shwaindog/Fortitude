@@ -10,11 +10,11 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
 public class ConversationPublisher : SocketConversation, IInitiateControls, IPublisherConversation
 {
-    private readonly IInitiateControls initiateControls;
+    protected readonly IInitiateControls InitiateControls;
 
     public ConversationPublisher(ISocketSessionContext socketSessionContext,
         IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) =>
-        this.initiateControls = initiateControls;
+        InitiateControls = initiateControls;
 
-    public void ConnectAsync() => initiateControls.ConnectAsync();
+    public void ConnectAsync() => InitiateControls.ConnectAsync();
 }

@@ -8,7 +8,7 @@ using FortitudeIO.Transports.Sockets.Subscription;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-public interface IPQSocketSubscriptionRegristrationFactory<out T> where T : ISocketSubscriber
+public interface IPQSocketSubscriptionRegistrationFactory<out T> where T : ISocketSubscriber
 {
     T RegisterSocketSubscriber(string socketUseDescription, IConnectionConfig cfg, uint streamId,
         ISocketDispatcher dispatcher, int wholeMessagesPerReceive,

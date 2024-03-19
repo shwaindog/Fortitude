@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.EventProcessing;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 
 #endregion
 
@@ -8,12 +9,12 @@ namespace FortitudeIO.Transports.Sockets;
 
 public interface IConnectionUpdate
 {
-    IConnectionConfig ConnectionConfig { get; }
+    ISocketConnectionConfig ConnectionConfig { get; }
     EventType EventType { get; }
 }
 
-public class ConnectionUpdate(IConnectionConfig connectionConfig, EventType eventType) : IConnectionUpdate
+public class ConnectionUpdate(ISocketConnectionConfig connectionConfig, EventType eventType) : IConnectionUpdate
 {
-    public IConnectionConfig ConnectionConfig { get; } = connectionConfig;
+    public ISocketConnectionConfig ConnectionConfig { get; } = connectionConfig;
     public EventType EventType { get; } = eventType;
 }

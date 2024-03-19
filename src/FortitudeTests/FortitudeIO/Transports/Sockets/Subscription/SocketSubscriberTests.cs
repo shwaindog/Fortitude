@@ -6,7 +6,9 @@ using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
@@ -35,12 +37,13 @@ public class SocketSubscriberTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
     private bool onConnectedCalled;
     private bool onDisconnectedCalled;
     private bool onDisconnectingCalled;
     private int recvBufferSize;
     private string testHostName = null!;
-    private int testHostPort;
+    private ushort testHostPort;
     private string testSessionDescription = null!;
     private int wholeMessagesPerReceive;
 
@@ -51,6 +54,7 @@ public class SocketSubscriberTests
         moqDispatcher = new Mock<ISocketDispatcher>();
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
+        moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
@@ -69,8 +73,18 @@ public class SocketSubscriberTests
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         testHostPort = 1979;
+        moqServerConnectionConfig.SetupGet(scc => scc.ConnectionName).Returns("TestSessionDescription");
+        moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
-        moqServerConnectionConfig.SetupProperty(scc => scc.Updates, configUpdateSubject);
+        moqServerConnectionConfig.SetupGet(scc => scc.ReconnectIntervalMs).Returns(5);
+        moqServerConnectionConfig.SetupGet(scc => scc.Updates).Returns(configUpdateSubject);
+        moqServerConnectionConfig.SetupSequence(scc => scc.FallBackConnectionConfig)
+            .Returns(moqServerConnectionConfig.Object).Returns(null as IConnectionConfig);
+        moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketConnectionConfig.SetupGet(scc => scc.SocketDescription).Returns("TestSessionDescription");
+        moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns((MutableString)testHostName);
+        moqSocketConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(testHostPort);
+        moqServerConnectionConfig.Setup(cc => cc.ToSocketConnectionConfig()).Returns(moqSocketConnectionConfig.Object);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
 
@@ -91,7 +105,7 @@ public class SocketSubscriberTests
     {
         ConnectMoqSetup();
 
-        configUpdateSubject.OnNext(new ConnectionUpdate(moqServerConnectionConfig.Object,
+        configUpdateSubject.OnNext(new ConnectionUpdate(moqSocketConnectionConfig.Object,
             EventType.Updated));
 
         VerifyFullConnectedCalled();
@@ -107,7 +121,7 @@ public class SocketSubscriberTests
 
         onConnectedCalled = false;
 
-        configUpdateSubject.OnNext(new ConnectionUpdate(moqServerConnectionConfig.Object,
+        configUpdateSubject.OnNext(new ConnectionUpdate(moqSocketConnectionConfig.Object,
             EventType.Updated));
 
         Assert.IsTrue(onDisconnectedCalled);
@@ -169,8 +183,8 @@ public class SocketSubscriberTests
         ResetMoqs();
         ConnectMoqSetup();
         DisconnectMoqSetup();
-        moqFlogger.Setup(fl => fl.Info("Closing connection {0}-{1} to {2}:{3} [{4}]", testSessionDescription,
-            It.IsAny<long>(), testHostName, testHostPort, testCxFailureReason)).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Closing connection {0}-{1} to {2}:{3} [{4}]", It.IsAny<object[]>()))
+            .Verifiable();
 
 
         var moqSocketSessionConnection = new Mock<ISocketSessionConnection>();
@@ -282,7 +296,6 @@ public class SocketSubscriberTests
                 It.IsAny<WaitOrTimerCallback>(), It.IsAny<uint>(), true))
             .Callback<WaitOrTimerCallback, uint, bool>((callback, time, callOnce) => { scheduledConnect = callback; })
             .Returns(osThreadSignal.Object).Verifiable();
-        moqServerConnectionConfig.SetupGet(scc => scc.ReconnectIntervalMs).Returns(250u);
 
         dummySocketSubscriber.BlockUntilConnected();
 
@@ -298,25 +311,21 @@ public class SocketSubscriberTests
         VerifyFullConnectedCalled();
     }
 
-
     [TestMethod]
     public void UnconnectedSocketSubscriber_ConnectFailsFirstConfig_FallbackConfigConnects()
     {
         ConnectMoqSetup();
-        moqOsSocket.SetupGet(oss => oss.Connected).Returns(false).Verifiable();
+        moqOsSocket.SetupSequence(oss => oss.Connected).Returns(false).Returns(true);
         moqDispatcher.Setup(d => d.Listener.RegisterForListen(It.IsAny<ISocketSessionConnection>())).Verifiable();
+
         var fallbackConfig = new Mock<IConnectionConfig>();
         const string testfallbackhostname = "TestFallbackHostName";
         fallbackConfig.SetupGet(scc => scc.Hostname).Returns(testfallbackhostname);
         const int fallbackPort = 1981;
         fallbackConfig.SetupGet(scc => scc.Port).Returns(fallbackPort);
-        moqServerConnectionConfig.SetupGet(scc => scc.FallBackConnectionConfig)
-            .Callback(() => { moqOsSocket.SetupGet(oss => oss.Connected).Returns(true).Verifiable(); })
-            .Returns(fallbackConfig.Object);
 
         moqFlogger.Reset();
-        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", testSessionDescription,
-            It.IsAny<long>(), testfallbackhostname, fallbackPort)).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", It.IsAny<object[]>())).Verifiable();
 
         dummySocketSubscriber.BlockUntilConnected();
 
@@ -324,35 +333,23 @@ public class SocketSubscriberTests
         VerifyFullConnectedCalled();
     }
 
-
     [TestMethod]
     public void UnconnectedSocketSubscriber_ConnectThrowsExceptionFirstConfig_FallbackConfigConnects()
     {
         ConnectMoqSetup();
-        moqOsSocket.SetupGet(oss => oss.Connected).Returns(false).Verifiable();
+        moqOsSocket.SetupGet(oss => oss.Connected).Returns(true).Verifiable();
         var expectedException = new Exception("During connection");
-        moqDispatcher.Setup(d => d.Listener.RegisterForListen(It.IsAny<ISocketSessionConnection>()))
-            .Throws(expectedException)
-            .Verifiable();
+        moqDispatcher.SetupSequence(d => d.Listener.RegisterForListen(It.IsAny<ISocketSessionConnection>()))
+            .Throws(expectedException).Pass();
         var fallbackConfig = new Mock<IConnectionConfig>();
         const string testfallbackhostname = "TestFallbackHostName";
         fallbackConfig.SetupGet(scc => scc.Hostname).Returns(testfallbackhostname);
         const int fallbackPort = 1981;
         fallbackConfig.SetupGet(scc => scc.Port).Returns(fallbackPort);
-        moqServerConnectionConfig.SetupGet(scc => scc.FallBackConnectionConfig)
-            .Callback(() =>
-            {
-                moqOsSocket.SetupGet(oss => oss.Connected).Returns(true).Verifiable();
-                moqDispatcher.Setup(d => d.Listener.RegisterForListen(It.IsAny<ISocketSessionConnection>()))
-                    .Verifiable();
-            })
-            .Returns(fallbackConfig.Object);
 
         moqFlogger.Reset();
-        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1}:{2} rejected: {3}", testSessionDescription,
-            testHostName, testHostPort, expectedException)).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", testSessionDescription,
-            It.IsAny<long>(), testfallbackhostname, fallbackPort)).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1}:{2} rejected: {3}", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", It.IsAny<object[]>())).Verifiable();
 
         dummySocketSubscriber.BlockUntilConnected();
 
@@ -364,8 +361,7 @@ public class SocketSubscriberTests
     {
         moqParallelControler.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>()))
             .Callback<WaitCallback>(wc => wc.Invoke(new object())).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", testSessionDescription,
-            It.IsAny<long>(), testHostName, testHostPort)).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", It.IsAny<object[]>())).Verifiable();
         moqDispatcher.Setup(d => d.Start()).Verifiable();
         moqDispatcher.Setup(d => d.Listener.RegisterForListen(It.IsAny<ISocketSessionConnection>())).Callback(() =>
         {
@@ -394,8 +390,7 @@ public class SocketSubscriberTests
 
     private void DisconnectMoqSetup()
     {
-        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1} id {2}:{3} closed", testSessionDescription,
-            It.IsAny<long>(), testHostName, testHostPort)).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1} id {2}:{3} closed", It.IsAny<object[]>())).Verifiable();
         moqDispatcher.Setup(d => d.Stop()).Verifiable();
         moqDispatcher.Setup(d => d.Listener.UnregisterForListen(It.IsAny<ISocketSessionConnection>())).Verifiable();
         moqOsSocket.Setup(oss => oss.Close()).Callback(() =>

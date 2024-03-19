@@ -1,6 +1,7 @@
 ﻿#region
 
-using FortitudeIO.Transports.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -33,8 +34,8 @@ public class PQQuoteSerializerRepositoryTests
                 new SnapshotUpdatePricingServerConfig("SnapshortServerName", MarketServerType.MarketData,
                     new[]
                     {
-                        new ConnectionConfig("ConnectionName", "connectionHostName", 9090,
-                            ConnectionDirectionType.Both, "127.0.0.0", 4000)
+                        new SocketConnectionConfig("ConnectionName", "ConnectionName", SocketConnectionAttributes.None
+                            , 2_000_000, 2_000_000, "connectionHostName", null, false, 9090)
                     }, null, 0,
                     new List<ISourceTickerPublicationConfig>(), true, true)));
 

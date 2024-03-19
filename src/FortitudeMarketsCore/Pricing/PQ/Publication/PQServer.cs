@@ -6,10 +6,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -33,8 +31,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 
     private readonly ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig;
 
-    private readonly Func<ISocketDispatcher, IConnectionConfig, string, string, IPQUpdateServer>
-        updateServerFactory;
+    private readonly Func<ISocketConnectionConfig, IPQUpdateServer> updateServerFactory;
 
     private IPQSnapshotServer? snapshotServer;
     private IPQUpdateServer? updateServer;
@@ -43,12 +40,12 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         IPQServerHeartBeatSender serverHeartBeatSender,
         ISocketDispatcher socketDispatcher,
         Func<ISocketConnectionConfig, IPQSnapshotServer> snapShotServerFactory,
-        Func<ISocketDispatcher, IConnectionConfig, string, string, IPQUpdateServer> updateServerFactory,
+        Func<ISocketConnectionConfig, IPQUpdateServer> updateServerFactory,
         Func<ISourceTickerQuoteInfo, T>? quoteFactory = null)
     {
         this.quoteFactory = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerQuoteInfo, T>();
         dispatcher = socketDispatcher;
-        dispatcher.DispatcherDescription = "PQServer";
+        dispatcher.Name = "PQServer";
         this.snapshotUpdatePricingServerConfig = snapshotUpdatePricingServerConfig;
         this.serverHeartBeatSender = serverHeartBeatSender;
         this.snapShotServerFactory = snapShotServerFactory;
@@ -172,13 +169,6 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         IsStarted = false;
     }
 
-    private void OnSnapshotRequest(ISocketSessionConnection cx, uint[] streamIDs)
-    {
-        foreach (var streamId in streamIDs)
-            if (entities.TryGetValue(streamId, out var ent))
-                snapshotServer!.Send(cx, ent!);
-    }
-
     private void OnSnapshotContextRequest(ISocketSessionContext cx, uint[] streamIDs)
     {
         foreach (var streamId in streamIDs)
@@ -194,17 +184,11 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         if (!IsStarted)
         {
-            var socketConConfig
-                = snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!.ToSocketConnectionConfig();
-
-            snapshotServer = snapShotServerFactory(socketConConfig);
+            snapshotServer = snapShotServerFactory(snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!);
             snapshotServer.OnSnapshotRequest += OnSnapshotContextRequest;
             snapshotServer.Connect();
-            updateServer = updateServerFactory(dispatcher,
-                snapshotUpdatePricingServerConfig.UpdateConnectionConfig!,
-                snapshotUpdatePricingServerConfig.Name!,
-                snapshotUpdatePricingServerConfig.UpdateConnectionConfig!.NetworkSubAddress!);
-            updateServer.SocketStreamFromSubscriber.BlockUntilConnected();
+            updateServer = updateServerFactory(snapshotUpdatePricingServerConfig.UpdateConnectionConfig!);
+            updateServer.Connect();
             serverHeartBeatSender.UpdateServer = updateServer;
             IsStarted = true;
         }

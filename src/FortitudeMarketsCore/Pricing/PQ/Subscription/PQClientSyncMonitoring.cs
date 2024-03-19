@@ -250,7 +250,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         {
             var feedRef = getSourceServerConfig(kv.Key);
             if (feedRef != null)
-                snapShotRequestAction(feedRef.SnapshotConnectionConfig!, kv.Value);
+                snapShotRequestAction(feedRef.SnapshotConnectionConfig!.ToConnectionConfig()!, kv.Value);
         }
     }
 }

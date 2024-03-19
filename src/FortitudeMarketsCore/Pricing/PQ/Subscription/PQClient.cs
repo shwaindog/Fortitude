@@ -28,17 +28,17 @@ public class PQClient : IDisposable
     private readonly IPQClientSyncMonitoring pqClientSyncMonitoring;
     private readonly IPricingServersConfigRepository pricingServersConfigRepository;
     private readonly IIntraOSThreadSignal shutDownSignal;
-    private readonly IPQSocketSubscriptionRegristrationFactory<IPQSnapshotClient> snapshotClientFactory;
+    private readonly IPQSocketSubscriptionRegistrationFactory<IPQSnapshotClient> snapshotClientFactory;
     private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
 
     private readonly object unsubscribeSyncLock = new();
-    private readonly IPQSocketSubscriptionRegristrationFactory<IPQUpdateClient> updateClientFactory;
+    private readonly IPQSocketSubscriptionRegistrationFactory<IPQUpdateClient> updateClientFactory;
 
     private int missingRefs;
 
     public PQClient(IPricingServersConfigRepository pricingServersConfigRepository,
-        IPQSocketSubscriptionRegristrationFactory<IPQSnapshotClient> snapshotClientFactory,
-        IPQSocketSubscriptionRegristrationFactory<IPQUpdateClient> updateClientFactory,
+        IPQSocketSubscriptionRegistrationFactory<IPQSnapshotClient> snapshotClientFactory,
+        IPQSocketSubscriptionRegistrationFactory<IPQUpdateClient> updateClientFactory,
         Func<string, ISocketDispatcher> socketDispatcherFactory,
         bool allowUpdatesCatchup = false, int dsptchCount = 1)
     {
@@ -163,13 +163,15 @@ public class PQClient : IDisposable
             var dispatcher = dispatchers.First(d => d.UsageCount == maxCount);
             var socketDescription = marketsServerConfig!.Name!;
             updateClientFactory.RegisterSocketSubscriber(socketDescription,
-                marketsServerConfig.UpdateConnectionConfig!, sourceTickerPublicationConfig.Id,
+                marketsServerConfig.UpdateConnectionConfig!.ToConnectionConfig(ConnectionDirectionType.Publisher)
+                , sourceTickerPublicationConfig.Id,
                 dispatcher, wholeMessagesPerReceive, snapshotSerializationRepository
                 , string.IsNullOrEmpty(alternativeMulticast) ?
-                    marketsServerConfig.UpdateConnectionConfig!.NetworkSubAddress :
+                    marketsServerConfig.UpdateConnectionConfig!.SubnetMask!.ToString() :
                     alternativeMulticast);
             snapshotClientFactory.RegisterSocketSubscriber(socketDescription,
-                marketsServerConfig.SnapshotConnectionConfig!, sourceTickerPublicationConfig.Id, dispatcher,
+                marketsServerConfig.SnapshotConnectionConfig!.ToConnectionConfig(), sourceTickerPublicationConfig.Id
+                , dispatcher,
                 wholeMessagesPerReceive, snapshotSerializationRepository);
 
             pqClientSyncMonitoring.CheckStartMonitoring();
@@ -198,9 +200,10 @@ public class PQClient : IDisposable
 
             lock (unsubscribeSyncLock)
             {
-                snapshotClientFactory.UnregisterSocketSubscriber(feedRef.SnapshotConnectionConfig!,
+                snapshotClientFactory.UnregisterSocketSubscriber(feedRef.SnapshotConnectionConfig!.ToConnectionConfig(),
                     sourceTickerPublicationConfig.Id);
-                updateClientFactory.UnregisterSocketSubscriber(feedRef.UpdateConnectionConfig!,
+                updateClientFactory.UnregisterSocketSubscriber(
+                    feedRef.UpdateConnectionConfig!.ToConnectionConfig(ConnectionDirectionType.Publisher),
                     sourceTickerPublicationConfig.Id);
 
                 pqClientSyncMonitoring.UnregisterSerializer(quoteDeserializer);

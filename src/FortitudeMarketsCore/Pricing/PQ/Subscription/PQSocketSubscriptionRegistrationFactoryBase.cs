@@ -2,6 +2,7 @@
 
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Transports;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -11,7 +12,7 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-public abstract class PQSocketSubscriptionRegistrationFactoryBase<T> : IPQSocketSubscriptionRegristrationFactory<T>
+public abstract class PQSocketSubscriptionRegistrationFactoryBase<T> : IPQSocketSubscriptionRegistrationFactory<T>
     where T : SocketSubscriber
 {
     private readonly IOSNetworkingController networkingController;
@@ -58,6 +59,32 @@ public abstract class PQSocketSubscriptionRegistrationFactoryBase<T> : IPQSocket
                 if (socketClient.RegisteredDeserializersCount == 0)
                 {
                     socketSubscriptions.Remove(cfg);
+                    socketClient.Disconnect();
+                }
+            }
+        }
+    }
+
+    public T RegisterSocketSubscriber(string socketUseDescription, ISocketConnectionConfig cfg, uint streamId,
+        ISocketDispatcher dispatcher, int wholeMessagesPerReceive,
+        IPQQuoteSerializerRepository ipqQuoteSerializerRepository, string? multicastInterface = null) =>
+        RegisterSocketSubscriber(socketUseDescription, cfg.ToConnectionConfig(), streamId, dispatcher
+            , wholeMessagesPerReceive, ipqQuoteSerializerRepository, multicastInterface);
+
+    public T? FindSocketSubscription(ISocketConnectionConfig configKey) =>
+        // ReSharper disable once InconsistentlySynchronizedField
+        socketSubscriptions.TryGetValue(configKey.ToConnectionConfig(), out var findValue) ? findValue : null;
+
+    public void UnregisterSocketSubscriber(ISocketConnectionConfig cfg, uint streamId)
+    {
+        lock (syncLock)
+        {
+            if (socketSubscriptions.TryGetValue(cfg.ToConnectionConfig(), out var socketClient))
+            {
+                socketClient.UnregisterDeserializer<PQLevel0Quote>(streamId, NoOp);
+                if (socketClient.RegisteredDeserializersCount == 0)
+                {
+                    socketSubscriptions.Remove(cfg.ToConnectionConfig());
                     socketClient.Disconnect();
                 }
             }

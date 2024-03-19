@@ -1,65 +1,57 @@
 ﻿#region
 
-using System.Reflection;
-using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Publishing;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
+using SocketsAPI = FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
-public sealed class PQUpdatePublisher : UdpPublisher, IPQUpdateServer
+public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
 {
-    private readonly IOSNetworkingController networkingController;
-    internal readonly PQServerSerializationRepository OrxSerializationRepository = new(PQFeedType.Update);
+    private static readonly PQServerSerializationRepository UpdateSerializationRepository = new(PQFeedType.Update);
+    private static SocketsAPI.ISocketFactories? socketFactories;
 
-    public PQUpdatePublisher(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
-        IConnectionConfig connectionConfig, string socketUseDescription, string networkAddress)
-        : base(FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher,
-            networkingController, connectionConfig, socketUseDescription + " PQUpdatePublisher", networkAddress)
+    public PQUpdatePublisher(SocketsAPI.ISocketSessionContext socketSessionContext,
+        IInitiateControls initiateControls)
+        : base(socketSessionContext, initiateControls) =>
+        socketSessionContext.SerdesFactory.StreamEncoderFactory = UpdateSerializationRepository;
+
+    public static SocketsAPI.ISocketFactories SocketFactories
     {
-        this.networkingController = networkingController;
-        RegisterSerializer<PQLevel0Quote>((uint)PricingMessageIds.PricingMessage);
-        RegisterSerializer<PQHeartBeatQuotesMessage>((uint)PricingMessageIds.HeartBeatMessage);
+        get => socketFactories ??= SocketsAPI.SocketFactories.GetRealSocketFactories();
+        set => socketFactories = value;
     }
 
-    public override int SendBufferSize => 2097152;
+    public bool IsConnected => SocketSessionContext.SocketConnection?.IsConnected ?? false;
 
     public void Send(IVersionedMessage message)
     {
-        Enqueue(PublisherConnection!, message);
+        SocketSessionContext.SocketSender!.Send(message);
     }
 
-    public override IMessageIdSerializationRepository GetFactory() => OrxSerializationRepository;
-
-    protected override UdpSubscriber BuildSubscriber(UdpPublisher publisher) =>
-        new PQUpdatePublisherSubscriber(this, Logger, Dispatcher, networkingController,
-            ConnectionConfig, SessionDescription, 0);
-
-    private class PQUpdatePublisherSubscriber : UdpSubscriber
+    public static PQUpdatePublisher BuildUdpMulticastPublisher(ISocketConnectionConfig socketConnectionConfig)
     {
-        public PQUpdatePublisherSubscriber(UdpPublisher udpPublisher, IFLogger logger, ISocketDispatcher dispatcher,
-            IOSNetworkingController networkingController,
-            IConnectionConfig connectionConfig, string sessionDescription, int wholeMessagesPerReceive)
-            : base(udpPublisher, logger, dispatcher, networkingController, connectionConfig,
-                sessionDescription, wholeMessagesPerReceive) =>
-            ZeroBytesReadIsDisconnection = false;
+        var conversationType = ConversationType.Publisher;
+        var conversationProtocol = SocketsAPI.SocketConversationProtocol.UdpPublisher;
 
-        public override int RecvBufferSize => 0;
+        var socFactories = SocketFactories;
 
-        protected override IMessageIdDeserializationRepository? GetFactory() => null;
+        var serdesFactory = new SerdesFactory();
 
-        public override IMessageStreamDecoder?
-            GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
-            null;
+        var socketSessionContext = new SocketsAPI.SocketSessionContext(conversationType, conversationProtocol,
+            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socFactories, serdesFactory);
+        socketSessionContext.Name += "Publisher";
+
+        var initiateControls = new InitiateControls(socketSessionContext);
+
+        return new PQUpdatePublisher(socketSessionContext, initiateControls);
     }
 }
