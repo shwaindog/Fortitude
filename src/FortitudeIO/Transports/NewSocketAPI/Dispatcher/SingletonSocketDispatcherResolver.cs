@@ -1,8 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
@@ -10,26 +10,78 @@ namespace FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 
 public interface ISocketDispatcherResolver
 {
-    ISocketDispatcher Resolve(ISocketSessionContext socketSessionContext);
+    ISocketDispatcher Resolve(ISocketConnectionConfig socketSessionContext);
+}
+
+public class PoolSocketDispatcherResolver : ISocketDispatcherResolver
+{
+    private readonly Func<IList<ISocketDispatcherListener>, ISocketDispatcherListener> listenerSelector;
+    private readonly Func<IList<ISocketDispatcherSender>, ISocketDispatcherSender> senderSelector;
+    private List<ISocketDispatcherListener> pooledListeners;
+    private List<ISocketDispatcherSender> pooledSenders;
+
+    public PoolSocketDispatcherResolver(List<ISocketDispatcherListener> pooledListeners
+        , List<ISocketDispatcherSender> pooledSenders,
+        Func<IList<ISocketDispatcherListener>, ISocketDispatcherListener> listenerSelector,
+        Func<IList<ISocketDispatcherSender>, ISocketDispatcherSender> senderSelector)
+    {
+        this.pooledListeners = pooledListeners;
+        this.pooledSenders = pooledSenders;
+        this.listenerSelector = listenerSelector;
+        this.senderSelector = senderSelector;
+    }
+
+    public ISocketDispatcher Resolve(ISocketConnectionConfig socketSessionContext) =>
+        new SocketDispatcher(listenerSelector(pooledListeners),
+            senderSelector(pooledSenders));
+
+    public static ISocketDispatcherResolver BuildLeastUsedPooledDispatcherResolver(string name, int numListeners
+        , int numSenders)
+    {
+        var listeners = new List<ISocketDispatcherListener>();
+        for (var i = 0; i < numListeners; i++)
+            listeners.Add(new SimpleSocketRingPollerListener($"{name}_{i}", 5
+                , new SocketSelector(100, new OSNetworkingController())));
+        var senders = new List<ISocketDispatcherSender>();
+        for (var i = 0; i < numListeners; i++) senders.Add(new SimpleSocketRingPollerSender($"{name}_{i}", 5));
+
+        Func<IList<ISocketDispatcherListener>, ISocketDispatcherListener> minUsageListeners = (availableListeners) =>
+        {
+            var maxCount = availableListeners.Min(d => d.UsageCount);
+            return availableListeners.FirstOrDefault(d => d.UsageCount == maxCount) ?? availableListeners.First();
+        };
+        Func<IList<ISocketDispatcherSender>, ISocketDispatcherSender> minUsageSenders = (availableSenders) =>
+        {
+            var maxCount = availableSenders.Min(d => d.UsageCount);
+            return availableSenders.FirstOrDefault(d => d.UsageCount == maxCount) ?? availableSenders.First();
+        };
+        return new PoolSocketDispatcherResolver(listeners, senders, minUsageListeners, minUsageSenders);
+    }
 }
 
 public class SingletonSocketDispatcherResolver : ISocketDispatcherResolver
 {
-    private readonly string descriptionPostFix;
-    private readonly IOSNetworkingController networkingController;
-    private readonly int timeoutMs;
+    private static volatile ISocketDispatcherResolver? singletonInstance;
+    private static readonly object syncLock = new();
+    private ISocketDispatcher? singletonDispatcher;
 
-    public SingletonSocketDispatcherResolver(IOSNetworkingController networkingController,
-        int timeoutMs = 500, string descriptionPostFix = "_Dispatcher")
+    public static ISocketDispatcherResolver Instance
     {
-        this.timeoutMs = timeoutMs;
-        this.descriptionPostFix = descriptionPostFix;
-        this.networkingController = networkingController ?? new OSNetworkingController();
+        get
+        {
+            if (singletonInstance == null)
+                lock (syncLock)
+                {
+                    singletonInstance ??= new SingletonSocketDispatcherResolver();
+                }
+
+            return singletonInstance;
+        }
     }
 
-    public ISocketDispatcher Resolve(ISocketSessionContext socketSessionContext) =>
-        new SocketDispatcher(
-            new SimpleSocketRingPollerListener($"{socketSessionContext.Name}", 10
-                , new SocketSelector(timeoutMs, networkingController)),
-            new SimpleSocketRingPollerSender(socketSessionContext.Name + descriptionPostFix, 10));
+    public ISocketDispatcher Resolve(ISocketConnectionConfig socketSessionContext) =>
+        singletonDispatcher ??= new SocketDispatcher(
+            new SimpleSocketRingPollerListener($"Singleton", 5
+                , new SocketSelector(100, new OSNetworkingController())),
+            new SimpleSocketRingPollerSender("Singleton", 5));
 }

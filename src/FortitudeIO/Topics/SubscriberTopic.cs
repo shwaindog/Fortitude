@@ -16,6 +16,8 @@ public class SubscriberTopic : Topic, ISubscriberTopic
         , ConversationType.Subscriber) =>
         this.subscriberTransportSession = subscriberTransportSession;
 
+    public override bool IsStarted { get; } = false;
+
     public override void Start()
     {
         subscriberTransportSession?.Start();

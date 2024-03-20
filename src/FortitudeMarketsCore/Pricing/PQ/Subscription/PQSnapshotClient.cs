@@ -1,29 +1,32 @@
 ﻿#region
 
-using System.Reflection;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
-using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Client;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Publishing;
-using FortitudeIO.Transports.Sockets.Subscription;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Conversations;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+using NewSocketApi = FortitudeIO.Transports.NewSocketAPI;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
+public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 {
-    private readonly uint cxTimeoutS;
-
+    private static ISocketFactories? socketFactories;
+    private readonly uint cxTimeoutMs;
     private readonly IIntraOSThreadSignal intraOSThreadSignal;
+    private readonly IFLogger logger;
+    private readonly PQClientMessageStreamDecoder messageStreamDecoder;
+    private readonly IOSParallelController parallelController;
 
     private readonly IDictionary<uint, IUniqueSourceTickerIdentifier> requestsQueue =
         new Dictionary<uint, IUniqueSourceTickerIdentifier>();
@@ -31,39 +34,45 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
     private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
 
     private DateTime lastSnapshotSent = DateTime.MinValue;
-    private IBinaryStreamPublisher? streamToPublisher;
     private ITimerCallbackSubscription? timerSubscription;
 
-    public PQSnapshotClient(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
-        IConnectionConfig connectionConfig,
-        string socketUseDescription, uint cxTimeoutS, int wholeMessagesPerReceive,
-        IPQQuoteSerializerRepository ipqQuoteSerializerRepository)
-        : base(
-            FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher,
-            networkingController, connectionConfig,
-            socketUseDescription + " PQSnapshotClient", wholeMessagesPerReceive,
-            new LinkedListUintKeyMap<IMessageDeserializer>())
+    public PQSnapshotClient(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
+        : base(socketSessionContext, initiateControls)
     {
-        intraOSThreadSignal = ParallelController.SingleOSThreadActivateSignal(false);
-        OnConnected += OnResponse;
-        OnConnected += SendQueuedRequests;
-        OnDisconnected += DisableTimeout;
-        this.cxTimeoutS = cxTimeoutS;
-        snapshotSerializationRepository = ipqQuoteSerializerRepository ?? snapshotSerializationRepository;
+        logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotClient));
+        parallelController = socketSessionContext.SocketFactories.ParallelController!;
+        intraOSThreadSignal = parallelController!.SingleOSThreadActivateSignal(false);
+        cxTimeoutMs = socketSessionContext.SocketConnectionConfig.ConnectionTimeoutMs;
+        socketSessionContext.SocketConnected += OnSocketConnected;
+        socketSessionContext.SocketConnected += SendQueuedRequests;
+        socketSessionContext.StateChanged += SocketSessionContextOnStateChanged;
+        messageStreamDecoder
+            = new PQClientMessageStreamDecoder(new ConcurrentMap<uint, IMessageDeserializer>(), PQFeedType.Snapshot);
+        messageStreamDecoder.ReceivedMessage += OnReceivedMessage;
+        messageStreamDecoder.ReceivedData += OnReceivedMessage;
+        socketSessionContext.SerdesFactory.StreamDecoderFactory = new SocketStreamDecoderFactory(messageStreamDecoder);
+        socketSessionContext.SerdesFactory.StreamEncoderFactory = snapshotSerializationRepository;
     }
 
-    public override int RecvBufferSize => 131072;
+    public static ISocketFactories SocketFactories
+    {
+        get => socketFactories ??= FortitudeIO.Transports.NewSocketAPI.Sockets.SocketFactories.GetRealSocketFactories();
+        set => socketFactories = value;
+    }
 
-    public override IBinaryStreamPublisher StreamToPublisher =>
-        streamToPublisher ?? (streamToPublisher =
-            new PQSnapshotStreamPublisher(Logger, Dispatcher, NetworkingController, SessionDescription, this));
+    public IMessageStreamDecoder MessageStreamDecoder => messageStreamDecoder;
+
+    public void Send(IVersionedMessage versionedMessage)
+    {
+        SocketSessionContext.SocketSender!.Send(versionedMessage);
+    }
 
     public void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds)
     {
         Connect();
-        if (IsConnected)
+        if (IsStarted)
         {
-            Logger.Info("Sending snapshot request for streams {0}",
+            logger.Info("Sending snapshot request for streams {0}",
                 string.Join(",", sourceTickerIds.Select(sti => sti.Id)));
             var allStreams = sourceTickerIds.Select(x => x.Id).ToArray();
             Send(new PQSnapshotIdsRequest(allStreams));
@@ -83,21 +92,45 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
             }
 
             if (!string.IsNullOrEmpty(queuing))
-                Logger.Info("Queuing snapshot request for ticker ids {0}", queuing);
+                logger.Info("Queuing snapshot request for ticker ids {0}", queuing);
             else
-                Logger.Info("Snapshot request already queued for ticker ids {0}, last snapshot sent at {1}",
+                logger.Info("Snapshot request already queued for ticker ids {0}, last snapshot sent at {1}",
                     string.Join(",", sourceTickerIds.Select(sti => sti.Id)), lastSnapshotSent.ToString("O"));
         }
     }
 
-    public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers)
+    public override void Connect()
     {
-        var decoder = new PQClientMessageStreamDecoder(deserializers, PQFeedType.Snapshot);
-        decoder.OnResponse += OnResponse;
-        return decoder;
+        base.Connect();
+        EnableTimeout();
     }
 
-    private void SendQueuedRequests()
+    private void SocketSessionContextOnStateChanged(SocketSessionState socketState)
+    {
+        if (socketState == SocketSessionState.Disconnected) DisableTimeout();
+    }
+
+    public static PQSnapshotClient BuildTcpRequester(ISocketConnectionConfig socketConnectionConfig
+        , ISocketDispatcherResolver socketDispatcherResolver)
+    {
+        var conversationType = ConversationType.Requester;
+        var conversationProtocol = SocketConversationProtocol.TcpClient;
+
+        var sockFactories = SocketFactories;
+
+        var serdesFactory = new SerdesFactory();
+
+        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
+            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, sockFactories, serdesFactory
+            , socketDispatcherResolver.Resolve(socketConnectionConfig));
+        socketSessionContext.Name += "Requester";
+
+        var clientInitiateControls = new InitiateControls(socketSessionContext);
+
+        return new PQSnapshotClient(socketSessionContext, clientInitiateControls);
+    }
+
+    private void SendQueuedRequests(ISocketConnection socketConnection)
     {
         uint[] streamIDs;
         string streams;
@@ -110,7 +143,7 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
 
         if (streamIDs.Length > 0)
         {
-            Logger.Info("Sending queued snapshot requests for streams: {0}", streams);
+            logger.Info("Sending queued snapshot requests for streams: {0}", streams);
             Send(new PQSnapshotIdsRequest(streamIDs));
             lastSnapshotSent = TimeContext.UtcNow;
         }
@@ -119,8 +152,8 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
     private void EnableTimeout()
     {
         if (timerSubscription == null)
-            timerSubscription = ParallelController.ScheduleWithEarlyTrigger(intraOSThreadSignal, TimeoutConnection!,
-                cxTimeoutS * 1000u, false);
+            timerSubscription = parallelController.ScheduleWithEarlyTrigger(intraOSThreadSignal, TimeoutConnection!,
+                cxTimeoutMs, false);
     }
 
     private void DisableTimeout()
@@ -132,12 +165,16 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
 
     private void TimeoutConnection(object state, bool timedOut)
     {
-        if (timedOut) Disconnect(false);
+        if (timedOut) InitiateControls.Disconnect();
     }
 
-    protected override IMessageIdDeserializationRepository GetFactory() => snapshotSerializationRepository;
+    private void OnReceivedMessage()
+    {
+        DisableTimeout();
+        EnableTimeout();
+    }
 
-    private void OnResponse()
+    private void OnSocketConnected(ISocketConnection socketConnection)
     {
         DisableTimeout();
         EnableTimeout();
@@ -155,29 +192,9 @@ public sealed class PQSnapshotClient : TcpSocketClient, IPQSnapshotClient
             Ids = toClone.Ids.ToArray();
         }
 
-        public override uint MessageId { get; } = 2121502;
+        public override uint MessageId => 2121502;
         private uint[] Ids { get; } = Array.Empty<uint>();
 
-        public override IVersionedMessage Clone() => throw new NotImplementedException();
-    }
-
-    internal class PQSnapshotStreamPublisher : TcpSocketPublisher
-    {
-        private readonly PQSnapshotClient pqSnapshotClient;
-
-        public PQSnapshotStreamPublisher(IFLogger logger, ISocketDispatcher dispatcher,
-            IOSNetworkingController networkingController, string sessionDescription,
-            PQSnapshotClient pqSnapshotClient)
-            : base(logger, dispatcher, networkingController, 0, sessionDescription)
-        {
-            this.pqSnapshotClient = pqSnapshotClient;
-            RegisterSerializer<SnapShotStreamPublisher>(0);
-        }
-
-        public override int SendBufferSize => 131_072;
-        public override IBinaryStreamSubscriber StreamFromSubscriber => pqSnapshotClient;
-
-        public override IMessageIdSerializationRepository GetFactory() =>
-            pqSnapshotClient.snapshotSerializationRepository;
+        public override IVersionedMessage Clone() => new SnapShotStreamPublisher(this);
     }
 }

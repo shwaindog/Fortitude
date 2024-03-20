@@ -42,8 +42,6 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 
     public event Action<SocketsAPI.ISocketSessionContext, uint[]>? OnSnapshotRequest;
 
-    public bool IsConnected => SocketSessionContext.SocketConnection?.IsConnected ?? false;
-
     public void Send(SocketsAPI.ISocketSessionContext client, IVersionedMessage message)
     {
         client.SocketSender!.Send(message);

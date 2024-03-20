@@ -9,18 +9,20 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Topics;
 
-public interface IRequestResponseResponderTopic : ITopic, IConversationResponder { }
+public interface IResponderTopic : ITopic, IConversationResponder { }
 
-public class RequestResponseResponderTopic : Topic, IRequestResponseResponderTopic
+public class ResponderTopic : Topic, IResponderTopic
 {
     private IConversationResponder sessionConnection;
 
-    public RequestResponseResponderTopic(string description, IConversationResponder sessionConnection) :
+    public ResponderTopic(string description, IConversationResponder sessionConnection) :
         base(description, ConversationType.Requester) =>
         this.sessionConnection = sessionConnection;
 
     public IReadOnlyDictionary<int, ISocketConversation>? Clients { get; set; }
     public IConversationListener? ConversationListener { get; set; }
+
+    public override bool IsStarted { get; } = false;
 
     public override void Start()
     {

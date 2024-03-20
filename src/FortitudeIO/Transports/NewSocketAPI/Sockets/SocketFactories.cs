@@ -38,10 +38,10 @@ public class SocketFactories : ISocketFactories
         var socketFactories = new SocketFactories
         {
             NetworkingController = networkingController
-            , SocketFactory = new Controls.SocketFactory(networkingController)
+            , SocketFactory = new SocketFactory(networkingController)
             , SocketReceiverFactory = new SocketReceiverFactory()
             , SocketSenderFactory = new SocketSenderFactory(networkingController.DirectOSNetworkingApi)
-            , SocketDispatcherResolver = new SingletonSocketDispatcherResolver(networkingController)
+            , SocketDispatcherResolver = new SingletonSocketDispatcherResolver()
             , ParallelController = new OSParallelController()
         };
 

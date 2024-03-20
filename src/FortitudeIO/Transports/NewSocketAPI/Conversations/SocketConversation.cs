@@ -22,6 +22,8 @@ public class SocketConversation : ISocketConversation
 
     public ISerdesFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
 
+    public bool IsStarted => SocketSessionContext.SocketConnection?.IsConnected ?? false;
+
     public event Action? Started
     {
         add => SocketSessionContext.Connected += value;
@@ -76,7 +78,7 @@ public class SocketConversation : ISocketConversation
         initiateControls.Disconnect();
     }
 
-    public void Connect() => initiateControls.Connect();
+    public virtual void Connect() => initiateControls.Connect();
 
     public void Disconnect() => initiateControls.Disconnect();
 

@@ -18,8 +18,6 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
     private static readonly IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
-    private readonly IMap<uint, IMessageDeserializer> deserializers;
-
     private readonly PQQuoteTransmissionHeader msgHeader;
     private PQBinaryMessageFlags messageFlags;
     private MessageSection messageSection;
@@ -28,12 +26,14 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
 
     public PQClientMessageStreamDecoder(IMap<uint, IMessageDeserializer> deserializers, PQFeedType feed)
     {
-        this.deserializers = deserializers;
+        Deserializers = deserializers;
         messageSection = MessageSection.TransmissionHeader;
         ExpectedSize = PQQuoteMessageHeader.HeaderSize;
 
         msgHeader = new PQQuoteTransmissionHeader(feed);
     }
+
+    public IMap<uint, IMessageDeserializer> Deserializers { get; set; }
 
     public int ExpectedSize { get; private set; }
 
@@ -41,8 +41,22 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
 
     public int NumberOfReceivesPerPoll => 50;
 
-    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer) =>
-        throw new NotImplementedException("No deserializers required for this stream");
+    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => Deserializers;
+
+    public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer)
+    {
+        try
+        {
+            Deserializers[msgId] = deserializer;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn($"Caught exception attempting to add msgId: {msgId}.  Got {ex}");
+            return false;
+        }
+
+        return true;
+    }
 
     public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
     {
@@ -73,11 +87,15 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
                     {
                         var ptr = fptr + read + PQQuoteMessageHeader.SourceTickerIdOffset;
                         var sourceTickerId = StreamByteOps.ToUInt(ref ptr);
-                        if (deserializers.TryGetValue(sourceTickerId, out var bu))
+                        if (Deserializers.TryGetValue(sourceTickerId, out var bu))
                         {
                             readSocketBufferContext.EncodedBuffer.ReadCursor = read;
                             bu!.Deserialize(readSocketBufferContext);
-                            OnResponse?.Invoke();
+                            ReceivedMessage?.Invoke();
+                        }
+                        else
+                        {
+                            ReceivedData?.Invoke();
                         }
                     }
 
@@ -89,10 +107,14 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
                     readSocketBufferContext.EncodedBuffer.ReadCursor = read;
                     var streamId = readSocketBufferContext.ReadCurrentMessageSourceTickerId();
                     readSocketBufferContext.MessageSize = ExpectedSize;
-                    if (deserializers.TryGetValue(streamId, out var u))
+                    if (Deserializers.TryGetValue(streamId, out var u))
                     {
                         u!.Deserialize(readSocketBufferContext);
-                        OnResponse?.Invoke();
+                        ReceivedMessage?.Invoke();
+                    }
+                    else
+                    {
+                        ReceivedData?.Invoke();
                     }
 
                     read += ExpectedSize;
@@ -116,7 +138,8 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
         return amountRead;
     }
 
-    public event Action? OnResponse;
+    public event Action? ReceivedMessage;
+    public event Action? ReceivedData;
 
     private enum MessageSection
     {

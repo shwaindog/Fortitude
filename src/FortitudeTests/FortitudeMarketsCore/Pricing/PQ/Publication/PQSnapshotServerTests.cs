@@ -19,8 +19,8 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 public class PQSnapshotServerTests
 {
     private Mock<IAcceptorControls> moqAcceptorControls = null!;
+    private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<ISocketSessionContext> moqNewClientContext = null!;
-    private Mock<IOSNetworkingController> moqNeworkingController = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<ISocketSessionContext> moqPqSnapshotServerSessionConnection = null!;
@@ -40,7 +40,7 @@ public class PQSnapshotServerTests
         moqSocket = new Mock<IOSSocket>();
         moqSocket.SetupAllProperties();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
-        moqNeworkingController = new Mock<IOSNetworkingController>();
+        moqNetworkingController = new Mock<IOSNetworkingController>();
         moqParallelController = new Mock<IOSParallelController>();
         moqSocketFactories = new Mock<ISocketFactories>();
         moqSocketFactory = new Mock<ISocketFactory>();
@@ -61,7 +61,7 @@ public class PQSnapshotServerTests
         moqNewClientContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
         moqNewClientContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
         moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqSocket.Object);
-        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketSessionContext>()))
+        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketConnectionConfig>()))
             .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupGet(sd => sd.Listener).Returns(moqSocketDispatcherListener.Object);
 
@@ -69,7 +69,7 @@ public class PQSnapshotServerTests
         Func<ISocketSessionContext, ISocketConnectivityChanged> moqCallback = context =>
             moqSocketConnectivityChanged.Object;
         moqSocketFactories.SetupGet(pcf => pcf.SocketFactory).Returns(moqSocketFactory.Object);
-        moqSocketFactories.SetupGet(pcf => pcf.NetworkingController).Returns(moqNeworkingController.Object);
+        moqSocketFactories.SetupGet(pcf => pcf.NetworkingController).Returns(moqNetworkingController.Object);
         moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
         moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
         // PQSnapshotServer.SocketFactories = moqSocketFactories.Object;

@@ -49,10 +49,10 @@ public class PricingClientServerPubSubscribeTests
     private PQServerHeartBeatSender hbSender = null!;
     private INameIdLookupGenerator nameIdLookupGenerator = null!;
     private OSNetworkingController networkingController = null!;
-    private Func<ISocketConnectionConfig, PQSnapshotServer> pqSnapshotFactory = null!;
+    private Func<ISocketConnectionConfig, IPQSnapshotServer> pqSnapshotFactory = null!;
     private Func<ISocketConnectionConfig, IPQUpdateServer> pqUpdateFactory = null!;
     private PricingServersConfigRepository pricingServersConfigRepository = null!;
-    private IPQSocketSubscriptionRegistrationFactory<IPQSnapshotClient> snapshotClientFactory = null!;
+    private IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
     private ISocketDispatcher socketDispatcher = null!;
 
@@ -62,7 +62,7 @@ public class PricingClientServerPubSubscribeTests
     private SourceTickerPublicationConfig sourceTickerPublicationConfig = null!;
     private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
     private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
-    private IPQSocketSubscriptionRegistrationFactory<IPQUpdateClient> updateClientFactory = null!;
+    private ILegacyPQSocketSubscriptionRegistrationFactory<IPQUpdateClient> updateClientFactory = null!;
 
     public void Setup(LayerFlags layerDetails, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
@@ -104,7 +104,7 @@ public class PricingClientServerPubSubscribeTests
 
         pqSnapshotFactory = PQSnapshotServer.BuildTcpResponder;
         pqUpdateFactory = PQUpdatePublisher.BuildUdpMulticastPublisher;
-        snapshotClientFactory = new PQSnapshotClientRegistrationFactory(networkingController);
+        snapshotClientFactory = new PQSnapshotClientRepository(SingletonSocketDispatcherResolver.Instance);
         updateClientFactory = new PQUpdateClientRegistrationFactory(networkingController);
     }
 
@@ -128,8 +128,9 @@ public class PricingClientServerPubSubscribeTests
 
         // setup listener after publish means first message will be missed and snapshot will be required.
         ILevel2Quote? alwaysUpdatedQuote = null;
-        var pqClient = new PQClient(pricingServersConfigRepository, snapshotClientFactory, updateClientFactory,
-            socketDispatcherFactory);
+        var pqClient = new PQClient(pricingServersConfigRepository, SingletonSocketDispatcherResolver.Instance
+            , updateClientFactory,
+            socketDispatcherFactory, snapshotClientFactory);
         var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(sourceTickerPublicationConfig, 0);
         streamSubscription!.Subscribe(
             pQuote =>
@@ -200,7 +201,8 @@ public class PricingClientServerPubSubscribeTests
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.
         var autoResetEvent = new AutoResetEvent(false);
         ILevel3Quote? alwaysUpdatedQuote = null;
-        var pqClient = new PQClient(pricingServersConfigRepository, snapshotClientFactory, updateClientFactory,
+        var pqClient = new PQClient(pricingServersConfigRepository, SingletonSocketDispatcherResolver.Instance
+            , updateClientFactory,
             socketDispatcherFactory);
         var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(sourceTickerPublicationConfig, 0);
 

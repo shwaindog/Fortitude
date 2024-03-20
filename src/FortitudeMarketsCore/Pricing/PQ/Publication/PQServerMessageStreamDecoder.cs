@@ -36,12 +36,14 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
         this.requestsHandler = null;
     }
 
+    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => [];
+
     public int NumberOfReceivesPerPoll => 1;
     public int ExpectedSize { get; private set; }
 
     public bool ZeroByteReadIsDisconnection => false;
 
-    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer) =>
+    public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer) =>
         throw new NotImplementedException("No deserializers required for this stream");
 
     public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)

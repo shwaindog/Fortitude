@@ -21,6 +21,8 @@ public interface ISocketConnectionConfig : ITopicConnectionConfig, ICloneable<IS
     bool PortIsDynamic { get; set; }
     ushort PortStartRange { get; set; }
     ushort PortEndRange { get; set; }
+    uint ConnectionTimeoutMs { get; set; }
+    uint ResponseTimeoutMs { get; set; }
 
     IConnectionConfig
         ToConnectionConfig(ConnectionDirectionType connectionDirectionType = ConnectionDirectionType.Both);
@@ -39,7 +41,8 @@ public class SocketConnectionConfig : ISocketReceiverConfig
         int sendBufferSize = 0, int receiveBufferSize = 0,
         MutableString? hostname = null, IPAddress? subnetMask = null,
         bool portIsDynamic = false,
-        ushort portStartRange = 0, ushort portEndRange = 0, int numberOfReceivesPerPoll = 50)
+        ushort portStartRange = 0, ushort portEndRange = 0, int numberOfReceivesPerPoll = 50
+        , uint connectionTimeoutMs = 10_000, uint responseTimeoutMs = 60_000)
     {
         InstanceName = instanceName;
         ConnectionAttributes = connectionAttributes;
@@ -50,8 +53,10 @@ public class SocketConnectionConfig : ISocketReceiverConfig
         SubnetMask = subnetMask;
         PortIsDynamic = portIsDynamic;
         PortStartRange = portStartRange;
-        PortEndRange = portEndRange;
+        PortEndRange = portEndRange < portStartRange ? portStartRange : portEndRange;
         NumberOfReceivesPerPoll = numberOfReceivesPerPoll;
+        ConnectionTimeoutMs = connectionTimeoutMs;
+        ResponseTimeoutMs = responseTimeoutMs;
     }
 
     public string InstanceName { get; set; }
@@ -65,8 +70,9 @@ public class SocketConnectionConfig : ISocketReceiverConfig
     public bool PortIsDynamic { get; set; }
     public ushort PortStartRange { get; set; }
     public ushort PortEndRange { get; set; }
-
     public int NumberOfReceivesPerPoll { get; }
+    public uint ConnectionTimeoutMs { get; set; }
+    public uint ResponseTimeoutMs { get; set; }
 
     object ICloneable.Clone() => Clone();
 
@@ -80,7 +86,7 @@ public class SocketConnectionConfig : ISocketReceiverConfig
         new ConnectionConfig(InstanceName, Hostname?.ToString() ?? "", PortStartRange, connectionDirectionType
             , SubnetMask?.ToString(), 1_000);
 
-    protected bool Equals(SocketConnectionConfig other)
+    protected bool Equals(ISocketReceiverConfig other)
     {
         var instanceNameSame = InstanceName == other.InstanceName;
         var sendBufferSizeSame = SendBufferSize == other.SendBufferSize;
@@ -93,10 +99,11 @@ public class SocketConnectionConfig : ISocketReceiverConfig
         var portStartRangeSame = PortStartRange == other.PortStartRange;
         var portEndRangeSame = PortEndRange == other.PortEndRange;
         var numIntervalsPerPollSame = NumberOfReceivesPerPoll == other.NumberOfReceivesPerPoll;
+        var connectionTimeoutSame = ConnectionTimeoutMs == other.ConnectionTimeoutMs;
 
         return instanceNameSame && sendBufferSizeSame && receiveBufferSizeSame &&
-               connectionAttsSame && descriptionSame && hostNameSame && subNetSame &&
-               portDynamicSame && portStartRangeSame && portEndRangeSame && numIntervalsPerPollSame;
+               connectionAttsSame && descriptionSame && hostNameSame && subNetSame && portDynamicSame &&
+               portStartRangeSame && portEndRangeSame && numIntervalsPerPollSame && connectionTimeoutSame;
     }
 
     public override bool Equals(object? obj)

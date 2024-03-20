@@ -17,7 +17,7 @@ using FortitudeIO.Transports.Sockets.Subscription;
 
 namespace FortitudeIO.Transports.Sockets.Publishing;
 
-public abstract class UdpPublisher : SocketPublisherBase, IPQPublisher
+public abstract class UdpPublisher : SocketPublisherBase
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(UdpPublisher));
 
@@ -52,6 +52,8 @@ public abstract class UdpPublisher : SocketPublisherBase, IPQPublisher
 
     public bool IsConnected => matchSubscriber!.IsConnected;
 
+    public ISocketSubscriber SocketStreamFromSubscriber => (ISocketSubscriber)StreamFromSubscriber;
+
     public void Connect()
     {
         throw new NotImplementedException();
@@ -61,8 +63,6 @@ public abstract class UdpPublisher : SocketPublisherBase, IPQPublisher
     {
         throw new NotImplementedException();
     }
-
-    public ISocketSubscriber SocketStreamFromSubscriber => (ISocketSubscriber)StreamFromSubscriber;
 
     protected abstract UdpSubscriber BuildSubscriber(UdpPublisher publisher);
 

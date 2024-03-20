@@ -6,18 +6,20 @@ using FortitudeIO.Conversations;
 
 namespace FortitudeIO.Topics;
 
-public interface IRequestResponseRequesterTopic : ITopic, IConversationRequester { }
+public interface IRequesterTopic : ITopic, IConversationRequester { }
 
-public class RequestResponseRequesterTopic : Topic, IRequestResponseRequesterTopic
+public class RequesterTopic : Topic, IRequesterTopic
 {
     private IConversationRequester sessionConnection;
 
-    public RequestResponseRequesterTopic(string description, IConversationRequester sessionConnection) :
+    public RequesterTopic(string description, IConversationRequester sessionConnection) :
         base(description, ConversationType.Requester) =>
         this.sessionConnection = sessionConnection;
 
     public IConversationListener? ConversationListener { get; set; }
     public IConversationPublisher? ConversationPublisher { get; set; }
+
+    public override bool IsStarted { get; } = false;
 
     public override void Start()
     {

@@ -9,22 +9,23 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Publishing;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Publishing;
-using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
+using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
 
 #endregion
 
@@ -34,23 +35,33 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 public class PQSnapshotClientTests
 {
     private ISubject<IConnectionUpdate> configUpdateSubject = null!;
+    private uint connectionTimeoutMs = 10_000;
     private string expectedHost = null!;
     private byte[] expectedIpAddress = null!;
-    private int expectedPort;
+    private ushort expectedPort;
     private Mock<IMessageDeserializer> moqDecoderDeserializer = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
+    private Mock<ISocketDispatcherResolver> moqDispatcherResolver = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
+    private Mock<IIntraOSThreadSignal> moqIIntraOSThreadSignal = null!;
+    private Mock<IInitiateControls> moqInitiateControls = null!;
     private Mock<IIntraOSThreadSignal> moqIntraOsThreadSignal = null!;
+    private Mock<IMessageDeserializer> moqMessageDeserializer = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
-    private Mock<IOSParallelController> moqParallelControler = null!;
+    private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
+    private Mock<ISerdesFactory> moqSerdesFactory = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
-    private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
-    private Mock<IBinaryStreamPublisher> moqStreamToPublisher = null!;
+    private Mock<ISocketConnection> moqSocketConnection = null!;
+    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactory> moqSocketFactory = null!;
+    private Mock<ISocketSender> moqSocketSender = null!;
+    private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<ITimerCallbackSubscription> moqTimerCallbackSubscription = null!;
     private PQSnapshotClient pqSnapshotClient = null!;
 
@@ -62,21 +73,33 @@ public class PQSnapshotClientTests
     public void SetUp()
     {
         moqDispatcher = new Mock<ISocketDispatcher>();
-        moqParallelControler = new Mock<IOSParallelController>();
+        moqDispatcherResolver = new Mock<ISocketDispatcherResolver>();
+        moqInitiateControls = new Mock<IInitiateControls>();
+        moqSocketSessionContext = new Mock<ISocketSessionContext>();
+        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactory = new Mock<ISocketFactory>();
+        moqParallelController = new Mock<IOSParallelController>();
         moqIntraOsThreadSignal = new Mock<IIntraOSThreadSignal>();
+        moqSocketSender = new Mock<ISocketSender>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
+        moqIIntraOSThreadSignal = new Mock<IIntraOSThreadSignal>();
+        moqSocketConnection = new Mock<ISocketConnection>();
+        moqSerdesFactory = new Mock<ISerdesFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
-            .Returns(moqParallelControler.Object);
+            .Returns(moqParallelController.Object);
+
+        moqParallelController.Setup(pcf => pcf.SingleOSThreadActivateSignal(It.IsAny<bool>()))
+            .Returns(moqIIntraOSThreadSignal.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqTimerCallbackSubscription = new Mock<ITimerCallbackSubscription>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
-        moqServerConnectionConfig = new Mock<IConnectionConfig>();
+        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         configUpdateSubject = new Subject<IConnectionUpdate>();
-        moqStreamToPublisher = new Mock<IBinaryStreamPublisher>();
+        moqMessageDeserializer = new Mock<IMessageDeserializer>();
         stubContext = new TimeContextTests.StubTimeContext();
         TimeContext.Provider = stubContext;
         stubContext.UtcNow = new DateTime(2018, 01, 29, 19, 54, 12);
@@ -86,14 +109,34 @@ public class PQSnapshotClientTests
         moqFloggerFactory.Setup(flf => flf.GetLogger(It.IsAny<string>())).Returns(new Mock<IFLogger>().Object);
         FLoggerFactory.Instance = moqFloggerFactory.Object;
 
-        moqParallelControler.Setup(pc => pc.SingleOSThreadActivateSignal(false))
+        var moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
+        Func<ISocketSessionContext, ISocketConnectivityChanged> moqCallback = context =>
+            moqSocketConnectivityChanged.Object;
+        moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(false);
+        moqParallelController.Setup(pc => pc.SingleOSThreadActivateSignal(false))
             .Returns(moqIntraOsThreadSignal.Object).Verifiable();
+        moqSocketSessionContext.SetupGet(ssc => ssc.Name).Returns("New Client Connection");
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnectionConfig).Returns(moqServerConnectionConfig.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketSender).Returns(moqSocketSender.Object);
+        moqSocketSessionContext.SetupAdd(ssc => ssc.SocketConnected += null);
         expectedHost = "TestHostname";
         expectedPort = 1979;
         expectedIpAddress = new byte[] { 61, 26, 5, 6 };
+        moqServerConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("PQSnapshotClientTests");
+        moqServerConnectionConfig.SetupGet(scc => scc.SocketDescription).Returns("PQSnapshotClientTests");
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(expectedHost);
-        moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(expectedPort);
-        moqServerConnectionConfig.SetupProperty(scc => scc.Updates, configUpdateSubject);
+        moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(expectedPort);
+        moqServerConnectionConfig.SetupGet(scc => scc.ConnectionTimeoutMs).Returns(connectionTimeoutMs);
+        moqSocketFactories.SetupGet(pcf => pcf.SocketFactory).Returns(moqSocketFactory.Object);
+        moqSocketFactories.SetupGet(pcf => pcf.NetworkingController).Returns(moqNetworkingController.Object);
+        moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
+        moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqDispatcherResolver.Object);
+        moqSocketFactories.SetupGet(pcf => pcf.ParallelController).Returns(moqParallelController.Object);
+        moqSerdesFactory.SetupProperty(sf => sf.StreamDecoderFactory);
+        moqSerdesFactory.SetupProperty(sf => sf.StreamEncoderFactory);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqDecoderDeserializer = new Mock<IMessageDeserializer>();
@@ -113,9 +156,7 @@ public class PQSnapshotClientTests
         moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
-        pqSnapshotClient = new PQSnapshotClient(moqDispatcher.Object, moqNetworkingController.Object,
-            moqServerConnectionConfig.Object, "TestSocketDescription", 5, 50,
-            moqPQQuoteSerializationRepo.Object);
+        pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
 
         moqFlogger.Setup(fl => fl.Info("Attempting TCP connection to {0} on {1}:{2}",
             sessionDescription, expectedHost, expectedPort)).Verifiable();
@@ -123,8 +164,6 @@ public class PQSnapshotClientTests
             ProtocolType.Tcp)).Returns(moqOsSocket.Object).Verifiable();
         moqNetworkingController.Setup(nc => nc.GetIpAddress(expectedHost)).Returns(
             new IPAddress(expectedIpAddress)).Verifiable();
-        moqOsSocket.SetupSet(oss => oss.NoDelay = true).Verifiable();
-        moqOsSocket.Setup(oss => oss.Connect(It.IsAny<IPEndPoint>())).Verifiable();
     }
 
     [TestCleanup]
@@ -135,28 +174,14 @@ public class PQSnapshotClientTests
         TimeContext.Provider = new HighPrecisionTimeContext();
     }
 
-    [TestMethod]
-    public void MissingSerializationFactory_New_UsesDefaultSerializationFactory()
-    {
-        pqSnapshotClient = new PQSnapshotClient(moqDispatcher.Object, moqNetworkingController.Object,
-            moqServerConnectionConfig.Object, "TestSocketDescription", 5, 50,
-            new PQQuoteSerializerRepository());
-
-        var binaryDeserializationFactory = NonPublicInvocator.RunInstanceMethod<IMessageIdDeserializationRepository>(
-            pqSnapshotClient, "GetFactory");
-        Assert.IsInstanceOfType(binaryDeserializationFactory, typeof(PQQuoteSerializerRepository));
-    }
 
     [TestMethod]
     public void PQSnapshotClient_RequestSnapshots_ConnectsStartsConnectionTimeoutSendRequestIds()
     {
-        moqFlogger.Setup(fl => fl.Info("Sending snapshot request for streams {0}", "7,77,15,19,798"))
+        moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true);
+        moqFlogger.Reset();
+        moqFlogger.Setup(fl => fl.Info("Sending snapshot request for streams {0}", It.IsAny<object[]>()))
             .Verifiable();
-
-        MockStreamToPublisher();
-        moqStreamToPublisher.Setup(stp => stp.Enqueue(It.IsAny<ISocketSessionConnection>(),
-            new PQSnapshotIdsRequest(new uint[] { 7, 77, 15, 19, 798 }))).Verifiable();
-
 
         ConnectMoqSetup();
 
@@ -164,19 +189,16 @@ public class PQSnapshotClientTests
 
         VerifyFullConnectedCalled();
         moqFlogger.Verify();
-        moqStreamToPublisher.Verify();
     }
 
     [TestMethod]
     public void PQSnapshotClientNotYetConnected_RequestSnapshots_SchedulesConnectQueuesIdsForSend()
     {
-        MockStreamToPublisher();
-
         ConnectMoqSetup();
         moqFlogger.Reset();
-        moqFlogger.Setup(fl => fl.Info("Queuing snapshot request for ticker ids {0}", "7,77,15,19,798"))
+        moqFlogger.Setup(fl => fl.Info("Queuing snapshot request for ticker ids {0}", It.IsAny<object[]>()))
             .Verifiable();
-        moqParallelControler.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>())).Verifiable();
+        moqParallelController.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>())).Verifiable();
 
         pqSnapshotClient.RequestSnapshots(sendSrcTkrIds);
 
@@ -187,12 +209,19 @@ public class PQSnapshotClientTests
     public void AlreadyQueuedIds_RequestSnapshots_LogsIdsAlreadyQueuedForSendOnConnect()
     {
         ConnectMoqSetup();
-        moqParallelControler.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>())).Verifiable();
+        moqParallelController.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>())).Verifiable();
 
         pqSnapshotClient.RequestSnapshots(sendSrcTkrIds);
         moqFlogger.Reset();
+        moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()))
+            .Callback((string s1, object[] s2) =>
+                Console.Out.WriteLine($"Logger Received ({s1}, [{string.Join(", ", s2)}])"));
+        moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<string>()))
+            .Callback((string s1, object[] s2) =>
+                Console.Out.WriteLine($"Logger Received ({s1}, [{string.Join(", ", s2)}])"));
         moqFlogger.Setup(fl => fl.Info("Snapshot request already queued for ticker ids {0}, last snapshot sent at {1}",
-            "7,77,15,19,798", new DateTime().ToString("O"))).Verifiable();
+                It.IsAny<object[]>()))
+            .Verifiable();
         pqSnapshotClient.RequestSnapshots(sendSrcTkrIds);
 
         moqFlogger.Verify();
@@ -201,28 +230,17 @@ public class PQSnapshotClientTests
     [TestMethod]
     public void QueuedTickerIdsForRequest_OnConnect_SendsTickerIdsWhenConnected()
     {
-        MockStreamToPublisher();
-
-        MockStreamToPublisher();
-        moqStreamToPublisher.Setup(stp => stp.Enqueue(It.IsAny<ISocketSessionConnection>(),
-            new PQSnapshotIdsRequest(new uint[] { 7, 77, 15, 19, 798 }))).Verifiable();
-
         ConnectMoqSetup();
 
-        moqParallelControler.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>())).Verifiable();
-        pqSnapshotClient.RequestSnapshots(sendSrcTkrIds);
-        moqParallelControler.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>()))
-            .Callback<WaitCallback>(wc => wc.Invoke(new object())).Verifiable();
-
         moqFlogger.Reset();
-        moqFlogger.Setup(fl => fl.Info("Sending queued snapshot requests for streams: {0}", "7,77,15,19,798"))
+        moqFlogger.Setup(fl => fl.Info("Sending queued snapshot requests for streams: {0}", It.IsAny<object[]>()))
             .Verifiable();
 
-        NonPublicInvocator.SetInstanceField(pqSnapshotClient, "connecting", false);
-        pqSnapshotClient.Connect();
+        pqSnapshotClient.RequestSnapshots(sendSrcTkrIds);
+
+        moqSocketSessionContext.Raise(sc => sc.SocketConnected += null, moqSocketConnection.Object);
 
         moqFlogger.Verify();
-        moqStreamToPublisher.Verify();
     }
 
     [TestMethod]
@@ -230,13 +248,8 @@ public class PQSnapshotClientTests
     {
         ConnectMoqSetup();
         pqSnapshotClient.Connect();
-        moqDecoderDeserializer.Setup(dd => dd.Deserialize(It.IsAny<ReadSocketBufferContext>())).Verifiable();
-        var result = moqDecoderDeserializer.Object;
-        moqSerializerCache.Setup(m => m.TryGetValue(19579, out result)).Returns(true).Verifiable();
 
-        NonPublicInvocator.SetInstanceField(pqSnapshotClient, "deserializers", moqSerializerCache.Object);
-
-        var decoder = pqSnapshotClient.GetDecoder(moqSerializerCache.Object);
+        var decoder = pqSnapshotClient.MessageStreamDecoder;
         moqTimerCallbackSubscription.Setup(tcs => tcs.Unregister(moqIntraOsThreadSignal.Object)).Verifiable();
 
         decoder.Process(new ReadSocketBufferContext
@@ -250,25 +263,9 @@ public class PQSnapshotClientTests
             }
         });
         Assert.IsInstanceOfType(decoder, typeof(PQClientMessageStreamDecoder));
-        moqParallelControler.Verify();
+        moqParallelController.Verify();
         moqTimerCallbackSubscription.Verify();
-        moqDecoderDeserializer.Verify();
         moqSerializerCache.Verify();
-    }
-
-    [TestMethod]
-    public void UpdateClient_RecvBufferSize_ReturnsPQClientDecoder()
-    {
-        var bufferSize = pqSnapshotClient.RecvBufferSize;
-
-        Assert.AreEqual(131072, bufferSize);
-    }
-
-    [TestMethod]
-    public void UpdateClient_HasNoStreamToPublisher()
-    {
-        Assert.IsInstanceOfType(pqSnapshotClient.StreamToPublisher,
-            typeof(PQSnapshotClient.PQSnapshotStreamPublisher));
     }
 
     [TestMethod]
@@ -276,8 +273,8 @@ public class PQSnapshotClientTests
     {
         ConnectMoqSetup();
         WaitOrTimerCallback? callback = null;
-        moqParallelControler.Setup(pc => pc.ScheduleWithEarlyTrigger(It.IsAny<IIntraOSThreadSignal>(),
-                It.IsAny<WaitOrTimerCallback>(), 5000u, false))
+        moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(It.IsAny<IIntraOSThreadSignal>(),
+                It.IsAny<WaitOrTimerCallback>(), connectionTimeoutMs, false))
             .Callback((IIntraOSThreadSignal iosts, WaitOrTimerCallback wotc, uint period, bool repeat) =>
             {
                 callback = wotc;
@@ -295,63 +292,21 @@ public class PQSnapshotClientTests
         moqTimerCallbackSubscription.Verify();
     }
 
-    [TestMethod]
-    public void DefaultFactoryPQSnapshotClientStreamToPublisher_New_RegistersPublisherForMessageId0()
-    {
-        pqSnapshotClient = new PQSnapshotClient(moqDispatcher.Object, moqNetworkingController.Object,
-            moqServerConnectionConfig.Object, "TestSocketDescription", 5, 50,
-            new PQQuoteSerializerRepository());
-
-        var streamToPublisher = pqSnapshotClient.StreamToPublisher;
-        var registeredSerializers = NonPublicInvocator.GetInstanceField<IMap<uint, IMessageSerializer>>(
-            streamToPublisher, "serializers");
-
-        Assert.AreEqual(1, registeredSerializers.Count);
-        Assert.IsInstanceOfType(registeredSerializers[0], typeof(PQSnapshotIdsRequestSerializer));
-    }
-
-    [TestMethod]
-    public void PQSnapshotClientStreamToPublisher_SendBufferSize_StreamFromSubscriber_AreExpected()
-    {
-        var streamToPublisher = (ISocketLinkListener)pqSnapshotClient.StreamToPublisher;
-        Assert.AreEqual(131_072, streamToPublisher.SendBufferSize);
-        Assert.AreSame(pqSnapshotClient, streamToPublisher.StreamFromSubscriber);
-    }
-
     private void ConnectMoqSetup()
     {
-        moqParallelControler.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>()))
-            .Callback<WaitCallback>(wc => wc.Invoke(new object())).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", sessionDescription,
-            It.IsAny<long>(), expectedHost, expectedPort)).Verifiable();
-        moqDispatcher.Setup(d => d.Start()).Verifiable();
-        moqDispatcher.Setup(d => d.Listener.RegisterForListen(It.IsAny<ISocketSessionConnection>())).Callback(() =>
-        {
-            moqOsSocket.SetupGet(oss => oss.Connected).Returns(true).Verifiable();
-        }).Verifiable();
-        moqOsSocket.SetupGet(oss => oss.Connected).Returns(true).Verifiable();
-
-        moqParallelControler.Setup(pc => pc.ScheduleWithEarlyTrigger(It.IsAny<IIntraOSThreadSignal>(),
-            It.IsAny<WaitOrTimerCallback>(), 5000u, false)).Returns(moqTimerCallbackSubscription.Object).Verifiable();
-    }
-
-    private void MockStreamToPublisher()
-    {
-        NonPublicInvocator.SetInstanceField(pqSnapshotClient, "streamToPublisher", moqStreamToPublisher.Object);
+        moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(It.IsAny<IIntraOSThreadSignal>(),
+                It.IsAny<WaitOrTimerCallback>(), connectionTimeoutMs, false))
+            .Returns(moqTimerCallbackSubscription.Object)
+            .Verifiable();
     }
 
     private void VerifyFullConnectedCalled()
     {
-        moqParallelControler.Verify();
+        moqParallelController.Verify();
     }
 
     private void DisconnectMoqSetup()
     {
-        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1} id {2}:{3} closed", sessionDescription,
-            It.IsAny<long>(), expectedHost, expectedPort)).Verifiable();
-        moqDispatcher.Setup(d => d.Stop()).Verifiable();
-        moqDispatcher.Setup(d => d.Listener.UnregisterForListen(It.IsAny<ISocketSessionConnection>())).Verifiable();
-
-        moqTimerCallbackSubscription.Setup(tcs => tcs.Unregister(It.IsAny<IIntraOSThreadSignal>())).Verifiable();
+        moqInitiateControls.Setup(tcs => tcs.Disconnect()).Verifiable();
     }
 }

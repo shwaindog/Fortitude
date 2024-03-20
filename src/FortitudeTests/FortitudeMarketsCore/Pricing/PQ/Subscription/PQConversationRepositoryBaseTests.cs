@@ -198,8 +198,7 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         PQSocketSubscriptionRegistrationFactoryBase<T> where T : SocketSubscriber
     {
         public DummySktSubRegFctryBse(IOSNetworkingController networkingController,
-            T returnedSocketSubscriber)
-            : base(networkingController) =>
+            T returnedSocketSubscriber) : base(networkingController) =>
             ReturnedSocketSubscriber = returnedSocketSubscriber;
 
         public T ReturnedSocketSubscriber { get; }
