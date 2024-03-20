@@ -9,18 +9,18 @@ namespace FortitudeIO.Topics.TopicTransports;
 
 public interface ISubscriberTransportTopicConversation : ITransportTopicConversation
 {
-    ISubscriberConversation SubscriberConversation { get; }
+    IConversationSubscriber ConversationSubscriber { get; }
 }
 
 public class SubscriberTransportTopicConversation : TransportTopicConversation, ISubscriberTransportTopicConversation
 {
     public SubscriberTransportTopicConversation(ITopicEndpointInfo endpoint,
-        ISubscriberConversation subscriberConversation) : base(endpoint) =>
-        SubscriberConversation = subscriberConversation;
+        IConversationSubscriber conversationSubscriber) : base(endpoint) =>
+        ConversationSubscriber = conversationSubscriber;
 
     public SubscriberTransportTopicConversation(ITopicConnectionConfig connectionConfig,
-        ISubscriberConversation subscriberConversation) : base(connectionConfig) =>
-        SubscriberConversation = subscriberConversation;
+        IConversationSubscriber conversationSubscriber) : base(connectionConfig) =>
+        ConversationSubscriber = conversationSubscriber;
 
-    public ISubscriberConversation SubscriberConversation { get; }
+    public IConversationSubscriber ConversationSubscriber { get; }
 }

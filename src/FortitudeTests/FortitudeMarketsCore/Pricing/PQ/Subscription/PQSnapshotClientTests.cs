@@ -2,7 +2,6 @@
 
 using System.Net;
 using System.Net.Sockets;
-using System.Reactive.Subjects;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
@@ -16,7 +15,6 @@ using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
@@ -34,12 +32,10 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQSnapshotClientTests
 {
-    private ISubject<IConnectionUpdate> configUpdateSubject = null!;
     private uint connectionTimeoutMs = 10_000;
     private string expectedHost = null!;
     private byte[] expectedIpAddress = null!;
     private ushort expectedPort;
-    private Mock<IMessageDeserializer> moqDecoderDeserializer = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<ISocketDispatcherResolver> moqDispatcherResolver = null!;
     private Mock<IFLogger> moqFlogger = null!;
@@ -47,7 +43,6 @@ public class PQSnapshotClientTests
     private Mock<IIntraOSThreadSignal> moqIIntraOSThreadSignal = null!;
     private Mock<IInitiateControls> moqInitiateControls = null!;
     private Mock<IIntraOSThreadSignal> moqIntraOsThreadSignal = null!;
-    private Mock<IMessageDeserializer> moqMessageDeserializer = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
@@ -98,8 +93,6 @@ public class PQSnapshotClientTests
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
-        configUpdateSubject = new Subject<IConnectionUpdate>();
-        moqMessageDeserializer = new Mock<IMessageDeserializer>();
         stubContext = new TimeContextTests.StubTimeContext();
         TimeContext.Provider = stubContext;
         stubContext.UtcNow = new DateTime(2018, 01, 29, 19, 54, 12);
@@ -139,7 +132,6 @@ public class PQSnapshotClientTests
         moqSerdesFactory.SetupProperty(sf => sf.StreamEncoderFactory);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
-        moqDecoderDeserializer = new Mock<IMessageDeserializer>();
         moqOsSocket.SetupAllProperties();
 
         sendSrcTkrIds = new List<IUniqueSourceTickerIdentifier>

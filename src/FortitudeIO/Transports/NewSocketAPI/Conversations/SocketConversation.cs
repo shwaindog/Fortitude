@@ -11,13 +11,13 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
 public class SocketConversation : ISocketConversation
 {
-    protected readonly IStreamControls initiateControls;
+    protected readonly IStreamControls InitiateControls;
     protected readonly ISocketSessionContext SocketSessionContext;
 
     public SocketConversation(ISocketSessionContext socketSessionContext, IStreamControls initiateControls)
     {
         SocketSessionContext = socketSessionContext;
-        this.initiateControls = initiateControls;
+        InitiateControls = initiateControls;
     }
 
     public ISerdesFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
@@ -70,19 +70,19 @@ public class SocketConversation : ISocketConversation
 
     public void Start()
     {
-        initiateControls.Connect();
+        InitiateControls.Connect();
     }
 
     public void Stop()
     {
-        initiateControls.Disconnect();
+        InitiateControls.Disconnect();
     }
 
-    public virtual void Connect() => initiateControls.Connect();
+    public virtual void Connect() => InitiateControls.Connect();
 
-    public void Disconnect() => initiateControls.Disconnect();
+    public void Disconnect() => InitiateControls.Disconnect();
 
-    public void StartMessaging() => initiateControls.StartMessaging();
+    public void StartMessaging() => InitiateControls.StartMessaging();
 
-    public void StopMessaging() => initiateControls.StopMessaging();
+    public void StopMessaging() => InitiateControls.StopMessaging();
 }

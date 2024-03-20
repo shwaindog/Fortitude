@@ -10,11 +10,8 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
 public class ConversationRequester : SocketConversation, IInitiateControls, IConversationRequester
 {
-    protected readonly IInitiateControls InitiateControls;
-
     public ConversationRequester(ISocketSessionContext socketSessionContext,
-        IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) =>
-        InitiateControls = initiateControls;
+        IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) { }
 
-    public void ConnectAsync() => InitiateControls.ConnectAsync();
+    public void StartAsync() => ((IInitiateControls)InitiateControls).StartAsync();
 }

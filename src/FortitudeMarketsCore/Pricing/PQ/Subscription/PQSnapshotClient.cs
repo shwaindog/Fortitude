@@ -165,7 +165,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
     private void TimeoutConnection(object state, bool timedOut)
     {
-        if (timedOut) InitiateControls.Disconnect();
+        if (timedOut) ((IInitiateControls)InitiateControls).Disconnect();
     }
 
     private void OnReceivedMessage()

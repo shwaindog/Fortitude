@@ -1,9 +1,13 @@
 ﻿#region
 
-using FortitudeIO.Transports.Sockets.Subscription;
+using FortitudeIO.Conversations;
+using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-public interface IPQUpdateClient : ISocketSubscriber { }
+public interface IPQUpdateClient : IConversationSubscriber
+{
+    IMessageStreamDecoder MessageStreamDecoder { get; }
+}

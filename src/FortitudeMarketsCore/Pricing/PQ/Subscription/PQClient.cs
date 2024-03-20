@@ -10,7 +10,6 @@ using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
-using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
 
 #endregion
 
@@ -20,7 +19,6 @@ public class PQClient : IDisposable
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQClient));
     private readonly bool allowUpdatesCatchup;
-    private readonly ISocketDispatcher[] dispatchers;
 
     private readonly IDictionary<string, PQPricingServerSubscriptionContext> feeds =
         new Dictionary<string, PQPricingServerSubscriptionContext>();
@@ -33,34 +31,23 @@ public class PQClient : IDisposable
     private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
 
     private readonly object unsubscribeSyncLock = new();
-    private readonly ILegacyPQSocketSubscriptionRegistrationFactory<IPQUpdateClient> updateClientFactory;
+    private readonly IPQConversationRepository<IPQUpdateClient> updateClientFactory;
 
     private int missingRefs;
 
     public PQClient(IPricingServersConfigRepository pricingServersConfigRepository,
         ISocketDispatcherResolver socketDispatcherResolver,
-        ILegacyPQSocketSubscriptionRegistrationFactory<IPQUpdateClient> updateClientFactory,
-        Func<string, ISocketDispatcher> socketDispatcherFactory,
-        IPQConversationRepository<IPQSnapshotClient>? snapshotClientFactory = null,
-        bool allowUpdatesCatchup = false, int dsptchCount = 1)
+        bool allowUpdatesCatchup = true,
+        IPQConversationRepository<IPQUpdateClient>? updateClientFactory = null,
+        IPQConversationRepository<IPQSnapshotClient>? snapshotClientFactory = null)
     {
         osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
         shutDownSignal = osParallelController.SingleOSThreadActivateSignal(false);
-        pqClientSyncMonitoring = new PQClientSyncMonitoring(GetSourceServerConfig!, RequestSnapshots);
+        pqClientSyncMonitoring = new PQClientSyncMonitoring(GetSourceServerConfig, RequestSnapshots);
         this.pricingServersConfigRepository = pricingServersConfigRepository;
         this.allowUpdatesCatchup = allowUpdatesCatchup;
-
         this.snapshotClientFactory = snapshotClientFactory ?? new PQSnapshotClientRepository(socketDispatcherResolver);
-        this.updateClientFactory = updateClientFactory;
-
-        if (dsptchCount <= 0)
-            throw new ArgumentException("Invalid dsptchCount value");
-        dispatchers = new ISocketDispatcher[dsptchCount];
-        for (var i = 0; i < dispatchers.Length; i++)
-        {
-            var sockDispatcher = socketDispatcherFactory("PQClient" + i);
-            dispatchers[i] = sockDispatcher;
-        }
+        this.updateClientFactory = updateClientFactory ?? new PQUpdateClientRepository(socketDispatcherResolver);
     }
 
     public void Dispose()
@@ -82,15 +69,7 @@ public class PQClient : IDisposable
     }
 
     public IPQTickerFeedSubscriptionQuoteStream<T>? GetQuoteStream<T>(
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo,
-        int wholeMessagesPerReceive,
-        uint syncRetryMsOverride = 60000) where T : PQLevel0Quote, new() =>
-        GetQuoteStream<T>(sourceTickerQuoteInfo, null, wholeMessagesPerReceive, syncRetryMsOverride);
-
-    public IPQTickerFeedSubscriptionQuoteStream<T>? GetQuoteStream<T>(
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo,
-        string? alternativeMulticast, int wholeMessagesPerReceive,
-        uint syncRetryMsOverride = 60000) where T : PQLevel0Quote, new()
+        ISourceTickerQuoteInfo sourceTickerQuoteInfo, uint syncRetryMsOverride = 60000) where T : PQLevel0Quote, new()
     {
         PQPricingServerSubscriptionContext? retrievePricingServerSubscriptionContext;
         lock (feeds)
@@ -109,7 +88,7 @@ public class PQClient : IDisposable
             throw new Exception("Subscription for " + sourceTickerQuoteInfo.Ticker + " on " +
                                 sourceTickerQuoteInfo.Source + " already exists");
         var sub = CreateQuoteStream<T>(sourceTickerQuoteInfo, retrievePricingServerSubscriptionContext
-            .PricingServerConfig, alternativeMulticast, syncRetryMsOverride, wholeMessagesPerReceive);
+            .PricingServerConfig, syncRetryMsOverride);
         if (sub == null) return null;
         retrievePricingServerSubscriptionContext.Subscriptions.Add(sub);
         sub.AddCleanupAction(Disposable.Create(() =>
@@ -128,7 +107,7 @@ public class PQClient : IDisposable
 
     private PQTickerFeedSubscriptionQuoteStream<T>? CreateQuoteStream<T>(
         ISourceTickerQuoteInfo sourceTickerQuoteInfo, ISnapshotUpdatePricingServerConfig? marketsServerConfig,
-        string? alternativeMulticast, uint syncRetryMsOverride, int wholeMessagesPerReceive)
+        uint syncRetryMsOverride)
         where T : PQLevel0Quote, new()
     {
         PQTickerFeedSubscriptionQuoteStream<T>? pqTickerFeedSubscriptionQuoteStream = null;
@@ -161,16 +140,10 @@ public class PQClient : IDisposable
 
             pqClientSyncMonitoring.RegisterNewDeserializer(quoteDeserializer);
 
-            var maxCount = dispatchers.Min(d => d.UsageCount);
-            var dispatcher = dispatchers.First(d => d.UsageCount == maxCount);
-            var socketDescription = marketsServerConfig!.Name!;
-            updateClientFactory.RegisterSocketSubscriber(socketDescription,
-                marketsServerConfig.UpdateConnectionConfig!.ToConnectionConfig(ConnectionDirectionType.Publisher)
-                , sourceTickerPublicationConfig.Id,
-                dispatcher, wholeMessagesPerReceive, snapshotSerializationRepository
-                , string.IsNullOrEmpty(alternativeMulticast) ?
-                    marketsServerConfig.UpdateConnectionConfig!.SubnetMask!.ToString() :
-                    alternativeMulticast);
+            var updateClient
+                = updateClientFactory.RetrieveOrCreateConversation(marketsServerConfig!.UpdateConnectionConfig!);
+            updateClient.MessageStreamDecoder.AddMessageDeserializer(sourceTickerPublicationConfig.Id
+                , pqQuoteDeserializer);
             var snapShotClient
                 = snapshotClientFactory.RetrieveOrCreateConversation(marketsServerConfig.SnapshotConnectionConfig!);
             snapShotClient.MessageStreamDecoder.AddMessageDeserializer(sourceTickerPublicationConfig.Id
@@ -203,9 +176,7 @@ public class PQClient : IDisposable
             lock (unsubscribeSyncLock)
             {
                 snapshotClientFactory.RemoveConversation(feedRef.SnapshotConnectionConfig!);
-                updateClientFactory.UnregisterSocketSubscriber(
-                    feedRef.UpdateConnectionConfig!.ToConnectionConfig(ConnectionDirectionType.Publisher),
-                    sourceTickerPublicationConfig.Id);
+                updateClientFactory.RemoveConversation(feedRef.UpdateConnectionConfig!);
 
                 pqClientSyncMonitoring.UnregisterSerializer(quoteDeserializer);
             }
