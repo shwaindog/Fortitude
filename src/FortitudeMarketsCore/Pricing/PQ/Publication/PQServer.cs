@@ -162,7 +162,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 
         if (snapshotServer != null)
         {
-            snapshotServer.Disconnect();
+            snapshotServer.Stop();
             snapshotServer = null;
         }
 
@@ -186,7 +186,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         {
             snapshotServer = snapShotServerFactory(snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!);
             snapshotServer.OnSnapshotRequest += OnSnapshotContextRequest;
-            snapshotServer.Connect();
+            snapshotServer.Start();
             updateServer = updateServerFactory(snapshotUpdatePricingServerConfig.UpdateConnectionConfig!);
             updateServer.Connect();
             serverHeartBeatSender.UpdateServer = updateServer;

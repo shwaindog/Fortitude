@@ -10,11 +10,12 @@ using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ;
 
-public interface IPQQuoteSerializerRepository : IMessageIdSerializationRepository, IMessageIdDeserializationRepository
+public interface IPQQuoteSerializerRepository : IStreamEncoderFactory, IMessageIdSerializationRepository
+    , IMessageIdDeserializationRepository
 {
     bool HasPictureDeserializers { get; }
 
-    IPQDeserializer CreateQuoteDeserializer<T>(ISourceTickerClientAndPublicationConfig streamp)
+    IPQDeserializer CreateQuoteDeserializer<T>(ISourceTickerClientAndPublicationConfig streamPubConfig)
         where T : PQLevel0Quote, new();
 
     IPQDeserializer? GetQuoteDeserializer(IUniqueSourceTickerIdentifier identifier);

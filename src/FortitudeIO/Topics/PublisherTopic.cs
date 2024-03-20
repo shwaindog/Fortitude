@@ -2,7 +2,6 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Topics.TopicTransports;
-using FortitudeIO.Transports;
 
 #endregion
 
@@ -21,6 +20,9 @@ public class PublisherTopic : Topic, IPublisherTopic
         PublisherTransports = initialConnections;
 
     public TopicTransportMap<IPublisherTransportTopicConversation> PublisherTransports { get; }
+
+
+    public override bool IsStarted { get; } = false;
 
     public override void Start()
     {

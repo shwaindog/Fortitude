@@ -3,9 +3,10 @@
 using System.Net;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ;
@@ -13,6 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
+using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
 
 #endregion
 
@@ -34,6 +36,7 @@ public class PQClientTests
     private Mock<IDisposable> moqDeserializerSubscription = null!;
     private Mock<ISocketDispatcher> moqFirstSocketDispatcher = null!;
     private Mock<IMutableSourceTickerPublicationConfig> moqFirstTestTickerPublicationConfig = null!;
+    private Mock<IMessageStreamDecoder> moqMessageStreamDecoder = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQClientSyncMonitoring> moqPQClientSyncMonitoring = null!;
@@ -46,10 +49,12 @@ public class PQClientTests
     private Mock<IPricingServersConfigRepository> moqPricingServersConfigRepo = null!;
     private Mock<IMutableSourceTickerPublicationConfig> moqSecondTestTickerPublicationConfig = null!;
     private Mock<IIntraOSThreadSignal> moqSingleOsThreadSignal = null!;
-    private Mock<IPQSocketSubscriptionRegistrationFactory<IPQSnapshotClient>> moqSnapshotClientFactory = null!;
+    private Mock<IPQSnapshotClient> moqSnapshotClient = null!;
+    private Mock<IPQConversationRepository<IPQSnapshotClient>> moqSnapshotClientFactory = null!;
     private Mock<ISocketReceiverConfig> moqSnapshotServerConfig = null!;
     private Mock<ISnapshotUpdatePricingServerConfig> moqSnapshotUpdatePricingServerConfig = null!;
-    private Mock<IPQSocketSubscriptionRegistrationFactory<IPQUpdateClient>> moqUpdateClientFactory = null!;
+    private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
+    private Mock<ILegacyPQSocketSubscriptionRegistrationFactory<IPQUpdateClient>> moqUpdateClientFactory = null!;
     private Mock<ISocketConnectionConfig> moqUpdateServerConfig = null!;
     private PQClient pqClient = null!;
     private string secondTestSourceName = null!;
@@ -63,8 +68,9 @@ public class PQClientTests
         PrepareInitialValues();
         PrepareNewPQClientInitializationMocks();
 
-        pqClient = new PQClient(moqPricingServersConfigRepo.Object, moqSnapshotClientFactory.Object,
-            moqUpdateClientFactory.Object, socketDispatcherFactoryFunc, defaultAllowCatchUps);
+        pqClient = new PQClient(moqPricingServersConfigRepo.Object, moqSocketDispatcherResolver.Object,
+            moqUpdateClientFactory.Object, socketDispatcherFactoryFunc, moqSnapshotClientFactory.Object
+            , defaultAllowCatchUps);
 
         PrepareQuoteLevelMocks();
 
@@ -81,6 +87,7 @@ public class PQClientTests
     {
         moqSingleOsThreadSignal = new Mock<IIntraOSThreadSignal>();
         moqParallelController = new Mock<IOSParallelController>();
+        moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         moqParallelController.Setup(pc => pc.SingleOSThreadActivateSignal(false)).Returns(
             moqSingleOsThreadSignal.Object);
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
@@ -136,8 +143,15 @@ public class PQClientTests
         moqPricingServersConfigRepo = new Mock<IPricingServersConfigRepository>();
         moqPricingServersConfigRepo.Setup(pscr => pscr.Find(It.IsAny<string>()))
             .Returns(moqSnapshotUpdatePricingServerConfig.Object).Verifiable();
-        moqSnapshotClientFactory = new Mock<IPQSocketSubscriptionRegistrationFactory<IPQSnapshotClient>>();
-        moqUpdateClientFactory = new Mock<IPQSocketSubscriptionRegistrationFactory<IPQUpdateClient>>();
+        moqSnapshotClientFactory = new Mock<IPQConversationRepository<IPQSnapshotClient>>();
+        moqSnapshotClient = new Mock<IPQSnapshotClient>();
+        moqMessageStreamDecoder = new Mock<IMessageStreamDecoder>();
+        moqSnapshotClient.SetupGet(sc => sc.MessageStreamDecoder).Returns(moqMessageStreamDecoder.Object);
+        moqSnapshotClientFactory.Setup(scf => scf.RetrieveOrCreateConversation(It.IsAny<ISocketConnectionConfig>()))
+            .Returns(moqSnapshotClient.Object);
+        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketConnectionConfig>()))
+            .Returns(moqSnapshotClient.Object);
+        moqUpdateClientFactory = new Mock<ILegacyPQSocketSubscriptionRegistrationFactory<IPQUpdateClient>>();
         moqFirstSocketDispatcher = new Mock<ISocketDispatcher>();
         moqFirstSocketDispatcher.SetupAllProperties();
 
@@ -180,10 +194,6 @@ public class PQClientTests
                 , moqFirstSocketDispatcher.Object, 1,
                 moqPQQuoteSerializerRepo.Object, It.IsAny<string>())).Returns(new Mock<IPQUpdateClient>().Object)
             .Verifiable();
-        moqSnapshotClientFactory.Setup(sscf => sscf.RegisterSocketSubscriber(It.IsAny<string>(),
-            It.IsAny<IConnectionConfig>(), firstSourceTickerPublicationConfigId, moqFirstSocketDispatcher.Object
-            , 1,
-            moqPQQuoteSerializerRepo.Object, null)).Returns(new Mock<IPQSnapshotClient>().Object).Verifiable();
     }
 
     private void PrepareQuoteLevelMocks()
@@ -256,8 +266,8 @@ public class PQClientTests
                     return moqThirdSocketDispatcher.Object;
             }
         };
-        pqClient = new PQClient(moqPricingServersConfigRepo.Object, moqSnapshotClientFactory.Object,
-            moqUpdateClientFactory.Object, socketDispatcherFactoryFunc, true, 3);
+        pqClient = new PQClient(moqPricingServersConfigRepo.Object, moqSocketDispatcherResolver.Object,
+            moqUpdateClientFactory.Object, socketDispatcherFactoryFunc, moqSnapshotClientFactory.Object, true, 3);
 
         var dispatcher = NonPublicInvocator.GetInstanceField<ISocketDispatcher[]>(pqClient, "dispatchers");
 
@@ -275,8 +285,8 @@ public class PQClientTests
     [ExpectedException(typeof(ArgumentException))]
     public void NewPQClientWith0DispatcherCount_New_ThrowsInvalidArugment()
     {
-        pqClient = new PQClient(moqPricingServersConfigRepo.Object, moqSnapshotClientFactory.Object,
-            moqUpdateClientFactory.Object, socketDispatcherFactoryFunc, true, 0);
+        pqClient = new PQClient(moqPricingServersConfigRepo.Object, moqSocketDispatcherResolver.Object,
+            moqUpdateClientFactory.Object, socketDispatcherFactoryFunc, moqSnapshotClientFactory.Object, true, 0);
         Assert.Fail("Should not get here");
     }
 
@@ -372,8 +382,8 @@ public class PQClientTests
 
         moqUpdateClientFactory.Setup(sscf => sscf.UnregisterSocketSubscriber(It.IsAny<IConnectionConfig>(),
             firstSourceTickerPublicationConfigId)).Verifiable();
-        moqSnapshotClientFactory.Setup(sscf => sscf.UnregisterSocketSubscriber(It.IsAny<IConnectionConfig>(),
-            firstSourceTickerPublicationConfigId)).Verifiable();
+        moqSnapshotClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<ISocketConnectionConfig>()))
+            .Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.UnregisterSerializer(It.IsAny<IPQDeserializer>()))
             .Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.CheckStopMonitoring()).Verifiable();
@@ -436,8 +446,8 @@ public class PQClientTests
 
         moqUpdateClientFactory.Setup(sscf => sscf.UnregisterSocketSubscriber(It.IsAny<IConnectionConfig>(),
             firstSourceTickerPublicationConfigId)).Verifiable();
-        moqSnapshotClientFactory.Setup(sscf => sscf.UnregisterSocketSubscriber(It.IsAny<IConnectionConfig>(),
-            firstSourceTickerPublicationConfigId)).Verifiable();
+        moqSnapshotClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<ISocketConnectionConfig>()))
+            .Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.UnregisterSerializer(It.IsAny<IPQDeserializer>()))
             .Verifiable();
         moqPQQuoteSerializerRepo.SetupGet(pqqsf => pqqsf.HasPictureDeserializers).Returns(true).Verifiable();
@@ -659,11 +669,10 @@ public class PQClientTests
     [TestMethod]
     public void SubscribedLevel0Stream_RequestSnapshots_FindsSnapshotClientForwardsStreamIdRequests()
     {
-        var moqSnapshotClient = new Mock<IPQSnapshotClient>();
         moqSnapshotClient.Setup(sc => sc.RequestSnapshots(It.IsAny<List<IUniqueSourceTickerIdentifier>>()))
             .Verifiable();
         moqSnapshotClientFactory.Reset();
-        moqSnapshotClientFactory.Setup(scf => scf.FindSocketSubscription(It.IsAny<IConnectionConfig>()))
+        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketConnectionConfig>()))
             .Returns(moqSnapshotClient.Object).Verifiable();
 
         var moqClientSnapshotServerConfig = new Mock<IConnectionConfig>();
@@ -677,8 +686,8 @@ public class PQClientTests
     public void NewPQClient_RequestSnapshots_DoesntFindSnapshotClientDoesNothing()
     {
         moqSnapshotClientFactory.Reset();
-        moqSnapshotClientFactory.Setup(scf => scf.FindSocketSubscription(It.IsAny<IConnectionConfig>()))
-            .Returns(new Mock<IPQSnapshotClient>().Object).Verifiable();
+        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketConnectionConfig>()))
+            .Returns(moqSnapshotClient.Object).Verifiable();
 
 
         var moqClientSnapshotServerConfig = new Mock<IConnectionConfig>();

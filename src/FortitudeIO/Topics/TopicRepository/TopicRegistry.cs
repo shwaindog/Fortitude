@@ -6,8 +6,8 @@ public interface ITopicRegistry
     void Remove(Topic topic);
     PublisherTopic? SupplyPublisherTopic(string topicName, string instanceName);
     SubscriberTopic? SupplySubscriberTopic(string topicName, string instanceName);
-    RequestResponseRequesterTopic? SupplyRequestResponseRequesterTopic(string topicName, string instanceName);
-    RequestResponseResponderTopic? SupplyRequestResponseResponderTopic(string topicName, string instanceName);
+    RequesterTopic? SupplyRequestResponseRequesterTopic(string topicName, string instanceName);
+    ResponderTopic? SupplyRequestResponseResponderTopic(string topicName, string instanceName);
 }
 
 public class TopicRegistry : ITopicRegistry
@@ -43,17 +43,17 @@ public class TopicRegistry : ITopicRegistry
         return null;
     }
 
-    public RequestResponseRequesterTopic? SupplyRequestResponseRequesterTopic(string topicName, string instanceName)
+    public RequesterTopic? SupplyRequestResponseRequesterTopic(string topicName, string instanceName)
     {
         if (generatedTopics.TryGetValue(topicName, out var findTopic))
-            return (RequestResponseRequesterTopic)findTopic[instanceName];
+            return (RequesterTopic)findTopic[instanceName];
         return null;
     }
 
-    public RequestResponseResponderTopic? SupplyRequestResponseResponderTopic(string topicName, string instanceName)
+    public ResponderTopic? SupplyRequestResponseResponderTopic(string topicName, string instanceName)
     {
         if (generatedTopics.TryGetValue(topicName, out var findTopic))
-            return (RequestResponseResponderTopic)findTopic[instanceName];
+            return (ResponderTopic)findTopic[instanceName];
         return null;
     }
 }

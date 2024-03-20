@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.Protocols.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -18,11 +17,13 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
     public int ExpectedSize { get; } = 1;
     public int NumberOfReceivesPerPoll { get; } = 1;
 
-    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer)
+    public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer)
     {
         deserializers.Add(msgId, deserializer);
         return true;
     }
+
+    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => deserializers;
 
     public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
     {
@@ -65,7 +66,7 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
         {
             var streamDecoder = new SimpleMessageStreamDecoder();
             foreach (var binaryDeserializerEntry in deserializers)
-                streamDecoder.AddMessageDecoder(binaryDeserializerEntry.Key, binaryDeserializerEntry.Value);
+                streamDecoder.AddMessageDeserializer(binaryDeserializerEntry.Key, binaryDeserializerEntry.Value);
             return streamDecoder;
         }
     }

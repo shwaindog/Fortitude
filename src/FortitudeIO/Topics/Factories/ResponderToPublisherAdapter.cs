@@ -21,6 +21,8 @@ public class ResponderToPublisherAdapter : IPublisherConversation
 
     public ConversationType ConversationType => ConversationType.Publisher;
 
+    public bool IsStarted => requestResponseResponderConversation.IsStarted;
+
     event Action<string, int>? IConversationState.Error
     {
         add => requestResponseResponderConversation.Error += value;

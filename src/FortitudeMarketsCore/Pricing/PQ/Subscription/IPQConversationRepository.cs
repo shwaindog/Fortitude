@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeIO.Conversations;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -8,7 +10,15 @@ using FortitudeIO.Transports.Sockets.Subscription;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-public interface IPQSocketSubscriptionRegistrationFactory<out T> where T : ISocketSubscriber
+public interface IPQConversationRepository<out T> where T : class, IConversation
+{
+    T RetrieveOrCreateConversation(ISocketConnectionConfig socketConnectionConfig);
+
+    void RemoveConversation(ISocketConnectionConfig socketConnectionConfig);
+    T? RetrieveConversation(ISocketConnectionConfig socketConnectionConfig);
+}
+
+public interface ILegacyPQSocketSubscriptionRegistrationFactory<out T> where T : ISocketSubscriber
 {
     T RegisterSocketSubscriber(string socketUseDescription, IConnectionConfig cfg, uint streamId,
         ISocketDispatcher dispatcher, int wholeMessagesPerReceive,

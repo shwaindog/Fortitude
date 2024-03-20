@@ -36,14 +36,16 @@ public interface ISocketSessionContext : ISocketConversation
 public class SocketSessionContext : ISocketSessionContext
 {
     private static int idGen;
-    private ISocketDispatcher? socketDispatcher;
 
     public SocketSessionContext(ConversationType conversationType,
         SocketConversationProtocol socketConversationProtocol,
         string sessionDescription, ISocketConnectionConfig socketConnectionConfig,
-        ISocketFactories socketFactories, ISerdesFactory serdesFactory)
+        ISocketFactories socketFactories, ISerdesFactory serdesFactory,
+        ISocketDispatcher? socketDispatcher = null)
     {
         SocketFactories = socketFactories;
+        SocketDispatcher
+            = socketDispatcher ?? socketFactories.SocketDispatcherResolver!.Resolve(socketConnectionConfig);
         SerdesFactory = serdesFactory;
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
@@ -59,13 +61,7 @@ public class SocketSessionContext : ISocketSessionContext
     public SocketConversationProtocol SocketConversationProtocol { get; }
     public ISocketFactories SocketFactories { get; }
     public ISerdesFactory SerdesFactory { get; }
-
-    public ISocketDispatcher SocketDispatcher
-    {
-        get => socketDispatcher ??= SocketFactories.SocketDispatcherResolver!.Resolve(this);
-        set => socketDispatcher = value;
-    }
-
+    public ISocketDispatcher SocketDispatcher { get; set; }
     public ISocketConnection? SocketConnection { get; private set; }
     public ISocketConnectionConfig SocketConnectionConfig { get; }
     public SocketSessionState SocketSessionState { get; set; }

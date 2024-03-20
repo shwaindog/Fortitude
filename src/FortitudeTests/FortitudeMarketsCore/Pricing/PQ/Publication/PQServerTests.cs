@@ -91,7 +91,7 @@ public class PQServerTests
 
         moqSnapshotService = new Mock<IPQSnapshotServer>();
         moqUpdateService = new Mock<IPQUpdateServer>();
-        moqSnapshotService.Setup(sss => sss.Connect()).Verifiable();
+        moqSnapshotService.Setup(sss => sss.Start()).Verifiable();
 
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
@@ -612,12 +612,12 @@ public class PQServerTests
         Assert.IsTrue(pqServer.IsStarted);
 
         moqUpdateService.Verify(us => us.Disconnect(), Times.Never);
-        moqSnapshotService.Verify(ss => ss.Disconnect(), Times.Never);
+        moqSnapshotService.Verify(ss => ss.Stop(), Times.Never);
 
         pqServer.Dispose();
 
         moqUpdateService.Verify(us => us.Disconnect(), Times.Once);
-        moqSnapshotService.Verify(ss => ss.Disconnect(), Times.Once);
+        moqSnapshotService.Verify(ss => ss.Stop(), Times.Once);
         var currentUpdateServerInstance =
             NonPublicInvocator.GetInstanceField<IPQUpdateServer>(pqServer, "updateServer");
         var currentSnapshotServerInstance =

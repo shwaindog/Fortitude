@@ -29,6 +29,9 @@ public abstract class Topic : ITopic
     public ConversationState ConversationState { get; protected set; }
     public string Name { get; }
     public string InstanceName { get; }
+
+    public abstract bool IsStarted { get; }
+
     public abstract void Start();
 
     public abstract void Stop();

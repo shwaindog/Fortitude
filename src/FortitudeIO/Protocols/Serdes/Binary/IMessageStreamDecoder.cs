@@ -8,6 +8,7 @@ namespace FortitudeIO.Protocols.Serdes.Binary;
 
 public interface IMessageStreamDecoder
 {
-    bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer);
+    IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers { get; }
+    bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer);
     int Process(ReadSocketBufferContext readSocketBufferContext);
 }

@@ -26,7 +26,9 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
 
     public bool ZeroByteReadIsDisconnection => true;
 
-    public bool AddMessageDecoder(uint msgId, IMessageDeserializer deserializer)
+    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => deserializers;
+
+    public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer)
     {
         deserializers.Add(msgId, deserializer);
         return deserializers[msgId] == deserializer;
