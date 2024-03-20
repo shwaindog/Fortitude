@@ -1,16 +1,15 @@
 ﻿#region
 
-using System.Reactive.Subjects;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsCore.Pricing.PQ;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
 
@@ -21,55 +20,55 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQUpdateClientTests
 {
-    private ISubject<IConnectionUpdate> configUpdateSubject = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
+    private Mock<ISocketDispatcherResolver> moqDispatcherResolver = null!;
     private Mock<IFLogger> moqFlogger = null!;
+    private Mock<IInitiateControls> moqInitiateControls = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
+    private Mock<ISerdesFactory> moqSerdesFactory = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
-    private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
-    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private PQUpdateClient pqUpdateClient = null!;
     private string testHostName = null!;
-    private int testHostPort;
+    private ushort testHostPort;
 
     [TestInitialize]
     public void SetUp()
     {
         moqFlogger = new Mock<IFLogger>();
         moqDispatcher = new Mock<ISocketDispatcher>();
+        moqDispatcherResolver = new Mock<ISocketDispatcherResolver>();
+        moqInitiateControls = new Mock<IInitiateControls>();
+        moqSocketSessionContext = new Mock<ISocketSessionContext>();
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqNetworkingController = new Mock<IOSNetworkingController>();
-        moqServerConnectionConfig = new Mock<IConnectionConfig>();
+        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
+        moqSerdesFactory = new Mock<ISerdesFactory>();
         moqOsSocket = new Mock<IOSSocket>();
-        configUpdateSubject = new Subject<IConnectionUpdate>();
 
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         testHostPort = 1979;
-        moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
-        moqServerConnectionConfig.SetupProperty(scc => scc.Updates, configUpdateSubject);
+        moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(testHostPort);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqOsSocket.SetupAllProperties();
 
-        moqSocketBinaryDeserializer.SetupAllProperties();
+        moqSerdesFactory.SetupProperty(sf => sf.StreamDecoderFactory);
+        moqSerdesFactory.SetupProperty(sf => sf.StreamEncoderFactory);
 
-        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
-            .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
-
-        pqUpdateClient = new PQUpdateClient(moqDispatcher.Object, moqNetworkingController.Object,
-            moqServerConnectionConfig.Object, "TestSocketDescription", "multicastInterfaceIP", 50,
-            moqPQQuoteSerializationRepo.Object);
+        pqUpdateClient = new PQUpdateClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
     }
 
     [TestCleanup]
@@ -79,36 +78,10 @@ public class PQUpdateClientTests
     }
 
     [TestMethod]
-    public void MissingSerializationFactory_New_UsesDefaultSerializationFactory()
-    {
-        pqUpdateClient = new PQUpdateClient(moqDispatcher.Object, moqNetworkingController.Object,
-            moqServerConnectionConfig.Object, "TestSocketDescription", "multicastInterfaceIP", 50,
-            new PQQuoteSerializerRepository());
-
-        var binaryDeserializationFactory = NonPublicInvocator.RunInstanceMethod<IMessageIdDeserializationRepository>(
-            pqUpdateClient, "GetFactory");
-        Assert.IsInstanceOfType(binaryDeserializationFactory, typeof(PQQuoteSerializerRepository));
-    }
-
-    [TestMethod]
     public void UpdateClient_GetDecoder_ReturnsPQClientDecoder()
     {
-        var decoder = pqUpdateClient.GetDecoder(moqSerializerCache.Object);
+        var decoder = pqUpdateClient.MessageStreamDecoder;
 
         Assert.IsInstanceOfType(decoder, typeof(PQClientMessageStreamDecoder));
-    }
-
-    [TestMethod]
-    public void UpdateClient_RecvBufferSize_ReturnsPQClientDecoder()
-    {
-        var bufferSize = pqUpdateClient.RecvBufferSize;
-
-        Assert.AreEqual(2097152, bufferSize);
-    }
-
-    [TestMethod]
-    public void UpdateClient_HasNoStreamToPublisher()
-    {
-        Assert.IsNull(pqUpdateClient.StreamToPublisher);
     }
 }

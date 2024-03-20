@@ -1,39 +1,57 @@
 ﻿#region
 
-using System.Reflection;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Publishing;
-using FortitudeIO.Transports.Sockets.Subscription;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Conversations;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-public sealed class PQUpdateClient : UdpSubscriber, IPQUpdateClient
+public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 {
-    public const int PQReceiveBufferSize = 2097152;
+    private static ISocketFactories? socketFactories;
+    private readonly PQClientMessageStreamDecoder messageStreamDecoder;
 
-    private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
+    public PQUpdateClient(ISocketSessionContext socketSessionContext,
+        IInitiateControls initiateControls)
+        : base(socketSessionContext, initiateControls)
+    {
+        messageStreamDecoder
+            = new PQClientMessageStreamDecoder(new ConcurrentMap<uint, IMessageDeserializer>(), PQFeedType.Snapshot);
+        socketSessionContext.SerdesFactory.StreamDecoderFactory = new SocketStreamDecoderFactory(messageStreamDecoder);
+    }
 
-    public PQUpdateClient(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
-        IConnectionConfig connectionConfig, string socketUseDescription, string? networkAddress,
-        int wholeMessagesPerReceive, IPQQuoteSerializerRepository ipqQuoteSerializerRepository)
-        : base(FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!), dispatcher,
-            networkingController, connectionConfig, socketUseDescription + " PQUpdateClient", networkAddress,
-            wholeMessagesPerReceive, new LinkedListUintKeyMap<IMessageDeserializer>()) =>
-        snapshotSerializationRepository = ipqQuoteSerializerRepository ?? snapshotSerializationRepository;
+    public static ISocketFactories SocketFactories
+    {
+        get => socketFactories ??= FortitudeIO.Transports.NewSocketAPI.Sockets.SocketFactories.GetRealSocketFactories();
+        set => socketFactories = value;
+    }
 
-    public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
-        new PQClientMessageStreamDecoder(decoderDeserializers, PQFeedType.Update);
+    public IMessageStreamDecoder MessageStreamDecoder => messageStreamDecoder;
 
-    public override int RecvBufferSize => PQReceiveBufferSize;
+    public static PQUpdateClient BuildUdpSubscriber(ISocketConnectionConfig socketConnectionConfig
+        , ISocketDispatcherResolver socketDispatcherResolver)
+    {
+        var conversationType = ConversationType.Subscriber;
+        var conversationProtocol = SocketConversationProtocol.UdpSubscriber;
 
-    public override IBinaryStreamPublisher? StreamToPublisher => null;
+        var socketFactories = SocketFactories;
 
-    protected override IMessageIdDeserializationRepository GetFactory() => snapshotSerializationRepository;
+        var serdesFactory = new SerdesFactory();
+
+        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
+            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socketFactories
+            , serdesFactory, socketDispatcherResolver.Resolve(socketConnectionConfig));
+        socketSessionContext.Name += "Subscriber";
+
+        var initControls = new InitiateControls(socketSessionContext);
+
+        return new PQUpdateClient(socketSessionContext, initControls);
+    }
 }

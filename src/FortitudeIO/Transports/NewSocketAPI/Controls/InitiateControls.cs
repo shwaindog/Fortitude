@@ -11,7 +11,7 @@ namespace FortitudeIO.Transports.NewSocketAPI.Controls;
 
 public interface IInitiateControls : IStreamControls
 {
-    void ConnectAsync();
+    void StartAsync();
 }
 
 public class InitiateControls : IInitiateControls
@@ -41,7 +41,7 @@ public class InitiateControls : IInitiateControls
         socketSessionContext.SocketDispatcher.Stop();
     }
 
-    public virtual void ConnectAsync()
+    public virtual void StartAsync()
     {
         ScheduleConnect(0);
     }

@@ -1,18 +1,15 @@
 ﻿#region
 
-using System.Reactive.Subjects;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
-using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
 
 #endregion
 
@@ -21,10 +18,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQSnapshotClientRepositoryTests
 {
-    private ISubject<IConnectionUpdate> configUpdateSubject = null!;
-    private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IFLogger> moqFlogger = null!;
-    private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
@@ -40,19 +34,16 @@ public class PQSnapshotClientRepositoryTests
     public void SetUp()
     {
         moqFlogger = new Mock<IFLogger>();
-        moqDispatcher = new Mock<ISocketDispatcher>();
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqNetworkingController = new Mock<IOSNetworkingController>();
         moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
         moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
-        configUpdateSubject = new Subject<IConnectionUpdate>();
 
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("PQSnapshotClientRepositoryTests");

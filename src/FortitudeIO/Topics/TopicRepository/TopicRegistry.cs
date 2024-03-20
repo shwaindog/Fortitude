@@ -5,7 +5,7 @@ public interface ITopicRegistry
     void RegisterTopic(Topic topic);
     void Remove(Topic topic);
     PublisherTopic? SupplyPublisherTopic(string topicName, string instanceName);
-    SubscriberTopic? SupplySubscriberTopic(string topicName, string instanceName);
+    ConversationSubscriberTopic? SupplySubscriberTopic(string topicName, string instanceName);
     RequesterTopic? SupplyRequestResponseRequesterTopic(string topicName, string instanceName);
     ResponderTopic? SupplyRequestResponseResponderTopic(string topicName, string instanceName);
 }
@@ -37,9 +37,10 @@ public class TopicRegistry : ITopicRegistry
         return null;
     }
 
-    public SubscriberTopic? SupplySubscriberTopic(string topicName, string instanceName)
+    public ConversationSubscriberTopic? SupplySubscriberTopic(string topicName, string instanceName)
     {
-        if (generatedTopics.TryGetValue(topicName, out var findTopic)) return (SubscriberTopic)findTopic[instanceName];
+        if (generatedTopics.TryGetValue(topicName, out var findTopic))
+            return (ConversationSubscriberTopic)findTopic[instanceName];
         return null;
     }
 

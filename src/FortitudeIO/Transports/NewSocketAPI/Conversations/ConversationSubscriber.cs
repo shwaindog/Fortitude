@@ -8,13 +8,10 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
-public class ConversationSubscriber : SocketConversation, IInitiateControls, ISubscriberConversation
+public class ConversationSubscriber : SocketConversation, IInitiateControls, IConversationSubscriber
 {
-    protected readonly IInitiateControls InitiateControls;
+    public ConversationSubscriber(ISocketSessionContext socketSessionContext,
+        IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) { }
 
-    public ConversationSubscriber(SocketSessionContext socketSessionContext,
-        IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) =>
-        InitiateControls = initiateControls;
-
-    public void ConnectAsync() => InitiateControls.ConnectAsync();
+    public void StartAsync() => ((IInitiateControls)InitiateControls).StartAsync();
 }

@@ -1,21 +1,16 @@
 ﻿#region
 
-using System.Reactive.Subjects;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Publishing;
-using FortitudeIO.Transports.Sockets.Subscription;
-using FortitudeMarketsCore.Pricing.PQ;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
-using FortitudeTests.FortitudeIO.Transports.Sockets.Subscription;
 using Moq;
 
 #endregion
@@ -23,58 +18,39 @@ using Moq;
 namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 [TestClass]
-public class PQSocketSubscriptionRegistrationFactoryBaseTests
+public class PQConversationRepositoryBaseTests
 {
-    private ISubject<ConnectionUpdate> configUpdateSubject = null!;
-
-    private DummySktSubRegFctryBse<SocketSubscriberTests.DummySocketSubscriber>
+    private DummySktSubRegFctryBse<DummyConversationSubscriber>
         dummySktSubRegFctryBs = null!;
 
-    private SocketSubscriberTests.DummySocketSubscriber dummySocketSubscriber = null!;
+    private DummyConversationSubscriber dummySocketSubscriber = null!;
     private Mock<IMessageIdDeserializationRepository> moqBinaryDeserializationFactory = null!;
-    private Mock<IBinaryStreamPublisher> moqBinaryStreamPublisher = null!;
-    private Mock<ISocketDispatcher> moqDispatcher = null!;
-    private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
     private Mock<IFLogger> moqFlogger = null!;
-    private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
-    private Mock<IConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
-    private int recvBufferSize;
     private string testHostName = null!;
     private ushort testHostPort;
-    private string testSessionDescription = null!;
-    private int wholeMessagesPerReceive;
 
     [TestInitialize]
     public void SetUp()
     {
         moqFlogger = new Mock<IFLogger>();
-        moqDispatcher = new Mock<ISocketDispatcher>();
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqNetworkingController = new Mock<IOSNetworkingController>();
-        moqServerConnectionConfig = new Mock<IConnectionConfig>();
-        testSessionDescription = "TestSessionDescription";
-        wholeMessagesPerReceive = 23;
-        recvBufferSize = 1234567;
-        moqBinaryStreamPublisher = new Mock<IBinaryStreamPublisher>();
-        moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
-        moqFeedDecoder = new Mock<IMessageStreamDecoder>();
+        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
         moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
-        configUpdateSubject = new Subject<ConnectionUpdate>();
 
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
-        moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
+        moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(testHostPort);
         testHostPort = 1979;
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
@@ -86,15 +62,9 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
             .Returns(moqSocketBinaryDeserializer.Object)
             .Verifiable();
 
-        dummySocketSubscriber = new SocketSubscriberTests.DummySocketSubscriber(moqFlogger.Object,
-            moqDispatcher.Object, moqNetworkingController.Object, moqServerConnectionConfig.Object,
-            testSessionDescription, wholeMessagesPerReceive, new ConcurrentMap<uint, IMessageDeserializer>()
-            , recvBufferSize,
-            moqBinaryStreamPublisher.Object, moqFeedDecoder.Object, moqBinaryDeserializationFactory.Object,
-            moqOsSocket.Object);
+        dummySocketSubscriber = new DummyConversationSubscriber();
 
-        dummySktSubRegFctryBs = new DummySktSubRegFctryBse<SocketSubscriberTests.DummySocketSubscriber>(
-            moqNetworkingController.Object, dummySocketSubscriber);
+        dummySktSubRegFctryBs = new DummySktSubRegFctryBse<DummyConversationSubscriber>(dummySocketSubscriber);
     }
 
     [TestCleanup]
@@ -106,33 +76,29 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
     [TestMethod]
     public void EmptySocketSubRegFactory_RegisterSocketSubscriber_FindSocketSubscriptionReturnsSameInstance()
     {
-        var socketClient = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
-            moqServerConnectionConfig.Object, uint.MaxValue, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
+        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
 
         Assert.IsNotNull(socketClient);
         Assert.AreSame(dummySocketSubscriber, socketClient);
 
-        var foundSubscription = dummySktSubRegFctryBs.FindSocketSubscription(moqServerConnectionConfig.Object);
+        var foundSubscription = dummySktSubRegFctryBs.RetrieveConversation(moqServerConnectionConfig.Object);
         Assert.AreSame(socketClient, foundSubscription);
     }
 
     [TestMethod]
     public void EmptySocketSubRegFactory_FindSocketSubscription_ReturnsNull()
     {
-        var foundSubscription = dummySktSubRegFctryBs.FindSocketSubscription(moqServerConnectionConfig.Object);
+        var foundSubscription = dummySktSubRegFctryBs.RetrieveConversation(moqServerConnectionConfig.Object);
         Assert.IsNull(foundSubscription);
     }
 
     [TestMethod]
     public void RegisteredSocketSubscriber_UnregisterSocketSubscriber_FindSocketSubscriptionReturnsSameInstance()
     {
-        var socketClient = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
-            moqServerConnectionConfig.Object, uint.MaxValue, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
+        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
 
-        var socketSubscriptions = NonPublicInvocator.GetInstanceField<IDictionary<IConnectionConfig,
-            SocketSubscriberTests.DummySocketSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
+        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketConnectionConfig,
+            DummyConversationSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
 
         Assert.IsNotNull(socketClient);
         Assert.AreEqual(1, socketSubscriptions.Count);
@@ -141,31 +107,24 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         Assert.AreSame(moqServerConnectionConfig.Object, kvp.Key);
         Assert.AreSame(socketClient, kvp.Value);
 
-        moqSocketBinaryDeserializer.Setup(sbd =>
-            sbd.IsRegistered(It.IsAny<Action<PQLevel0Quote, object, ISession>>())).Returns(true).Verifiable();
-
-        dummySktSubRegFctryBs.UnregisterSocketSubscriber(moqServerConnectionConfig.Object, uint.MaxValue);
+        dummySktSubRegFctryBs.RemoveConversation(moqServerConnectionConfig.Object);
         Assert.AreEqual(0, socketSubscriptions.Count);
         moqSocketBinaryDeserializer.Verify();
     }
 
     [TestMethod]
-    public void MultiRegisteredFactory_UnregisterSocketSubscriber_DoesntRemoveSubscriptionUntilAllUnsubscribed()
+    public void MultiRegisteredFactory_UnregisterSocketSubscriber_RemoveSubscriptionEvenIfContainsSubscriptions()
     {
         moqBinaryDeserializationFactory.Setup(bdf => bdf
                 .GetDeserializer<PQLevel0Quote>(1u))
             .Returns(moqSocketBinaryDeserializer.Object)
             .Verifiable();
 
-        var socketClient = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
-            moqServerConnectionConfig.Object, uint.MaxValue, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
-        var socketClient2 = dummySktSubRegFctryBs.RegisterSocketSubscriber("TestSocketDescription",
-            moqServerConnectionConfig.Object, 1, moqDispatcher.Object, 50,
-            moqPQQuoteSerializationRepo.Object, "multicastInterfaceIP");
+        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
+        var socketClient2 = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
 
-        var socketSubscriptions = NonPublicInvocator.GetInstanceField<IDictionary<IConnectionConfig,
-            SocketSubscriberTests.DummySocketSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
+        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketConnectionConfig,
+            DummyConversationSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
 
         Assert.IsNotNull(socketClient);
         Assert.IsNotNull(socketClient2);
@@ -178,36 +137,39 @@ public class PQSocketSubscriptionRegistrationFactoryBaseTests
         moqSocketBinaryDeserializer.Setup(sbd =>
             sbd.IsRegistered(It.IsAny<Action<PQLevel0Quote, object, ISession>>())).Returns(true).Verifiable();
 
-        dummySktSubRegFctryBs.UnregisterSocketSubscriber(moqServerConnectionConfig.Object, uint.MaxValue);
+        dummySktSubRegFctryBs.RemoveConversation(moqServerConnectionConfig.Object);
 
         Assert.IsNotNull(socketClient);
         Assert.IsNotNull(socketClient2);
-        Assert.AreEqual(1, socketSubscriptions.Count);
-        kvp = socketSubscriptions.First();
-        Assert.AreSame(dummySocketSubscriber, socketClient);
-        Assert.AreSame(moqServerConnectionConfig.Object, kvp.Key);
-        Assert.AreSame(socketClient, kvp.Value);
-
-        dummySktSubRegFctryBs.UnregisterSocketSubscriber(moqServerConnectionConfig.Object, 1u);
-
         Assert.AreEqual(0, socketSubscriptions.Count);
-        moqSocketBinaryDeserializer.Verify();
     }
 
     internal class DummySktSubRegFctryBse<T> :
-        PQSocketSubscriptionRegistrationFactoryBase<T> where T : SocketSubscriber
+        PQConversationRepositoryBase<T> where T : class, IConversation
     {
-        public DummySktSubRegFctryBse(IOSNetworkingController networkingController,
-            T returnedSocketSubscriber) : base(networkingController) =>
+        public DummySktSubRegFctryBse(T returnedSocketSubscriber) =>
             ReturnedSocketSubscriber = returnedSocketSubscriber;
 
         public T ReturnedSocketSubscriber { get; }
 
-        protected override T CreateNewSocketSubscriptionType(ISocketDispatcher dispatcher,
-            IOSNetworkingController networkingController,
-            IConnectionConfig connectionConfig, string socketUseDescription, uint cxTimeoutS,
-            int wholeMessagesPerReceive, IPQQuoteSerializerRepository ipqQuoteSerializerRepository,
-            string? multicastInterface) =>
+        protected override T CreateNewSocketSubscriptionType(ISocketConnectionConfig connectionConfig) =>
             ReturnedSocketSubscriber;
+    }
+
+    public class DummyConversationSubscriber : IConversationSubscriber
+    {
+        public ConversationType ConversationType { get; set; } = ConversationType.Subscriber;
+        public ConversationState ConversationState { get; set; } = ConversationState.New;
+        public string Name { get; set; } = "";
+        public event Action<string, int>? Error;
+        public event Action? Started;
+        public event Action? Stopped;
+
+        public void Start() { }
+
+        public void Stop() { }
+
+        public bool IsStarted { get; } = false;
+        public IConversationListener? ConversationListener { get; set; }
     }
 }
