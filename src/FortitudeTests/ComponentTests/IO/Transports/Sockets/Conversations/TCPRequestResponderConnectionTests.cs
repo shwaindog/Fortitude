@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Net;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
@@ -87,8 +88,8 @@ public class TcpRequestResponderConnectionTests
         reqRespRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
-                 responderDeserializers.Values)
+        foreach (var deserializersValue in
+                 responderDeserializers.Values.Cast<ICallbackMessageDeserializer<SimpleVersionedMessage>>())
         {
             deserializersValue.Deserialized2 += ReceivedFromClientDeserializerCallback;
             deserializersValue.MessageDeserialized += ReceivedFromClientDeserializerCallback;
@@ -113,12 +114,13 @@ public class TcpRequestResponderConnectionTests
         reqRespRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
-                 responderDeserializers.Values) deserializersValue.Deserialized2 += RespondToClientMessage;
+        foreach (var deserializersValue in
+                 responderDeserializers.Values.Cast<ICallbackMessageDeserializer<SimpleVersionedMessage>>())
+            deserializersValue.Deserialized2 += RespondToClientMessage;
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
-                 requesterDeserializers.Values)
+        foreach (var deserializersValue in
+                 requesterDeserializers.Values.Cast<ICallbackMessageDeserializer<SimpleVersionedMessage>>())
             deserializersValue.Deserialized2 += ReceivedFromResponderDeserializerCallback;
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
@@ -132,14 +134,15 @@ public class TcpRequestResponderConnectionTests
         Assert.AreEqual(v2Message.Version, requesterReceivedResponseMessage.Version);
     }
 
-    private void RespondToClientMessage(SimpleVersionedMessage msg, object? header, ISocketConversation? client)
+    private void RespondToClientMessage(SimpleVersionedMessage msg, object? header, IConversation? client)
     {
         responderReceivedMessage = msg;
-        client!.ConversationPublisher!.Send(v2Message);
+        if (client is IConversationRequester conversationRequester)
+            conversationRequester.ConversationPublisher!.Send(v2Message);
     }
 
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, object? header
-        , ISocketConversation? client)
+        , IConversation? client)
     {
         responderReceivedMessage = msg;
     }
@@ -150,7 +153,7 @@ public class TcpRequestResponderConnectionTests
     }
 
     private void ReceivedFromResponderDeserializerCallback(SimpleVersionedMessage msg, object? header
-        , ISocketConversation? client)
+        , IConversation? client)
     {
         requesterReceivedResponseMessage = msg;
     }

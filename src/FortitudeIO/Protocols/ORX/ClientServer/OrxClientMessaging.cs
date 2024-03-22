@@ -12,7 +12,6 @@ using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Client;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Publishing;
-using FortitudeIO.Transports.Sockets.Subscription;
 
 #endregion
 
@@ -24,7 +23,7 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 
     protected readonly object SyncLock = new();
 
-    private IOrxPublisher? streamToPublisher;
+    private IClientOrxPublisher? streamToPublisher;
 
     protected OrxClientMessaging(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
         IConnectionConfig connectionConfig,
@@ -48,7 +47,7 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
         streamToPublisher
             ??= new OrxServerStreamPublisher(Logger, Dispatcher, NetworkingController, SessionDescription, this);
 
-    IOrxPublisher IOrxSubscriber.StreamToPublisher => (IOrxPublisher)StreamToPublisher;
+    IClientOrxPublisher IOrxSubscriber.StreamToPublisher => (IClientOrxPublisher)StreamToPublisher;
 
     public IRecycler RecyclingFactory { get; }
 
@@ -73,7 +72,7 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
 
     protected override IMessageIdDeserializationRepository GetFactory() => DeserializationRepository;
 
-    private class OrxServerStreamPublisher : TcpSocketPublisher, IOrxPublisher
+    private class OrxServerStreamPublisher : TcpSocketPublisher, IClientOrxPublisher
     {
         private readonly OrxClientMessaging orxClientMessaging;
 
@@ -83,7 +82,7 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
             base(logger, dispatcher, networkingController, 0, sessionDescription) =>
             this.orxClientMessaging = orxClientMessaging;
 
-        public override IBinaryStreamSubscriber StreamFromSubscriber => orxClientMessaging;
+        public override IOrxSubscriber StreamFromSubscriber => orxClientMessaging;
 
         public override int SendBufferSize => 131072;
 
@@ -95,8 +94,6 @@ public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
             RegisterSerializer<T>(instanceOfTypeToSerialize.MessageId);
             instanceOfTypeToSerialize.DecrementRefCount();
         }
-
-        IOrxSubscriber IOrxPublisher.StreamFromSubscriber => orxClientMessaging;
 
         public override IMessageIdSerializationRepository GetFactory() => orxClientMessaging.SerializationRepository;
     }

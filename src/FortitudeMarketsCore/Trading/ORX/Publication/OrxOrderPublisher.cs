@@ -1,8 +1,8 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Transports;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;
 using FortitudeMarketsCore.Trading.ORX.Orders.Server;
@@ -17,7 +17,7 @@ public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
 
     private IOrxPublisher? OrxServerMessaging { get; set; }
 
-    public ISession? UnderlyingSession { get; set; }
+    public IConversation? UnderlyingSession { get; set; }
 
     public void Dispose() { }
 
@@ -30,7 +30,7 @@ public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
         return false;
     }
 
-    public void Configure(ISession underlyingSession, IOrxPublisher orxServerMessaging, bool errorSupport)
+    public void Configure(IConversation underlyingSession, IOrxPublisher orxServerMessaging, bool errorSupport)
     {
         this.errorSupport = errorSupport;
         UnderlyingSession = underlyingSession;

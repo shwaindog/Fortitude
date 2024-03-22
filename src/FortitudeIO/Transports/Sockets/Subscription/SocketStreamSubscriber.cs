@@ -3,6 +3,7 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Sockets.Dispatcher;
@@ -98,6 +99,62 @@ public abstract class SocketStreamSubscriber(IFLogger logger, ISocketDispatcher 
         if (!mu.IsRegistered(msgHandler))
             throw new Exception("Unknown Message Handler");
         mu.Deserialized -= msgHandler;
+        serializerLock.Acquire();
+        try
+        {
+            if (--deserializersCallbackCount[msgId] == 0)
+                deserializers.Remove(msgId);
+        }
+        finally
+        {
+            serializerLock.Release();
+        }
+    }
+
+    public void RegisterDeserializer<TM>(uint msgId, Action<TM, object?, IConversation?>? msgHandler)
+        where TM : class, IVersionedMessage, new()
+    {
+        if (msgHandler == null)
+            throw new Exception("Message Handler cannot be null");
+        ICallbackMessageDeserializer<TM>? mu;
+        if (!deserializers.TryGetValue(msgId, out var u))
+        {
+            deserializers.Add(msgId, mu = GetFactory()!.GetDeserializer<TM>(msgId)!);
+            lock (deserializersCallbackCount)
+            {
+                deserializersCallbackCount[msgId] = 0;
+            }
+        }
+        else if ((mu = u as ICallbackMessageDeserializer<TM>) == null)
+        {
+            throw new Exception("Two different message types cannot be registered to the same Id");
+        }
+        else if (mu.IsRegistered(msgHandler))
+        {
+            throw new Exception("Message Handler already registered");
+        }
+
+        mu.Deserialized2 += msgHandler;
+        serializerLock.Acquire();
+        try
+        {
+            deserializersCallbackCount[msgId]++;
+        }
+        finally
+        {
+            serializerLock.Release();
+        }
+    }
+
+    public void UnregisterDeserializer<TM>(uint msgId, Action<TM, object, IConversation> msgHandler)
+        where TM : class, IVersionedMessage, new()
+    {
+        ICallbackMessageDeserializer<TM>? mu;
+        if (!deserializers.TryGetValue(msgId, out var u) || (mu = u as ICallbackMessageDeserializer<TM>) == null)
+            throw new Exception("Message Type could not be matched with the provided Id");
+        if (!mu.IsRegistered(msgHandler))
+            throw new Exception("Unknown Message Handler");
+        mu.Deserialized2 -= msgHandler;
         serializerLock.Acquire();
         try
         {

@@ -25,7 +25,7 @@ public class OrxHeartbeatManagerSrv
 
     private void SendHeartbeat(object state, bool timedOut)
     {
-        if (orxServerMessaging.IsConnected)
+        if (orxServerMessaging.IsStarted)
         {
             orxServerMessaging.Broadcast(new OrxHeartbeatMessage());
             ThreadPool.RegisterWaitForSingleObject(are, SendHeartbeat!, null, frequencyMs, true);

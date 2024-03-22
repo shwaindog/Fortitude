@@ -1,9 +1,8 @@
 #region
 
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Transports;
-using FortitudeIO.Transports.Sockets.SessionConnection;
 using FortitudeMarketsApi.Trading;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
@@ -28,18 +27,18 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
     private readonly Dictionary<string, bool> statuses = new();
     private int adapterOrderId;
 
-    public OrxTradingServer(OrxServerMessaging messagePublisher, ITradingFeed feed, bool errorSupport = false)
+    public OrxTradingServer(IOrxPublisher messagePublisher, ITradingFeed feed, bool errorSupport = false)
         : base(messagePublisher, TradingVersionInfo.CurrentVersion)
     {
         this.feed = feed;
         this.errorSupport = errorSupport;
         orderSessionTracker = new AdapterOrderSessionTracker(OrxRecyclingFactory);
 
-        IOrxPublisher orxPublisher = messagePublisher;
+        var orxPublisher = messagePublisher;
 
-        orxPublisher.StreamFromSubscriber.RegisterDeserializer<OrxOrderSubmitRequest>(OnSubmit);
-        orxPublisher.StreamFromSubscriber.RegisterDeserializer<OrxCancelRequest>(OnCancel);
-        orxPublisher.StreamFromSubscriber.RegisterDeserializer<OrxAmendRequest>(AmendOrder);
+        orxPublisher.DeserializationRepository.RegisterDeserializer<OrxOrderSubmitRequest>(OnSubmit);
+        orxPublisher.DeserializationRepository.RegisterDeserializer<OrxCancelRequest>(OnCancel);
+        orxPublisher.DeserializationRepository.RegisterDeserializer<OrxAmendRequest>(AmendOrder);
 
         orxPublisher.RegisterSerializer<OrxStatusMessage>();
         orxPublisher.RegisterSerializer<OrxOrderUpdate>();
@@ -54,7 +53,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         feed.VenueOrderUpdated += OnVenueOrder;
     }
 
-    protected override void OnClientRemoved(ISocketSessionConnection client)
+    protected override void OnClientRemoved(IConversationRequester client)
     {
         foreach (var order in orderSessionTracker.ReturnAllOrdersForSession(client)) feed.CancelOrder(order);
         orderSessionTracker.UnregisterSession(client);
@@ -67,7 +66,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         orderSessionTracker.ClearAll();
     }
 
-    protected override bool Validate(OrxLogonRequest request, object? context, ISession? repositorySession)
+    protected override bool Validate(OrxLogonRequest request, object? context, IConversation? repositorySession)
     {
         if (base.Validate(request, context, repositorySession))
         {
@@ -93,7 +92,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         return false;
     }
 
-    private void OnSubmit(OrxOrderSubmitRequest orderSubmitRequest, object? context, ISession? repositorySession)
+    private void OnSubmit(OrxOrderSubmitRequest orderSubmitRequest, object? context, IConversation? repositorySession)
     {
         var id = Interlocked.Increment(ref adapterOrderId).ToString();
         if (!Stopping)
@@ -122,7 +121,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         }
     }
 
-    private void AmendOrder(OrxAmendRequest orxAmendRequest, object? context, ISession? repositorySession)
+    private void AmendOrder(OrxAmendRequest orxAmendRequest, object? context, IConversation? repositorySession)
     {
         if (!Stopping)
         {
@@ -146,7 +145,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         }
     }
 
-    private void OnCancel(OrxCancelRequest message, object? context, ISession? repositorySession)
+    private void OnCancel(OrxCancelRequest message, object? context, IConversation? repositorySession)
     {
         var order = orderSessionTracker.FindOrderFromSessionId(message.OrderId!.VenueAdapterOrderId!
             , repositorySession!);

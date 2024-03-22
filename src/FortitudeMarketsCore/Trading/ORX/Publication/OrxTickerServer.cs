@@ -16,7 +16,7 @@ public sealed class OrxTickerServer
     {
         this.orxServerMessaging = orxServerMessaging;
         orxServerMessaging.RegisterSerializer<OrxTickerMessage>();
-        orxServerMessaging.OnNewClient += cx =>
+        orxServerMessaging.NewClient += cx =>
         {
             lock (cache)
             {

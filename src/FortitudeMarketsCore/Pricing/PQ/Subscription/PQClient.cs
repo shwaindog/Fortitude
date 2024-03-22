@@ -169,9 +169,10 @@ public class PQClient : IDisposable
             feedRef.SourceTickerPublicationConfigs!.FirstOrDefault(tii => tii.Ticker == ticker);
         if (sourceTickerPublicationConfig != null)
         {
-            var quoteDeserializer = snapshotSerializationRepository.GetQuoteDeserializer(sourceTickerPublicationConfig);
-            if (quoteDeserializer == null)
-                throw new Exception($"Subscription for {ticker} on {feedRef.Name} does not exists");
+            var quoteDeserializer = snapshotSerializationRepository.GetQuoteDeserializer(sourceTickerPublicationConfig)
+                                    ?? throw new Exception(
+                                        $"Subscription for {ticker} on {feedRef.Name} does not exists");
+
 
             lock (unsubscribeSyncLock)
             {

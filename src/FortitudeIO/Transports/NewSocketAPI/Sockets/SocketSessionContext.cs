@@ -11,10 +11,12 @@ using FortitudeIO.Transports.NewSocketAPI.Receiving;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
 
-public interface ISocketSessionContext : ISocketConversation
+public interface ISocketSessionContext : ISocketConversation, IConversationSession
 {
-    int Id { get; }
+    new int Id { get; }
     new string Name { get; set; }
+
+    ISocketConversation? OwningConversation { get; set; }
     SocketSessionState SocketSessionState { get; }
     SocketConversationProtocol SocketConversationProtocol { get; }
     ISocketConnectionConfig SocketConnectionConfig { get; }
@@ -24,9 +26,6 @@ public interface ISocketSessionContext : ISocketConversation
     ISocketDispatcher SocketDispatcher { get; }
     ISocketFactories SocketFactories { get; }
     ISerdesFactory SerdesFactory { get; }
-    event Action<SocketSessionState>? StateChanged;
-    event Action<ISocketConnection>? SocketConnected;
-    event Action? Disconnecting;
     void OnSocketStateChanged(SocketSessionState newSessionState);
     void OnDisconnected();
     void OnDisconnecting();
@@ -57,6 +56,8 @@ public class SocketSessionContext : ISocketSessionContext
     }
 
     public int Id { get; }
+
+    public ISocketConversation? OwningConversation { get; set; }
     public ConversationType ConversationType { get; }
     public SocketConversationProtocol SocketConversationProtocol { get; }
     public ISocketFactories SocketFactories { get; }
@@ -96,11 +97,23 @@ public class SocketSessionContext : ISocketSessionContext
                 , SocketSessionState.Connecting => ConversationState.Starting
                 , SocketSessionState.Disconnecting => ConversationState.Stopping
                 , SocketSessionState.Reconnecting => ConversationState.Starting
-                , SocketSessionState.Disconnected => ConversationState.Stopped
-                , _ => ConversationState.Stopped
+                , SocketSessionState.Disconnected => ConversationState.Stopped, _ => ConversationState.Stopped
             };
         }
     }
+
+    public void Start()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Stop()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool IsStarted => SocketConnection?.IsConnected ?? false;
+    public IConversationSession Session => this;
 
     public void OnSocketStateChanged(SocketSessionState newSessionState)
     {

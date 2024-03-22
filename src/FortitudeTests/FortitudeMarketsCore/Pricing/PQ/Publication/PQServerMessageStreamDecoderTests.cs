@@ -35,7 +35,7 @@ public class PQServerMessageStreamDecoderTests
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
         readSocketBufferContext = new ReadSocketBufferContext
         {
-            EncodedBuffer = readWriteBuffer, Conversation = socketSessionConnection.Object
+            EncodedBuffer = readWriteBuffer, SessionContext = socketSessionConnection.Object
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
 

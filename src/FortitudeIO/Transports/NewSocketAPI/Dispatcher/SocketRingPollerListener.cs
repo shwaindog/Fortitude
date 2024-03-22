@@ -5,6 +5,7 @@ using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.NewSocketAPI.Logging;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
@@ -18,6 +19,8 @@ public interface ISocketDispatcherListener : ISocketDispatcherCommon
 {
     void RegisterForListen(ISocketReceiver receiver);
     void UnregisterForListen(ISocketReceiver receiver);
+    void RegisterForListen(IConversationListener receiver);
+    void UnregisterForListen(IConversationListener receiver);
 }
 
 public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDispatcherListener where T : class
@@ -57,6 +60,16 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
     public abstract void RegisterForListen(ISocketReceiver receiver);
 
     public abstract void UnregisterForListen(ISocketReceiver receiver);
+
+    public void RegisterForListen(IConversationListener receiver)
+    {
+        if (receiver is ISocketReceiver socketReceiver) RegisterForListen(socketReceiver);
+    }
+
+    public void UnregisterForListen(IConversationListener receiver)
+    {
+        if (receiver is ISocketReceiver socketReceiver) UnregisterForListen(socketReceiver);
+    }
 
     protected void RunPolling()
     {

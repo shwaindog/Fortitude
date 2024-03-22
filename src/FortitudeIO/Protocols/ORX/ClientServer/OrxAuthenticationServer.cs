@@ -5,10 +5,9 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Protocols.Authentication;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Authentication;
-using FortitudeIO.Transports;
-using FortitudeIO.Transports.Sockets.SessionConnection;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
@@ -19,37 +18,34 @@ public class OrxAuthenticationServer
     private static readonly IFLogger SecurityLogger = FLoggerFactory.Instance.GetLogger("Security");
     private readonly byte currentVersion;
 
-    private readonly IMap<ISocketSessionConnection, DateTime> loggedInSessions =
-        new GarbageAndLockFreeMap<ISocketSessionConnection, DateTime>(ReferenceEquals);
+    private readonly IMap<IConversationRequester, DateTime> loggedInSessions =
+        new GarbageAndLockFreeMap<IConversationRequester, DateTime>(ReferenceEquals);
 
     protected readonly IOrxPublisher MessagePublisher;
     private readonly AutoResetEvent paAre = new(false);
 
-    private readonly IMap<ISocketSessionConnection, DateTime> pendingAuths =
-        new GarbageAndLockFreeMap<ISocketSessionConnection, DateTime>(ReferenceEquals);
+    private readonly IMap<IConversationRequester, DateTime> pendingAuths =
+        new GarbageAndLockFreeMap<IConversationRequester, DateTime>(ReferenceEquals);
 
     protected IRecycler OrxRecyclingFactory;
     protected bool Stopping;
 
-
-    public OrxAuthenticationServer(OrxServerMessaging messagePublisher, byte currentVersion)
+    public OrxAuthenticationServer(IOrxPublisher messagePublisher, byte currentVersion)
     {
         OrxRecyclingFactory = messagePublisher.RecyclingFactory;
         MessagePublisher = messagePublisher;
         this.currentVersion = currentVersion;
-        messagePublisher.StreamFromSubscriber.RegisterDeserializer<OrxLogonRequest>(
-            (ushort)AuthenticationMessages.LogonRequest, OnLogonRequest);
-        messagePublisher.RegisterSerializer<OrxLogonResponse>((ushort)AuthenticationMessages.LoggedInResponse);
-        messagePublisher.RegisterSerializer<OrxLoggedOutMessage>((ushort)AuthenticationMessages.LoggedOutResponse);
+        messagePublisher.DeserializationRepository.RegisterDeserializer<OrxLogonRequest>(OnLogonRequest);
+        messagePublisher.RegisterSerializer<OrxLogonResponse>();
+        messagePublisher.RegisterSerializer<OrxLoggedOutMessage>();
 
-        messagePublisher.OnClientRemoved += OnClientRemoved;
-        messagePublisher.OnDisconnecting += OnDisconnecting;
+        messagePublisher.ClientRemoved += OnClientRemoved;
+        messagePublisher.Disconnecting += OnDisconnecting;
 
-        messagePublisher.OnDisconnecting += ClearPendingAuths;
-        messagePublisher.OnNewClient += AddToPendingAuths;
-        messagePublisher.OnClientRemoved += RemoveFromPendingAuths;
+        messagePublisher.Disconnecting += ClearPendingAuths;
+        messagePublisher.NewClient += AddToPendingAuths;
+        messagePublisher.ClientRemoved += RemoveFromPendingAuths;
     }
-
 
     protected void ClearPendingAuths()
     {
@@ -59,7 +55,7 @@ public class OrxAuthenticationServer
         }
     }
 
-    protected void AddToPendingAuths(ISocketSessionConnection cx)
+    protected void AddToPendingAuths(IConversationRequester cx)
     {
         lock (pendingAuths)
         {
@@ -69,7 +65,7 @@ public class OrxAuthenticationServer
         }
     }
 
-    protected void RemoveFromPendingAuths(ISocketSessionConnection cx)
+    protected void RemoveFromPendingAuths(IConversationRequester cx)
     {
         lock (pendingAuths)
         {
@@ -77,7 +73,7 @@ public class OrxAuthenticationServer
         }
     }
 
-    protected void RemoveFromLoggedIn(ISocketSessionConnection cx)
+    protected void RemoveFromLoggedIn(IConversationRequester cx)
     {
         lock (loggedInSessions)
         {
@@ -106,7 +102,7 @@ public class OrxAuthenticationServer
         }
     }
 
-    protected virtual void OnClientRemoved(ISocketSessionConnection client)
+    protected virtual void OnClientRemoved(IConversationRequester client)
     {
         RemoveFromLoggedIn(client);
     }
@@ -123,9 +119,9 @@ public class OrxAuthenticationServer
         }
 
         var timeout = 10;
-        while (loggedInSessions.Any() && timeout > 0)
+        while (loggedInSessions.Count > 0 && timeout > 0)
         {
-            var count = loggedInSessions.Count();
+            var count = loggedInSessions.Count;
             if (count == 0) break;
             timeout--;
             Thread.Sleep(1000);
@@ -136,18 +132,19 @@ public class OrxAuthenticationServer
         Stopping = false;
     }
 
-    public virtual event OrxAuthenticator? OnAuthenticate;
+    public event OrxAuthenticator? OnAuthenticate;
 
-    protected virtual void OnLogonRequest(OrxLogonRequest request, object? context, ISession? repositorySession)
+    protected virtual void OnLogonRequest(OrxLogonRequest request, object? context, IConversation? repositorySession)
     {
         Validate(request, context, repositorySession);
     }
 
-    protected virtual bool Validate(OrxLogonRequest request, object? context, ISession? repositorySession)
+    protected virtual bool Validate(OrxLogonRequest request, object? context, IConversation? repositorySession)
     {
-        ISocketSessionConnection repoSess = (SocketSessionConnection)repositorySession!;
+        var repoSess = (IConversationRequester)repositorySession!;
         RemoveFromPendingAuths(repoSess);
-        if (repoSess.AuthData != null)
+        if (repoSess.Session is not ISocketSessionContext socketSessionContext) return false;
+        if (socketSessionContext.SocketConnection!.IsAuthenticated)
         {
             SecurityLogger.Info("User '{0}' on connectionId '{1}' already authenticated",
                 request.Login, repoSess.Id);
@@ -156,11 +153,12 @@ public class OrxAuthenticationServer
 
         MutableString? message = null;
         if (OnAuthenticate != null
-            && OnAuthenticate.Invoke(repoSess, request.Login, request.Password, out var authData, out message))
+            && OnAuthenticate.Invoke(socketSessionContext, request.Login, request.Password, out var authData
+                , out message))
         {
             SecurityLogger.Info("User '{0}' was authenticated on connectionId '{1}' via Legacy method",
                 request.Login, repoSess.Id);
-            repoSess.AuthData = authData;
+            socketSessionContext.SocketConnection!.IsAuthenticated = true;
 
             loggedInSessions.Add(repoSess, TimeContext.UtcNow);
             MessagePublisher.Send(repoSess, OrxRecyclingFactory.Borrow<OrxLogonResponse>());

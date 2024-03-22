@@ -1,15 +1,12 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
-using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
 
@@ -20,18 +17,14 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQUpdateClientTests
 {
-    private Mock<ISocketDispatcher> moqDispatcher = null!;
-    private Mock<ISocketDispatcherResolver> moqDispatcherResolver = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IInitiateControls> moqInitiateControls = null!;
-    private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
-    private Mock<IOSParallelController> moqParallelControler = null!;
+    private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<ISerdesFactory> moqSerdesFactory = null!;
-    private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<ISocketFactories> moqSocketFactories = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private PQUpdateClient pqUpdateClient = null!;
     private string testHostName = null!;
@@ -41,28 +34,34 @@ public class PQUpdateClientTests
     public void SetUp()
     {
         moqFlogger = new Mock<IFLogger>();
-        moqDispatcher = new Mock<ISocketDispatcher>();
-        moqDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         moqInitiateControls = new Mock<IInitiateControls>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
-        moqParallelControler = new Mock<IOSParallelController>();
+        moqParallelController = new Mock<IOSParallelController>();
+        moqSocketFactories = new Mock<ISocketFactories>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
-            .Returns(moqParallelControler.Object);
+            .Returns(moqParallelController.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqNetworkingController = new Mock<IOSNetworkingController>();
         moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
-        moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqSerdesFactory = new Mock<ISerdesFactory>();
         moqOsSocket = new Mock<IOSSocket>();
+
+        var stateChangedFunc = new Mock<Func<ISocketSessionContext, ISocketConnectivityChanged>>();
+        var moqSocketConnectivityChange = new Mock<ISocketConnectivityChanged>();
+        moqSocketConnectivityChange.Setup(scc => scc.GetOnConnectionChangedHandler())
+            .Returns(new Mock<Action<SocketSessionState>>().Object);
+        stateChangedFunc.Setup(scf => scf.Invoke(It.IsAny<ISocketSessionContext>()))
+            .Returns(moqSocketConnectivityChange.Object);
+        moqSocketFactories.SetupGet(sf => sf.ConnectionChangedHandlerResolver)
+            .Returns(stateChangedFunc.Object);
 
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         testHostPort = 1979;
         moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(testHostPort);
         moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
-        moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqOsSocket.SetupAllProperties();
 
         moqSerdesFactory.SetupProperty(sf => sf.StreamDecoderFactory);

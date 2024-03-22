@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Transports;
+using FortitudeIO.Conversations;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsCore.Trading.ORX.Orders;
 
@@ -15,13 +15,13 @@ public class AdapterOrderSessionTracker
 {
     private static readonly Func<IMutableString, IMutableString, bool> OrderKeyComparison = (s1, s2) => Equals(s1, s2);
 
-    private readonly IMap<ISession, IMap<IMutableString, OrxOrder>> orderFromSessionCache =
-        new GarbageAndLockFreeMap<ISession, IMap<IMutableString, OrxOrder>>(ReferenceEquals);
+    private readonly IMap<IConversation, IMap<IMutableString, OrxOrder>> orderFromSessionCache =
+        new GarbageAndLockFreeMap<IConversation, IMap<IMutableString, OrxOrder>>(ReferenceEquals);
 
     private readonly IRecycler recycler;
 
-    private readonly IMap<IMutableString, ISession> sessionFromOrderIdCache =
-        new GarbageAndLockFreeMap<IMutableString, ISession>(OrderKeyComparison);
+    private readonly IMap<IMutableString, IConversation> sessionFromOrderIdCache =
+        new GarbageAndLockFreeMap<IMutableString, IConversation>(OrderKeyComparison);
 
     private readonly GarbageAndLockFreePooledFactory<IMap<IMutableString, OrxOrder>> surplusOrderMaps =
         new(() =>
@@ -29,7 +29,7 @@ public class AdapterOrderSessionTracker
 
     public AdapterOrderSessionTracker(IRecycler recycler) => this.recycler = recycler;
 
-    public void RegisterOrderIdWithSession(OrxOrder order, ISession repositorySession)
+    public void RegisterOrderIdWithSession(OrxOrder order, IConversation repositorySession)
     {
         var orderKey = order.OrderId.VenueAdapterOrderId!.Clone();
         lock (orderFromSessionCache)
@@ -70,7 +70,7 @@ public class AdapterOrderSessionTracker
         }
     }
 
-    public void UnregisterSession(ISession repositorySession)
+    public void UnregisterSession(IConversation repositorySession)
     {
         lock (sessionFromOrderIdCache)
         {
@@ -84,7 +84,7 @@ public class AdapterOrderSessionTracker
         }
     }
 
-    public IEnumerable<IOrder> ReturnAllOrdersForSession(ISession repositorySession)
+    public IEnumerable<IOrder> ReturnAllOrdersForSession(IConversation repositorySession)
     {
         lock (repositorySession)
         {
@@ -126,7 +126,7 @@ public class AdapterOrderSessionTracker
         }
     }
 
-    public IEnumerable<ISession> AllRegisteredSessions()
+    public IEnumerable<IConversation> AllRegisteredSessions()
     {
         lock (orderFromSessionCache)
         {
@@ -134,7 +134,7 @@ public class AdapterOrderSessionTracker
         }
     }
 
-    public IOrder? FindOrderFromSessionId(IMutableString adapterId, ISession repositorySession)
+    public IOrder? FindOrderFromSessionId(IMutableString adapterId, IConversation repositorySession)
     {
         OrxOrder? order = null;
         lock (orderFromSessionCache)
@@ -146,7 +146,7 @@ public class AdapterOrderSessionTracker
         return order;
     }
 
-    public ISession? FindSessionFromOrderId(IOrderId orderId)
+    public IConversation? FindSessionFromOrderId(IOrderId orderId)
     {
         // ReSharper disable once InconsistentlySynchronizedField
         sessionFromOrderIdCache.TryGetValue(orderId.VenueAdapterOrderId!, out var session);

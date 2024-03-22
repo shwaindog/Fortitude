@@ -24,7 +24,8 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
     {
         messageStreamDecoder
             = new PQClientMessageStreamDecoder(new ConcurrentMap<uint, IMessageDeserializer>(), PQFeedType.Snapshot);
-        socketSessionContext.SerdesFactory.StreamDecoderFactory = new SocketStreamDecoderFactory(messageStreamDecoder);
+        socketSessionContext.SerdesFactory.StreamDecoderFactory
+            = new SocketStreamDecoderFactory(deserializers => messageStreamDecoder);
     }
 
     public static ISocketFactories SocketFactories

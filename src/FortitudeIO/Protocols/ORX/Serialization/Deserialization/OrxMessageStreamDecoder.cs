@@ -9,7 +9,9 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 namespace FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 
-public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
+public interface IOrxResponderStreamDecoder : IMessageStreamDecoder { }
+
+public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
 {
     private readonly IMap<uint, IMessageDeserializer> deserializers;
 
@@ -17,14 +19,10 @@ public sealed class OrxMessageStreamDecoder : IMessageStreamDecoder
 
     private State state = State.Header;
 
-    public OrxMessageStreamDecoder(IMap<uint, IMessageDeserializer> deserializers) =>
-        this.deserializers = deserializers;
+    public OrxMessageStreamDecoder(IMap<uint, IMessageDeserializer> registeredDeserializers) =>
+        deserializers = registeredDeserializers;
 
     public int ExpectedSize { get; private set; } = OrxMessageHeader.HeaderSize;
-
-    public int NumberOfReceivesPerPoll => 1;
-
-    public bool ZeroByteReadIsDisconnection => true;
 
     public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => deserializers;
 

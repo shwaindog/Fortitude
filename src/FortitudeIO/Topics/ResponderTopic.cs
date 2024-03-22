@@ -3,7 +3,6 @@
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
@@ -19,7 +18,7 @@ public class ResponderTopic : Topic, IResponderTopic
         base(description, ConversationType.Requester) =>
         this.sessionConnection = sessionConnection;
 
-    public IReadOnlyDictionary<int, ISocketConversation>? Clients { get; set; }
+    public IReadOnlyDictionary<int, IConversationRequester>? Clients { get; set; }
     public IConversationListener? ConversationListener { get; set; }
 
     public override bool IsStarted { get; } = false;
@@ -36,7 +35,7 @@ public class ResponderTopic : Topic, IResponderTopic
 
     public void RegisterSerializer(uint messageId, IMessageSerializer serializer) { }
 
-    public void RemoveClient(ISocketConversation clientSocketSessionContext)
+    public void RemoveClient(IConversationRequester clientSocketSessionContext)
     {
         throw new NotImplementedException();
     }
@@ -47,7 +46,7 @@ public class ResponderTopic : Topic, IResponderTopic
     }
 
 #pragma warning disable 67
-    public event Action<ISocketSessionContext>? OnNewClient;
-    public event Action<ISocketSessionContext>? OnClientRemoved;
+    public event Action<IConversationRequester>? NewClient;
+    public event Action<IConversationRequester>? ClientRemoved;
 #pragma warning restore 67
 }

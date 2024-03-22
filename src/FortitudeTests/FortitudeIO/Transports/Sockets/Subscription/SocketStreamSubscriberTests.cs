@@ -121,10 +121,10 @@ public class SocketStreamSubscriberTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(Exception))]
+    [ExpectedException(typeof(NullReferenceException))]
     public void NoDeserializersRegistered_RegisterDeserializerWithNoCallBackMethod_ThrowsException()
     {
-        dummySocketSubscriber.RegisterDeserializer<DummyMessage>(0u, null);
+        dummySocketSubscriber.RegisterDeserializer(0u, (DummyMessage _, object? _, ISession? _) => { });
     }
 
     [TestMethod]
