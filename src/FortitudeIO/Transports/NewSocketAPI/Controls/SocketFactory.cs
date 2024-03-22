@@ -62,7 +62,7 @@ public class SocketFactory : ISocketFactory
     private IOSSocket CreateNewTcpClient(ISocketConnectionConfig socketConnectionConfig, ushort port)
     {
         var host = socketConnectionConfig.Hostname!.ToString();
-        logger.Info("Attempting TCP connection on {1}:{2}", host, port);
+        logger.Info("Attempting TCP connection on {0}:{1}", host, port);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
             SocketType.Stream, ProtocolType.Tcp);
         socket.NoDelay = true;

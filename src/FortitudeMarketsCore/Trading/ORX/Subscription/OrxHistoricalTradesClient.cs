@@ -1,9 +1,9 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Transports;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;
@@ -28,16 +28,18 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
     protected bool HaveReceivedAllExecutions;
     protected bool HaveReceivedAllOrders;
 
-    public OrxHistoricalTradesClient(IOrxSubscriber subscriber, string serverName,
+    public OrxHistoricalTradesClient(IOrxMessageRequester messageRequester, string serverName,
         ILoginCredentials loginCredentials, string defaultAccount)
-        : base(subscriber, serverName, loginCredentials, defaultAccount)
+        : base(messageRequester, serverName, loginCredentials, defaultAccount)
     {
-        Subscriber.StreamToPublisher.RegisterSerializer<OrxGetOrderBookMessage>();
-        Subscriber.StreamToPublisher.RegisterSerializer<OrxGetTradeBookMessage>();
+        MessageRequester.SerializationRepository.RegisterSerializer<OrxGetOrderBookMessage>();
+        MessageRequester.SerializationRepository.RegisterSerializer<OrxGetTradeBookMessage>();
 
-        Subscriber.RegisterDeserializer<OrxReplayMessage>(HandleReplayMessage);
-        Subscriber.RegisterDeserializer<OrxOrdersReceivedComplete>(HandleOrderReplayFinished);
-        Subscriber.RegisterDeserializer<OrxExecutionsReceivedComplete>(HandleExecutionReplayFinished);
+        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxReplayMessage>(HandleReplayMessage);
+        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxOrdersReceivedComplete>(
+            HandleOrderReplayFinished);
+        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxExecutionsReceivedComplete>(
+            HandleExecutionReplayFinished);
     }
 
     public event Action<IReplayMessage>? ReplayMessage;
@@ -46,15 +48,15 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
     {
         HaveReceivedAllOrders = false;
         HaveReceivedAllExecutions = false;
-        Subscriber.Send(new OrxGetOrderBookMessage(DefaultAccount,
+        MessageRequester.Send(new OrxGetOrderBookMessage(DefaultAccount,
             (TimeContext.UtcNow - from).TotalSeconds > 5));
-        Subscriber.Send(new OrxGetTradeBookMessage(DefaultAccount));
+        MessageRequester.Send(new OrxGetTradeBookMessage(DefaultAccount));
     }
 
     public event Action<IOrderUpdate>? OnPastOrder;
     public event Action<IExecutionUpdate>? OnPastExecution;
 
-    private void HandleReplayMessage(OrxReplayMessage update, object? context, ISession? cx)
+    private void HandleReplayMessage(OrxReplayMessage update, object? context, IConversation? cx)
     {
         if (update.ReplayMessageType == ReplayMessageType.PastOrder)
             HandleOrderReplay(update.PastOrder!, context, cx);
@@ -64,7 +66,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         OnReplayMessage(update);
     }
 
-    private void HandleOrderReplay(OrxOrderUpdate update, object? context, ISession? cx)
+    private void HandleOrderReplay(OrxOrderUpdate update, object? context, IConversation? cx)
     {
         var order = new Order(update.Order!);
 
@@ -76,7 +78,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         }
     }
 
-    private void HandleOrderReplayFinished(OrxOrdersReceivedComplete orxOrder, object? context, ISession? cx)
+    private void HandleOrderReplayFinished(OrxOrdersReceivedComplete orxOrder, object? context, IConversation? cx)
     {
         HaveReceivedAllOrders = true;
         PublishPastOrdersAndExecutions(HaveReceivedAllExecutions);
@@ -116,7 +118,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         }
     }
 
-    private void HandleExecutionReplay(OrxExecutionUpdate update, object? context, ISession? cx)
+    private void HandleExecutionReplay(OrxExecutionUpdate update, object? context, IConversation? cx)
     {
         lock (PastExecutions)
         {
@@ -134,7 +136,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         }
     }
 
-    private void HandleExecutionReplayFinished(OrxOrdersReceivedComplete orxOrder, object? context, ISession? cx)
+    private void HandleExecutionReplayFinished(OrxOrdersReceivedComplete orxOrder, object? context, IConversation? cx)
     {
         HaveReceivedAllExecutions = true;
         PublishPastOrdersAndExecutions(HaveReceivedAllOrders);

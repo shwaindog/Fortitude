@@ -18,7 +18,7 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Publishing;
 
-public interface ISocketSender : IConversationPublisher
+public interface ISocketSender : IPublisher
 {
     int Id { get; }
     bool SendActive { get; }

@@ -2,5 +2,5 @@
 
 public interface IConversationSubscriber : IConversation
 {
-    IConversationListener? ConversationListener { get; }
+    IListener? ConversationListener { get; }
 }

@@ -29,5 +29,5 @@ public class ConversationSubscriberTopic : Topic, IConversationSubscriberTopic
         conversationSubscriberTransportSession?.Stop();
     }
 
-    public IConversationListener? ConversationListener => conversationSubscriberTransportSession.ConversationListener;
+    public IListener? ConversationListener => conversationSubscriberTransportSession.ConversationListener;
 }

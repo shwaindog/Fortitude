@@ -9,6 +9,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
@@ -36,6 +37,8 @@ using FortitudeMarketsCore.Trading.ORX.Publication;
 using FortitudeMarketsCore.Trading.ORX.Subscription;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
+using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
+using SocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.SocketDispatcher;
 
 #endregion
 
@@ -62,7 +65,7 @@ public class TradingClientServerTests
         tradingServerConfig = new TradingServerConfig(short.MaxValue, "TestExchangeAdapter",
             MarketServerType.Trading, new[]
             {
-                new SocketConnectionConfig("TestSnapshotServer", "TestSnapshotServer", SocketConnectionAttributes.None,
+                new SocketConnectionConfig("TestTradingServer", "TestTradingServer", SocketConnectionAttributes.None,
                     2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress, null, false
                     , TestMachineConfig.TradingServerPort)
             }, new TimeTable(),
@@ -103,9 +106,10 @@ public class TradingClientServerTests
         var orderStatus = OrderStatus.New;
         IOrder? clientLastOrderReceived = null;
 
-        var orxClient = new OrxTradingClient(clientSocketDispatcher, networkingController, tradingServerConfig,
+        var orxClient = new OrxTradingClient(tradingServerConfig, SingletonSocketDispatcherResolver.Instance
+            , "TradingClientServerTest",
             new LoginCredentials("testLoginId", "testPassword"), "testAccount", true, new TradingFeedWatchdog(),
-            new LoggingAlertManager(), false, true);
+            new LoggingAlertManager(), false);
         orxClient.OrderUpdate += orderUpdate =>
         {
             clientLastOrderReceived = new Order(orderUpdate.Order!);

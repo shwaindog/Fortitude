@@ -2,7 +2,6 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Topics.TopicTransports;
 
 #endregion
@@ -46,22 +45,39 @@ public abstract class Topic : ITopic
         public PublisherConversationPublisher(IList<IPublisherTransportTopicConversation> publisherTransportSessions) =>
             this.publisherTransportSessions = publisherTransportSessions;
 
-        public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
+        public void Send(IVersionedMessage message)
         {
             foreach (var pts in publisherTransportSessions)
-                pts.PublisherConversation.ConversationPublisher!.RegisterSerializer(messageId, serializer);
+                pts.PublisherConversation.ConversationPublisher!.Send(message);
         }
+
+        public ConversationType ConversationType { get; } = ConversationType.Publisher;
+        public ConversationState ConversationState { get; }
+        public string Name { get; } = "";
+        public event Action<string, int>? Error;
+        public event Action? Started;
+        public event Action? Stopped;
+
+        public void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Id { get; }
+        public bool IsStarted { get; }
+        public IConversationSession Session { get; } = null!;
+        public IPublisher? ConversationPublisher { get; }
+
 
         public void Enqueue(IVersionedMessage message)
         {
             foreach (var pts in publisherTransportSessions)
                 pts.PublisherConversation.ConversationPublisher!.Enqueue(message);
-        }
-
-        public void Send(IVersionedMessage message)
-        {
-            foreach (var pts in publisherTransportSessions)
-                pts.PublisherConversation.ConversationPublisher!.Send(message);
         }
 
         public bool SendEnqueued()

@@ -2,9 +2,9 @@
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types.Mutable;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Authentication;
-using FortitudeIO.Transports;
 
 #endregion
 
@@ -14,30 +14,30 @@ public abstract class OrxAuthenticatedClient
 {
     protected readonly MutableString DefaultAccount;
     protected readonly ILoginCredentials LoginCredentials;
+    protected readonly IOrxMessageRequester MessageRequester;
     protected readonly string ServerName;
-    protected readonly IOrxSubscriber Subscriber;
     protected bool IsLoggedIn;
     protected bool IsServiceAvailable;
     protected IFLogger Logger;
 
-    protected OrxAuthenticatedClient(IOrxSubscriber subscriber, string serverName,
+    protected OrxAuthenticatedClient(IOrxMessageRequester messageRequester, string serverName,
         ILoginCredentials loginCredentials, string defaultAccount)
     {
         LoginCredentials = loginCredentials;
         DefaultAccount = defaultAccount;
 
         ServerName = serverName;
-        Subscriber = subscriber;
-        Logger = FLoggerFactory.Instance.GetLogger(Subscriber.Logger.Name + ".Executions");
+        MessageRequester = messageRequester;
+        Logger = FLoggerFactory.Instance.GetLogger(messageRequester.Name + ".Executions");
 
 
-        Subscriber.StreamToPublisher.RegisterSerializer<OrxLogonRequest>();
+        MessageRequester.SerializationRepository.RegisterSerializer<OrxLogonRequest>();
 
-        Subscriber.RegisterDeserializer<OrxLogonResponse>(HandleLoggedIn);
-        Subscriber.RegisterDeserializer<OrxLoggedOutMessage>(HandleLoggedOut);
+        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxLogonResponse>(HandleLoggedIn);
+        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxLoggedOutMessage>(HandleLoggedOut);
     }
 
-    public virtual bool IsAvailable => Subscriber.IsConnected && IsServiceAvailable && IsLoggedIn;
+    public virtual bool IsAvailable => MessageRequester.IsStarted && IsServiceAvailable && IsLoggedIn;
 
     private event Action<string?, bool>? StatusUpdateHandlers;
 
@@ -58,19 +58,19 @@ public abstract class OrxAuthenticatedClient
 
     protected void OnConnected()
     {
-        Subscriber.Send(new OrxLogonRequest(LoginCredentials, DefaultAccount.ToString(), "0.3", 0));
+        MessageRequester.Send(new OrxLogonRequest(LoginCredentials, DefaultAccount.ToString(), "0.3", 0));
     }
 
-    protected void HandleLoggedIn(OrxLogonResponse message, object? context, ISession? cx)
+    protected void HandleLoggedIn(OrxLogonResponse message, object? context, IConversation? cx)
     {
-        Subscriber.Logger.Info("Logon to " + ServerName + " Adapter accepted");
+        Logger.Info("Logon to " + ServerName + " Adapter accepted");
         IsLoggedIn = true;
         StatusUpdateHandlers?.Invoke(string.Empty, IsAvailable);
     }
 
-    protected void HandleLoggedOut(OrxLoggedOutMessage message, object? context, ISession? cx)
+    protected void HandleLoggedOut(OrxLoggedOutMessage message, object? context, IConversation? cx)
     {
-        Subscriber.Logger.Info("Logon to " + ServerName + " Adapter refused: " + message.Reason);
+        Logger.Info("Logon to " + ServerName + " Adapter refused: " + message.Reason);
         IsLoggedIn = false;
         StatusUpdateHandlers?.Invoke(string.Empty, IsAvailable);
     }

@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 
 #endregion
 
@@ -16,8 +17,8 @@ public class RequesterTopic : Topic, IRequesterTopic
         base(description, ConversationType.Requester) =>
         this.sessionConnection = sessionConnection;
 
-    public IConversationListener? ConversationListener { get; set; }
-    public IConversationPublisher? ConversationPublisher { get; set; }
+    public IListener? ConversationListener { get; set; }
+    public IPublisher? ConversationPublisher { get; set; }
 
     public override bool IsStarted { get; } = false;
 
@@ -27,6 +28,11 @@ public class RequesterTopic : Topic, IRequesterTopic
     }
 
     public override void Stop()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Send(IVersionedMessage versionedMessage)
     {
         throw new NotImplementedException();
     }

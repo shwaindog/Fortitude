@@ -15,7 +15,7 @@ public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
 {
     private bool errorSupport;
 
-    private IOrxPublisher? OrxServerMessaging { get; set; }
+    private IOrxMessageResponder? OrxServerMessaging { get; set; }
 
     public IConversation? UnderlyingSession { get; set; }
 
@@ -30,7 +30,7 @@ public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
         return false;
     }
 
-    public void Configure(IConversation underlyingSession, IOrxPublisher orxServerMessaging, bool errorSupport)
+    public void Configure(IConversation underlyingSession, IOrxMessageResponder orxServerMessaging, bool errorSupport)
     {
         this.errorSupport = errorSupport;
         UnderlyingSession = underlyingSession;

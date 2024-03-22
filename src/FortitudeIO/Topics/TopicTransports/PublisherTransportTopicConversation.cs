@@ -9,18 +9,18 @@ namespace FortitudeIO.Topics.TopicTransports;
 
 public interface IPublisherTransportTopicConversation : ITransportTopicConversation
 {
-    IPublisherConversation PublisherConversation { get; }
+    IConversationPublisher PublisherConversation { get; }
 }
 
 public class PublisherTransportTopicConversation : TransportTopicConversation, IPublisherTransportTopicConversation
 {
     public PublisherTransportTopicConversation(ITopicEndpointInfo endpoint,
-        IPublisherConversation publisherConversation) : base(endpoint) =>
+        IConversationPublisher publisherConversation) : base(endpoint) =>
         PublisherConversation = publisherConversation;
 
     public PublisherTransportTopicConversation(ITopicConnectionConfig connectionConfig,
-        IPublisherConversation publisherConversation) : base(connectionConfig) =>
+        IConversationPublisher publisherConversation) : base(connectionConfig) =>
         PublisherConversation = publisherConversation;
 
-    public IPublisherConversation PublisherConversation { get; }
+    public IConversationPublisher PublisherConversation { get; }
 }

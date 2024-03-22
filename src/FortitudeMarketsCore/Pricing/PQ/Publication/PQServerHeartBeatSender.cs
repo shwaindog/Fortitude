@@ -88,7 +88,7 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
                         hbs.Add(level0Quote);
                     }
 
-                    if (hbs.Count > 0 && UpdateServer is { IsConnected: true }) UpdateServer.Send(hbm);
+                    if (hbs.Count > 0 && UpdateServer is { IsStarted: true }) UpdateServer.Send(hbm);
                 }
             }
             catch (Exception ex)

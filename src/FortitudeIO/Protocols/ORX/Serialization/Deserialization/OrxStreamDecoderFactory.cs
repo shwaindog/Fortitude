@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Conversations;
@@ -24,9 +23,7 @@ public interface IOrxDeserializationRepository : IStreamDecoderFactory
 internal class OrxStreamDecoderFactory : SocketStreamDecoderFactory, IOrxDeserializationRepository
 {
     private readonly IMessageIdDeserializationRepository deSerializationRepository;
-    private readonly IDictionary<uint, uint> deserializersCallbackCount = new Dictionary<uint, uint>();
     private readonly IRecycler recycler;
-    private readonly ISyncLock serializerLock = new SpinLockLight();
 
     public OrxStreamDecoderFactory(
         Func<IMap<uint, IMessageDeserializer>, IMessageStreamDecoder> messageStreamDecoderFactory,
@@ -54,33 +51,12 @@ internal class OrxStreamDecoderFactory : SocketStreamDecoderFactory, IOrxDeseria
             throw new Exception("Message Handler cannot be null");
         ICallbackMessageDeserializer<TM>? mu;
         if (!DeserializersMap.TryGetValue(msgId, out var u))
-        {
             DeserializersMap.Add(msgId, mu = deSerializationRepository.GetDeserializer<TM>(msgId)!);
-            lock (deserializersCallbackCount)
-            {
-                deserializersCallbackCount[msgId] = 0;
-            }
-        }
         else if ((mu = u as ICallbackMessageDeserializer<TM>) == null)
-        {
             throw new Exception("Two different message types cannot be registered to the same Id");
-        }
-        else if (mu.IsRegistered(msgHandler))
-        {
-            throw new Exception("Message Handler already registered");
-        }
+        else if (mu.IsRegistered(msgHandler)) throw new Exception("Message Handler already registered");
 
         mu.Deserialized2 += msgHandler;
-        serializerLock.Acquire();
-        try
-        {
-            deserializersCallbackCount[msgId]++;
-        }
-        finally
-        {
-            serializerLock.Release();
-        }
-
         return this;
     }
 }
