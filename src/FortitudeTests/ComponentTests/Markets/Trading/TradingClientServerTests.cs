@@ -4,15 +4,12 @@ using System.Reactive.Linq;
 using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.Monitoring.Alerting;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Subscription;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
@@ -37,8 +34,6 @@ using FortitudeMarketsCore.Trading.ORX.Publication;
 using FortitudeMarketsCore.Trading.ORX.Subscription;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
-using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
-using SocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.SocketDispatcher;
 
 #endregion
 
@@ -49,18 +44,12 @@ namespace FortitudeTests.ComponentTests.Markets.Trading;
 public class TradingClientServerTests
 {
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
-    private ISocketDispatcher clientSocketDispatcher = null!;
-    private OSNetworkingController networkingController = null!;
     private TradingServerConfig tradingServerConfig = null!;
 
     [TestInitialize]
     public void Setup()
     {
         logger.Info("Starting setup of TradingClientServerTests");
-        networkingController = new OSNetworkingController();
-        clientSocketDispatcher = new SocketDispatcher(
-            new SocketDispatcherListener(new SocketSelector(1000, networkingController), "TestTradingClient"),
-            new SocketDispatcherSender("ClientSocketDispatcher"));
 
         tradingServerConfig = new TradingServerConfig(short.MaxValue, "TestExchangeAdapter",
             MarketServerType.Trading, new[]

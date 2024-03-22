@@ -6,7 +6,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
-using FortitudeIO.Transports.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
@@ -28,7 +28,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private readonly IOSParallelController osParallelController;
 
     private readonly ISequencer pqSeq = new Sequencer();
-    private readonly Action<IConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction;
+    private readonly Action<ISocketConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction;
     private readonly IIntraOSThreadSignal stopSignal;
     private readonly IDoublyLinkedList<IPQDeserializer> syncKo = new DoublyLinkedList<IPQDeserializer>();
 
@@ -37,7 +37,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private IOSThread? tasksThread;
 
     public PQClientSyncMonitoring(Func<string, ISnapshotUpdatePricingServerConfig?> getSourceServerConfig,
-        Action<IConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction)
+        Action<ISocketConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction)
     {
         osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
         stopSignal = osParallelController.SingleOSThreadActivateSignal(false);
@@ -250,7 +250,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         {
             var feedRef = getSourceServerConfig(kv.Key);
             if (feedRef != null)
-                snapShotRequestAction(feedRef.SnapshotConnectionConfig!.ToConnectionConfig()!, kv.Value);
+                snapShotRequestAction(feedRef.SnapshotConnectionConfig!, kv.Value);
         }
     }
 }

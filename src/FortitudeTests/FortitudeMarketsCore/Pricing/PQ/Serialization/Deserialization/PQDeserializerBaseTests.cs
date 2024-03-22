@@ -7,7 +7,7 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeIO.Transports.Sockets.Logging;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;

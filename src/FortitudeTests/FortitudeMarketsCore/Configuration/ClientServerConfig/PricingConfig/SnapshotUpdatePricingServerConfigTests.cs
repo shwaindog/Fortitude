@@ -1,11 +1,11 @@
 ﻿#region
 
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeTests.FortitudeIO.Transports.Sockets;
+using FortitudeTests.FortitudeIO.Transports.NewSocketAPI.ConnectionConfig;
 using FortitudeTests.FortitudeMarketsApi.Configuration.ClientServerConfig;
 
 #endregion
@@ -23,7 +23,8 @@ public class SnapshotUpdatePricingServerConfigTests
             Enumerable.Empty<ISourceTickerPublicationConfig>(), true, false);
 
     public static void UpdateServerConfigWithValues(ISnapshotUpdatePricingServerConfig updatedConfig,
-        string serverName, MarketServerType marketServerType, IEnumerable<IConnectionConfig> serverConnectionConfigs,
+        string serverName, MarketServerType marketServerType
+        , IEnumerable<ISocketConnectionConfig> serverConnectionConfigs,
         ushort publicationId, IList<ISourceTickerPublicationConfig> sourceTicker, bool isLastLook,
         bool supportsIceBerges)
     {

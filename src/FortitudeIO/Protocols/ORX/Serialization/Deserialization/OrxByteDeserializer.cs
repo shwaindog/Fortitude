@@ -11,7 +11,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeIO.Transports.Sockets.Logging;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
 
 #endregion
 
