@@ -6,7 +6,6 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ;
@@ -634,7 +633,7 @@ public class PQClientTests
         moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketConnectionConfig>()))
             .Returns(moqSnapshotClient.Object).Verifiable();
 
-        var moqClientSnapshotServerConfig = new Mock<IConnectionConfig>();
+        var moqClientSnapshotServerConfig = new Mock<ISocketConnectionConfig>();
         pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<IUniqueSourceTickerIdentifier>());
 
         moqSnapshotClientFactory.Verify();
@@ -649,7 +648,7 @@ public class PQClientTests
             .Returns(moqSnapshotClient.Object).Verifiable();
 
 
-        var moqClientSnapshotServerConfig = new Mock<IConnectionConfig>();
+        var moqClientSnapshotServerConfig = new Mock<ISocketConnectionConfig>();
         pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<IUniqueSourceTickerIdentifier>());
 
         moqSnapshotClientFactory.Verify();

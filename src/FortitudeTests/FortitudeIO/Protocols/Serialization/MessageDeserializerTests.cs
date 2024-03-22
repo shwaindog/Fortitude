@@ -5,7 +5,7 @@ using FortitudeCommon.Serdes;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
-using FortitudeIO.Transports.Sockets.Logging;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
 using Moq;
 
 #endregion

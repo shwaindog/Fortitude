@@ -4,7 +4,7 @@ using System.Reflection;
 using FortitudeBusRules.Messaging;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Sockets.SessionConnection;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeTests.FortitudeCommon.Types;
@@ -42,7 +42,7 @@ public class TestMetrics
     public void SetUp()
     {
         fortitudeCommonType = typeof(TimeContext);
-        fortitudeIOType = typeof(SocketSessionConnection);
+        fortitudeIOType = typeof(ISocketSessionContext);
         fortitudeMarketsApiType = typeof(ILevel0Quote);
         fortitudeMarketsCoreType = typeof(PQLevel0Quote);
         fortitudeBusRulesType = typeof(Message);

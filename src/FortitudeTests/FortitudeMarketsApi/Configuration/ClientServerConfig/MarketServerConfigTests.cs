@@ -6,10 +6,9 @@ using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeTests.FortitudeCommon.Configuration.Availability;
-using FortitudeTests.FortitudeIO.Transports.Sockets;
+using FortitudeTests.FortitudeIO.Transports.NewSocketAPI.ConnectionConfig;
 
 #endregion
 
@@ -39,7 +38,7 @@ public class MarketServerConfigTests
 
     public static void UpdateServerConfigWithValues<T>(IMarketServerConfig<T> updateConfig, string name
         , MarketServerType marketServerType,
-        IEnumerable<IConnectionConfig> serverConnectionConfigs) where T : class, IMarketServerConfig<T>
+        IEnumerable<ISocketConnectionConfig> serverConnectionConfigs) where T : class, IMarketServerConfig<T>
     {
         NonPublicInvocator.SetInstanceProperty(updateConfig,
             ReflectionHelper.GetPropertyName((MarketServerConfig<T> x) => x.Name),
@@ -49,7 +48,7 @@ public class MarketServerConfigTests
             marketServerType, true);
         NonPublicInvocator.SetInstanceProperty(updateConfig,
             ReflectionHelper.GetPropertyName((MarketServerConfig<T> x) =>
-                x.LegacyServerConnections),
+                x.ServerConnections),
             serverConnectionConfigs!, true);
     }
 
@@ -58,7 +57,7 @@ public class MarketServerConfigTests
     {
         var originalServerConnectionConfig = ConnectionConfigTests
             .ServerConnectionConfigWithValues("OriginalConnectionName", "OriginalHostName", 5678,
-                ConnectionDirectionType.Both, "127.0.0.1", 125U);
+                "127.0.0.1", 125U);
 
         ISubject<IMarketServerConfigUpdate<IDummyMarketServerConfig>> updatePump
             = new Subject<IMarketServerConfigUpdate<IDummyMarketServerConfig>>();
@@ -85,7 +84,7 @@ public class MarketServerConfigTests
         IDummyMarketServerConfig updatedConfig = new DummyMarketServerConfigClass(updateAbleServerConfig);
         Assert.AreNotSame(updatedConfig, updateAbleServerConfig);
         UpdateServerConfigWithValues(updatedConfig, "NewServerName", MarketServerType.Trading,
-            new[] { firstNewServerConnection.ToConnectionConfig(), secondNewServerConnection.ToConnectionConfig() });
+            new[] { firstNewServerConnection, secondNewServerConnection });
         Assert.AreEqual(updateAbleServerConfig.Id, updatedConfig.Id);
 
         updatePump.OnNext(new MarketServerConfigUpdate<IDummyMarketServerConfig>(updatedConfig, EventType.Updated));

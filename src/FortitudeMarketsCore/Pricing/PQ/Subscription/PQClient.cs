@@ -3,8 +3,8 @@
 using System.Reactive.Disposables;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
+using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
@@ -235,9 +235,9 @@ public class PQClient : IDisposable
         return result;
     }
 
-    internal void RequestSnapshots(IConnectionConfig cfg, List<IUniqueSourceTickerIdentifier> streams)
+    internal void RequestSnapshots(ISocketConnectionConfig cfg, List<IUniqueSourceTickerIdentifier> streams)
     {
-        var snap = snapshotClientFactory.RetrieveConversation(cfg.ToSocketConnectionConfig());
+        var snap = snapshotClientFactory.RetrieveConversation(cfg);
         snap?.RequestSnapshots(streams);
     }
 

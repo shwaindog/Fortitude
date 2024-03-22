@@ -6,7 +6,6 @@ using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets.Publishing;
 
 #endregion
 
@@ -21,14 +20,5 @@ public interface IOrxMessageResponder : IConversationResponder
     event Action Disconnecting;
     void Send(ISession client, IVersionedMessage message);
     void Send(IConversation client, IVersionedMessage message);
-    void Send(ISocketSessionContext client, IVersionedMessage message);
-}
-
-public interface IClientOrxPublisher : ITcpSocketPublisher, IBinaryStreamPublisher
-{
-    IRecycler RecyclingFactory { get; }
-    IOrxMessageRequester StreamFromMessageRequester { get; }
-    void RegisterSerializer<T>() where T : class, IVersionedMessage, new();
-    void Send(ISession client, IVersionedMessage message);
     void Send(ISocketSessionContext client, IVersionedMessage message);
 }

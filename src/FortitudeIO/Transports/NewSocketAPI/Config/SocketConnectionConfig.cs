@@ -5,7 +5,6 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets;
 using TransportType = FortitudeIO.Topics.Config.ConnectionConfig.TransportType;
 
 #endregion
@@ -23,9 +22,6 @@ public interface ISocketConnectionConfig : ITopicConnectionConfig, ICloneable<IS
     ushort PortEndRange { get; set; }
     uint ConnectionTimeoutMs { get; set; }
     uint ResponseTimeoutMs { get; set; }
-
-    IConnectionConfig
-        ToConnectionConfig(ConnectionDirectionType connectionDirectionType = ConnectionDirectionType.Both);
 }
 
 public interface ISocketReceiverConfig : ISocketConnectionConfig
@@ -80,11 +76,6 @@ public class SocketConnectionConfig : ISocketReceiverConfig
         new SocketConnectionConfig(InstanceName, SocketDescription,
             ConnectionAttributes, SendBufferSize, ReceiveBufferSize, Hostname, SubnetMask,
             PortIsDynamic, PortStartRange, PortEndRange);
-
-    public IConnectionConfig
-        ToConnectionConfig(ConnectionDirectionType connectionDirectionType = ConnectionDirectionType.Both) =>
-        new ConnectionConfig(InstanceName, Hostname?.ToString() ?? "", PortStartRange, connectionDirectionType
-            , SubnetMask?.ToString(), 1_000);
 
     protected bool Equals(ISocketReceiverConfig other)
     {

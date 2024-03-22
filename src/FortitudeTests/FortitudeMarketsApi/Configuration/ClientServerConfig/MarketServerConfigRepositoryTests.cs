@@ -104,7 +104,7 @@ public class MarketServerConfigRepositoryTests
         var serverConfig21 = marketServerConfig2.Clone();
         MarketServerConfigTests.UpdateServerConfigWithValues(serverConfig21, "UpdatedTestConfigName2",
             MarketServerType.TestOnly | MarketServerType.ConfigServer
-            , marketServerConfig2.ServerConnections!.Select(scc => scc.ToConnectionConfig()));
+            , marketServerConfig2.ServerConnections!);
         marketServerConfigRepository.AddOrUpdate(serverConfig21);
         Assert.IsTrue(hitExpectedSubscriberState);
 
