@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
@@ -28,13 +27,6 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
     {
         get => socketFactories ??= SocketsAPI.SocketFactories.GetRealSocketFactories();
         set => socketFactories = value;
-    }
-
-    public bool IsConnected => SocketSessionContext.SocketConnection?.IsConnected ?? false;
-
-    public void Send(IVersionedMessage message)
-    {
-        SocketSessionContext.SocketSender!.Send(message);
     }
 
     public static PQUpdatePublisher BuildUdpMulticastPublisher(ISocketConnectionConfig socketConnectionConfig)

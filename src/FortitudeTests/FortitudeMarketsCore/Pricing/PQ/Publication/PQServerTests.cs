@@ -4,10 +4,10 @@ using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.SessionConnection;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
@@ -180,7 +180,7 @@ public class PQServerTests
 
         pqServer.StartServices();
 
-        moqUpdateService.SetupGet(us => us.IsConnected).Returns(true);
+        moqUpdateService.SetupGet(us => us.IsStarted).Returns(true);
         moqUpdateService.Setup(us => us.Send(It.IsAny<PQLevel1Quote>())).Verifiable();
 
         pqServer.Register(TestTicker1);
@@ -198,7 +198,7 @@ public class PQServerTests
 
         pqServer.StartServices();
 
-        moqUpdateService.SetupGet(us => us.IsConnected).Returns(false);
+        moqUpdateService.SetupGet(us => us.IsStarted).Returns(false);
 
         pqServer.Register(TestTicker1);
 
@@ -423,7 +423,7 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        moqUpdateService.SetupGet(us => us.IsConnected).Returns(false).Verifiable();
+        moqUpdateService.SetupGet(us => us.IsStarted).Returns(false).Verifiable();
 
         var pqServer = new PQServer<IPQLevel0Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
             moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
@@ -453,7 +453,7 @@ public class PQServerTests
         pqServer.Publish(stubLevel1Quote);
         moqUpdateService.Verify();
         moqUpdateService.Verify(us => us.Send(moqRegisteredPqLevel0Quote.Object), Times.Never);
-        moqUpdateService.SetupGet(us => us.IsConnected).Returns(true).Verifiable();
+        moqUpdateService.SetupGet(us => us.IsStarted).Returns(true).Verifiable();
         stubLevel1Quote.HasUpdates = true;
         pqServer.Publish(stubLevel1Quote);
         moqUpdateService.Verify();
@@ -465,15 +465,14 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var moqSocketSessionContext = new Mock<ISocketSessionContext>();
-        var moqSocketSender = new Mock<ISocketSender>();
-        moqSocketSender.Setup(ss => ss.Send(It.IsAny<IVersionedMessage>())).Verifiable(Times.Exactly(3));
+        var moqConvoRequester = new Mock<IConversationRequester>();
 
-        moqSocketSessionContext.SetupGet(ssc => ssc.SocketSender).Returns(moqSocketSender.Object);
+        moqConvoRequester.Setup(ssc => ssc.Send(It.IsAny<IVersionedMessage>())).Verifiable();
         var moqlevel0Quote = new Mock<PQLevel0Quote>();
 
+        var moqConversationRequester = new Mock<IConversationRequester>();
         moqSnapshotService.SetupAdd(sss => sss.OnSnapshotRequest += (ssc, id) =>
-            moqSnapshotService.Object.Send(moqSocketSessionContext.Object, moqlevel0Quote.Object));
+            moqSnapshotService.Object.Send(moqConversationRequester.Object, moqlevel0Quote.Object));
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
             moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
@@ -484,10 +483,10 @@ public class PQServerTests
         pqServer.Register(TestTicker2);
         pqServer.Register(TestTicker3);
 
-        moqSnapshotService.Raise(sss => sss.OnSnapshotRequest += null, moqSocketSessionContext.Object
+        moqSnapshotService.Raise(sss => sss.OnSnapshotRequest += null, moqConvoRequester.Object
             , new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id });
 
-        moqSocketSender.Verify();
+        moqConvoRequester.Verify();
     }
 
     [TestMethod]
@@ -520,7 +519,7 @@ public class PQServerTests
 
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
 
-        moqUpdateService.SetupGet(us => us.IsConnected).Returns(true);
+        moqUpdateService.SetupGet(us => us.IsStarted).Returns(true);
         moqUpdateService.Setup(us => us.Send(It.IsAny<IPQLevel1Quote>())).Verifiable();
 
         pqServer.Unregister(stubLevel1Quote);
@@ -611,12 +610,12 @@ public class PQServerTests
         pqServer.StartServices();
         Assert.IsTrue(pqServer.IsStarted);
 
-        moqUpdateService.Verify(us => us.Disconnect(), Times.Never);
+        moqUpdateService.Verify(us => us.Stop(), Times.Never);
         moqSnapshotService.Verify(ss => ss.Stop(), Times.Never);
 
         pqServer.Dispose();
 
-        moqUpdateService.Verify(us => us.Disconnect(), Times.Once);
+        moqUpdateService.Verify(us => us.Stop(), Times.Once);
         moqSnapshotService.Verify(ss => ss.Stop(), Times.Once);
         var currentUpdateServerInstance =
             NonPublicInvocator.GetInstanceField<IPQUpdateServer>(pqServer, "updateServer");

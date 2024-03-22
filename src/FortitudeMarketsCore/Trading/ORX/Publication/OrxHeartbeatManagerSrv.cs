@@ -20,7 +20,7 @@ public class OrxHeartbeatManagerSrv
 
         orxServerMessaging.Connected += () => SendHeartbeat(new object(), true);
 
-        orxServerMessaging.RegisterSerializer<OrxHeartbeatMessage>();
+        orxServerMessaging.SerializationRepository.RegisterSerializer<OrxHeartbeatMessage>();
     }
 
     private void SendHeartbeat(object state, bool timedOut)

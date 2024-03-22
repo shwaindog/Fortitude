@@ -172,6 +172,6 @@ public class PQConversationRepositoryBaseTests
         public void Stop() { }
 
         public bool IsStarted { get; } = false;
-        public IConversationListener? ConversationListener { get; set; }
+        public IListener? ConversationListener { get; set; }
     }
 }

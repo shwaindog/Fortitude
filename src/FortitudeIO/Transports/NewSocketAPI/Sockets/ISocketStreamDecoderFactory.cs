@@ -39,39 +39,38 @@ public class SocketStreamDecoderFactory : IStreamDecoderFactory
 
 public class SocketStreamMessageEncoderFactory : IStreamEncoderFactory
 {
-    private readonly IDictionary<uint, IMessageSerializer> messageSerializerLookup;
+    protected readonly IDictionary<uint, IMessageSerializer> SerializerMap;
 
-    public SocketStreamMessageEncoderFactory(IDictionary<uint, IMessageSerializer> messageSerializerLookup) =>
-        this.messageSerializerLookup = messageSerializerLookup;
+    public SocketStreamMessageEncoderFactory(IDictionary<uint, IMessageSerializer> serializerMap) =>
+        SerializerMap = serializerMap;
 
-    public int RegisteredSerializerCount => messageSerializerLookup.Count;
+    public int RegisteredSerializerCount => SerializerMap.Count;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<uint, IMessageSerializer>> GetEnumerator() =>
-        messageSerializerLookup.GetEnumerator();
+    public IEnumerator<KeyValuePair<uint, IMessageSerializer>> GetEnumerator() => SerializerMap.GetEnumerator();
 
     public IMessageSerializer<T> MessageEncoder<T>(IBufferContext bufferContext, T message)
         where T : class, IVersionedMessage =>
-        (IMessageSerializer<T>)messageSerializerLookup[message.MessageId];
+        (IMessageSerializer<T>)SerializerMap[message.MessageId];
 
     public IMessageSerializer<T> MessageEncoder<T>(T message) where T : class, IVersionedMessage =>
-        (IMessageSerializer<T>)messageSerializerLookup[message.MessageId];
+        (IMessageSerializer<T>)SerializerMap[message.MessageId];
 
     public IMessageSerializer<T> MessageEncoder<T>(uint id) where T : class, IVersionedMessage =>
-        (IMessageSerializer<T>)messageSerializerLookup[id];
+        (IMessageSerializer<T>)SerializerMap[id];
 
-    public IMessageSerializer MessageEncoder(uint id) => messageSerializerLookup[id];
+    public IMessageSerializer MessageEncoder(uint id) => SerializerMap[id];
 
-    public IMessageSerializer MessageEncoder(IBufferContext bufferContext, uint id) => messageSerializerLookup[id];
+    public IMessageSerializer MessageEncoder(IBufferContext bufferContext, uint id) => SerializerMap[id];
 
     public void RegisterMessageSerializer(uint id, IMessageSerializer messageSerializer)
     {
-        messageSerializerLookup[id] = messageSerializer;
+        SerializerMap[id] = messageSerializer;
     }
 
     public void UnregisterMessageSerializer(uint id)
     {
-        messageSerializerLookup.Remove(id);
+        SerializerMap.Remove(id);
     }
 }

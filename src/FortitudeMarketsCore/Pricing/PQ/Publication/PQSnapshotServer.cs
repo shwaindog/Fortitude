@@ -40,11 +40,11 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
     public int RegisteredSerializersCount =>
         SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisteredSerializerCount;
 
-    public event Action<SocketsAPI.ISocketSessionContext, uint[]>? OnSnapshotRequest;
+    public event Action<IConversationRequester, uint[]>? OnSnapshotRequest;
 
-    public void Send(SocketsAPI.ISocketSessionContext client, IVersionedMessage message)
+    public void Send(IConversationRequester client, IVersionedMessage message)
     {
-        client.SocketSender!.Send(message);
+        client.ConversationPublisher!.Send(message);
     }
 
     public static PQSnapshotServer BuildTcpResponder(ISocketConnectionConfig socketConnectionConfig)
@@ -71,7 +71,7 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         logger.Info($"New PQSnapshot Client Request {newClient}");
     }
 
-    private void OnRequest(SocketsAPI.ISocketSessionContext cx, uint[] streamIDs)
+    private void OnRequest(IConversationRequester cx, uint[] streamIDs)
     {
         OnSnapshotRequest?.Invoke(cx, streamIDs);
     }

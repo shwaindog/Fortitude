@@ -1,100 +1,74 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Maps;
+using System.Collections.Concurrent;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports;
-using FortitudeIO.Transports.Sockets;
-using FortitudeIO.Transports.Sockets.Client;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Publishing;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Conversations;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
 namespace FortitudeIO.Protocols.ORX.ClientServer;
 
-public class OrxClientMessaging : TcpSocketClient, IOrxSubscriber
+public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
 {
-    private readonly OrxSerializationRepository orxSerializationRepository;
+    private static ISocketFactories? socketFactories;
 
     protected readonly object SyncLock = new();
 
-    private IClientOrxPublisher? streamToPublisher;
-
-    protected OrxClientMessaging(ISocketDispatcher dispatcher, IOSNetworkingController networkingController,
-        IConnectionConfig connectionConfig,
-        string socketUseDescription, int wholeMessagesPerReceive,
-        bool keepalive = false)
-        : base(
-            FLoggerFactory.Instance.GetLogger("Orx"), dispatcher, networkingController,
-            connectionConfig, socketUseDescription + "OrxClient", wholeMessagesPerReceive, null, keepalive)
+    protected OrxClientMessaging(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
+        : base(socketSessionContext, initiateControls)
     {
         RecyclingFactory = new Recycler();
-        orxSerializationRepository = new OrxSerializationRepository(RecyclingFactory);
+        OrxSerdesFactory = new OrxSerdesFactory(RecyclingFactory);
+        DeserializationRepository
+            = new OrxStreamDecoderFactory((deserializers) =>
+                new OrxMessageStreamDecoder(deserializers), OrxSerdesFactory, RecyclingFactory);
+        socketSessionContext.SerdesFactory.StreamDecoderFactory = DeserializationRepository;
+        SerializationRepository
+            = new OrxSerializationRepository(new ConcurrentDictionary<uint, IMessageSerializer>(), OrxSerdesFactory
+                , RecyclingFactory);
+        socketSessionContext.SerdesFactory.StreamEncoderFactory = SerializationRepository;
     }
 
-    protected IMessageIdDeserializationRepository DeserializationRepository => orxSerializationRepository;
+    public static ISocketFactories SocketFactories
+    {
+        get => socketFactories ??= Transports.NewSocketAPI.Sockets.SocketFactories.GetRealSocketFactories();
+        set => socketFactories = value;
+    }
 
-    protected IMessageIdSerializationRepository SerializationRepository => orxSerializationRepository;
+    internal OrxSerdesFactory OrxSerdesFactory { get; }
 
-    public override int RecvBufferSize => 131072;
+    public IOrxDeserializationRepository DeserializationRepository { get; }
 
-    public override IBinaryStreamPublisher StreamToPublisher =>
-        streamToPublisher
-            ??= new OrxServerStreamPublisher(Logger, Dispatcher, NetworkingController, SessionDescription, this);
-
-    IClientOrxPublisher IOrxSubscriber.StreamToPublisher => (IClientOrxPublisher)StreamToPublisher;
+    public IOrxSerializationRepository SerializationRepository { get; }
 
     public IRecycler RecyclingFactory { get; }
 
-    public void RegisterDeserializer<T>(Action<T, object?, ISession?>? msgHandler)
-        where T : class, IVersionedMessage, new()
+
+    public static OrxClientMessaging BuildTcpRequester(ISocketConnectionConfig socketConnectionConfig
+        , ISocketDispatcherResolver socketDispatcherResolver)
     {
-        var instanceOfTypeToDeserialize = RecyclingFactory.Borrow<T>();
-        RegisterDeserializer(instanceOfTypeToDeserialize.MessageId, msgHandler);
-        instanceOfTypeToDeserialize.DecrementRefCount();
-    }
+        var conversationType = ConversationType.Requester;
+        var conversationProtocol = SocketConversationProtocol.TcpClient;
 
-    public override IMessageStreamDecoder GetDecoder(IMap<uint, IMessageDeserializer> decoderDeserializers) =>
-        new OrxMessageStreamDecoder(decoderDeserializers);
+        var sockFactories = SocketFactories;
 
-    public override void Send(IVersionedMessage tradingMessage)
-    {
-        lock (SyncLock)
-        {
-            base.Send(tradingMessage);
-        }
-    }
+        var serdesFactory = new SerdesFactory();
 
-    protected override IMessageIdDeserializationRepository GetFactory() => DeserializationRepository;
+        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
+            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, sockFactories, serdesFactory
+            , socketDispatcherResolver.Resolve(socketConnectionConfig));
+        socketSessionContext.Name += "Requester";
 
-    private class OrxServerStreamPublisher : TcpSocketPublisher, IClientOrxPublisher
-    {
-        private readonly OrxClientMessaging orxClientMessaging;
+        var clientInitiateControls = new InitiateControls(socketSessionContext);
 
-        public OrxServerStreamPublisher(IFLogger logger, ISocketDispatcher dispatcher,
-            IOSNetworkingController networkingController, string sessionDescription,
-            OrxClientMessaging orxClientMessaging) :
-            base(logger, dispatcher, networkingController, 0, sessionDescription) =>
-            this.orxClientMessaging = orxClientMessaging;
-
-        public override IOrxSubscriber StreamFromSubscriber => orxClientMessaging;
-
-        public override int SendBufferSize => 131072;
-
-        public IRecycler RecyclingFactory => orxClientMessaging.RecyclingFactory;
-
-        public void RegisterSerializer<T>() where T : class, IVersionedMessage, new()
-        {
-            var instanceOfTypeToSerialize = RecyclingFactory.Borrow<T>();
-            RegisterSerializer<T>(instanceOfTypeToSerialize.MessageId);
-            instanceOfTypeToSerialize.DecrementRefCount();
-        }
-
-        public override IMessageIdSerializationRepository GetFactory() => orxClientMessaging.SerializationRepository;
+        return new OrxClientMessaging(socketSessionContext, clientInitiateControls);
     }
 }

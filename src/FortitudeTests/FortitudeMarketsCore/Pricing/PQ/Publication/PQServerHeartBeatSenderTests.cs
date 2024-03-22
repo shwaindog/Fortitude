@@ -128,7 +128,7 @@ public class PQServerHeartBeatSenderTests
             realQuoteList.AddFirst(level0Quote1);
             pqServerHeartBeatSender.ServerLinkedQuotes = realQuoteList;
 
-            moqUpdateServer.SetupGet(us => us.IsConnected).Returns(true);
+            moqUpdateServer.SetupGet(us => us.IsStarted).Returns(true);
             moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
                 .Callback<object>(listObj =>
                 {
@@ -143,7 +143,7 @@ public class PQServerHeartBeatSenderTests
             pqServerHeartBeatSender.StartSendingHeartBeats();
 
             pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqUpdateServer.Verify(us => us.IsConnected, Times.Exactly(1));
+            moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(1));
             moqUpdateServer.Verify(us => us.Send(It.IsAny<IVersionedMessage>()), Times.Exactly(1));
 
             Assert.AreEqual(level0Quote3, realQuoteList.Head);
@@ -191,7 +191,7 @@ public class PQServerHeartBeatSenderTests
             realQuoteList.AddFirst(level0Quote1);
             pqServerHeartBeatSender.ServerLinkedQuotes = realQuoteList;
 
-            moqUpdateServer.SetupGet(us => us.IsConnected).Returns(true);
+            moqUpdateServer.SetupGet(us => us.IsStarted).Returns(true);
             moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
                 .Callback<object>(listObj =>
                 {
@@ -206,7 +206,7 @@ public class PQServerHeartBeatSenderTests
             pqServerHeartBeatSender.StartSendingHeartBeats();
 
             pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqUpdateServer.Verify(us => us.IsConnected, Times.Exactly(0));
+            moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(0));
             moqUpdateServer.Verify(us => us.Send(It.IsAny<IVersionedMessage>()), Times.Exactly(0));
 
             Assert.AreEqual(level0Quote1, realQuoteList.Head);
@@ -253,7 +253,7 @@ public class PQServerHeartBeatSenderTests
             realQuoteList.AddFirst(level0Quote1);
             pqServerHeartBeatSender.ServerLinkedQuotes = realQuoteList;
 
-            moqUpdateServer.SetupGet(us => us.IsConnected).Returns(false);
+            moqUpdateServer.SetupGet(us => us.IsStarted).Returns(false);
             moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
                 .Callback<object>(listObj =>
                 {
@@ -268,7 +268,7 @@ public class PQServerHeartBeatSenderTests
             pqServerHeartBeatSender.StartSendingHeartBeats();
 
             pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqUpdateServer.Verify(us => us.IsConnected, Times.Exactly(1));
+            moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(1));
             moqUpdateServer.Verify(us => us.Send(It.IsAny<IVersionedMessage>()), Times.Exactly(0));
 
             Assert.AreEqual(level0Quote3, realQuoteList.Head);

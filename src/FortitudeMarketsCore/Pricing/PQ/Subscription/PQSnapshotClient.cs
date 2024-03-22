@@ -63,11 +63,6 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
     public IMessageStreamDecoder MessageStreamDecoder => messageStreamDecoder;
 
-    public void Send(IVersionedMessage versionedMessage)
-    {
-        SocketSessionContext.SocketSender!.Send(versionedMessage);
-    }
-
     public void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds)
     {
         Connect();

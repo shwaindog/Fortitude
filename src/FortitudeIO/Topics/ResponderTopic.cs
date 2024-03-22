@@ -19,7 +19,7 @@ public class ResponderTopic : Topic, IResponderTopic
         this.sessionConnection = sessionConnection;
 
     public IReadOnlyDictionary<int, IConversationRequester>? Clients { get; set; }
-    public IConversationListener? ConversationListener { get; set; }
+    public IListener? ConversationListener { get; set; }
 
     public override bool IsStarted { get; } = false;
 
@@ -33,8 +33,6 @@ public class ResponderTopic : Topic, IResponderTopic
         throw new NotImplementedException();
     }
 
-    public void RegisterSerializer(uint messageId, IMessageSerializer serializer) { }
-
     public void RemoveClient(IConversationRequester clientSocketSessionContext)
     {
         throw new NotImplementedException();
@@ -44,6 +42,8 @@ public class ResponderTopic : Topic, IResponderTopic
     {
         throw new NotImplementedException();
     }
+
+    public void RegisterSerializer(uint messageId, IMessageSerializer serializer) { }
 
 #pragma warning disable 67
     public event Action<IConversationRequester>? NewClient;

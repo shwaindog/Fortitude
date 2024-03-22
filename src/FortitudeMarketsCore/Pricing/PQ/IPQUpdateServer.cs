@@ -1,13 +1,9 @@
 ﻿#region
 
-using FortitudeIO.Protocols;
-using FortitudeIO.Transports.Sockets.Publishing;
+using FortitudeIO.Conversations;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ;
 
-public interface IPQUpdateServer : IPQPublisher
-{
-    void Send(IVersionedMessage message);
-}
+public interface IPQUpdateServer : IConversationPublisher { }

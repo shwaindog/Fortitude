@@ -16,24 +16,24 @@ using SocketsAPI = FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Protocols.ORX.ClientServer;
 
-public sealed class OrxServerMessaging : ConversationResponder, IOrxPublisher
+public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageResponder
 {
     private static SocketsAPI.ISocketFactories? socketFactories;
-    private readonly SocketsAPI.SocketStreamMessageEncoderFactory socketEncoderFactory;
 
     public OrxServerMessaging(SocketsAPI.ISocketSessionContext socketSessionContext, IAcceptorControls acceptorControls)
         : base(socketSessionContext, acceptorControls)
     {
         RecyclingFactory = new Recycler();
-        OrxSerializationRepository = new OrxSerializationRepository(RecyclingFactory);
+        OrxSerdesFactory = new OrxSerdesFactory(RecyclingFactory);
         DeserializationRepository
             = new OrxStreamDecoderFactory((deserializers) =>
-                new OrxMessageStreamDecoder(deserializers), OrxSerializationRepository, RecyclingFactory);
+                new OrxMessageStreamDecoder(deserializers), OrxSerdesFactory, RecyclingFactory);
         socketSessionContext.SerdesFactory.StreamDecoderFactory
             = DeserializationRepository;
-        socketEncoderFactory
-            = new SocketsAPI.SocketStreamMessageEncoderFactory(new ConcurrentDictionary<uint, IMessageSerializer>());
-        socketSessionContext.SerdesFactory.StreamEncoderFactory = socketEncoderFactory;
+        SerializationRepository
+            = new OrxSerializationRepository(new ConcurrentDictionary<uint, IMessageSerializer>(), OrxSerdesFactory
+                , RecyclingFactory);
+        socketSessionContext.SerdesFactory.StreamEncoderFactory = SerializationRepository;
     }
 
     public static SocketsAPI.ISocketFactories SocketFactories
@@ -42,9 +42,11 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxPublisher
         set => socketFactories = value;
     }
 
-    internal OrxSerializationRepository OrxSerializationRepository { get; }
+    internal OrxSerdesFactory OrxSerdesFactory { get; }
 
     public IOrxDeserializationRepository DeserializationRepository { get; }
+
+    public IOrxSerializationRepository SerializationRepository { get; }
 
     public IRecycler RecyclingFactory { get; }
 
@@ -62,14 +64,6 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxPublisher
     {
         var clientRequester = (IConversationRequester)client;
         clientRequester.ConversationPublisher!.Send(message);
-    }
-
-    public void RegisterSerializer<T>() where T : class, IVersionedMessage, new()
-    {
-        var instanceOfTypeToSerialize = RecyclingFactory.Borrow<T>();
-        var serializer = OrxSerializationRepository.GetSerializer<T>(instanceOfTypeToSerialize.MessageId);
-        socketEncoderFactory.RegisterMessageSerializer(instanceOfTypeToSerialize.MessageId, serializer);
-        instanceOfTypeToSerialize.DecrementRefCount();
     }
 
     public static OrxServerMessaging BuildTcpResponder(ISocketConnectionConfig socketConnectionConfig)

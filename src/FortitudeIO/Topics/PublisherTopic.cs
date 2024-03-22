@@ -1,13 +1,14 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Topics.TopicTransports;
 
 #endregion
 
 namespace FortitudeIO.Topics;
 
-public interface IPublisherTopic : ITopic, IPublisherConversation
+public interface IPublisherTopic : ITopic, IConversationPublisher
 {
     TopicTransportMap<IPublisherTransportTopicConversation> PublisherTransports { get; }
 }
@@ -34,5 +35,10 @@ public class PublisherTopic : Topic, IPublisherTopic
         throw new NotImplementedException();
     }
 
-    public IConversationPublisher? ConversationPublisher { get; set; }
+    public void Send(IVersionedMessage versionedMessage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IPublisher? ConversationPublisher { get; set; }
 }

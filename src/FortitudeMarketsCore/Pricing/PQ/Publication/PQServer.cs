@@ -5,9 +5,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
+using FortitudeIO.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
@@ -119,7 +119,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
                 ent.Lock.Release();
             }
 
-            if (updateServer != null && updateServer.IsConnected) updateServer.Send(ent);
+            if (updateServer != null && updateServer.IsStarted) updateServer.Send(ent);
             heartBeatSync.Acquire();
             try
             {
@@ -156,7 +156,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
             serverHeartBeatSender.StopAndWaitUntilFinished();
         if (updateServer != null)
         {
-            updateServer.Disconnect();
+            updateServer.Stop();
             updateServer = null;
         }
 
@@ -169,11 +169,11 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         IsStarted = false;
     }
 
-    private void OnSnapshotContextRequest(ISocketSessionContext cx, uint[] streamIDs)
+    private void OnSnapshotContextRequest(IConversationRequester cx, uint[] streamIDs)
     {
         foreach (var streamId in streamIDs)
             if (entities.TryGetValue(streamId, out var ent))
-                cx.SocketSender!.Send(ent!);
+                cx.Send(ent!);
     }
 
     #region FeedReferential management
@@ -188,7 +188,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
             snapshotServer.OnSnapshotRequest += OnSnapshotContextRequest;
             snapshotServer.Start();
             updateServer = updateServerFactory(snapshotUpdatePricingServerConfig.UpdateConnectionConfig!);
-            updateServer.Connect();
+            updateServer.Start();
             serverHeartBeatSender.UpdateServer = updateServer;
             IsStarted = true;
         }

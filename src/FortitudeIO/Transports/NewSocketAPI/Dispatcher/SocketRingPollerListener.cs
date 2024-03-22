@@ -19,8 +19,8 @@ public interface ISocketDispatcherListener : ISocketDispatcherCommon
 {
     void RegisterForListen(ISocketReceiver receiver);
     void UnregisterForListen(ISocketReceiver receiver);
-    void RegisterForListen(IConversationListener receiver);
-    void UnregisterForListen(IConversationListener receiver);
+    void RegisterForListen(IListener receiver);
+    void UnregisterForListen(IListener receiver);
 }
 
 public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDispatcherListener where T : class
@@ -61,12 +61,12 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
     public abstract void UnregisterForListen(ISocketReceiver receiver);
 
-    public void RegisterForListen(IConversationListener receiver)
+    public void RegisterForListen(IListener receiver)
     {
         if (receiver is ISocketReceiver socketReceiver) RegisterForListen(socketReceiver);
     }
 
-    public void UnregisterForListen(IConversationListener receiver)
+    public void UnregisterForListen(IListener receiver)
     {
         if (receiver is ISocketReceiver socketReceiver) UnregisterForListen(socketReceiver);
     }

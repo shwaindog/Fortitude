@@ -23,6 +23,10 @@ public class SocketConversation : ISocketConversation
 
     public ISerdesFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
 
+    public IListener? ConversationListener => SocketSessionContext.SocketReceiver;
+
+    public IPublisher? ConversationPublisher => SocketSessionContext.SocketSender;
+
     public bool IsStarted => SocketSessionContext.SocketConnection?.IsConnected ?? false;
 
     public event Action? Started
@@ -85,10 +89,6 @@ public class SocketConversation : ISocketConversation
     }
 
     public ConversationState ConversationState => SocketSessionContext.ConversationState;
-
-    public IConversationListener? ConversationListener => SocketSessionContext.SocketReceiver;
-
-    public IConversationPublisher? ConversationPublisher => SocketSessionContext.SocketSender;
 
     public void Start()
     {

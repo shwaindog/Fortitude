@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
@@ -17,31 +18,36 @@ public class PQServerMessageStreamDecoderTests
 {
     private const int BufferReadWriteOffset = 5;
 
-    private Action<ISocketSessionContext, uint[]> deserializerCallBack = null!;
-    private ISocketSessionContext lastReceivedSessionConnection = null!;
+    private Action<IConversationRequester, uint[]> deserializerCallBack = null!;
+    private IConversationRequester? lastReceivedConversation;
 
     private uint[] lastReceivedSnapshotRequestIds = null!;
+    private Mock<ISocketConversation> moqSocketConversation = null!;
+    private Mock<IConversationRequester> moqSocketConversationRequester = null!;
+
+    private Mock<ISocketSessionContext> moqSocketSessionConnection = null!;
     private PQServerMessageStreamDecoder pqServerMessageStreamDecoder = null!;
     private PQSnapshotIdsRequestSerializer pqSnapshotIdsRequestSerializer = null!;
     private ReadSocketBufferContext readSocketBufferContext = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
 
-    private Mock<ISocketSessionContext> socketSessionConnection = null!;
-
     [TestInitialize]
     public void SetUp()
     {
-        socketSessionConnection = new Mock<ISocketSessionContext>();
+        moqSocketSessionConnection = new Mock<ISocketSessionContext>();
+        moqSocketConversationRequester = new Mock<IConversationRequester>();
+        moqSocketConversation = moqSocketConversationRequester.As<ISocketConversation>();
+        moqSocketSessionConnection.SetupGet(x => x.OwningConversation).Returns(moqSocketConversation.Object);
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
         readSocketBufferContext = new ReadSocketBufferContext
         {
-            EncodedBuffer = readWriteBuffer, SessionContext = socketSessionConnection.Object
+            EncodedBuffer = readWriteBuffer, SessionContext = moqSocketSessionConnection.Object
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
 
         deserializerCallBack = (ssc, rsi) =>
         {
-            lastReceivedSessionConnection = ssc;
+            lastReceivedConversation = ssc;
             lastReceivedSnapshotRequestIds = rsi;
         };
 
@@ -69,7 +75,7 @@ public class PQServerMessageStreamDecoderTests
         pqServerMessageStreamDecoder.Process(readSocketBufferContext);
 
         Assert.IsTrue(expectedIdsToReceive.SequenceEqual(lastReceivedSnapshotRequestIds));
-        Assert.AreSame(socketSessionConnection.Object, lastReceivedSessionConnection);
+        Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
         Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
 
         uint[] nextExpectedIdsToReceive = { 0, 77, 71, 51, 97, 98 };
@@ -77,11 +83,12 @@ public class PQServerMessageStreamDecoderTests
         amtWritten = pqSnapshotIdsRequestSerializer.Serialize(readWriteBuffer.Buffer,
             readWriteBuffer.WrittenCursor, snapshotIdsRequest);
         readWriteBuffer.WrittenCursor = readWriteBuffer.WrittenCursor + amtWritten;
+        lastReceivedConversation = null;
 
         pqServerMessageStreamDecoder.Process(readSocketBufferContext);
 
         Assert.IsTrue(lastReceivedSnapshotRequestIds.SequenceEqual(nextExpectedIdsToReceive));
-        Assert.AreSame(socketSessionConnection.Object, lastReceivedSessionConnection);
+        Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
         Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
     }
 }

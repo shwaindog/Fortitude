@@ -70,9 +70,7 @@ public class SocketSessionContext : ISocketSessionContext
 
     public ISocketReceiver? SocketReceiver { get; set; }
 
-    IConversationListener? ISocketConversation.ConversationListener => SocketReceiver;
     public ISocketSender? SocketSender { get; set; }
-    IConversationPublisher? ISocketConversation.ConversationPublisher => SocketSender;
 
     public event Action<SocketSessionState>? StateChanged;
 

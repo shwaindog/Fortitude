@@ -1,7 +1,14 @@
-﻿namespace FortitudeIO.Conversations;
+﻿#region
+
+using FortitudeIO.Protocols;
+
+#endregion
+
+namespace FortitudeIO.Conversations;
 
 public interface IConversationRequester : IConversation
 {
-    IConversationListener? ConversationListener { get; }
-    IConversationPublisher? ConversationPublisher { get; }
+    IListener? ConversationListener { get; }
+    IPublisher? ConversationPublisher { get; }
+    void Send(IVersionedMessage versionedMessage);
 }

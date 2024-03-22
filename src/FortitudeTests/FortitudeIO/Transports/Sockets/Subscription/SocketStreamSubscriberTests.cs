@@ -256,7 +256,7 @@ public class SocketStreamSubscriberTests
                 new Mock<ISocketDispatcher>().Object, "", 1,
                 new ConcurrentMap<uint, IMessageDeserializer>())
         {
-            messageIdDeserializationRepository = new OrxSerializationRepository(new Recycler());
+            messageIdDeserializationRepository = new OrxSerdesFactory(new Recycler());
             StreamToPublisher = new Mock<IBinaryStreamPublisher>().Object;
         }
 

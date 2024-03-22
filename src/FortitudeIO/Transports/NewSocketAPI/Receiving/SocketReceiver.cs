@@ -15,7 +15,7 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Receiving;
 
-public interface ISocketReceiver : IConversationListener
+public interface ISocketReceiver : IListener
 {
     bool IsAcceptor { get; }
     bool ListenActive { get; set; }

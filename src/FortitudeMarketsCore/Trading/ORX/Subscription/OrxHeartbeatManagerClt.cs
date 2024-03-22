@@ -17,14 +17,14 @@ public class OrxHeartbeatManagerClt
         this.orxClient = orxClient;
         this.frequencyMs = frequencyMs;
 
-        orxClient.OnConnected += () => SendHeartbeat(new object(), true);
+        orxClient.Connected += () => SendHeartbeat(new object(), true);
 
-        orxClient.StreamToPublisher.RegisterSerializer<OrxHeartbeatMessage>((uint)TradingMessageIds.Heartbeat);
+        orxClient.SerializationRepository.RegisterSerializer<OrxHeartbeatMessage>((uint)TradingMessageIds.Heartbeat);
     }
 
     private void SendHeartbeat(object state, bool timedOut)
     {
-        if (orxClient.IsConnected)
+        if (orxClient.IsStarted)
         {
             orxClient.Send(new OrxHeartbeatMessage());
             ThreadPool.RegisterWaitForSingleObject(are, SendHeartbeat!, null, frequencyMs, true);
