@@ -25,6 +25,9 @@ public abstract class Topic : ITopic
         InstanceName = instanceName;
     }
 
+    public int Id { get; } = 0;
+    public IConversationSession Session { get; } = null!;
+
     public ConversationType ConversationType { get; }
     public ConversationState ConversationState { get; protected set; }
     public string Name { get; }

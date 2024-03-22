@@ -16,24 +16,27 @@ public class ConversationResponder : SocketConversation, IAcceptorControls, ICon
 
     public ConversationResponder(ISocketSessionContext socketSessionContext,
         IAcceptorControls tcpAcceptorControls)
-        : base(socketSessionContext, tcpAcceptorControls) =>
+        : base(socketSessionContext, tcpAcceptorControls)
+    {
+        socketSessionContext.OwningConversation = this;
         acceptorControls = tcpAcceptorControls;
-
-    public event Action<ISocketSessionContext>? OnNewClient
-    {
-        add => acceptorControls.OnNewClient += value;
-        remove => acceptorControls.OnNewClient -= value;
     }
 
-    public event Action<ISocketSessionContext>? OnClientRemoved
+    public event Action<IConversationRequester>? NewClient
     {
-        add => acceptorControls.OnClientRemoved += value;
-        remove => acceptorControls.OnClientRemoved -= value;
+        add => acceptorControls.NewClient += value;
+        remove => acceptorControls.NewClient -= value;
     }
 
-    public IReadOnlyDictionary<int, ISocketConversation> Clients => acceptorControls.Clients;
+    public event Action<IConversationRequester>? ClientRemoved
+    {
+        add => acceptorControls.ClientRemoved += value;
+        remove => acceptorControls.ClientRemoved -= value;
+    }
 
-    public void RemoveClient(ISocketConversation clientSocketSessionContext) =>
+    public IReadOnlyDictionary<int, IConversationRequester> Clients => acceptorControls.Clients;
+
+    public void RemoveClient(IConversationRequester clientSocketSessionContext) =>
         acceptorControls.RemoveClient(clientSocketSessionContext);
 
     public void Broadcast(IVersionedMessage message) => acceptorControls.Broadcast(message);

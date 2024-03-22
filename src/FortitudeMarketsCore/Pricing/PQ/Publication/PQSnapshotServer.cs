@@ -26,9 +26,9 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         : base(socketSessionContext, acceptorControls)
     {
         socketSessionContext.SerdesFactory.StreamDecoderFactory
-            = new SocketsAPI.SocketStreamDecoderFactory(new PQServerMessageStreamDecoder(OnRequest));
+            = new SocketsAPI.SocketStreamDecoderFactory(deserializer => new PQServerMessageStreamDecoder(OnRequest));
         socketSessionContext.SerdesFactory.StreamEncoderFactory = SnapshotSerializationRepository;
-        OnNewClient += HandleNewClient;
+        NewClient += HandleNewClient;
     }
 
     public static SocketsAPI.ISocketFactories SocketFactories
@@ -66,7 +66,7 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         return new PQSnapshotServer(socketSessionContext, tcpAcceptorControls);
     }
 
-    private void HandleNewClient(SocketsAPI.ISocketSessionContext newClient)
+    private void HandleNewClient(IConversationRequester newClient)
     {
         logger.Info($"New PQSnapshot Client Request {newClient}");
     }

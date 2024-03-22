@@ -2,7 +2,6 @@
 
 using FortitudeCommon.Configuration.Availability;
 using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
@@ -17,7 +16,7 @@ public class TradingServerConfig : ITradingServerConfig
 {
     public TradingServerConfig(long id = 0L, string? name = null,
         MarketServerType marketServerType = MarketServerType.Trading,
-        IEnumerable<IConnectionConfig>? serverConnections = null,
+        IEnumerable<ISocketConnectionConfig>? serverConnections = null,
         ITimeTable? availabilityTimeTable = null,
         IObservable<IMarketServerConfigUpdate<ITradingServerConfig>>? updates = null,
         OrderType supportedOrderTypes = OrderType.Unset,
@@ -59,11 +58,9 @@ public class TradingServerConfig : ITradingServerConfig
     public long Id { get; set; }
     public string? Name { get; set; }
     public MarketServerType MarketServerType { get; set; }
-    public IEnumerable<IConnectionConfig>? ServerConnections { get; set; }
+    public IEnumerable<ISocketConnectionConfig>? ServerConnections { get; set; }
     public ITimeTable? AvailabilityTimeTable { get; set; }
     public IObservable<IMarketServerConfigUpdate<ITradingServerConfig>>? Updates { get; set; }
-
-    IEnumerable<ISocketConnectionConfig>? IMarketServerConfig.ServerConnections { get; }
 
     public OrderType SupportedOrderTypes { get; set; }
     public TimeInForce SupportedTimeInForce { get; set; }

@@ -50,7 +50,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         ITradingFeedWatchdog? tradingFeedWatchdog = null,
         IAlertManager? alertMgr = null, bool cancelOnAmendReject = true, bool keepAlive = false)
         : base(new OrxTradingClientMessaging(socksDispatcher, networkingController
-                , tradingServerConfig.ServerConnections!.First(),
+                , tradingServerConfig.ServerConnections!.Select(scc => scc.ToConnectionConfig()).First(),
                 tradingServerConfig.Name!, 1, keepAlive), tradingServerConfig.Name!, loginCredentials,
             defaultAccount)
     {

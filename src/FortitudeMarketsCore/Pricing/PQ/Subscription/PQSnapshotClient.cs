@@ -43,14 +43,15 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         parallelController = socketSessionContext.SocketFactories.ParallelController!;
         intraOSThreadSignal = parallelController!.SingleOSThreadActivateSignal(false);
         cxTimeoutMs = socketSessionContext.SocketConnectionConfig.ConnectionTimeoutMs;
-        socketSessionContext.SocketConnected += OnSocketConnected;
+        socketSessionContext.SocketConnected += SocketConnection;
         socketSessionContext.SocketConnected += SendQueuedRequests;
         socketSessionContext.StateChanged += SocketSessionContextOnStateChanged;
         messageStreamDecoder
             = new PQClientMessageStreamDecoder(new ConcurrentMap<uint, IMessageDeserializer>(), PQFeedType.Snapshot);
         messageStreamDecoder.ReceivedMessage += OnReceivedMessage;
         messageStreamDecoder.ReceivedData += OnReceivedMessage;
-        socketSessionContext.SerdesFactory.StreamDecoderFactory = new SocketStreamDecoderFactory(messageStreamDecoder);
+        socketSessionContext.SerdesFactory.StreamDecoderFactory
+            = new SocketStreamDecoderFactory(deserializer => messageStreamDecoder);
         socketSessionContext.SerdesFactory.StreamEncoderFactory = snapshotSerializationRepository;
     }
 
@@ -151,9 +152,8 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
     private void EnableTimeout()
     {
-        if (timerSubscription == null)
-            timerSubscription = parallelController.ScheduleWithEarlyTrigger(intraOSThreadSignal, TimeoutConnection!,
-                cxTimeoutMs, false);
+        timerSubscription ??= parallelController.ScheduleWithEarlyTrigger(intraOSThreadSignal, TimeoutConnection!,
+            cxTimeoutMs, false);
     }
 
     private void DisableTimeout()
@@ -174,7 +174,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         EnableTimeout();
     }
 
-    private void OnSocketConnected(ISocketConnection socketConnection)
+    private void SocketConnection(ISocketConnection socketConnection)
     {
         DisableTimeout();
         EnableTimeout();

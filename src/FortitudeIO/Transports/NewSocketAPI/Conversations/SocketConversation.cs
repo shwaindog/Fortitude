@@ -11,6 +11,7 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 
 public class SocketConversation : ISocketConversation
 {
+    private static int nextSessionId;
     protected readonly IStreamControls InitiateControls;
     protected readonly ISocketSessionContext SocketSessionContext;
 
@@ -53,6 +54,27 @@ public class SocketConversation : ISocketConversation
         add => SocketSessionContext.Disconnected += value;
         remove => SocketSessionContext.Disconnected -= value;
     }
+
+    public event Action<SocketSessionState>? StateChanged
+    {
+        add => SocketSessionContext.StateChanged += value;
+        remove => SocketSessionContext.StateChanged -= value;
+    }
+
+    public event Action<ISocketConnection>? SocketConnected
+    {
+        add => SocketSessionContext.SocketConnected += value;
+        remove => SocketSessionContext.SocketConnected -= value;
+    }
+
+    public event Action? Disconnecting
+    {
+        add => SocketSessionContext.Disconnecting += value;
+        remove => SocketSessionContext.Disconnecting -= value;
+    }
+
+    public int Id { get; } = Interlocked.Increment(ref nextSessionId);
+    public IConversationSession Session => SocketSessionContext.Session;
 
     public ConversationType ConversationType { get; set; }
 

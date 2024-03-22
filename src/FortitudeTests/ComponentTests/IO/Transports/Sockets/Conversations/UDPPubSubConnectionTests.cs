@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
@@ -85,7 +86,7 @@ public class UdpPubSubConnectionTests
     }
 
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, object? header
-        , ISocketConversation? selfSession)
+        , IConversation? selfSession)
     {
         recevedSimpleVersionedMessage = msg;
     }

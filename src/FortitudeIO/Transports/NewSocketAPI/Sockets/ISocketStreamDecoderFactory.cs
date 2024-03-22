@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -11,13 +12,29 @@ namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 public class SocketStreamDecoderFactory : IStreamDecoderFactory
 {
-    private readonly IMessageStreamDecoder messageStreamDecoder;
+    protected readonly IMap<uint, IMessageDeserializer> DeserializersMap
+        = new ConcurrentMap<uint, IMessageDeserializer>();
 
-    public SocketStreamDecoderFactory(IMessageStreamDecoder messageStreamDecoder) =>
-        this.messageStreamDecoder = messageStreamDecoder;
+    private readonly Func<IMap<uint, IMessageDeserializer>, IMessageStreamDecoder> messageStreamDecoderFactory;
 
+    public SocketStreamDecoderFactory(
+        Func<IMap<uint, IMessageDeserializer>, IMessageStreamDecoder> messageStreamDecoderFactory) =>
+        this.messageStreamDecoderFactory = messageStreamDecoderFactory;
 
-    public IMessageStreamDecoder Supply() => messageStreamDecoder;
+    public int RegisteredDeserializerCount => DeserializersMap.Count;
+    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => DeserializersMap;
+
+    public void RegisterMessageDeserializer(uint id, IMessageDeserializer messageSerializer)
+    {
+        DeserializersMap[id] = messageSerializer;
+    }
+
+    public void UnregisterMessageDeserializer(uint id)
+    {
+        DeserializersMap.Remove(id);
+    }
+
+    public IMessageStreamDecoder Supply() => messageStreamDecoderFactory(DeserializersMap);
 }
 
 public class SocketStreamMessageEncoderFactory : IStreamEncoderFactory

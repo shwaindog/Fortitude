@@ -6,9 +6,8 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Receiving;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets.Dispatcher;
-using FortitudeIO.Transports.Sockets.Subscription;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
@@ -27,8 +26,6 @@ using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
-using ISocketDispatcher = FortitudeIO.Transports.NewSocketAPI.Dispatcher.ISocketDispatcher;
-using SocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.SocketDispatcher;
 
 #endregion
 
@@ -55,9 +52,6 @@ public class PricingClientServerPubSubscribeTests
     private IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
     private ISocketDispatcher socketDispatcher = null!;
-
-    private Func<string, global::FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher> socketDispatcherFactory
-        = null!;
 
     private SourceTickerPublicationConfig sourceTickerPublicationConfig = null!;
     private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
@@ -90,16 +84,9 @@ public class PricingClientServerPubSubscribeTests
             new PricingServersConfigRepository(new[] { snapshotUpdatePricingServerConfig });
         networkingController = new OSNetworkingController();
         hbSender = new PQServerHeartBeatSender();
-        socketDispatcherFactory = (dispatcherDescription) =>
-        {
-            var socketSelector = new SocketSelector(1000, networkingController);
-            var socketDispatcherListener = new SocketDispatcherListener(socketSelector, dispatcherDescription);
-            var socketDispatcherSender = new SocketDispatcherSender("socketDispatcherSender");
-            return new SocketDispatcher(socketDispatcherListener, socketDispatcherSender);
-        };
-        socketDispatcher = new global::FortitudeIO.Transports.NewSocketAPI.Dispatcher.SocketDispatcher(
+        socketDispatcher = new SocketDispatcher(
             new SimpleSocketRingPollerListener("socketDispatcherListener", 5
-                , new global::FortitudeIO.Transports.NewSocketAPI.Receiving.SocketSelector(1000, networkingController)),
+                , new SocketSelector(1000, networkingController)),
             new SimpleSocketRingPollerSender("socketDispatcherSender", 5));
 
         pqSnapshotFactory = PQSnapshotServer.BuildTcpResponder;

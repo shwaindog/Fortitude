@@ -1,7 +1,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.Transports;
+using FortitudeIO.Conversations;
 using FortitudeMarketsApi.Trading.Orders.Server;
 
 #endregion
@@ -10,6 +10,6 @@ namespace FortitudeMarketsApi.Trading.Orders;
 
 public interface IOrderPublisher : IDisposable, IRecyclableObject
 {
-    ISession? UnderlyingSession { get; }
+    IConversation? UnderlyingSession { get; }
     bool Publish(IOrderUpdate orderUpdate);
 }

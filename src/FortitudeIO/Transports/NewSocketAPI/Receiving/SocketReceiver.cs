@@ -101,7 +101,7 @@ public sealed class SocketReceiver : ISocketReceiver
         }
 
         readSocketBufferContext.ReceivingTimestamp = receivingTs;
-        readSocketBufferContext.Conversation = socketSessionContext;
+        readSocketBufferContext.SessionContext = socketSessionContext;
         readSocketBufferContext.EncodedBuffer = receiveBuffer;
         if (Decoder.Process(readSocketBufferContext) <= 0)
         {
@@ -214,7 +214,7 @@ public sealed class SocketReceiver : ISocketReceiver
                 ref lastReadWasPartial);
             if (currentMessageLength <= 0)
             {
-                socketTraceLogger.Add("WSARecvEx return unexpected readsize", currentMessageLength);
+                socketTraceLogger.Add("Recv return unexpected readsize", currentMessageLength);
                 socketTraceLogger.Add("ToReadCursor + messageRecvLen",
                     receiveBuffer.WrittenCursor + messageRecvLen);
                 socketTraceLogger.Add("availableBuffer", availableLocalBuffer);

@@ -11,6 +11,6 @@ namespace FortitudeIO.Protocols.ORX.ClientServer;
 public interface IOrxSubscriber : ISocketSubscriber
 {
     IRecycler RecyclingFactory { get; }
-    new IOrxPublisher StreamToPublisher { get; }
+    new IClientOrxPublisher StreamToPublisher { get; }
     void RegisterDeserializer<T>(Action<T, object?, ISession?>? msgHandler) where T : class, IVersionedMessage, new();
 }

@@ -7,7 +7,6 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -135,7 +134,7 @@ public class PQConversationRepositoryBaseTests
         Assert.AreSame(socketClient, kvp.Value);
 
         moqSocketBinaryDeserializer.Setup(sbd =>
-            sbd.IsRegistered(It.IsAny<Action<PQLevel0Quote, object, ISession>>())).Returns(true).Verifiable();
+            sbd.IsRegistered(It.IsAny<Action<PQLevel0Quote, object, IConversation>>())).Returns(true).Verifiable();
 
         dummySktSubRegFctryBs.RemoveConversation(moqServerConnectionConfig.Object);
 
@@ -160,6 +159,9 @@ public class PQConversationRepositoryBaseTests
     {
         public ConversationType ConversationType { get; set; } = ConversationType.Subscriber;
         public ConversationState ConversationState { get; set; } = ConversationState.New;
+
+        public int Id { get; } = 0;
+        public IConversationSession Session { get; } = null!;
         public string Name { get; set; } = "";
         public event Action<string, int>? Error;
         public event Action? Started;

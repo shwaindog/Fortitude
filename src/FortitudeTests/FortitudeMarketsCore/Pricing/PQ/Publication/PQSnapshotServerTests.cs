@@ -55,7 +55,7 @@ public class PQSnapshotServerTests
             .Returns(moqParallelController.Object);
 
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqAcceptorControls.SetupAdd(ac => ac.OnNewClient += It.IsAny<Action<ISocketSessionContext>>()).Verifiable();
+        moqAcceptorControls.SetupAdd(ac => ac.NewClient += It.IsAny<Action<IConversationRequester>>()).Verifiable();
 
         moqNewClientContext.SetupGet(ssc => ssc.Name).Returns("New Client Connection");
         moqNewClientContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);

@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
 
@@ -15,12 +14,7 @@ public interface ISocketConnectivityChanged
 
 public class SocketStateChangeHandler : ISocketConnectivityChanged
 {
-    private static readonly IDictionary<uint, IMessageSerializer> emptyStreamMap
-        = new Dictionary<uint, IMessageSerializer>();
-
-    private readonly ISerdesFactory serdesFactory;
-
-    private readonly ISocketReceiverFactory? sockeReceiverFactory;
+    private readonly ISocketReceiverFactory? socketReceiverFactory;
     private readonly ISocketSenderFactory? socketSenderFactory;
     private readonly ISocketSessionContext socketSessionContext;
 
@@ -28,8 +22,7 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
     {
         this.socketSessionContext = socketSessionContext;
         socketSenderFactory = socketSessionContext.SocketFactories.SocketSenderFactory;
-        sockeReceiverFactory = socketSessionContext.SocketFactories.SocketReceiverFactory;
-        serdesFactory = socketSessionContext.SerdesFactory;
+        socketReceiverFactory = socketSessionContext.SocketFactories.SocketReceiverFactory;
     }
 
     public Action<SocketSessionState> GetOnConnectionChangedHandler() => OnConnectionChanged;
@@ -105,12 +98,12 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
             }
 
         if (socketCon.IsConnected &&
-            sockeReceiverFactory!.HasConversationListener(socketSessionContext.ConversationType))
+            socketReceiverFactory!.HasConversationListener(socketSessionContext.ConversationType))
         {
             if (socketSessionContext.SocketReceiver != null)
                 socketSessionContext.SocketDispatcher.Listener.UnregisterForListen(socketSessionContext.SocketReceiver);
 
-            var socketReceiver = sockeReceiverFactory.GetConversationListener(socketSessionContext);
+            var socketReceiver = socketReceiverFactory.GetConversationListener(socketSessionContext);
             socketSessionContext.SocketReceiver = socketReceiver;
             socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.StreamDecoderFactory?.Supply();
             socketSessionContext.SocketDispatcher.Listener.RegisterForListen(socketSessionContext.SocketReceiver);

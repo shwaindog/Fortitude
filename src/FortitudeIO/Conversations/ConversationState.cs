@@ -18,3 +18,8 @@ public interface IConversationState
     event Action? Started;
     event Action? Stopped;
 }
+
+public interface IConversationSession
+{
+    int Id { get; }
+}

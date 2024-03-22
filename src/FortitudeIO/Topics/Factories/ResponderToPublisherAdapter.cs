@@ -19,6 +19,9 @@ public class ResponderToPublisherAdapter : IPublisherConversation
         conversationPublisherAdapter = new ConversationPublisherAdapter(requestResponseResponderConversation);
     }
 
+    public int Id { get; } = 0;
+    public IConversationSession Session { get; } = null!;
+
     public ConversationType ConversationType => ConversationType.Publisher;
 
     public bool IsStarted => requestResponseResponderConversation.IsStarted;

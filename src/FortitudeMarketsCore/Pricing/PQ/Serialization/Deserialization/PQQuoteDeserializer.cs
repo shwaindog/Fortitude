@@ -19,7 +19,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
     where T : PQLevel0Quote, new()
 {
     public const int MaxBufferedUpdates = 128;
-    private readonly IDeserializeStateTransitionFactory<T> stateTransitionFactory;
+    private readonly DeserializeStateTransitionFactory<T> stateTransitionFactory;
     private readonly StaticRing<T> syncRing;
     private SyncStateBase<T> currentSyncState;
 

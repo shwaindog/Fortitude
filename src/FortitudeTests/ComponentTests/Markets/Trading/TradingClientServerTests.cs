@@ -8,10 +8,8 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
-using FortitudeIO.Transports.Sockets;
 using FortitudeIO.Transports.Sockets.Dispatcher;
 using FortitudeIO.Transports.Sockets.Subscription;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
@@ -50,7 +48,6 @@ public class TradingClientServerTests
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
     private ISocketDispatcher clientSocketDispatcher = null!;
     private OSNetworkingController networkingController = null!;
-    private ISocketDispatcher serverSocketDispatcher = null!;
     private TradingServerConfig tradingServerConfig = null!;
 
     [TestInitialize]
@@ -58,9 +55,6 @@ public class TradingClientServerTests
     {
         logger.Info("Starting setup of TradingClientServerTests");
         networkingController = new OSNetworkingController();
-        serverSocketDispatcher = new SocketDispatcher(
-            new SocketDispatcherListener(new SocketSelector(1000, networkingController), "TestTradingServer"),
-            new SocketDispatcherSender("ServerSocketDispatcher"));
         clientSocketDispatcher = new SocketDispatcher(
             new SocketDispatcherListener(new SocketSelector(1000, networkingController), "TestTradingClient"),
             new SocketDispatcherSender("ClientSocketDispatcher"));
@@ -68,9 +62,9 @@ public class TradingClientServerTests
         tradingServerConfig = new TradingServerConfig(short.MaxValue, "TestExchangeAdapter",
             MarketServerType.Trading, new[]
             {
-                new ConnectionConfig("TestSnapshotServer",
-                    TestMachineConfig.LoopBackIpAddress, TestMachineConfig.TradingServerPort,
-                    ConnectionDirectionType.Both, "none", 500)
+                new SocketConnectionConfig("TestSnapshotServer", "TestSnapshotServer", SocketConnectionAttributes.None,
+                    2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress, null, false
+                    , TestMachineConfig.TradingServerPort)
             }, new TimeTable(),
             Observable.Empty<IMarketServerConfigUpdate<ITradingServerConfig>>(),
             OrderType.Limit,
@@ -95,8 +89,7 @@ public class TradingClientServerTests
     [TestMethod]
     public void StartedTradingServer_ClientJoinsSendsOrder_ServerSendsConfirmation()
     {
-        var orxServer = new OrxServerMessaging(serverSocketDispatcher, networkingController,
-            TestMachineConfig.TradingServerPort, "TestTradingServer");
+        var orxServer = OrxServerMessaging.BuildTcpResponder(tradingServerConfig.ServerConnections!.First());
         var clientOrderAutoResetEvent = new AutoResetEvent(false);
         var serverResponseTradingHandler = new TradingFeedHandle
         {
@@ -122,7 +115,7 @@ public class TradingClientServerTests
             clientOrderAutoResetEvent.Set();
         };
 
-        Thread.Sleep(400);
+        Thread.Sleep(2000);
         Assert.IsTrue(orxClient.IsAvailable);
         var orderId = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
         var timeInForce = TimeInForce.GoodTillCancelled;
@@ -241,7 +234,7 @@ public class TradingClientServerTests
         Assert.AreEqual(OrderStatus.Dead, clientLastOrderReceived.Status);
     }
 
-    private bool OrxTradingServer_OnAuthenticate(ISessionConnection clientSessionConnection, MutableString? usr,
+    private bool OrxTradingServer_OnAuthenticate(ISocketSessionContext clientSessionConnection, MutableString? usr,
         MutableString? pwd, out IUserData authData, out MutableString message)
     {
         message = "All Good";

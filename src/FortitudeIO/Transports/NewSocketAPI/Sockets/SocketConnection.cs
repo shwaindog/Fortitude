@@ -15,6 +15,8 @@ public interface ISocketConnection : ISocketSessionInfo
 {
     IOSSocket OSSocket { get; }
     bool IsConnected { get; }
+
+    bool IsAuthenticated { get; set; }
 }
 
 public class SocketConnection : ISocketConnection
@@ -37,6 +39,8 @@ public class SocketConnection : ISocketConnection
     public IOSSocket OSSocket { get; }
     public IPAddress ConnectedIPAddress { get; set; }
     public ushort ConnectedPort { get; set; }
+
+    public bool IsAuthenticated { get; set; }
 
     public ConversationState ConversationState
     {

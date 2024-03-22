@@ -62,6 +62,21 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
         public SimpleDeserializerFactory(IDictionary<uint, IMessageDeserializer> deserializers) =>
             this.deserializers = deserializers;
 
+        public int RegisteredDeserializerCount => 0;
+
+        public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers =>
+            Enumerable.Empty<KeyValuePair<uint, IMessageDeserializer>>();
+
+        public void RegisterMessageDeserializer(uint id, IMessageDeserializer messageSerializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnregisterMessageDeserializer(uint id)
+        {
+            throw new NotImplementedException();
+        }
+
         public IMessageStreamDecoder Supply()
         {
             var streamDecoder = new SimpleMessageStreamDecoder();

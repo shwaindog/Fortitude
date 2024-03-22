@@ -87,7 +87,7 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
 
                     readSocketBufferContext.EncodedBuffer.ReadCursor = read;
                     requestsHandler?.Invoke(readSocketBufferContext.Session!, streamIDs);
-                    requestsHandlerNew?.Invoke(readSocketBufferContext.Conversation!, streamIDs);
+                    requestsHandlerNew?.Invoke(readSocketBufferContext.SessionContext!, streamIDs);
                     read += requestsCount * RequestSize;
                     messageSection = MessageSection.Header;
                     ExpectedSize = HeaderSize;
