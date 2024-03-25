@@ -52,7 +52,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
     public IRecycler RecyclingFactory { get; }
 
 
-    public static OrxClientMessaging BuildTcpRequester(ISocketConnectionConfig socketConnectionConfig
+    public static OrxClientMessaging BuildTcpRequester(ISocketTopicConnectionConfig socketTopicConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver)
     {
         var conversationType = ConversationType.Requester;
@@ -63,12 +63,13 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, sockFactories, serdesFactory
-            , socketDispatcherResolver.Resolve(socketConnectionConfig));
+            socketTopicConnectionConfig.TopicName, socketTopicConnectionConfig, sockFactories, serdesFactory
+            , socketDispatcherResolver.Resolve(socketTopicConnectionConfig));
         socketSessionContext.Name += "Requester";
 
-        var clientInitiateControls = new InitiateControls(socketSessionContext);
+        var initControls
+            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new OrxClientMessaging(socketSessionContext, clientInitiateControls);
+        return new OrxClientMessaging(socketSessionContext, initControls);
     }
 }

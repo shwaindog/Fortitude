@@ -6,7 +6,18 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Controls;
 
-public class StreamControlsFactory
+public interface IStreamControlsFactory
 {
-    public IStreamControls? ResolveStreamControls(ISocketSessionContext socketSocketSessionContext) => null;
+    IStreamControls ResolveStreamControls(ISocketSessionContext socketSocketSessionContext);
+}
+
+public class StreamControlsFactory : IStreamControlsFactory
+{
+    public IStreamControls ResolveStreamControls(ISocketSessionContext socketSocketSessionContext)
+    {
+        var topicConnectionConfig = socketSocketSessionContext.SocketTopicConnectionConfig;
+        if (topicConnectionConfig.ConversationProtocol == SocketConversationProtocol.TcpAcceptor)
+            return new TcpAcceptorControls(socketSocketSessionContext);
+        return new InitiateControls(socketSocketSessionContext);
+    }
 }

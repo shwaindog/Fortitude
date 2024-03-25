@@ -66,7 +66,7 @@ public abstract class UdpPublisher : SocketPublisherBase
 
     protected abstract UdpSubscriber BuildSubscriber(UdpPublisher publisher);
 
-    public abstract class UdpSubscriber : SocketSubscriber
+    public abstract class UdpSubscriber : InitiateControls
     {
         protected readonly UdpPublisher UdpPublisher;
 

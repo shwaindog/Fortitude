@@ -3,6 +3,7 @@
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
@@ -15,11 +16,11 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
 {
     new int Id { get; }
     new string Name { get; set; }
-
+    IStreamControls? StreamControls { get; set; }
     ISocketConversation? OwningConversation { get; set; }
     SocketSessionState SocketSessionState { get; }
     SocketConversationProtocol SocketConversationProtocol { get; }
-    ISocketConnectionConfig SocketConnectionConfig { get; }
+    ISocketTopicConnectionConfig SocketTopicConnectionConfig { get; }
     ISocketConnection? SocketConnection { get; }
     ISocketReceiver? SocketReceiver { get; set; }
     ISocketSender? SocketSender { get; set; }
@@ -28,6 +29,7 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
     ISerdesFactory SerdesFactory { get; }
     void OnSocketStateChanged(SocketSessionState newSessionState);
     void OnDisconnected();
+    void OnReconnecting();
     void OnDisconnecting();
     void OnConnected(ISocketConnection socketConnection);
 }
@@ -38,7 +40,7 @@ public class SocketSessionContext : ISocketSessionContext
 
     public SocketSessionContext(ConversationType conversationType,
         SocketConversationProtocol socketConversationProtocol,
-        string sessionDescription, ISocketConnectionConfig socketConnectionConfig,
+        string sessionDescription, ISocketTopicConnectionConfig socketConnectionConfig,
         ISocketFactories socketFactories, ISerdesFactory serdesFactory,
         ISocketDispatcher? socketDispatcher = null)
     {
@@ -48,7 +50,7 @@ public class SocketSessionContext : ISocketSessionContext
         SerdesFactory = serdesFactory;
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
-        SocketConnectionConfig = socketConnectionConfig;
+        SocketTopicConnectionConfig = socketConnectionConfig;
         Name = sessionDescription;
         StateChanged = socketFactories.ConnectionChangedHandlerResolver!(this)
             .GetOnConnectionChangedHandler();
@@ -57,6 +59,7 @@ public class SocketSessionContext : ISocketSessionContext
 
     public int Id { get; }
 
+    public IStreamControls? StreamControls { get; set; }
     public ISocketConversation? OwningConversation { get; set; }
     public ConversationType ConversationType { get; }
     public SocketConversationProtocol SocketConversationProtocol { get; }
@@ -64,7 +67,7 @@ public class SocketSessionContext : ISocketSessionContext
     public ISerdesFactory SerdesFactory { get; }
     public ISocketDispatcher SocketDispatcher { get; set; }
     public ISocketConnection? SocketConnection { get; private set; }
-    public ISocketConnectionConfig SocketConnectionConfig { get; }
+    public ISocketTopicConnectionConfig SocketTopicConnectionConfig { get; }
     public SocketSessionState SocketSessionState { get; set; }
     public string Name { get; set; }
 
@@ -102,12 +105,12 @@ public class SocketSessionContext : ISocketSessionContext
 
     public void Start()
     {
-        throw new NotImplementedException();
+        StreamControls?.Start();
     }
 
     public void Stop()
     {
-        throw new NotImplementedException();
+        StreamControls?.Stop();
     }
 
     public bool IsStarted => SocketConnection?.IsConnected ?? false;
@@ -134,6 +137,11 @@ public class SocketSessionContext : ISocketSessionContext
         OnSocketStateChanged(SocketSessionState.Disconnected);
         Disconnected?.Invoke();
         OnStopped();
+    }
+
+    public void OnReconnecting()
+    {
+        OnSocketStateChanged(SocketSessionState.Reconnecting);
     }
 
     public void OnDisconnecting()

@@ -38,8 +38,11 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
         feedConfig = new SnapshotUpdatePricingServerConfig("TestServerConfig", MarketServerType.MarketData,
             new[]
             {
-                new SocketConnectionConfig("testConnectionName", "testConnectionName", SocketConnectionAttributes.None
-                    , 2_000_000, 2_000_000, "testhost", null, false, 9090)
+                new SocketTopicConnectionConfig("testConnectionName", SocketConversationProtocol.TcpAcceptor
+                    , new List<ISocketConnectionConfig>
+                    {
+                        new SocketConnectionConfig("testhost", 9090)
+                    })
             }, null, 1234,
             new[] { new SourceTickerPublicationConfig(0, "", "") },
             true, true);

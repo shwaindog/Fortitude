@@ -54,9 +54,12 @@ public class TradingClientServerTests
         tradingServerConfig = new TradingServerConfig(short.MaxValue, "TestExchangeAdapter",
             MarketServerType.Trading, new[]
             {
-                new SocketConnectionConfig("TestTradingServer", "TestTradingServer", SocketConnectionAttributes.None,
-                    2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress, null, false
-                    , TestMachineConfig.TradingServerPort)
+                new SocketTopicConnectionConfig("TestTradingServer", SocketConversationProtocol.TcpAcceptor
+                    , new List<ISocketConnectionConfig>
+                    {
+                        new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                            , TestMachineConfig.TradingServerPort)
+                    })
             }, new TimeTable(),
             Observable.Empty<IMarketServerConfigUpdate<ITradingServerConfig>>(),
             OrderType.Limit,
@@ -65,13 +68,18 @@ public class TradingClientServerTests
                 MarketServerType.MarketData,
                 new[]
                 {
-                    new SocketConnectionConfig("TestSnapshotServer", "TestSnapshotServer",
-                        SocketConnectionAttributes.None, 2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress,
-                        null, false, (ushort)TestMachineConfig.ServerSnapshotPort, TestMachineConfig.ServerSnapshotPort)
-                    , new SocketConnectionConfig("TestUpdateServer", "TestUpdateServer",
-                        SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast, 2_000_000, 0
-                        , TestMachineConfig.LoopBackIpAddress,
-                        TestMachineConfig.NetworkSubAddress, false, TestMachineConfig.ServerUpdatePort)
+                    new SocketTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor
+                        , new List<ISocketConnectionConfig>
+                        {
+                            new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                                , TestMachineConfig.ServerSnapshotPort)
+                        })
+                    , new SocketTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher
+                        , new List<ISocketConnectionConfig>
+                        {
+                            new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                                , TestMachineConfig.ServerUpdatePort, subnetMask: TestMachineConfig.NetworkSubAddress)
+                        })
                 }, null, 9000, Enumerable.Empty<ISourceTickerPublicationConfig>(), false, false));
         logger.Info("Ended setup of TradingClientServerTests");
     }
@@ -95,7 +103,7 @@ public class TradingClientServerTests
         var orderStatus = OrderStatus.New;
         IOrder? clientLastOrderReceived = null;
 
-        var orxClient = new OrxTradingClient(tradingServerConfig, SingletonSocketDispatcherResolver.Instance
+        var orxClient = new OrxTradingClient(tradingServerConfig.Clone(true), SingletonSocketDispatcherResolver.Instance
             , "TradingClientServerTest",
             new LoginCredentials("testLoginId", "testPassword"), "testAccount", true, new TradingFeedWatchdog(),
             new LoggingAlertManager(), false);

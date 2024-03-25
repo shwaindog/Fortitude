@@ -16,7 +16,7 @@ public class TradingServerConfig : ITradingServerConfig
 {
     public TradingServerConfig(long id = 0L, string? name = null,
         MarketServerType marketServerType = MarketServerType.Trading,
-        IEnumerable<ISocketConnectionConfig>? serverConnections = null,
+        IEnumerable<ISocketTopicConnectionConfig>? serverConnections = null,
         ITimeTable? availabilityTimeTable = null,
         IObservable<IMarketServerConfigUpdate<ITradingServerConfig>>? updates = null,
         OrderType supportedOrderTypes = OrderType.Unset,
@@ -37,12 +37,13 @@ public class TradingServerConfig : ITradingServerConfig
         SupportsMarketPriceQuoteExecution = supportsMarketPriceQuoteExecution;
     }
 
-    public TradingServerConfig(TradingServerConfig toClone)
+    public TradingServerConfig(TradingServerConfig toClone, bool switchToMatchingConnection)
     {
         Id = toClone.Id;
         Name = toClone.Name;
         MarketServerType = toClone.MarketServerType;
-        ServerConnections = toClone.ServerConnections;
+        ServerConnections = toClone.ServerConnections?.Select(stcc => stcc.Clone(switchToMatchingConnection)) ??
+                            Enumerable.Empty<ISocketTopicConnectionConfig>();
         AvailabilityTimeTable = toClone.AvailabilityTimeTable?.Clone();
         Updates = toClone.Updates;
         SupportedOrderTypes = toClone.SupportedOrderTypes;
@@ -53,12 +54,18 @@ public class TradingServerConfig : ITradingServerConfig
 
     object ICloneable.Clone() => Clone();
 
-    public IMarketServerConfig<ITradingServerConfig> Clone() => new TradingServerConfig(this);
+    public IMarketServerConfig<ITradingServerConfig> Clone() => new TradingServerConfig(this, false);
+
+    IMarketServerConfig IMarketServerConfig.Clone(bool switchToMatchingConnection) =>
+        new TradingServerConfig(this, switchToMatchingConnection);
+
+    public ITradingServerConfig Clone(bool switchToMatchingConnection) =>
+        new TradingServerConfig(this, switchToMatchingConnection);
 
     public long Id { get; set; }
     public string? Name { get; set; }
     public MarketServerType MarketServerType { get; set; }
-    public IEnumerable<ISocketConnectionConfig>? ServerConnections { get; set; }
+    public IEnumerable<ISocketTopicConnectionConfig>? ServerConnections { get; set; }
     public ITimeTable? AvailabilityTimeTable { get; set; }
     public IObservable<IMarketServerConfigUpdate<ITradingServerConfig>>? Updates { get; set; }
 

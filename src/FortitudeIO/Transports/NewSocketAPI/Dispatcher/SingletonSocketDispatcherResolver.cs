@@ -10,7 +10,7 @@ namespace FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 
 public interface ISocketDispatcherResolver
 {
-    ISocketDispatcher Resolve(ISocketConnectionConfig socketSessionContext);
+    ISocketDispatcher Resolve(ISocketTopicConnectionConfig socketSessionContext);
 }
 
 public class PoolSocketDispatcherResolver : ISocketDispatcherResolver
@@ -31,7 +31,7 @@ public class PoolSocketDispatcherResolver : ISocketDispatcherResolver
         this.senderSelector = senderSelector;
     }
 
-    public ISocketDispatcher Resolve(ISocketConnectionConfig socketSessionContext) =>
+    public ISocketDispatcher Resolve(ISocketTopicConnectionConfig socketSessionContext) =>
         new SocketDispatcher(listenerSelector(pooledListeners),
             senderSelector(pooledSenders));
 
@@ -79,7 +79,7 @@ public class SingletonSocketDispatcherResolver : ISocketDispatcherResolver
         }
     }
 
-    public ISocketDispatcher Resolve(ISocketConnectionConfig socketSessionContext) =>
+    public ISocketDispatcher Resolve(ISocketTopicConnectionConfig socketSessionContext) =>
         singletonDispatcher ??= new SocketDispatcher(
             new SimpleSocketRingPollerListener($"Singleton", 5
                 , new SocketSelector(100, new OSNetworkingController())),

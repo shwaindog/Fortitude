@@ -20,19 +20,21 @@ public class UdpConversationPublisherBuilder
         set => socketFactories = value;
     }
 
-    public ConversationPublisher Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
+    public ConversationPublisher Build(ISocketTopicConnectionConfig socketConnectionConfig
+        , ISerdesFactory serdesFactory)
     {
         var conversationType = ConversationType.Publisher;
         var conversationProtocol = SocketConversationProtocol.UdpPublisher;
 
-        var socketFactories = SocketFactories;
+        var sockFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socketFactories
+            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories
             , serdesFactory);
         socketSessionContext.Name += "Publisher";
 
-        var initiateControls = new InitiateControls(socketSessionContext);
+        var initiateControls
+            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
         return new ConversationPublisher(socketSessionContext, initiateControls);
     }

@@ -47,7 +47,7 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         client.ConversationPublisher!.Send(message);
     }
 
-    public static PQSnapshotServer BuildTcpResponder(ISocketConnectionConfig socketConnectionConfig)
+    public static PQSnapshotServer BuildTcpResponder(ISocketTopicConnectionConfig socketConnectionConfig)
     {
         var conversationType = ConversationType.Responder;
         var conversationProtocol = SocketsAPI.SocketConversationProtocol.TcpAcceptor;
@@ -57,13 +57,13 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketsAPI.SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socFactories, serdesFactory);
+            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory);
         socketSessionContext.Name += "Responder";
 
+        var acceptorControls
+            = (IAcceptorControls)socFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        var tcpAcceptorControls = new TcpAcceptorControls(socketSessionContext);
-
-        return new PQSnapshotServer(socketSessionContext, tcpAcceptorControls);
+        return new PQSnapshotServer(socketSessionContext, acceptorControls);
     }
 
     private void HandleNewClient(IConversationRequester newClient)

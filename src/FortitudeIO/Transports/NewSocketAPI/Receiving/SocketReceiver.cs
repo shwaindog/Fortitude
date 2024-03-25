@@ -50,13 +50,12 @@ public sealed class SocketReceiver : ISocketReceiver
     private long numberOfMessages;
     private long totalMessageSize;
 
-    public SocketReceiver(ISocketSessionContext socketSessionContext, int numberOfReceivesPerPoll = 1,
-        bool zeroBytesReadIsDisconnection = true)
+    public SocketReceiver(ISocketSessionContext socketSessionContext)
     {
         socket = socketSessionContext.SocketConnection!.OSSocket;
         directOSNetworkingApi = socketSessionContext.SocketFactories.NetworkingController!.DirectOSNetworkingApi;
         this.socketSessionContext = socketSessionContext;
-        this.numberOfReceivesPerPoll = numberOfReceivesPerPoll;
+        numberOfReceivesPerPoll = socketSessionContext.SocketTopicConnectionConfig.NumberOfReceivesPerPoll;
 
         var socketUseDescriptionNoWhiteSpaces = this.socketSessionContext.Name.Replace(" ", "");
         receiveSocketCxLatencyTraceLoggerPool = PerfLoggingPoolFactory.Instance
@@ -70,12 +69,12 @@ public sealed class SocketReceiver : ISocketReceiver
         receiveBuffer = new ReadWriteBuffer(new byte[socket.ReceiveBufferSize]);
         bufferSize = receiveBuffer.Buffer.Length;
 
-        ZeroBytesReadIsDisconnection = zeroBytesReadIsDisconnection;
+        ZeroBytesReadIsDisconnection = true;
     }
 
     public bool ListenActive { get; set; }
     public IntPtr SocketHandle => socket.Handle;
-    public bool ZeroBytesReadIsDisconnection { get; set; } = true;
+    public bool ZeroBytesReadIsDisconnection { get; set; }
 
     public event Action? Accept;
     public bool IsAcceptor => Accept != null;

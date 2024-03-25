@@ -21,7 +21,7 @@ public interface IAcceptorControls : IStreamControls
     void Broadcast(IVersionedMessage message);
 }
 
-public class TcpAcceptorControls : IAcceptorControls
+public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 {
     private readonly ISocketSessionContext acceptorSocketSessionContext;
     private readonly Dictionary<int, IConversationRequester> clients = new();
@@ -33,7 +33,7 @@ public class TcpAcceptorControls : IAcceptorControls
     private IDirectOSNetworkingApi? directOSNetworkingApi;
 #pragma warning restore 0169
 
-    public TcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext)
+    public TcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext) : base(acceptorSocketSessionContext)
     {
         this.acceptorSocketSessionContext = acceptorSocketSessionContext;
         socketFactory = acceptorSocketSessionContext.SocketFactories.SocketFactory!;
@@ -48,48 +48,36 @@ public class TcpAcceptorControls : IAcceptorControls
         get { return clients.ToDictionary(kvp => kvp.Key, kvp => kvp.Value); }
     }
 
-    public virtual void StartMessaging()
-    {
-        acceptorSocketSessionContext.SocketDispatcher.Start();
-    }
-
-    public virtual void StopMessaging()
-    {
-        acceptorSocketSessionContext.SocketDispatcher.Stop();
-    }
-
-    public void Connect()
+    public override void Connect()
     {
         connSync.Acquire();
         try
         {
             if (acceptorSocketSessionContext.SocketReceiver != null) return;
-            var connConfig = acceptorSocketSessionContext.SocketConnectionConfig;
-            var maxAttempts = Math.Max(connConfig.PortEndRange - connConfig.PortStartRange, 1);
+            var connConfig = acceptorSocketSessionContext.SocketTopicConnectionConfig;
             acceptorSocketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
-            for (ushort attemptNum = 0; attemptNum < maxAttempts; attemptNum++)
+            foreach (var socketConConfig in acceptorSocketSessionContext.SocketTopicConnectionConfig)
                 try
                 {
-                    var port = socketFactory.GetPort(connConfig, attemptNum);
                     logger.Info("Starting publisher {0} @{1}",
-                        acceptorSocketSessionContext.Name, port);
+                        acceptorSocketSessionContext.Name, socketConConfig.Port);
 
-                    var listeningSocket = socketFactory.Create(acceptorSocketSessionContext.SocketConversationProtocol,
-                        acceptorSocketSessionContext.SocketConnectionConfig, attemptNum);
+                    var listeningSocket = socketFactory.Create(acceptorSocketSessionContext.SocketTopicConnectionConfig
+                        , socketConConfig);
 
                     logger.Info("Publisher {0} @{1} started",
-                        acceptorSocketSessionContext.Name, port);
+                        acceptorSocketSessionContext.Name, socketConConfig.Port);
 
                     var localEndPointIp = listeningSocket.RemoteOrLocalIPEndPoint()!;
-                    acceptorSocketSessionContext.OnConnected(new SocketConnection(connConfig.InstanceName
+                    acceptorSocketSessionContext.OnConnected(new SocketConnection(connConfig.TopicName
                         , acceptorSocketSessionContext.ConversationType,
-                        listeningSocket, localEndPointIp.Address, port));
+                        listeningSocket, localEndPointIp.Address, socketConConfig.Port));
                     acceptorSocketSessionContext.SocketReceiver!.ZeroBytesReadIsDisconnection = false;
                     break;
                 }
                 catch (Exception)
                 {
-                    if (attemptNum == maxAttempts - 1) logger.Error($"Failed to open socket for {connConfig}");
+                    logger.Error($"Failed to open socket for {connConfig}");
                 }
 
             if (acceptorSocketSessionContext.SocketConnection?.IsConnected ?? false)
@@ -104,7 +92,7 @@ public class TcpAcceptorControls : IAcceptorControls
         }
     }
 
-    public virtual void Disconnect()
+    public override void Disconnect()
     {
         connSync.Acquire();
         try
@@ -257,12 +245,12 @@ public class TcpAcceptorControls : IAcceptorControls
 
     private ISocketSessionContext RegisterSocketAsTcpRequesterConversation(IOSSocket socket)
     {
-        socket.SendBufferSize = acceptorSocketSessionContext.SocketConnectionConfig.SendBufferSize;
-        socket.ReceiveBufferSize = acceptorSocketSessionContext.SocketConnectionConfig.ReceiveBufferSize;
+        socket.SendBufferSize = acceptorSocketSessionContext.SocketTopicConnectionConfig.SendBufferSize;
+        socket.ReceiveBufferSize = acceptorSocketSessionContext.SocketTopicConnectionConfig.ReceiveBufferSize;
 
         var socketSessionConnection = new SocketSessionContext(ConversationType.Requester,
             SocketConversationProtocol.TcpClient, acceptorSocketSessionContext.Name,
-            acceptorSocketSessionContext.SocketConnectionConfig,
+            acceptorSocketSessionContext.SocketTopicConnectionConfig,
             acceptorSocketSessionContext.SocketFactories, acceptorSocketSessionContext.SerdesFactory);
         var ipEndPoint = socket.RemoteOrLocalIPEndPoint()!;
         socketSessionConnection.SocketDispatcher = acceptorSocketSessionContext.SocketDispatcher;

@@ -16,10 +16,8 @@ namespace FortitudeIO.Transports.NewSocketAPI.Controls;
 
 public interface ISocketFactory
 {
-    IOSSocket Create(SocketConversationProtocol protocolType, ISocketConnectionConfig socketConnectionConfig,
-        ushort attemptNum);
-
-    ushort GetPort(ISocketConnectionConfig socketConnectionConfig, ushort attemptNum);
+    IOSSocket Create(ISocketTopicConnectionConfig topicConnectionConfig
+        , ISocketConnectionConfig socketConnectionConfig);
 }
 
 public class SocketFactory : ISocketFactory
@@ -30,44 +28,33 @@ public class SocketFactory : ISocketFactory
     public SocketFactory(IOSNetworkingController networkingController) =>
         this.networkingController = networkingController;
 
-    public IOSSocket Create(SocketConversationProtocol protocolType, ISocketConnectionConfig socketConnectionConfig,
-        ushort attemptNum)
+    public IOSSocket Create(ISocketTopicConnectionConfig topicConnectionConfig
+        , ISocketConnectionConfig socketConnectionConfig)
     {
-        var port = GetPort(socketConnectionConfig, attemptNum);
-        switch (protocolType)
+        var port = socketConnectionConfig.Port;
+        switch (topicConnectionConfig.ConversationProtocol)
         {
             case SocketConversationProtocol.UdpPublisher:
-                return CreateNewUdpPublisher(socketConnectionConfig, port);
+                return CreateNewUdpPublisher(topicConnectionConfig, socketConnectionConfig);
             case SocketConversationProtocol.UdpSubscriber:
-                return CreateNewUdpSubscriber(socketConnectionConfig, port);
+                return CreateNewUdpSubscriber(topicConnectionConfig, socketConnectionConfig);
             case SocketConversationProtocol.TcpAcceptor:
-                return CreateNewTcpPublisher(socketConnectionConfig, port);
-            default: return CreateNewTcpClient(socketConnectionConfig, port);
+                return CreateNewTcpPublisher(topicConnectionConfig, socketConnectionConfig);
+            default: return CreateNewTcpClient(topicConnectionConfig, socketConnectionConfig);
         }
     }
 
-    public ushort GetPort(ISocketConnectionConfig socketConnectionConfig, ushort attemptNum)
+    private IOSSocket CreateNewTcpClient(ISocketTopicConnectionConfig topicConnectionConfig
+        , ISocketConnectionConfig socketConnectionConfig)
     {
-        if (socketConnectionConfig.PortIsDynamic)
-        {
-            var portModulus =
-                (ushort)(socketConnectionConfig.PortEndRange - socketConnectionConfig.PortStartRange);
-            var port = (ushort)(socketConnectionConfig.PortStartRange + attemptNum % portModulus);
-            return port;
-        }
-
-        return socketConnectionConfig.PortStartRange;
-    }
-
-    private IOSSocket CreateNewTcpClient(ISocketConnectionConfig socketConnectionConfig, ushort port)
-    {
-        var host = socketConnectionConfig.Hostname!.ToString();
+        var host = socketConnectionConfig.Hostname!;
+        var port = socketConnectionConfig.Port;
         logger.Info("Attempting TCP connection on {0}:{1}", host, port);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
             SocketType.Stream, ProtocolType.Tcp);
         socket.NoDelay = true;
 
-        if ((socketConnectionConfig.ConnectionAttributes & SocketConnectionAttributes.KeepAlive) > 0)
+        if ((topicConnectionConfig.ConnectionAttributes & SocketConnectionAttributes.KeepAlive) > 0)
         {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
 
@@ -81,28 +68,30 @@ public class SocketFactory : ISocketFactory
         }
 
         socket.Connect(new IPEndPoint(networkingController.GetIpAddress(host), port));
-        socket.SendBufferSize = socketConnectionConfig.SendBufferSize;
-        socket.ReceiveBufferSize = socketConnectionConfig.ReceiveBufferSize;
+        socket.SendBufferSize = topicConnectionConfig.SendBufferSize;
+        socket.ReceiveBufferSize = topicConnectionConfig.ReceiveBufferSize;
         return socket;
     }
 
-    private IOSSocket CreateNewTcpPublisher(ISocketConnectionConfig socketConnectionConfig, ushort port)
+    private IOSSocket CreateNewTcpPublisher(ISocketTopicConnectionConfig topicConnectionConfig
+        , ISocketConnectionConfig socketConnectionConfig)
     {
         var listeningSocket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
             SocketType.Stream, ProtocolType.Tcp);
         listeningSocket.NoDelay = true;
-        listeningSocket.Bind(new IPEndPoint(IPAddress.Any, port));
+        listeningSocket.Bind(new IPEndPoint(IPAddress.Any, socketConnectionConfig.Port));
         listeningSocket.Listen(10);
-        listeningSocket.SendBufferSize = socketConnectionConfig.SendBufferSize;
+        listeningSocket.SendBufferSize = topicConnectionConfig.SendBufferSize;
         return listeningSocket;
     }
 
-    private IOSSocket CreateNewUdpSubscriber(ISocketConnectionConfig socketConnectionConfig, ushort port)
+    private IOSSocket CreateNewUdpSubscriber(ISocketTopicConnectionConfig topicConnectionConfig
+        , ISocketConnectionConfig socketConnectionConfig)
     {
-        var host = socketConnectionConfig.Hostname!.ToString();
-        var mcastIntf = socketConnectionConfig.SubnetMask!;
+        var host = socketConnectionConfig.Hostname!;
+        var mcastIntf = socketConnectionConfig.SubnetMaskIpAddress!;
         logger.Info("Attempting UDPsub connection on {0}:{1}={2}:{3}",
-            mcastIntf, host, networkingController.GetIpAddress(host), port);
+            mcastIntf, host, networkingController.GetIpAddress(host), socketConnectionConfig.Port);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
             SocketType.Dgram, ProtocolType.Udp);
         socket.ExclusiveAddressUse = false;
@@ -129,20 +118,21 @@ public class SocketFactory : ISocketFactory
         if (adapterAddress == null)
             // ReSharper disable once NotResolvedInText
             throw new ArgumentNullException("adapterAddress != null");
-        socket.Bind(new IPEndPoint(adapterAddress, port));
+        socket.Bind(new IPEndPoint(adapterAddress, socketConnectionConfig.Port));
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
             new MulticastOption(mcastIntf, adapterIp4Properties!.Index));
-        socket.ReceiveBufferSize = socketConnectionConfig.ReceiveBufferSize;
+        socket.ReceiveBufferSize = topicConnectionConfig.ReceiveBufferSize;
         return socket;
     }
 
-    private IOSSocket CreateNewUdpPublisher(ISocketConnectionConfig socketConnectionConfig, ushort port)
+    private IOSSocket CreateNewUdpPublisher(ISocketTopicConnectionConfig topicConnectionConfig
+        , ISocketConnectionConfig socketConnectionConfig)
     {
         IPAddress mcastGroup;
         logger.Info("Attempting UDPpub connection on {0} {1}:{2}={3}:{4}",
-            socketConnectionConfig.SocketDescription,
+            socketConnectionConfig.InstanceName,
             socketConnectionConfig.SubnetMask, socketConnectionConfig.Hostname, mcastGroup =
-                networkingController.GetIpAddress(socketConnectionConfig.Hostname!.ToString()), port);
+                networkingController.GetIpAddress(socketConnectionConfig.Hostname), socketConnectionConfig.Port);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Dgram,
             ProtocolType.Udp);
         socket.ExclusiveAddressUse = false;
@@ -172,8 +162,8 @@ public class SocketFactory : ISocketFactory
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, socket.Ttl = 200);
         socket.EnableBroadcast = true;
         socket.MulticastLoopback = false;
-        socket.Connect(new IPEndPoint(socketConnectionConfig.SubnetMask!, port));
-        socket.SendBufferSize = socketConnectionConfig.SendBufferSize;
+        socket.Connect(new IPEndPoint(socketConnectionConfig.SubnetMaskIpAddress!, socketConnectionConfig.Port));
+        socket.SendBufferSize = topicConnectionConfig.SendBufferSize;
         return socket;
     }
 }

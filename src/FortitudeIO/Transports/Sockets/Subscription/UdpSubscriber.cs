@@ -13,7 +13,7 @@ using FortitudeIO.Transports.Sockets.Dispatcher;
 
 namespace FortitudeIO.Transports.Sockets.Subscription;
 
-public abstract class UdpSubscriber : SocketSubscriber
+public abstract class UdpSubscriber : InitiateControls
 {
     private readonly IPAddress mcastIntf;
     private readonly IOSNetworkingController networkingController;

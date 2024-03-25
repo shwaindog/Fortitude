@@ -14,7 +14,8 @@ public class PQUpdateClientRepository : PQConversationRepositoryBase<PQUpdateCli
     public PQUpdateClientRepository(ISocketDispatcherResolver dispatcherResolver) =>
         socketDispatcherResolver = dispatcherResolver;
 
-    protected override PQUpdateClient CreateNewSocketSubscriptionType(ISocketConnectionConfig socketConnectionConfig)
+    protected override PQUpdateClient CreateNewSocketSubscriptionType(
+        ISocketTopicConnectionConfig socketConnectionConfig)
     {
         var pqUpdateClient = PQUpdateClient.BuildUdpSubscriber(socketConnectionConfig, socketDispatcherResolver);
         pqUpdateClient.Start();

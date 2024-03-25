@@ -11,10 +11,10 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 public abstract class PQConversationRepositoryBase<T> : IPQConversationRepository<T>
     where T : class, IConversation
 {
-    private readonly IMap<ISocketConnectionConfig, T> socketSubscriptions =
-        new ConcurrentMap<ISocketConnectionConfig, T>();
+    private readonly IMap<ISocketTopicConnectionConfig, T> socketSubscriptions =
+        new ConcurrentMap<ISocketTopicConnectionConfig, T>();
 
-    public T RetrieveOrCreateConversation(ISocketConnectionConfig socketConnectionConfig)
+    public T RetrieveOrCreateConversation(ISocketTopicConnectionConfig socketConnectionConfig)
     {
         if (!socketSubscriptions.TryGetValue(socketConnectionConfig, out var socketClient))
         {
@@ -25,16 +25,16 @@ public abstract class PQConversationRepositoryBase<T> : IPQConversationRepositor
         return socketClient!;
     }
 
-    public T? RetrieveConversation(ISocketConnectionConfig socketConnectionConfig) =>
+    public T? RetrieveConversation(ISocketTopicConnectionConfig socketConnectionConfig) =>
         // ReSharper disable once InconsistentlySynchronizedField
         socketSubscriptions.TryGetValue(socketConnectionConfig, out var foundConversation) ? foundConversation : null;
 
-    public void RemoveConversation(ISocketConnectionConfig socketConnectionConfig)
+    public void RemoveConversation(ISocketTopicConnectionConfig socketConnectionConfig)
     {
         if (socketSubscriptions.TryGetValue(socketConnectionConfig, out var foundConversation))
             foundConversation!.Stop();
         socketSubscriptions.Remove(socketConnectionConfig);
     }
 
-    protected abstract T CreateNewSocketSubscriptionType(ISocketConnectionConfig socketConnectionConfig);
+    protected abstract T CreateNewSocketSubscriptionType(ISocketTopicConnectionConfig socketConnectionConfig);
 }

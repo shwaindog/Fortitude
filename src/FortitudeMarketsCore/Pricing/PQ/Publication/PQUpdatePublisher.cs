@@ -29,7 +29,7 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
         set => socketFactories = value;
     }
 
-    public static PQUpdatePublisher BuildUdpMulticastPublisher(ISocketConnectionConfig socketConnectionConfig)
+    public static PQUpdatePublisher BuildUdpMulticastPublisher(ISocketTopicConnectionConfig socketConnectionConfig)
     {
         var conversationType = ConversationType.Publisher;
         var conversationProtocol = SocketsAPI.SocketConversationProtocol.UdpPublisher;
@@ -39,7 +39,7 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketsAPI.SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socFactories, serdesFactory);
+            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory);
         socketSessionContext.Name += "Publisher";
 
         var initiateControls = new InitiateControls(socketSessionContext);

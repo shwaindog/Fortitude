@@ -16,11 +16,8 @@ public class ConversationResponder : SocketConversation, IAcceptorControls, ICon
 
     public ConversationResponder(ISocketSessionContext socketSessionContext,
         IAcceptorControls tcpAcceptorControls)
-        : base(socketSessionContext, tcpAcceptorControls)
-    {
-        socketSessionContext.OwningConversation = this;
+        : base(socketSessionContext, tcpAcceptorControls) =>
         acceptorControls = tcpAcceptorControls;
-    }
 
     public event Action<IConversationRequester>? NewClient
     {

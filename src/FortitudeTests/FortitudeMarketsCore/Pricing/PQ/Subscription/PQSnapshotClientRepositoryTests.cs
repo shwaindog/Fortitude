@@ -23,9 +23,10 @@ public class PQSnapshotClientRepositoryTests
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationFactory = null!;
-    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
+    private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private PQSnapshotClientRepository pqSnapshotClientRegRepo = null!;
     private string testHostName = null!;
     private ushort testHostPort;
@@ -40,17 +41,19 @@ public class PQSnapshotClientRepositoryTests
             .Returns(moqParallelControler.Object);
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketTopicConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
+        moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
         moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
 
         testHostName = "TestHostname";
-        moqServerConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("PQSnapshotClientRepositoryTests");
-        moqServerConnectionConfig.SetupGet(scc => scc.SocketDescription).Returns("PQSnapshotClientRepositoryTests");
-        moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
+        moqSocketTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicName).Returns("PQSnapshotClientRepositoryTests");
+        moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("PQSnapshotClientRepositoryTests");
+        moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         testHostPort = 1979;
-        moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(testHostPort);
+        moqSocketConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
 
@@ -65,12 +68,12 @@ public class PQSnapshotClientRepositoryTests
     [TestMethod]
     public void EmptySocketSubRegFactory_RegisterSocketSubscriber_FindSocketSubscriptionReturnsSameInstance()
     {
-        var socketClient = pqSnapshotClientRegRepo.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
+        var socketClient = pqSnapshotClientRegRepo.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
         Assert.IsNotNull(socketClient);
         Assert.IsInstanceOfType(socketClient, typeof(PQSnapshotClient));
 
-        var foundSubscription = pqSnapshotClientRegRepo.RetrieveConversation(moqServerConnectionConfig.Object);
+        var foundSubscription = pqSnapshotClientRegRepo.RetrieveConversation(moqSocketTopicConnectionConfig.Object);
         Assert.AreSame(socketClient, foundSubscription);
     }
 }

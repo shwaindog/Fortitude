@@ -25,7 +25,7 @@ public class PQClient : IDisposable
 
     private readonly IOSParallelController osParallelController;
     private readonly IPQClientSyncMonitoring pqClientSyncMonitoring;
-    private readonly IPricingServersConfigRepository pricingServersConfigRepository;
+    private readonly IPricingClientConfigRepository pricingServersConfigRepository;
     private readonly IIntraOSThreadSignal shutDownSignal;
     private readonly IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory;
     private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
@@ -35,7 +35,7 @@ public class PQClient : IDisposable
 
     private int missingRefs;
 
-    public PQClient(IPricingServersConfigRepository pricingServersConfigRepository,
+    public PQClient(IPricingClientConfigRepository pricingServersConfigRepository,
         ISocketDispatcherResolver socketDispatcherResolver,
         bool allowUpdatesCatchup = true,
         IPQConversationRepository<IPQUpdateClient>? updateClientFactory = null,
@@ -157,7 +157,7 @@ public class PQClient : IDisposable
         {
             Logger.Warn($"Cannot subscribe to Ticker {sourceTickerQuoteInfo.Ticker} for source " +
                         $"{marketsServerConfig?.Name ?? "serverConfig is null"} not found in config repo " +
-                        $"{marketsServerConfig?.SnapshotConnectionConfig?.Hostname ?? "serverConfig is null"}");
+                        $"{marketsServerConfig?.SnapshotConnectionConfig?.Current.Hostname ?? "serverConfig is null"}");
         }
 
         return pqTickerFeedSubscriptionQuoteStream;
@@ -192,7 +192,7 @@ public class PQClient : IDisposable
         else
         {
             Logger.Warn($"Cannot unsubscribe to Ticker {ticker} for source {feedRef.Name} not found in " +
-                        $"config repo {feedRef.SnapshotConnectionConfig?.Hostname}");
+                        $"config repo {feedRef.SnapshotConnectionConfig?.Current.Hostname}");
         }
     }
 
@@ -235,7 +235,7 @@ public class PQClient : IDisposable
         return result;
     }
 
-    internal void RequestSnapshots(ISocketConnectionConfig cfg, List<IUniqueSourceTickerIdentifier> streams)
+    internal void RequestSnapshots(ISocketTopicConnectionConfig cfg, List<IUniqueSourceTickerIdentifier> streams)
     {
         var snap = snapshotClientFactory.RetrieveConversation(cfg);
         snap?.RequestSnapshots(streams);

@@ -22,7 +22,7 @@ public interface IConnectionConfig : ICloneable<IConnectionConfig>
     IObservable<IConnectionUpdate> Updates { get; set; }
     uint ReconnectIntervalMs { get; }
     IConnectionConfig? FallBackConnectionConfig { get; }
-    ISocketConnectionConfig ToSocketConnectionConfig();
+    ISocketTopicConnectionConfig ToSocketTopicConnectionConfig();
 }
 
 public class ConnectionConfig : IConnectionConfig
@@ -70,9 +70,10 @@ public class ConnectionConfig : IConnectionConfig
         isSubscribedExternally = repoUpdateStream?.Subscribe(updateSubject);
     }
 
-    public ISocketConnectionConfig ToSocketConnectionConfig() =>
-        new SocketConnectionConfig(connectionName, connectionName, SocketConnectionAttributes.None, 2_000_000
-            , 2_000_000, hostname, null, false, (ushort)port, (ushort)port);
+    public ISocketTopicConnectionConfig ToSocketTopicConnectionConfig() =>
+        new SocketTopicConnectionConfig(connectionName, SocketConversationProtocol.TcpClient
+            , new[] { new SocketConnectionConfig(hostname, (ushort)port) }, connectionName, 2_000_000
+            , 2_000_000);
 
     public long Id { get; protected set; }
 
@@ -83,7 +84,7 @@ public class ConnectionConfig : IConnectionConfig
         {
             if (connectionName == value) return;
             connectionName = value;
-            updateSubject.OnNext(new ConnectionUpdate(ToSocketConnectionConfig(), EventType.Updated));
+            updateSubject.OnNext(new ConnectionUpdate(ToSocketTopicConnectionConfig(), EventType.Updated));
         }
     }
 
@@ -94,7 +95,7 @@ public class ConnectionConfig : IConnectionConfig
         {
             if (hostname == value) return;
             hostname = value;
-            updateSubject.OnNext(new ConnectionUpdate(ToSocketConnectionConfig(), EventType.Updated));
+            updateSubject.OnNext(new ConnectionUpdate(ToSocketTopicConnectionConfig(), EventType.Updated));
         }
     }
 
@@ -105,7 +106,7 @@ public class ConnectionConfig : IConnectionConfig
         {
             if (port == value) return;
             port = value;
-            updateSubject.OnNext(new ConnectionUpdate(ToSocketConnectionConfig(), EventType.Updated));
+            updateSubject.OnNext(new ConnectionUpdate(ToSocketTopicConnectionConfig(), EventType.Updated));
         }
     }
 
@@ -116,7 +117,7 @@ public class ConnectionConfig : IConnectionConfig
         {
             if (networkSubAddress == value) return;
             networkSubAddress = value;
-            updateSubject.OnNext(new ConnectionUpdate(ToSocketConnectionConfig(), EventType.Updated));
+            updateSubject.OnNext(new ConnectionUpdate(ToSocketTopicConnectionConfig(), EventType.Updated));
         }
     }
 
@@ -127,7 +128,7 @@ public class ConnectionConfig : IConnectionConfig
         {
             if (connectionDirectionType == value) return;
             connectionDirectionType = value;
-            updateSubject.OnNext(new ConnectionUpdate(ToSocketConnectionConfig(), EventType.Updated));
+            updateSubject.OnNext(new ConnectionUpdate(ToSocketTopicConnectionConfig(), EventType.Updated));
         }
     }
 
@@ -138,7 +139,7 @@ public class ConnectionConfig : IConnectionConfig
         {
             if (reconnectIntervalMs == value) return;
             reconnectIntervalMs = value;
-            updateSubject.OnNext(new ConnectionUpdate(ToSocketConnectionConfig(), EventType.Updated));
+            updateSubject.OnNext(new ConnectionUpdate(ToSocketTopicConnectionConfig(), EventType.Updated));
         }
     }
 
@@ -149,7 +150,7 @@ public class ConnectionConfig : IConnectionConfig
         {
             if (fallbackConnectionConfig == value) return;
             fallbackConnectionConfig = value;
-            updateSubject.OnNext(new ConnectionUpdate(ToSocketConnectionConfig(), EventType.Updated));
+            updateSubject.OnNext(new ConnectionUpdate(ToSocketTopicConnectionConfig(), EventType.Updated));
         }
     }
 
@@ -178,13 +179,13 @@ public class ConnectionConfig : IConnectionConfig
         if (scu.EventType == EventType.Created
             || scu.EventType == EventType.Retrieved
             || scu.EventType == EventType.Updated)
-            if (scu.ConnectionConfig.InstanceName == ConnectionName)
+            if (scu.ConnectionConfig.TopicName == ConnectionName)
             {
-                connectionName = scu.ConnectionConfig.InstanceName;
-                hostname = scu.ConnectionConfig.Hostname!.ToString();
-                port = scu.ConnectionConfig.PortStartRange;
+                connectionName = scu.ConnectionConfig.TopicName;
+                hostname = scu.ConnectionConfig.Current.Hostname;
+                port = scu.ConnectionConfig.Current.Port;
                 connectionDirectionType = ConnectionDirectionType.Both;
-                networkSubAddress = scu.ConnectionConfig.SubnetMask!.ToString();
+                networkSubAddress = scu.ConnectionConfig.Current.SubnetMask;
                 reconnectIntervalMs = 1_000;
             }
     }

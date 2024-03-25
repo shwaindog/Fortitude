@@ -24,7 +24,7 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
         socketSessionContext.Disconnected += () => nextSequence = 0;
     }
 
-    public static OrxTradingClientMessaging BuildTradingClient(ISocketConnectionConfig socketConnectionConfig
+    public static OrxTradingClientMessaging BuildTradingClient(ISocketTopicConnectionConfig socketConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver)
     {
         var conversationType = ConversationType.Requester;
@@ -35,13 +35,14 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, sockFactories, serdesFactory
+            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory
             , socketDispatcherResolver.Resolve(socketConnectionConfig));
         socketSessionContext.Name += "Requester";
 
-        var clientInitiateControls = new InitiateControls(socketSessionContext);
+        var initControls
+            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new OrxTradingClientMessaging(socketSessionContext, clientInitiateControls);
+        return new OrxTradingClientMessaging(socketSessionContext, initControls);
     }
 
     public override void Send(IVersionedMessage versionedMessage)

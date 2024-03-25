@@ -17,16 +17,8 @@ public interface ISocketReceiverFactory
 public class SocketReceiverFactory : ISocketReceiverFactory
 {
     private readonly IStreamDecoderFactory? decoderFactory;
-    private readonly int wholeMessagesPerReceive;
-    private readonly bool zeroBytesReadIsDisconnection;
 
-    public SocketReceiverFactory(int wholeMessagesPerReceive = 1, bool zeroBytesReadIsDisconnection = true,
-        IStreamDecoderFactory? decoderFactory = null)
-    {
-        this.wholeMessagesPerReceive = wholeMessagesPerReceive;
-        this.zeroBytesReadIsDisconnection = zeroBytesReadIsDisconnection;
-        this.decoderFactory = decoderFactory;
-    }
+    public SocketReceiverFactory(IStreamDecoderFactory? decoderFactory = null) => this.decoderFactory = decoderFactory;
 
     public bool HasConversationListener(ConversationType conversationType) =>
         conversationType == ConversationType.Subscriber
@@ -34,5 +26,5 @@ public class SocketReceiverFactory : ISocketReceiverFactory
         || conversationType == ConversationType.Responder;
 
     public SocketReceiver GetConversationListener(ISocketSessionContext transportConversation) =>
-        new(transportConversation, wholeMessagesPerReceive, zeroBytesReadIsDisconnection);
+        new(transportConversation);
 }
