@@ -20,19 +20,22 @@ public class TcpConversationResponderBuilder
         set => socketFactories = value;
     }
 
-    public ConversationResponder Build(ISocketConnectionConfig socketConnectionConfig, ISerdesFactory serdesFactory)
+    public ConversationResponder Build(ISocketTopicConnectionConfig socketConnectionConfig
+        , ISerdesFactory serdesFactory)
     {
         var conversationType = ConversationType.Responder;
         var conversationProtocol = SocketConversationProtocol.TcpAcceptor;
 
-        var socFactories = SocketFactories;
+        var sockFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socFactories, serdesFactory);
+            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory);
         socketSessionContext.Name += "Responder";
 
-        var tcpAcceptorControls = new TcpAcceptorControls(socketSessionContext);
 
-        return new ConversationResponder(socketSessionContext, tcpAcceptorControls);
+        var acceptorControls
+            = (IAcceptorControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
+
+        return new ConversationResponder(socketSessionContext, acceptorControls);
     }
 }

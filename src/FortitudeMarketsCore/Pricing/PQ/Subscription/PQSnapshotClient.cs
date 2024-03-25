@@ -42,7 +42,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotClient));
         parallelController = socketSessionContext.SocketFactories.ParallelController!;
         intraOSThreadSignal = parallelController!.SingleOSThreadActivateSignal(false);
-        cxTimeoutMs = socketSessionContext.SocketConnectionConfig.ConnectionTimeoutMs;
+        cxTimeoutMs = socketSessionContext.SocketTopicConnectionConfig.ConnectionTimeoutMs;
         socketSessionContext.SocketConnected += SocketConnection;
         socketSessionContext.SocketConnected += SendQueuedRequests;
         socketSessionContext.StateChanged += SocketSessionContextOnStateChanged;
@@ -106,7 +106,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         if (socketState == SocketSessionState.Disconnected) DisableTimeout();
     }
 
-    public static PQSnapshotClient BuildTcpRequester(ISocketConnectionConfig socketConnectionConfig
+    public static PQSnapshotClient BuildTcpRequester(ISocketTopicConnectionConfig socketConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver)
     {
         var conversationType = ConversationType.Requester;
@@ -117,13 +117,14 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, sockFactories, serdesFactory
+            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory
             , socketDispatcherResolver.Resolve(socketConnectionConfig));
         socketSessionContext.Name += "Requester";
 
-        var clientInitiateControls = new InitiateControls(socketSessionContext);
+        var initControls
+            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new PQSnapshotClient(socketSessionContext, clientInitiateControls);
+        return new PQSnapshotClient(socketSessionContext, initControls);
     }
 
     private void SendQueuedRequests(ISocketConnection socketConnection)
@@ -160,7 +161,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
     private void TimeoutConnection(object state, bool timedOut)
     {
-        if (timedOut) ((IInitiateControls)InitiateControls).Disconnect();
+        if (timedOut) ((IInitiateControls?)SocketSessionContext.StreamControls)?.Disconnect();
     }
 
     private void OnReceivedMessage()

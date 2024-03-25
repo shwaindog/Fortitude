@@ -28,10 +28,9 @@ public class PQConversationRepositoryBaseTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private string testHostName = null!;
-    private ushort testHostPort;
 
     [TestInitialize]
     public void SetUp()
@@ -42,15 +41,13 @@ public class PQConversationRepositoryBaseTests
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketTopicConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
         moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
 
         testHostName = "TestHostname";
-        moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
-        moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(testHostPort);
-        testHostPort = 1979;
+        moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicName).Returns(testHostName);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
 
@@ -75,38 +72,38 @@ public class PQConversationRepositoryBaseTests
     [TestMethod]
     public void EmptySocketSubRegFactory_RegisterSocketSubscriber_FindSocketSubscriptionReturnsSameInstance()
     {
-        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
+        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
         Assert.IsNotNull(socketClient);
         Assert.AreSame(dummySocketSubscriber, socketClient);
 
-        var foundSubscription = dummySktSubRegFctryBs.RetrieveConversation(moqServerConnectionConfig.Object);
+        var foundSubscription = dummySktSubRegFctryBs.RetrieveConversation(moqSocketTopicConnectionConfig.Object);
         Assert.AreSame(socketClient, foundSubscription);
     }
 
     [TestMethod]
     public void EmptySocketSubRegFactory_FindSocketSubscription_ReturnsNull()
     {
-        var foundSubscription = dummySktSubRegFctryBs.RetrieveConversation(moqServerConnectionConfig.Object);
+        var foundSubscription = dummySktSubRegFctryBs.RetrieveConversation(moqSocketTopicConnectionConfig.Object);
         Assert.IsNull(foundSubscription);
     }
 
     [TestMethod]
     public void RegisteredSocketSubscriber_UnregisterSocketSubscriber_FindSocketSubscriptionReturnsSameInstance()
     {
-        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
+        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
-        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketConnectionConfig,
+        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketTopicConnectionConfig,
             DummyConversationSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
 
         Assert.IsNotNull(socketClient);
         Assert.AreEqual(1, socketSubscriptions.Count);
         var kvp = socketSubscriptions.First();
         Assert.AreSame(dummySocketSubscriber, socketClient);
-        Assert.AreSame(moqServerConnectionConfig.Object, kvp.Key);
+        Assert.AreSame(moqSocketTopicConnectionConfig.Object, kvp.Key);
         Assert.AreSame(socketClient, kvp.Value);
 
-        dummySktSubRegFctryBs.RemoveConversation(moqServerConnectionConfig.Object);
+        dummySktSubRegFctryBs.RemoveConversation(moqSocketTopicConnectionConfig.Object);
         Assert.AreEqual(0, socketSubscriptions.Count);
         moqSocketBinaryDeserializer.Verify();
     }
@@ -119,10 +116,10 @@ public class PQConversationRepositoryBaseTests
             .Returns(moqSocketBinaryDeserializer.Object)
             .Verifiable();
 
-        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
-        var socketClient2 = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqServerConnectionConfig.Object);
+        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
+        var socketClient2 = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
-        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketConnectionConfig,
+        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketTopicConnectionConfig,
             DummyConversationSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
 
         Assert.IsNotNull(socketClient);
@@ -130,13 +127,13 @@ public class PQConversationRepositoryBaseTests
         Assert.AreEqual(1, socketSubscriptions.Count);
         var kvp = socketSubscriptions.First();
         Assert.AreSame(dummySocketSubscriber, socketClient);
-        Assert.AreSame(moqServerConnectionConfig.Object, kvp.Key);
+        Assert.AreSame(moqSocketTopicConnectionConfig.Object, kvp.Key);
         Assert.AreSame(socketClient, kvp.Value);
 
         moqSocketBinaryDeserializer.Setup(sbd =>
             sbd.IsRegistered(It.IsAny<Action<PQLevel0Quote, object, IConversation>>())).Returns(true).Verifiable();
 
-        dummySktSubRegFctryBs.RemoveConversation(moqServerConnectionConfig.Object);
+        dummySktSubRegFctryBs.RemoveConversation(moqSocketTopicConnectionConfig.Object);
 
         Assert.IsNotNull(socketClient);
         Assert.IsNotNull(socketClient2);
@@ -151,7 +148,7 @@ public class PQConversationRepositoryBaseTests
 
         public T ReturnedSocketSubscriber { get; }
 
-        protected override T CreateNewSocketSubscriptionType(ISocketConnectionConfig connectionConfig) =>
+        protected override T CreateNewSocketSubscriptionType(ISocketTopicConnectionConfig connectionConfig) =>
             ReturnedSocketSubscriber;
     }
 

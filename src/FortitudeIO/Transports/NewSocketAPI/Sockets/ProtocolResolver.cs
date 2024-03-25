@@ -10,7 +10,7 @@ namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
 public class ProtocolResolver
 {
     public SocketConversationProtocol ResolveProtocol(ConversationType conversationType,
-        ISocketConnectionConfig socketConnectionConfig)
+        ISocketTopicConnectionConfig socketConnectionConfig)
     {
         var isUdp = IsUdp(conversationType, socketConnectionConfig);
         if (isUdp && conversationType == ConversationType.Publisher) return SocketConversationProtocol.UdpPublisher;
@@ -22,7 +22,7 @@ public class ProtocolResolver
         return SocketConversationProtocol.TcpClient;
     }
 
-    private bool IsUdp(ConversationType conversationType, ISocketConnectionConfig socketConnectionConfig)
+    private bool IsUdp(ConversationType conversationType, ISocketTopicConnectionConfig socketConnectionConfig)
     {
         if (conversationType == ConversationType.Publisher || conversationType == ConversationType.Subscriber)
             return socketConnectionConfig.ConnectionAttributes == SocketConnectionAttributes.Multicast ||

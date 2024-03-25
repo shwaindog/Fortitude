@@ -50,13 +50,14 @@ public class PQSnapshotClientTests
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<ISerdesFactory> moqSerdesFactory = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
-    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
+    private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactories> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
     private Mock<ISocketSender> moqSocketSender = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
+    private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private Mock<ITimerCallbackSubscription> moqTimerCallbackSubscription = null!;
     private PQSnapshotClient pqSnapshotClient = null!;
 
@@ -88,7 +89,8 @@ public class PQSnapshotClientTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqTimerCallbackSubscription = new Mock<ITimerCallbackSubscription>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
-        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketTopicConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
@@ -111,18 +113,20 @@ public class PQSnapshotClientTests
         moqSocketSessionContext.SetupGet(ssc => ssc.Name).Returns("New Client Connection");
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
-        moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnectionConfig).Returns(moqServerConnectionConfig.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketTopicConnectionConfig)
+            .Returns(moqSocketTopicConnectionConfig.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketSender).Returns(moqSocketSender.Object);
         moqSocketSessionContext.SetupAdd(ssc => ssc.SocketConnected += null);
         expectedHost = "TestHostname";
         expectedPort = 1979;
         expectedIpAddress = new byte[] { 61, 26, 5, 6 };
-        moqServerConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("PQSnapshotClientTests");
-        moqServerConnectionConfig.SetupGet(scc => scc.SocketDescription).Returns("PQSnapshotClientTests");
-        moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(expectedHost);
-        moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(expectedPort);
-        moqServerConnectionConfig.SetupGet(scc => scc.ConnectionTimeoutMs).Returns(connectionTimeoutMs);
+        moqSocketConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("PQSnapshotClientTests");
+        moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(expectedHost);
+        moqSocketConnectionConfig.SetupGet(scc => scc.Port).Returns(expectedPort);
+        moqSocketTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("PQSnapshotClientTests");
+        moqSocketTopicConnectionConfig.SetupGet(scc => scc.ConnectionTimeoutMs).Returns(connectionTimeoutMs);
         moqSocketFactories.SetupGet(pcf => pcf.SocketFactory).Returns(moqSocketFactory.Object);
         moqSocketFactories.SetupGet(pcf => pcf.NetworkingController).Returns(moqNetworkingController.Object);
         moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);

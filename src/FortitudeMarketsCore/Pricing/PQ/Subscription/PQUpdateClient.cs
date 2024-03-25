@@ -36,22 +36,23 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 
     public IMessageStreamDecoder MessageStreamDecoder => messageStreamDecoder;
 
-    public static PQUpdateClient BuildUdpSubscriber(ISocketConnectionConfig socketConnectionConfig
+    public static PQUpdateClient BuildUdpSubscriber(ISocketTopicConnectionConfig socketConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver)
     {
         var conversationType = ConversationType.Subscriber;
         var conversationProtocol = SocketConversationProtocol.UdpSubscriber;
 
-        var socketFactories = SocketFactories;
+        var sockFactories = SocketFactories;
 
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.SocketDescription.ToString(), socketConnectionConfig, socketFactories
+            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories
             , serdesFactory, socketDispatcherResolver.Resolve(socketConnectionConfig));
         socketSessionContext.Name += "Subscriber";
 
-        var initControls = new InitiateControls(socketSessionContext);
+        var initControls
+            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
         return new PQUpdateClient(socketSessionContext, initControls);
     }

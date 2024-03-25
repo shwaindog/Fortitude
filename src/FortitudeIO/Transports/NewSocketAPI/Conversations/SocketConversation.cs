@@ -12,13 +12,13 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 public class SocketConversation : ISocketConversation
 {
     private static int nextSessionId;
-    protected readonly IStreamControls InitiateControls;
     protected readonly ISocketSessionContext SocketSessionContext;
 
-    public SocketConversation(ISocketSessionContext socketSessionContext, IStreamControls initiateControls)
+    public SocketConversation(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
     {
+        socketSessionContext.OwningConversation = this;
+        socketSessionContext.StreamControls = streamControls;
         SocketSessionContext = socketSessionContext;
-        InitiateControls = initiateControls;
     }
 
     public ISerdesFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
@@ -92,19 +92,19 @@ public class SocketConversation : ISocketConversation
 
     public void Start()
     {
-        InitiateControls.Connect();
+        SocketSessionContext.StreamControls?.Start();
     }
 
     public void Stop()
     {
-        InitiateControls.Disconnect();
+        SocketSessionContext.StreamControls?.Stop();
     }
 
-    public virtual void Connect() => InitiateControls.Connect();
+    public virtual void Connect() => SocketSessionContext.StreamControls?.Connect();
 
-    public void Disconnect() => InitiateControls.Disconnect();
+    public void Disconnect() => SocketSessionContext.StreamControls?.Disconnect();
 
-    public void StartMessaging() => InitiateControls.StartMessaging();
+    public void StartMessaging() => SocketSessionContext.StreamControls?.StartMessaging();
 
-    public void StopMessaging() => InitiateControls.StopMessaging();
+    public void StopMessaging() => SocketSessionContext.StreamControls?.StopMessaging();
 }

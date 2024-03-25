@@ -1,13 +1,14 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
 namespace FortitudeIO.Transports.NewSocketAPI.Controls;
 
-public interface IStreamControls
+public interface IStreamControls : IConversationInitiator
 {
     void Connect();
     void Disconnect();
@@ -25,6 +26,16 @@ public abstract class SocketStreamControls : IStreamControls
 
     public abstract void Connect();
 
+
+    public void Start()
+    {
+        Connect();
+    }
+
+    public void Stop()
+    {
+        Disconnect();
+    }
 
     public virtual void StartMessaging()
     {

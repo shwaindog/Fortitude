@@ -4,57 +4,56 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Sockets.Logging;
-using FortitudeIO.Transports.Sockets.SessionConnection;
-using FortitudeIO.Transports.Sockets.Subscription;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
+using FortitudeIO.Transports.NewSocketAPI.Receiving;
 using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeIO.Transports.Sockets.Subscription;
+namespace FortitudeTests.FortitudeIO.Transports.NewSocketAPI.Receiving;
 
 [TestClass]
 public class SocketSelectorTests
 {
     private int firstSocketHandleNum;
 
-    private IntPtr firstSocketHandlePtr;
+    private int firstSocketHandlePtr;
     private Mock<IDirectOSNetworkingApi> moqDirectOSNetworkingApi = null!;
-    private Mock<ISocketSessionConnection> moqFirstSocketSessionConnection = null!;
+    private Mock<ISocketReceiver> moqFirstSocketReceiver = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IPerfLogger> moqPerfLogger = null!;
-    private Mock<ISocketSessionConnection> moqSecondSocketSessionConnection = null!;
+    private Mock<ISocketReceiver> moqSecondSocketReceiver = null!;
     private Mock<ITimeContext> moqTimeContext = null!;
     private int secondSocketHandleNum;
-    private IntPtr secondSocketHandlePtr;
+    private int secondSocketHandlePtr;
     private SocketSelector socketSelector = null!;
     private TimeValue timeValue;
 
     [TestInitialize]
     public void SetUp()
     {
-        var timeoutMs = 1000;
+        var timeoutMs = 1000u;
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqDirectOSNetworkingApi = new Mock<IDirectOSNetworkingApi>();
 
         moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(moqDirectOSNetworkingApi.Object);
         socketSelector = new SocketSelector(timeoutMs, moqNetworkingController.Object);
 
-        moqFirstSocketSessionConnection = new Mock<ISocketSessionConnection>();
+        moqFirstSocketReceiver = new Mock<ISocketReceiver>();
         firstSocketHandleNum = 12345;
-        firstSocketHandlePtr = new IntPtr(firstSocketHandleNum);
-        moqFirstSocketSessionConnection.SetupGet(ssc => ssc.Handle).Returns(firstSocketHandlePtr).Verifiable();
-        moqSecondSocketSessionConnection = new Mock<ISocketSessionConnection>();
+        firstSocketHandlePtr = firstSocketHandleNum;
+        moqFirstSocketReceiver.SetupGet(ssc => ssc.SocketHandle).Returns(firstSocketHandlePtr).Verifiable();
+        moqSecondSocketReceiver = new Mock<ISocketReceiver>();
         secondSocketHandleNum = 87654;
-        secondSocketHandlePtr = new IntPtr(secondSocketHandleNum);
-        moqSecondSocketSessionConnection.SetupGet(ssc => ssc.Handle).Returns(secondSocketHandlePtr).Verifiable();
+        secondSocketHandlePtr = secondSocketHandleNum;
+        moqSecondSocketReceiver.SetupGet(ssc => ssc.SocketHandle).Returns(secondSocketHandlePtr).Verifiable();
         moqPerfLogger = new Mock<IPerfLogger>();
         moqPerfLogger.Setup(ltcsl => ltcsl.Start()).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.Add(SocketDataLatencyLogger.StartDataDetection))
             .Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.Add(SocketDataLatencyLogger.SocketDataDetected))
             .Verifiable();
-        timeValue = new TimeValue(timeoutMs);
+        timeValue = new TimeValue((int)timeoutMs);
 
         moqTimeContext = new Mock<ITimeContext>();
         TimeContext.Provider = moqTimeContext.Object;
@@ -69,33 +68,33 @@ public class SocketSelectorTests
     private IntPtr[] GetRegisteredSocketHandles() =>
         NonPublicInvocator.GetInstanceField<IntPtr[]>(socketSelector, "allRegisteredSocketHandles");
 
-    private IDictionary<IntPtr, ISocketSessionConnection> GetSocketsDict() =>
-        NonPublicInvocator.GetInstanceField<IDictionary<IntPtr, ISocketSessionConnection>>(socketSelector,
+    private IDictionary<IntPtr, ISocketReceiver> GetSocketsDict() =>
+        NonPublicInvocator.GetInstanceField<IDictionary<IntPtr, ISocketReceiver>>(socketSelector,
             "allRegisteredSocketsDict");
 
     [TestMethod]
     public void NewSocketSelector_RegisterSocketSessionConnection_AddsSessionForListeningForIncomingRequests()
     {
-        socketSelector.Register(moqFirstSocketSessionConnection.Object);
+        socketSelector.Register(moqFirstSocketReceiver.Object);
 
         var registeredSocketHandles = GetRegisteredSocketHandles();
         var registeredSocketsDict = GetSocketsDict();
 
         Assert.AreEqual(1, registeredSocketsDict.Count);
         Assert.IsTrue(registeredSocketsDict.ContainsKey(firstSocketHandlePtr));
-        Assert.AreEqual(moqFirstSocketSessionConnection.Object, registeredSocketsDict[firstSocketHandlePtr]);
+        Assert.AreEqual(moqFirstSocketReceiver.Object, registeredSocketsDict[firstSocketHandlePtr]);
         Assert.AreEqual(2, registeredSocketHandles.Length);
-        Assert.AreEqual(new IntPtr(1), registeredSocketHandles[0]);
+        Assert.AreEqual(1, registeredSocketHandles[0]);
         Assert.AreEqual(firstSocketHandlePtr, registeredSocketHandles[1]);
 
-        moqFirstSocketSessionConnection.Verify();
+        moqFirstSocketReceiver.Verify();
     }
 
     [TestMethod]
     public void TwoRegisteredSocketSelectors_UnregisterSocketSessionConnection_RemovesSocketSessionConnection()
     {
-        socketSelector.Register(moqFirstSocketSessionConnection.Object);
-        socketSelector.Register(moqSecondSocketSessionConnection.Object);
+        socketSelector.Register(moqFirstSocketReceiver.Object);
+        socketSelector.Register(moqSecondSocketReceiver.Object);
 
         var registeredSocketHandles = GetRegisteredSocketHandles();
         var registeredSocketsDict = GetSocketsDict();
@@ -103,26 +102,26 @@ public class SocketSelectorTests
         Assert.AreEqual(2, registeredSocketsDict.Count);
         Assert.IsTrue(registeredSocketsDict.ContainsKey(firstSocketHandlePtr));
         Assert.IsTrue(registeredSocketsDict.ContainsKey(secondSocketHandlePtr));
-        Assert.AreEqual(moqFirstSocketSessionConnection.Object, registeredSocketsDict[firstSocketHandlePtr]);
-        Assert.AreEqual(moqSecondSocketSessionConnection.Object, registeredSocketsDict[secondSocketHandlePtr]);
+        Assert.AreEqual(moqFirstSocketReceiver.Object, registeredSocketsDict[firstSocketHandlePtr]);
+        Assert.AreEqual(moqSecondSocketReceiver.Object, registeredSocketsDict[secondSocketHandlePtr]);
         Assert.AreEqual(3, registeredSocketHandles.Length);
-        Assert.AreEqual(new IntPtr(2), registeredSocketHandles[0]);
+        Assert.AreEqual(2, registeredSocketHandles[0]);
         Assert.AreEqual(firstSocketHandlePtr, registeredSocketHandles[1]);
         Assert.AreEqual(secondSocketHandlePtr, registeredSocketHandles[2]);
 
-        moqFirstSocketSessionConnection.Verify();
-        moqSecondSocketSessionConnection.Verify();
+        moqFirstSocketReceiver.Verify();
+        moqSecondSocketReceiver.Verify();
 
-        socketSelector.Unregister(moqFirstSocketSessionConnection.Object);
+        socketSelector.Unregister(moqFirstSocketReceiver.Object);
 
         registeredSocketHandles = GetRegisteredSocketHandles();
         registeredSocketsDict = GetSocketsDict();
 
         Assert.AreEqual(1, registeredSocketsDict.Count);
         Assert.IsTrue(registeredSocketsDict.ContainsKey(secondSocketHandlePtr));
-        Assert.AreEqual(moqSecondSocketSessionConnection.Object, registeredSocketsDict[secondSocketHandlePtr]);
+        Assert.AreEqual(moqSecondSocketReceiver.Object, registeredSocketsDict[secondSocketHandlePtr]);
         Assert.AreEqual(2, registeredSocketHandles.Length);
-        Assert.AreEqual(new IntPtr(1), registeredSocketHandles[0]);
+        Assert.AreEqual(1, registeredSocketHandles[0]);
         Assert.AreEqual(secondSocketHandlePtr, registeredSocketHandles[1]);
     }
 
@@ -137,16 +136,16 @@ public class SocketSelectorTests
     [TestMethod]
     public void RegisteredSocketSessionConnection_SelectRecv_ReturnsWithSocketSelected()
     {
-        socketSelector.Register(moqFirstSocketSessionConnection.Object);
+        socketSelector.Register(moqFirstSocketReceiver.Object);
         moqTimeContext.Setup(tc => tc.UtcNow).Returns(new DateTime(2017, 04, 24, 14, 21, 56));
-        moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0, new[] { new IntPtr(1), firstSocketHandlePtr },
+        moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0, new[] { new nint(1), firstSocketHandlePtr },
             null, null, ref timeValue)).Returns(1).Verifiable();
 
 
         var selectedSockets = socketSelector.WatchSocketsForRecv(moqPerfLogger.Object).ToList();
 
         Assert.AreEqual(1, selectedSockets.Count);
-        Assert.AreEqual(moqFirstSocketSessionConnection.Object, selectedSockets[0]);
+        Assert.AreEqual(moqFirstSocketReceiver.Object, selectedSockets[0]);
         moqDirectOSNetworkingApi.Verify();
         moqPerfLogger.Verify();
     }
@@ -154,73 +153,73 @@ public class SocketSelectorTests
     [TestMethod]
     public void FourRegisteredSocketSessionConnection_MultipleSelectRecv_RotatesOrderOfSelectedSocketsReturned()
     {
-        var moqThirdSocketSessionConnection = new Mock<ISocketSessionConnection>();
+        var moqThirdSocketReceiver = new Mock<ISocketReceiver>();
         var thirdSocketHandleNum = 45678;
-        var thirdSocketHandlePtr = new IntPtr(thirdSocketHandleNum);
-        moqThirdSocketSessionConnection.SetupGet(ssc => ssc.Handle).Returns(thirdSocketHandlePtr).Verifiable();
-        var moqFourthSocketSessionConnection = new Mock<ISocketSessionConnection>();
+        var thirdSocketHandlePtr = thirdSocketHandleNum;
+        moqThirdSocketReceiver.SetupGet(ssc => ssc.SocketHandle).Returns(thirdSocketHandlePtr).Verifiable();
+        var moqFourthSocketReceiver = new Mock<ISocketReceiver>();
         var fourthSocketHandleNum = 9876;
-        var fourthSocketHandlePtr = new IntPtr(fourthSocketHandleNum);
-        moqFourthSocketSessionConnection.SetupGet(ssc => ssc.Handle).Returns(fourthSocketHandlePtr).Verifiable();
+        var fourthSocketHandlePtr = fourthSocketHandleNum;
+        moqFourthSocketReceiver.SetupGet(ssc => ssc.SocketHandle).Returns(fourthSocketHandlePtr).Verifiable();
         moqTimeContext.Setup(tc => tc.UtcNow).Returns(new DateTime(2017, 04, 24, 14, 21, 56));
-        socketSelector.Register(moqFirstSocketSessionConnection.Object);
-        socketSelector.Register(moqSecondSocketSessionConnection.Object);
-        socketSelector.Register(moqThirdSocketSessionConnection.Object);
-        socketSelector.Register(moqFourthSocketSessionConnection.Object);
+        socketSelector.Register(moqFirstSocketReceiver.Object);
+        socketSelector.Register(moqSecondSocketReceiver.Object);
+        socketSelector.Register(moqThirdSocketReceiver.Object);
+        socketSelector.Register(moqFourthSocketReceiver.Object);
 
         moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0
             , new[]
             {
-                new IntPtr(4), firstSocketHandlePtr, secondSocketHandlePtr, thirdSocketHandlePtr, fourthSocketHandlePtr
+                new nint(4), firstSocketHandlePtr, secondSocketHandlePtr, thirdSocketHandlePtr, fourthSocketHandlePtr
             },
             null, null, ref timeValue)).Returns(4).Verifiable();
         var selectedSockets = socketSelector.WatchSocketsForRecv(moqPerfLogger.Object).ToList();
         Assert.AreEqual(4, selectedSockets.Count);
-        Assert.AreEqual(moqFirstSocketSessionConnection.Object, selectedSockets[0]);
-        Assert.AreEqual(moqSecondSocketSessionConnection.Object, selectedSockets[1]);
-        Assert.AreEqual(moqThirdSocketSessionConnection.Object, selectedSockets[2]);
-        Assert.AreEqual(moqFourthSocketSessionConnection.Object, selectedSockets[3]);
+        Assert.AreEqual(moqFirstSocketReceiver.Object, selectedSockets[0]);
+        Assert.AreEqual(moqSecondSocketReceiver.Object, selectedSockets[1]);
+        Assert.AreEqual(moqThirdSocketReceiver.Object, selectedSockets[2]);
+        Assert.AreEqual(moqFourthSocketReceiver.Object, selectedSockets[3]);
         moqDirectOSNetworkingApi.Verify();
 
         moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0
             , new[]
             {
-                new IntPtr(4), secondSocketHandlePtr, thirdSocketHandlePtr, fourthSocketHandlePtr, firstSocketHandlePtr
+                new nint(4), secondSocketHandlePtr, thirdSocketHandlePtr, fourthSocketHandlePtr, firstSocketHandlePtr
             },
             null, null, ref timeValue)).Returns(4).Verifiable();
         selectedSockets = socketSelector.WatchSocketsForRecv(moqPerfLogger.Object).ToList();
         Assert.AreEqual(4, selectedSockets.Count);
-        Assert.AreEqual(moqSecondSocketSessionConnection.Object, selectedSockets[0]);
-        Assert.AreEqual(moqThirdSocketSessionConnection.Object, selectedSockets[1]);
-        Assert.AreEqual(moqFourthSocketSessionConnection.Object, selectedSockets[2]);
-        Assert.AreEqual(moqFirstSocketSessionConnection.Object, selectedSockets[3]);
+        Assert.AreEqual(moqSecondSocketReceiver.Object, selectedSockets[0]);
+        Assert.AreEqual(moqThirdSocketReceiver.Object, selectedSockets[1]);
+        Assert.AreEqual(moqFourthSocketReceiver.Object, selectedSockets[2]);
+        Assert.AreEqual(moqFirstSocketReceiver.Object, selectedSockets[3]);
         moqDirectOSNetworkingApi.Verify();
 
         moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0
             , new[]
             {
-                new IntPtr(4), thirdSocketHandlePtr, fourthSocketHandlePtr, firstSocketHandlePtr, secondSocketHandlePtr
+                new nint(4), thirdSocketHandlePtr, fourthSocketHandlePtr, firstSocketHandlePtr, secondSocketHandlePtr
             },
             null, null, ref timeValue)).Returns(4).Verifiable();
         selectedSockets = socketSelector.WatchSocketsForRecv(moqPerfLogger.Object).ToList();
-        Assert.AreEqual(moqThirdSocketSessionConnection.Object, selectedSockets[0]);
-        Assert.AreEqual(moqFourthSocketSessionConnection.Object, selectedSockets[1]);
-        Assert.AreEqual(moqFirstSocketSessionConnection.Object, selectedSockets[2]);
-        Assert.AreEqual(moqSecondSocketSessionConnection.Object, selectedSockets[3]);
+        Assert.AreEqual(moqThirdSocketReceiver.Object, selectedSockets[0]);
+        Assert.AreEqual(moqFourthSocketReceiver.Object, selectedSockets[1]);
+        Assert.AreEqual(moqFirstSocketReceiver.Object, selectedSockets[2]);
+        Assert.AreEqual(moqSecondSocketReceiver.Object, selectedSockets[3]);
         moqDirectOSNetworkingApi.Verify();
 
 
         moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0
             , new[]
             {
-                new IntPtr(4), fourthSocketHandlePtr, firstSocketHandlePtr, secondSocketHandlePtr, thirdSocketHandlePtr
+                new nint(4), fourthSocketHandlePtr, firstSocketHandlePtr, secondSocketHandlePtr, thirdSocketHandlePtr
             },
             null, null, ref timeValue)).Returns(4).Verifiable();
         selectedSockets = socketSelector.WatchSocketsForRecv(moqPerfLogger.Object).ToList();
-        Assert.AreEqual(moqFourthSocketSessionConnection.Object, selectedSockets[0]);
-        Assert.AreEqual(moqFirstSocketSessionConnection.Object, selectedSockets[1]);
-        Assert.AreEqual(moqSecondSocketSessionConnection.Object, selectedSockets[2]);
-        Assert.AreEqual(moqThirdSocketSessionConnection.Object, selectedSockets[3]);
+        Assert.AreEqual(moqFourthSocketReceiver.Object, selectedSockets[0]);
+        Assert.AreEqual(moqFirstSocketReceiver.Object, selectedSockets[1]);
+        Assert.AreEqual(moqSecondSocketReceiver.Object, selectedSockets[2]);
+        Assert.AreEqual(moqThirdSocketReceiver.Object, selectedSockets[3]);
         moqDirectOSNetworkingApi.Verify();
     }
 
@@ -228,11 +227,11 @@ public class SocketSelectorTests
     [ExpectedException(typeof(Exception))]
     public void RegisteredSocketSessionConnection_SelectRecvReturnsError_ExpectedException()
     {
-        socketSelector.Register(moqFirstSocketSessionConnection.Object);
+        socketSelector.Register(moqFirstSocketReceiver.Object);
         moqTimeContext.Setup(tc => tc.UtcNow).Returns(new DateTime(2017, 04, 24, 14, 21, 56));
 
         moqDirectOSNetworkingApi.Setup(dosna => dosna.GetLastCallError()).Returns(12345).Verifiable();
-        moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0, new[] { new IntPtr(1), firstSocketHandlePtr },
+        moqDirectOSNetworkingApi.Setup(dosna => dosna.Select(0, new[] { new nint(1), firstSocketHandlePtr },
             null, null, ref timeValue)).Returns(-1).Verifiable();
 
         // ReSharper disable once ReturnValueOfPureMethodIsNotUsed

@@ -28,7 +28,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private readonly IOSParallelController osParallelController;
 
     private readonly ISequencer pqSeq = new Sequencer();
-    private readonly Action<ISocketConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction;
+    private readonly Action<ISocketTopicConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction;
     private readonly IIntraOSThreadSignal stopSignal;
     private readonly IDoublyLinkedList<IPQDeserializer> syncKo = new DoublyLinkedList<IPQDeserializer>();
 
@@ -37,7 +37,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private IOSThread? tasksThread;
 
     public PQClientSyncMonitoring(Func<string, ISnapshotUpdatePricingServerConfig?> getSourceServerConfig,
-        Action<ISocketConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction)
+        Action<ISocketTopicConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction)
     {
         osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
         stopSignal = osParallelController.SingleOSThreadActivateSignal(false);

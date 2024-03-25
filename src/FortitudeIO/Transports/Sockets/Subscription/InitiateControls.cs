@@ -14,7 +14,7 @@ using FortitudeIO.Transports.Sockets.SessionConnection;
 
 namespace FortitudeIO.Transports.Sockets.Subscription;
 
-public abstract class SocketSubscriber : SocketStreamSubscriber, ISocketSubscriber
+public abstract class InitiateControls : SocketStreamSubscriber, ISocketSubscriber
 {
     private readonly object connSync = new();
     private readonly IConnectionConfig? initialConnectionConfig;
@@ -26,7 +26,7 @@ public abstract class SocketSubscriber : SocketStreamSubscriber, ISocketSubscrib
 
     private IIntraOSThreadSignal? triggerConnectNowSignal;
 
-    protected SocketSubscriber(IFLogger logger, ISocketDispatcher dispatcher,
+    protected InitiateControls(IFLogger logger, ISocketDispatcher dispatcher,
         IOSNetworkingController networkingController, IConnectionConfig? connectionConfig,
         string sessionDescription, int wholeMessagesPerReceive,
         IMap<uint, IMessageDeserializer>? serializerCache = null)

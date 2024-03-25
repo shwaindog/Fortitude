@@ -9,8 +9,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 public interface IPQConversationRepository<out T> where T : class, IConversation
 {
-    T RetrieveOrCreateConversation(ISocketConnectionConfig socketConnectionConfig);
+    T RetrieveOrCreateConversation(ISocketTopicConnectionConfig socketConnectionConfig);
 
-    void RemoveConversation(ISocketConnectionConfig socketConnectionConfig);
-    T? RetrieveConversation(ISocketConnectionConfig socketConnectionConfig);
+    void RemoveConversation(ISocketTopicConnectionConfig socketConnectionConfig);
+    T? RetrieveConversation(ISocketTopicConnectionConfig socketConnectionConfig);
 }

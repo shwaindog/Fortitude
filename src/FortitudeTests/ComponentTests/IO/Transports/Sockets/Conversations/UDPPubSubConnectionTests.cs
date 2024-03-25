@@ -23,11 +23,14 @@ public class UdpPubSubConnectionTests
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
-    private readonly SocketConnectionConfig serverSocketConfig = new("TestInstanceName", "TestTCPReqRespConn",
-        SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast,
-        1024 * 1024 * 2, 1024 * 1024 * 2,
-        TestMachineConfig.LoopBackIpAddress, TestMachineConfig.NetworkSubAddress, false,
-        TestMachineConfig.ServerUpdatePort, TestMachineConfig.ServerUpdatePort);
+    private readonly SocketTopicConnectionConfig udpPublisherTopicConConfig = new("TestInstanceName"
+        , SocketConversationProtocol.UdpPublisher,
+        new List<ISocketConnectionConfig>(new List<ISocketConnectionConfig>
+        {
+            new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort
+                , subnetMask: TestMachineConfig.NetworkSubAddress)
+        }), "TestTCPReqRespConn", 1024 * 1024 * 2, 1024 * 1024 * 2, 50,
+        SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast);
 
     private ConversationPublisher conversationPublisher = null!;
 
@@ -49,11 +52,13 @@ public class UdpPubSubConnectionTests
         var serdesFactory = new SerdesFactory(streamDecoderFactory, new SocketStreamMessageEncoderFactory(serializers));
         // create server
         var udpPublisherBuilder = new UdpConversationPublisherBuilder();
-        conversationPublisher = udpPublisherBuilder.Build(serverSocketConfig, serdesFactory);
+        conversationPublisher = udpPublisherBuilder.Build(udpPublisherTopicConConfig, serdesFactory);
 
         // create client
         var udpSubscriberBuilder = new UdpConversationSubscriberBuilder();
-        conversationSubscriber = udpSubscriberBuilder.Build(serverSocketConfig, serdesFactory);
+        var udpSubscriberTopicConConfig = udpPublisherTopicConConfig.Clone();
+        udpSubscriberTopicConConfig.ConversationProtocol = SocketConversationProtocol.UdpSubscriber;
+        conversationSubscriber = udpSubscriberBuilder.Build(udpSubscriberTopicConConfig, serdesFactory);
     }
 
     [TestCleanup]

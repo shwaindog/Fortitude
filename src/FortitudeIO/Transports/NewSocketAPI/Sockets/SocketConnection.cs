@@ -29,7 +29,7 @@ public class SocketConnection : ISocketConnection
         InstanceName = instanceName;
         ConversationType = conversationType;
         OSSocket = osSocket;
-        ConnectedIPAddress = remoteIPAddress;
+        ConnectedIpAddress = remoteIPAddress;
         ConnectedPort = remotePort;
     }
 
@@ -37,7 +37,7 @@ public class SocketConnection : ISocketConnection
     public ConversationType ConversationType { get; }
     public string InstanceName { get; set; }
     public IOSSocket OSSocket { get; }
-    public IPAddress ConnectedIPAddress { get; set; }
+    public IPAddress ConnectedIpAddress { get; set; }
     public ushort ConnectedPort { get; set; }
 
     public bool IsAuthenticated { get; set; }
@@ -59,7 +59,7 @@ public class SocketConnection : ISocketConnection
         var socketEndpoint = test as ISocketSessionInfo;
         return socketEndpoint != null && TransportType == test.TransportType &&
                InstanceName == socketEndpoint.InstanceName &&
-               ConnectedIPAddress == socketEndpoint.ConnectedIPAddress &&
+               ConnectedIpAddress == socketEndpoint.ConnectedIpAddress &&
                ConnectedPort == socketEndpoint.ConnectedPort;
     }
 }

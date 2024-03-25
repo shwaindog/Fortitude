@@ -12,8 +12,7 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
 public class ConversationRequester : SocketConversation, IInitiateControls, IConversationRequester
 {
     public ConversationRequester(ISocketSessionContext socketSessionContext,
-        IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) =>
-        socketSessionContext.OwningConversation = this;
+        IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) { }
 
     public virtual void Send(IVersionedMessage versionedMessage)
     {
@@ -21,5 +20,5 @@ public class ConversationRequester : SocketConversation, IInitiateControls, ICon
     }
 
 
-    public void StartAsync() => ((IInitiateControls)InitiateControls).StartAsync();
+    public void StartAsync() => ((IInitiateControls?)SocketSessionContext.StreamControls)?.StartAsync();
 }

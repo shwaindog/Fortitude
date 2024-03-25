@@ -3,6 +3,7 @@
 using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.EventProcessing;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
@@ -15,13 +16,13 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
 {
     private bool isLastLook;
     private ushort publicationId;
-    private ISocketReceiverConfig? snapshotConnectionConfig;
+    private ISocketTopicConnectionConfig? snapshotConnectionConfig;
     private IList<ISourceTickerPublicationConfig>? sourceTickerPublicationConfigs;
     private bool supportsIceBergs;
-    private ISocketConnectionConfig? updateConnectionConfig;
+    private ISocketTopicConnectionConfig? updateConnectionConfig;
 
     public SnapshotUpdatePricingServerConfig(string name, MarketServerType marketServerType,
-        IEnumerable<ISocketConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable,
+        IEnumerable<ISocketTopicConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable,
         ushort publicationId, IEnumerable<ISourceTickerPublicationConfig> sourceTickerPublicationConfigs,
         bool isLastLook, bool supportsIceBergs,
         IObservable<IMarketServerConfigUpdate<ISnapshotUpdatePricingServerConfig>>? repoUpdateStream = null)
@@ -33,25 +34,30 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
         this.sourceTickerPublicationConfigs
             = sourceTickerPublicationConfigs?.ToList() ?? new List<ISourceTickerPublicationConfig>();
         snapshotConnectionConfig =
-            serverConnections.FirstOrDefault(scc => scc.SubnetMask == null && scc is ISocketReceiverConfig) as
-                ISocketReceiverConfig;
+            serverConnections.FirstOrDefault(
+                stcc => stcc.ConversationProtocol == SocketConversationProtocol.TcpAcceptor);
         updateConnectionConfig =
-            serverConnections.FirstOrDefault(scc => scc.SubnetMask != null);
+            serverConnections.FirstOrDefault(stcc =>
+                stcc.ConversationProtocol == SocketConversationProtocol.UdpPublisher);
     }
 
-    public SnapshotUpdatePricingServerConfig(SnapshotUpdatePricingServerConfig toClone) : base(toClone)
+    public SnapshotUpdatePricingServerConfig(SnapshotUpdatePricingServerConfig toClone, bool switchToMatchingConnection)
+        : base(toClone, switchToMatchingConnection)
     {
         publicationId = toClone.publicationId;
         isLastLook = toClone.isLastLook;
         supportsIceBergs = toClone.supportsIceBergs;
         sourceTickerPublicationConfigs = toClone.sourceTickerPublicationConfigs?.ToList();
-        snapshotConnectionConfig = toClone.SnapshotConnectionConfig;
-        updateConnectionConfig = toClone.UpdateConnectionConfig;
+        snapshotConnectionConfig = toClone.SnapshotConnectionConfig?.Clone(switchToMatchingConnection);
+        updateConnectionConfig = toClone.UpdateConnectionConfig?.Clone(switchToMatchingConnection);
     }
 
     object ICloneable.Clone() => Clone();
 
-    public new ISnapshotUpdatePricingServerConfig Clone() => new SnapshotUpdatePricingServerConfig(this);
+    public new ISnapshotUpdatePricingServerConfig Clone() => new SnapshotUpdatePricingServerConfig(this, false);
+
+    public override ISnapshotUpdatePricingServerConfig Clone(bool switchToMatchingConnection) =>
+        new SnapshotUpdatePricingServerConfig(this, true);
 
     public ushort PublicationId
     {
@@ -65,7 +71,7 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
         }
     }
 
-    public ISocketReceiverConfig? SnapshotConnectionConfig
+    public ISocketTopicConnectionConfig? SnapshotConnectionConfig
     {
         get => snapshotConnectionConfig;
         protected set
@@ -77,7 +83,7 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
         }
     }
 
-    public ISocketConnectionConfig? UpdateConnectionConfig
+    public ISocketTopicConnectionConfig? UpdateConnectionConfig
     {
         get => updateConnectionConfig;
         protected set
@@ -154,10 +160,11 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
         publicationId = updatedMarketsServerConfig.PublicationId;
         // previously have already updated ServerConnections from the updatedServerConfig;
         snapshotConnectionConfig =
-            ServerConnections!.FirstOrDefault(scc => scc.SubnetMask == null && scc is ISocketReceiverConfig) as
-                ISocketReceiverConfig;
+            ServerConnections!.FirstOrDefault(stcc =>
+                stcc.ConversationProtocol == SocketConversationProtocol.TcpAcceptor);
         updateConnectionConfig =
-            ServerConnections!.FirstOrDefault(scc => scc.SubnetMask != null);
+            ServerConnections!.FirstOrDefault(stcc =>
+                stcc.ConversationProtocol == SocketConversationProtocol.UdpPublisher);
         sourceTickerPublicationConfigs =
             updatedMarketsServerConfig.SourceTickerPublicationConfigs?.Select(stpc => stpc.Clone())?.ToList();
         isLastLook = updatedMarketsServerConfig.IsLastLook;

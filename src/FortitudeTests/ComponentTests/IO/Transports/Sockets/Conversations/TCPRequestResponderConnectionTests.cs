@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Net;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
@@ -19,25 +18,30 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 [NoMatchingProductionClass]
 public class TcpRequestResponderConnectionTests
 {
+    private readonly SocketTopicConnectionConfig responderTopicConConfig = new("TestResponderName"
+        , SocketConversationProtocol.TcpAcceptor,
+        new List<ISocketConnectionConfig>
+        {
+            new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort)
+        }, "TestResponderDescription",
+        1024 * 1024 * 2, 1024 * 1024 * 2, 50,
+        SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat
+    );
+
     private readonly Dictionary<uint, IMessageSerializer> serializers = new()
     {
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
-    private readonly SocketConnectionConfig serverSocketConfig = new("TestInstanceName", "TestTCPReqRespConn",
-        SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat,
-        1024 * 1024 * 2, 1024 * 1024 * 2,
-        TestMachineConfig.LoopBackIpAddress, IPAddress.Loopback, false,
-        (ushort)TestMachineConfig.ServerUpdatePort, (ushort)TestMachineConfig.ServerUpdatePort);
-
-    private ConversationRequester reqRespRequester = null!;
-
-    private ConversationResponder reqRespResponder = null!;
     private Dictionary<uint, IMessageDeserializer> requesterDeserializers = null!;
     private SimpleVersionedMessage requesterReceivedResponseMessage = null!;
     private Dictionary<uint, IMessageDeserializer> responderDeserializers = null!;
 
     private SimpleVersionedMessage responderReceivedMessage = null!;
+
+    private ConversationRequester tcpRequester = null!;
+
+    private ConversationResponder tcpResponder = null!;
 
     private SimpleVersionedMessage v2Message = null!;
 
@@ -54,8 +58,8 @@ public class TcpRequestResponderConnectionTests
         var responderSerdesFactory = new SerdesFactory(responderStreamDecoderFactory
             , new SocketStreamMessageEncoderFactory(serializers));
         // create server
-        var tcpReqRespResponderBuilder = new TcpConversationResponderBuilder();
-        reqRespResponder = tcpReqRespResponderBuilder.Build(serverSocketConfig, responderSerdesFactory);
+        var tcpResponderBuilder = new TcpConversationResponderBuilder();
+        tcpResponder = tcpResponderBuilder.Build(responderTopicConConfig, responderSerdesFactory);
 
         requesterDeserializers = new Dictionary<uint, IMessageDeserializer>
         {
@@ -67,8 +71,10 @@ public class TcpRequestResponderConnectionTests
         var requesterSerdesFactory = new SerdesFactory(requesterStreamDecoderFactory
             , new SocketStreamMessageEncoderFactory(serializers));
         // create client
-        var tcpReqRespRequestorBuilder = new TcpConversationRequesterBuilder();
-        reqRespRequester = tcpReqRespRequestorBuilder.Build(serverSocketConfig, requesterSerdesFactory);
+        var tcpRequesterBuilder = new TcpConversationRequesterBuilder();
+        var requesterTopicConConfig = responderTopicConConfig.Clone();
+        requesterTopicConConfig.ConversationProtocol = SocketConversationProtocol.TcpClient;
+        tcpRequester = tcpRequesterBuilder.Build(requesterTopicConConfig, requesterSerdesFactory);
 
         v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 234567.0, MessageId = 2345 };
     }
@@ -76,16 +82,16 @@ public class TcpRequestResponderConnectionTests
     [TestCleanup]
     public void TearDown()
     {
-        reqRespRequester.Stop();
-        reqRespResponder.Stop();
+        tcpRequester.Stop();
+        tcpResponder.Stop();
     }
 
     [TestMethod]
     public void ClientSendMessageDecodesCorrectlyOnServer()
     {
         // client connects
-        reqRespResponder.Start();
-        reqRespRequester.Start();
+        tcpResponder.Start();
+        tcpRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (var deserializersValue in
@@ -97,7 +103,7 @@ public class TcpRequestResponderConnectionTests
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message
-        reqRespRequester.ConversationPublisher!.Send(v1Message);
+        tcpRequester.ConversationPublisher!.Send(v1Message);
 
         Thread.Sleep(20);
         // assert server receives properly
@@ -110,8 +116,8 @@ public class TcpRequestResponderConnectionTests
     public void ClientSendMessageServerRespondsDecodesCorrectlyOnClient()
     {
         // client connects
-        reqRespResponder.Start();
-        reqRespRequester.Start();
+        tcpResponder.Start();
+        tcpRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (var deserializersValue in
@@ -125,7 +131,7 @@ public class TcpRequestResponderConnectionTests
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message
-        reqRespRequester.ConversationPublisher!.Send(v1Message);
+        tcpRequester.ConversationPublisher!.Send(v1Message);
 
         Thread.Sleep(300);
         // assert server receives properly

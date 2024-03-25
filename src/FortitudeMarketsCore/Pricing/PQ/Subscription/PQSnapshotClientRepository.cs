@@ -15,6 +15,6 @@ public class PQSnapshotClientRepository : PQConversationRepositoryBase<PQSnapsho
         socketDispatcherResolver = dispatcherResolver;
 
     protected override PQSnapshotClient
-        CreateNewSocketSubscriptionType(ISocketConnectionConfig socketConnectionConfig) =>
+        CreateNewSocketSubscriptionType(ISocketTopicConnectionConfig socketConnectionConfig) =>
         PQSnapshotClient.BuildTcpRequester(socketConnectionConfig, socketDispatcherResolver);
 }

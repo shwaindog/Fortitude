@@ -46,8 +46,8 @@ public class PricingClientServerPubSubscribeTests
     private PQServerHeartBeatSender hbSender = null!;
     private INameIdLookupGenerator nameIdLookupGenerator = null!;
     private OSNetworkingController networkingController = null!;
-    private Func<ISocketConnectionConfig, IPQSnapshotServer> pqSnapshotFactory = null!;
-    private Func<ISocketConnectionConfig, IPQUpdateServer> pqUpdateFactory = null!;
+    private Func<ISocketTopicConnectionConfig, IPQSnapshotServer> pqSnapshotFactory = null!;
+    private Func<ISocketTopicConnectionConfig, IPQUpdateServer> pqUpdateFactory = null!;
     private PricingServersConfigRepository pricingServersConfigRepository = null!;
     private IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
@@ -72,13 +72,19 @@ public class PricingClientServerPubSubscribeTests
             MarketServerType.MarketData,
             new[]
             {
-                new SocketConnectionConfig("TestSnapshotServer", "TestSnapshotServer", SocketConnectionAttributes.None
-                    , 2_000_000, 2_000_000, TestMachineConfig.LoopBackIpAddress, null, false,
-                    TestMachineConfig.ServerSnapshotPort)
-                , new SocketConnectionConfig("TestUpdateServer", "TestUpdateServer"
-                    , SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast, 2_000_000, 2_000_000
-                    , TestMachineConfig.LoopBackIpAddress, TestMachineConfig.NetworkSubAddress, false,
-                    TestMachineConfig.ServerUpdatePort)
+                new SocketTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
+                    new List<ISocketConnectionConfig>
+                    {
+                        new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                            , TestMachineConfig.ServerSnapshotPort)
+                    }, "TestSnapshotServerDescription")
+                , new SocketTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher,
+                    new List<ISocketConnectionConfig>
+                    {
+                        new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                            , TestMachineConfig.ServerUpdatePort, subnetMask: TestMachineConfig.NetworkSubAddress)
+                    }, "TestUpdateServerDescription"
+                    , connectionAttributes: SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast)
             }, null, 9000, sourceTickerPublicationConfigs, false, false);
         pricingServersConfigRepository =
             new PricingServersConfigRepository(new[] { snapshotUpdatePricingServerConfig });
@@ -115,7 +121,8 @@ public class PricingClientServerPubSubscribeTests
 
         // setup listener after publish means first message will be missed and snapshot will be required.
         ILevel2Quote? alwaysUpdatedQuote = null;
-        var pqClient = new PQClient(pricingServersConfigRepository, SingletonSocketDispatcherResolver.Instance, true
+        var pqClient = new PQClient(pricingServersConfigRepository.ToPricingClientConfigRepository()
+            , SingletonSocketDispatcherResolver.Instance, true
             , updateClientFactory, snapshotClientFactory);
         var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(sourceTickerPublicationConfig, 0);
         streamSubscription!.Subscribe(
@@ -187,7 +194,8 @@ public class PricingClientServerPubSubscribeTests
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.
         var autoResetEvent = new AutoResetEvent(false);
         ILevel3Quote? alwaysUpdatedQuote = null;
-        var pqClient = new PQClient(pricingServersConfigRepository, SingletonSocketDispatcherResolver.Instance, true
+        var pqClient = new PQClient(pricingServersConfigRepository.ToPricingClientConfigRepository()
+            , SingletonSocketDispatcherResolver.Instance, true
             , updateClientFactory, snapshotClientFactory);
         var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(sourceTickerPublicationConfig, 0);
 

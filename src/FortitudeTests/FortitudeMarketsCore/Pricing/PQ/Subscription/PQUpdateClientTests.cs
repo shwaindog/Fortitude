@@ -58,7 +58,7 @@ public class PQUpdateClientTests
         testHostName = "TestHostname";
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         testHostPort = 1979;
-        moqServerConnectionConfig.SetupGet(scc => scc.PortStartRange).Returns(testHostPort);
+        moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
         moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));

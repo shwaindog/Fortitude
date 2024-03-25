@@ -15,7 +15,7 @@ public class TopicFactory : ITopicFactory
         var configForTopic = topicConfigRepository!.GetConfigForTopic(topicName);
 
         var instanceConfig = configForTopic!.TopicConnectionConfigs.FirstOrDefault(
-            cc => cc.InstanceName.Equals(instanceName, StringComparison.InvariantCultureIgnoreCase));
+            cc => cc.TopicName.Equals(instanceName, StringComparison.InvariantCultureIgnoreCase));
         if (instanceConfig != null) { }
 
         return null;

@@ -14,7 +14,7 @@ using FortitudeIO.Transports.Sockets.Subscription;
 
 namespace FortitudeIO.Transports.Sockets.Client;
 
-public abstract class TcpSocketClient : SocketSubscriber
+public abstract class TcpSocketClient : InitiateControls
 {
     private readonly bool keepalive;
 
