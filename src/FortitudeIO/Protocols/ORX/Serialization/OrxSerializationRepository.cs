@@ -3,7 +3,7 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 
 #endregion
 

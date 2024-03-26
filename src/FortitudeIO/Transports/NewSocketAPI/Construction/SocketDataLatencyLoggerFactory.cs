@@ -1,10 +1,11 @@
 ﻿#region
 
 using System.Collections.Concurrent;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Logging;
+namespace FortitudeIO.Transports.NewSocketAPI.Construction;
 
 internal class SocketDataLatencyLoggerFactory : ISocketDataLatencyLoggerFactory
 {

@@ -4,10 +4,20 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
 namespace FortitudeIO.Transports.NewSocketAPI.Conversations;
+
+public interface ISocketConversation : IConversation
+{
+    event Action? Connected;
+    event Action? Disconnected;
+    event Action<SocketSessionState>? StateChanged;
+    event Action<ISocketConnection>? SocketConnected;
+    event Action? Disconnecting;
+}
 
 public class SocketConversation : ISocketConversation
 {
@@ -28,6 +38,19 @@ public class SocketConversation : ISocketConversation
     public IStreamPublisher? StreamPublisher => SocketSessionContext.SocketSender;
 
     public bool IsStarted => SocketSessionContext.SocketConnection?.IsConnected ?? false;
+
+    public int Id { get; } = Interlocked.Increment(ref nextSessionId);
+    public IConversationSession Session => SocketSessionContext.Session;
+
+    public ConversationType ConversationType { get; set; }
+
+    public string Name
+    {
+        get => SocketSessionContext.Name;
+        set => SocketSessionContext.Name = value;
+    }
+
+    public ConversationState ConversationState => SocketSessionContext.ConversationState;
 
     public event Action? Started
     {
@@ -76,19 +99,6 @@ public class SocketConversation : ISocketConversation
         add => SocketSessionContext.Disconnecting += value;
         remove => SocketSessionContext.Disconnecting -= value;
     }
-
-    public int Id { get; } = Interlocked.Increment(ref nextSessionId);
-    public IConversationSession Session => SocketSessionContext.Session;
-
-    public ConversationType ConversationType { get; set; }
-
-    public string Name
-    {
-        get => SocketSessionContext.Name;
-        set => SocketSessionContext.Name = value;
-    }
-
-    public ConversationState ConversationState => SocketSessionContext.ConversationState;
 
     public void Start()
     {

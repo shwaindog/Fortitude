@@ -8,8 +8,6 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.NewSocketAPI.SessionConnection;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -133,24 +131,6 @@ public class PQServerTests
         pqServer.StartServices();
 
         moqHeartBeatSender.Verify();
-    }
-
-    [TestMethod]
-    public void AlreadyStartedPQServer_StartServices_IgnoresRequest()
-    {
-        Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
-
-        var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
-        var moqAction = new Mock<Action<ISocketSessionConnection, uint[]>>();
-        // moqSnapshotStreamSubscriber.SetupAdd(
-        //     sss => sss.OnSnapshotRequest += It.IsAny<ConnectionIds>());
-        // moqSnapshotStreamSubscriber.SetupAdd(
-        //     sss => sss.OnSnapshotRequest += (connection, uints) => { });
-        pqServer.StartServices();
-
-
-        pqServer.StartServices();
     }
 
     [TestMethod]

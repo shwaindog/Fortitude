@@ -3,7 +3,6 @@
 using System.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.Topics.Config.ConnectionConfig;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 

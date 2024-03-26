@@ -2,16 +2,15 @@
 
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
-using FortitudeIO.Transports.NewSocketAPI.Receiving;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+namespace FortitudeIO.Transports.NewSocketAPI.Construction;
 
-public interface ISocketFactories
+public interface ISocketFactoryResolver
 {
     IOSNetworkingController? NetworkingController { get; }
     ISocketFactory? SocketFactory { get; }
@@ -23,9 +22,9 @@ public interface ISocketFactories
     IStreamControlsFactory StreamControlsFactory { get; }
 }
 
-public class SocketFactories : ISocketFactories
+public class SocketFactoryResolver : ISocketFactoryResolver
 {
-    public SocketFactories()
+    public SocketFactoryResolver()
     {
         SocketFactory = new SocketFactory(NetworkingController);
         SocketSenderFactory = new SocketSenderFactory(NetworkingController.DirectOSNetworkingApi);
@@ -40,10 +39,10 @@ public class SocketFactories : ISocketFactories
     public IOSParallelController ParallelController { get; set; } = new OSParallelController();
     public IStreamControlsFactory StreamControlsFactory { get; set; } = new StreamControlsFactory();
 
-    public static SocketFactories GetRealSocketFactories()
+    public static SocketFactoryResolver GetRealSocketFactories()
     {
         var networkingController = new OSNetworkingController();
-        var socketFactories = new SocketFactories
+        var socketFactories = new SocketFactoryResolver
         {
             NetworkingController = networkingController
             , SocketFactory = new SocketFactory(networkingController)

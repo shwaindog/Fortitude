@@ -5,8 +5,11 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
@@ -35,7 +38,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
     public TcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext) : base(acceptorSocketSessionContext)
     {
         this.acceptorSocketSessionContext = acceptorSocketSessionContext;
-        socketFactory = acceptorSocketSessionContext.SocketFactories.SocketFactory!;
+        socketFactory = acceptorSocketSessionContext.SocketFactoryResolver.SocketFactory!;
     }
 
     public event Action<IConversationRequester>? NewClient;
@@ -149,12 +152,17 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             {
                 if (clientRequester.Session is ISocketSessionContext socketSessionContext)
                 {
+                    if (socketSessionContext.SocketSessionState == SocketSessionState.Connected)
+                        socketSessionContext.OnDisconnecting();
+
                     logger.Info(
                         "Client {0} (" + socketSessionContext.SocketConnection!.ConnectedPort +
                         ") disconnected from server {1} @{2}",
                         socketSessionContext.Id, socketSessionContext.Name
                         , socketSessionContext.SocketConnection.ConnectedPort);
                     socketSessionContext.SocketConnection.OSSocket.Close();
+                    if (socketSessionContext.SocketSessionState != SocketSessionState.Disconnected)
+                        socketSessionContext.OnDisconnected();
                 }
             }
             catch
@@ -253,7 +261,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         var socketSessionConnection = new SocketSessionContext(ConversationType.Requester,
             SocketConversationProtocol.TcpClient, acceptorSocketSessionContext.Name,
             acceptorSocketSessionContext.SocketTopicConnectionConfig,
-            acceptorSocketSessionContext.SocketFactories, acceptorSocketSessionContext.SerdesFactory);
+            acceptorSocketSessionContext.SocketFactoryResolver, acceptorSocketSessionContext.SerdesFactory);
         var ipEndPoint = socket.RemoteOrLocalIPEndPoint()!;
         socketSessionConnection.SocketDispatcher = acceptorSocketSessionContext.SocketDispatcher;
         socketSessionConnection.OnConnected(new SocketConnection(

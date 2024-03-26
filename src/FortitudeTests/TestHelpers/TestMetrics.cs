@@ -4,7 +4,7 @@ using System.Reflection;
 using FortitudeBusRules.Messaging;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeTests.FortitudeCommon.Types;

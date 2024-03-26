@@ -1,11 +1,11 @@
 ﻿#region
 
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
-using FortitudeIO.Transports.NewSocketAPI.Receiving;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+namespace FortitudeIO.Transports.NewSocketAPI.State;
 
 public interface ISocketConnectivityChanged
 {
@@ -21,8 +21,8 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
     public SocketStateChangeHandler(ISocketSessionContext socketSessionContext)
     {
         this.socketSessionContext = socketSessionContext;
-        socketSenderFactory = socketSessionContext.SocketFactories.SocketSenderFactory;
-        socketReceiverFactory = socketSessionContext.SocketFactories.SocketReceiverFactory;
+        socketSenderFactory = socketSessionContext.SocketFactoryResolver.SocketSenderFactory;
+        socketReceiverFactory = socketSessionContext.SocketFactoryResolver.SocketReceiverFactory;
     }
 
     public Action<SocketSessionState> GetOnConnectionChangedHandler() => OnConnectionChanged;

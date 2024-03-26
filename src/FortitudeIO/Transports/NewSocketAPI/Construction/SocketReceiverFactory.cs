@@ -2,11 +2,12 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Receiving;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Receiving;
+namespace FortitudeIO.Transports.NewSocketAPI.Construction;
 
 public interface ISocketReceiverFactory
 {

@@ -2,7 +2,7 @@
 
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 

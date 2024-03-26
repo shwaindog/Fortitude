@@ -1,8 +1,6 @@
 ﻿#region
 
-using FortitudeIO.Transports.NewSocketAPI;
 using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 

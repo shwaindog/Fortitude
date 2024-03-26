@@ -7,7 +7,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using FortitudeMarketsApi.Trading;
 
 #endregion
