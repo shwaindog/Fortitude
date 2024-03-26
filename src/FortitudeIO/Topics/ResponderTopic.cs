@@ -19,7 +19,7 @@ public class ResponderTopic : Topic, IResponderTopic
         this.sessionConnection = sessionConnection;
 
     public IReadOnlyDictionary<int, IConversationRequester>? Clients { get; set; }
-    public IListener? ConversationListener { get; set; }
+    public IStreamListener? StreamListener { get; set; }
 
     public override bool IsStarted { get; } = false;
 

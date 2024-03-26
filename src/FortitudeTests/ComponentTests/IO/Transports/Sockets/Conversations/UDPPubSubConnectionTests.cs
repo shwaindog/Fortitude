@@ -81,7 +81,7 @@ public class UdpPubSubConnectionTests
 
         var v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 345678.0, MessageId = 2345 };
         // send message
-        conversationPublisher.ConversationPublisher!.Send(v2Message);
+        conversationPublisher.StreamPublisher!.Send(v2Message);
 
         Thread.Sleep(20);
         // assert server receives properly

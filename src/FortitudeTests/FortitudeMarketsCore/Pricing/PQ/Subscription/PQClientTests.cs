@@ -61,7 +61,6 @@ public class PQClientTests
     private string secondTestSourceName = null!;
     private string secondTestTicker = null!;
     private List<ISourceTickerPublicationConfig> serverTickerConfigs = null!;
-    private Func<string, ISocketDispatcher> socketDispatcherFactoryFunc = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -168,8 +167,6 @@ public class PQClientTests
 
         moqFirstSocketDispatcher = new Mock<ISocketDispatcher>();
         moqFirstSocketDispatcher.SetupAllProperties();
-
-        socketDispatcherFactoryFunc = socketDescription => moqFirstSocketDispatcher.Object;
     }
 
     private void PrepareInitialValues()

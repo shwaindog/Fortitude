@@ -17,8 +17,8 @@ public class RequesterTopic : Topic, IRequesterTopic
         base(description, ConversationType.Requester) =>
         this.sessionConnection = sessionConnection;
 
-    public IListener? ConversationListener { get; set; }
-    public IPublisher? ConversationPublisher { get; set; }
+    public IStreamListener? StreamListener { get; set; }
+    public IStreamPublisher? StreamPublisher { get; set; }
 
     public override bool IsStarted { get; } = false;
 

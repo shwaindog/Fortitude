@@ -25,7 +25,7 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
     }
 
     public static OrxTradingClientMessaging BuildTradingClient(ISocketTopicConnectionConfig socketConnectionConfig
-        , ISocketDispatcherResolver socketDispatcherResolver)
+        , ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         var conversationType = ConversationType.Requester;
         var conversationProtocol = SocketConversationProtocol.TcpClient;
@@ -36,7 +36,7 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory
-            , socketDispatcherResolver.Resolve(socketConnectionConfig));
+            , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 
         var initControls

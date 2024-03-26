@@ -23,7 +23,7 @@ public class TcpRequestResponderConnectionTests
         new List<ISocketConnectionConfig>
         {
             new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort)
-        }, "TestResponderDescription",
+        }, "TcpRequestResponderConnectionTests",
         1024 * 1024 * 2, 1024 * 1024 * 2, 50,
         SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat
     );
@@ -103,7 +103,7 @@ public class TcpRequestResponderConnectionTests
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message
-        tcpRequester.ConversationPublisher!.Send(v1Message);
+        tcpRequester.StreamPublisher!.Send(v1Message);
 
         Thread.Sleep(20);
         // assert server receives properly
@@ -131,7 +131,7 @@ public class TcpRequestResponderConnectionTests
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message
-        tcpRequester.ConversationPublisher!.Send(v1Message);
+        tcpRequester.StreamPublisher!.Send(v1Message);
 
         Thread.Sleep(300);
         // assert server receives properly
@@ -144,7 +144,7 @@ public class TcpRequestResponderConnectionTests
     {
         responderReceivedMessage = msg;
         if (client is IConversationRequester conversationRequester)
-            conversationRequester.ConversationPublisher!.Send(v2Message);
+            conversationRequester.StreamPublisher!.Send(v2Message);
     }
 
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, object? header

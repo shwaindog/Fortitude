@@ -11,14 +11,13 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.NewSocketAPI.SessionConnection;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
 namespace FortitudeIO.Transports.NewSocketAPI.Publishing;
 
-public interface ISocketSender : IPublisher
+public interface ISocketSender : IStreamPublisher
 {
     int Id { get; }
     bool SendActive { get; }
@@ -28,12 +27,11 @@ public interface ISocketSender : IPublisher
 
 public sealed class SocketSender : ISocketSender
 {
-    private static readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketSender));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketSender));
     private readonly IDirectOSNetworkingApi directOSNetworkingApi;
 
-    private readonly StaticRing<SocketSessionSender.SocketEncoder> encoders =
-        new(1024,
-            () => new SocketSessionSender.SocketEncoder(), false);
+    private readonly StaticRing<SocketEncoder> encoders =
+        new(1024, () => new SocketEncoder(), false);
 
     private readonly ISyncLock sendLock = new SpinLockLight();
     private readonly IMap<uint, IMessageSerializer> serializers = new LinkedListCache<uint, IMessageSerializer>();
@@ -114,7 +112,7 @@ public sealed class SocketSender : ISocketSender
         {
             while (encoders.Count > 0)
             {
-                SocketSessionSender.SocketEncoder encoder;
+                SocketEncoder encoder;
                 sendLock.Acquire();
                 try
                 {
@@ -156,7 +154,7 @@ public sealed class SocketSender : ISocketSender
 
     public void HandleSendError(string message, Exception exception)
     {
-        logger.Warn(
+        Logger.Warn(
             $"Error trying to send for {socketSocketSessionContext.Name} got {message} and {exception}");
     }
 
@@ -194,5 +192,15 @@ public sealed class SocketSender : ISocketSender
         }
 
         return false;
+    }
+
+    public override string ToString() =>
+        $"SocketSender({nameof(socketSocketSessionContext)}: {socketSocketSessionContext}, " +
+        $"{nameof(SendActive)}: {SendActive}, {nameof(Id)}: {Id})";
+
+    internal sealed class SocketEncoder
+    {
+        public IVersionedMessage Message = null!;
+        public IMessageSerializer Serializer = null!;
     }
 }

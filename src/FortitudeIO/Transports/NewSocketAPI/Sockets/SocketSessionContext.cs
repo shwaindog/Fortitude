@@ -42,11 +42,12 @@ public class SocketSessionContext : ISocketSessionContext
         SocketConversationProtocol socketConversationProtocol,
         string sessionDescription, ISocketTopicConnectionConfig socketConnectionConfig,
         ISocketFactories socketFactories, ISerdesFactory serdesFactory,
-        ISocketDispatcher? socketDispatcher = null)
+        ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         SocketFactories = socketFactories;
         SocketDispatcher
-            = socketDispatcher ?? socketFactories.SocketDispatcherResolver!.Resolve(socketConnectionConfig);
+            = socketDispatcherResolver?.Resolve(socketConnectionConfig) ??
+              socketFactories.SocketDispatcherResolver!.Resolve(socketConnectionConfig);
         SerdesFactory = serdesFactory;
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
@@ -159,4 +160,10 @@ public class SocketSessionContext : ISocketSessionContext
     {
         Stopped?.Invoke();
     }
+
+    public override string ToString() =>
+        $"SocketSessionContext({nameof(Id)}: {Id}, {nameof(Name)}: {Name}, {nameof(ConversationType)}: {ConversationType}, " +
+        $"{nameof(SocketDispatcher)}: {SocketDispatcher}, {nameof(SocketConnection)}: {SocketConnection}, " +
+        $"{nameof(SocketSessionState)}: {SocketSessionState}, " +
+        $"{nameof(IsStarted)}: {IsStarted})";
 }

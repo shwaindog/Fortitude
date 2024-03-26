@@ -24,14 +24,13 @@ public interface IAcceptorControls : IStreamControls
 public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 {
     private readonly ISocketSessionContext acceptorSocketSessionContext;
-    private readonly Dictionary<int, IConversationRequester> clients = new();
     private readonly ISyncLock clientsSync = new YieldLockLight();
     private readonly ISyncLock connSync = new YieldLockLight();
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TcpAcceptorControls));
     private readonly ISocketFactory socketFactory;
-#pragma warning disable 0169
-    private IDirectOSNetworkingApi? directOSNetworkingApi;
-#pragma warning restore 0169
+
+    // ReSharper disable once FieldCanBeMadeReadOnly.Local
+    private Dictionary<int, IConversationRequester> clients = new();
 
     public TcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext) : base(acceptorSocketSessionContext)
     {
@@ -53,10 +52,11 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         connSync.Acquire();
         try
         {
-            if (acceptorSocketSessionContext.SocketReceiver != null) return;
-            var connConfig = acceptorSocketSessionContext.SocketTopicConnectionConfig;
+            if (acceptorSocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
+                acceptorSocketSessionContext.SocketSessionState == SocketSessionState.Connecting) return;
             acceptorSocketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
-            foreach (var socketConConfig in acceptorSocketSessionContext.SocketTopicConnectionConfig)
+            var connConfig = acceptorSocketSessionContext.SocketTopicConnectionConfig;
+            foreach (var socketConConfig in connConfig)
                 try
                 {
                     logger.Info("Starting publisher {0} @{1}",
@@ -65,19 +65,19 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                     var listeningSocket = socketFactory.Create(acceptorSocketSessionContext.SocketTopicConnectionConfig
                         , socketConConfig);
 
-                    logger.Info("Publisher {0} @{1} started",
-                        acceptorSocketSessionContext.Name, socketConConfig.Port);
-
                     var localEndPointIp = listeningSocket.RemoteOrLocalIPEndPoint()!;
                     acceptorSocketSessionContext.OnConnected(new SocketConnection(connConfig.TopicName
                         , acceptorSocketSessionContext.ConversationType,
                         listeningSocket, localEndPointIp.Address, socketConConfig.Port));
                     acceptorSocketSessionContext.SocketReceiver!.ZeroBytesReadIsDisconnection = false;
+
+                    logger.Info("Publisher {0} {1}@{2} started",
+                        acceptorSocketSessionContext.Name, localEndPointIp.Address, socketConConfig.Port);
                     break;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    logger.Error($"Failed to open socket for {connConfig}");
+                    logger.Error("Failed to open socket for {}. Got {1}", connConfig, ex);
                 }
 
             if (acceptorSocketSessionContext.SocketConnection?.IsConnected ?? false)
@@ -97,7 +97,8 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         connSync.Acquire();
         try
         {
-            if (!acceptorSocketSessionContext.SocketReceiver!.IsAcceptor) return;
+            if (acceptorSocketSessionContext.SocketSessionState != SocketSessionState.Connected ||
+                !(acceptorSocketSessionContext.SocketReceiver?.IsAcceptor ?? false)) return;
 
             acceptorSocketSessionContext.OnDisconnecting();
             StopMessaging();
@@ -183,7 +184,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             try
             {
                 foreach (var clientSessionOperator in Clients.Values)
-                    clientSessionOperator.ConversationPublisher!.Send(message);
+                    clientSessionOperator.StreamPublisher!.Send(message);
             }
             finally
             {
@@ -201,11 +202,12 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 var client = RegisterSocketAsTcpRequesterConversation(acceptorSocketSessionContext.SocketReceiver!
                     .AcceptClientSocketRequest());
                 var clientIpEndPoint = client.SocketConnection!.OSSocket.RemoteOrLocalIPEndPoint();
-                logger.Info("Client {0} (" + clientIpEndPoint + ") connected to server {1} @{2}",
-                    client.Id, acceptorSocketSessionContext.Name,
+                logger.Info("Client {0} ({1}) connected to server {2} @{3}",
+                    client.Id, clientIpEndPoint, acceptorSocketSessionContext.Name,
                     acceptorSocketSessionContext.SocketConnection!.ConnectedPort);
                 var clientStreamInitiator = new InitiateControls(client);
                 var clientRequester = new ConversationRequester(client, clientStreamInitiator);
+                clientRequester.Disconnected += () => RemoveClient(clientRequester);
                 clientsSync.Acquire();
                 try
                 {
@@ -240,7 +242,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
     private void Unregister(IConversationRequester clientRequester)
     {
         acceptorSocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(clientRequester
-            .ConversationListener!);
+            .StreamListener!);
     }
 
     private ISocketSessionContext RegisterSocketAsTcpRequesterConversation(IOSSocket socket)

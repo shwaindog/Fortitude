@@ -19,8 +19,8 @@ public interface ISocketDispatcherListener : ISocketDispatcherCommon
 {
     void RegisterForListen(ISocketReceiver receiver);
     void UnregisterForListen(ISocketReceiver receiver);
-    void RegisterForListen(IListener receiver);
-    void UnregisterForListen(IListener receiver);
+    void RegisterForListen(IStreamListener receiver);
+    void UnregisterForListen(IStreamListener receiver);
 }
 
 public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDispatcherListener where T : class
@@ -61,12 +61,12 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
     public abstract void UnregisterForListen(ISocketReceiver receiver);
 
-    public void RegisterForListen(IListener receiver)
+    public void RegisterForListen(IStreamListener receiver)
     {
         if (receiver is ISocketReceiver socketReceiver) RegisterForListen(socketReceiver);
     }
 
-    public void UnregisterForListen(IListener receiver)
+    public void UnregisterForListen(IStreamListener receiver)
     {
         if (receiver is ISocketReceiver socketReceiver) UnregisterForListen(socketReceiver);
     }
@@ -106,7 +106,8 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
             }
             catch (Exception ex)
             {
-                Logger.Warn($"RingPoller '{Ring.Name}' caught exception while processing event: {data}.  {ex}");
+                Logger.Warn(
+                    $"SocketRingPollerListener '{Ring.Name}' caught exception while processing event: {data}.  {ex}");
             }
     }
 
@@ -180,7 +181,6 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
     public void AddForListen(ISocketReceiver receiver)
     {
-        // Logger.Info("Calling AddForListen");
         receiver.ListenActive = true;
         selector.Register(receiver);
         manualResetEvent.Set();
@@ -231,7 +231,6 @@ public class SimpleSocketRingPollerListener : SocketRingPollerListener<SocketRec
 
     public override void RegisterForListen(ISocketReceiver receiver)
     {
-        // Logger.Info($"Calling RegisterForListen {new StackTrace()}");
         var seqId = Ring.Claim();
         var evt = Ring[seqId];
         evt.SocketReceiver = receiver;

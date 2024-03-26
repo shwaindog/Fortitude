@@ -15,7 +15,7 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Receiving;
 
-public interface ISocketReceiver : IListener
+public interface ISocketReceiver : IStreamListener
 {
     bool IsAcceptor { get; }
     bool ListenActive { get; set; }
@@ -250,4 +250,9 @@ public sealed class SocketReceiver : ISocketReceiver
             numberOfMessages = 0;
         }
     }
+
+    public override string ToString() =>
+        $"SocketReceiver({nameof(socketSessionContext)}: {socketSessionContext}, {nameof(SocketHandle)}: {SocketHandle}, " +
+        $"{nameof(ListenActive)}: {ListenActive}, {nameof(ZeroBytesReadIsDisconnection)}: {ZeroBytesReadIsDisconnection}, " +
+        $"{nameof(IsAcceptor)}: {IsAcceptor}, {nameof(Decoder)}: {Decoder})";
 }

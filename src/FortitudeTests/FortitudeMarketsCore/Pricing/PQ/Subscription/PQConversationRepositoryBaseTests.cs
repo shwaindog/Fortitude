@@ -169,6 +169,6 @@ public class PQConversationRepositoryBaseTests
         public void Stop() { }
 
         public bool IsStarted { get; } = false;
-        public IListener? ConversationListener { get; set; }
+        public IStreamListener? StreamListener { get; set; }
     }
 }

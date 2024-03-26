@@ -8,6 +8,7 @@ using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using SocketsAPI = FortitudeIO.Transports.NewSocketAPI.Sockets;
@@ -44,10 +45,11 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 
     public void Send(IConversationRequester client, IVersionedMessage message)
     {
-        client.ConversationPublisher!.Send(message);
+        client.StreamPublisher!.Send(message);
     }
 
-    public static PQSnapshotServer BuildTcpResponder(ISocketTopicConnectionConfig socketConnectionConfig)
+    public static PQSnapshotServer BuildTcpResponder(ISocketTopicConnectionConfig socketConnectionConfig,
+        ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         var conversationType = ConversationType.Responder;
         var conversationProtocol = SocketsAPI.SocketConversationProtocol.TcpAcceptor;
@@ -57,8 +59,10 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketsAPI.SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory);
+            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory
+            , socketDispatcherResolver);
         socketSessionContext.Name += "Responder";
+
 
         var acceptorControls
             = (IAcceptorControls)socFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
