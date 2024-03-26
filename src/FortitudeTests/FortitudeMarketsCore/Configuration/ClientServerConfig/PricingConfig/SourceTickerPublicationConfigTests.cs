@@ -181,7 +181,7 @@ public class SourceTickerPublicationConfigTests
         var marketPriceQuoteSrvrConfigDiffStqi = new SourceTickerPublicationConfig(1, "TestSource", "TestTicker",
             20, 0.0001m, 0.01m, 1_000_000, 0.01m, 100, LayerFlags.Price | LayerFlags.Volume, LastTradedFlags.None,
             new SnapshotUpdatePricingServerConfig("DiffServer", MarketServerType.MarketData,
-                new[] { ConnectionConfigTests.DummyTopicConnectionConfig }, null, ushort.MaxValue
+                new[] { SocketTopicConnectionConfigTests.DummyTopicConnectionConfig }, null, ushort.MaxValue
                 , Enumerable.Empty<ISourceTickerPublicationConfig>(),
                 true, true));
         Assert.AreNotEqual(commonStpc, marketPriceQuoteSrvrConfigDiffStqi);

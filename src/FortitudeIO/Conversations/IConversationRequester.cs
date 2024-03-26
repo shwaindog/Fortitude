@@ -8,7 +8,7 @@ namespace FortitudeIO.Conversations;
 
 public interface IConversationRequester : IConversation
 {
-    IListener? ConversationListener { get; }
-    IPublisher? ConversationPublisher { get; }
+    IStreamListener? StreamListener { get; }
+    IStreamPublisher? StreamPublisher { get; }
     void Send(IVersionedMessage versionedMessage);
 }

@@ -23,9 +23,9 @@ public class SocketConversation : ISocketConversation
 
     public ISerdesFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
 
-    public IListener? ConversationListener => SocketSessionContext.SocketReceiver;
+    public IStreamListener? StreamListener => SocketSessionContext.SocketReceiver;
 
-    public IPublisher? ConversationPublisher => SocketSessionContext.SocketSender;
+    public IStreamPublisher? StreamPublisher => SocketSessionContext.SocketSender;
 
     public bool IsStarted => SocketSessionContext.SocketConnection?.IsConnected ?? false;
 

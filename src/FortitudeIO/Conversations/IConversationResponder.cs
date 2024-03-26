@@ -9,7 +9,7 @@ namespace FortitudeIO.Conversations;
 public interface IConversationResponder : IConversation
 {
     IReadOnlyDictionary<int, IConversationRequester>? Clients { get; }
-    IListener? ConversationListener { get; }
+    IStreamListener? StreamListener { get; }
     event Action<IConversationRequester>? NewClient;
     event Action<IConversationRequester>? ClientRemoved;
     void RemoveClient(IConversationRequester clientSocketSessionContext);

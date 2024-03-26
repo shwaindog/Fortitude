@@ -40,5 +40,5 @@ public class PublisherTopic : Topic, IPublisherTopic
         throw new NotImplementedException();
     }
 
-    public IPublisher? ConversationPublisher { get; set; }
+    public IStreamPublisher? StreamPublisher { get; set; }
 }

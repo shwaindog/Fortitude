@@ -67,21 +67,27 @@ public class SocketFactory : ISocketFactory
                 socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
         }
 
-        socket.Connect(new IPEndPoint(networkingController.GetIpAddress(host), port));
+        socket.ReceiveTimeout = (int)topicConnectionConfig.ResponseTimeoutMs;
+        socket.SendTimeout = (int)topicConnectionConfig.ResponseTimeoutMs;
         socket.SendBufferSize = topicConnectionConfig.SendBufferSize;
         socket.ReceiveBufferSize = topicConnectionConfig.ReceiveBufferSize;
+        socket.Connect(new IPEndPoint(networkingController.GetIpAddress(host), port));
         return socket;
     }
 
     private IOSSocket CreateNewTcpPublisher(ISocketTopicConnectionConfig topicConnectionConfig
         , ISocketConnectionConfig socketConnectionConfig)
     {
+        var host = socketConnectionConfig.Hostname!;
+        var port = socketConnectionConfig.Port;
         var listeningSocket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
             SocketType.Stream, ProtocolType.Tcp);
-        listeningSocket.NoDelay = true;
-        listeningSocket.Bind(new IPEndPoint(IPAddress.Any, socketConnectionConfig.Port));
-        listeningSocket.Listen(10);
         listeningSocket.SendBufferSize = topicConnectionConfig.SendBufferSize;
+        listeningSocket.ReceiveBufferSize = topicConnectionConfig.ReceiveBufferSize;
+        listeningSocket.Bind(new IPEndPoint(IPAddress.Any, port));
+        // listeningSocket.Bind(new IPEndPoint(networkingController.GetIpAddress(host), port));
+        listeningSocket.NoDelay = true;
+        listeningSocket.Listen(10);
         return listeningSocket;
     }
 

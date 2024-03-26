@@ -41,4 +41,6 @@ public class SocketDispatcher : ISocketDispatcher
     public ISocketDispatcherListener Listener { get; set; }
 
     public ISocketDispatcherSender Sender { get; set; }
+
+    public override string ToString() => $"SocketDispatcher({nameof(Name)}: {Name})";
 }

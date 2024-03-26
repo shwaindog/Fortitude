@@ -5,6 +5,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
+using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using SocketsAPI = FortitudeIO.Transports.NewSocketAPI.Sockets;
@@ -29,7 +30,8 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
         set => socketFactories = value;
     }
 
-    public static PQUpdatePublisher BuildUdpMulticastPublisher(ISocketTopicConnectionConfig socketConnectionConfig)
+    public static PQUpdatePublisher BuildUdpMulticastPublisher(ISocketTopicConnectionConfig socketConnectionConfig,
+        ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         var conversationType = ConversationType.Publisher;
         var conversationProtocol = SocketsAPI.SocketConversationProtocol.UdpPublisher;
@@ -39,7 +41,8 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketsAPI.SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory);
+            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory
+            , socketDispatcherResolver);
         socketSessionContext.Name += "Publisher";
 
         var initiateControls = new InitiateControls(socketSessionContext);

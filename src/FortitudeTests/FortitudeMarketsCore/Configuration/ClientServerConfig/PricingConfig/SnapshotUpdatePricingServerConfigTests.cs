@@ -19,7 +19,7 @@ public class SnapshotUpdatePricingServerConfigTests
 
     public static SnapshotUpdatePricingServerConfig DummySnapshotUpdatePricingServerConfig =>
         new("TestSnapshotName", MarketServerType.MarketData,
-            new[] { ConnectionConfigTests.DummyTopicConnectionConfig }, null, 1234,
+            new[] { SocketTopicConnectionConfigTests.DummyTopicConnectionConfig }, null, 1234,
             Enumerable.Empty<ISourceTickerPublicationConfig>(), true, false);
 
     public static void UpdateServerConfigWithValues(ISnapshotUpdatePricingServerConfig updatedConfig,

@@ -7,7 +7,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 
 namespace FortitudeIO.Conversations;
 
-public interface IPublisher
+public interface IStreamPublisher
 {
     void Enqueue(IVersionedMessage message);
     void Send(IVersionedMessage message);

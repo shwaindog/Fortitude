@@ -6,7 +6,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 
 namespace FortitudeIO.Conversations;
 
-public interface IListener
+public interface IStreamListener
 {
     IMessageStreamDecoder? Decoder { get; set; }
 }

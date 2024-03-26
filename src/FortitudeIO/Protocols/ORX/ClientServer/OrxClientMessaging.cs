@@ -53,7 +53,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
 
 
     public static OrxClientMessaging BuildTcpRequester(ISocketTopicConnectionConfig socketTopicConnectionConfig
-        , ISocketDispatcherResolver socketDispatcherResolver)
+        , ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         var conversationType = ConversationType.Requester;
         var conversationProtocol = SocketConversationProtocol.TcpClient;
@@ -64,7 +64,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             socketTopicConnectionConfig.TopicName, socketTopicConnectionConfig, sockFactories, serdesFactory
-            , socketDispatcherResolver.Resolve(socketTopicConnectionConfig));
+            , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 
         var initControls

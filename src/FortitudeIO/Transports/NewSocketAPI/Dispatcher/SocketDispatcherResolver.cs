@@ -13,6 +13,15 @@ public interface ISocketDispatcherResolver
     ISocketDispatcher Resolve(ISocketTopicConnectionConfig socketSessionContext);
 }
 
+public class SimpleSocketDispatcherResolver : ISocketDispatcherResolver
+{
+    private ISocketDispatcher dispatcher;
+
+    public SimpleSocketDispatcherResolver(ISocketDispatcher dispatcher) => this.dispatcher = dispatcher;
+
+    public ISocketDispatcher Resolve(ISocketTopicConnectionConfig socketSessionContext) => dispatcher;
+}
+
 public class PoolSocketDispatcherResolver : ISocketDispatcherResolver
 {
     private readonly Func<IList<ISocketDispatcherListener>, ISocketDispatcherListener> listenerSelector;

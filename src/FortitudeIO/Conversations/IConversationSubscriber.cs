@@ -2,5 +2,5 @@
 
 public interface IConversationSubscriber : IConversation
 {
-    IListener? ConversationListener { get; }
+    IStreamListener? StreamListener { get; }
 }

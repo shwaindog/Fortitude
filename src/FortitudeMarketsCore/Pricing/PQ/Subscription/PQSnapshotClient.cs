@@ -118,7 +118,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory
-            , socketDispatcherResolver.Resolve(socketConnectionConfig));
+            , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 
         var initControls

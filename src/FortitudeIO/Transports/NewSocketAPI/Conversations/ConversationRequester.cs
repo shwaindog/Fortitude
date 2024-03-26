@@ -19,6 +19,5 @@ public class ConversationRequester : SocketConversation, IInitiateControls, ICon
         SocketSessionContext.SocketSender!.Send(versionedMessage);
     }
 
-
     public void StartAsync() => ((IInitiateControls?)SocketSessionContext.StreamControls)?.StartAsync();
 }

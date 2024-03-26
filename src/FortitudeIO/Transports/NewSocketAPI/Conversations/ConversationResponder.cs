@@ -42,6 +42,6 @@ public class ConversationResponder : SocketConversation, IAcceptorControls, ICon
     {
         SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisterMessageSerializer(messageId, serializer);
         foreach (var client in acceptorControls.Clients.Values)
-            client.ConversationPublisher!.RegisterSerializer(messageId, serializer);
+            client.StreamPublisher!.RegisterSerializer(messageId, serializer);
     }
 }

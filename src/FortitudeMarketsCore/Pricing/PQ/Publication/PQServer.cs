@@ -19,33 +19,32 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
 public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 {
-    private readonly ISocketDispatcher dispatcher;
+    private readonly ISocketDispatcherResolver dispatcherResolver;
     private readonly IMap<uint, T> entities = new ConcurrentMap<uint, T>();
     private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
     private readonly ISyncLock heartBeatSync = new YieldLockLight();
     private readonly Func<ISourceTickerQuoteInfo, T> quoteFactory;
     private readonly IPQServerHeartBeatSender serverHeartBeatSender;
 
-    private readonly Func<ISocketTopicConnectionConfig, IPQSnapshotServer>
+    private readonly Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer>
         snapShotServerFactory;
 
     private readonly ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig;
 
-    private readonly Func<ISocketTopicConnectionConfig, IPQUpdateServer> updateServerFactory;
+    private readonly Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory;
 
     private IPQSnapshotServer? snapshotServer;
     private IPQUpdateServer? updateServer;
 
     public PQServer(ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig,
         IPQServerHeartBeatSender serverHeartBeatSender,
-        ISocketDispatcher socketDispatcher,
-        Func<ISocketTopicConnectionConfig, IPQSnapshotServer> snapShotServerFactory,
-        Func<ISocketTopicConnectionConfig, IPQUpdateServer> updateServerFactory,
+        ISocketDispatcherResolver socketDispatcherResolver,
+        Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> snapShotServerFactory,
+        Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory,
         Func<ISourceTickerQuoteInfo, T>? quoteFactory = null)
     {
         this.quoteFactory = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerQuoteInfo, T>();
-        dispatcher = socketDispatcher;
-        dispatcher.Name = "PQServer";
+        dispatcherResolver = socketDispatcherResolver;
         this.snapshotUpdatePricingServerConfig = snapshotUpdatePricingServerConfig;
         this.serverHeartBeatSender = serverHeartBeatSender;
         this.snapShotServerFactory = snapShotServerFactory;
@@ -184,10 +183,12 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         if (!IsStarted)
         {
-            snapshotServer = snapShotServerFactory(snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!);
+            snapshotServer = snapShotServerFactory(snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!
+                , dispatcherResolver);
             snapshotServer.OnSnapshotRequest += OnSnapshotContextRequest;
             snapshotServer.Start();
-            updateServer = updateServerFactory(snapshotUpdatePricingServerConfig.UpdateConnectionConfig!);
+            updateServer = updateServerFactory(snapshotUpdatePricingServerConfig.UpdateConnectionConfig!
+                , dispatcherResolver);
             updateServer.Start();
             serverHeartBeatSender.UpdateServer = updateServer;
             IsStarted = true;

@@ -48,7 +48,7 @@ public abstract class Topic : ITopic
         public void Send(IVersionedMessage message)
         {
             foreach (var pts in publisherTransportSessions)
-                pts.PublisherConversation.ConversationPublisher!.Send(message);
+                pts.PublisherConversation.StreamPublisher!.Send(message);
         }
 
         public ConversationType ConversationType { get; } = ConversationType.Publisher;
@@ -71,20 +71,20 @@ public abstract class Topic : ITopic
         public int Id { get; }
         public bool IsStarted { get; }
         public IConversationSession Session { get; } = null!;
-        public IPublisher? ConversationPublisher { get; }
+        public IStreamPublisher? StreamPublisher { get; }
 
 
         public void Enqueue(IVersionedMessage message)
         {
             foreach (var pts in publisherTransportSessions)
-                pts.PublisherConversation.ConversationPublisher!.Enqueue(message);
+                pts.PublisherConversation.StreamPublisher!.Enqueue(message);
         }
 
         public bool SendEnqueued()
         {
             var allSucceeded = true;
             foreach (var pts in publisherTransportSessions)
-                allSucceeded &= pts.PublisherConversation.ConversationPublisher!.SendEnqueued();
+                allSucceeded &= pts.PublisherConversation.StreamPublisher!.SendEnqueued();
             return allSucceeded;
         }
     }

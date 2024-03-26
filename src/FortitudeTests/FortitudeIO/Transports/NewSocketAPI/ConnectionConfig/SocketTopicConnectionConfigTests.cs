@@ -9,7 +9,7 @@ using FortitudeIO.Transports.NewSocketAPI.Sockets;
 namespace FortitudeTests.FortitudeIO.Transports.NewSocketAPI.ConnectionConfig;
 
 [TestClass]
-public class ConnectionConfigTests
+public class SocketTopicConnectionConfigTests
 {
     public static SocketTopicConnectionConfig DummyTopicConnectionConfig =>
         new("TestConnectionName", SocketConversationProtocol.TcpClient

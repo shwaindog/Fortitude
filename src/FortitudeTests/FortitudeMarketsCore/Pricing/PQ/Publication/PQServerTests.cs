@@ -42,10 +42,11 @@ public class PQServerTests
     private Mock<IPQSnapshotServer> moqSnapshotService = null!;
     private Mock<ISocketDispatcher> moqSocketDispatcher = null!;
     private Mock<ISocketDispatcherListener> moqSocketDispatcherListener = null!;
+    private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<ISocketDispatcherSender> moqSocketDispatcherSender = null!;
     private Mock<IPQUpdateServer> moqUpdateService = null!;
-    private Func<ISocketTopicConnectionConfig, IPQSnapshotServer> pqSnapshotFactory = null!;
-    private Func<ISocketTopicConnectionConfig, IPQUpdateServer> pqUpdateFactory = null!;
+    private Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> pqSnapshotFactory = null!;
+    private Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> pqUpdateFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
     private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
     private SourceTickerPublicationConfig sourceTickerQuoteInfo1 = null!;
@@ -86,9 +87,12 @@ public class PQServerTests
             }, null, 9000, sourceTickerPublicationConfigs, false, false);
 
         moqHeartBeatSender = new Mock<IPQServerHeartBeatSender>();
+        moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         moqSocketDispatcherListener = new Mock<ISocketDispatcherListener>();
         moqSocketDispatcherSender = new Mock<ISocketDispatcherSender>();
         moqSocketDispatcher = new Mock<ISocketDispatcher>();
+        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketTopicConnectionConfig>()))
+            .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupProperty(sd => sd.Listener, moqSocketDispatcherListener.Object);
         moqSocketDispatcher.SetupProperty(sd => sd.Sender, moqSocketDispatcherSender.Object);
 
@@ -98,8 +102,8 @@ public class PQServerTests
 
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
-        pqSnapshotFactory = (SocketConnectionConfig) => moqSnapshotService.Object;
-        pqUpdateFactory = (SocketConnectionConfig) => moqUpdateService.Object;
+        pqSnapshotFactory = (_, _) => moqSnapshotService.Object;
+        pqUpdateFactory = (_, _) => moqUpdateService.Object;
     }
 
     [TestMethod]
@@ -108,7 +112,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<PQLevel0Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -124,7 +128,7 @@ public class PQServerTests
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -137,7 +141,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
         var moqAction = new Mock<Action<ISocketSessionConnection, uint[]>>();
         // moqSnapshotStreamSubscriber.SetupAdd(
         //     sss => sss.OnSnapshotRequest += It.IsAny<ConnectionIds>());
@@ -179,7 +183,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -197,7 +201,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -215,7 +219,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -234,7 +238,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -251,7 +255,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -266,7 +270,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel0Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel0Quote>();
         var isInQuoteSyncLock = false;
@@ -308,7 +312,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel0Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel0Quote>();
         var isInHeartBeatSyncLock = false;
@@ -356,7 +360,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel0Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel0Quote>();
         var moqQuoteSyncLock = new Mock<ISyncLock>();
@@ -410,7 +414,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel0Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
 
 
         // can't use moq because of property hiding/redefinition not handled properly
@@ -429,7 +433,7 @@ public class PQServerTests
         moqUpdateService.SetupGet(us => us.IsStarted).Returns(false).Verifiable();
 
         var pqServer = new PQServer<IPQLevel0Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
 
         pqServer.StartServices();
 
@@ -478,7 +482,7 @@ public class PQServerTests
             moqSnapshotService.Object.Send(moqConversationRequester.Object, moqlevel0Quote.Object));
 
         var pqServer = new PQServer<PQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -498,7 +502,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
 
@@ -536,7 +540,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
 
@@ -571,7 +575,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
 
@@ -608,7 +612,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
         Assert.IsTrue(pqServer.IsStarted);
@@ -636,7 +640,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<IPQLevel1Quote>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
         pqServer.StartServices();
 
         var isInHeartBeatSyncLock = false;
@@ -665,7 +669,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<T>(snapshotUpdatePricingServerConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcher.Object, pqSnapshotFactory, pqUpdateFactory);
+            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
         pqServer.StartServices();
         var pqLevelTQuote = pqServer.Register(sourceTickerQuoteInfo1.Ticker);
         Assert.IsNotNull(pqLevelTQuote);

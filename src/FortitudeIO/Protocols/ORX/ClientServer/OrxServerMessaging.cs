@@ -63,7 +63,7 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
     public void Send(IConversation client, IVersionedMessage message)
     {
         var clientRequester = (IConversationRequester)client;
-        clientRequester.ConversationPublisher!.Send(message);
+        clientRequester.StreamPublisher!.Send(message);
     }
 
     public static OrxServerMessaging BuildTcpResponder(ISocketTopicConnectionConfig socketConnectionConfig)
