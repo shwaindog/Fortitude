@@ -63,7 +63,7 @@ public class PQSnapshotServerTests
         moqNewClientContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
         moqNewClientContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqSocket.Object);
-        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupGet(sd => sd.Listener).Returns(moqSocketDispatcherListener.Object);
 
@@ -75,10 +75,10 @@ public class PQSnapshotServerTests
         moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
         moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
         // PQSnapshotServer.SocketFactories = moqSocketFactories.Object;
-        var socketConConfig = new SocketTopicConnectionConfig("PQSnapshotServerTests"
+        var socketConConfig = new NetworkTopicConnectionConfig("PQSnapshotServerTests"
             , SocketConversationProtocol.TcpAcceptor, new[]
             {
-                new SocketConnectionConfig("testHostName", 3333)
+                new EndpointConfig("testHostName", 3333)
             });
         var socketSessionContext = new SocketSessionContext(ConversationType.Responder
             , SocketConversationProtocol.TcpAcceptor, "PQSnapshotServerTests", socketConConfig

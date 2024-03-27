@@ -24,7 +24,7 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
         socketSessionContext.Disconnected += () => nextSequence = 0;
     }
 
-    public static OrxTradingClientMessaging BuildTradingClient(ISocketTopicConnectionConfig socketConnectionConfig
+    public static OrxTradingClientMessaging BuildTradingClient(INetworkTopicConnectionConfig networkConnectionConfig
         , ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         var conversationType = ConversationType.Requester;
@@ -35,7 +35,7 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory
+            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory
             , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 

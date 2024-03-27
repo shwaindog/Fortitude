@@ -19,12 +19,12 @@ public class SnapshotUpdatePricingServerConfigTests
 
     public static SnapshotUpdatePricingServerConfig DummySnapshotUpdatePricingServerConfig =>
         new("TestSnapshotName", MarketServerType.MarketData,
-            new[] { SocketTopicConnectionConfigTests.DummyTopicConnectionConfig }, null, 1234,
+            new[] { NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig }, null, 1234,
             Enumerable.Empty<ISourceTickerPublicationConfig>(), true, false);
 
     public static void UpdateServerConfigWithValues(ISnapshotUpdatePricingServerConfig updatedConfig,
         string serverName, MarketServerType marketServerType
-        , IEnumerable<ISocketTopicConnectionConfig> serverConnectionConfigs,
+        , IEnumerable<INetworkTopicConnectionConfig> serverConnectionConfigs,
         ushort publicationId, IList<ISourceTickerPublicationConfig> sourceTicker, bool isLastLook,
         bool supportsIceBerges)
     {

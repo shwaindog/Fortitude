@@ -18,26 +18,26 @@ public class MarketServerConfigTests
 {
     public static MarketServerConfig<IDummyMarketServerConfig> DummyServerConfig =>
         new DummyMarketServerConfigClass("TestServerName", MarketServerType.MarketData,
-            new[] { SocketTopicConnectionConfigTests.DummyTopicConnectionConfig },
+            new[] { NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig },
             TimeTableTests.DummyTimeTable);
 
     public static IList<IDummyMarketServerConfig> ListOfSampleServerConfigs =>
         new List<IDummyMarketServerConfig>
         {
             new DummyMarketServerConfigClass("TestServerName1", MarketServerType.MarketData,
-                new[] { SocketTopicConnectionConfigTests.DummyTopicConnectionConfig },
+                new[] { NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig },
                 TimeTableTests.DummyTimeTable)
             , new DummyMarketServerConfigClass("TestServerName2", MarketServerType.Trading,
-                new[] { SocketTopicConnectionConfigTests.DummyTopicConnectionConfig },
+                new[] { NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig },
                 TimeTableTests.DummyTimeTable)
             , new DummyMarketServerConfigClass("TestServerName3", MarketServerType.ConfigServer,
-                new[] { SocketTopicConnectionConfigTests.DummyTopicConnectionConfig },
+                new[] { NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig },
                 TimeTableTests.DummyTimeTable)
         };
 
     public static void UpdateServerConfigWithValues<T>(IMarketServerConfig<T> updateConfig, string name
         , MarketServerType marketServerType,
-        IEnumerable<ISocketTopicConnectionConfig> serverConnectionConfigs) where T : class, IMarketServerConfig<T>
+        IEnumerable<INetworkTopicConnectionConfig> serverConnectionConfigs) where T : class, IMarketServerConfig<T>
     {
         NonPublicInvocator.SetInstanceProperty(updateConfig,
             ReflectionHelper.GetPropertyName((MarketServerConfig<T> x) => x.Name),
@@ -54,7 +54,7 @@ public class MarketServerConfigTests
     [TestMethod]
     public void InitializedServerConfig_NewConfigSameIdPushedThroughUpdateStream_UpdatesAllValues()
     {
-        var originalServerConnectionConfig = SocketTopicConnectionConfigTests
+        var originalServerConnectionConfig = NetworkTopicConnectionConfigTests
             .ServerConnectionConfigWithValues("OriginalConnectionName", "OriginalHostName", 5678,
                 "127.0.0.1", 125U);
 
@@ -68,16 +68,16 @@ public class MarketServerConfigTests
         Assert.AreEqual(MarketServerType.ConfigServer, updateAbleServerConfig.MarketServerType);
         Assert.IsTrue(
             new[] { originalServerConnectionConfig }.SequenceEqual(updateAbleServerConfig.ServerConnections!));
-        SocketTopicConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
+        NetworkTopicConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
             "OriginalConnectionName", "OriginalConnectionName", "OriginalHostName", 5678, "127.0.0.1");
 
-        var firstNewServerConnection = SocketTopicConnectionConfigTests.DummyTopicConnectionConfig;
-        var secondNewServerConnection = SocketTopicConnectionConfigTests.DummyTopicConnectionConfig;
+        var firstNewServerConnection = NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig;
+        var secondNewServerConnection = NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig;
         NonPublicInvocator.SetInstanceProperty(secondNewServerConnection,
-            ReflectionHelper.GetPropertyName((SocketTopicConnectionConfig x) => x.TopicName),
+            ReflectionHelper.GetPropertyName((NetworkTopicConnectionConfig x) => x.TopicName),
             "New", true);
         NonPublicInvocator.SetInstanceProperty(secondNewServerConnection,
-            ReflectionHelper.GetPropertyName((SocketTopicConnectionConfig x) => x.TopicDescription),
+            ReflectionHelper.GetPropertyName((NetworkTopicConnectionConfig x) => x.TopicDescription),
             "New", true);
 
         IDummyMarketServerConfig updatedConfig = new DummyMarketServerConfigClass(updateAbleServerConfig, false);
@@ -93,11 +93,11 @@ public class MarketServerConfigTests
         Assert.IsTrue(
             new[] { firstNewServerConnection, secondNewServerConnection }.SequenceEqual(updateAbleServerConfig
                 .ServerConnections!));
-        SocketTopicConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
+        NetworkTopicConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.First(),
             firstNewServerConnection.TopicName!, firstNewServerConnection.TopicDescription!
             , firstNewServerConnection.Current.Hostname, firstNewServerConnection.Current.Port
             , firstNewServerConnection.Current.SubnetMask);
-        SocketTopicConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.Last(),
+        NetworkTopicConnectionConfigTests.AssertIsExpected(updateAbleServerConfig.ServerConnections!.Last(),
             secondNewServerConnection.TopicName!, secondNewServerConnection.TopicDescription!
             , secondNewServerConnection.Current.Hostname, secondNewServerConnection.Current.Port
             , secondNewServerConnection.Current.SubnetMask);
@@ -111,18 +111,18 @@ public class MarketServerConfigTests
     private class DummyMarketServerConfigClass : MarketServerConfig<IDummyMarketServerConfig>, IDummyMarketServerConfig
     {
         public DummyMarketServerConfigClass(string name, MarketServerType marketServerType
-            , IEnumerable<ISocketTopicConnectionConfig> serverConnections,
+            , IEnumerable<INetworkTopicConnectionConfig> serverConnections,
             ITimeTable availabilityTimeTable
             , IObservable<IMarketServerConfigUpdate<IDummyMarketServerConfig>>? repoUpdateStream = null)
             : base(name, marketServerType, serverConnections, availabilityTimeTable, repoUpdateStream) { }
 
-        public DummyMarketServerConfigClass(DummyMarketServerConfigClass toClone, bool switchToMatchingConnection) :
-            base(toClone, switchToMatchingConnection) { }
+        public DummyMarketServerConfigClass(DummyMarketServerConfigClass toClone, bool toggleProtocolDirection) :
+            base(toClone, toggleProtocolDirection) { }
 
         public new IDummyMarketServerConfig Clone() => new DummyMarketServerConfigClass(this, false);
 
-        public override IDummyMarketServerConfig Clone(bool switchToMatchingConnection) =>
-            new DummyMarketServerConfigClass(this, switchToMatchingConnection);
+        public override IDummyMarketServerConfig ToggleProtocolDirection() =>
+            new DummyMarketServerConfigClass(this, true);
 
         object ICloneable.Clone() => Clone();
     }

@@ -235,7 +235,7 @@ public class PQClient : IDisposable
         return result;
     }
 
-    internal void RequestSnapshots(ISocketTopicConnectionConfig cfg, List<IUniqueSourceTickerIdentifier> streams)
+    internal void RequestSnapshots(INetworkTopicConnectionConfig cfg, List<IUniqueSourceTickerIdentifier> streams)
     {
         var snap = snapshotClientFactory.RetrieveConversation(cfg);
         snap?.RequestSnapshots(streams);

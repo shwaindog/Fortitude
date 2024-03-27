@@ -54,12 +54,12 @@ public class PQSnapshotClientTests
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
-    private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
+    private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
     private Mock<ISocketSender> moqSocketSender = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
-    private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
+    private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private Mock<ITimerCallbackSubscription> moqTimerCallbackSubscription = null!;
     private PQSnapshotClient pqSnapshotClient = null!;
 
@@ -91,8 +91,8 @@ public class PQSnapshotClientTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqTimerCallbackSubscription = new Mock<ITimerCallbackSubscription>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
-        moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
-        moqSocketTopicConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
+        moqSocketConnectionConfig = new Mock<IEndpointConfig>();
+        moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
@@ -115,7 +115,7 @@ public class PQSnapshotClientTests
         moqSocketSessionContext.SetupGet(ssc => ssc.Name).Returns("New Client Connection");
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
-        moqSocketSessionContext.SetupGet(ssc => ssc.SocketTopicConnectionConfig)
+        moqSocketSessionContext.SetupGet(ssc => ssc.NetworkTopicConnectionConfig)
             .Returns(moqSocketTopicConnectionConfig.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketSender).Returns(moqSocketSender.Object);

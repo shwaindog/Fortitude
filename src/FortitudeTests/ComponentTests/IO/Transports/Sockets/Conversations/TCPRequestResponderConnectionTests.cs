@@ -18,11 +18,11 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 [NoMatchingProductionClass]
 public class TcpRequestResponderConnectionTests
 {
-    private readonly SocketTopicConnectionConfig responderTopicConConfig = new("TestResponderName"
+    private readonly NetworkTopicConnectionConfig responderTopicConConfig = new("TestResponderName"
         , SocketConversationProtocol.TcpAcceptor,
-        new List<ISocketConnectionConfig>
+        new List<IEndpointConfig>
         {
-            new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort)
+            new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort)
         }, "TcpRequestResponderConnectionTests",
         1024 * 1024 * 2, 1024 * 1024 * 2, 50,
         SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat

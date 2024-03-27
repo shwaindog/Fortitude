@@ -43,8 +43,8 @@ public class PQServerTests
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<ISocketDispatcherSender> moqSocketDispatcherSender = null!;
     private Mock<IPQUpdateServer> moqUpdateService = null!;
-    private Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> pqSnapshotFactory = null!;
-    private Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> pqUpdateFactory = null!;
+    private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> pqSnapshotFactory = null!;
+    private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> pqUpdateFactory = null!;
     private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
     private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
     private SourceTickerPublicationConfig sourceTickerQuoteInfo1 = null!;
@@ -72,14 +72,14 @@ public class PQServerTests
             MarketServerType.MarketData,
             new[]
             {
-                new SocketTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor, new[]
+                new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor, new[]
                 {
-                    new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                    new EndpointConfig(TestMachineConfig.LoopBackIpAddress
                         , TestMachineConfig.ServerSnapshotPort)
                 })
-                , new SocketTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher, new[]
+                , new NetworkTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher, new[]
                 {
-                    new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort
+                    new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort
                         , TestMachineConfig.NetworkSubAddress)
                 }, connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast)
             }, null, 9000, sourceTickerPublicationConfigs, false, false);
@@ -89,7 +89,7 @@ public class PQServerTests
         moqSocketDispatcherListener = new Mock<ISocketDispatcherListener>();
         moqSocketDispatcherSender = new Mock<ISocketDispatcherSender>();
         moqSocketDispatcher = new Mock<ISocketDispatcher>();
-        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupProperty(sd => sd.Listener, moqSocketDispatcherListener.Object);
         moqSocketDispatcher.SetupProperty(sd => sd.Sender, moqSocketDispatcherSender.Object);

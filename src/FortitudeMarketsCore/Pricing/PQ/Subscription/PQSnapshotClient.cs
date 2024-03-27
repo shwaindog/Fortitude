@@ -43,7 +43,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotClient));
         parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
         intraOSThreadSignal = parallelController!.SingleOSThreadActivateSignal(false);
-        cxTimeoutMs = socketSessionContext.SocketTopicConnectionConfig.ConnectionTimeoutMs;
+        cxTimeoutMs = socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
         socketSessionContext.SocketConnected += SocketConnection;
         socketSessionContext.SocketConnected += SendQueuedRequests;
         socketSessionContext.StateChanged += SocketSessionContextOnStateChanged;
@@ -109,7 +109,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         if (socketState == SocketSessionState.Disconnected) DisableTimeout();
     }
 
-    public static PQSnapshotClient BuildTcpRequester(ISocketTopicConnectionConfig socketConnectionConfig
+    public static PQSnapshotClient BuildTcpRequester(INetworkTopicConnectionConfig networkConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver)
     {
         var conversationType = ConversationType.Requester;
@@ -120,7 +120,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory
+            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory
             , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 

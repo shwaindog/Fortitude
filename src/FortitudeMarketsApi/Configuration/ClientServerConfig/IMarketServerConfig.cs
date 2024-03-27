@@ -13,14 +13,14 @@ public interface IMarketServerConfig
     long Id { get; }
     string? Name { get; }
     MarketServerType MarketServerType { get; }
-    IEnumerable<ISocketTopicConnectionConfig>? ServerConnections { get; }
+    IEnumerable<INetworkTopicConnectionConfig>? ServerConnections { get; }
     ITimeTable? AvailabilityTimeTable { get; }
-    IMarketServerConfig Clone(bool switchToMatchingConnection);
+    IMarketServerConfig ToggleProtocolDirection();
 }
 
 public interface IMarketServerConfig<T> : ICloneable<IMarketServerConfig<T>>, IMarketServerConfig
     where T : class, IMarketServerConfig<T>
 {
     IObservable<IMarketServerConfigUpdate<T>>? Updates { get; set; }
-    new T Clone(bool switchToMatchingConnection);
+    new T ToggleProtocolDirection();
 }

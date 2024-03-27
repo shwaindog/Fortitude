@@ -11,30 +11,30 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 public abstract class PQConversationRepositoryBase<T> : IPQConversationRepository<T>
     where T : class, IConversation
 {
-    private readonly IMap<ISocketTopicConnectionConfig, T> socketSubscriptions =
-        new ConcurrentMap<ISocketTopicConnectionConfig, T>();
+    private readonly IMap<INetworkTopicConnectionConfig, T> socketSubscriptions =
+        new ConcurrentMap<INetworkTopicConnectionConfig, T>();
 
-    public T RetrieveOrCreateConversation(ISocketTopicConnectionConfig socketConnectionConfig)
+    public T RetrieveOrCreateConversation(INetworkTopicConnectionConfig networkConnectionConfig)
     {
-        if (!socketSubscriptions.TryGetValue(socketConnectionConfig, out var socketClient))
+        if (!socketSubscriptions.TryGetValue(networkConnectionConfig, out var socketClient))
         {
-            socketClient = CreateNewSocketSubscriptionType(socketConnectionConfig);
-            socketSubscriptions[socketConnectionConfig] = socketClient;
+            socketClient = CreateNewSocketSubscriptionType(networkConnectionConfig);
+            socketSubscriptions[networkConnectionConfig] = socketClient;
         }
 
         return socketClient!;
     }
 
-    public T? RetrieveConversation(ISocketTopicConnectionConfig socketConnectionConfig) =>
+    public T? RetrieveConversation(INetworkTopicConnectionConfig networkConnectionConfig) =>
         // ReSharper disable once InconsistentlySynchronizedField
-        socketSubscriptions.TryGetValue(socketConnectionConfig, out var foundConversation) ? foundConversation : null;
+        socketSubscriptions.TryGetValue(networkConnectionConfig, out var foundConversation) ? foundConversation : null;
 
-    public void RemoveConversation(ISocketTopicConnectionConfig socketConnectionConfig)
+    public void RemoveConversation(INetworkTopicConnectionConfig networkConnectionConfig)
     {
-        if (socketSubscriptions.TryGetValue(socketConnectionConfig, out var foundConversation))
+        if (socketSubscriptions.TryGetValue(networkConnectionConfig, out var foundConversation))
             foundConversation!.Stop();
-        socketSubscriptions.Remove(socketConnectionConfig);
+        socketSubscriptions.Remove(networkConnectionConfig);
     }
 
-    protected abstract T CreateNewSocketSubscriptionType(ISocketTopicConnectionConfig socketConnectionConfig);
+    protected abstract T CreateNewSocketSubscriptionType(INetworkTopicConnectionConfig networkConnectionConfig);
 }

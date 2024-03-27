@@ -55,7 +55,7 @@ public sealed class SocketReceiver : ISocketReceiver
         socket = socketSessionContext.SocketConnection!.OSSocket;
         directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!.DirectOSNetworkingApi;
         this.socketSessionContext = socketSessionContext;
-        numberOfReceivesPerPoll = socketSessionContext.SocketTopicConnectionConfig.NumberOfReceivesPerPoll;
+        numberOfReceivesPerPoll = socketSessionContext.NetworkTopicConnectionConfig.NumberOfReceivesPerPoll;
 
         var socketUseDescriptionNoWhiteSpaces = this.socketSessionContext.Name.Replace(" ", "");
         receiveSocketCxLatencyTraceLoggerPool = PerfLoggingPoolFactory.Instance

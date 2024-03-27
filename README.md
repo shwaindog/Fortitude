@@ -75,17 +75,5 @@ the most important goal of this project.  Work will be done to minimise trading 
 if zero garbage pricing can be achieved.
 
 # Notes for developing and testing
-When building and running the tests on windows please ensure you have installed "Microsoft KM-TEST Loopback Adapter"
-and have it as the highest priority adapter via
-* Network Adapters 
-  * Microsoft KM-TEST Loopback Adapter 
-    * Properties 
-      * Internet Protocol Version 4 (TCP/IPv4)
-        * Properties
-          * Advanced
-            * Untick "Automatic Metric"
-              * Lower number has higher priority 
-
-Then ensure any adapter that appears above "Microsoft KM-TEST Loopback Adapter" in ipconfig has a higher priority.
-Also ensure the IP address in FortitudeTests -> TestEnvironment -> TestMachineConfig matches that of the 
-"Microsoft KM-TEST Loopback Adapter"
+When building and running the tests on windows please ensure you have installed "Microsoft KM-TEST Loopback Adapter".
+Component Tests assume your loop back IP address is 169.254.224.238 on windows.

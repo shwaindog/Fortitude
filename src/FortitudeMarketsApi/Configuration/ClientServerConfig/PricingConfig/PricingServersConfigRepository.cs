@@ -9,7 +9,7 @@ public class PricingClientConfigRepository : MarketServerConfigRepository<ISnaps
     public IPricingServersConfigRepository ToPricingServerConfigRepository()
     {
         return new PricingServersConfigRepository(CurrentConfigs
-            .Select(supsc => supsc.Clone(true)));
+            .Select(supsc => supsc.ToggleProtocolDirection()));
     }
 }
 
@@ -22,6 +22,6 @@ public class PricingServersConfigRepository : MarketServerConfigRepository<ISnap
     public IPricingClientConfigRepository ToPricingClientConfigRepository()
     {
         return new PricingClientConfigRepository(CurrentConfigs
-            .Select(supsc => supsc.Clone(true)));
+            .Select(supsc => supsc.ToggleProtocolDirection()));
     }
 }

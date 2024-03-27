@@ -25,7 +25,7 @@ public class PQClientSyncMonitoringTests
     private Func<string, ISnapshotUpdatePricingServerConfig?> getSourceServerConfigFunc = null!;
     private List<IUniqueSourceTickerIdentifier> historyOfCalledSourceTickerIds = null!;
     private bool inSequencerSerialize;
-    private ISocketTopicConnectionConfig? lastConnectionConfig;
+    private INetworkTopicConnectionConfig? lastConnectionConfig;
     private string? lastSourceName;
     private List<IUniqueSourceTickerIdentifier> lastUniqueSourceTickerIdentifiers = null!;
     private ThreadStart monitorAction = null!;
@@ -38,16 +38,18 @@ public class PQClientSyncMonitoringTests
     private Mock<IPQDeserializer> moqSecondQuoteDeserializer = null!;
     private Mock<IUniqueSourceTickerIdentifier> moqSecondQuoteDeserializerIdentifier = null!;
     private Mock<ISequencer> moqSequencer = null!;
-    private Mock<ISocketTopicConnectionConfig> moqSnapshotServerConnectionConfig = null!;
+    private Mock<INetworkTopicConnectionConfig> moqSnapshotServerConnectionConfig = null!;
     private Mock<ISnapshotUpdatePricingServerConfig> moqSnapshotUpdatePricingServerConfig = null!;
     private Mock<IIntraOSThreadSignal> moqStopSignal = null!;
     private Mock<IDoublyLinkedList<IPQDeserializer>> moqSyncKo = null!;
     private Mock<IDoublyLinkedList<IPQDeserializer>> moqSyncOk = null!;
     private Mock<ITimeContext> moqTimeContext = null!;
-    private Mock<ISocketConnectionConfig> moqUpdateServerConnectionConfig = null!;
+    private Mock<IEndpointConfig> moqUpdateServerConnectionConfig = null!;
     private PQClientSyncMonitoring pqClientSyncMonitoring = null!;
     private long sequencerSequence;
-    private Action<ISocketTopicConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestActionFunc = null!;
+
+    private Action<INetworkTopicConnectionConfig, List<IUniqueSourceTickerIdentifier>>
+        snapShotRequestActionFunc = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -62,8 +64,8 @@ public class PQClientSyncMonitoringTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
         moqSnapshotUpdatePricingServerConfig = new Mock<ISnapshotUpdatePricingServerConfig>();
-        moqSnapshotServerConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
-        moqUpdateServerConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSnapshotServerConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqUpdateServerConnectionConfig = new Mock<IEndpointConfig>();
         moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
             .Returns(moqSnapshotServerConnectionConfig.Object).Callback(() =>
             {

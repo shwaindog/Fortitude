@@ -22,7 +22,7 @@ public class SocketSessionConnectionTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
+    private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
@@ -36,7 +36,7 @@ public class SocketSessionConnectionTests
         moqFlogger = new Mock<IFLogger>();
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
-        moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);

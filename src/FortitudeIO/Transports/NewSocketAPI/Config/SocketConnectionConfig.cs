@@ -7,7 +7,7 @@ using FortitudeCommon.Types;
 
 namespace FortitudeIO.Transports.NewSocketAPI.Config;
 
-public interface ISocketConnectionConfig : ICloneable<ISocketConnectionConfig>
+public interface IEndpointConfig : ICloneable<IEndpointConfig>
 {
     string Hostname { get; set; }
     ushort Port { get; set; }
@@ -16,9 +16,9 @@ public interface ISocketConnectionConfig : ICloneable<ISocketConnectionConfig>
     IPAddress? SubnetMaskIpAddress { get; }
 }
 
-public class SocketConnectionConfig : ISocketConnectionConfig
+public class EndpointConfig : IEndpointConfig
 {
-    public SocketConnectionConfig(string hostname, ushort port, string? instanceName = null, string? subnetMask = null)
+    public EndpointConfig(string hostname, ushort port, string? instanceName = null, string? subnetMask = null)
     {
         Hostname = hostname;
         Port = port;
@@ -26,7 +26,7 @@ public class SocketConnectionConfig : ISocketConnectionConfig
         InstanceName = instanceName ?? $"{hostname}:{port}";
     }
 
-    public SocketConnectionConfig(ISocketConnectionConfig toClone)
+    public EndpointConfig(IEndpointConfig toClone)
     {
         Hostname = toClone.Hostname;
         Port = toClone.Port;
@@ -42,9 +42,9 @@ public class SocketConnectionConfig : ISocketConnectionConfig
 
     object ICloneable.Clone() => Clone();
 
-    public ISocketConnectionConfig Clone() => new SocketConnectionConfig(this);
+    public IEndpointConfig Clone() => new EndpointConfig(this);
 
-    protected bool Equals(ISocketConnectionConfig other)
+    protected bool Equals(IEndpointConfig other)
     {
         var hostNameSame = Equals(Hostname, other.Hostname);
         var portSame = Port == other.Port;
@@ -59,7 +59,7 @@ public class SocketConnectionConfig : ISocketConnectionConfig
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((SocketConnectionConfig)obj);
+        return Equals((EndpointConfig)obj);
     }
 
     public override int GetHashCode()

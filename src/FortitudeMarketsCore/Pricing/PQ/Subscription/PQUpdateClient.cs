@@ -39,7 +39,7 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 
     public IMessageStreamDecoder MessageStreamDecoder => messageStreamDecoder;
 
-    public static PQUpdateClient BuildUdpSubscriber(ISocketTopicConnectionConfig socketConnectionConfig
+    public static PQUpdateClient BuildUdpSubscriber(INetworkTopicConnectionConfig networkConnectionConfig
         , ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         var conversationType = ConversationType.Subscriber;
@@ -50,7 +50,7 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories
+            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories
             , serdesFactory, socketDispatcherResolver);
         socketSessionContext.Name += "Subscriber";
 

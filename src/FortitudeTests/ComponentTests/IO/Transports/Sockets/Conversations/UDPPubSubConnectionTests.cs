@@ -23,11 +23,11 @@ public class UdpPubSubConnectionTests
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
-    private readonly SocketTopicConnectionConfig udpPublisherTopicConConfig = new("TestInstanceName"
+    private readonly NetworkTopicConnectionConfig udpPublisherTopicConConfig = new("TestInstanceName"
         , SocketConversationProtocol.UdpPublisher,
-        new List<ISocketConnectionConfig>(new List<ISocketConnectionConfig>
+        new List<IEndpointConfig>(new List<IEndpointConfig>
         {
-            new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort
+            new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort
                 , subnetMask: TestMachineConfig.NetworkSubAddress)
         }), "TestTCPReqRespConn", 1024 * 1024 * 2, 1024 * 1024 * 2, 50,
         SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast);

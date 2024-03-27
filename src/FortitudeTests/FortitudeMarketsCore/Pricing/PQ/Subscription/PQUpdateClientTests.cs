@@ -24,7 +24,7 @@ public class PQUpdateClientTests
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<ISerdesFactory> moqSerdesFactory = null!;
-    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private PQUpdateClient pqUpdateClient = null!;
@@ -43,7 +43,7 @@ public class PQUpdateClientTests
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelController.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqServerConnectionConfig = new Mock<IEndpointConfig>();
         moqSerdesFactory = new Mock<ISerdesFactory>();
         moqOsSocket = new Mock<IOSSocket>();
 

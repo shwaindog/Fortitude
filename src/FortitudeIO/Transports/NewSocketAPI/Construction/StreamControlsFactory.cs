@@ -17,7 +17,7 @@ public class StreamControlsFactory : IStreamControlsFactory
 {
     public IStreamControls ResolveStreamControls(ISocketSessionContext socketSocketSessionContext)
     {
-        var topicConnectionConfig = socketSocketSessionContext.SocketTopicConnectionConfig;
+        var topicConnectionConfig = socketSocketSessionContext.NetworkTopicConnectionConfig;
         if (topicConnectionConfig.ConversationProtocol == SocketConversationProtocol.TcpAcceptor)
             return new TcpAcceptorControls(socketSocketSessionContext);
         return new InitiateControls(socketSocketSessionContext);

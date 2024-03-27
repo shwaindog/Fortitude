@@ -68,7 +68,7 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
         client.SocketSender!.Send(message);
     }
 
-    public static OrxServerMessaging BuildTcpResponder(ISocketTopicConnectionConfig socketConnectionConfig)
+    public static OrxServerMessaging BuildTcpResponder(INetworkTopicConnectionConfig networkConnectionConfig)
     {
         var conversationType = ConversationType.Responder;
         var conversationProtocol = SocketConversationProtocol.TcpAcceptor;
@@ -78,7 +78,7 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory);
+            networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory);
         socketSessionContext.Name += "Responder";
 
         var acceptorControls
