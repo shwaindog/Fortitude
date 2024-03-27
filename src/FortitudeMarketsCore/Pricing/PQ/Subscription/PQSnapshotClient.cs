@@ -8,12 +8,13 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using NewSocketApi = FortitudeIO.Transports.NewSocketAPI;
 
 #endregion
 
@@ -21,7 +22,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 {
-    private static ISocketFactories? socketFactories;
+    private static ISocketFactoryResolver? socketFactories;
     private readonly uint cxTimeoutMs;
     private readonly IIntraOSThreadSignal intraOSThreadSignal;
     private readonly IFLogger logger;
@@ -40,7 +41,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         : base(socketSessionContext, initiateControls)
     {
         logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotClient));
-        parallelController = socketSessionContext.SocketFactories.ParallelController!;
+        parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
         intraOSThreadSignal = parallelController!.SingleOSThreadActivateSignal(false);
         cxTimeoutMs = socketSessionContext.SocketTopicConnectionConfig.ConnectionTimeoutMs;
         socketSessionContext.SocketConnected += SocketConnection;
@@ -55,9 +56,11 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         socketSessionContext.SerdesFactory.StreamEncoderFactory = snapshotSerializationRepository;
     }
 
-    public static ISocketFactories SocketFactories
+    public static ISocketFactoryResolver SocketFactories
     {
-        get => socketFactories ??= FortitudeIO.Transports.NewSocketAPI.Sockets.SocketFactories.GetRealSocketFactories();
+        get =>
+            socketFactories
+                ??= SocketFactoryResolver.GetRealSocketFactories();
         set => socketFactories = value;
     }
 

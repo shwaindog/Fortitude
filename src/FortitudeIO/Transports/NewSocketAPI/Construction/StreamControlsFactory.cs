@@ -1,10 +1,12 @@
 ﻿#region
 
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Controls;
+namespace FortitudeIO.Transports.NewSocketAPI.Construction;
 
 public interface IStreamControlsFactory
 {

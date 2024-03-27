@@ -7,10 +7,11 @@ using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
@@ -18,7 +19,7 @@ namespace FortitudeIO.Protocols.ORX.ClientServer;
 
 public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
 {
-    private static ISocketFactories? socketFactories;
+    private static ISocketFactoryResolver? socketFactories;
 
     protected readonly object SyncLock = new();
 
@@ -37,9 +38,9 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
         socketSessionContext.SerdesFactory.StreamEncoderFactory = SerializationRepository;
     }
 
-    public static ISocketFactories SocketFactories
+    public static ISocketFactoryResolver SocketFactories
     {
-        get => socketFactories ??= Transports.NewSocketAPI.Sockets.SocketFactories.GetRealSocketFactories();
+        get => socketFactories ??= SocketFactoryResolver.GetRealSocketFactories();
         set => socketFactories = value;
     }
 

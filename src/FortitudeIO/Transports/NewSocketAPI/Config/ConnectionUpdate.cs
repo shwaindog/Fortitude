@@ -1,11 +1,10 @@
 ﻿#region
 
 using FortitudeCommon.EventProcessing;
-using FortitudeIO.Transports.NewSocketAPI.Config;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI;
+namespace FortitudeIO.Transports.NewSocketAPI.Config;
 
 public interface IConnectionUpdate
 {

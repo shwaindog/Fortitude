@@ -6,7 +6,9 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using Moq;
 
 #endregion
@@ -21,7 +23,7 @@ public class SocketSessionConnectionTests
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
-    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
 
@@ -41,9 +43,9 @@ public class SocketSessionConnectionTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqOsSocket = new Mock<IOSSocket>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
-        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactories = new Mock<ISocketFactoryResolver>();
 
-        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketFactories.SetupGet(ssc => ssc.ParallelController).Returns(moqParallelControler.Object);
         testHostPort = 1979;
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));

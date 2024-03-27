@@ -5,9 +5,10 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -31,7 +32,7 @@ public class PQUpdateClientRepositoryTests
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
-    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private Mock<IStreamControlsFactory> moqStreamControlsFactory = null!;
     private PQUpdateClientRepository pqUpdateClientRegFactory = null!;
@@ -54,7 +55,7 @@ public class PQUpdateClientRepositoryTests
         moqStreamControlsFactory = new Mock<IStreamControlsFactory>();
         moqInitiateControls = new Mock<IInitiateControls>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
-        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqOsSocket = new Mock<IOSSocket>();
         moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
         moqAction = new Mock<Action<SocketSessionState>>();
@@ -91,7 +92,7 @@ public class PQUpdateClientRepositoryTests
     [TestCleanup]
     public void TearDown()
     {
-        PQUpdateClient.SocketFactories = SocketFactories.GetRealSocketFactories();
+        PQUpdateClient.SocketFactories = SocketFactoryResolver.GetRealSocketFactories();
     }
 
     [TestMethod]
@@ -105,6 +106,7 @@ public class PQUpdateClientRepositoryTests
 
         moqInitiateControls.Verify();
         var foundSubscription = pqUpdateClientRegFactory.RetrieveConversation(moqSocketTopicConnectionConfig.Object);
+
         Assert.AreSame(socketClient, foundSubscription);
     }
 }

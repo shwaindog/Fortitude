@@ -5,7 +5,6 @@ using System.Reactive.Subjects;
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 

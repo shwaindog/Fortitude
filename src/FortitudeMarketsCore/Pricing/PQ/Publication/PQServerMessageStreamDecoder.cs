@@ -4,8 +4,6 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeIO.Transports.NewSocketAPI.SessionConnection;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
@@ -15,26 +13,17 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
 {
     private const int HeaderSize = 2 * sizeof(byte) + 2 * sizeof(ushort);
     private const int RequestSize = sizeof(uint);
-    private readonly Action<ISocketSessionConnection, uint[]>? requestsHandler;
     private readonly Action<IConversationRequester, uint[]>? requestsHandlerNew;
     private MessageSection messageSection;
 
     private ushort requestsCount;
 
-    public PQServerMessageStreamDecoder(Action<ISocketSessionConnection, uint[]> requestsHandler)
-    {
-        messageSection = MessageSection.Header;
-        ExpectedSize = HeaderSize;
-        this.requestsHandler = requestsHandler;
-        requestsHandlerNew = null;
-    }
 
     public PQServerMessageStreamDecoder(Action<IConversationRequester, uint[]> requestsHandler)
     {
         messageSection = MessageSection.Header;
         ExpectedSize = HeaderSize;
         requestsHandlerNew = requestsHandler;
-        this.requestsHandler = null;
     }
 
     public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => [];
@@ -87,7 +76,6 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
                     }
 
                     readSocketBufferContext.EncodedBuffer.ReadCursor = read;
-                    requestsHandler?.Invoke(readSocketBufferContext.Session!, streamIDs);
                     requestsHandlerNew?.Invoke((IConversationRequester)readSocketBufferContext.Conversation!, streamIDs);
                     read += requestsCount * RequestSize;
                     messageSection = MessageSection.Header;

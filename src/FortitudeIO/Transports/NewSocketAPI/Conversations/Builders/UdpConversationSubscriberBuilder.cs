@@ -3,8 +3,9 @@
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
@@ -12,11 +13,11 @@ namespace FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;
 
 public class UdpConversationSubscriberBuilder
 {
-    private ISocketFactories? socketFactories;
+    private ISocketFactoryResolver? socketFactories;
 
-    public ISocketFactories SocketFactories
+    public ISocketFactoryResolver SocketFactories
     {
-        get => socketFactories ??= Sockets.SocketFactories.GetRealSocketFactories();
+        get => socketFactories ??= SocketFactoryResolver.GetRealSocketFactories();
         set => socketFactories = value;
     }
 

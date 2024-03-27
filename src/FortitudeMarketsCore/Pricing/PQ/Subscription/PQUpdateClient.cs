@@ -4,10 +4,11 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
@@ -15,7 +16,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 {
-    private static ISocketFactories? socketFactories;
+    private static ISocketFactoryResolver? socketFactories;
     private readonly PQClientMessageStreamDecoder messageStreamDecoder;
 
     public PQUpdateClient(ISocketSessionContext socketSessionContext,
@@ -28,9 +29,11 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
             = new SocketStreamDecoderFactory(deserializers => messageStreamDecoder);
     }
 
-    public static ISocketFactories SocketFactories
+    public static ISocketFactoryResolver SocketFactories
     {
-        get => socketFactories ??= FortitudeIO.Transports.NewSocketAPI.Sockets.SocketFactories.GetRealSocketFactories();
+        get =>
+            socketFactories
+                ??= SocketFactoryResolver.GetRealSocketFactories();
         set => socketFactories = value;
     }
 

@@ -11,7 +11,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
@@ -46,7 +46,8 @@ public sealed class SocketSender : ISocketSender
     {
         Socket = socketSocketSessionContext.SocketConnection!.OSSocket;
         this.socketSocketSessionContext = socketSocketSessionContext;
-        directOSNetworkingApi = socketSocketSessionContext.SocketFactories.NetworkingController!.DirectOSNetworkingApi;
+        directOSNetworkingApi = socketSocketSessionContext.SocketFactoryResolver.NetworkingController!
+            .DirectOSNetworkingApi;
         writeBufferContext = new BufferContext(new ReadWriteBuffer(new byte[Socket.SendBufferSize]))
             { Direction = ContextDirection.Write };
         sentCursor = 0;

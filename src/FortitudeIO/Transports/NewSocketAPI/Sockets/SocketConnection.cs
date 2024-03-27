@@ -4,12 +4,17 @@ using System.Net;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
 using FortitudeIO.Topics.Config.ConnectionConfig;
-using FortitudeIO.Transports.NewSocketAPI.Config;
 using TransportType = FortitudeIO.Topics.Config.ConnectionConfig.TransportType;
 
 #endregion
 
 namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+
+public interface ISocketSessionInfo : ITopicEndpointInfo
+{
+    ushort ConnectedPort { get; set; }
+    IPAddress ConnectedIpAddress { get; set; }
+}
 
 public interface ISocketConnection : ISocketSessionInfo
 {

@@ -6,13 +6,12 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Transports.NewSocketAPI.Client;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Controls;
+namespace FortitudeIO.Transports.NewSocketAPI.Construction;
 
 public interface ISocketFactory
 {

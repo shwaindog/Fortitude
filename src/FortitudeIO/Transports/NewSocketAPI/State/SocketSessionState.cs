@@ -1,4 +1,4 @@
-﻿namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+﻿namespace FortitudeIO.Transports.NewSocketAPI.State;
 
 public enum SocketSessionState
 {

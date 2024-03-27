@@ -5,6 +5,7 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
@@ -26,7 +27,7 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
 
     public InitiateControls(ISocketSessionContext socketSessionContext) : base(socketSessionContext)
     {
-        parallelController = socketSessionContext.SocketFactories.ParallelController!;
+        parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
         reconnectConfig = socketSessionContext.SocketTopicConnectionConfig.ReconnectConfig;
         this.socketSessionContext = socketSessionContext;
     }
@@ -46,7 +47,7 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
                 socketSessionContext.SocketSessionState == SocketSessionState.Disconnecting) return;
             socketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
             var connConfig = socketSessionContext.SocketTopicConnectionConfig;
-            var socketFactory = socketSessionContext.SocketFactories.SocketFactory!;
+            var socketFactory = socketSessionContext.SocketFactoryResolver.SocketFactory!;
             foreach (var socketConConfig in socketSessionContext.SocketTopicConnectionConfig)
             {
                 try

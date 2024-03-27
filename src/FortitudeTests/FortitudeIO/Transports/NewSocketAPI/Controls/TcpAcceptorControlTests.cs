@@ -8,10 +8,12 @@ using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using Moq;
 
 #endregion
@@ -38,7 +40,7 @@ public class TcpAcceptorControlsTests
     private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<ISocketDispatcherListener> moqSocketDispatchListener = null!;
-    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
     private Mock<ISocketReceiver> moqSocketReceiver = null!;
     private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
@@ -67,7 +69,7 @@ public class TcpAcceptorControlsTests
         moqAcceptorOsSocket = new Mock<IOSSocket>();
         moqClientOsSocket = new Mock<IOSSocket>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
-        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
         moqSerdesFactory = new Mock<ISerdesFactory>();
         connectedIpEndPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), testHostPort);
@@ -96,7 +98,7 @@ public class TcpAcceptorControlsTests
         moqSocketSessionContext.SetupGet(ssc => ssc.Name).Returns("TcpAcceptorControlsTests");
         moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
 
-        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketFactories.SetupGet(ssc => ssc.ParallelController).Returns(moqParallelControler.Object);
         moqSocketConnectivityChanged.Setup(scc => scc.GetOnConnectionChangedHandler())
             .Returns(moqCapturedClientSessionStateChanged.Object);

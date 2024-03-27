@@ -3,14 +3,17 @@
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
+using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+namespace FortitudeIO.Transports.NewSocketAPI.State;
 
 public interface ISocketSessionContext : ISocketConversation, IConversationSession
 {
@@ -25,7 +28,7 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
     ISocketReceiver? SocketReceiver { get; set; }
     ISocketSender? SocketSender { get; set; }
     ISocketDispatcher SocketDispatcher { get; }
-    ISocketFactories SocketFactories { get; }
+    ISocketFactoryResolver SocketFactoryResolver { get; }
     ISerdesFactory SerdesFactory { get; }
     void OnSocketStateChanged(SocketSessionState newSessionState);
     void OnDisconnected();
@@ -41,19 +44,19 @@ public class SocketSessionContext : ISocketSessionContext
     public SocketSessionContext(ConversationType conversationType,
         SocketConversationProtocol socketConversationProtocol,
         string sessionDescription, ISocketTopicConnectionConfig socketConnectionConfig,
-        ISocketFactories socketFactories, ISerdesFactory serdesFactory,
+        ISocketFactoryResolver socketFactoryResolver, ISerdesFactory serdesFactory,
         ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
-        SocketFactories = socketFactories;
+        SocketFactoryResolver = socketFactoryResolver;
         SocketDispatcher
             = socketDispatcherResolver?.Resolve(socketConnectionConfig) ??
-              socketFactories.SocketDispatcherResolver!.Resolve(socketConnectionConfig);
+              socketFactoryResolver.SocketDispatcherResolver!.Resolve(socketConnectionConfig);
         SerdesFactory = serdesFactory;
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
         SocketTopicConnectionConfig = socketConnectionConfig;
         Name = sessionDescription;
-        StateChanged = socketFactories.ConnectionChangedHandlerResolver!(this)
+        StateChanged = socketFactoryResolver.ConnectionChangedHandlerResolver!(this)
             .GetOnConnectionChangedHandler();
         Id = Interlocked.Increment(ref idGen);
     }
@@ -64,7 +67,7 @@ public class SocketSessionContext : ISocketSessionContext
     public ISocketConversation? OwningConversation { get; set; }
     public ConversationType ConversationType { get; }
     public SocketConversationProtocol SocketConversationProtocol { get; }
-    public ISocketFactories SocketFactories { get; }
+    public ISocketFactoryResolver SocketFactoryResolver { get; }
     public ISerdesFactory SerdesFactory { get; }
     public ISocketDispatcher SocketDispatcher { get; set; }
     public ISocketConnection? SocketConnection { get; private set; }

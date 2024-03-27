@@ -6,8 +6,8 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
-using FortitudeIO.Transports.NewSocketAPI.SessionConnection;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using LegacyApi = FortitudeIO.Transports.Sockets.SessionConnection;
 
 #endregion
@@ -34,7 +34,7 @@ public class ReadSocketBufferContext : ReadBufferContext
     public DateTime DetectTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
     public DateTime ReceivingTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
     public LegacyApi.ISocketSessionConnection? LegacySession { get; set; }
-    public ISocketSessionConnection? Session { get; set; }
+    public ISession? Session { get; set; }
     public ISocketSessionContext? SessionContext { get; set; }
     public IConversation? Conversation => SessionContext!.OwningConversation;
     public IPerfLogger? DispatchLatencyLogger { get; set; }

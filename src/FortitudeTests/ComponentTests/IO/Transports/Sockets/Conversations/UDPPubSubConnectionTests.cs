@@ -3,9 +3,9 @@
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Conversations;
 using FortitudeIO.Transports.NewSocketAPI.Conversations.Builders;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.FortitudeIO.Protocols.Serialization;
 using FortitudeTests.TestEnvironment;

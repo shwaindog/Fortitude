@@ -5,9 +5,11 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using Moq;
 
 #endregion
@@ -28,7 +30,7 @@ public class InitiateControlsTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
     private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
-    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
     private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
@@ -55,14 +57,14 @@ public class InitiateControlsTests
 
         moqOsSocket = new Mock<IOSSocket>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
-        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
         connectedIpEndPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), testHostPort);
         moqSocketConnection = new Mock<ISocketConnection>();
 
         moqSocketReconnectConfig.SetupGet(scc => scc.NextReconnectIntervalMs).Returns(5u);
         moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
-        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketFactories.SetupGet(ssc => ssc.ParallelController).Returns(moqParallelControler.Object);
         moqSocketConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("InitiateControlsTests");
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);

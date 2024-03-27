@@ -5,8 +5,9 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
 
@@ -24,7 +25,7 @@ public class PQUpdateClientTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<ISerdesFactory> moqSerdesFactory = null!;
     private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
-    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private PQUpdateClient pqUpdateClient = null!;
     private string testHostName = null!;
@@ -37,7 +38,7 @@ public class PQUpdateClientTests
         moqInitiateControls = new Mock<IInitiateControls>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
         moqParallelController = new Mock<IOSParallelController>();
-        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelController.Object);
@@ -60,7 +61,7 @@ public class PQUpdateClientTests
         testHostPort = 1979;
         moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
         moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
-        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
 

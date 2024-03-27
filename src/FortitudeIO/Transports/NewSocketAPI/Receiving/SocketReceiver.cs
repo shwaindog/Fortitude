@@ -9,7 +9,7 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.NewSocketAPI.Logging;
-using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 
 #endregion
 
@@ -53,7 +53,7 @@ public sealed class SocketReceiver : ISocketReceiver
     public SocketReceiver(ISocketSessionContext socketSessionContext)
     {
         socket = socketSessionContext.SocketConnection!.OSSocket;
-        directOSNetworkingApi = socketSessionContext.SocketFactories.NetworkingController!.DirectOSNetworkingApi;
+        directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!.DirectOSNetworkingApi;
         this.socketSessionContext = socketSessionContext;
         numberOfReceivesPerPoll = socketSessionContext.SocketTopicConnectionConfig.NumberOfReceivesPerPoll;
 

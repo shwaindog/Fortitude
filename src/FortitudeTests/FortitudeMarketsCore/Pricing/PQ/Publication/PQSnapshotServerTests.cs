@@ -5,9 +5,11 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using Moq;
 
@@ -30,7 +32,7 @@ public class PQSnapshotServerTests
     private Mock<ISocketDispatcher> moqSocketDispatcher = null!;
     private Mock<ISocketDispatcherListener> moqSocketDispatcherListener = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
-    private Mock<ISocketFactories> moqSocketFactories = null!;
+    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
     private PQSnapshotServer pqSnapshotServer = null!;
 
@@ -42,7 +44,7 @@ public class PQSnapshotServerTests
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqParallelController = new Mock<IOSParallelController>();
-        moqSocketFactories = new Mock<ISocketFactories>();
+        moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
         moqSerdesFactory = new Mock<ISerdesFactory>();
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
@@ -59,7 +61,7 @@ public class PQSnapshotServerTests
 
         moqNewClientContext.SetupGet(ssc => ssc.Name).Returns("New Client Connection");
         moqNewClientContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
-        moqNewClientContext.SetupGet(ssc => ssc.SocketFactories).Returns(moqSocketFactories.Object);
+        moqNewClientContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqSocket.Object);
         moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketTopicConnectionConfig>()))
             .Returns(moqSocketDispatcher.Object);

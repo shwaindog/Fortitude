@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Client;
+namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 [StructLayout(LayoutKind.Explicit)]
 internal struct KeepAlive
@@ -19,7 +19,7 @@ internal struct KeepAlive
         var arr = new byte[size];
         var ptr = Marshal.AllocHGlobal(size);
 
-        Marshal.StructureToPtr(this, ptr, true);
+        Marshal.StructureToPtr((object)this, ptr, true);
         Marshal.Copy(ptr, arr, 0, size);
         Marshal.FreeHGlobal(ptr);
 

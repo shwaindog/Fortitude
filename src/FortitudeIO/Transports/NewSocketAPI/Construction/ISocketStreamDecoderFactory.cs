@@ -8,7 +8,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion
 
-namespace FortitudeIO.Transports.NewSocketAPI.Sockets;
+namespace FortitudeIO.Transports.NewSocketAPI.Construction;
 
 public class SocketStreamDecoderFactory : IStreamDecoderFactory
 {
