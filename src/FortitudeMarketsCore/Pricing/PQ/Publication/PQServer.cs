@@ -26,12 +26,13 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     private readonly Func<ISourceTickerQuoteInfo, T> quoteFactory;
     private readonly IPQServerHeartBeatSender serverHeartBeatSender;
 
-    private readonly Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer>
+    private readonly Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer>
         snapShotServerFactory;
 
     private readonly ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig;
 
-    private readonly Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory;
+    private readonly Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer>
+        updateServerFactory;
 
     private IPQSnapshotServer? snapshotServer;
     private IPQUpdateServer? updateServer;
@@ -39,8 +40,8 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     public PQServer(ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig,
         IPQServerHeartBeatSender serverHeartBeatSender,
         ISocketDispatcherResolver socketDispatcherResolver,
-        Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> snapShotServerFactory,
-        Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory,
+        Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> snapShotServerFactory,
+        Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory,
         Func<ISourceTickerQuoteInfo, T>? quoteFactory = null)
     {
         this.quoteFactory = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerQuoteInfo, T>();

@@ -14,11 +14,11 @@ public enum ConnectionSelectionOrder
     , Random
 }
 
-public interface ISocketTopicConnectionConfig : ITopicConnectionConfig, IEnumerable<ISocketConnectionConfig>
-    , IEnumerator<ISocketConnectionConfig>, ICloneable<ISocketTopicConnectionConfig>
+public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IEnumerable<IEndpointConfig>
+    , IEnumerator<IEndpointConfig>, ICloneable<INetworkTopicConnectionConfig>
 {
     SocketConversationProtocol ConversationProtocol { get; set; }
-    List<ISocketConnectionConfig> AvailableConnections { get; set; }
+    List<IEndpointConfig> AvailableConnections { get; set; }
     public int ReceiveBufferSize { get; set; }
     public int SendBufferSize { get; set; }
     int NumberOfReceivesPerPoll { get; set; }
@@ -27,15 +27,15 @@ public interface ISocketTopicConnectionConfig : ITopicConnectionConfig, IEnumera
     uint ConnectionTimeoutMs { get; set; }
     uint ResponseTimeoutMs { get; set; }
     ISocketReconnectConfig ReconnectConfig { get; set; }
-    ISocketTopicConnectionConfig Clone(bool switchToMatchingConnection);
+    INetworkTopicConnectionConfig ToggleProtocolDirection();
 }
 
-public class SocketTopicConnectionConfig : ISocketTopicConnectionConfig
+public class NetworkTopicConnectionConfig : INetworkTopicConnectionConfig
 {
-    private readonly List<ISocketConnectionConfig> returnedItems = new();
+    private readonly List<IEndpointConfig> returnedItems = new();
 
-    public SocketTopicConnectionConfig(string topicName, SocketConversationProtocol conversationProtocol
-        , IEnumerable<ISocketConnectionConfig> availableConnections,
+    public NetworkTopicConnectionConfig(string topicName, SocketConversationProtocol conversationProtocol
+        , IEnumerable<IEndpointConfig> availableConnections,
         string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 2, int sendBufferSize = 1024 * 1024 * 2,
         int numberOfReceivesPerPoll = 50
         , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
@@ -58,7 +58,7 @@ public class SocketTopicConnectionConfig : ISocketTopicConnectionConfig
         Current = AvailableConnections.First();
     }
 
-    public SocketTopicConnectionConfig(ISocketTopicConnectionConfig toClone)
+    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone)
     {
         TopicName = toClone.TopicName;
         ConversationProtocol = toClone.ConversationProtocol;
@@ -77,7 +77,7 @@ public class SocketTopicConnectionConfig : ISocketTopicConnectionConfig
 
     public string TopicName { get; set; }
     public SocketConversationProtocol ConversationProtocol { get; set; }
-    public List<ISocketConnectionConfig> AvailableConnections { get; set; }
+    public List<IEndpointConfig> AvailableConnections { get; set; }
     public string? TopicDescription { get; set; }
     public int ReceiveBufferSize { get; set; }
     public int SendBufferSize { get; set; }
@@ -91,7 +91,7 @@ public class SocketTopicConnectionConfig : ISocketTopicConnectionConfig
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<ISocketConnectionConfig> GetEnumerator()
+    public IEnumerator<IEndpointConfig> GetEnumerator()
     {
         returnedItems.Clear();
         return this;
@@ -130,31 +130,30 @@ public class SocketTopicConnectionConfig : ISocketTopicConnectionConfig
         returnedItems.Clear();
     }
 
-    public ISocketConnectionConfig Current { get; private set; }
+    public IEndpointConfig Current { get; private set; }
 
     object ICloneable.Clone() => Clone();
 
-    public ISocketTopicConnectionConfig Clone(bool switchToMatchingConnection)
+    public INetworkTopicConnectionConfig ToggleProtocolDirection()
     {
-        var clone = new SocketTopicConnectionConfig(this);
-        if (switchToMatchingConnection)
-            clone.ConversationProtocol = clone.ConversationProtocol switch
-            {
-                SocketConversationProtocol.TcpAcceptor => SocketConversationProtocol.TcpClient
-                , SocketConversationProtocol.TcpClient => SocketConversationProtocol.TcpAcceptor
-                , SocketConversationProtocol.UdpPublisher => SocketConversationProtocol.UdpSubscriber
-                , SocketConversationProtocol.UdpSubscriber => SocketConversationProtocol.UdpPublisher
-                , _ => throw new NotSupportedException($"Did not expect to receive SocketConversationProtocol unknown")
-            };
-        return clone;
+        var oppositeConnectionConfig = new NetworkTopicConnectionConfig(this);
+        oppositeConnectionConfig.ConversationProtocol = oppositeConnectionConfig.ConversationProtocol switch
+        {
+            SocketConversationProtocol.TcpAcceptor => SocketConversationProtocol.TcpClient
+            , SocketConversationProtocol.TcpClient => SocketConversationProtocol.TcpAcceptor
+            , SocketConversationProtocol.UdpPublisher => SocketConversationProtocol.UdpSubscriber
+            , SocketConversationProtocol.UdpSubscriber => SocketConversationProtocol.UdpPublisher
+            , _ => throw new NotSupportedException($"Did not expect to receive SocketConversationProtocol unknown")
+        };
+        return oppositeConnectionConfig;
     }
 
-    public ISocketTopicConnectionConfig Clone() =>
-        new SocketTopicConnectionConfig(TopicName, ConversationProtocol,
+    public INetworkTopicConnectionConfig Clone() =>
+        new NetworkTopicConnectionConfig(TopicName, ConversationProtocol,
             AvailableConnections.ToList(), TopicDescription, ReceiveBufferSize, SendBufferSize, NumberOfReceivesPerPoll,
             ConnectionAttributes, ConnectionSelectionOrder, ConnectionTimeoutMs, ResponseTimeoutMs, ReconnectConfig);
 
-    protected bool Equals(ISocketTopicConnectionConfig other)
+    protected bool Equals(INetworkTopicConnectionConfig other)
     {
         var topicNameSame = TopicName == other.TopicName;
         var conversationProtocolSame = ConversationProtocol == other.ConversationProtocol;
@@ -181,7 +180,7 @@ public class SocketTopicConnectionConfig : ISocketTopicConnectionConfig
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((ISocketTopicConnectionConfig)obj);
+        return Equals((INetworkTopicConnectionConfig)obj);
     }
 
     public override int GetHashCode()

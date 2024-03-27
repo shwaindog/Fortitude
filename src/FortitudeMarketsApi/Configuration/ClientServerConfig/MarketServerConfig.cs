@@ -19,12 +19,12 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
     protected ISubject<IConnectionUpdate> ConnectionUpdateStream;
     private MarketServerType marketServerType;
     private string? name;
-    private IEnumerable<ISocketTopicConnectionConfig>? serverConnections;
+    private IEnumerable<INetworkTopicConnectionConfig>? serverConnections;
     protected ISubject<IMarketServerConfigUpdate<T>>? UpdateStream;
     private IDisposable? updateStreamSub;
 
     public MarketServerConfig(string name, MarketServerType marketServerType
-        , IEnumerable<ISocketTopicConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable = null,
+        , IEnumerable<INetworkTopicConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable = null,
         IObservable<IMarketServerConfigUpdate<T>>? repoUpdateStream = null)
     {
         Id = IdGenLong.Next();
@@ -39,16 +39,16 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
         UpdateStream.Subscribe(ListenForUpdates);
     }
 
-    public MarketServerConfig(MarketServerConfig<T> toClone, bool switchToMatchingConnection)
+    public MarketServerConfig(MarketServerConfig<T> toClone, bool toggleProtocolDirection = false)
     {
         Id = toClone.Id;
         ConnectionUpdateStream = new Subject<IConnectionUpdate>();
         name = toClone.Name;
         marketServerType = toClone.MarketServerType;
         serverConnections = toClone.ServerConnections?
-                                .Select(sc => sc.Clone(switchToMatchingConnection))
+                                .Select(sc => toggleProtocolDirection ? sc.ToggleProtocolDirection() : sc.Clone())
                                 .ToArray()
-                            ?? Array.Empty<ISocketTopicConnectionConfig>();
+                            ?? Array.Empty<INetworkTopicConnectionConfig>();
         availabilityTimeTable = toClone.AvailabilityTimeTable;
         repoUpdateStream = toClone.repoUpdateStream;
         UpdateStream = new Subject<IMarketServerConfigUpdate<T>>();
@@ -80,7 +80,7 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
         }
     }
 
-    public IEnumerable<ISocketTopicConnectionConfig>? ServerConnections
+    public IEnumerable<INetworkTopicConnectionConfig>? ServerConnections
     {
         get => serverConnections;
         protected set
@@ -117,10 +117,9 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
 
     public IMarketServerConfig<T> Clone() => new MarketServerConfig<T>(this, false);
 
-    IMarketServerConfig IMarketServerConfig.Clone(bool switchToMatchingConnection) => Clone(switchToMatchingConnection);
+    IMarketServerConfig IMarketServerConfig.ToggleProtocolDirection() => ToggleProtocolDirection();
 
-    public virtual T Clone(bool switchToMatchingConnection) =>
-        (T)(object)new MarketServerConfig<T>(this, switchToMatchingConnection);
+    public virtual T ToggleProtocolDirection() => (T)(object)new MarketServerConfig<T>(this, true);
 
     private void ListenForUpdates(IMarketServerConfigUpdate<T> scu)
     {
@@ -145,7 +144,7 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
 
     protected virtual void UpdateFields(T updatedServerConfig) { }
 
-    private void UpdateConnectionsList(IEnumerable<ISocketTopicConnectionConfig>? newConnectionsList)
+    private void UpdateConnectionsList(IEnumerable<INetworkTopicConnectionConfig>? newConnectionsList)
     {
         var originalServerConnection = serverConnections;
         serverConnections = newConnectionsList?.Select(scc =>
@@ -154,8 +153,10 @@ public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMa
             return clonedScc;
         })?.ToList();
         var diffResults = originalServerConnection?.Diff(serverConnections, scc => scc.TopicName)
-                          ?? new DiffResults<ISocketTopicConnectionConfig>(Array.Empty<ISocketTopicConnectionConfig>(),
-                              Array.Empty<ISocketTopicConnectionConfig>(), Array.Empty<ISocketTopicConnectionConfig>());
+                          ?? new DiffResults<INetworkTopicConnectionConfig>(Array.Empty<INetworkTopicConnectionConfig>()
+                              ,
+                              Array.Empty<INetworkTopicConnectionConfig>()
+                              , Array.Empty<INetworkTopicConnectionConfig>());
         foreach (var scc in diffResults.NewItems)
             ConnectionUpdateStream.OnNext(new ConnectionUpdate(scc, EventType.Created));
         foreach (var scc in diffResults.UpdatedItems)

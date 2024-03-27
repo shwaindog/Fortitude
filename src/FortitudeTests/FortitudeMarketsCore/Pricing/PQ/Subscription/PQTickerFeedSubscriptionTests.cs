@@ -27,9 +27,9 @@ public class PQTickerFeedSubscriptionTests
         feedConfig = new SnapshotUpdatePricingServerConfig("TestServerConfig", MarketServerType.MarketData,
             new[]
             {
-                new SocketTopicConnectionConfig("testConnectionName", SocketConversationProtocol.TcpClient, new[]
+                new NetworkTopicConnectionConfig("testConnectionName", SocketConversationProtocol.TcpClient, new[]
                 {
-                    new SocketConnectionConfig("testhost", 9090)
+                    new EndpointConfig("testhost", 9090)
                 }, "testConnectionName")
             },
             null, 1234,

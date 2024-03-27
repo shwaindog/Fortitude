@@ -21,7 +21,7 @@ public interface IConnectionConfig : ICloneable<IConnectionConfig>
     IObservable<IConnectionUpdate> Updates { get; set; }
     uint ReconnectIntervalMs { get; }
     IConnectionConfig? FallBackConnectionConfig { get; }
-    ISocketTopicConnectionConfig ToSocketTopicConnectionConfig();
+    INetworkTopicConnectionConfig ToSocketTopicConnectionConfig();
 }
 
 public class ConnectionConfig : IConnectionConfig
@@ -69,9 +69,9 @@ public class ConnectionConfig : IConnectionConfig
         isSubscribedExternally = repoUpdateStream?.Subscribe(updateSubject);
     }
 
-    public ISocketTopicConnectionConfig ToSocketTopicConnectionConfig() =>
-        new SocketTopicConnectionConfig(connectionName, SocketConversationProtocol.TcpClient
-            , new[] { new SocketConnectionConfig(hostname, (ushort)port) }, connectionName, 2_000_000
+    public INetworkTopicConnectionConfig ToSocketTopicConnectionConfig() =>
+        new NetworkTopicConnectionConfig(connectionName, SocketConversationProtocol.TcpClient
+            , new[] { new EndpointConfig(hostname, (ushort)port) }, connectionName, 2_000_000
             , 2_000_000);
 
     public long Id { get; protected set; }

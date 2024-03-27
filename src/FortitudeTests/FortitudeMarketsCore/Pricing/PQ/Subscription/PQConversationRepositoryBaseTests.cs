@@ -29,7 +29,7 @@ public class PQConversationRepositoryBaseTests
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
-    private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
+    private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private string testHostName = null!;
 
     [TestInitialize]
@@ -41,7 +41,7 @@ public class PQConversationRepositoryBaseTests
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqSocketTopicConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
+        moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
@@ -93,7 +93,7 @@ public class PQConversationRepositoryBaseTests
     {
         var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
-        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketTopicConnectionConfig,
+        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<INetworkTopicConnectionConfig,
             DummyConversationSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
 
         Assert.IsNotNull(socketClient);
@@ -119,7 +119,7 @@ public class PQConversationRepositoryBaseTests
         var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
         var socketClient2 = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
-        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<ISocketTopicConnectionConfig,
+        var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<INetworkTopicConnectionConfig,
             DummyConversationSubscriber>>(dummySktSubRegFctryBs, "socketSubscriptions");
 
         Assert.IsNotNull(socketClient);
@@ -148,7 +148,7 @@ public class PQConversationRepositoryBaseTests
 
         public T ReturnedSocketSubscriber { get; }
 
-        protected override T CreateNewSocketSubscriptionType(ISocketTopicConnectionConfig connectionConfig) =>
+        protected override T CreateNewSocketSubscriptionType(INetworkTopicConnectionConfig connectionConfig) =>
             ReturnedSocketSubscriber;
     }
 

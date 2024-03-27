@@ -16,7 +16,7 @@ public class TradingServerConfig : ITradingServerConfig
 {
     public TradingServerConfig(long id = 0L, string? name = null,
         MarketServerType marketServerType = MarketServerType.Trading,
-        IEnumerable<ISocketTopicConnectionConfig>? serverConnections = null,
+        IEnumerable<INetworkTopicConnectionConfig>? serverConnections = null,
         ITimeTable? availabilityTimeTable = null,
         IObservable<IMarketServerConfigUpdate<ITradingServerConfig>>? updates = null,
         OrderType supportedOrderTypes = OrderType.Unset,
@@ -37,13 +37,14 @@ public class TradingServerConfig : ITradingServerConfig
         SupportsMarketPriceQuoteExecution = supportsMarketPriceQuoteExecution;
     }
 
-    public TradingServerConfig(TradingServerConfig toClone, bool switchToMatchingConnection)
+    public TradingServerConfig(TradingServerConfig toClone, bool toggleProtocolDirection)
     {
         Id = toClone.Id;
         Name = toClone.Name;
         MarketServerType = toClone.MarketServerType;
-        ServerConnections = toClone.ServerConnections?.Select(stcc => stcc.Clone(switchToMatchingConnection)) ??
-                            Enumerable.Empty<ISocketTopicConnectionConfig>();
+        ServerConnections = toClone.ServerConnections?.Select(stcc =>
+                                toggleProtocolDirection ? stcc.ToggleProtocolDirection() : stcc.Clone()) ??
+                            Enumerable.Empty<INetworkTopicConnectionConfig>();
         AvailabilityTimeTable = toClone.AvailabilityTimeTable?.Clone();
         Updates = toClone.Updates;
         SupportedOrderTypes = toClone.SupportedOrderTypes;
@@ -56,16 +57,14 @@ public class TradingServerConfig : ITradingServerConfig
 
     public IMarketServerConfig<ITradingServerConfig> Clone() => new TradingServerConfig(this, false);
 
-    IMarketServerConfig IMarketServerConfig.Clone(bool switchToMatchingConnection) =>
-        new TradingServerConfig(this, switchToMatchingConnection);
+    IMarketServerConfig IMarketServerConfig.ToggleProtocolDirection() => new TradingServerConfig(this, true);
 
-    public ITradingServerConfig Clone(bool switchToMatchingConnection) =>
-        new TradingServerConfig(this, switchToMatchingConnection);
+    public ITradingServerConfig ToggleProtocolDirection() => new TradingServerConfig(this, true);
 
     public long Id { get; set; }
     public string? Name { get; set; }
     public MarketServerType MarketServerType { get; set; }
-    public IEnumerable<ISocketTopicConnectionConfig>? ServerConnections { get; set; }
+    public IEnumerable<INetworkTopicConnectionConfig>? ServerConnections { get; set; }
     public ITimeTable? AvailabilityTimeTable { get; set; }
     public IObservable<IMarketServerConfigUpdate<ITradingServerConfig>>? Updates { get; set; }
 

@@ -61,7 +61,7 @@ public class PQUpdatePublisherTests
         moqNewClientContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object);
         moqNewClientContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqSocket.Object);
-        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupGet(sd => sd.Listener).Returns(moqSocketDispatcherListener.Object);
 
@@ -75,10 +75,10 @@ public class PQUpdatePublisherTests
         moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
         moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
         // PQSnapshotServer.SocketFactories = moqSocketFactories.Object;
-        var socketConConfig = new SocketTopicConnectionConfig("PQUpdatePublisherTests"
+        var socketConConfig = new NetworkTopicConnectionConfig("PQUpdatePublisherTests"
             , SocketConversationProtocol.UdpPublisher, new[]
             {
-                new SocketConnectionConfig("testHostName", 3333, "127.0.0.1")
+                new EndpointConfig("testHostName", 3333, "127.0.0.1")
             }, connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast);
         var socketSessionContext = new SocketSessionContext(ConversationType.Responder
             , SocketConversationProtocol.TcpAcceptor, "PQUpdatePublisherTests", socketConConfig

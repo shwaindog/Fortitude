@@ -21,7 +21,7 @@ public class UdpConversationSubscriberBuilder
         set => socketFactories = value;
     }
 
-    public ConversationSubscriber Build(ISocketTopicConnectionConfig socketConnectionConfig
+    public ConversationSubscriber Build(INetworkTopicConnectionConfig networkConnectionConfig
         , ISerdesFactory serdesFactory)
     {
         var conversationType = ConversationType.Subscriber;
@@ -30,7 +30,7 @@ public class UdpConversationSubscriberBuilder
         var sockFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories
+            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories
             , serdesFactory);
         socketSessionContext.Name += "Subscriber";
 

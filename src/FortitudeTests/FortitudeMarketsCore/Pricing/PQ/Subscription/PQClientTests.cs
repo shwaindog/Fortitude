@@ -49,14 +49,14 @@ public class PQClientTests
     private Mock<IIntraOSThreadSignal> moqSingleOsThreadSignal = null!;
     private Mock<IPQSnapshotClient> moqSnapshotClient = null!;
     private Mock<IPQConversationRepository<IPQSnapshotClient>> moqSnapshotClientFactory = null!;
-    private Mock<ISocketConnectionConfig> moqSnapshotServerConfig = null!;
-    private Mock<ISocketTopicConnectionConfig> moqSnapshotTopicServerConfig = null!;
+    private Mock<IEndpointConfig> moqSnapshotServerConfig = null!;
+    private Mock<INetworkTopicConnectionConfig> moqSnapshotTopicServerConfig = null!;
     private Mock<ISnapshotUpdatePricingServerConfig> moqSnapshotUpdatePricingServerConfig = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<IPQUpdateClient> moqUpdateClient = null!;
     private Mock<IPQConversationRepository<IPQUpdateClient>> moqUpdateClientFactory = null!;
-    private Mock<ISocketConnectionConfig> moqUpdateServerConfig = null!;
-    private Mock<ISocketTopicConnectionConfig> moqUpdateTopicServerConfig = null!;
+    private Mock<IEndpointConfig> moqUpdateServerConfig = null!;
+    private Mock<INetworkTopicConnectionConfig> moqUpdateTopicServerConfig = null!;
     private PQClient pqClient = null!;
     private string secondTestSourceName = null!;
     private string secondTestTicker = null!;
@@ -152,17 +152,17 @@ public class PQClientTests
         moqMessageStreamDecoder = new Mock<IMessageStreamDecoder>();
         moqSnapshotClient.SetupGet(sc => sc.MessageStreamDecoder).Returns(moqMessageStreamDecoder.Object);
         moqSnapshotClientFactory
-            .Setup(scf => scf.RetrieveOrCreateConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+            .Setup(scf => scf.RetrieveOrCreateConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSnapshotClient.Object);
-        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSnapshotClient.Object);
 
         moqUpdateClientFactory = new Mock<IPQConversationRepository<IPQUpdateClient>>();
         moqUpdateClient = new Mock<IPQUpdateClient>();
         moqUpdateClient.SetupGet(sc => sc.MessageStreamDecoder).Returns(moqMessageStreamDecoder.Object);
-        moqUpdateClientFactory.Setup(scf => scf.RetrieveOrCreateConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqUpdateClientFactory.Setup(scf => scf.RetrieveOrCreateConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqUpdateClient.Object);
-        moqUpdateClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqUpdateClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqUpdateClient.Object);
 
         moqFirstSocketDispatcher = new Mock<ISocketDispatcher>();
@@ -186,16 +186,16 @@ public class PQClientTests
             .Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.CheckStartMonitoring()).Verifiable();
 
-        moqUpdateServerConfig = new Mock<ISocketConnectionConfig>();
-        moqUpdateTopicServerConfig = new Mock<ISocketTopicConnectionConfig>();
+        moqUpdateServerConfig = new Mock<IEndpointConfig>();
+        moqUpdateTopicServerConfig = new Mock<INetworkTopicConnectionConfig>();
         moqUpdateTopicServerConfig.SetupGet(utsc => utsc.Current).Returns(moqUpdateServerConfig.Object);
         moqUpdateTopicServerConfig.Setup(utsc => utsc.GetEnumerator()).Returns(moqUpdateTopicServerConfig.Object);
         moqUpdateServerConfig.SetupGet(scc => scc.SubnetMask).Returns("123.0.0.123").Verifiable();
         moqUpdateServerConfig.SetupGet(scc => scc.Hostname).Returns("UpdateHostName").Verifiable();
         moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.Name).Returns("TestServerName").Verifiable();
 
-        moqSnapshotServerConfig = new Mock<ISocketConnectionConfig>();
-        moqSnapshotTopicServerConfig = new Mock<ISocketTopicConnectionConfig>();
+        moqSnapshotServerConfig = new Mock<IEndpointConfig>();
+        moqSnapshotTopicServerConfig = new Mock<INetworkTopicConnectionConfig>();
         moqSnapshotTopicServerConfig.SetupGet(supsc => supsc.Current).Returns(moqSnapshotServerConfig.Object);
         moqSnapshotServerConfig.SetupGet(scc => scc.Hostname).Returns("SnapshotHostName");
         moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
@@ -339,9 +339,9 @@ public class PQClientTests
         moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
             moqSecondTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object);
 
-        moqUpdateClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqUpdateClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Verifiable();
-        moqSnapshotClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSnapshotClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.UnregisterSerializer(It.IsAny<IPQDeserializer>()))
             .Verifiable();
@@ -403,9 +403,9 @@ public class PQClientTests
         moqPQQuoteSerializerRepo.Setup(pqqsf => pqqsf.GetQuoteDeserializer(
             moqFirstTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object).Verifiable();
 
-        moqUpdateClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqUpdateClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Verifiable();
-        moqSnapshotClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSnapshotClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Verifiable();
         moqPQClientSyncMonitoring.Setup(pqcsm => pqcsm.UnregisterSerializer(It.IsAny<IPQDeserializer>()))
             .Verifiable();
@@ -635,10 +635,10 @@ public class PQClientTests
         moqSnapshotClient.Setup(sc => sc.RequestSnapshots(It.IsAny<List<IUniqueSourceTickerIdentifier>>()))
             .Verifiable();
         moqSnapshotClientFactory.Reset();
-        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSnapshotClient.Object).Verifiable();
 
-        var moqClientSnapshotServerConfig = new Mock<ISocketTopicConnectionConfig>();
+        var moqClientSnapshotServerConfig = new Mock<INetworkTopicConnectionConfig>();
         pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<IUniqueSourceTickerIdentifier>());
 
         moqSnapshotClientFactory.Verify();
@@ -649,11 +649,11 @@ public class PQClientTests
     public void NewPQClient_RequestSnapshots_DoesntFindSnapshotClientDoesNothing()
     {
         moqSnapshotClientFactory.Reset();
-        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<ISocketTopicConnectionConfig>()))
+        moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSnapshotClient.Object).Verifiable();
 
 
-        var moqClientSnapshotServerConfig = new Mock<ISocketTopicConnectionConfig>();
+        var moqClientSnapshotServerConfig = new Mock<INetworkTopicConnectionConfig>();
         pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<IUniqueSourceTickerIdentifier>());
 
         moqSnapshotClientFactory.Verify();

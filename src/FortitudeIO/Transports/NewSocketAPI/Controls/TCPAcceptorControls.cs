@@ -58,14 +58,14 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             if (acceptorSocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
                 acceptorSocketSessionContext.SocketSessionState == SocketSessionState.Connecting) return;
             acceptorSocketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
-            var connConfig = acceptorSocketSessionContext.SocketTopicConnectionConfig;
+            var connConfig = acceptorSocketSessionContext.NetworkTopicConnectionConfig;
             foreach (var socketConConfig in connConfig)
                 try
                 {
                     logger.Info("Starting publisher {0} @{1}",
                         acceptorSocketSessionContext.Name, socketConConfig.Port);
 
-                    var listeningSocket = socketFactory.Create(acceptorSocketSessionContext.SocketTopicConnectionConfig
+                    var listeningSocket = socketFactory.Create(acceptorSocketSessionContext.NetworkTopicConnectionConfig
                         , socketConConfig);
 
                     var localEndPointIp = listeningSocket.RemoteOrLocalIPEndPoint()!;
@@ -255,12 +255,12 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 
     private ISocketSessionContext RegisterSocketAsTcpRequesterConversation(IOSSocket socket)
     {
-        socket.SendBufferSize = acceptorSocketSessionContext.SocketTopicConnectionConfig.SendBufferSize;
-        socket.ReceiveBufferSize = acceptorSocketSessionContext.SocketTopicConnectionConfig.ReceiveBufferSize;
+        socket.SendBufferSize = acceptorSocketSessionContext.NetworkTopicConnectionConfig.SendBufferSize;
+        socket.ReceiveBufferSize = acceptorSocketSessionContext.NetworkTopicConnectionConfig.ReceiveBufferSize;
 
         var socketSessionConnection = new SocketSessionContext(ConversationType.Requester,
             SocketConversationProtocol.TcpClient, acceptorSocketSessionContext.Name,
-            acceptorSocketSessionContext.SocketTopicConnectionConfig,
+            acceptorSocketSessionContext.NetworkTopicConnectionConfig,
             acceptorSocketSessionContext.SocketFactoryResolver, acceptorSocketSessionContext.SerdesFactory);
         var ipEndPoint = socket.RemoteOrLocalIPEndPoint()!;
         socketSessionConnection.SocketDispatcher = acceptorSocketSessionContext.SocketDispatcher;

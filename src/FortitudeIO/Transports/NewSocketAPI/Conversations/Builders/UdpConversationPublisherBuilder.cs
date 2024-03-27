@@ -21,7 +21,7 @@ public class UdpConversationPublisherBuilder
         set => socketFactories = value;
     }
 
-    public ConversationPublisher Build(ISocketTopicConnectionConfig socketConnectionConfig
+    public ConversationPublisher Build(INetworkTopicConnectionConfig networkConnectionConfig
         , ISerdesFactory serdesFactory)
     {
         var conversationType = ConversationType.Publisher;
@@ -30,7 +30,7 @@ public class UdpConversationPublisherBuilder
         var sockFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories
+            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories
             , serdesFactory);
         socketSessionContext.Name += "Publisher";
 

@@ -23,7 +23,7 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
     ISocketConversation? OwningConversation { get; set; }
     SocketSessionState SocketSessionState { get; }
     SocketConversationProtocol SocketConversationProtocol { get; }
-    ISocketTopicConnectionConfig SocketTopicConnectionConfig { get; }
+    INetworkTopicConnectionConfig NetworkTopicConnectionConfig { get; }
     ISocketConnection? SocketConnection { get; }
     ISocketReceiver? SocketReceiver { get; set; }
     ISocketSender? SocketSender { get; set; }
@@ -43,18 +43,18 @@ public class SocketSessionContext : ISocketSessionContext
 
     public SocketSessionContext(ConversationType conversationType,
         SocketConversationProtocol socketConversationProtocol,
-        string sessionDescription, ISocketTopicConnectionConfig socketConnectionConfig,
+        string sessionDescription, INetworkTopicConnectionConfig networkConnectionConfig,
         ISocketFactoryResolver socketFactoryResolver, ISerdesFactory serdesFactory,
         ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         SocketFactoryResolver = socketFactoryResolver;
         SocketDispatcher
-            = socketDispatcherResolver?.Resolve(socketConnectionConfig) ??
-              socketFactoryResolver.SocketDispatcherResolver!.Resolve(socketConnectionConfig);
+            = socketDispatcherResolver?.Resolve(networkConnectionConfig) ??
+              socketFactoryResolver.SocketDispatcherResolver!.Resolve(networkConnectionConfig);
         SerdesFactory = serdesFactory;
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
-        SocketTopicConnectionConfig = socketConnectionConfig;
+        NetworkTopicConnectionConfig = networkConnectionConfig;
         Name = sessionDescription;
         StateChanged = socketFactoryResolver.ConnectionChangedHandlerResolver!(this)
             .GetOnConnectionChangedHandler();
@@ -71,7 +71,7 @@ public class SocketSessionContext : ISocketSessionContext
     public ISerdesFactory SerdesFactory { get; }
     public ISocketDispatcher SocketDispatcher { get; set; }
     public ISocketConnection? SocketConnection { get; private set; }
-    public ISocketTopicConnectionConfig SocketTopicConnectionConfig { get; }
+    public INetworkTopicConnectionConfig NetworkTopicConnectionConfig { get; }
     public SocketSessionState SocketSessionState { get; set; }
     public string Name { get; set; }
 

@@ -15,5 +15,5 @@ public interface ITradingServerConfig : IMarketServerConfig<ITradingServerConfig
     TimeInForce SupportedTimeInForce { get; }
     VenueFeatures SupportedVenueFeatures { get; }
     ISnapshotUpdatePricingServerConfig? SupportsMarketPriceQuoteExecution { get; }
-    new IEnumerable<ISocketTopicConnectionConfig>? ServerConnections { get; set; }
+    new IEnumerable<INetworkTopicConnectionConfig>? ServerConnections { get; set; }
 }

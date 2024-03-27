@@ -33,9 +33,9 @@ public class PQQuoteSerializerRepositoryTests
                 new SnapshotUpdatePricingServerConfig("SnapshortServerName", MarketServerType.MarketData,
                     new[]
                     {
-                        new SocketTopicConnectionConfig("ConnectionName", SocketConversationProtocol.TcpClient, new[]
+                        new NetworkTopicConnectionConfig("ConnectionName", SocketConversationProtocol.TcpClient, new[]
                         {
-                            new SocketConnectionConfig("ConnectionName", 9090)
+                            new EndpointConfig("ConnectionName", 9090)
                         })
                     }, null, 0,
                     new List<ISourceTickerPublicationConfig>(), true, true)));

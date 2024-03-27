@@ -21,7 +21,7 @@ public class TcpConversationRequesterBuilder
         set => socketFactories = value;
     }
 
-    public ConversationRequester Build(ISocketTopicConnectionConfig socketConnectionConfig
+    public ConversationRequester Build(INetworkTopicConnectionConfig networkConnectionConfig
         , ISerdesFactory serdesFactory)
     {
         var conversationType = ConversationType.Requester;
@@ -30,7 +30,7 @@ public class TcpConversationRequesterBuilder
         var sockFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory);
+            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory);
         socketSessionContext.Name += "Requester";
 
         var initiateControls

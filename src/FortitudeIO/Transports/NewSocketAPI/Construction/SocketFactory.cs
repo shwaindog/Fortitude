@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Transports.NewSocketAPI.Config;
@@ -15,45 +16,37 @@ namespace FortitudeIO.Transports.NewSocketAPI.Construction;
 
 public interface ISocketFactory
 {
-    IOSSocket Create(ISocketTopicConnectionConfig topicConnectionConfig
-        , ISocketConnectionConfig socketConnectionConfig);
+    IOSSocket Create(INetworkTopicConnectionConfig networkTopicConnectionConfig
+        , IEndpointConfig endpointConfig);
 }
 
-public class SocketFactory : ISocketFactory
+public class SocketFactory(IOSNetworkingController networkingController) : ISocketFactory
 {
-    private static readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketFactory));
-    private readonly IOSNetworkingController networkingController;
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketFactory));
 
-    public SocketFactory(IOSNetworkingController networkingController) =>
-        this.networkingController = networkingController;
-
-    public IOSSocket Create(ISocketTopicConnectionConfig topicConnectionConfig
-        , ISocketConnectionConfig socketConnectionConfig)
+    public IOSSocket Create(INetworkTopicConnectionConfig networkTopicConnectionConfig
+        , IEndpointConfig endpointConfig)
     {
-        var port = socketConnectionConfig.Port;
-        switch (topicConnectionConfig.ConversationProtocol)
+        return networkTopicConnectionConfig.ConversationProtocol switch
         {
-            case SocketConversationProtocol.UdpPublisher:
-                return CreateNewUdpPublisher(topicConnectionConfig, socketConnectionConfig);
-            case SocketConversationProtocol.UdpSubscriber:
-                return CreateNewUdpSubscriber(topicConnectionConfig, socketConnectionConfig);
-            case SocketConversationProtocol.TcpAcceptor:
-                return CreateNewTcpPublisher(topicConnectionConfig, socketConnectionConfig);
-            default: return CreateNewTcpClient(topicConnectionConfig, socketConnectionConfig);
-        }
+            SocketConversationProtocol.UdpPublisher => CreateNewUdpPublisher(networkTopicConnectionConfig, endpointConfig)
+            , SocketConversationProtocol.UdpSubscriber => CreateNewUdpSubscriber(networkTopicConnectionConfig, endpointConfig)
+            , SocketConversationProtocol.TcpAcceptor => CreateNewTcpAcceptor(networkTopicConnectionConfig, endpointConfig)
+            , _ => CreateNewTcpClient(networkTopicConnectionConfig, endpointConfig)
+        };
     }
 
-    private IOSSocket CreateNewTcpClient(ISocketTopicConnectionConfig topicConnectionConfig
-        , ISocketConnectionConfig socketConnectionConfig)
+    private IOSSocket CreateNewTcpClient(INetworkTopicConnectionConfig networkTopicConnectionConfig
+        , IEndpointConfig endpointConfig)
     {
-        var host = socketConnectionConfig.Hostname!;
-        var port = socketConnectionConfig.Port;
+        var host = endpointConfig.Hostname;
+        var port = endpointConfig.Port;
+        var connectionAttrbs = networkTopicConnectionConfig.ConnectionAttributes;
         logger.Info("Attempting TCP connection on {0}:{1}", host, port);
-        var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
-            SocketType.Stream, ProtocolType.Tcp);
-        socket.NoDelay = true;
+        var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        socket.NoDelay = (connectionAttrbs & SocketConnectionAttributes.Fast) > 0;
 
-        if ((topicConnectionConfig.ConnectionAttributes & SocketConnectionAttributes.KeepAlive) > 0)
+        if ((networkTopicConnectionConfig.ConnectionAttributes & SocketConnectionAttributes.KeepAlive) > 0)
         {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
 
@@ -66,109 +59,125 @@ public class SocketFactory : ISocketFactory
                 socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
         }
 
-        socket.ReceiveTimeout = (int)topicConnectionConfig.ResponseTimeoutMs;
-        socket.SendTimeout = (int)topicConnectionConfig.ResponseTimeoutMs;
-        socket.SendBufferSize = topicConnectionConfig.SendBufferSize;
-        socket.ReceiveBufferSize = topicConnectionConfig.ReceiveBufferSize;
+        socket.ReceiveTimeout = (int)networkTopicConnectionConfig.ResponseTimeoutMs;
+        socket.SendTimeout = (int)networkTopicConnectionConfig.ResponseTimeoutMs;
+        socket.SendBufferSize = networkTopicConnectionConfig.SendBufferSize;
+        socket.ReceiveBufferSize = networkTopicConnectionConfig.ReceiveBufferSize;
         socket.Connect(new IPEndPoint(networkingController.GetIpAddress(host), port));
         return socket;
     }
 
-    private IOSSocket CreateNewTcpPublisher(ISocketTopicConnectionConfig topicConnectionConfig
-        , ISocketConnectionConfig socketConnectionConfig)
+    private IOSSocket CreateNewTcpAcceptor(INetworkTopicConnectionConfig networkTopicConnectionConfig
+        , IEndpointConfig endpointConfig)
     {
-        var host = socketConnectionConfig.Hostname!;
-        var port = socketConnectionConfig.Port;
-        var listeningSocket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
-            SocketType.Stream, ProtocolType.Tcp);
-        listeningSocket.SendBufferSize = topicConnectionConfig.SendBufferSize;
-        listeningSocket.ReceiveBufferSize = topicConnectionConfig.ReceiveBufferSize;
+        var port = endpointConfig.Port;
+        var connectionAttrbs = networkTopicConnectionConfig.ConnectionAttributes;
+        var listeningSocket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        listeningSocket.SendBufferSize = networkTopicConnectionConfig.SendBufferSize;
+        listeningSocket.ReceiveBufferSize = networkTopicConnectionConfig.ReceiveBufferSize;
+        logger.Info("Acceptor attempting TCP bind on {0}:{1}", IPAddress.Any, port);
         listeningSocket.Bind(new IPEndPoint(IPAddress.Any, port));
-        // listeningSocket.Bind(new IPEndPoint(networkingController.GetIpAddress(host), port));
-        listeningSocket.NoDelay = true;
+        listeningSocket.NoDelay = (connectionAttrbs & SocketConnectionAttributes.Fast) > 0;
         listeningSocket.Listen(10);
         return listeningSocket;
     }
 
-    private IOSSocket CreateNewUdpSubscriber(ISocketTopicConnectionConfig topicConnectionConfig
-        , ISocketConnectionConfig socketConnectionConfig)
+    private IOSSocket CreateNewUdpSubscriber(INetworkTopicConnectionConfig networkTopicConnectionConfig
+        , IEndpointConfig endpointConfig)
     {
-        var host = socketConnectionConfig.Hostname!;
-        var mcastIntf = socketConnectionConfig.SubnetMaskIpAddress!;
-        logger.Info("Attempting UDPsub connection on {0}:{1}={2}:{3}",
-            mcastIntf, host, networkingController.GetIpAddress(host), socketConnectionConfig.Port);
-        var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork,
-            SocketType.Dgram, ProtocolType.Udp);
+        var host = endpointConfig.Hostname;
+        var ipAddress = networkingController.GetIpAddress(endpointConfig.Hostname);
+        var port = endpointConfig.Port;
+        var subnetMaskIpAddress = endpointConfig.SubnetMaskIpAddress!;
+        logger.Info("Attempting UDP-sub connection on {0}:{1}={2}:{3}",
+            subnetMaskIpAddress, host, ipAddress, port);
+        var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.ExclusiveAddressUse = false;
         socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
         var nics = networkingController.GetAllNetworkInterfaces();
         IPv4InterfaceProperties? adapterIp4Properties = null;
         IPAddress? adapterAddress = null;
+        NetworkInterface? selectedAdapter = null;
         foreach (var adapter in nics)
         {
             var ipProps = adapter.GetIPProperties();
-            if (!ipProps.MulticastAddresses.Any())
-                continue;
             if (!adapter.SupportsMulticast)
+                continue;
+            if (!ipProps.MulticastAddresses.Any())
                 continue;
             if (OperationalStatus.Up != adapter.OperationalStatus)
                 continue;
+            var adapterIpProps = adapter.GetIPProperties();
+            if (!adapterIpProps.UnicastAddresses.Select(ua => ua.Address).Contains(ipAddress))
+                continue;
             adapterIp4Properties = ipProps.GetIPv4Properties();
-            adapterAddress = ipProps.UnicastAddresses
-                .FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)?.Address;
+            adapterAddress = ipProps.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)?.Address;
+            selectedAdapter = adapter;
             if (adapterAddress != null) break;
         }
 
-        if (adapterAddress == null)
-            // ReSharper disable once NotResolvedInText
-            throw new ArgumentNullException("adapterAddress != null");
-        socket.Bind(new IPEndPoint(adapterAddress, socketConnectionConfig.Port));
+        if (selectedAdapter == null || adapterAddress == null)
+            throw new MatchingNICNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
+        logger.Info("Subscribe will bind on network adapter {0}-{1} on {2}:{3}",
+            selectedAdapter.Name, selectedAdapter.Description, ipAddress, port);
+        socket.Bind(new IPEndPoint(adapterAddress, port));
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-            new MulticastOption(mcastIntf, adapterIp4Properties!.Index));
-        socket.ReceiveBufferSize = topicConnectionConfig.ReceiveBufferSize;
+            new MulticastOption(subnetMaskIpAddress, adapterIp4Properties!.Index));
+        socket.ReceiveBufferSize = networkTopicConnectionConfig.ReceiveBufferSize;
         return socket;
     }
 
-    private IOSSocket CreateNewUdpPublisher(ISocketTopicConnectionConfig topicConnectionConfig
-        , ISocketConnectionConfig socketConnectionConfig)
+    private IOSSocket CreateNewUdpPublisher(INetworkTopicConnectionConfig networkTopicConnectionConfig
+        , IEndpointConfig endpointConfig)
     {
-        IPAddress mcastGroup;
-        logger.Info("Attempting UDPpub connection on {0} {1}:{2}={3}:{4}",
-            socketConnectionConfig.InstanceName,
-            socketConnectionConfig.SubnetMask, socketConnectionConfig.Hostname, mcastGroup =
-                networkingController.GetIpAddress(socketConnectionConfig.Hostname), socketConnectionConfig.Port);
-        var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Dgram,
-            ProtocolType.Udp);
+        var ipAddress = networkingController.GetIpAddress(endpointConfig.Hostname);
+        var port = endpointConfig.Port;
+        logger.Info("Attempting UDP-pub connection on {0} {1}:{2}={3}:{4}",
+            endpointConfig.InstanceName, endpointConfig.SubnetMask, endpointConfig.Hostname, ipAddress, port);
+        var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.ExclusiveAddressUse = false;
         socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
         var nics = networkingController.GetAllNetworkInterfaces();
         IPv4InterfaceProperties? adapterIp4Properties = null;
+        NetworkInterface? selectedAdapter = null;
         foreach (var adapter in nics)
         {
             var ipProperties = adapter.GetIPProperties();
-            if (!ipProperties.MulticastAddresses.Any())
-                continue;
             if (!adapter.SupportsMulticast)
+                continue;
+            if (!ipProperties.MulticastAddresses.Any())
                 continue;
             if (OperationalStatus.Up != adapter.OperationalStatus)
                 continue;
-            adapterIp4Properties = ipProperties.GetIPv4Properties();
-            if (null == adapterIp4Properties)
+            var adapterIpProps = adapter.GetIPProperties();
+            if (!adapterIpProps.UnicastAddresses.Select(ua => ua.Address).Contains(ipAddress))
                 continue;
-
+            selectedAdapter = adapter;
+            adapterIp4Properties = ipProperties.GetIPv4Properties();
             break;
         }
 
-        if (adapterIp4Properties == null) throw new NullReferenceException("adapterIp4Properties != null");
+        if (selectedAdapter == null || adapterIp4Properties == null)
+            throw new MatchingNICNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
+        logger.Info("Publish will occur from network adapter {0}-{1} on {2}:{3}",
+            selectedAdapter.Name, selectedAdapter.Description, ipAddress, port);
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface,
             IPAddress.HostToNetworkOrder(adapterIp4Properties.Index));
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, socket.Ttl = 200);
         socket.EnableBroadcast = true;
         socket.MulticastLoopback = false;
-        socket.Connect(new IPEndPoint(socketConnectionConfig.SubnetMaskIpAddress!, socketConnectionConfig.Port));
-        socket.SendBufferSize = topicConnectionConfig.SendBufferSize;
+        socket.Connect(new IPEndPoint(endpointConfig.SubnetMaskIpAddress!, endpointConfig.Port));
+        socket.SendBufferSize = networkTopicConnectionConfig.SendBufferSize;
         return socket;
     }
+}
+
+public class MatchingNICNotFoundException : Exception
+{
+    public MatchingNICNotFoundException() { }
+    protected MatchingNICNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    public MatchingNICNotFoundException(string? message) : base(message) { }
+    public MatchingNICNotFoundException(string? message, Exception? innerException) : base(message, innerException) { }
 }

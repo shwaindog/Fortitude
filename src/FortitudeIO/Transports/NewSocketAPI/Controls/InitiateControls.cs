@@ -28,7 +28,7 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
     public InitiateControls(ISocketSessionContext socketSessionContext) : base(socketSessionContext)
     {
         parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
-        reconnectConfig = socketSessionContext.SocketTopicConnectionConfig.ReconnectConfig;
+        reconnectConfig = socketSessionContext.NetworkTopicConnectionConfig.ReconnectConfig;
         this.socketSessionContext = socketSessionContext;
     }
 
@@ -46,9 +46,9 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
                 socketSessionContext.SocketSessionState == SocketSessionState.Connecting ||
                 socketSessionContext.SocketSessionState == SocketSessionState.Disconnecting) return;
             socketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
-            var connConfig = socketSessionContext.SocketTopicConnectionConfig;
+            var connConfig = socketSessionContext.NetworkTopicConnectionConfig;
             var socketFactory = socketSessionContext.SocketFactoryResolver.SocketFactory!;
-            foreach (var socketConConfig in socketSessionContext.SocketTopicConnectionConfig)
+            foreach (var socketConConfig in socketSessionContext.NetworkTopicConnectionConfig)
             {
                 try
                 {
@@ -117,7 +117,7 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
                 StopMessaging();
                 logger.Info("Connection to {0} {1} id {2}:{3} closed",
                     socketSessionContext.Name, socketSessionContext.Id,
-                    socketSessionContext.SocketTopicConnectionConfig.Current.Hostname,
+                    socketSessionContext.NetworkTopicConnectionConfig.Current.Hostname,
                     socketSessionContext.SocketConnection.ConnectedPort);
                 socketSessionContext.SocketConnection.OSSocket?.Close();
             }

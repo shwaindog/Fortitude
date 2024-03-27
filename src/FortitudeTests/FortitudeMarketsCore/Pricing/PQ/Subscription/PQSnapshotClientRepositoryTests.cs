@@ -24,9 +24,9 @@ public class PQSnapshotClientRepositoryTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationFactory = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
-    private Mock<ISocketConnectionConfig> moqSocketConnectionConfig = null!;
+    private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
-    private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
+    private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private PQSnapshotClientRepository pqSnapshotClientRegRepo = null!;
     private string testHostName = null!;
     private ushort testHostPort;
@@ -41,8 +41,8 @@ public class PQSnapshotClientRepositoryTests
             .Returns(moqParallelControler.Object);
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqSocketTopicConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
-        moqSocketConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerRepository>();
         moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();

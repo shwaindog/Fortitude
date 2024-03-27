@@ -15,13 +15,13 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
 {
     private bool isLastLook;
     private ushort publicationId;
-    private ISocketTopicConnectionConfig? snapshotConnectionConfig;
+    private INetworkTopicConnectionConfig? snapshotConnectionConfig;
     private IList<ISourceTickerPublicationConfig>? sourceTickerPublicationConfigs;
     private bool supportsIceBergs;
-    private ISocketTopicConnectionConfig? updateConnectionConfig;
+    private INetworkTopicConnectionConfig? updateConnectionConfig;
 
     public SnapshotUpdatePricingServerConfig(string name, MarketServerType marketServerType,
-        IEnumerable<ISocketTopicConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable,
+        IEnumerable<INetworkTopicConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable,
         ushort publicationId, IEnumerable<ISourceTickerPublicationConfig> sourceTickerPublicationConfigs,
         bool isLastLook, bool supportsIceBergs,
         IObservable<IMarketServerConfigUpdate<ISnapshotUpdatePricingServerConfig>>? repoUpdateStream = null)
@@ -40,22 +40,26 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
                 stcc.ConversationProtocol == SocketConversationProtocol.UdpPublisher);
     }
 
-    public SnapshotUpdatePricingServerConfig(SnapshotUpdatePricingServerConfig toClone, bool switchToMatchingConnection)
-        : base(toClone, switchToMatchingConnection)
+    public SnapshotUpdatePricingServerConfig(SnapshotUpdatePricingServerConfig toClone, bool toggleProtocolDirection)
+        : base(toClone, toggleProtocolDirection)
     {
         publicationId = toClone.publicationId;
         isLastLook = toClone.isLastLook;
         supportsIceBergs = toClone.supportsIceBergs;
         sourceTickerPublicationConfigs = toClone.sourceTickerPublicationConfigs?.ToList();
-        snapshotConnectionConfig = toClone.SnapshotConnectionConfig?.Clone(switchToMatchingConnection);
-        updateConnectionConfig = toClone.UpdateConnectionConfig?.Clone(switchToMatchingConnection);
+        snapshotConnectionConfig = toggleProtocolDirection ?
+            toClone.SnapshotConnectionConfig?.ToggleProtocolDirection() :
+            toClone.SnapshotConnectionConfig?.Clone();
+        updateConnectionConfig = toggleProtocolDirection ?
+            toClone.UpdateConnectionConfig?.ToggleProtocolDirection() :
+            toClone.UpdateConnectionConfig?.Clone();
     }
 
     object ICloneable.Clone() => Clone();
 
     public new ISnapshotUpdatePricingServerConfig Clone() => new SnapshotUpdatePricingServerConfig(this, false);
 
-    public override ISnapshotUpdatePricingServerConfig Clone(bool switchToMatchingConnection) =>
+    public override ISnapshotUpdatePricingServerConfig ToggleProtocolDirection() =>
         new SnapshotUpdatePricingServerConfig(this, true);
 
     public ushort PublicationId
@@ -70,7 +74,7 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
         }
     }
 
-    public ISocketTopicConnectionConfig? SnapshotConnectionConfig
+    public INetworkTopicConnectionConfig? SnapshotConnectionConfig
     {
         get => snapshotConnectionConfig;
         protected set
@@ -82,7 +86,7 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
         }
     }
 
-    public ISocketTopicConnectionConfig? UpdateConnectionConfig
+    public INetworkTopicConnectionConfig? UpdateConnectionConfig
     {
         get => updateConnectionConfig;
         protected set

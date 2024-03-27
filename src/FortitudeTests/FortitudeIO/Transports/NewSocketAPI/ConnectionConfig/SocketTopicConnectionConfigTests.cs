@@ -7,22 +7,22 @@ using FortitudeIO.Transports.NewSocketAPI.Config;
 namespace FortitudeTests.FortitudeIO.Transports.NewSocketAPI.ConnectionConfig;
 
 [TestClass]
-public class SocketTopicConnectionConfigTests
+public class NetworkTopicConnectionConfigTests
 {
-    public static SocketTopicConnectionConfig DummyTopicConnectionConfig =>
+    public static NetworkTopicConnectionConfig DummyTopicConnectionConfig =>
         new("TestConnectionName", SocketConversationProtocol.TcpClient
-            , new List<ISocketConnectionConfig> { new SocketConnectionConfig("TestHostname", 9090) },
+            , new List<IEndpointConfig> { new EndpointConfig("TestHostname", 9090) },
             "TestDescription");
 
-    public static SocketTopicConnectionConfig ServerConnectionConfigWithValues(string connectionName, string hostname,
+    public static NetworkTopicConnectionConfig ServerConnectionConfigWithValues(string connectionName, string hostname,
         ushort port, string networkSubAddress, uint reconnectInterval,
         IObservable<IConnectionUpdate>? updateStream = null) =>
         new(connectionName, SocketConversationProtocol.TcpClient
-            , new List<ISocketConnectionConfig>
-                { new SocketConnectionConfig(hostname, port, subnetMask: networkSubAddress) },
+            , new List<IEndpointConfig>
+                { new EndpointConfig(hostname, port, subnetMask: networkSubAddress) },
             connectionName, reconnectConfig: new SocketReconnectConfig(reconnectInterval));
 
-    public static void AssertIsExpected(ISocketTopicConnectionConfig subjectToBeVerified, string name
+    public static void AssertIsExpected(INetworkTopicConnectionConfig subjectToBeVerified, string name
         , string description
         , string hostname,
         int port, string? networkSubAddress)

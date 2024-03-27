@@ -11,8 +11,8 @@ public interface ISnapshotUpdatePricingServerConfig : IMarketServerConfig<ISnaps
     ICloneable<ISnapshotUpdatePricingServerConfig>, IInterfacesComparable<ISnapshotUpdatePricingServerConfig>
 {
     ushort PublicationId { get; }
-    ISocketTopicConnectionConfig? SnapshotConnectionConfig { get; }
-    ISocketTopicConnectionConfig? UpdateConnectionConfig { get; }
+    INetworkTopicConnectionConfig? SnapshotConnectionConfig { get; }
+    INetworkTopicConnectionConfig? UpdateConnectionConfig { get; }
     IList<ISourceTickerPublicationConfig>? SourceTickerPublicationConfigs { get; }
     bool IsLastLook { get; }
     bool SupportsIceBergs { get; }

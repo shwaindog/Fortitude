@@ -34,7 +34,7 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
         set => socketFactories = value;
     }
 
-    public static PQUpdatePublisher BuildUdpMulticastPublisher(ISocketTopicConnectionConfig socketConnectionConfig,
+    public static PQUpdatePublisher BuildUdpMulticastPublisher(INetworkTopicConnectionConfig networkConnectionConfig,
         ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         var conversationType = ConversationType.Publisher;
@@ -45,7 +45,7 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
         var serdesFactory = new SerdesFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, socFactories, serdesFactory
+            networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory
             , socketDispatcherResolver);
         socketSessionContext.Name += "Publisher";
 

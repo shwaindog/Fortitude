@@ -9,12 +9,12 @@ namespace FortitudeIO.Transports.Sockets;
 
 public interface IConnectionUpdate
 {
-    ISocketTopicConnectionConfig ConnectionConfig { get; }
+    INetworkTopicConnectionConfig ConnectionConfig { get; }
     EventType EventType { get; }
 }
 
-public class ConnectionUpdate(ISocketTopicConnectionConfig connectionConfig, EventType eventType) : IConnectionUpdate
+public class ConnectionUpdate(INetworkTopicConnectionConfig connectionConfig, EventType eventType) : IConnectionUpdate
 {
-    public ISocketTopicConnectionConfig ConnectionConfig { get; } = connectionConfig;
+    public INetworkTopicConnectionConfig ConnectionConfig { get; } = connectionConfig;
     public EventType EventType { get; } = eventType;
 }

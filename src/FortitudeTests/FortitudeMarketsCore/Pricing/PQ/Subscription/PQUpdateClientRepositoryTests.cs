@@ -28,12 +28,12 @@ public class PQUpdateClientRepositoryTests
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
-    private Mock<ISocketConnectionConfig> moqServerConnectionConfig = null!;
+    private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
     private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
-    private Mock<ISocketTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
+    private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private Mock<IStreamControlsFactory> moqStreamControlsFactory = null!;
     private PQUpdateClientRepository pqUpdateClientRegFactory = null!;
     private string testHostName = null!;
@@ -49,8 +49,8 @@ public class PQUpdateClientRepositoryTests
             .Returns(moqParallelControler.Object);
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqSocketTopicConnectionConfig = new Mock<ISocketTopicConnectionConfig>();
-        moqServerConnectionConfig = new Mock<ISocketConnectionConfig>();
+        moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqServerConnectionConfig = new Mock<IEndpointConfig>();
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqStreamControlsFactory = new Mock<IStreamControlsFactory>();
         moqInitiateControls = new Mock<IInitiateControls>();

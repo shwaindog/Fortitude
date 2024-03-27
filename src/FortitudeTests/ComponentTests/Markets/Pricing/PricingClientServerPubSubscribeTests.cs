@@ -47,8 +47,8 @@ public class PricingClientServerPubSubscribeTests
     private PQServerHeartBeatSender hbSender = null!;
     private INameIdLookupGenerator nameIdLookupGenerator = null!;
     private OSNetworkingController networkingController = null!;
-    private Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> pqSnapshotFactory = null!;
-    private Func<ISocketTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> pqUpdateFactory = null!;
+    private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> pqSnapshotFactory = null!;
+    private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> pqUpdateFactory = null!;
     private PricingServersConfigRepository pricingServersConfigRepository = null!;
     private ISocketDispatcherResolver serverDispatcherResolver = null!;
     private IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory = null!;
@@ -73,16 +73,16 @@ public class PricingClientServerPubSubscribeTests
             MarketServerType.MarketData,
             new[]
             {
-                new SocketTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
-                    new List<ISocketConnectionConfig>
+                new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
+                    new List<IEndpointConfig>
                     {
-                        new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                        new EndpointConfig(TestMachineConfig.LoopBackIpAddress
                             , TestMachineConfig.ServerSnapshotPort)
                     }, "TestSnapshotServerDescription")
-                , new SocketTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher,
-                    new List<ISocketConnectionConfig>
+                , new NetworkTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher,
+                    new List<IEndpointConfig>
                     {
-                        new SocketConnectionConfig(TestMachineConfig.LoopBackIpAddress
+                        new EndpointConfig(TestMachineConfig.LoopBackIpAddress
                             , TestMachineConfig.ServerUpdatePort, subnetMask: TestMachineConfig.NetworkSubAddress)
                     }, "TestUpdateServerDescription"
                     , connectionAttributes: SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast)

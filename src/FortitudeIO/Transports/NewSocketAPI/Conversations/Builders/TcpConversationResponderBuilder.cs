@@ -21,7 +21,7 @@ public class TcpConversationResponderBuilder
         set => socketFactories = value;
     }
 
-    public ConversationResponder Build(ISocketTopicConnectionConfig socketConnectionConfig
+    public ConversationResponder Build(INetworkTopicConnectionConfig networkConnectionConfig
         , ISerdesFactory serdesFactory)
     {
         var conversationType = ConversationType.Responder;
@@ -30,7 +30,7 @@ public class TcpConversationResponderBuilder
         var sockFactories = SocketFactories;
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            socketConnectionConfig.TopicName, socketConnectionConfig, sockFactories, serdesFactory);
+            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory);
         socketSessionContext.Name += "Responder";
 
 
