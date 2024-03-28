@@ -1,10 +1,10 @@
 ﻿#region
 
-using FortitudeIO.Transports.Sockets.Logging;
+using FortitudeIO.Transports.NewSocketAPI.Construction;
 
 #endregion
 
-namespace FortitudeTests.FortitudeIO.Transports.Sockets.Logging;
+namespace FortitudeTests.FortitudeIO.Transports.NewSocketAPI.Logging;
 
 [TestClass]
 public class SocketDataLatencyLoggerFactoryTests

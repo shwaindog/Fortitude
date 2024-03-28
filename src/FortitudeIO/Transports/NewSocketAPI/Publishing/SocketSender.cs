@@ -27,11 +27,12 @@ public interface ISocketSender : IStreamPublisher
 
 public sealed class SocketSender : ISocketSender
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketSender));
     private readonly IDirectOSNetworkingApi directOSNetworkingApi;
 
     private readonly StaticRing<SocketEncoder> encoders =
         new(1024, () => new SocketEncoder(), false);
+
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketSender));
 
     private readonly ISyncLock sendLock = new SpinLockLight();
     private readonly IMap<uint, IMessageSerializer> serializers = new LinkedListCache<uint, IMessageSerializer>();
@@ -107,7 +108,7 @@ public sealed class SocketSender : ISocketSender
         }
     }
 
-    public bool SendEnqueued()
+    public bool SendQueued()
     {
         while (encoders.Count > 0 || sentCursor < writeBufferContext.EncodedBuffer!.WrittenCursor)
         {
@@ -155,7 +156,7 @@ public sealed class SocketSender : ISocketSender
 
     public void HandleSendError(string message, Exception exception)
     {
-        Logger.Warn(
+        logger.Warn(
             $"Error trying to send for {socketSocketSessionContext.Name} got {message} and {exception}");
     }
 
@@ -183,8 +184,8 @@ public sealed class SocketSender : ISocketSender
         }
 
         if (sentSize < 0)
-            throw new Exception("Win32 error " +
-                                directOSNetworkingApi.GetLastCallError() + " on send call");
+            throw new SocketSendException("Win32 error " +
+                                          directOSNetworkingApi.GetLastCallError() + " on send call", socketSocketSessionContext);
         sentCursor += sentSize;
         if (sentCursor == writeBufferContext.EncodedBuffer!.WrittenCursor)
         {
@@ -204,4 +205,14 @@ public sealed class SocketSender : ISocketSender
         public IVersionedMessage Message = null!;
         public IMessageSerializer Serializer = null!;
     }
+}
+
+public class SocketSendException : Exception
+{
+    public SocketSendException(string? message, ISocketSessionContext socketSessionContext) : base(message) =>
+        SocketSessionContext = socketSessionContext;
+
+    private ISocketSessionContext SocketSessionContext { get; }
+
+    public override string ToString() => $"SocketSendException({base.ToString()}, {nameof(SocketSessionContext)}: {SocketSessionContext})";
 }

@@ -29,7 +29,7 @@ public abstract class SocketRingPollerSender<T> : RingPollerBase<T>, ISocketDisp
 
     protected void EnqueueSocketSenderToSocket(ISocketSender ss)
     {
-        var sent = ss.SendEnqueued();
+        var sent = ss.SendQueued();
         if (!sent) AddToSendQueue(ss);
     }
 }

@@ -11,6 +11,6 @@ public interface IStreamPublisher
 {
     void Enqueue(IVersionedMessage message);
     void Send(IVersionedMessage message);
-    bool SendEnqueued();
+    bool SendQueued();
     void RegisterSerializer(uint messageId, IMessageSerializer serializer);
 }

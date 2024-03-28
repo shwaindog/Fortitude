@@ -47,7 +47,7 @@ public class SimpleSocketRingPollerSenderTests
             .Callback<ThreadStart>(workerMethod => { workerThreadMethod = workerMethod; })
             .Returns(moqOsThread.Object).Verifiable();
 
-        moqSocketSender.Setup(ss => ss.SendEnqueued()).Returns(true).Verifiable();
+        moqSocketSender.Setup(ss => ss.SendQueued()).Returns(true).Verifiable();
 
         moqPollingRing.Setup(pr => pr.Name).Returns("SimpleSocketRingPollerSenderTests");
         moqPollingRing.Setup(pr => pr[0L]).Returns(firstSocketContainer);
@@ -74,7 +74,7 @@ public class SimpleSocketRingPollerSenderTests
     }
 
     [TestMethod]
-    public void NewDispatcherSender_AddToSendQueue_CallsSocketSenderSendEnqueued()
+    public void NewDispatcherSender_AddToSendQueue_CallsSocketSenderSendQueued()
     {
         moqPollingRing.Setup(pr => pr.StartOfBatch).Returns(true);
         moqPollingRing.Setup(pr => pr.EndOfBatch).Returns(true);
@@ -102,7 +102,7 @@ public class SimpleSocketRingPollerSenderTests
     }
 
     [TestMethod]
-    public void NewDispatcherSender_SocketSenderSendEnqueuedFails_AddsSocketSenderBackIntoTheQueue()
+    public void NewDispatcherSender_SocketSenderSendQueuedFails_AddsSocketSenderBackIntoTheQueue()
     {
         moqPollingRing.Setup(pr => pr.StartOfBatch).Returns(true);
         moqPollingRing.Setup(pr => pr.EndOfBatch).Returns(true);
@@ -127,7 +127,7 @@ public class SimpleSocketRingPollerSenderTests
         moqPollingRing.Setup(pr => pr.Publish(0)).Verifiable();
         moqPollingRing.Setup(pr => pr.Publish(1)).Verifiable();
 
-        moqSocketSender.SetupSequence(ss => ss.SendEnqueued()).Returns(false).Returns(true);
+        moqSocketSender.SetupSequence(ss => ss.SendQueued()).Returns(false).Returns(true);
         simpleSocketRingPollerSender = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, moqParallelController.Object);
 
         simpleSocketRingPollerSender.Start();

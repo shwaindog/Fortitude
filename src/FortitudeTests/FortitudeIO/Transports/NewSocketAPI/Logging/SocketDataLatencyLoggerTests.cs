@@ -6,13 +6,13 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.CallStats;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Tracing;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Sockets.Logging;
+using FortitudeIO.Transports.NewSocketAPI.Logging;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeIO.Transports.Sockets.Logging;
+namespace FortitudeTests.FortitudeIO.Transports.NewSocketAPI.Logging;
 
 [TestClass]
 public class SocketDataLatencyLoggerTests
