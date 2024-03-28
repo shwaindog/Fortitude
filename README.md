@@ -38,6 +38,7 @@ The following are a list of features found in the Fortitude Libraries
   * StopWatch
   * Latency Trigger Logs
   * Low latency logging 
+* Low Garbage Actor library
 * Reflection Helpers
 * Reusable String Replacement
 * Low Garbage Socket Send Receive
@@ -47,7 +48,7 @@ The following are a list of features found in the Fortitude Libraries
 * Network Clients And Server
 * Pricing Implementation
   * Library Compression 
-  * Level 0, 1, 2 Quotes
+  * Level 0, 1, 2 & 3 Quotes
   * Recently Traded Info
   * Efficent Delta UDP mutlicast updates
   * Snapshot Request  
@@ -55,13 +56,13 @@ The following are a list of features found in the Fortitude Libraries
 * Order and Execution transmission
   
 ## Whats going to be in future releases
-* Actor/Rules platform for launching rules/actors
-* Lowest Garbage and Latency event bus
-* Topic/Channel request response and pub sub messaging
+* Add Low Garbage IO library to Actor library
+  * Connect different Actor library together as a cluster 
+  * Lowest Garbage and Latency event bus
+  * Topic/Channel request response and pub sub messaging
 * Example client server implementations
 * Execution results on standard cloud machines
 * wiki how to guides
-* CI/CD
 
 # Who is this for
 This library exists for anyone who cares about speed and latency and not just eTrading systems.  

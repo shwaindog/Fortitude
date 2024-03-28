@@ -49,7 +49,7 @@ public abstract class RingPollerBase<T>
     {
         Ring = ring;
         timeoutMs = (int)noDataPauseTimeoutMs;
-        osParallelController = parallelController ?? new OSParallelController();
+        osParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
         name = Ring.Name + "-Poller";
     }
 

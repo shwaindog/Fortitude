@@ -59,8 +59,7 @@ public class SimpleSocketRingPollerSender : SocketRingPollerSender<SocketSenderC
     }
 
     protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, SocketSenderContainer data
-        , bool ringStartOfBatch
-        , bool ringEndOfBatch)
+        , bool ringStartOfBatch, bool ringEndOfBatch)
     {
         EnqueueSocketSenderToSocket(data.SocketSender!);
     }
