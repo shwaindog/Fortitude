@@ -125,7 +125,6 @@ public class PricingClientServerPubSubscribeTests
         // logger.Info("About to publish first quote {0}" sourcePriceQuote);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 
-        Thread.Sleep(1_000);
         // setup listener after publish means first message will be missed and snapshot will be required.
         ILevel2Quote? alwaysUpdatedQuote = null;
         var pqClient = new PQClient(pricingServersConfigRepository.ToPricingClientConfigRepository()
@@ -323,8 +322,7 @@ public class PricingClientServerPubSubscribeTests
             true);
     }
 
-    private static Level3PriceQuote ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(IPQLevel3Quote pQuote) =>
-        new(pQuote);
+    private static Level3PriceQuote ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(IPQLevel3Quote pQuote) => new(pQuote);
 
     private static Level2PriceQuote ConvertPQToLevel2QuoteWithSourceNameLayer(IPQLevel2Quote pQuote) => new(pQuote);
 
