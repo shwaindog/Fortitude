@@ -9,6 +9,15 @@ using System.Runtime.InteropServices;
 
 namespace FortitudeCommon.OSWrapper.NetworkingWrappers;
 
+public interface IOSNetworkingController
+{
+    IDirectOSNetworkingApi DirectOSNetworkingApi { get; }
+    IOSSocket CreateOSSocket(SocketType socketType, ProtocolType protocolType);
+    IOSSocket CreateOSSocket(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType);
+    IPAddress GetIpAddress(string dnsHostName);
+    NetworkInterface[] GetAllNetworkInterfaces();
+}
+
 public class OSNetworkingController : IOSNetworkingController
 {
     public IDirectOSNetworkingApi directOSNetworkingApi { get; set; } =
@@ -16,8 +25,7 @@ public class OSNetworkingController : IOSNetworkingController
             new DirectWindowsNetworkingApi() :
             new DirectLinuxNetworkingApi();
 
-    public IOSSocket CreateOSSocket(SocketType socketType, ProtocolType protocolType) =>
-        new OSSocket(new Socket(socketType, protocolType));
+    public IOSSocket CreateOSSocket(SocketType socketType, ProtocolType protocolType) => new OSSocket(new Socket(socketType, protocolType));
 
     public IOSSocket CreateOSSocket(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType) =>
         new OSSocket(new Socket(addressFamily, socketType, protocolType));

@@ -84,7 +84,7 @@ public abstract class Topic : ITopic
         {
             var allSucceeded = true;
             foreach (var pts in publisherTransportSessions)
-                allSucceeded &= pts.PublisherConversation.StreamPublisher!.SendEnqueued();
+                allSucceeded &= pts.PublisherConversation.StreamPublisher!.SendQueued();
             return allSucceeded;
         }
     }
