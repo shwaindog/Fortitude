@@ -19,8 +19,7 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
 
     private State state = State.Header;
 
-    public OrxMessageStreamDecoder(IMap<uint, IMessageDeserializer> registeredDeserializers) =>
-        deserializers = registeredDeserializers;
+    public OrxMessageStreamDecoder(IMap<uint, IMessageDeserializer> registeredDeserializers) => deserializers = registeredDeserializers;
 
     public int ExpectedSize { get; private set; } = OrxMessageHeader.HeaderSize;
 
@@ -36,7 +35,7 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
     {
         var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
         var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
-        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WrittenCursor - read)
+        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WriteCursor - read)
             if (state == State.Header)
             {
                 fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)

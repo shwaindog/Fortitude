@@ -41,7 +41,7 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
         var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
         var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
         byte flags = 0;
-        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WrittenCursor - read)
+        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WriteCursor - read)
             switch (messageSection)
             {
                 case MessageSection.Header:

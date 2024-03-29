@@ -39,8 +39,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
         return this;
     }
 
-    public override IVersionedMessage Clone() =>
-        Recycler?.Borrow<SimpleVersionedMessage>().CopyFrom(this) ?? new SimpleVersionedMessage(this);
+    public override IVersionedMessage Clone() => Recycler?.Borrow<SimpleVersionedMessage>().CopyFrom(this) ?? new SimpleVersionedMessage(this);
 
 
     public class SimpleDeserializer : MessageDeserializer<SimpleVersionedMessage>
@@ -109,9 +108,9 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
             if (writeContext is IBufferContext bufferContext)
             {
                 var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer
-                    , bufferContext.EncodedBuffer.WrittenCursor
+                    , bufferContext.EncodedBuffer.WriteCursor
                     , obj);
-                bufferContext.EncodedBuffer.WrittenCursor += writeLength;
+                bufferContext.EncodedBuffer.WriteCursor += writeLength;
                 bufferContext.LastWriteLength = writeLength;
             }
             else

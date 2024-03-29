@@ -70,7 +70,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
                 BufferReadWriteOffset, quote);
             if (amountWritten < 0) throw new Exception("Serializer wrote less than expected to buffer.");
             sockBuffContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset;
-            sockBuffContext.EncodedBuffer.WrittenCursor = BufferReadWriteOffset + amountWritten;
+            sockBuffContext.EncodedBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
             sockBuffContext.MessageHeader = new PQQuoteTransmissionHeader(feedType) { SequenceId = sequenceId };
             sockBuffContext.MessageSize = amountWritten;
             sockBuffContext.LastWriteLength = amountWritten;
@@ -80,13 +80,11 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         return deserializeContexts;
     }
 
-    internal static DateTime RecevingTimestampBaseTime(TimeSpan sequenceIdTimeSpan) =>
-        new DateTime(2017, 07, 16, 16, 31, 49).Add(sequenceIdTimeSpan);
+    internal static DateTime RecevingTimestampBaseTime(TimeSpan sequenceIdTimeSpan) => new DateTime(2017, 07, 16, 16, 31, 49).Add(sequenceIdTimeSpan);
 
     internal static TimeSpan TimeOffsetForSequenceId(uint sequenceId) => TimeSpan.FromMilliseconds(sequenceId * 100);
 
-    internal static DateTime ClientReceivedTimestamp(TimeSpan sequenceIdTimeSpan) =>
-        new DateTime(2017, 07, 16, 16, 31, 48).Add(sequenceIdTimeSpan);
+    internal static DateTime ClientReceivedTimestamp(TimeSpan sequenceIdTimeSpan) => new DateTime(2017, 07, 16, 16, 31, 48).Add(sequenceIdTimeSpan);
 
     internal class DeserializeContext
     {

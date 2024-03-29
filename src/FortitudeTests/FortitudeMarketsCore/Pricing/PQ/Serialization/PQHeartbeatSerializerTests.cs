@@ -89,7 +89,7 @@ public class PQHeartbeatSerializerTests
     {
         var amtWritten = pqHeartBeatSerializer
             .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, firstBatchOfQuotes);
-        readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         fixed (byte* bufferPtr = readWriteBuffer.Buffer)
         {
@@ -116,7 +116,7 @@ public class PQHeartbeatSerializerTests
 
         amtWritten = pqHeartBeatSerializer
             .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, secondBatchOfQuotes);
-        readWriteBuffer.WrittenCursor += amtWritten;
+        readWriteBuffer.WriteCursor += amtWritten;
 
         fixed (byte* bufferPtr = readWriteBuffer.Buffer)
         {

@@ -8,7 +8,7 @@ public interface IBuffer
     int ReadCursor { get; set; }
     bool AllRead { get; }
     int UnreadBytesRemaining { get; }
-    int WrittenCursor { get; set; }
+    int WriteCursor { get; set; }
     int RemainingStorage { get; }
     void Reset();
     void MoveUnreadToBufferStart();

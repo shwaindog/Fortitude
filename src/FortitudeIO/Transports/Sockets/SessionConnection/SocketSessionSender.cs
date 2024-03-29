@@ -53,7 +53,7 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
 
     public bool SendData()
     {
-        while (encoders.Count > 0 || sentCursor < writeBufferContext.EncodedBuffer!.WrittenCursor)
+        while (encoders.Count > 0 || sentCursor < writeBufferContext.EncodedBuffer!.WriteCursor)
         {
             while (encoders.Count > 0)
             {
@@ -73,7 +73,7 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
                 var writtenSize = writeBufferContext.LastWriteLength;
                 if (writtenSize < 0)
                 {
-                    if (writeBufferContext.EncodedBuffer!.WrittenCursor == 0)
+                    if (writeBufferContext.EncodedBuffer!.WriteCursor == 0)
                         throw new Exception("Message could not be serialized or was too big for the buffer");
                     break;
                 }
@@ -99,9 +99,9 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
 
     private unsafe bool Send()
     {
-        if (sentCursor == writeBufferContext.EncodedBuffer!.WrittenCursor)
+        if (sentCursor == writeBufferContext.EncodedBuffer!.WriteCursor)
         {
-            sentCursor = writeBufferContext.EncodedBuffer!.WrittenCursor = 0;
+            sentCursor = writeBufferContext.EncodedBuffer!.WriteCursor = 0;
             return true;
         }
 
@@ -109,16 +109,16 @@ public sealed class SocketSessionSender : SocketSessionConnectionBase, ISocketSe
         fixed (byte* ptr = writeBufferContext.EncodedBuffer!.Buffer)
         {
             sentSize = DirectOSNetworkingApi.Send(Handle, ptr + sentCursor,
-                writeBufferContext.EncodedBuffer!.WrittenCursor - sentCursor, SocketFlags.None);
+                writeBufferContext.EncodedBuffer!.WriteCursor - sentCursor, SocketFlags.None);
         }
 
         if (sentSize < 0)
             throw new Exception("Win32 error " +
                                 DirectOSNetworkingApi.GetLastCallError() + " on send call");
         sentCursor += sentSize;
-        if (sentCursor == writeBufferContext.EncodedBuffer!.WrittenCursor)
+        if (sentCursor == writeBufferContext.EncodedBuffer!.WriteCursor)
         {
-            sentCursor = writeBufferContext.EncodedBuffer!.WrittenCursor = 0;
+            sentCursor = writeBufferContext.EncodedBuffer!.WriteCursor = 0;
             return true;
         }
 

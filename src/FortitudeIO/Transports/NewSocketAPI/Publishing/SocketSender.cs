@@ -41,7 +41,6 @@ public sealed class SocketSender : ISocketSender
 
     private readonly BufferContext writeBufferContext;
     private volatile bool sendActive;
-    private int sentCursor;
 
     public SocketSender(ISocketSessionContext socketSocketSessionContext)
     {
@@ -51,7 +50,6 @@ public sealed class SocketSender : ISocketSender
             .DirectOSNetworkingApi;
         writeBufferContext = new BufferContext(new ReadWriteBuffer(new byte[Socket.SendBufferSize]))
             { Direction = ContextDirection.Write };
-        sentCursor = 0;
     }
 
     public IOSSocket Socket { get; set; }
@@ -101,6 +99,7 @@ public sealed class SocketSender : ISocketSender
             var encoder = encoders.Claim();
             encoder.Message = message;
             encoder.Serializer = serializers[message.MessageId]!;
+            encoder.AttemptCount = 1;
         }
         finally
         {
@@ -110,7 +109,7 @@ public sealed class SocketSender : ISocketSender
 
     public bool SendQueued()
     {
-        while (encoders.Count > 0 || sentCursor < writeBufferContext.EncodedBuffer!.WrittenCursor)
+        while (encoders.Count > 0 || !writeBufferContext.EncodedBuffer!.AllRead)
         {
             while (encoders.Count > 0)
             {
@@ -127,28 +126,19 @@ public sealed class SocketSender : ISocketSender
 
                 encoder.Serializer!.Serialize(encoder.Message, writeBufferContext);
                 var writtenSize = writeBufferContext.LastWriteLength;
-                if (writtenSize < 0)
+
+                if (writtenSize <= 0)
                 {
-                    if (writeBufferContext.EncodedBuffer!.WrittenCursor == 0)
-                        throw new Exception("Message could not be serialized or was too big for the buffer");
+                    if (writeBufferContext.EncodedBuffer!.AllRead || encoder.AttemptCount > 100)
+                        throw new SocketSendException("Message could not be serialized or was too big for the buffer", socketSocketSessionContext);
+                    encoder.AttemptCount++;
                     break;
                 }
 
-                encoder.Message = null!;
-                encoder.Serializer = null!;
-                sendLock.Acquire();
-                try
-                {
-                    encoders.Clear(1);
-                    SendActive = false;
-                }
-                finally
-                {
-                    sendLock.Release();
-                }
+                MoveNextEncoder(encoder);
             }
 
-            if (!Send()) return false;
+            if (!WriteToSocketSucceeded()) return false;
         }
 
         return true;
@@ -160,6 +150,22 @@ public sealed class SocketSender : ISocketSender
             $"Error trying to send for {socketSocketSessionContext.Name} got {message} and {exception}");
     }
 
+    private void MoveNextEncoder(SocketEncoder encoder)
+    {
+        encoder.Message = null!;
+        encoder.Serializer = null!;
+        sendLock.Acquire();
+        try
+        {
+            encoders.Clear(1);
+            SendActive = false;
+        }
+        finally
+        {
+            sendLock.Release();
+        }
+    }
+
     public void UnregisterSerializer(uint msgId)
     {
         if (!serializers.TryGetValue(msgId, out var binSerializer) || binSerializer == null)
@@ -167,33 +173,25 @@ public sealed class SocketSender : ISocketSender
         serializers.Remove(msgId);
     }
 
-    private unsafe bool Send()
+    private unsafe bool WriteToSocketSucceeded()
     {
-        if (sentCursor == writeBufferContext.EncodedBuffer!.WrittenCursor)
-        {
-            sentCursor = writeBufferContext.EncodedBuffer!.WrittenCursor = 0;
-            return true;
-        }
-
+        if (writeBufferContext.EncodedBuffer!.AllRead) return false;
         int sentSize;
-        fixed (byte* ptr = writeBufferContext.EncodedBuffer.Buffer)
+        fixed (byte* ptr = writeBufferContext.EncodedBuffer!.Buffer)
         {
-            var amtDataSent = writeBufferContext.EncodedBuffer!.WrittenCursor - sentCursor;
-            sentSize = directOSNetworkingApi.Send(Socket.Handle, ptr + sentCursor,
+            var amtDataSent = writeBufferContext.EncodedBuffer!.UnreadBytesRemaining;
+            sentSize = directOSNetworkingApi.Send(Socket.Handle, ptr + writeBufferContext.EncodedBuffer!.ReadCursor,
                 amtDataSent, SocketFlags.None);
         }
 
         if (sentSize < 0)
             throw new SocketSendException("Win32 error " +
                                           directOSNetworkingApi.GetLastCallError() + " on send call", socketSocketSessionContext);
-        sentCursor += sentSize;
-        if (sentCursor == writeBufferContext.EncodedBuffer!.WrittenCursor)
-        {
-            sentCursor = writeBufferContext.EncodedBuffer!.WrittenCursor = 0;
-            return true;
-        }
+        writeBufferContext.EncodedBuffer!.ReadCursor += sentSize;
+        if (writeBufferContext.EncodedBuffer!.AllRead) writeBufferContext.EncodedBuffer.Reset();
+        if (!writeBufferContext.EncodedBuffer.HasStorageForBytes(400)) writeBufferContext.EncodedBuffer.MoveUnreadToBufferStart();
 
-        return false;
+        return sentSize > 0;
     }
 
     public override string ToString() =>
@@ -202,6 +200,7 @@ public sealed class SocketSender : ISocketSender
 
     internal sealed class SocketEncoder
     {
+        public int AttemptCount = 0;
         public IVersionedMessage Message = null!;
         public IMessageSerializer Serializer = null!;
     }

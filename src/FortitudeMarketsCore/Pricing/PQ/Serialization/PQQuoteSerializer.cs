@@ -38,11 +38,9 @@ public static class PQQuoteMessageHeader
     public static readonly Type SourceTickerIdType = typeof(uint);
     public static readonly Type SequenceIdType = typeof(uint);
 
-    public static byte ReadCurrentMessageVersion(this IBufferContext bufferContext) =>
-        bufferContext.EncodedBuffer!.Buffer[VersionOffset];
+    public static byte ReadCurrentMessageVersion(this IBufferContext bufferContext) => bufferContext.EncodedBuffer!.Buffer[VersionOffset];
 
-    public static ushort ReadCurrentMessageFlags(this IBufferContext bufferContext) =>
-        bufferContext.EncodedBuffer!.Buffer[FlagsOffset];
+    public static ushort ReadCurrentMessageFlags(this IBufferContext bufferContext) => bufferContext.EncodedBuffer!.Buffer[FlagsOffset];
 
     public static uint ReadCurrentMessageSize(this IBufferContext bufferContext) =>
         StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
@@ -88,9 +86,9 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<IPQLevel0Quote>
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WrittenCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
                 , obj);
-            bufferContext.EncodedBuffer.WrittenCursor += writeLength;
+            bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else

@@ -71,25 +71,25 @@ public class PQServerMessageStreamDecoderTests
         var snapshotIdsRequest = new PQSnapshotIdsRequest(expectedIdsToReceive);
         var amtWritten = pqSnapshotIdsRequestSerializer.Serialize(readWriteBuffer.Buffer,
             BufferReadWriteOffset, snapshotIdsRequest);
-        readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         pqServerMessageStreamDecoder.Process(readSocketBufferContext);
 
         Assert.IsTrue(expectedIdsToReceive.SequenceEqual(lastReceivedSnapshotRequestIds));
         Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
 
         uint[] nextExpectedIdsToReceive = { 0, 77, 71, 51, 97, 98 };
         snapshotIdsRequest = new PQSnapshotIdsRequest(nextExpectedIdsToReceive);
         amtWritten = pqSnapshotIdsRequestSerializer.Serialize(readWriteBuffer.Buffer,
-            readWriteBuffer.WrittenCursor, snapshotIdsRequest);
-        readWriteBuffer.WrittenCursor = readWriteBuffer.WrittenCursor + amtWritten;
+            readWriteBuffer.WriteCursor, snapshotIdsRequest);
+        readWriteBuffer.WriteCursor = readWriteBuffer.WriteCursor + amtWritten;
         lastReceivedConversation = null;
 
         pqServerMessageStreamDecoder.Process(readSocketBufferContext);
 
         Assert.IsTrue(lastReceivedSnapshotRequestIds.SequenceEqual(nextExpectedIdsToReceive));
         Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
     }
 }

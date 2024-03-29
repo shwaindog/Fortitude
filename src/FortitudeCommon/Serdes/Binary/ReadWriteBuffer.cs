@@ -6,30 +6,30 @@ public class ReadWriteBuffer : IBuffer
 
     public byte[] Buffer { get; }
     public int ReadCursor { get; set; }
-    public int WrittenCursor { get; set; }
+    public int WriteCursor { get; set; }
 
-    public bool AllRead => ReadCursor == WrittenCursor;
+    public bool AllRead => ReadCursor == WriteCursor;
 
-    public int UnreadBytesRemaining => WrittenCursor - ReadCursor;
+    public int UnreadBytesRemaining => WriteCursor - ReadCursor;
 
     public void Reset()
     {
-        ReadCursor = WrittenCursor = 0;
+        ReadCursor = WriteCursor = 0;
     }
 
     public void MoveUnreadToBufferStart()
     {
-        if (WrittenCursor > 0 && ReadCursor > 0)
+        if (WriteCursor > 0 && ReadCursor > 0)
         {
             System.Buffer.BlockCopy(Buffer, ReadCursor, Buffer, 0,
-                WrittenCursor = WrittenCursor - ReadCursor);
+                WriteCursor -= ReadCursor);
             ReadCursor = 0;
         }
     }
 
-    public bool HasStorageForBytes(int bytes) => WrittenCursor - 1 + bytes < Buffer.Length;
+    public bool HasStorageForBytes(int bytes) => WriteCursor + bytes <= Buffer.Length;
 
-    public int RemainingStorage => Buffer.Length - WrittenCursor;
+    public int RemainingStorage => Buffer.Length - WriteCursor;
 
     public int Size => Buffer.Length;
 }

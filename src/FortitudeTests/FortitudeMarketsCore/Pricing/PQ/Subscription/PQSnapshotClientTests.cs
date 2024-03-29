@@ -257,7 +257,7 @@ public class PQSnapshotClientTests
                 1, (byte)PQBinaryMessageFlags.IsHeartBeat, 0, 0, 0, 14, 0, 0, 0x4C, 0x7B, 0, 0, 0, 1
             })
             {
-                WrittenCursor = 14
+                WriteCursor = 14
             }
         });
         Assert.IsInstanceOfType(decoder, typeof(PQClientMessageStreamDecoder));
@@ -273,10 +273,7 @@ public class PQSnapshotClientTests
         WaitOrTimerCallback? callback = null;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(It.IsAny<IIntraOSThreadSignal>(),
                 It.IsAny<WaitOrTimerCallback>(), connectionTimeoutMs, false))
-            .Callback((IIntraOSThreadSignal iosts, WaitOrTimerCallback wotc, uint period, bool repeat) =>
-            {
-                callback = wotc;
-            })
+            .Callback((IIntraOSThreadSignal iosts, WaitOrTimerCallback wotc, uint period, bool repeat) => { callback = wotc; })
             .Returns(moqTimerCallbackSubscription.Object).Verifiable();
         moqFlogger.Reset();
         DisconnectMoqSetup();

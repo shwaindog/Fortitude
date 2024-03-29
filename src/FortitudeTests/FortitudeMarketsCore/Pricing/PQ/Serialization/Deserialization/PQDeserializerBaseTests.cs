@@ -199,25 +199,13 @@ public class PQDeserializerBaseTests
         SetupObserversAndSyncLock();
 
         moqLevel0Subscribers = new Mock<IList<IObserver<IPQLevel0Quote>>>();
-        moqLevel0Subscribers.Setup(lo => lo.Add(moqL0QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Verifiable();
+        moqLevel0Subscribers.Setup(lo => lo.Add(moqL0QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Verifiable();
         moqLevel1Subscribers = new Mock<IList<IObserver<IPQLevel1Quote>>>();
-        moqLevel1Subscribers.Setup(lo => lo.Add(moqL1QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Verifiable();
+        moqLevel1Subscribers.Setup(lo => lo.Add(moqL1QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Verifiable();
         moqLevel2Subscribers = new Mock<IList<IObserver<IPQLevel2Quote>>>();
-        moqLevel2Subscribers.Setup(lo => lo.Add(moqL2QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Verifiable();
+        moqLevel2Subscribers.Setup(lo => lo.Add(moqL2QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Verifiable();
         moqLevel3Subscribers = new Mock<IList<IObserver<IPQLevel3Quote>>>();
-        moqLevel3Subscribers.Setup(lo => lo.Add(moqL3QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Verifiable();
+        moqLevel3Subscribers.Setup(lo => lo.Add(moqL3QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Verifiable();
 
 
         NonPublicInvocator.SetInstanceField(dummyLevel0QuoteDeserializer,
@@ -244,22 +232,14 @@ public class PQDeserializerBaseTests
     public void SubscribedObserver_DisposeSubscription_SyncLockProtectsRemovingObserver()
     {
         NewPQQuoteDeserializer_Subscribe_SyncLockProtectsAddingObserver();
-        moqLevel0Subscribers.Setup(lo => lo.Remove(moqL0QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Returns(true).Verifiable();
-        moqLevel1Subscribers.Setup(lo => lo.Remove(moqL1QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Returns(true).Verifiable();
-        moqLevel2Subscribers.Setup(lo => lo.Remove(moqL2QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Returns(true).Verifiable();
-        moqLevel3Subscribers.Setup(lo => lo.Remove(moqL3QObserver.Object)).Callback(() =>
-        {
-            Assert.IsTrue(haveCalledAcquire);
-        }).Returns(true).Verifiable();
+        moqLevel0Subscribers.Setup(lo => lo.Remove(moqL0QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Returns(true)
+            .Verifiable();
+        moqLevel1Subscribers.Setup(lo => lo.Remove(moqL1QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Returns(true)
+            .Verifiable();
+        moqLevel2Subscribers.Setup(lo => lo.Remove(moqL2QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Returns(true)
+            .Verifiable();
+        moqLevel3Subscribers.Setup(lo => lo.Remove(moqL3QObserver.Object)).Callback(() => { Assert.IsTrue(haveCalledAcquire); }).Returns(true)
+            .Verifiable();
 
         subscribedL0Observer.Dispose();
         subscribedL1Observer.Dispose();
@@ -283,7 +263,7 @@ public class PQDeserializerBaseTests
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL0Quote);
         readSocketBufferContext.MessageSize = amountWritten;
-        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
@@ -314,7 +294,7 @@ public class PQDeserializerBaseTests
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL1Quote);
         readSocketBufferContext.MessageSize = amountWritten;
-        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL1Quote = new PQLevel1Quote(sourceTickerQuoteInfo);
@@ -350,7 +330,7 @@ public class PQDeserializerBaseTests
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL2Quote);
         readSocketBufferContext.MessageSize = amountWritten;
-        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL2Quote = new PQLevel2Quote(sourceTickerQuoteInfo);
@@ -395,7 +375,7 @@ public class PQDeserializerBaseTests
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL3Quote);
         readSocketBufferContext.MessageSize = amountWritten;
-        readSocketBufferContext.EncodedBuffer!.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readSocketBufferContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         readSocketBufferContext.LastWriteLength = amountWritten;
 
         var actualL3Quote = new PQLevel3Quote(sourceTickerQuoteInfo);

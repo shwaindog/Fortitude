@@ -79,22 +79,22 @@ public class PQClientMessageStreamDecoderTests
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
             BufferReadWriteOffset, expectedL0Quote);
-        readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amountWritten;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
 
         pqClientMessageStreamDecoder.Process(readSocketBufferContext);
 
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
         moqBinaryDeserializer.Verify();
 
-        writeStartOffset = readWriteBuffer.WrittenCursor;
+        writeStartOffset = readWriteBuffer.WriteCursor;
 
         amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            readWriteBuffer.WrittenCursor, expectedL0Quote);
-        readWriteBuffer.WrittenCursor += amountWritten;
+            readWriteBuffer.WriteCursor, expectedL0Quote);
+        readWriteBuffer.WriteCursor += amountWritten;
 
         pqClientMessageStreamDecoder.Process(readSocketBufferContext);
 
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
         moqBinaryDeserializer.Verify(bu => bu.Deserialize(readSocketBufferContext), Times.Exactly(2));
     }
 
@@ -121,29 +121,26 @@ public class PQClientMessageStreamDecoderTests
         var heartBeatSerializer = new PQHeartbeatSerializer();
         var amtWritten = heartBeatSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset,
             listOfHeartBeatsToUpdate);
-        readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         pqClientMessageStreamDecoder.Process(readSocketBufferContext);
 
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
         moqBinaryDeserializer.Verify();
 
-        writeStartOffset = readWriteBuffer.WrittenCursor;
+        writeStartOffset = readWriteBuffer.WriteCursor;
         moqBinaryDeserializer.Setup(bu => bu.Deserialize(readSocketBufferContext))
-            .Callback<ReadSocketBufferContext>(dc =>
-            {
-                Assert.AreEqual(writeStartOffset, dc.EncodedBuffer!.ReadCursor);
-            })
+            .Callback<ReadSocketBufferContext>(dc => { Assert.AreEqual(writeStartOffset, dc.EncodedBuffer!.ReadCursor); })
             .Returns(null!).Verifiable();
 
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         amtWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            readWriteBuffer.WrittenCursor, expectedL0Quote);
-        readWriteBuffer.WrittenCursor += amtWritten;
+            readWriteBuffer.WriteCursor, expectedL0Quote);
+        readWriteBuffer.WriteCursor += amtWritten;
 
         pqClientMessageStreamDecoder.Process(readSocketBufferContext);
 
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
         moqBinaryDeserializer.Verify();
     }
 
@@ -166,14 +163,14 @@ public class PQClientMessageStreamDecoderTests
         var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
         var amtWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
             BufferReadWriteOffset, expectedL0Quote);
-        readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         pqClientMessageStreamDecoder.Process(readSocketBufferContext);
 
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
         moqBinaryDeserializer.Verify();
 
-        writeStartOffset = readWriteBuffer.WrittenCursor;
+        writeStartOffset = readWriteBuffer.WriteCursor;
 
         moqBinaryDeserializer.Setup(bu => bu.Deserialize(readSocketBufferContext))
             .Callback<ReadSocketBufferContext>(dc =>
@@ -187,13 +184,13 @@ public class PQClientMessageStreamDecoderTests
         var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote>(2) { expectedL0Quote });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
-        amtWritten = heartBeatSerializer.Serialize(readWriteBuffer.Buffer, readWriteBuffer.WrittenCursor,
+        amtWritten = heartBeatSerializer.Serialize(readWriteBuffer.Buffer, readWriteBuffer.WriteCursor,
             listOfHeartBeatsToUpdate);
-        readWriteBuffer.WrittenCursor += amtWritten;
+        readWriteBuffer.WriteCursor += amtWritten;
 
         pqClientMessageStreamDecoder.Process(readSocketBufferContext);
 
-        Assert.AreEqual(readWriteBuffer.WrittenCursor, readWriteBuffer.ReadCursor);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
         moqBinaryDeserializer.Verify();
     }
 }

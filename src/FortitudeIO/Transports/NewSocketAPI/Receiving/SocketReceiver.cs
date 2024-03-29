@@ -34,10 +34,10 @@ public sealed class SocketReceiver : ISocketReceiver
     private const int LargeBufferSize = MaxUdpPacketSize / 4;
     private const double ReportFullThreshold = 0.7;
     private const int ReportEveryNthFullBufferBreach = 1000000;
-    private static readonly IDictionary<string, bool> HasBouncedFeedAlready = new Dictionary<string, bool>();
     private readonly int bufferSize;
     private readonly IFLogger byteStreamLogger;
     private readonly IDirectOSNetworkingApi directOSNetworkingApi;
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketReceiver));
     private readonly int numberOfReceivesPerPoll;
     private readonly ReadWriteBuffer receiveBuffer;
 
@@ -45,8 +45,7 @@ public sealed class SocketReceiver : ISocketReceiver
     private readonly IOSSocket socket;
     private readonly ISocketSessionContext socketSessionContext;
     private int bufferFullCounter;
-    private DateTime firstReadTime;
-    private DateTime lastReportOfHighDataOutbursts = DateTime.MinValue;
+    private DateTime lastReportOfHighDataBursts = DateTime.MinValue;
     private long numberOfMessages;
     private long totalMessageSize;
 
@@ -90,10 +89,10 @@ public sealed class SocketReceiver : ISocketReceiver
         if (recvLen == 0)
             return !ZeroBytesReadIsDisconnection;
         if (receiveBuffer.UnreadBytesRemaining > LargeBufferSize
-            && readSocketBufferContext.DetectTimestamp > lastReportOfHighDataOutbursts.AddMinutes(1))
+            && readSocketBufferContext.DetectTimestamp > lastReportOfHighDataBursts.AddMinutes(1))
         {
-            lastReportOfHighDataOutbursts = readSocketBufferContext.DetectTimestamp;
-            readSocketBufferContext.DispatchLatencyLogger?.Add("High outburst of incoming data received read ",
+            lastReportOfHighDataBursts = readSocketBufferContext.DetectTimestamp;
+            readSocketBufferContext.DispatchLatencyLogger?.Add("High data burst of incoming data received read ",
                 receiveBuffer.UnreadBytesRemaining);
             if (readSocketBufferContext.DispatchLatencyLogger != null)
                 readSocketBufferContext.DispatchLatencyLogger.WriteTrace = true;
@@ -121,7 +120,10 @@ public sealed class SocketReceiver : ISocketReceiver
         Accept?.Invoke();
     }
 
-    public void HandleReceiveError(string message, Exception exception) { }
+    public void HandleReceiveError(string message, Exception exception)
+    {
+        logger.Warn("{0} got {1}. Exception {2}", socketSessionContext, message, exception);
+    }
 
     private int PrepareBufferAndReceiveData(IPerfLogger? detectionToPublishLatencyTraceLogger)
     {
@@ -146,7 +148,7 @@ public sealed class SocketReceiver : ISocketReceiver
 
         if (messageRecvLen < 0)
             throw new Exception("Win32 error " + directOSNetworkingApi.GetLastCallError() + " on recv call");
-        receiveBuffer.WrittenCursor += messageRecvLen;
+        receiveBuffer.WriteCursor += messageRecvLen;
         return messageRecvLen;
     }
 
@@ -171,27 +173,10 @@ public sealed class SocketReceiver : ISocketReceiver
             socketTraceLogger.Add("end recv bufferRecvLen", bufferRecvLen);
             var remainingDataInSocketBuffer = bufferRecvLen;
 
-            if ((firstReadTime == default || firstReadTime.AddSeconds(2) > TimeContext.UtcNow) &&
-                bufferRecvLen > bufferSize * 9.0D / 10.0D)
-            {
-                if (!HasBouncedFeedAlready.TryGetValue(socketSessionContext.Name
-                        , out _))
-                {
-                    HasBouncedFeedAlready.Add(socketSessionContext.Name, true);
-                    throw new SocketBufferTooFullException(
-                        "Socket too full to read efficiently on startup.  Closing socket so that it may be" +
-                        " reopened whilst socket dispatch is running.");
-                }
-            }
-            else if (firstReadTime == default)
-            {
-                firstReadTime = TimeContext.UtcNow;
-            }
-
             messageRecvLen = MultipleReceiveData(ptr, availableLocalBuffer, remainingDataInSocketBuffer,
                 socketTraceLogger);
             if (byteStreamLogger.Enabled)
-                byteStreamLogger.Debug(BitConverter.ToString(receiveBuffer.Buffer, receiveBuffer.WrittenCursor,
+                byteStreamLogger.Debug(BitConverter.ToString(receiveBuffer.Buffer, receiveBuffer.WriteCursor,
                     messageRecvLen));
             socketTraceLogger.Add("end recv messageRecvLen", messageRecvLen);
         }
@@ -208,14 +193,14 @@ public sealed class SocketReceiver : ISocketReceiver
         do
         {
             var currentMessageLength = directOSNetworkingApi.Recv(socket.Handle,
-                ptr + receiveBuffer.WrittenCursor + messageRecvLen,
+                ptr + receiveBuffer.WriteCursor + messageRecvLen,
                 Math.Min(availableLocalBuffer, remainingDataInSocketBuffer),
                 ref lastReadWasPartial);
             if (currentMessageLength <= 0)
             {
                 socketTraceLogger.Add("Recv return unexpected readsize", currentMessageLength);
                 socketTraceLogger.Add("ToReadCursor + messageRecvLen",
-                    receiveBuffer.WrittenCursor + messageRecvLen);
+                    receiveBuffer.WriteCursor + messageRecvLen);
                 socketTraceLogger.Add("availableBuffer", availableLocalBuffer);
                 socketTraceLogger.WriteTrace = true;
                 messageRecvLen = currentMessageLength;
