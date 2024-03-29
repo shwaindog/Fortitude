@@ -63,7 +63,7 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
         var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
         var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
         readSocketBufferContext.MessageHeader = msgHeader;
-        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WrittenCursor - read)
+        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WriteCursor - read)
             switch (messageSection)
             {
                 case MessageSection.TransmissionHeader:
@@ -127,7 +127,7 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
         {
             Logger.Error($"The value to read from the socket {ExpectedSize:N0}B is larger than any PQ message is " +
                          "expected to be.  Resetting socket read location as it is probably corrupt.");
-            read = readSocketBufferContext.EncodedBuffer.WrittenCursor;
+            read = readSocketBufferContext.EncodedBuffer.WriteCursor;
             messageSection = MessageSection.TransmissionHeader;
             ExpectedSize = PQQuoteMessageHeader.HeaderSize;
         }

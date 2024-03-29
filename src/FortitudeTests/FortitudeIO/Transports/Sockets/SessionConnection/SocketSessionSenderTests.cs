@@ -82,8 +82,8 @@ public class SocketSessionSenderTests
             .Callback<IVersionedMessage, IBufferContext>((obj, buffContext) =>
             {
                 for (var i = 0; i < 10; i++)
-                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
-                buffContext.EncodedBuffer!.WrittenCursor += 10;
+                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                buffContext.EncodedBuffer!.WriteCursor += 10;
                 buffContext.LastWriteLength = 10;
             }).Verifiable();
         NewSessionSender_Enqueue_QueuesItemForSendDuringSyncLock();
@@ -121,24 +121,24 @@ public class SocketSessionSenderTests
                 {
                     serializeNum++;
                     for (var i = 0; i < 10; i++)
-                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
-                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                    buffContext.EncodedBuffer!.WriteCursor += 10;
                     buffContext.LastWriteLength = 10;
                 }
                 else if (serializeNum == 1)
                 {
                     serializeNum++;
                     for (var i = 0; i < 10; i++)
-                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 11);
-                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WriteCursor + i] = (byte)(i + 11);
+                    buffContext.EncodedBuffer!.WriteCursor += 10;
                     buffContext.LastWriteLength = 10;
                 }
                 else if (serializeNum == 2)
                 {
                     serializeNum++;
                     for (var i = 0; i < 10; i++)
-                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 21);
-                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WriteCursor + i] = (byte)(i + 21);
+                    buffContext.EncodedBuffer!.WriteCursor += 10;
                     buffContext.LastWriteLength = 10;
                 }
             }).Verifiable();
@@ -159,13 +159,13 @@ public class SocketSessionSenderTests
         moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>((obj, buffContext) =>
             {
-                if (buffContext.EncodedBuffer!.WrittenCursor < 10)
+                if (buffContext.EncodedBuffer!.WriteCursor < 10)
                 {
                     calledSerializeAtBufferStartNum++;
                     for (var i = 0; i < 10; i++)
-                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
+                        buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
 
-                    buffContext.EncodedBuffer!.WrittenCursor += 10;
+                    buffContext.EncodedBuffer!.WriteCursor += 10;
                     buffContext.LastWriteLength = 10;
                 }
                 else
@@ -189,10 +189,7 @@ public class SocketSessionSenderTests
     public void OneMsgCantSerializeToBuffer_SendData_ThrowsExceptionMsgTooBig()
     {
         moqBinMock.Setup(bs => bs.Serialize(It.IsAny<IVersionedMessage>(), It.IsAny<IBufferContext>()))
-            .Callback<IVersionedMessage, IBufferContext>((obj, bufferedContext) =>
-            {
-                bufferedContext.LastWriteLength = -1;
-            }).Verifiable();
+            .Callback<IVersionedMessage, IBufferContext>((obj, bufferedContext) => { bufferedContext.LastWriteLength = -1; }).Verifiable();
         socketSessionSender.Enqueue(new OrxLogonResponse(), moqBinMock.Object);
         socketSessionSender.SendData();
         Assert.Fail("Show not reach here");
@@ -219,8 +216,8 @@ public class SocketSessionSenderTests
             {
                 for (var i = 0; i < 20; i++)
                 {
-                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
-                    buffContext.EncodedBuffer!.WrittenCursor += 20;
+                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                    buffContext.EncodedBuffer!.WriteCursor += 20;
                     buffContext.LastWriteLength = 20;
                 }
             }).Verifiable();
@@ -252,8 +249,8 @@ public class SocketSessionSenderTests
             {
                 for (var i = 0; i < 20; i++)
                 {
-                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
-                    buffContext.EncodedBuffer!.WrittenCursor += 20;
+                    buffContext.EncodedBuffer!.Buffer[buffContext.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                    buffContext.EncodedBuffer!.WriteCursor += 20;
                     buffContext.LastWriteLength = 20;
                 }
             }).Verifiable();

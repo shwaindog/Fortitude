@@ -136,7 +136,7 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
 
         if (messageRecvLen < 0)
             throw new Exception("Win32 error " + DirectOSNetworkingApi.GetLastCallError() + " on recv call");
-        receiveBuffer.WrittenCursor += messageRecvLen;
+        receiveBuffer.WriteCursor += messageRecvLen;
         return messageRecvLen;
     }
 
@@ -181,7 +181,7 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
             messageRecvLen = MultipleReceiveData(ptr, availableLocalBuffer, remainingDataInSocketBuffer,
                 socketTraceLogger);
             if (byteStreamLogger.Enabled)
-                byteStreamLogger.Debug(BitConverter.ToString(receiveBuffer.Buffer, receiveBuffer.WrittenCursor,
+                byteStreamLogger.Debug(BitConverter.ToString(receiveBuffer.Buffer, receiveBuffer.WriteCursor,
                     messageRecvLen));
             socketTraceLogger.Add("end recv messageRecvLen", messageRecvLen);
         }
@@ -198,14 +198,14 @@ public class SocketSessionReceiver : SocketSessionConnectionBase, ISocketSession
         do
         {
             var currentMessageLength = DirectOSNetworkingApi.Recv(Handle,
-                ptr + receiveBuffer.WrittenCursor + messageRecvLen,
+                ptr + receiveBuffer.WriteCursor + messageRecvLen,
                 Math.Min(availableLocalBuffer, remainingDataInSocketBuffer),
                 ref lastReadWasPartial);
             if (currentMessageLength <= 0)
             {
                 socketTraceLogger.Add("WSARecvEx return unexpected readsize", currentMessageLength);
                 socketTraceLogger.Add("ToReadCursor + messageRecvLen",
-                    receiveBuffer.WrittenCursor + messageRecvLen);
+                    receiveBuffer.WriteCursor + messageRecvLen);
                 socketTraceLogger.Add("availableBuffer", availableLocalBuffer);
                 socketTraceLogger.WriteTrace = true;
                 messageRecvLen = currentMessageLength;

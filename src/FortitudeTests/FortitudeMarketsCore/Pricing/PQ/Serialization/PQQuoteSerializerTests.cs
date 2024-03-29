@@ -178,7 +178,7 @@ public class PQQuoteSerializerTests
 
             var amtWritten = updateQuoteSerializer
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
-            readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+            readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
             AssertExpectedBytesWriten(amtWritten, false, expectedFieldUpdates, expectedStringUpdates, pqQuote);
         }
@@ -201,7 +201,7 @@ public class PQQuoteSerializerTests
 
             var amtWritten = snapshotQuoteSerializer
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
-            readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+            readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
             AssertExpectedBytesWriten(amtWritten, true, expectedFieldUpdates, expectedStringUpdates, pqQuote);
         }
@@ -216,7 +216,7 @@ public class PQQuoteSerializerTests
             pqQuote.PQSequenceId = uint.MaxValue; // will roll to 0 on
             var amtWritten = updateQuoteSerializer
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
-            readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+            readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
             var sockBuffContext = new ReadSocketBufferContext
             {

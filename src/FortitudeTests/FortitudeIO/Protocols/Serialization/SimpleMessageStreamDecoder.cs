@@ -30,7 +30,7 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
         var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
         var originalRead = read;
         ushort messageId;
-        while (read < readSocketBufferContext.EncodedBuffer.WrittenCursor)
+        while (read < readSocketBufferContext.EncodedBuffer.WriteCursor)
         {
             fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
             {
@@ -59,8 +59,7 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
     {
         private readonly IDictionary<uint, IMessageDeserializer> deserializers;
 
-        public SimpleDeserializerFactory(IDictionary<uint, IMessageDeserializer> deserializers) =>
-            this.deserializers = deserializers;
+        public SimpleDeserializerFactory(IDictionary<uint, IMessageDeserializer> deserializers) => this.deserializers = deserializers;
 
         public int RegisteredDeserializerCount => 0;
 

@@ -23,9 +23,9 @@ public class SocketSenderTests
 {
     private const uint MessageId = 12;
     private const int SerializeWriteLength = 99;
-    private const int SocketSendBuffer = 150;
+    private const int SocketSendBufferSize = 150;
     private const int SendErrorCode = 71;
-    private bool calledApiSend;
+    private int calledApiSendCount;
     private DirectOSNetworkingStub directOsNetworkingStub = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
@@ -57,29 +57,30 @@ public class SocketSenderTests
         moqSocketDispatcherSender = new Mock<ISocketDispatcherSender>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
 
-        calledApiSend = false;
+        calledApiSendCount = 0;
         sendCallBack = (_, buffPtr, len, _) =>
         {
             Assert.AreEqual(SerializeWriteLength, len);
             for (var i = 0; i < SerializeWriteLength; i++) Assert.AreEqual(i + 1, buffPtr[i]);
-            calledApiSend = true;
+            calledApiSendCount++;
             return SerializeWriteLength;
         };
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>(
                 (_, bc) =>
                 {
+                    if (bc.EncodedBuffer.RemainingStorage < SerializeWriteLength) return;
                     for (var i = 0; i < SerializeWriteLength; i++)
-                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WrittenCursor + i] = (byte)(i + 1);
+                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
                     bc.LastWriteLength = SerializeWriteLength;
-                    bc.EncodedBuffer!.WrittenCursor = SerializeWriteLength;
+                    bc.EncodedBuffer!.WriteCursor = SerializeWriteLength;
                 }
             );
 
         directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
 
         moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqOsSocket.Object);
-        moqOsSocket.SetupGet(sc => sc.SendBufferSize).Returns(SocketSendBuffer);
+        moqOsSocket.SetupGet(sc => sc.SendBufferSize).Returns(SocketSendBufferSize);
         moqSocketFactoryResolver.SetupGet(sfr => sfr.NetworkingController).Returns(moqNetworkingController.Object);
         moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
 
@@ -117,6 +118,19 @@ public class SocketSenderTests
     }
 
     [TestMethod]
+    [ExpectedException(typeof(KeyNotFoundException))]
+    public void UnregisterMessageSerializer_SendVersionMessage_ThrowsKeyNotFoundException()
+    {
+        moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
+        moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
+        moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+
+        socketSender.UnregisterSerializer(MessageId);
+        socketSender.Send(moqVersionedMessage.Object);
+    }
+
+    [TestMethod]
     public void AddToSendQueueSocketSender_SendVersionMessage_CallsEnqueueButNotAddToSendQueue()
     {
         RegisteredMessageSerializer_SendVersionMessage_CallsEnqueueAndAddToSendQueue();
@@ -131,13 +145,13 @@ public class SocketSenderTests
     [TestMethod]
     public void QueuedMessageAndSerializer_SendQueued_SerializesMessageAndCallsSend()
     {
-        calledApiSend = false;
+        calledApiSendCount = 0;
         RegisteredMessageSerializer_SendVersionMessage_CallsEnqueueAndAddToSendQueue();
 
         socketSender.SendQueued();
 
         moqMessageSerializer.Verify();
-        Assert.IsTrue(calledApiSend);
+        Assert.AreEqual(1, calledApiSendCount);
     }
 
     [TestMethod]
@@ -161,5 +175,124 @@ public class SocketSenderTests
         QueuedMessageAndSerializer_SendQueued_SerializesMessageAndCallsSend();
         QueuedMessageAndSerializer_SendQueued_SerializesMessageAndCallsSend();
         QueuedMessageAndSerializer_SendQueued_SerializesMessageAndCallsSend();
+    }
+
+    [TestMethod]
+    public void SocketSender_MoreDataThanCanBeWrittenToTheBuffer_SendsMultipleMessagesByRetryingAfterSend()
+    {
+        calledApiSendCount = 0;
+        moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
+        moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
+        moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>(
+                (_, bc) =>
+                {
+                    bc.LastWriteLength = 0;
+                    if (bc.EncodedBuffer.RemainingStorage < SerializeWriteLength) return;
+                    for (var i = 0; i < SerializeWriteLength; i++)
+                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                    bc.LastWriteLength = SerializeWriteLength;
+                    bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
+                }
+            );
+
+        socketSender.Send(moqVersionedMessage.Object);
+        socketSender.Send(moqVersionedMessage.Object);
+        socketSender.Send(moqVersionedMessage.Object);
+
+        socketSender.SendQueued();
+        Assert.AreEqual(3, calledApiSendCount);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(SocketSendException))]
+    public void SocketSender_CanNotSerializeASingleMessage_ThrowsSocketSendException()
+    {
+        calledApiSendCount = 0;
+        moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
+        moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
+        moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>(
+                (_, bc) => { bc.LastWriteLength = 0; }
+            );
+
+        socketSender.Send(moqVersionedMessage.Object);
+
+        socketSender.SendQueued();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(SocketSendException))]
+    public void SocketSender_CanNotSerializeAMessageAfter100Attempts_ThrowsSocketSendException()
+    {
+        calledApiSendCount = 0;
+        moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
+        moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
+        moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>(
+                (_, bc) =>
+                {
+                    bc.LastWriteLength = 0;
+                    for (var i = 0; i < SerializeWriteLength; i++)
+                        bc.EncodedBuffer!.Buffer[i] = (byte)(i + 1);
+                    bc.EncodedBuffer!.WriteCursor = SerializeWriteLength;
+                }
+            );
+        sendCallBack = (_, _, _, _) => 0;
+        directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
+        moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
+        socketSender = new SocketSender(moqSocketSessionContext.Object);
+        socketSender.RegisterSerializer(MessageId, moqMessageSerializer.Object);
+
+        socketSender.Send(moqVersionedMessage.Object);
+
+        for (var i = 0; i < 101; i++) socketSender.SendQueued();
+    }
+
+    [TestMethod]
+    public void SocketSender_MultipleEncodedMessages_SendsMultipleAsOneCallToSocket()
+    {
+        calledApiSendCount = 0;
+        const int smallMessageSize = 50;
+        moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
+        moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
+        moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
+            .Callback<IVersionedMessage, IBufferContext>(
+                (_, bc) =>
+                {
+                    bc.LastWriteLength = 0;
+                    if (bc.EncodedBuffer!.RemainingStorage < smallMessageSize) return;
+                    for (var i = 0; i < smallMessageSize; i++)
+                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                    bc.LastWriteLength = smallMessageSize;
+                    bc.EncodedBuffer!.WriteCursor += smallMessageSize;
+                }
+            );
+        sendCallBack = (_, _, len, _) =>
+        {
+            calledApiSendCount++;
+            return len;
+        };
+        directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
+        moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
+        socketSender = new SocketSender(moqSocketSessionContext.Object);
+        socketSender.RegisterSerializer(MessageId, moqMessageSerializer.Object);
+
+        socketSender.Send(moqVersionedMessage.Object);
+        socketSender.Send(moqVersionedMessage.Object);
+        socketSender.Send(moqVersionedMessage.Object); // these 3 will be sent together
+        socketSender.Send(moqVersionedMessage.Object);
+        socketSender.Send(moqVersionedMessage.Object); // then these two
+
+        socketSender.SendQueued();
+        Assert.AreEqual(2, calledApiSendCount);
     }
 }

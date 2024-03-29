@@ -33,7 +33,7 @@ public class PQSnapshotIdsRequestSerializerTests
 
         var amtWritten = pqSnapshotIdsRequestSerializer
             .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, snapshotIdsMessage);
-        readWriteBuffer.WrittenCursor = BufferReadWriteOffset + amtWritten;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         fixed (byte* bufferPtr = readWriteBuffer.Buffer)
         {

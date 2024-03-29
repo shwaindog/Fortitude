@@ -23,8 +23,7 @@ public static class OrxMessageHeader
     public static readonly Type MessageIdType = typeof(ushort);
     public static readonly Type MessageSizeType = typeof(ushort);
 
-    public static byte ReadCurrentMessageVersion(this IBufferContext bufferContext) =>
-        bufferContext.EncodedBuffer!.Buffer[VersionOffset];
+    public static byte ReadCurrentMessageVersion(this IBufferContext bufferContext) => bufferContext.EncodedBuffer!.Buffer[VersionOffset];
 
     public static ushort ReadCurrentMessageId(this IBufferContext bufferContext) =>
         StreamByteOps.ToUShort(bufferContext.EncodedBuffer!.Buffer
@@ -63,9 +62,9 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WrittenCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
                 , obj);
-            bufferContext.EncodedBuffer.WrittenCursor += writeLength;
+            bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else

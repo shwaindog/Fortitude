@@ -252,9 +252,7 @@ public class SimpleSocketRingPollerListener : SocketRingPollerListener<SocketRec
 
     protected override bool IsSocketReceiverInRingData(SocketReceiverUpdate ringData) => true;
 
-    protected override bool IsSocketReceiverAdd(SocketReceiverUpdate ringData) =>
-        ringData.SocketReceiverCommand == SocketReceiverCommand.Add;
+    protected override bool IsSocketReceiverAdd(SocketReceiverUpdate ringData) => ringData.SocketReceiverCommand == SocketReceiverCommand.Add;
 
-    protected override ISocketReceiver? ExtractSocketReceiverInRingData(SocketReceiverUpdate ringData) =>
-        ringData?.SocketReceiver;
+    protected override ISocketReceiver? ExtractSocketReceiverInRingData(SocketReceiverUpdate ringData) => ringData?.SocketReceiver;
 }
