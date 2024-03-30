@@ -21,11 +21,11 @@ public abstract class SocketStreamControls : IStreamControls
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketStreamControls));
     protected ISocketSessionContext SocketSocketSessionContext;
 
-    protected SocketStreamControls(ISocketSessionContext socketSocketSessionContext) =>
-        SocketSocketSessionContext = socketSocketSessionContext;
+    protected SocketStreamControls(ISocketSessionContext socketSocketSessionContext) => SocketSocketSessionContext = socketSocketSessionContext;
 
     public abstract void Connect();
 
+    public abstract void OnSessionFailure(string reason);
 
     public void Start()
     {

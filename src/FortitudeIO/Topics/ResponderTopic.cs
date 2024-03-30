@@ -33,6 +33,8 @@ public class ResponderTopic : Topic, IResponderTopic
         throw new NotImplementedException();
     }
 
+    public override void OnSessionFailure(string reason) => throw new NotImplementedException();
+
     public void RemoveClient(IConversationRequester clientSocketSessionContext)
     {
         throw new NotImplementedException();

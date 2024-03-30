@@ -22,6 +22,7 @@ public interface ISocketSender : IStreamPublisher
     int Id { get; }
     bool SendActive { get; }
     IEnumerable<KeyValuePair<uint, IMessageSerializer>> RegisteredSerializers { get; }
+    IOSSocket Socket { get; set; }
     void HandleSendError(string message, Exception exception);
 }
 
@@ -211,7 +212,7 @@ public class SocketSendException : Exception
     public SocketSendException(string? message, ISocketSessionContext socketSessionContext) : base(message) =>
         SocketSessionContext = socketSessionContext;
 
-    private ISocketSessionContext SocketSessionContext { get; }
+    public ISocketSessionContext SocketSessionContext { get; }
 
     public override string ToString() => $"SocketSendException({base.ToString()}, {nameof(SocketSessionContext)}: {SocketSessionContext})";
 }

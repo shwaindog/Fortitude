@@ -37,8 +37,6 @@ public class SocketFactoryTests
     private uint receiveTimeout = 10_000;
     private int recvBufferSize = 2000;
     private int sendBufferSize = 1000;
-    private uint sendTimeout = 20_000;
-    private string sessionDescription = null!;
     private SocketFactory socketFactory = null!;
 
 
@@ -48,7 +46,6 @@ public class SocketFactoryTests
         moqFLogger = new Mock<IFLogger>();
         moqFLoggerFactory = new Mock<IFLoggerFactory>();
         moqDispatcher = new Mock<ISocketDispatcher>();
-        sessionDescription = "testSessionDescription";
         moqOsSocket = new Mock<IOSSocket>();
         moqOsSocket.SetupAllProperties();
         moqNetworkTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
@@ -240,7 +237,7 @@ public class SocketFactoryTests
 
 
     [TestMethod]
-    [ExpectedException(typeof(MatchingNICNotFoundException))]
+    [ExpectedException(typeof(MatchingNicNotFoundException))]
     public void RequestUdpSubscriber_CanNotFindNic_ThrowsException()
     {
         moqNetworkTopicConnectionConfig.SetupGet(ntcc => ntcc.ConnectionAttributes)
@@ -287,7 +284,7 @@ public class SocketFactoryTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(MatchingNICNotFoundException))]
+    [ExpectedException(typeof(MatchingNicNotFoundException))]
     public void RequestUdpPublisher_CanNotFindNic_ThrowsException()
     {
         moqNetworkTopicConnectionConfig.SetupGet(ntcc => ntcc.ConnectionAttributes)

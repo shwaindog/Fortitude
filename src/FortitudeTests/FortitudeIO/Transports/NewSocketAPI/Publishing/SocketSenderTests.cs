@@ -69,7 +69,7 @@ public class SocketSenderTests
             .Callback<IVersionedMessage, IBufferContext>(
                 (_, bc) =>
                 {
-                    if (bc.EncodedBuffer.RemainingStorage < SerializeWriteLength) return;
+                    if (bc.EncodedBuffer!.RemainingStorage < SerializeWriteLength) return;
                     for (var i = 0; i < SerializeWriteLength; i++)
                         bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
                     bc.LastWriteLength = SerializeWriteLength;
@@ -190,7 +190,7 @@ public class SocketSenderTests
                 (_, bc) =>
                 {
                     bc.LastWriteLength = 0;
-                    if (bc.EncodedBuffer.RemainingStorage < SerializeWriteLength) return;
+                    if (bc.EncodedBuffer!.RemainingStorage < SerializeWriteLength) return;
                     for (var i = 0; i < SerializeWriteLength; i++)
                         bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
                     bc.LastWriteLength = SerializeWriteLength;

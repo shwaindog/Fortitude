@@ -143,13 +143,11 @@ public class PQConversationRepositoryBaseTests
     internal class DummySktSubRegFctryBse<T> :
         PQConversationRepositoryBase<T> where T : class, IConversation
     {
-        public DummySktSubRegFctryBse(T returnedSocketSubscriber) =>
-            ReturnedSocketSubscriber = returnedSocketSubscriber;
+        public DummySktSubRegFctryBse(T returnedSocketSubscriber) => ReturnedSocketSubscriber = returnedSocketSubscriber;
 
         public T ReturnedSocketSubscriber { get; }
 
-        protected override T CreateNewSocketSubscriptionType(INetworkTopicConnectionConfig connectionConfig) =>
-            ReturnedSocketSubscriber;
+        protected override T CreateNewSocketSubscriptionType(INetworkTopicConnectionConfig connectionConfig) => ReturnedSocketSubscriber;
     }
 
     public class DummyConversationSubscriber : IConversationSubscriber
@@ -167,6 +165,8 @@ public class PQConversationRepositoryBaseTests
         public void Start() { }
 
         public void Stop() { }
+
+        public void OnSessionFailure(string reason) { }
 
         public bool IsStarted { get; } = false;
         public IStreamListener? StreamListener { get; set; }

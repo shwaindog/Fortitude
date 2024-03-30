@@ -35,6 +35,8 @@ public class PublisherTopic : Topic, IPublisherTopic
         throw new NotImplementedException();
     }
 
+    public override void OnSessionFailure(string reason) => throw new NotImplementedException();
+
     public void Send(IVersionedMessage versionedMessage)
     {
         throw new NotImplementedException();

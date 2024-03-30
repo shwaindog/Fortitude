@@ -100,6 +100,8 @@ public class SocketConversation : ISocketConversation
         remove => SocketSessionContext.Disconnecting -= value;
     }
 
+    public void OnSessionFailure(string reason) => SocketSessionContext?.StreamControls?.OnSessionFailure(reason);
+
     public void Start()
     {
         SocketSessionContext.StreamControls?.Start();

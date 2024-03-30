@@ -69,7 +69,8 @@ public class SimpleSocketRingPollerSenderTests
     [TestMethod]
     public void NewRingPoller_New_SetsNameWithSocketRingPollerSender()
     {
-        simpleSocketRingPollerSender = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, moqParallelController.Object);
+        simpleSocketRingPollerSender
+            = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, null, moqParallelController.Object);
         Assert.AreEqual("SimpleSocketRingPollerSenderTests-SocketRingPollerSender", simpleSocketRingPollerSender.Name);
     }
 
@@ -91,7 +92,8 @@ public class SimpleSocketRingPollerSenderTests
         }).Returns(justFirstSocketContainer.GetEnumerator());
         moqPollingRing.Setup(pr => pr[0L]).Returns(firstSocketContainer).Verifiable();
         moqPollingRing.Setup(pr => pr.Publish(0)).Verifiable();
-        simpleSocketRingPollerSender = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, moqParallelController.Object);
+        simpleSocketRingPollerSender
+            = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, null, moqParallelController.Object);
 
         simpleSocketRingPollerSender.Start();
         simpleSocketRingPollerSender.AddToSendQueue(moqSocketSender.Object);
@@ -128,7 +130,8 @@ public class SimpleSocketRingPollerSenderTests
         moqPollingRing.Setup(pr => pr.Publish(1)).Verifiable();
 
         moqSocketSender.SetupSequence(ss => ss.SendQueued()).Returns(false).Returns(true);
-        simpleSocketRingPollerSender = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, moqParallelController.Object);
+        simpleSocketRingPollerSender
+            = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, null, moqParallelController.Object);
 
         simpleSocketRingPollerSender.Start();
         simpleSocketRingPollerSender.AddToSendQueue(moqSocketSender.Object);

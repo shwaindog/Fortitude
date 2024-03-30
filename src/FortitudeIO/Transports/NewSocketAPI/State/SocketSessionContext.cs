@@ -115,6 +115,7 @@ public class SocketSessionContext : ISocketSessionContext
     public void Stop()
     {
         StreamControls?.Stop();
+        OnStopped();
     }
 
     public bool IsStarted => SocketConnection?.IsConnected ?? false;
@@ -138,8 +139,12 @@ public class SocketSessionContext : ISocketSessionContext
 
     public void OnDisconnected()
     {
-        OnSocketStateChanged(SocketSessionState.Disconnected);
-        Disconnected?.Invoke();
+        if (SocketSessionState != SocketSessionState.Disconnected)
+        {
+            OnSocketStateChanged(SocketSessionState.Disconnected);
+            Disconnected?.Invoke();
+        }
+
         OnStopped();
     }
 
@@ -150,9 +155,15 @@ public class SocketSessionContext : ISocketSessionContext
 
     public void OnDisconnecting()
     {
-        OnSocketStateChanged(SocketSessionState.Disconnecting);
-        Disconnecting?.Invoke();
+        if (SocketSessionState != SocketSessionState.Disconnecting)
+        {
+            if (SocketSessionState != SocketSessionState.Disconnected) OnSocketStateChanged(SocketSessionState.Disconnecting);
+
+            Disconnecting?.Invoke();
+        }
     }
+
+    public void OnSessionFailure(string reason) => StreamControls?.OnSessionFailure(reason);
 
     public void OnStarted()
     {

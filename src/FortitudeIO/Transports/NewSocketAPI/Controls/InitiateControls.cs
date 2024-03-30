@@ -79,10 +79,19 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
             }
 
             if (socketSessionContext.SocketConnection?.IsConnected ?? false) return;
-            Disconnect(true);
-            socketSessionContext.OnReconnecting();
-            ScheduleConnect(reconnectConfig.NextReconnectIntervalMs);
+            OnSessionFailure($"'Connect' failed to successfully open connection to Topic.Name: '{connConfig.TopicName}'");
         }
+    }
+
+    public override void OnSessionFailure(string reason)
+    {
+        Disconnect(true);
+        var scheduleConnectWaitMs = reconnectConfig.NextReconnectIntervalMs;
+        logger.Info("Will attempt reconnecting to {0} {1} id {2} reason {3} in {4}ms",
+            SocketSocketSessionContext.Name, SocketSocketSessionContext.Id,
+            SocketSocketSessionContext.NetworkTopicConnectionConfig, reason, scheduleConnectWaitMs);
+        socketSessionContext.OnReconnecting();
+        ScheduleConnect(scheduleConnectWaitMs);
     }
 
     public override void Disconnect()
