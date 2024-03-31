@@ -12,7 +12,6 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
-using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
 
 #endregion
 
@@ -564,10 +563,8 @@ public class PQClientTests
         var scheduleCounter = 0;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
                 It.IsAny<WaitOrTimerCallback>(), 60000, true))
-            .Callback<IIntraOSThreadSignal, WaitOrTimerCallback, uint, bool>((its, callback, timeout, callOnce) =>
-            {
-                scheduleCounter++;
-            }).Returns(new Mock<ITimerCallbackSubscription>().Object)
+            .Callback<IIntraOSThreadSignal, WaitOrTimerCallback, uint, bool>((its, callback, timeout, callOnce) => { scheduleCounter++; })
+            .Returns(new Mock<ITimerCallbackSubscription>().Object)
             .Verifiable();
         var subQuoteStream = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object,
             defaultSyncRetryInterval);
@@ -587,10 +584,8 @@ public class PQClientTests
         var scheduleCounter = 0;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
                 It.IsAny<WaitOrTimerCallback>(), 60000, true))
-            .Callback<IIntraOSThreadSignal, WaitOrTimerCallback, uint, bool>((its, callback, timeout, callOnce) =>
-            {
-                scheduleCounter++;
-            }).Returns(new Mock<ITimerCallbackSubscription>().Object)
+            .Callback<IIntraOSThreadSignal, WaitOrTimerCallback, uint, bool>((its, callback, timeout, callOnce) => { scheduleCounter++; })
+            .Returns(new Mock<ITimerCallbackSubscription>().Object)
             .Verifiable();
 
         var diffQuoteInfo = new Mock<IMutableSourceTickerPublicationConfig>();

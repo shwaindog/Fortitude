@@ -9,8 +9,7 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Construction;
-using FortitudeIO.Transports.Sockets.Client;
-using FortitudeIO.Transports.Sockets.Dispatcher;
+using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using Moq;
 
 #endregion
@@ -27,7 +26,6 @@ public class SocketFactoryTests
     private DummyIPInterfaceProperties expectedIpv4InterfaceProperties = null!;
     private ushort expectedPort = 3333;
     private string expectedSubnetMask = "127.0.0.1";
-    private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<IEndpointConfig> moqEndpointConfig = null!;
     private Mock<IFLogger> moqFLogger = null!;
     private Mock<IFLoggerFactory> moqFLoggerFactory = null!;
@@ -45,7 +43,6 @@ public class SocketFactoryTests
     {
         moqFLogger = new Mock<IFLogger>();
         moqFLoggerFactory = new Mock<IFLoggerFactory>();
-        moqDispatcher = new Mock<ISocketDispatcher>();
         moqOsSocket = new Mock<IOSSocket>();
         moqOsSocket.SetupAllProperties();
         moqNetworkTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();

@@ -59,7 +59,7 @@ public sealed class SocketReceiver : ISocketReceiver
         var socketUseDescriptionNoWhiteSpaces = this.socketSessionContext.Name.Replace(" ", "");
         receiveSocketCxLatencyTraceLoggerPool = PerfLoggingPoolFactory.Instance
             .GetLatencyTracingLoggerPool("Receive." + socketUseDescriptionNoWhiteSpaces,
-                TimeSpan.FromMilliseconds(1), typeof(ISessionConnection));
+                TimeSpan.FromMilliseconds(1), typeof(ISession));
         byteStreamLogger = FLoggerFactory.Instance.GetLogger("SocketByteDump." + socketUseDescriptionNoWhiteSpaces);
         byteStreamLogger.DefaultEnabled = false;
 
@@ -101,7 +101,7 @@ public sealed class SocketReceiver : ISocketReceiver
         }
 
         readSocketBufferContext.ReceivingTimestamp = receivingTs;
-        readSocketBufferContext.SessionContext = socketSessionContext;
+        readSocketBufferContext.Conversation = socketSessionContext.OwningConversation;
         readSocketBufferContext.EncodedBuffer = receiveBuffer;
         if (Decoder.Process(readSocketBufferContext) <= 0)
         {

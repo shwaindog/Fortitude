@@ -4,7 +4,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Construction;
 using FortitudeIO.Transports.NewSocketAPI.Controls;
@@ -42,8 +41,7 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         set => socketFactories = value;
     }
 
-    public int RegisteredSerializersCount =>
-        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisteredSerializerCount;
+    public int RegisteredSerializersCount => SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisteredSerializerCount;
 
     public event Action<IConversationRequester, uint[]>? OnSnapshotRequest;
 
@@ -95,8 +93,8 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
         SocketSessionContext.SerdesFactory.StreamEncoderFactory!.UnregisterMessageSerializer(msgId);
     }
 
-    public void Enqueue(ISessionConnection cx, IVersionedMessage message)
+    public void Enqueue(IConversationRequester requester, IVersionedMessage message)
     {
-        cx.SessionSender!.Enqueue(message, SnapshotSerializationRepository.GetSerializer(message.MessageId));
+        requester.StreamPublisher!.Enqueue(message);
     }
 }

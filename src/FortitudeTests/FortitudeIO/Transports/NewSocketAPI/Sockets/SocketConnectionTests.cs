@@ -16,7 +16,7 @@ using Moq;
 namespace FortitudeTests.FortitudeIO.Transports.NewSocketAPI.Sockets;
 
 [TestClass]
-public class SocketSessionConnectionTests
+public class SocketConnectionTests
 {
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
