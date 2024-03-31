@@ -6,7 +6,7 @@ using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.Network.Config;
 
 #endregion
 

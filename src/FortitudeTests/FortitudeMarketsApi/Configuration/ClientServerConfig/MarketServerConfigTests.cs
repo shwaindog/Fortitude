@@ -4,10 +4,10 @@ using System.Reactive.Subjects;
 using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.EventProcessing;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeTests.FortitudeCommon.Configuration.Availability;
-using FortitudeTests.FortitudeIO.Transports.NewSocketAPI.ConnectionConfig;
+using FortitudeTests.FortitudeIO.Transports.Network.ConnectionConfig;
 
 #endregion
 
@@ -121,8 +121,7 @@ public class MarketServerConfigTests
 
         public new IDummyMarketServerConfig Clone() => new DummyMarketServerConfigClass(this, false);
 
-        public override IDummyMarketServerConfig ToggleProtocolDirection() =>
-            new DummyMarketServerConfigClass(this, true);
+        public override IDummyMarketServerConfig ToggleProtocolDirection() => new DummyMarketServerConfigClass(this, true);
 
         object ICloneable.Clone() => Clone();
     }

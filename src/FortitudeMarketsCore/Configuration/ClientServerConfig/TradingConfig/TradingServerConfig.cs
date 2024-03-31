@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Configuration.Availability;
-using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;

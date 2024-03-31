@@ -7,12 +7,12 @@ using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
-using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.NewSocketAPI.Construction;
-using FortitudeIO.Transports.NewSocketAPI.Controls;
-using FortitudeIO.Transports.NewSocketAPI.Conversations;
-using FortitudeIO.Transports.NewSocketAPI.State;
-using SocketsAPI = FortitudeIO.Transports.NewSocketAPI;
+using FortitudeIO.Transports.Network.Config;
+using FortitudeIO.Transports.Network.Construction;
+using FortitudeIO.Transports.Network.Controls;
+using FortitudeIO.Transports.Network.Conversations;
+using FortitudeIO.Transports.Network.State;
+using SocketsAPI = FortitudeIO.Transports.Network;
 
 #endregion
 

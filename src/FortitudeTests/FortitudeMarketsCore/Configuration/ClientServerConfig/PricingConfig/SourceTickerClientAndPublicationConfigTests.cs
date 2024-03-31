@@ -8,7 +8,7 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeTests.FortitudeIO.Transports.NewSocketAPI.ConnectionConfig;
+using FortitudeTests.FortitudeIO.Transports.Network.ConnectionConfig;
 
 #endregion
 

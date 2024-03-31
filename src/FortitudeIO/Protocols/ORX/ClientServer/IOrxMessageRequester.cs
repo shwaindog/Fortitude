@@ -4,7 +4,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Serialization;
 using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
-using FortitudeIO.Transports.NewSocketAPI.Conversations;
+using FortitudeIO.Transports.Network.Conversations;
 
 #endregion
 

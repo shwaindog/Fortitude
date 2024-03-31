@@ -9,7 +9,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
 using FortitudeMarketsApi.Monitoring.Logging;
 using FortitudeMarketsApi.Trading;

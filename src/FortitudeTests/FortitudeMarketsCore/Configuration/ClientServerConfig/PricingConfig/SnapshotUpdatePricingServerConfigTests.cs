@@ -1,11 +1,11 @@
 ﻿#region
 
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeTests.FortitudeIO.Transports.NewSocketAPI.ConnectionConfig;
+using FortitudeTests.FortitudeIO.Transports.Network.ConnectionConfig;
 using FortitudeTests.FortitudeMarketsApi.Configuration.ClientServerConfig;
 
 #endregion
