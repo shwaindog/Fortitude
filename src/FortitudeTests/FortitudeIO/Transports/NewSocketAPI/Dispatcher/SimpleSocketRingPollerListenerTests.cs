@@ -99,7 +99,7 @@ public class SimpleSocketRingPollerListenerTests
         }).Returns(emptyEnumerable.GetEnumerator());
 
         socketRingPollerListener = new SimpleSocketRingPollerListener(moqPollingRing.Object, NoDataPauseTimeout, moqSocketSelector.Object
-            , moqParallelController.Object);
+            , null, moqParallelController.Object);
 
         readSocketBufferContext = NonPublicInvocator.GetInstanceField<ReadSocketBufferContext>(
             socketRingPollerListener, "readSocketBufferContext");

@@ -38,6 +38,8 @@ public abstract class Topic : ITopic
 
     public abstract void Stop();
 
+    public abstract void OnSessionFailure(string reason);
+
     protected class PublisherConversationPublisher : IConversationPublisher
     {
         private readonly IList<IPublisherTransportTopicConversation> publisherTransportSessions;
@@ -67,6 +69,8 @@ public abstract class Topic : ITopic
         {
             throw new NotImplementedException();
         }
+
+        public void OnSessionFailure(string reason) => throw new NotImplementedException();
 
         public int Id { get; }
         public bool IsStarted { get; }

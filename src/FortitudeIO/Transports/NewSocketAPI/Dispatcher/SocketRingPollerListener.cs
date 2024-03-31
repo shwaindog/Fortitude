@@ -36,7 +36,8 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
     private readonly ISocketDataLatencyLogger? socketDataLatencyLogger;
 
     protected SocketRingPollerListener(IPollingRing<T> ring, uint noDataPauseTimeoutMs, ISocketSelector selector,
-        IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs, parallelController)
+        Action? threadStartInitialization = null, IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs
+        , threadStartInitialization, parallelController)
     {
         this.selector = selector;
         Name = Ring.Name + "-SocketRingPollerListener";
@@ -74,6 +75,7 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
     protected void RunPolling()
     {
+        if (!IsRunning) Start();
         manualResetEvent.Set();
     }
 
@@ -107,8 +109,7 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
             }
             catch (Exception ex)
             {
-                Logger.Warn(
-                    $"SocketRingPollerListener '{Ring.Name}' caught exception while processing event: {data}.  {ex}");
+                Logger.Warn($"SocketRingPollerListener '{Ring.Name}' caught exception while processing event: {data}.  {ex}");
             }
     }
 
@@ -172,8 +173,7 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
             if (connected) return;
             detectionToPublishLatencyTraceLogger.Indent();
-            detectionToPublishLatencyTraceLogger.Add("Connection lost on SocketRingPoller " +
-                                                     Name);
+            detectionToPublishLatencyTraceLogger.Add("Connection lost on SocketRingPoller " + Name);
             detectionToPublishLatencyTraceLogger.Dedent();
             sockRecr.HandleReceiveError("Connection lost on SocketRingPoller " + Name
                 , new Exception("Connection Lost to SocketRingPoller " + Name));
@@ -221,14 +221,14 @@ public class SocketReceiverUpdate
 public class SimpleSocketRingPollerListener : SocketRingPollerListener<SocketReceiverUpdate>
 {
     public SimpleSocketRingPollerListener(IPollingRing<SocketReceiverUpdate> ring, uint noDataPauseTimeoutMs
-        , ISocketSelector selector,
+        , ISocketSelector selector, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
-        : base(ring, noDataPauseTimeoutMs, selector, parallelController) { }
+        : base(ring, noDataPauseTimeoutMs, selector, threadStartInitialization, parallelController) { }
 
-    public SimpleSocketRingPollerListener(string name, uint noDataPauseTimeoutMs, ISocketSelector selector
+    public SimpleSocketRingPollerListener(string name, uint noDataPauseTimeoutMs, ISocketSelector selector, Action? threadStartInitialization = null
         , IOSParallelController? parallelController = null)
         : base(new PollingRing<SocketReceiverUpdate>(name, 13, () => new SocketReceiverUpdate(),
-            ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, selector, parallelController) { }
+            ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, selector, threadStartInitialization, parallelController) { }
 
     public override void RegisterForListen(ISocketReceiver receiver)
     {

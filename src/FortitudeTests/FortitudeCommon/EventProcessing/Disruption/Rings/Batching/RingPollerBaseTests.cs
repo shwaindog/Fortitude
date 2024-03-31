@@ -77,7 +77,8 @@ public class RingPollerBaseTests
     [TestMethod]
     public void NewRingPoller_New_SetsNameWithPoller()
     {
-        dummyRingPollerBase = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, moqParallelController.Object);
+        dummyRingPollerBase
+            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         Assert.AreEqual("RingPollerBaseTests-Poller", dummyRingPollerBase.Name);
     }
 
@@ -92,7 +93,8 @@ public class RingPollerBaseTests
             Assert.IsTrue(NonPublicInvocator.GetInstanceField<bool>(dummyRingPollerBase, "isRunning"));
             dummyRingPollerBase.Stop();
         };
-        dummyRingPollerBase = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, moqParallelController.Object);
+        dummyRingPollerBase
+            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
 
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
@@ -110,7 +112,8 @@ public class RingPollerBaseTests
     [TestMethod]
     public void StartedRingPoller_Start_IncrementsUsageCountDoesNotRelaunchWorkerThread()
     {
-        dummyRingPollerBase = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, moqParallelController.Object);
+        dummyRingPollerBase
+            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         moqOsThread.SetupSet(ost => ost.Name = ExpectedThreadName).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
@@ -126,7 +129,8 @@ public class RingPollerBaseTests
     [TestMethod]
     public void StartedRingPollerUsageCount1_Stop_DecrementsUsageCountStopsWorkThread()
     {
-        dummyRingPollerBase = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, moqParallelController.Object);
+        dummyRingPollerBase
+            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
@@ -146,7 +150,8 @@ public class RingPollerBaseTests
     [TestMethod]
     public void StartedRingPollerUsageCount2_Stop_DecrementsUsageCountLeavesWorkerThreadRunning()
     {
-        dummyRingPollerBase = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, moqParallelController.Object);
+        dummyRingPollerBase
+            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
@@ -165,8 +170,10 @@ public class RingPollerBaseTests
         public string? Payload { get; set; }
     }
 
-    private class DummyRingPollerBase(IPollingRing<StringContainer> ring, uint noDataPauseTimeoutMs, Action dispatchWorkerAction,
-        IOSParallelController? parallelController = null) : RingPollerBase<StringContainer>(ring, noDataPauseTimeoutMs, parallelController)
+    private class DummyRingPollerBase(IPollingRing<StringContainer> ring, uint noDataPauseTimeoutMs, Action dispatchWorkerAction
+        , Action? threadStartInitialization = null,
+        IOSParallelController? parallelController = null) : RingPollerBase<StringContainer>(ring, noDataPauseTimeoutMs, threadStartInitialization
+        , parallelController)
     {
         protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, StringContainer data, bool ringStartOfBatch
             , bool ringEndOfBatch)

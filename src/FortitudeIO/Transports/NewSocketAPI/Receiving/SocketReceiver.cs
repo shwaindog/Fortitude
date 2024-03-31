@@ -21,6 +21,7 @@ public interface ISocketReceiver : IStreamListener
     bool ListenActive { get; set; }
     IntPtr SocketHandle { get; }
     bool ZeroBytesReadIsDisconnection { get; set; }
+    IOSSocket Socket { get; set; }
     bool Poll(ReadSocketBufferContext readSocketBufferContext);
     event Action? Accept;
     void HandleReceiveError(string message, Exception exception);
@@ -42,7 +43,6 @@ public sealed class SocketReceiver : ISocketReceiver
     private readonly ReadWriteBuffer receiveBuffer;
 
     private readonly IPerfLoggerPool receiveSocketCxLatencyTraceLoggerPool;
-    private readonly IOSSocket socket;
     private readonly ISocketSessionContext socketSessionContext;
     private int bufferFullCounter;
     private DateTime lastReportOfHighDataBursts = DateTime.MinValue;
@@ -51,7 +51,7 @@ public sealed class SocketReceiver : ISocketReceiver
 
     public SocketReceiver(ISocketSessionContext socketSessionContext)
     {
-        socket = socketSessionContext.SocketConnection!.OSSocket;
+        Socket = socketSessionContext.SocketConnection!.OSSocket;
         directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!.DirectOSNetworkingApi;
         this.socketSessionContext = socketSessionContext;
         numberOfReceivesPerPoll = socketSessionContext.NetworkTopicConnectionConfig.NumberOfReceivesPerPoll;
@@ -63,16 +63,18 @@ public sealed class SocketReceiver : ISocketReceiver
         byteStreamLogger = FLoggerFactory.Instance.GetLogger("SocketByteDump." + socketUseDescriptionNoWhiteSpaces);
         byteStreamLogger.DefaultEnabled = false;
 
-        socket.Blocking = false;
+        Socket.Blocking = false;
 
-        receiveBuffer = new ReadWriteBuffer(new byte[socket.ReceiveBufferSize]);
+        receiveBuffer = new ReadWriteBuffer(new byte[Socket.ReceiveBufferSize]);
         bufferSize = receiveBuffer.Buffer.Length;
 
         ZeroBytesReadIsDisconnection = true;
     }
 
+    public IOSSocket Socket { get; set; }
+
     public bool ListenActive { get; set; }
-    public IntPtr SocketHandle => socket.Handle;
+    public IntPtr SocketHandle => Socket.Handle;
     public bool ZeroBytesReadIsDisconnection { get; set; }
 
     public event Action? Accept;
@@ -113,7 +115,7 @@ public sealed class SocketReceiver : ISocketReceiver
         return true;
     }
 
-    public IOSSocket AcceptClientSocketRequest() => socket.Accept();
+    public IOSSocket AcceptClientSocketRequest() => Socket.Accept();
 
     public void NewClientSocketRequest()
     {
@@ -123,6 +125,7 @@ public sealed class SocketReceiver : ISocketReceiver
     public void HandleReceiveError(string message, Exception exception)
     {
         logger.Warn("{0} got {1}. Exception {2}", socketSessionContext, message, exception);
+        socketSessionContext.StreamControls?.OnSessionFailure($"{message}. Got {exception}");
     }
 
     private int PrepareBufferAndReceiveData(IPerfLogger? detectionToPublishLatencyTraceLogger)
@@ -160,7 +163,7 @@ public sealed class SocketReceiver : ISocketReceiver
         fixed (byte* ptr = receiveBuffer.Buffer)
         {
             socketTraceLogger.Add("before ioctlsocket");
-            if (directOSNetworkingApi.IoCtlSocket(socket.Handle, ref bufferRecvLen) != 0)
+            if (directOSNetworkingApi.IoCtlSocket(Socket.Handle, ref bufferRecvLen) != 0)
                 throw new Exception("Win32 error " + directOSNetworkingApi.GetLastCallError()
                                                    + " on ioctlsocket call");
 
@@ -192,7 +195,7 @@ public sealed class SocketReceiver : ISocketReceiver
         var lastReadWasPartial = false;
         do
         {
-            var currentMessageLength = directOSNetworkingApi.Recv(socket.Handle,
+            var currentMessageLength = directOSNetworkingApi.Recv(Socket.Handle,
                 ptr + receiveBuffer.WriteCursor + messageRecvLen,
                 Math.Min(availableLocalBuffer, remainingDataInSocketBuffer),
                 ref lastReadWasPartial);

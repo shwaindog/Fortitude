@@ -80,7 +80,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("Failed to open socket for {}. Got {1}", connConfig, ex);
+                    logger.Error("Failed to open socket for {0}. Got {1}", connConfig, ex);
                 }
 
             if (acceptorSocketSessionContext.SocketConnection?.IsConnected ?? false)
@@ -88,11 +88,22 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 acceptorSocketSessionContext.SocketReceiver!.Accept += OnCxAccept;
                 StartMessaging();
             }
+            else
+            {
+                OnSessionFailure("Could not connect to configured IP or port.  Is another process already connected?");
+            }
         }
         finally
         {
             connSync.Release();
         }
+    }
+
+    public override void OnSessionFailure(string reason)
+    {
+        var connConfig = acceptorSocketSessionContext.NetworkTopicConnectionConfig;
+        logger.Error("Failed to communicate TCP Acceptor socket for Topic.Name: {0}. " +
+                     "Will not attempt reconnect.  Reason {1}", connConfig.TopicName, reason);
     }
 
     public override void Disconnect()
@@ -213,7 +224,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 logger.Info("Client {0} ({1}) connected to server {2} @{3}",
                     client.Id, clientIpEndPoint, acceptorSocketSessionContext.Name,
                     acceptorSocketSessionContext.SocketConnection!.ConnectedPort);
-                var clientStreamInitiator = new InitiateControls(client);
+                var clientStreamInitiator = new AcceptorClientControls(client);
                 var clientRequester = new ConversationRequester(client, clientStreamInitiator);
                 clientRequester.Disconnected += () => RemoveClient(clientRequester);
                 clientsSync.Acquire();
@@ -255,15 +266,15 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 
     private ISocketSessionContext RegisterSocketAsTcpRequesterConversation(IOSSocket socket)
     {
-        socket.SendBufferSize = acceptorSocketSessionContext.NetworkTopicConnectionConfig.SendBufferSize;
-        socket.ReceiveBufferSize = acceptorSocketSessionContext.NetworkTopicConnectionConfig.ReceiveBufferSize;
+        var clientNetworkTopicConnectionConfig = acceptorSocketSessionContext.NetworkTopicConnectionConfig.ToggleProtocolDirection();
+        socket.SendBufferSize = clientNetworkTopicConnectionConfig.SendBufferSize;
+        socket.ReceiveBufferSize = clientNetworkTopicConnectionConfig.ReceiveBufferSize;
 
         var socketSessionConnection = new SocketSessionContext(ConversationType.Requester,
             SocketConversationProtocol.TcpClient, acceptorSocketSessionContext.Name,
-            acceptorSocketSessionContext.NetworkTopicConnectionConfig,
+            clientNetworkTopicConnectionConfig,
             acceptorSocketSessionContext.SocketFactoryResolver, acceptorSocketSessionContext.SerdesFactory);
         var ipEndPoint = socket.RemoteOrLocalIPEndPoint()!;
-        socketSessionConnection.SocketDispatcher = acceptorSocketSessionContext.SocketDispatcher;
         socketSessionConnection.OnConnected(new SocketConnection(
             acceptorSocketSessionContext.SocketConnection!.InstanceName,
             socketSessionConnection.ConversationType,

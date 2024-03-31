@@ -79,14 +79,12 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
             socketSessionContext.SocketDispatcher?.Listener.UnregisterForListen(socketSessionContext.SocketReceiver);
     }
 
-    private void Reconnected() { }
-
-    private void FailedToConnect()
+    private void Reconnected()
     {
-        Disconnected();
+        CreateConversationSenderAndReceivers();
     }
 
-    private void FirstConnect()
+    private void CreateConversationSenderAndReceivers()
     {
         var socketCon = socketSessionContext.SocketConnection!;
         if (socketCon.IsConnected &&
@@ -96,17 +94,37 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
                 var socketSender = socketSenderFactory.GetConversationPublisher(socketSessionContext);
                 socketSessionContext.SocketSender = socketSender;
             }
+            else
+            {
+                socketSessionContext.SocketSender.Socket = socketCon.OSSocket;
+            }
 
         if (socketCon.IsConnected &&
             socketReceiverFactory!.HasConversationListener(socketSessionContext.ConversationType))
         {
-            if (socketSessionContext.SocketReceiver != null)
+            if (socketSessionContext.SocketReceiver == null)
+            {
+                var socketReceiver = socketReceiverFactory.GetConversationListener(socketSessionContext);
+                socketSessionContext.SocketReceiver = socketReceiver;
+                socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.StreamDecoderFactory?.Supply();
+            }
+            else
+            {
                 socketSessionContext.SocketDispatcher.Listener.UnregisterForListen(socketSessionContext.SocketReceiver);
+                socketSessionContext.SocketReceiver.Socket = socketCon.OSSocket;
+            }
 
-            var socketReceiver = socketReceiverFactory.GetConversationListener(socketSessionContext);
-            socketSessionContext.SocketReceiver = socketReceiver;
-            socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.StreamDecoderFactory?.Supply();
             socketSessionContext.SocketDispatcher.Listener.RegisterForListen(socketSessionContext.SocketReceiver);
         }
+    }
+
+    private void FailedToConnect()
+    {
+        Disconnected();
+    }
+
+    private void FirstConnect()
+    {
+        CreateConversationSenderAndReceivers();
     }
 }

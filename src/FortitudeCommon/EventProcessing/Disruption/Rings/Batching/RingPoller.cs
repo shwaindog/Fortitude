@@ -28,8 +28,7 @@ public interface IRingPollerSink<T> : IRingPoller where T : class
     IPollSink<T>? PollSink { get; set; }
 }
 
-public abstract class RingPollerBase<T>
-    : IRingPoller where T : class
+public abstract class RingPollerBase<T> : IRingPoller where T : class
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(RingPollerBase<T>));
 
@@ -44,13 +43,14 @@ public abstract class RingPollerBase<T>
     private Action? threadStartInitialization;
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    protected RingPollerBase(IPollingRing<T> ring, uint noDataPauseTimeoutMs,
+    protected RingPollerBase(IPollingRing<T> ring, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
     {
         Ring = ring;
         timeoutMs = (int)noDataPauseTimeoutMs;
         osParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
         name = Ring.Name + "-Poller";
+        this.threadStartInitialization = threadStartInitialization;
     }
 
     public virtual string Name
@@ -91,7 +91,7 @@ public abstract class RingPollerBase<T>
             ++UsageCount;
             if (!isRunning)
             {
-                threadStartInitialization = threadStartInitialize;
+                threadStartInitialization = threadStartInitialize ?? threadStartInitialization;
                 isRunning = true;
                 ringPollingThread = osParallelController.CreateNewOSThread(ThreadStart);
                 ringPollingThread.IsBackground = true;
@@ -150,9 +150,9 @@ public abstract class RingPollerBase<T>
         , bool ringEndOfBatch);
 }
 
-public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T>? pollSink = null
+public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T>? pollSink = null, Action? threadStartInitialization = null
         , IOSParallelController? parallelController = null)
-    : RingPollerBase<T>(ring, timeoutMs, parallelController), IRingPollerSink<T>
+    : RingPollerBase<T>(ring, timeoutMs, threadStartInitialization, parallelController), IRingPollerSink<T>
     where T : class
 {
     public IPollSink<T>? PollSink { get; set; } = pollSink;
@@ -164,9 +164,9 @@ public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T
     }
 }
 
-public class RingPollerObservable<T>(IPollingRing<T> ring, uint timeoutMs,
+public class RingPollerObservable<T>(IPollingRing<T> ring, uint timeoutMs, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
-    : RingPollerBase<T>(ring, timeoutMs, parallelController) where T : class
+    : RingPollerBase<T>(ring, timeoutMs, threadStartInitialization, parallelController) where T : class
 {
     private readonly Subject<T> eventSubject = new();
     private IObservable<T> Events => eventSubject.AsObservable();

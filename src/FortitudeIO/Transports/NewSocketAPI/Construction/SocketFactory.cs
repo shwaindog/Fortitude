@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Transports.NewSocketAPI.Config;
@@ -118,7 +117,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
         }
 
         if (selectedAdapter == null || adapterAddress == null)
-            throw new MatchingNICNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
+            throw new MatchingNicNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
         logger.Info("Subscribe will bind on network adapter {0}-{1} on {2}:{3}",
             selectedAdapter.Name, selectedAdapter.Description, ipAddress, port);
         socket.Bind(new IPEndPoint(adapterAddress, port));
@@ -160,7 +159,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
         }
 
         if (selectedAdapter == null || adapterIp4Properties == null)
-            throw new MatchingNICNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
+            throw new MatchingNicNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
         logger.Info("Publish will occur from network adapter {0}-{1} on {2}:{3}",
             selectedAdapter.Name, selectedAdapter.Description, ipAddress, port);
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface,
@@ -174,10 +173,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
     }
 }
 
-public class MatchingNICNotFoundException : Exception
+public class MatchingNicNotFoundException : Exception
 {
-    public MatchingNICNotFoundException() { }
-    protected MatchingNICNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-    public MatchingNICNotFoundException(string? message) : base(message) { }
-    public MatchingNICNotFoundException(string? message, Exception? innerException) : base(message, innerException) { }
+    public MatchingNicNotFoundException(string? message) : base(message) { }
 }

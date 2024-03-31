@@ -29,5 +29,7 @@ public class ConversationSubscriberTopic : Topic, IConversationSubscriberTopic
         conversationSubscriberTransportSession?.Stop();
     }
 
+    public override void OnSessionFailure(string reason) => conversationSubscriberTransportSession?.OnSessionFailure(reason);
+
     public IStreamListener? StreamListener => conversationSubscriberTransportSession.StreamListener;
 }
