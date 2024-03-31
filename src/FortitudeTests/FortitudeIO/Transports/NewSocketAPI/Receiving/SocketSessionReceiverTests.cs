@@ -50,7 +50,7 @@ public class SocketReceiverTests
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<IStreamControls> moqStreamControls = null!;
     private Mock<IFLogger> moqTextFlogger = null!;
-    private ReadSocketBufferContext readSocketBufferContext = null!;
+    private SocketBufferReadContext socketBufferReadContext = null!;
     private IntPtr socketHandlePtr;
     private SocketReceiver socketReceiver = null!;
 
@@ -112,7 +112,7 @@ public class SocketReceiverTests
 
         moqReadSocketPerfLogger.Setup(ltcsl => ltcsl.Add(It.IsAny<string>(), It.IsAny<int>()))
             .Verifiable();
-        readSocketBufferContext = new ReadSocketBufferContext
+        socketBufferReadContext = new SocketBufferReadContext
         {
             DetectTimestamp = new DateTime(2017, 05, 15, 20, 33, 55)
             , DispatchLatencyLogger = moqDispatchPerfLogger.Object
@@ -166,9 +166,9 @@ public class SocketReceiverTests
     public void SocketReceiver_PollWithDataAndAvailableBuffer_CallsDecoderToReadBuffer()
     {
         PrepareSocketFullRead();
-        moqFeedDecoder.Setup(fd => fd.Process(readSocketBufferContext)).Returns(defaultSocketDataWritten.Length)
+        moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Returns(defaultSocketDataWritten.Length)
             .Verifiable();
-        var connected = socketReceiver.Poll(readSocketBufferContext);
+        var connected = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsTrue(connected);
         moqDispatchPerfLogger.Verify();
         moqPerfLoggerPool.Verify();
@@ -183,7 +183,7 @@ public class SocketReceiverTests
         socketReceiver.ZeroBytesReadIsDisconnection = false;
         directOsNetworkingApiStub.ClearQueue();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[0], true);
-        var connected = socketReceiver.Poll(readSocketBufferContext);
+        var connected = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsTrue(connected);
     }
 
@@ -194,7 +194,7 @@ public class SocketReceiverTests
         directOsNetworkingApiStub.ClearQueue();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[0], true);
 
-        var dataReceived = socketReceiver.Poll(readSocketBufferContext);
+        var dataReceived = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsFalse(dataReceived);
     }
 
@@ -224,14 +224,14 @@ public class SocketReceiverTests
     public void SocketReceiver_PollWithData_LogsTraceIfDecoderProcessesNothing()
     {
         PrepareSocketFullRead();
-        moqFeedDecoder.Setup(fd => fd.Process(readSocketBufferContext)).Returns(0).Verifiable();
+        moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Returns(0).Verifiable();
 
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
 
         moqDispatchPerfLogger.Verify(ltcsl => ltcsl.Add(It.IsAny<string>()),
             Times.Once);
         moqDispatchPerfLogger.VerifySet(ltcsl => ltcsl.WriteTrace = true, Times.Once);
-        moqFeedDecoder.Verify(fd => fd.Process(readSocketBufferContext), Times.Once);
+        moqFeedDecoder.Verify(fd => fd.Process(socketBufferReadContext), Times.Once);
     }
 
     [TestMethod]
@@ -239,7 +239,7 @@ public class SocketReceiverTests
     {
         PrepareSocketFullRead();
 
-        moqFeedDecoder.Setup(fd => fd.Process(readSocketBufferContext)).Returns(0).Verifiable();
+        moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Returns(0).Verifiable();
 
         var receiveBuffer = NonPublicInvocator.GetInstanceField<ReadWriteBuffer>(
             socketReceiver, "receiveBuffer");
@@ -264,9 +264,9 @@ public class SocketReceiverTests
         receiveBuffer.ReadCursor = byte.MaxValue / 4;
         receiveBuffer.WriteCursor = 113;
 
-        moqFeedDecoder.SetupSequence(fd => fd.Process(readSocketBufferContext)).Returns(0);
+        moqFeedDecoder.SetupSequence(fd => fd.Process(socketBufferReadContext)).Returns(0);
 
-        var receiveData = socketReceiver.Poll(readSocketBufferContext);
+        var receiveData = socketReceiver.Poll(socketBufferReadContext);
 
         Assert.IsTrue(receiveData);
         for (var i = 0; i < 48; i++) Assert.AreEqual(i + byte.MaxValue / 4, receiveBuffer.Buffer[i]);
@@ -279,7 +279,7 @@ public class SocketReceiverTests
         PrepareSocketFullRead();
         directOsNetworkingApiStub.ClearQueue();
         directOsNetworkingApiStub.QueueResponseBytes(null, true);
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
         Assert.Fail("Should not reach here");
     }
 
@@ -292,7 +292,7 @@ public class SocketReceiverTests
         directOsNetworkingApiStub.QueueResponseBytes(null, false);
         try
         {
-            socketReceiver.Poll(readSocketBufferContext);
+            socketReceiver.Poll(socketBufferReadContext);
         }
         catch (Exception)
         {
@@ -316,7 +316,7 @@ public class SocketReceiverTests
         directOsNetworkingApiStub.ClearQueue();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[358], true);
 
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
 
         moqReadSocketPerfLogger.Verify();
     }
@@ -334,7 +334,7 @@ public class SocketReceiverTests
 
         NonPublicInvocator.SetInstanceField(socketReceiver, "bufferFullCounter", 999999);
 
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
 
         moqReadSocketPerfLogger.Verify(ltcsl => ltcsl.Add(It.IsAny<string>(),
             It.IsAny<long>()), Times.Never);
@@ -342,7 +342,7 @@ public class SocketReceiverTests
 
 
         directOsNetworkingApiStub.QueueResponseBytes(new byte[358], true);
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
         moqReadSocketPerfLogger.Verify();
     }
 
@@ -354,7 +354,7 @@ public class SocketReceiverTests
         directOsNetworkingApiStub.ClearQueue();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[356], true);
 
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
 
         moqReadSocketPerfLogger.Verify(ltcsl => ltcsl.Add(It.IsAny<string>(),
             It.IsAny<long>()), Times.Never);
@@ -381,7 +381,7 @@ public class SocketReceiverTests
                 Decoder = moqFeedDecoder.Object
             };
 
-            var receiveData = socketReceiver.Poll(readSocketBufferContext);
+            var receiveData = socketReceiver.Poll(socketBufferReadContext);
             Assert.IsTrue(receiveData);
 
             moqSocketByteDump.Verify();
@@ -397,14 +397,14 @@ public class SocketReceiverTests
     {
         PrepareSocketFullRead();
         directOsNetworkingApiStub.ClearQueue();
-        moqFeedDecoder.Setup(fd => fd.Process(readSocketBufferContext)).Returns(510)
+        moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Returns(510)
             .Verifiable();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[510], true);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[510], true);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[510], true);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[510], true);
         Assert.AreEqual(4, directOsNetworkingApiStub.NumberQueuedMessages);
-        var receiveData = socketReceiver.Poll(readSocketBufferContext);
+        var receiveData = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsTrue(receiveData);
 
         Assert.AreEqual(3, directOsNetworkingApiStub.NumberQueuedMessages);
@@ -418,7 +418,7 @@ public class SocketReceiverTests
         directOsNetworkingApiStub.QueueResponseBytes(new byte[10], true);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[10], true);
         Assert.AreEqual(4, directOsNetworkingApiStub.NumberQueuedMessages);
-        var receiveData = socketReceiver.Poll(readSocketBufferContext);
+        var receiveData = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsTrue(receiveData);
 
         Assert.AreEqual(2, directOsNetworkingApiStub.NumberQueuedMessages);
@@ -432,14 +432,14 @@ public class SocketReceiverTests
         var moqTimeContext = new Mock<ITimeContext>();
         moqTimeContext.SetupGet(tc => tc.UtcNow).Returns(new DateTime(2017, 05, 15, 20, 33, 56));
         TimeContext.Provider = moqTimeContext.Object;
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[100], true);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[100], true);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[100], true);
         directOsNetworkingApiStub.QueueResponseBytes(new byte[100], true);
         Assert.AreEqual(4, directOsNetworkingApiStub.NumberQueuedMessages);
         moqTimeContext.SetupGet(tc => tc.UtcNow).Returns(new DateTime(2017, 05, 15, 20, 33, 58));
-        var receiveData = socketReceiver.Poll(readSocketBufferContext);
+        var receiveData = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsTrue(receiveData);
 
         Assert.AreEqual(2, directOsNetworkingApiStub.NumberQueuedMessages);
@@ -458,7 +458,7 @@ public class SocketReceiverTests
         {
             Decoder = moqFeedDecoder.Object
         };
-        var receiveData = socketReceiver.Poll(readSocketBufferContext);
+        var receiveData = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsTrue(receiveData);
 
         Assert.AreEqual(0, directOsNetworkingApiStub.NumberQueuedMessages);
@@ -479,9 +479,9 @@ public class SocketReceiverTests
     private void AssertReceiveBufferIsExpected(ReadWriteBuffer receiveBuffer, int expectedRead, int expectedWritten)
     {
         directOsNetworkingApiStub.QueueResponseBytes(new byte[1], true);
-        moqFeedDecoder.Setup(fd => fd.Process(readSocketBufferContext)).Callback(() => { receiveBuffer.ReadCursor = expectedRead; });
+        moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Callback(() => { receiveBuffer.ReadCursor = expectedRead; });
 
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
         Assert.AreEqual(expectedRead, receiveBuffer.ReadCursor);
         Assert.AreEqual(expectedWritten, receiveBuffer.WriteCursor);
     }
@@ -489,12 +489,12 @@ public class SocketReceiverTests
     private void CallReceiveDataAssertDataBurstAlertTimes(int unreadBytes, int numTimesExpected,
         DateTime socketWakeTime)
     {
-        readSocketBufferContext.DetectTimestamp = socketWakeTime;
-        moqFeedDecoder.Setup(fd => fd.Process(readSocketBufferContext))
-            .Callback(() => { readSocketBufferContext.EncodedBuffer!.ReadCursor = unreadBytes; }).Returns(unreadBytes)
+        socketBufferReadContext.DetectTimestamp = socketWakeTime;
+        moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext))
+            .Callback(() => { socketBufferReadContext.EncodedBuffer!.ReadCursor = unreadBytes; }).Returns(unreadBytes)
             .Verifiable();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[unreadBytes], true);
-        socketReceiver.Poll(readSocketBufferContext);
+        socketReceiver.Poll(socketBufferReadContext);
         moqDispatchPerfLogger.Verify(ltcsl => ltcsl.Add(It.IsAny<string>(), unreadBytes),
             Times.Exactly(numTimesExpected));
         moqDispatchPerfLogger.VerifySet(ltcsl => ltcsl.WriteTrace = true,
@@ -512,7 +512,7 @@ public class SocketReceiverTests
     {
         moqDispatchPerfLogger.Setup(ltcsl => ltcsl.Indent()).Verifiable();
         moqDispatchPerfLogger.Setup(ltcsl => ltcsl.Dedent()).Verifiable();
-        moqFeedDecoder.Setup(fd => fd.Process(readSocketBufferContext)).Returns(defaultSocketDataWritten.Length)
+        moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Returns(defaultSocketDataWritten.Length)
             .Verifiable();
     }
 

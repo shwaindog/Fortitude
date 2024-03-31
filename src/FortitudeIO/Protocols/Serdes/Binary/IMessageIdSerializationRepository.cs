@@ -7,5 +7,5 @@ public interface IMessageIdSerializationRepository
 
 public interface IMessageIdDeserializationRepository
 {
-    ICallbackMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
+    INotifyingMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
 }

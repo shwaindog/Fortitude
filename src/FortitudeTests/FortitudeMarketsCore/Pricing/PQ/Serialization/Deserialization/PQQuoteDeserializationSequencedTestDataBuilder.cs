@@ -30,10 +30,10 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         this.perfLogger = perfLogger;
     }
 
-    internal IList<IList<ReadSocketBufferContext>> BuildQuotesStartingAt(uint sequenceId, int numberBatches,
+    internal IList<IList<SocketBufferReadContext>> BuildQuotesStartingAt(uint sequenceId, int numberBatches,
         IList<uint> snapshotSequenceIds)
     {
-        IList<IList<ReadSocketBufferContext>> sequenceIdBatches = new List<IList<ReadSocketBufferContext>>();
+        IList<IList<SocketBufferReadContext>> sequenceIdBatches = new List<IList<SocketBufferReadContext>>();
 
         for (var i = sequenceId; i < sequenceId + numberBatches; i++)
         {
@@ -47,10 +47,10 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         return sequenceIdBatches;
     }
 
-    internal IList<ReadSocketBufferContext> BuildSerializeContextForQuotes(
+    internal IList<SocketBufferReadContext> BuildSerializeContextForQuotes(
         IList<IPQLevel0Quote> serializeQuotes, PQFeedType feedType, uint sequenceId)
     {
-        var deserializeContexts = new List<ReadSocketBufferContext>(
+        var deserializeContexts = new List<SocketBufferReadContext>(
             serializeQuotes.Count);
         var quoteSerializer
             = new PQQuoteSerializer(feedType == PQFeedType.Snapshot ? UpdateStyle.FullSnapshot : UpdateStyle.Updates);
@@ -58,7 +58,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         {
             quote.PQSequenceId = sequenceId;
             var sequenceIdTimeSpan = TimeOffsetForSequenceId(sequenceId);
-            var sockBuffContext = new ReadSocketBufferContext
+            var sockBuffContext = new SocketBufferReadContext
             {
                 DetectTimestamp = ClientReceivedTimestamp(sequenceIdTimeSpan)
                 , ReceivingTimestamp = RecevingTimestampBaseTime(sequenceIdTimeSpan)
@@ -88,13 +88,13 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
 
     internal class DeserializeContext
     {
-        public DeserializeContext(ReadSocketBufferContext readSocketBufferContext, int length)
+        public DeserializeContext(SocketBufferReadContext socketBufferReadContext, int length)
         {
-            ReadSocketBufferContext = readSocketBufferContext;
+            SocketBufferReadContext = socketBufferReadContext;
             Length = length;
         }
 
-        public ReadSocketBufferContext ReadSocketBufferContext { get; private set; }
+        public SocketBufferReadContext SocketBufferReadContext { get; private set; }
         public int Length { get; private set; }
     }
 }

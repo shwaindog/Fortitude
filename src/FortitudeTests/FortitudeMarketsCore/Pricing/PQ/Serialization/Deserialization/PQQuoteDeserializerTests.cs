@@ -497,7 +497,7 @@ public class PQQuoteDeserializerTests
             Assert.AreEqual(expectedValue, deserializers[i].HasTimedOutAndNeedsSnapshot(currentTime));
     }
 
-    private void CallDeserializer(IList<ReadSocketBufferContext> deserializeInputList)
+    private void CallDeserializer(IList<SocketBufferReadContext> deserializeInputList)
     {
         for (var i = 0; i < deserializers.Count; i++) deserializers[i].Deserialize(deserializeInputList[i]);
         // deserializers[3].Deserialize(deserializeInputList[3]);

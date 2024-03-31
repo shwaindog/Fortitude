@@ -95,8 +95,8 @@ public class TcpRequestResponderConnectionTests
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (var deserializersValue in
-                 responderDeserializers.Values.Cast<ICallbackMessageDeserializer<SimpleVersionedMessage>>())
-            deserializersValue.Deserialized2 += ReceivedFromClientDeserializerCallback;
+                 responderDeserializers.Values.Cast<INotifyingMessageDeserializer<SimpleVersionedMessage>>())
+            deserializersValue.ConversationMessageDeserialized += ReceivedFromClientDeserializerCallback;
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message
@@ -118,13 +118,13 @@ public class TcpRequestResponderConnectionTests
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (var deserializersValue in
-                 responderDeserializers.Values.Cast<ICallbackMessageDeserializer<SimpleVersionedMessage>>())
-            deserializersValue.Deserialized2 += RespondToClientMessage;
+                 responderDeserializers.Values.Cast<INotifyingMessageDeserializer<SimpleVersionedMessage>>())
+            deserializersValue.ConversationMessageDeserialized += RespondToClientMessage;
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (var deserializersValue in
-                 requesterDeserializers.Values.Cast<ICallbackMessageDeserializer<SimpleVersionedMessage>>())
-            deserializersValue.Deserialized2 += ReceivedFromResponderDeserializerCallback;
+                 requesterDeserializers.Values.Cast<INotifyingMessageDeserializer<SimpleVersionedMessage>>())
+            deserializersValue.ConversationMessageDeserialized += ReceivedFromResponderDeserializerCallback;
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message

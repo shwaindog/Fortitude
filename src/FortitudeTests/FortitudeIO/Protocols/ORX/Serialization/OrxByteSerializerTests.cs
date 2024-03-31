@@ -17,14 +17,14 @@ public class OrxByteSerializerTests
 {
     private const int BufferSize = 2048;
     private byte[] byteBuffer = Array.Empty<byte>();
-    private ReadSocketBufferContext readSocketBufferContext = new();
+    private SocketBufferReadContext socketBufferReadContext = new();
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        readSocketBufferContext = new ReadSocketBufferContext
+        socketBufferReadContext = new SocketBufferReadContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, ""), MessageVersion = 1
@@ -41,13 +41,13 @@ public class OrxByteSerializerTests
             , SecondStringArray = new[] { "Second1", "Second2", "Second3" }
         };
 
-        readSocketBufferContext.MessageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
+        socketBufferReadContext.MessageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxDoubleStringArrayDeserializer = new OrxByteDeserializer<DoubleStringArray>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedDblStrArry = orxDoubleStringArrayDeserializer.Deserialize(readSocketBufferContext);
+        var deserializedDblStrArry = orxDoubleStringArrayDeserializer.Deserialize(socketBufferReadContext);
 
         Assert.IsTrue(originalDoubleStringArray.FirstStringArray
             .SequenceEqual(deserializedDblStrArry.FirstStringArray!));
@@ -65,13 +65,13 @@ public class OrxByteSerializerTests
             , FourthLong = long.MinValue / 2
         };
 
-        readSocketBufferContext.MessageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
+        socketBufferReadContext.MessageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxLongsDeserializer = new OrxByteDeserializer<Longs>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedLongs = orxLongsDeserializer.Deserialize(readSocketBufferContext);
+        var deserializedLongs = orxLongsDeserializer.Deserialize(socketBufferReadContext);
 
         Assert.AreEqual(long.MaxValue, deserializedLongs.FirstLong);
         Assert.AreEqual(long.MinValue, deserializedLongs.SecondLong);
@@ -89,14 +89,14 @@ public class OrxByteSerializerTests
             , FourthString = "FourthString"
         };
 
-        readSocketBufferContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
+        socketBufferReadContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<Strings>(new OrxDeserializerLookup(
             new Recycler()));
 
         var deserializedStrings = orxStringsDeserializer
-            .Deserialize(readSocketBufferContext);
+            .Deserialize(socketBufferReadContext);
 
         Assert.AreEqual("FirstString", deserializedStrings.FirstString);
         Assert.AreEqual("SecondString", deserializedStrings.SecondString);
@@ -114,13 +114,13 @@ public class OrxByteSerializerTests
             , FourthString = "FourthString"
         };
 
-        readSocketBufferContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
+        socketBufferReadContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<MutableStrings>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedStrings = orxStringsDeserializer.Deserialize(readSocketBufferContext);
+        var deserializedStrings = orxStringsDeserializer.Deserialize(socketBufferReadContext);
 
         Assert.AreEqual("FirstString", deserializedStrings.FirstString);
         Assert.AreEqual("SecondString", deserializedStrings.SecondString);

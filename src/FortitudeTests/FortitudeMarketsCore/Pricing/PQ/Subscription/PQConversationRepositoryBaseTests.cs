@@ -28,7 +28,7 @@ public class PQConversationRepositoryBaseTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private string testHostName = null!;
 
@@ -43,7 +43,7 @@ public class PQConversationRepositoryBaseTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqBinaryDeserializationFactory = new Mock<IMessageIdDeserializationRepository>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
 
         testHostName = "TestHostname";

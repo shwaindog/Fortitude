@@ -51,7 +51,7 @@ public class PQSnapshotClientTests
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<ISerdesFactory> moqSerdesFactory = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
-    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
     private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
@@ -94,7 +94,7 @@ public class PQSnapshotClientTests
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         stubContext = new TimeContextTests.StubTimeContext();
         TimeContext.Provider = stubContext;
@@ -249,7 +249,7 @@ public class PQSnapshotClientTests
         var decoder = pqSnapshotClient.MessageStreamDecoder;
         moqTimerCallbackSubscription.Setup(tcs => tcs.Unregister(moqIntraOsThreadSignal.Object)).Verifiable();
 
-        decoder.Process(new ReadSocketBufferContext
+        decoder.Process(new SocketBufferReadContext
         {
             EncodedBuffer = new ReadWriteBuffer(new byte[]
             {

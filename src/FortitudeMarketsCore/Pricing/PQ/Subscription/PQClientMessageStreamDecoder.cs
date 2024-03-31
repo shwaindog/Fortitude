@@ -58,19 +58,19 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
         return true;
     }
 
-    public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
+    public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
-        var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
-        readSocketBufferContext.MessageHeader = msgHeader;
-        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WriteCursor - read)
+        var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
+        var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
+        socketBufferReadContext.MessageHeader = msgHeader;
+        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - read)
             switch (messageSection)
             {
                 case MessageSection.TransmissionHeader:
-                    fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
+                    fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + read;
-                        readSocketBufferContext.MessageVersion = *ptr++;
+                        socketBufferReadContext.MessageVersion = *ptr++;
                         messageFlags = (PQBinaryMessageFlags)(*ptr++);
                         messagesTotalSize = StreamByteOps.ToUInt(ref ptr);
                         messageSection = (messageFlags & PQBinaryMessageFlags.IsHeartBeat)
@@ -83,14 +83,14 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
 
                     break;
                 case MessageSection.HeartBeats:
-                    fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
+                    fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + read + PQQuoteMessageHeader.SourceTickerIdOffset;
                         var sourceTickerId = StreamByteOps.ToUInt(ref ptr);
                         if (Deserializers.TryGetValue(sourceTickerId, out var bu))
                         {
-                            readSocketBufferContext.EncodedBuffer.ReadCursor = read;
-                            bu!.Deserialize(readSocketBufferContext);
+                            socketBufferReadContext.EncodedBuffer.ReadCursor = read;
+                            bu!.Deserialize(socketBufferReadContext);
                             ReceivedMessage?.Invoke();
                         }
                         else
@@ -104,12 +104,12 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
                     messageSection = MessageSection.TransmissionHeader;
                     break;
                 case MessageSection.MessageData:
-                    readSocketBufferContext.EncodedBuffer.ReadCursor = read;
-                    var streamId = readSocketBufferContext.ReadCurrentMessageSourceTickerId();
-                    readSocketBufferContext.MessageSize = ExpectedSize;
+                    socketBufferReadContext.EncodedBuffer.ReadCursor = read;
+                    var streamId = socketBufferReadContext.ReadCurrentMessageSourceTickerId();
+                    socketBufferReadContext.MessageSize = ExpectedSize;
                     if (Deserializers.TryGetValue(streamId, out var u))
                     {
-                        u!.Deserialize(readSocketBufferContext);
+                        u!.Deserialize(socketBufferReadContext);
                         ReceivedMessage?.Invoke();
                     }
                     else
@@ -127,14 +127,14 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
         {
             Logger.Error($"The value to read from the socket {ExpectedSize:N0}B is larger than any PQ message is " +
                          "expected to be.  Resetting socket read location as it is probably corrupt.");
-            read = readSocketBufferContext.EncodedBuffer.WriteCursor;
+            read = socketBufferReadContext.EncodedBuffer.WriteCursor;
             messageSection = MessageSection.TransmissionHeader;
             ExpectedSize = PQQuoteMessageHeader.HeaderSize;
         }
 
         var amountRead = read - originalRead;
 
-        readSocketBufferContext.EncodedBuffer.ReadCursor = read;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = read;
         return amountRead;
     }
 

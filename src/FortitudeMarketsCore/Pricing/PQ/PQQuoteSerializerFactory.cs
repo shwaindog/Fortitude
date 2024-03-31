@@ -44,11 +44,11 @@ public sealed class PQQuoteSerializerRepository : IPQQuoteSerializerRepository
         deserializers.Remove(identifier.Id);
     }
 
-    public ICallbackMessageDeserializer<T>? GetDeserializer<T>(uint msgId) where T : class, IVersionedMessage, new()
+    public INotifyingMessageDeserializer<T>? GetDeserializer<T>(uint msgId) where T : class, IVersionedMessage, new()
     {
         if (typeof(T) == typeof(PQLevel0Quote))
             if (deserializers.TryGetValue(msgId, out var quoteDeserializer))
-                return quoteDeserializer as ICallbackMessageDeserializer<T>;
+                return quoteDeserializer as INotifyingMessageDeserializer<T>;
         throw new NotSupportedException();
     }
 
@@ -71,8 +71,7 @@ public sealed class PQQuoteSerializerRepository : IPQQuoteSerializerRepository
     public IMessageSerializer<T> MessageEncoder<T>(T message) where T : class, IVersionedMessage =>
         (IMessageSerializer<T>)registeredSerializers[message.MessageId];
 
-    public IMessageSerializer<T> MessageEncoder<T>(uint id) where T : class, IVersionedMessage =>
-        (IMessageSerializer<T>)registeredSerializers[id];
+    public IMessageSerializer<T> MessageEncoder<T>(uint id) where T : class, IVersionedMessage => (IMessageSerializer<T>)registeredSerializers[id];
 
     public IMessageSerializer MessageEncoder(IBufferContext bufferContext, uint id) => registeredSerializers[id];
 

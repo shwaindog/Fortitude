@@ -35,7 +35,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
 
         LogSyncRecoveryMessage(sequenceId);
         SwitchState(QuoteSyncState.InSync);
-        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        var sockBuffContext = bufferContext as SocketBufferReadContext;
         PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
     }
@@ -71,7 +71,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
             "Stream {0} recovered after snapshot, PrevSeqId={1}, SnapshotSeqId={2}, LastUpdateSeqId={3}",
             LinkedDeserializer.Identifier, prevSeqId, currSeqId, prevSeqId);
 
-        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        var sockBuffContext = bufferContext as SocketBufferReadContext;
         PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
         SwitchState(QuoteSyncState.InSync);

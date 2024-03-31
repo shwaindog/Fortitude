@@ -36,21 +36,21 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
     public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer) =>
         throw new NotImplementedException("No deserializers required for this stream");
 
-    public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
+    public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
-        var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
+        var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
+        var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
         byte flags = 0;
-        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WriteCursor - read)
+        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - read)
             switch (messageSection)
             {
                 case MessageSection.Header:
-                    fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
+                    fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + read;
-                        readSocketBufferContext.MessageVersion = *ptr++;
+                        socketBufferReadContext.MessageVersion = *ptr++;
                         flags = *ptr++;
-                        readSocketBufferContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
+                        socketBufferReadContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
                         requestsCount = StreamByteOps.ToUShort(ref ptr);
                     }
 
@@ -69,21 +69,21 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
                     break;
                 case MessageSection.Data:
                     var streamIDs = new uint[requestsCount];
-                    fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
+                    fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + read;
                         for (var i = 0; i < streamIDs.Length; i++) streamIDs[i] = StreamByteOps.ToUInt(ref ptr);
                     }
 
-                    readSocketBufferContext.EncodedBuffer.ReadCursor = read;
-                    requestsHandlerNew?.Invoke((IConversationRequester)readSocketBufferContext.Conversation!, streamIDs);
+                    socketBufferReadContext.EncodedBuffer.ReadCursor = read;
+                    requestsHandlerNew?.Invoke((IConversationRequester)socketBufferReadContext.Conversation!, streamIDs);
                     read += requestsCount * RequestSize;
                     messageSection = MessageSection.Header;
                     ExpectedSize = HeaderSize;
                     break;
             }
 
-        readSocketBufferContext.EncodedBuffer.ReadCursor = read;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = read;
         return read - originalRead;
     }
 

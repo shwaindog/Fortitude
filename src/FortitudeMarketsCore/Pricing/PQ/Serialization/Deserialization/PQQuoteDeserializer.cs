@@ -43,7 +43,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
     {
         if (readContext is IBufferContext bufferContext)
         {
-            if (bufferContext is ReadSocketBufferContext dispachContext)
+            if (bufferContext is SocketBufferReadContext dispachContext)
             {
                 dispachContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
                 dispachContext.DeserializerTimestamp = TimeContext.UtcNow;

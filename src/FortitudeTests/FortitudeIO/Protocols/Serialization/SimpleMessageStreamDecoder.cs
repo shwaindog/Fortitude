@@ -25,33 +25,33 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
 
     public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => deserializers;
 
-    public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
+    public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
+        var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         var originalRead = read;
         ushort messageId;
-        while (read < readSocketBufferContext.EncodedBuffer.WriteCursor)
+        while (read < socketBufferReadContext.EncodedBuffer.WriteCursor)
         {
-            fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
+            fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
             {
                 var ptr = fptr + read;
-                readSocketBufferContext.MessageVersion = *ptr++;
+                socketBufferReadContext.MessageVersion = *ptr++;
                 messageId = StreamByteOps.ToUShort(ref ptr);
-                readSocketBufferContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
+                socketBufferReadContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
             }
 
             if (deserializers.TryGetValue(messageId, out var u))
             {
-                readSocketBufferContext.EncodedBuffer.ReadCursor = read;
-                u.Deserialize(readSocketBufferContext);
+                socketBufferReadContext.EncodedBuffer.ReadCursor = read;
+                u.Deserialize(socketBufferReadContext);
             }
 
-            read += readSocketBufferContext.MessageSize;
+            read += socketBufferReadContext.MessageSize;
         }
 
-        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
+        socketBufferReadContext.DispatchLatencyLogger?.Dedent();
         var amountRead = read - originalRead;
-        readSocketBufferContext.EncodedBuffer.ReadCursor = read;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = read;
         return amountRead;
     }
 

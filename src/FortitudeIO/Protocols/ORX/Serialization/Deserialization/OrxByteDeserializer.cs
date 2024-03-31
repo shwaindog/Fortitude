@@ -68,12 +68,11 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         return messagePart;
     }
 
-    object? IMessageDeserializer.Deserialize(ReadSocketBufferContext readSocketBufferContext) =>
-        Deserialize(readSocketBufferContext);
+    object? IMessageDeserializer.Deserialize(IBufferContext bufferContext) => Deserialize(bufferContext);
 
     public unsafe Tm Deserialize(ISerdeContext readContext)
     {
-        var sockBuffContext = readContext as ReadSocketBufferContext;
+        var sockBuffContext = readContext as SocketBufferReadContext;
         sockBuffContext?.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
         if (readContext is IBufferContext bufferContext)
             fixed (byte* fptr = bufferContext.EncodedBuffer!.Buffer)

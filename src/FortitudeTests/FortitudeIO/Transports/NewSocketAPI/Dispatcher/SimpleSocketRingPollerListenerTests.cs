@@ -35,9 +35,9 @@ public class SimpleSocketRingPollerListenerTests
     private Mock<ISocketDataLatencyLogger> moqSocketDataLatencyLogger = null!;
     private Mock<ISocketReceiver> moqSocketReceiver = null!;
     private Mock<ISocketSelector> moqSocketSelector = null!;
-    private ReadSocketBufferContext readSocketBufferContext = null!;
     private SocketReceiverUpdate secondReceiverUpdate = null!;
     private List<SocketReceiverUpdate> singleItemEnumerable = null!;
+    private SocketBufferReadContext socketBufferReadContext = null!;
     private SimpleSocketRingPollerListener socketRingPollerListener = null!;
     private SocketReceiverUpdate thirdRecieverUpdate = null!;
     private DateTime wakeTime;
@@ -101,8 +101,8 @@ public class SimpleSocketRingPollerListenerTests
         socketRingPollerListener = new SimpleSocketRingPollerListener(moqPollingRing.Object, NoDataPauseTimeout, moqSocketSelector.Object
             , null, moqParallelController.Object);
 
-        readSocketBufferContext = NonPublicInvocator.GetInstanceField<ReadSocketBufferContext>(
-            socketRingPollerListener, "readSocketBufferContext");
+        socketBufferReadContext = NonPublicInvocator.GetInstanceField<SocketBufferReadContext>(
+            socketRingPollerListener, "socketBufferReadContext");
     }
 
     [TestCleanup]
@@ -187,11 +187,11 @@ public class SimpleSocketRingPollerListenerTests
     public void SocketWithUpdate_ReceiveDataReturnsFalse_ErrorIsLoggedAndConnectionErrorIsRaised()
     {
         PrepareOneSuccessfulReceive();
-        moqSocketReceiver.Setup(ssc => ssc.Poll(readSocketBufferContext))
+        moqSocketReceiver.Setup(ssc => ssc.Poll(socketBufferReadContext))
             .Callback(() =>
             {
-                Assert.AreEqual(wakeTime, readSocketBufferContext.DetectTimestamp);
-                Assert.AreEqual(moqPerfLogger.Object, readSocketBufferContext.DispatchLatencyLogger);
+                Assert.AreEqual(wakeTime, socketBufferReadContext.DetectTimestamp);
+                Assert.AreEqual(moqPerfLogger.Object, socketBufferReadContext.DispatchLatencyLogger);
                 NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false);
             })
             .Returns(false).Verifiable();
@@ -225,7 +225,7 @@ public class SimpleSocketRingPollerListenerTests
         var moqSocketReceiverThrowsException = new Mock<ISocketReceiver>();
         moqSocketReceiverThrowsException.SetupGet(ssc => ssc.IsAcceptor).Returns(false).Verifiable();
         moqSocketReceiverThrowsException.Setup(ssc =>
-                ssc.Poll(readSocketBufferContext))
+                ssc.Poll(socketBufferReadContext))
             .Throws(new SocketBufferTooFullException("Test Socket Buffer full")).Verifiable();
         moqSocketReceiverThrowsException.Setup(scc =>
             scc.HandleReceiveError(It.IsRegex("Read error:.+"), It.IsAny<Exception>())).Verifiable();
@@ -345,11 +345,11 @@ public class SimpleSocketRingPollerListenerTests
         moqSocketReceiver.SetupGet(ssc => ssc.IsAcceptor).Returns(false).Verifiable();
         wakeTime = new DateTime(2017, 04, 21, 22, 33, 23);
         moqSocketSelector.SetupGet(ss => ss.WakeTs).Returns(wakeTime).Verifiable();
-        moqSocketReceiver.Setup(ssc => ssc.Poll(readSocketBufferContext))
+        moqSocketReceiver.Setup(ssc => ssc.Poll(socketBufferReadContext))
             .Callback(() =>
             {
-                Assert.AreEqual(wakeTime, readSocketBufferContext.DetectTimestamp);
-                Assert.AreEqual(moqPerfLogger.Object, readSocketBufferContext.DispatchLatencyLogger);
+                Assert.AreEqual(wakeTime, socketBufferReadContext.DetectTimestamp);
+                Assert.AreEqual(moqPerfLogger.Object, socketBufferReadContext.DispatchLatencyLogger);
                 NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false);
             })
             .Returns(true).Verifiable();
