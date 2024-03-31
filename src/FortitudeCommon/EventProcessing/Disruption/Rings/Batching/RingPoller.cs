@@ -59,7 +59,7 @@ public abstract class RingPollerBase<T> : IRingPoller where T : class
         set => name = value;
     }
 
-    public int UsageCount { get; private set; }
+    public virtual int UsageCount { get; private set; }
 
     public bool IsRunning => isRunning;
 

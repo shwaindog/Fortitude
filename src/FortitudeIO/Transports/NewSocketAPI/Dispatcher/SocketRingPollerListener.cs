@@ -63,6 +63,8 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
     public abstract void UnregisterForListen(ISocketReceiver receiver);
 
+    public override int UsageCount => selector.CountRegisteredReceivers;
+
     public void RegisterForListen(IStreamListener receiver)
     {
         if (receiver is ISocketReceiver socketReceiver) RegisterForListen(socketReceiver);

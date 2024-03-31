@@ -76,9 +76,9 @@ public class SimpleSocketRingPollerListenerTests
         secondReceiverUpdate = new SocketReceiverUpdate();
         thirdRecieverUpdate = new SocketReceiverUpdate();
 
-        OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         SocketDataLatencyLoggerFactory.Instance = moqSocketDataLatencyFactory.Object;
         PerfLoggingPoolFactory.Instance = moqPerfFac.Object;
+        OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
         moqPollingRing.Setup(pr => pr.Name).Returns("SimpleSocketRingPollerSenderTests");
         moqPollingRing.Setup(pr => pr[0L]).Returns(firstReceiverUpdate);
@@ -192,6 +192,7 @@ public class SimpleSocketRingPollerListenerTests
             {
                 Assert.AreEqual(wakeTime, readSocketBufferContext.DetectTimestamp);
                 Assert.AreEqual(moqPerfLogger.Object, readSocketBufferContext.DispatchLatencyLogger);
+                NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false);
             })
             .Returns(false).Verifiable();
         moqSocketReceiver.Setup(scc =>
@@ -317,7 +318,7 @@ public class SimpleSocketRingPollerListenerTests
         moqSocketReceiver.Reset();
         moqSocketReceiver.SetupGet(ssc => ssc.IsAcceptor).Returns(true).Verifiable();
         moqSocketReceiver.Setup(ssc => ssc.NewClientSocketRequest())
-            .Callback(() => { NonPublicInvocator.SetInstanceField(socketRingPollerListener, "Running", false); })
+            .Callback(() => { NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false); })
             .Verifiable();
 
         socketRingPollerListener.Start();
@@ -349,7 +350,7 @@ public class SimpleSocketRingPollerListenerTests
             {
                 Assert.AreEqual(wakeTime, readSocketBufferContext.DetectTimestamp);
                 Assert.AreEqual(moqPerfLogger.Object, readSocketBufferContext.DispatchLatencyLogger);
-                NonPublicInvocator.SetInstanceField(socketRingPollerListener, "Running", false);
+                NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false);
             })
             .Returns(true).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.AddContextMeasurement(1)).Verifiable();

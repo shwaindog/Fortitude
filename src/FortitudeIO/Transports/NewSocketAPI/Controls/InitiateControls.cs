@@ -88,8 +88,8 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
         Disconnect(true);
         var scheduleConnectWaitMs = reconnectConfig.NextReconnectIntervalMs;
         logger.Info("Will attempt reconnecting to {0} {1} id {2} reason {3} in {4}ms",
-            SocketSocketSessionContext.Name, SocketSocketSessionContext.Id,
-            SocketSocketSessionContext.NetworkTopicConnectionConfig, reason, scheduleConnectWaitMs);
+            SocketSessionContext.Name, SocketSessionContext.Id,
+            SocketSessionContext.NetworkTopicConnectionConfig, reason, scheduleConnectWaitMs);
         socketSessionContext.OnReconnecting();
         ScheduleConnect(scheduleConnectWaitMs);
     }

@@ -19,9 +19,9 @@ public interface IStreamControls : IConversationInitiator
 public abstract class SocketStreamControls : IStreamControls
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketStreamControls));
-    protected ISocketSessionContext SocketSocketSessionContext;
+    protected ISocketSessionContext SocketSessionContext;
 
-    protected SocketStreamControls(ISocketSessionContext socketSocketSessionContext) => SocketSocketSessionContext = socketSocketSessionContext;
+    protected SocketStreamControls(ISocketSessionContext socketSessionContext) => SocketSessionContext = socketSessionContext;
 
     public abstract void Connect();
 
@@ -39,19 +39,19 @@ public abstract class SocketStreamControls : IStreamControls
 
     public virtual void StartMessaging()
     {
-        SocketSocketSessionContext.SocketDispatcher.Start();
+        SocketSessionContext.SocketDispatcher.Start();
     }
 
     public virtual void StopMessaging()
     {
-        SocketSocketSessionContext.SocketDispatcher.Stop();
+        SocketSessionContext.SocketDispatcher.Stop();
     }
 
     public virtual void Disconnect()
     {
         StopMessaging();
-        Logger.Info("Server {0} @{0} stopped", SocketSocketSessionContext.Name,
-            SocketSocketSessionContext.SocketConnection!.ConnectedPort);
-        SocketSocketSessionContext.OnDisconnected();
+        Logger.Info("Server {0} @{0} stopped", SocketSessionContext.Name,
+            SocketSessionContext.SocketConnection!.ConnectedPort);
+        SocketSessionContext.OnDisconnected();
     }
 }

@@ -4,6 +4,7 @@ using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
 using FortitudeIO.Transports.NewSocketAPI.Publishing;
+using FortitudeIO.Transports.NewSocketAPI.State;
 using Moq;
 
 #endregion
@@ -130,6 +131,38 @@ public class SimpleSocketRingPollerSenderTests
         moqPollingRing.Setup(pr => pr.Publish(1)).Verifiable();
 
         moqSocketSender.SetupSequence(ss => ss.SendQueued()).Returns(false).Returns(true);
+        simpleSocketRingPollerSender
+            = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, null, moqParallelController.Object);
+
+        simpleSocketRingPollerSender.Start();
+        simpleSocketRingPollerSender.AddToSendQueue(moqSocketSender.Object);
+        workerThreadMethod();
+
+        moqPollingRing.Verify();
+    }
+
+    [TestMethod]
+    public void NewDispatcherSender_SocketSenderSendQueuedThrowsSocketSendException_CallsOnSessionFailure()
+    {
+        moqPollingRing.Setup(pr => pr.StartOfBatch).Returns(true);
+        moqPollingRing.Setup(pr => pr.EndOfBatch).Returns(true);
+        moqPollingRing.SetupGet(pr => pr.CurrentBatchSize).Returns(1);
+        var justFirstSocketContainer = new List<SocketSenderContainer> { firstSocketContainer };
+        moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
+        {
+            moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
+            {
+                moqPollingRing.Setup(pr => pr.GetEnumerator()).Returns(emptyEnumerable.GetEnumerator());
+                simpleSocketRingPollerSender.Stop();
+            }).Returns(emptyEnumerable.GetEnumerator());
+        }).Returns(justFirstSocketContainer.GetEnumerator());
+        moqPollingRing.Setup(pr => pr[0L]).Returns(firstSocketContainer).Verifiable();
+        moqPollingRing.Setup(pr => pr.Publish(0)).Verifiable();
+
+        var moqSocketSessionContext = new Mock<ISocketSessionContext>();
+        moqSocketSender.Setup(ss => ss.SendQueued()).Throws(new SocketSendException("Something bad has happened", moqSocketSessionContext.Object));
+        moqSocketSessionContext.Setup(ssc => ssc.OnSessionFailure(It.IsAny<string>())).Verifiable();
+
         simpleSocketRingPollerSender
             = new SimpleSocketRingPollerSender(moqPollingRing.Object, NoDataPauseTimeout, null, moqParallelController.Object);
 

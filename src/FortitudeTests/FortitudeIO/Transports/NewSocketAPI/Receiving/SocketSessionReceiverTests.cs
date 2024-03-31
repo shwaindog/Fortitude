@@ -12,6 +12,7 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Construction;
+using FortitudeIO.Transports.NewSocketAPI.Controls;
 using FortitudeIO.Transports.NewSocketAPI.Receiving;
 using FortitudeIO.Transports.NewSocketAPI.Sockets;
 using FortitudeIO.Transports.NewSocketAPI.State;
@@ -34,8 +35,10 @@ public class SocketReceiverTests
     private byte[] defaultSocketDataWritten = null!;
     private DirectOSNetworkingStub directOsNetworkingApiStub = null!;
     private Func<int> getLastErrorCallback = null!;
+    private Mock<IFLogger> moqDataDumpFlogger = null!;
     private Mock<IPerfLogger> moqDispatchPerfLogger = null!;
     private Mock<IMessageStreamDecoder> moqFeedDecoder = null!;
+    private Mock<IFLoggerFactory> moqFloggerFactory = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<INetworkTopicConnectionConfig> moqNetworkTopicConConfig = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
@@ -45,6 +48,8 @@ public class SocketReceiverTests
     private Mock<ISocketConnection> moqSocketConnection = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactoryResolver = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
+    private Mock<IStreamControls> moqStreamControls = null!;
+    private Mock<IFLogger> moqTextFlogger = null!;
     private ReadSocketBufferContext readSocketBufferContext = null!;
     private IntPtr socketHandlePtr;
     private SocketReceiver socketReceiver = null!;
@@ -68,8 +73,12 @@ public class SocketReceiverTests
         moqReadSocketPerfLogger = new Mock<IPerfLogger>();
         moqDispatchPerfLogger = new Mock<IPerfLogger>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
+        moqStreamControls = new Mock<IStreamControls>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqNetworkTopicConConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqFloggerFactory = new Mock<IFLoggerFactory>();
+        moqTextFlogger = new Mock<IFLogger>();
+        moqDataDumpFlogger = new Mock<IFLogger>();
 
         moqOsSocket.SetupGet(oss => oss.Handle).Returns(socketHandlePtr).Verifiable();
         moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqOsSocket.Object);
@@ -83,12 +92,17 @@ public class SocketReceiverTests
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactoryResolver.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.Name).Returns(SessionName);
         moqSocketSessionContext.SetupGet(ssc => ssc.NetworkTopicConnectionConfig).Returns(moqNetworkTopicConConfig.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.StreamControls).Returns(moqStreamControls.Object);
 
         moqPerfPoolFac.Setup(ltcspf => ltcspf.GetLatencyTracingLoggerPool(
                 "Receive.SocketReceiverTests", TimeSpan.FromMilliseconds(1), typeof(ISessionConnection)))
             .Returns(moqPerfLoggerPool.Object).Verifiable();
 
+        moqFloggerFactory.Setup(ff => ff.GetLogger(It.IsAny<Type>())).Returns(moqTextFlogger.Object);
+        moqFloggerFactory.Setup(ff => ff.GetLogger(It.IsAny<string>())).Returns(moqDataDumpFlogger.Object);
+
         PerfLoggingPoolFactory.Instance = moqPerfPoolFac.Object;
+        FLoggerFactory.Instance = moqFloggerFactory.Object;
 
         moqFeedDecoder = new Mock<IMessageStreamDecoder>();
         socketReceiver = new SocketReceiver(moqSocketSessionContext.Object)
@@ -110,6 +124,7 @@ public class SocketReceiverTests
     {
         PerfLoggingPoolFactory.Instance = new PerfLoggingPoolFactory();
         TimeContext.Provider = new HighPrecisionTimeContext();
+        FLoggerFactory.Instance = new FLoggerFactory();
     }
 
     [TestMethod]
@@ -184,7 +199,7 @@ public class SocketReceiverTests
     }
 
     [TestMethod]
-    public void SocketReceiver_PollWithTooMuchData_OnlyReportsOutburstEveryMinute()
+    public void SocketReceiver_PollWithTooMuchData_OnlyReportsDataBurstEveryMinute()
     {
         const int unreadBytes = 16377;
         moqOsSocket.SetupGet(sc => sc.ReceiveBufferSize).Returns(LargeSocketReceiveBufferSize);
@@ -395,7 +410,6 @@ public class SocketReceiverTests
         Assert.AreEqual(3, directOsNetworkingApiStub.NumberQueuedMessages);
     }
 
-
     [TestMethod]
     public void SocketReceiver2NumberOfReceivesPerPoll_ReceiveData_RemovesExpectedNumMessages()
     {
@@ -448,6 +462,18 @@ public class SocketReceiverTests
         Assert.IsTrue(receiveData);
 
         Assert.AreEqual(0, directOsNetworkingApiStub.NumberQueuedMessages);
+    }
+
+    [TestMethod]
+    public void SocketReceiver_HandleReceiveError_CallsOnSessionFailure()
+    {
+        moqTextFlogger.Setup(fl => fl.Warn("{0} got {1}. Exception {2}", It.IsAny<object[]>())).Verifiable();
+        moqStreamControls.Setup(sc => sc.OnSessionFailure(It.IsAny<string>())).Verifiable();
+
+        socketReceiver.HandleReceiveError("read error.", new Exception("Something bad happened!"));
+
+        moqTextFlogger.Verify();
+        moqStreamControls.Verify();
     }
 
     private void AssertReceiveBufferIsExpected(ReadWriteBuffer receiveBuffer, int expectedRead, int expectedWritten)
