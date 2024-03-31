@@ -75,9 +75,9 @@ public class UdpPubSubConnectionTests
         conversationPublisher.Connect();
         conversationSubscriber.Connect();
 
-        foreach (ICallbackMessageDeserializer<SimpleVersionedMessage> deserializersValue in
+        foreach (INotifyingMessageDeserializer<SimpleVersionedMessage> deserializersValue in
                  deserializers.Values)
-            deserializersValue.Deserialized2 += ReceivedFromClientDeserializerCallback;
+            deserializersValue.ConversationMessageDeserialized += ReceivedFromClientDeserializerCallback;
 
         var v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 345678.0, MessageId = 2345 };
         // send message

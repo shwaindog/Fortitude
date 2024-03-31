@@ -20,14 +20,14 @@ public class OrxVenueOrdersTests
 {
     private const int BufferSize = 2048;
     private byte[] byteBuffer = null!;
-    private ReadSocketBufferContext readSocketBufferContext = null!;
+    private SocketBufferReadContext socketBufferReadContext = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        readSocketBufferContext = new ReadSocketBufferContext
+        socketBufferReadContext = new SocketBufferReadContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
@@ -45,14 +45,14 @@ public class OrxVenueOrdersTests
             , ThirdVenueOrders = BuildVenueOrders(), FourthVenueOrders = BuildVenueOrders()
         };
 
-        readSocketBufferContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+        socketBufferReadContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var venueOrdersDeserializer = new OrxByteDeserializer<VenueCriterias>(new OrxDeserializerLookup(
             new Recycler()));
 
         var deserializedVenueOrders = (VenueCriterias)venueOrdersDeserializer
-            .Deserialize(readSocketBufferContext);
+            .Deserialize(socketBufferReadContext);
 
         Assert.AreEqual(originalClientOrderId.FirstVenueOrders, deserializedVenueOrders.FirstVenueOrders);
         Assert.AreEqual(originalClientOrderId.SecondVenueOrders, deserializedVenueOrders.SecondVenueOrders);

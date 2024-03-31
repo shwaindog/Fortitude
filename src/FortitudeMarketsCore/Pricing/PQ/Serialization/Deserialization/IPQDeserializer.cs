@@ -10,7 +10,7 @@ using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
 
-public interface IPQDeserializer : ICallbackMessageDeserializer<PQLevel0Quote>,
+public interface IPQDeserializer : INotifyingMessageDeserializer<PQLevel0Quote>,
     IDoublyLinkedListNode<IPQDeserializer>
 {
     IUniqueSourceTickerIdentifier Identifier { get; }

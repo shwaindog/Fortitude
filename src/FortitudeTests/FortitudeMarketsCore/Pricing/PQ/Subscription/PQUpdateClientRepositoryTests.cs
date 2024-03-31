@@ -29,7 +29,7 @@ public class PQUpdateClientRepositoryTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
-    private Mock<ICallbackMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
@@ -54,7 +54,7 @@ public class PQUpdateClientRepositoryTests
         moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
         moqStreamControlsFactory = new Mock<IStreamControlsFactory>();
         moqInitiateControls = new Mock<IInitiateControls>();
-        moqSocketBinaryDeserializer = new Mock<ICallbackMessageDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqOsSocket = new Mock<IOSSocket>();
         moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
@@ -62,8 +62,7 @@ public class PQUpdateClientRepositoryTests
 
         moqSocketConnectivityChanged.Setup(scc => scc.GetOnConnectionChangedHandler()).Returns(moqAction.Object);
 
-        ISocketConnectivityChanged ConnectivityChanged(ISocketSessionContext context) =>
-            moqSocketConnectivityChanged.Object;
+        ISocketConnectivityChanged ConnectivityChanged(ISocketSessionContext context) => moqSocketConnectivityChanged.Object;
 
         moqStreamControlsFactory.Setup(scf => scf.ResolveStreamControls(It.IsAny<ISocketSessionContext>()))
             .Returns(moqInitiateControls.Object);

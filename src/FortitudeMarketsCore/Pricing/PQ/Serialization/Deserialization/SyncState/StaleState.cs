@@ -20,7 +20,7 @@ public class StaleState<T> : InSyncState<T> where T : PQLevel0Quote, new()
         Logger.Info("Stream {0} recovered after timeout, RecvSeqID={1}", LinkedDeserializer.Identifier,
             sequenceId);
         SwitchState(QuoteSyncState.InSync);
-        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        var sockBuffContext = bufferContext as SocketBufferReadContext;
         PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnSyncOk);
     }

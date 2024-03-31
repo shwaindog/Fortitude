@@ -106,7 +106,7 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
 
     public unsafe void UpdateQuote(IBufferContext readContext, T ent, uint sequenceId)
     {
-        var sockBuffContext = readContext as ReadSocketBufferContext;
+        var sockBuffContext = readContext as SocketBufferReadContext;
         ent.ClientReceivedTime = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
         ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
         ent.ProcessedTime = sockBuffContext?.DeserializerTimestamp ?? DateTime.Now;

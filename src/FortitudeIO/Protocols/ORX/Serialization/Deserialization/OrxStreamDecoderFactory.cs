@@ -49,14 +49,14 @@ internal class OrxStreamDecoderFactory : SocketStreamDecoderFactory, IOrxDeseria
     {
         if (msgHandler == null)
             throw new Exception("Message Handler cannot be null");
-        ICallbackMessageDeserializer<TM>? mu;
+        INotifyingMessageDeserializer<TM>? mu;
         if (!DeserializersMap.TryGetValue(msgId, out var u))
             DeserializersMap.Add(msgId, mu = deSerializationRepository.GetDeserializer<TM>(msgId)!);
-        else if ((mu = u as ICallbackMessageDeserializer<TM>) == null)
+        else if ((mu = u as INotifyingMessageDeserializer<TM>) == null)
             throw new Exception("Two different message types cannot be registered to the same Id");
         else if (mu.IsRegistered(msgHandler)) throw new Exception("Message Handler already registered");
 
-        mu.Deserialized2 += msgHandler;
+        mu.ConversationMessageDeserialized += msgHandler;
         return this;
     }
 }

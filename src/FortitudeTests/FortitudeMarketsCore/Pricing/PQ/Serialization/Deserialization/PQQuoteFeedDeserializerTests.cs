@@ -218,7 +218,7 @@ public class PQQuoteFeedDeserializerTests
     }
 
     private void CallDeserializer(
-        IList<ReadSocketBufferContext> deserializeInputList)
+        IList<SocketBufferReadContext> deserializeInputList)
     {
         for (var i = 0; i < deserializers.Count; i++) deserializers[i].Deserialize(deserializeInputList[i]);
     }

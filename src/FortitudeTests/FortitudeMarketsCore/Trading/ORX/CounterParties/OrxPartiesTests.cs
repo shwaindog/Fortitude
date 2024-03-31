@@ -18,14 +18,14 @@ public class OrxPartiesTests
 {
     private const int BufferSize = 2048;
     private byte[] byteBuffer = null!;
-    private ReadSocketBufferContext readSocketBufferContext = null!;
+    private SocketBufferReadContext socketBufferReadContext = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         byteBuffer = new byte[BufferSize];
 
-        readSocketBufferContext = new ReadSocketBufferContext
+        socketBufferReadContext = new SocketBufferReadContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
@@ -43,13 +43,13 @@ public class OrxPartiesTests
             , FourthParties = BuildSpotOrder()
         };
 
-        readSocketBufferContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+        socketBufferReadContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<TestParties>(new OrxDeserializerLookup(
             new Recycler()));
 
-        var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(readSocketBufferContext);
+        var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(socketBufferReadContext);
 
         Assert.AreEqual(originalClientOrderId.FirstParties, deserializedOrxClientOrderId.FirstParties);
         Assert.AreEqual(originalClientOrderId.SecondParties, deserializedOrxClientOrderId.SecondParties);

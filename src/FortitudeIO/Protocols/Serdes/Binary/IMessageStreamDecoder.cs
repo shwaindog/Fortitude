@@ -10,5 +10,5 @@ public interface IMessageStreamDecoder
 {
     IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers { get; }
     bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer);
-    int Process(ReadSocketBufferContext readSocketBufferContext);
+    int Process(SocketBufferReadContext socketBufferReadContext);
 }

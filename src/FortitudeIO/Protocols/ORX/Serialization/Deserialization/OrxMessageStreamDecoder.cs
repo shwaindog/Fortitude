@@ -31,20 +31,20 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
         return deserializers[msgId] == deserializer;
     }
 
-    public unsafe int Process(ReadSocketBufferContext readSocketBufferContext)
+    public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var read = readSocketBufferContext.EncodedBuffer!.ReadCursor;
-        var originalRead = readSocketBufferContext.EncodedBuffer.ReadCursor;
-        while (ExpectedSize <= readSocketBufferContext.EncodedBuffer.WriteCursor - read)
+        var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
+        var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
+        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - read)
             if (state == State.Header)
             {
-                fixed (byte* fptr = readSocketBufferContext.EncodedBuffer.Buffer)
+                fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                 {
                     var ptr = fptr + read;
-                    readSocketBufferContext.MessageVersion = *ptr++;
+                    socketBufferReadContext.MessageVersion = *ptr++;
                     messageId = StreamByteOps.ToUShort(ref ptr);
                     ExpectedSize = StreamByteOps.ToUShort(ref ptr);
-                    readSocketBufferContext.MessageSize = ExpectedSize + OrxMessageHeader.HeaderSize;
+                    socketBufferReadContext.MessageSize = ExpectedSize + OrxMessageHeader.HeaderSize;
                 }
 
                 state = State.Data;
@@ -53,8 +53,8 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
             {
                 if (deserializers.TryGetValue(messageId, out var u))
                 {
-                    readSocketBufferContext.EncodedBuffer.ReadCursor = read;
-                    u!.Deserialize(readSocketBufferContext);
+                    socketBufferReadContext.EncodedBuffer.ReadCursor = read;
+                    u!.Deserialize(socketBufferReadContext);
                 }
 
                 read += ExpectedSize + OrxMessageHeader.HeaderSize;
@@ -62,9 +62,9 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
                 ExpectedSize = OrxMessageHeader.HeaderSize;
             }
 
-        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
+        socketBufferReadContext.DispatchLatencyLogger?.Dedent();
         var amountRead = read - originalRead;
-        readSocketBufferContext.EncodedBuffer.ReadCursor = read;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = read;
         return amountRead;
     }
 

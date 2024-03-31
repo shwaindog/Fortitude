@@ -38,7 +38,7 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IBufferContext bufferContext)
         {
-            var sockBuffContext = bufferContext as ReadSocketBufferContext;
+            var sockBuffContext = bufferContext as SocketBufferReadContext;
             if (sockBuffContext != null) sockBuffContext.DeserializerTimestamp = TimeContext.UtcNow;
 
             var sequenceId = StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer

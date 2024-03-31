@@ -29,9 +29,9 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
     protected readonly IFLogger Logger;
     private readonly IIntraOSThreadSignal manualResetEvent;
     protected readonly IOSParallelController ParallelController;
-    private readonly ReadSocketBufferContext readSocketBufferContext = new();
     private readonly IPerfLoggerPool receiveSocketDispatcherLatencyTraceLoggerPool;
     private readonly ISocketSelector selector;
+    private readonly SocketBufferReadContext socketBufferReadContext = new();
     private readonly IConfigurationSection socketConfigurationRepository = SocketsConfigurationContext.Instance;
     private readonly ISocketDataLatencyLogger? socketDataLatencyLogger;
 
@@ -124,7 +124,7 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
             try
             {
                 detectionToPublishLatencyTraceLogger = receiveSocketDispatcherLatencyTraceLoggerPool.StartNewTrace();
-                readSocketBufferContext.DispatchLatencyLogger = detectionToPublishLatencyTraceLogger;
+                socketBufferReadContext.DispatchLatencyLogger = detectionToPublishLatencyTraceLogger;
                 numSockets = 0;
                 var socketReceivers = selector.WatchSocketsForRecv(detectionToPublishLatencyTraceLogger);
                 foreach (var sockRecr in socketReceivers)
@@ -161,8 +161,8 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
             bool connected;
             try
             {
-                readSocketBufferContext.DetectTimestamp = selector.WakeTs;
-                connected = sockRecr.Poll(readSocketBufferContext);
+                socketBufferReadContext.DetectTimestamp = selector.WakeTs;
+                connected = sockRecr.Poll(socketBufferReadContext);
             }
             catch (Exception ex)
             {

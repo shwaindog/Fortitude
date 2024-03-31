@@ -15,10 +15,9 @@ public sealed class OrxSerdesFactory : IMessageIdSerializationRepository,
 
     public OrxSerdesFactory(IRecycler recyclingFactory) => this.recyclingFactory = recyclingFactory;
 
-    public ICallbackMessageDeserializer<TM> GetDeserializer<TM>(uint msgId)
+    public INotifyingMessageDeserializer<TM> GetDeserializer<TM>(uint msgId)
         where TM : class, IVersionedMessage, new() =>
         new OrxDeserializer<TM>(recyclingFactory);
 
-    public IMessageSerializer GetSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new() =>
-        new OrxSerializer<TM>((ushort)msgId);
+    public IMessageSerializer GetSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new() => new OrxSerializer<TM>((ushort)msgId);
 }

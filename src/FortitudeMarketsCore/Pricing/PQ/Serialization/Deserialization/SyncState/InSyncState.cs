@@ -35,7 +35,7 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
     {
         base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
         LastSuccessfulUpdateSequienceId = sequenceId;
-        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        var sockBuffContext = bufferContext as SocketBufferReadContext;
         PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
             LinkedDeserializer.OnReceivedUpdate);
     }
@@ -57,7 +57,7 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
         base.ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
         LinkedDeserializer.ClearSyncRing();
         SaveMessageToSyncSlot(bufferContext, sequenceId);
-        var sockBuffContext = bufferContext as ReadSocketBufferContext;
+        var sockBuffContext = bufferContext as SocketBufferReadContext;
         if (sockBuffContext != null)
             Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}, WakeUpTs={3}, " +
                         "DeserializeTs={4}, ReceivingTimestamp={5}",

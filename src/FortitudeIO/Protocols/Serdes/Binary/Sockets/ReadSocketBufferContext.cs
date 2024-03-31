@@ -10,19 +10,33 @@ using FortitudeIO.Conversations;
 
 namespace FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
-[TestClassNotRequired]
-public class ReadBufferContext : MessageBufferContext
+public interface IBufferReadContext : IMessageBufferContext
 {
-    public ReadBufferContext(IBuffer buffer) : base(buffer) { }
+    DateTime DeserializerTimestamp { get; set; }
+    object? MessageHeader { get; set; }
+}
+
+[TestClassNotRequired]
+public class BufferReadContext : MessageBufferContext, IBufferReadContext
+{
+    public BufferReadContext(IBuffer buffer) : base(buffer) { }
     public DateTime DeserializerTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
     public object? MessageHeader { get; set; }
 }
 
-[TestClassNotRequired]
-public class ReadSocketBufferContext : ReadBufferContext
+public interface ISocketBufferReadContext : IBufferReadContext
 {
-    public ReadSocketBufferContext() : base(new ReadWriteBuffer(Array.Empty<byte>())) { }
-    public ReadSocketBufferContext(IBuffer buffer) : base(buffer) { }
+    DateTime DetectTimestamp { get; set; }
+    DateTime ReceivingTimestamp { get; set; }
+    IConversation? Conversation { get; set; }
+    IPerfLogger? DispatchLatencyLogger { get; set; }
+}
+
+[TestClassNotRequired]
+public class SocketBufferReadContext : BufferReadContext, ISocketBufferReadContext
+{
+    public SocketBufferReadContext() : base(new ReadWriteBuffer(Array.Empty<byte>())) { }
+    public SocketBufferReadContext(IBuffer buffer) : base(buffer) { }
 
     public DateTime DetectTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
     public DateTime ReceivingTimestamp { get; set; } = DateTimeConstants.UnixEpoch;

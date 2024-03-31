@@ -79,7 +79,7 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
         {
             if (LogCounter % 100 == 0)
             {
-                if (bufferContext is ReadSocketBufferContext sockBuffContext)
+                if (bufferContext is SocketBufferReadContext sockBuffContext)
                     Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, " +
                                 "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
                         LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,

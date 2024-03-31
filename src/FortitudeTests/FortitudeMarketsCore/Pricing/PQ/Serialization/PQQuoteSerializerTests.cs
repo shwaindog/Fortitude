@@ -218,7 +218,7 @@ public class PQQuoteSerializerTests
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
             readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
-            var sockBuffContext = new ReadSocketBufferContext
+            var sockBuffContext = new SocketBufferReadContext
             {
                 EncodedBuffer = readWriteBuffer
                 , DispatchLatencyLogger = new PerfLogger("test", TimeSpan.FromSeconds(2), "")

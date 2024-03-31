@@ -6,7 +6,6 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
@@ -73,12 +72,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
                         simpleMessage.PayLoad2 = StreamByteOps.ToDouble(ref currPtr);
                     }
 
-                if (bufferContext is ReadSocketBufferContext sockBuffContext)
-                    if (sockBuffContext.Conversation != null)
-                        Dispatch(simpleMessage, sockBuffContext.MessageHeader, sockBuffContext.Conversation
-                            , sockBuffContext.DispatchLatencyLogger);
-                    else
-                        Dispatch(simpleMessage, bufferContext);
+                OnNotify(simpleMessage, bufferContext);
 
                 return simpleMessage;
             }

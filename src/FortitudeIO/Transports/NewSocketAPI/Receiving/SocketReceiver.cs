@@ -22,7 +22,7 @@ public interface ISocketReceiver : IStreamListener
     IntPtr SocketHandle { get; }
     bool ZeroBytesReadIsDisconnection { get; set; }
     IOSSocket Socket { get; set; }
-    bool Poll(ReadSocketBufferContext readSocketBufferContext);
+    bool Poll(SocketBufferReadContext socketBufferReadContext);
     event Action? Accept;
     void HandleReceiveError(string message, Exception exception);
     IOSSocket AcceptClientSocketRequest();
@@ -82,36 +82,36 @@ public sealed class SocketReceiver : ISocketReceiver
 
     public IMessageStreamDecoder? Decoder { get; set; }
 
-    public bool Poll(ReadSocketBufferContext readSocketBufferContext)
+    public bool Poll(SocketBufferReadContext socketBufferReadContext)
     {
         if (Decoder == null) return true;
         var receivingTs = TimeContext.UtcNow;
-        readSocketBufferContext.DispatchLatencyLogger?.Indent();
-        var recvLen = PrepareBufferAndReceiveData(readSocketBufferContext.DispatchLatencyLogger);
+        socketBufferReadContext.DispatchLatencyLogger?.Indent();
+        var recvLen = PrepareBufferAndReceiveData(socketBufferReadContext.DispatchLatencyLogger);
         if (recvLen == 0)
             return !ZeroBytesReadIsDisconnection;
         if (receiveBuffer.UnreadBytesRemaining > LargeBufferSize
-            && readSocketBufferContext.DetectTimestamp > lastReportOfHighDataBursts.AddMinutes(1))
+            && socketBufferReadContext.DetectTimestamp > lastReportOfHighDataBursts.AddMinutes(1))
         {
-            lastReportOfHighDataBursts = readSocketBufferContext.DetectTimestamp;
-            readSocketBufferContext.DispatchLatencyLogger?.Add("High data burst of incoming data received read ",
+            lastReportOfHighDataBursts = socketBufferReadContext.DetectTimestamp;
+            socketBufferReadContext.DispatchLatencyLogger?.Add("High data burst of incoming data received read ",
                 receiveBuffer.UnreadBytesRemaining);
-            if (readSocketBufferContext.DispatchLatencyLogger != null)
-                readSocketBufferContext.DispatchLatencyLogger.WriteTrace = true;
+            if (socketBufferReadContext.DispatchLatencyLogger != null)
+                socketBufferReadContext.DispatchLatencyLogger.WriteTrace = true;
         }
 
-        readSocketBufferContext.ReceivingTimestamp = receivingTs;
-        readSocketBufferContext.Conversation = socketSessionContext.OwningConversation;
-        readSocketBufferContext.EncodedBuffer = receiveBuffer;
-        if (Decoder.Process(readSocketBufferContext) <= 0)
+        socketBufferReadContext.ReceivingTimestamp = receivingTs;
+        socketBufferReadContext.Conversation = socketSessionContext.OwningConversation;
+        socketBufferReadContext.EncodedBuffer = receiveBuffer;
+        if (Decoder.Process(socketBufferReadContext) <= 0)
         {
-            readSocketBufferContext.DispatchLatencyLogger?.Add("Data detected but not decoded");
-            if (readSocketBufferContext.DispatchLatencyLogger != null)
-                readSocketBufferContext.DispatchLatencyLogger.WriteTrace = true;
+            socketBufferReadContext.DispatchLatencyLogger?.Add("Data detected but not decoded");
+            if (socketBufferReadContext.DispatchLatencyLogger != null)
+                socketBufferReadContext.DispatchLatencyLogger.WriteTrace = true;
         }
 
-        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
-        readSocketBufferContext.DispatchLatencyLogger?.Dedent();
+        socketBufferReadContext.DispatchLatencyLogger?.Dedent();
+        socketBufferReadContext.DispatchLatencyLogger?.Dedent();
         return true;
     }
 

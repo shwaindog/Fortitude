@@ -30,8 +30,8 @@ public class PQServerMessageStreamDecoderTests
     private Mock<ISocketSessionContext> moqSocketSessionConnection = null!;
     private PQServerMessageStreamDecoder pqServerMessageStreamDecoder = null!;
     private PQSnapshotIdsRequestSerializer pqSnapshotIdsRequestSerializer = null!;
-    private ReadSocketBufferContext readSocketBufferContext = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
+    private SocketBufferReadContext socketBufferReadContext = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -42,7 +42,7 @@ public class PQServerMessageStreamDecoderTests
         moqSocketConversation = moqSocketConversationRequester.As<ISocketConversation>();
         moqSocketSessionConnection.SetupGet(x => x.OwningConversation).Returns(moqSocketConversation.Object);
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
-        readSocketBufferContext = new ReadSocketBufferContext
+        socketBufferReadContext = new SocketBufferReadContext
         {
             EncodedBuffer = readWriteBuffer, Conversation = moqSocketConversation.Object
         };
@@ -75,7 +75,7 @@ public class PQServerMessageStreamDecoderTests
             BufferReadWriteOffset, snapshotIdsRequest);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
-        pqServerMessageStreamDecoder.Process(readSocketBufferContext);
+        pqServerMessageStreamDecoder.Process(socketBufferReadContext);
 
         Assert.IsTrue(expectedIdsToReceive.SequenceEqual(lastReceivedSnapshotRequestIds));
         Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
@@ -88,7 +88,7 @@ public class PQServerMessageStreamDecoderTests
         readWriteBuffer.WriteCursor = readWriteBuffer.WriteCursor + amtWritten;
         lastReceivedConversation = null;
 
-        pqServerMessageStreamDecoder.Process(readSocketBufferContext);
+        pqServerMessageStreamDecoder.Process(socketBufferReadContext);
 
         Assert.IsTrue(lastReceivedSnapshotRequestIds.SequenceEqual(nextExpectedIdsToReceive));
         Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
