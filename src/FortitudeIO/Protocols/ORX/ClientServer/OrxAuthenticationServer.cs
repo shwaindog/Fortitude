@@ -7,7 +7,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Authentication;
-using FortitudeIO.Transports.NewSocketAPI.State;
+using FortitudeIO.Transports.Network.State;
 
 #endregion
 

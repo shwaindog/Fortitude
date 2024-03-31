@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.EventProcessing;
-using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
@@ -59,8 +59,7 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
 
     public new ISnapshotUpdatePricingServerConfig Clone() => new SnapshotUpdatePricingServerConfig(this, false);
 
-    public override ISnapshotUpdatePricingServerConfig ToggleProtocolDirection() =>
-        new SnapshotUpdatePricingServerConfig(this, true);
+    public override ISnapshotUpdatePricingServerConfig ToggleProtocolDirection() => new SnapshotUpdatePricingServerConfig(this, true);
 
     public ushort PublicationId
     {
@@ -174,8 +173,7 @@ public class SnapshotUpdatePricingServerConfig : MarketServerConfig<ISnapshotUpd
         supportsIceBergs = updatedMarketsServerConfig.SupportsIceBergs;
     }
 
-    public override bool Equals(object? obj) =>
-        ReferenceEquals(this, obj) || AreEquivalent(obj as ISnapshotUpdatePricingServerConfig, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ISnapshotUpdatePricingServerConfig, true);
 
     public override int GetHashCode()
     {

@@ -1,7 +1,7 @@
 #region
 
-using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.Network.Config;
+using FortitudeIO.Transports.Network.Dispatcher;
 
 #endregion
 
@@ -11,8 +11,7 @@ public class PQSnapshotClientRepository : PQConversationRepositoryBase<PQSnapsho
 {
     private readonly ISocketDispatcherResolver socketDispatcherResolver;
 
-    public PQSnapshotClientRepository(ISocketDispatcherResolver dispatcherResolver) =>
-        socketDispatcherResolver = dispatcherResolver;
+    public PQSnapshotClientRepository(ISocketDispatcherResolver dispatcherResolver) => socketDispatcherResolver = dispatcherResolver;
 
     protected override PQSnapshotClient
         CreateNewSocketSubscriptionType(INetworkTopicConnectionConfig networkConnectionConfig) =>

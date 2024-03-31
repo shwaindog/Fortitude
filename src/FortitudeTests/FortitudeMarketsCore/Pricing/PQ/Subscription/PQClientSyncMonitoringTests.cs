@@ -6,7 +6,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.NewSocketAPI.Config;
+using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serialization.Deserialization;
@@ -67,10 +67,7 @@ public class PQClientSyncMonitoringTests
         moqSnapshotServerConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqUpdateServerConnectionConfig = new Mock<IEndpointConfig>();
         moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
-            .Returns(moqSnapshotServerConnectionConfig.Object).Callback(() =>
-            {
-                pqClientSyncMonitoring.CheckStopMonitoring();
-            })
+            .Returns(moqSnapshotServerConnectionConfig.Object).Callback(() => { pqClientSyncMonitoring.CheckStopMonitoring(); })
             .Verifiable();
         lastSourceName = null;
         getSourceServerConfigFunc = srcName =>
@@ -142,10 +139,8 @@ public class PQClientSyncMonitoringTests
     [TestMethod]
     public void NewClientSyncMonitor_RegisterNewDeserializer_AddsCallbacksToDeserializerAddsDeserializerToKoList()
     {
-        moqSyncKo.Setup(sok => sok.AddFirst(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncKo.Setup(sok => sok.AddFirst(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
 
         pqClientSyncMonitoring.RegisterNewDeserializer(moqFirstQuoteDeserializer.Object);
         Assert.IsFalse(inSequencerSerialize);
@@ -182,14 +177,10 @@ public class PQClientSyncMonitoringTests
     public void TwoDeserializersWithKnownOrder_OnUpdate_SyncProtectsMovesUpdatedDeserializerToEndOfSyncOk()
     {
         pqClientSyncMonitoring.RegisterNewDeserializer(moqFirstQuoteDeserializer.Object);
-        moqSyncOk.Setup(sok => sok.Remove(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
-        moqSyncOk.Setup(sok => sok.AddLast(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncOk.Setup(sok => sok.Remove(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncOk.Setup(sok => sok.AddLast(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
         moqFirstQuoteDeserializer.Raise(qu => qu.ReceivedUpdate += NoOp, moqFirstQuoteDeserializer.Object);
         moqSyncOk.Verify();
         moqSequencer.Verify();
@@ -199,14 +190,10 @@ public class PQClientSyncMonitoringTests
     public void UnSyncedSerializer_OnSyncOk_SyncProtectsMovesUpdatedSerializerToEndOfSyncOk()
     {
         pqClientSyncMonitoring.RegisterNewDeserializer(moqFirstQuoteDeserializer.Object);
-        moqSyncKo.Setup(sko => sko.Remove(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
-        moqSyncOk.Setup(sok => sok.AddLast(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncKo.Setup(sko => sko.Remove(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncOk.Setup(sok => sok.AddLast(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
         moqFirstQuoteDeserializer.Raise(qu => qu.SyncOk += NoOp, moqFirstQuoteDeserializer.Object);
         moqSyncOk.Verify();
         moqSyncKo.Verify();
@@ -217,14 +204,10 @@ public class PQClientSyncMonitoringTests
     public void SyncedDeserializer_OnSyncKo_SyncProtectsMovesDeserializerToFromOkToKo()
     {
         pqClientSyncMonitoring.RegisterNewDeserializer(moqFirstQuoteDeserializer.Object);
-        moqSyncOk.Setup(sok => sok.Remove(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
-        moqSyncKo.Setup(sko => sko.AddFirst(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncOk.Setup(sok => sok.Remove(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncKo.Setup(sko => sko.AddFirst(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
         moqFirstQuoteDeserializer.Raise(qu => qu.OutOfSync += NoOp, moqFirstQuoteDeserializer.Object);
         moqSyncOk.Verify();
         moqSyncKo.Verify();
@@ -407,10 +390,7 @@ public class PQClientSyncMonitoringTests
         pqClientSyncMonitoring.CheckStartMonitoring();
         PrepareMonitorDeserializersForSnapshotResyncMoqs();
         moqFirstQuoteDeserializer.Setup(qu => qu.CheckResync(It.IsAny<DateTime>())).Returns(false).Verifiable();
-        moqSecondQuoteDeserializer.Setup(qu => qu.CheckResync(It.IsAny<DateTime>())).Callback(() =>
-            {
-                pqClientSyncMonitoring.CheckStopMonitoring();
-            })
+        moqSecondQuoteDeserializer.Setup(qu => qu.CheckResync(It.IsAny<DateTime>())).Callback(() => { pqClientSyncMonitoring.CheckStopMonitoring(); })
             .Returns(false).Verifiable();
 
         monitorAction();
@@ -499,28 +479,20 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializer.Setup(qu => qu.HasTimedOutAndNeedsSnapshot(It.IsAny<DateTime>())).Returns(true)
             .Verifiable();
 
-        moqSyncOk.Setup(sok => sok.Remove(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
-        moqSyncKo.Setup(sko => sko.AddFirst(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncOk.Setup(sok => sok.Remove(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncKo.Setup(sko => sko.AddFirst(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
 
         moqSyncKo.SetupSequence(sko => sko.Head).Returns(moqFirstQuoteDeserializer.Object)
             .Returns(moqSecondQuoteDeserializer.Object).Returns(moqFirstQuoteDeserializer.Object);
         moqFirstQuoteDeserializer.Setup(qu => qu.CheckResync(It.IsAny<DateTime>())).Returns(true).Verifiable();
         moqSecondQuoteDeserializer.Setup(qu => qu.CheckResync(It.IsAny<DateTime>())).Returns(false).Verifiable();
 
-        moqSyncKo.Setup(sko => sko.Remove(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
-        moqSyncKo.Setup(sko => sko.AddLast(moqFirstQuoteDeserializer.Object)).Callback(() =>
-        {
-            Assert.IsTrue(inSequencerSerialize);
-        }).Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncKo.Setup(sko => sko.Remove(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
+        moqSyncKo.Setup(sko => sko.AddLast(moqFirstQuoteDeserializer.Object)).Callback(() => { Assert.IsTrue(inSequencerSerialize); })
+            .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
 
         moqFirstQuoteDeserializerIdentifier = new Mock<IUniqueSourceTickerIdentifier>();
         moqFirstQuoteDeserializer.SetupGet(qu => qu.Identifier)

@@ -4,10 +4,10 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.NewSocketAPI.Construction;
-using FortitudeIO.Transports.NewSocketAPI.Controls;
-using FortitudeIO.Transports.NewSocketAPI.State;
+using FortitudeIO.Transports.Network.Config;
+using FortitudeIO.Transports.Network.Construction;
+using FortitudeIO.Transports.Network.Controls;
+using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
 

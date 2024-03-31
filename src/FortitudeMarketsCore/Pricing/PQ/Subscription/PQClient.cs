@@ -3,8 +3,8 @@
 using System.Reactive.Disposables;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
-using FortitudeIO.Transports.NewSocketAPI.Config;
-using FortitudeIO.Transports.NewSocketAPI.Dispatcher;
+using FortitudeIO.Transports.Network.Config;
+using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;

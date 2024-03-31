@@ -3,8 +3,8 @@
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeIO.Transports.NewSocketAPI.Conversations;
-using FortitudeIO.Transports.NewSocketAPI.State;
+using FortitudeIO.Transports.Network.Conversations;
+using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
