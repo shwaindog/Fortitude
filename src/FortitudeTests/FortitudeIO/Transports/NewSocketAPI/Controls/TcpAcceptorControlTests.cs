@@ -6,6 +6,7 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.NewSocketAPI.Config;
 using FortitudeIO.Transports.NewSocketAPI.Construction;
@@ -47,6 +48,7 @@ public class TcpAcceptorControlsTests
     private Mock<ISocketReceiver> moqSocketReceiver = null!;
     private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
+    private Mock<IVersionedMessage> moqVersionedMessage = null!;
     private TcpAcceptorControls tcpAcceptorControls = null!;
     private string testHostName = null!;
     private ushort testHostPort;
@@ -81,6 +83,7 @@ public class TcpAcceptorControlsTests
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
         moqCapturedClientSessionStateChanged = new Mock<Action<SocketSessionState>>();
+        moqVersionedMessage = new Mock<IVersionedMessage>();
 
         moqSocketReconnectConfig.SetupGet(scc => scc.NextReconnectIntervalMs).Returns(5u);
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
@@ -280,7 +283,6 @@ public class TcpAcceptorControlsTests
         moqCapturedClientSessionStateChanged.Setup(os => os.Invoke(SocketSessionState.New)).Verifiable();
         moqFlogger.Setup(os => os.Info("Client {0} ({1}) connected to server {2} @{3}", It.IsAny<object[]>()))
             .Verifiable();
-        var moqReconnectConfig = new Mock<ISocketReconnectConfig>();
 
         var moqNewClientCallback = new Mock<Action<IConversationRequester>>();
         moqNewClientCallback.Setup(stcc => stcc.Invoke(It.IsAny<IConversationRequester>()))
@@ -330,5 +332,32 @@ public class TcpAcceptorControlsTests
 
         moqSocketReceiver.Verify();
         moqFlogger.Verify();
+    }
+
+    [TestMethod]
+    public void TwoConnectedClientsServer_Broadcast_SendsMessageForEachClient()
+    {
+        var moqFirstClientSender = new Mock<IStreamPublisher>();
+        var moqFirstClient = new Mock<IConversationRequester>();
+        moqFirstClient.Setup(cr => cr.StreamPublisher).Returns(moqFirstClientSender.Object).Verifiable();
+        moqFirstClient.SetupGet(cr => cr.Id).Returns(1);
+        moqFirstClientSender.Setup(cr => cr.Send(moqVersionedMessage.Object)).Verifiable();
+        var moqSecondClientSender = new Mock<IStreamPublisher>();
+        var moqSecondClient = new Mock<IConversationRequester>();
+        moqSecondClient.Setup(cr => cr.StreamPublisher).Returns(moqSecondClientSender.Object).Verifiable();
+        moqSecondClient.Setup(cr => cr.Id).Returns(2);
+        moqSecondClientSender.Setup(cr => cr.Send(moqVersionedMessage.Object)).Verifiable();
+        var clientMap = new Dictionary<int, IConversationRequester>
+        {
+            { moqFirstClient.Object.Id, moqFirstClient.Object }, { moqSecondClient.Object.Id, moqSecondClient.Object }
+        };
+        NonPublicInvocator.SetInstanceField(tcpAcceptorControls, "clients", clientMap);
+
+        tcpAcceptorControls.Broadcast(moqVersionedMessage.Object);
+
+        moqFirstClient.Verify();
+        moqSecondClient.Verify();
+        moqFirstClientSender.Verify();
+        moqSecondClientSender.Verify();
     }
 }

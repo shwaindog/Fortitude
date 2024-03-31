@@ -29,7 +29,7 @@ public abstract class SocketRingPollerSender<T> : RingPollerBase<T>, ISocketDisp
 
     public abstract void AddToSendQueue(ISocketSender ss);
 
-    protected void EnqueueSocketSenderToSocket(ISocketSender ss)
+    protected void PutQueuedSenderMessageOnSocket(ISocketSender ss)
     {
         try
         {
@@ -71,6 +71,6 @@ public class SimpleSocketRingPollerSender : SocketRingPollerSender<SocketSenderC
     protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, SocketSenderContainer data
         , bool ringStartOfBatch, bool ringEndOfBatch)
     {
-        EnqueueSocketSenderToSocket(data.SocketSender!);
+        PutQueuedSenderMessageOnSocket(data.SocketSender!);
     }
 }

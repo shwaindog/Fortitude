@@ -224,9 +224,10 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 logger.Info("Client {0} ({1}) connected to server {2} @{3}",
                     client.Id, clientIpEndPoint, acceptorSocketSessionContext.Name,
                     acceptorSocketSessionContext.SocketConnection!.ConnectedPort);
-                var clientStreamInitiator = new AcceptorClientControls(client);
+                var clientStreamInitiator = new TcpAcceptedClientControls(client);
                 var clientRequester = new ConversationRequester(client, clientStreamInitiator);
                 clientRequester.Disconnected += () => RemoveClient(clientRequester);
+                clientRequester.StartMessaging();
                 clientsSync.Acquire();
                 try
                 {
