@@ -96,10 +96,7 @@ public class TcpRequestResponderConnectionTests
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (var deserializersValue in
                  responderDeserializers.Values.Cast<ICallbackMessageDeserializer<SimpleVersionedMessage>>())
-        {
             deserializersValue.Deserialized2 += ReceivedFromClientDeserializerCallback;
-            deserializersValue.MessageDeserialized += ReceivedFromClientDeserializerCallback;
-        }
 
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message

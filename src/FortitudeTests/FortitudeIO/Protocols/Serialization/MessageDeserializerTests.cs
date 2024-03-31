@@ -2,9 +2,9 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes;
+using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Logging;
 using Moq;
 
@@ -23,13 +23,13 @@ public class MessageDeserializerTests
         var expectedData = new DummyMessage();
         var expectedState = new DummyMessage();
 
-        var moqSession = new Mock<ISession>();
+        var moqSession = new Mock<IConversation>();
         var moqPerfLogger = new Mock<IPerfLogger>();
 
         var firstCallbackCalled = false;
         var secondCallbackCalled = false;
 
-        void FirstCallback(object data, object? state, ISession? session)
+        void FirstCallback(object data, object? state, IConversation? session)
         {
             Assert.AreSame(expectedData, data);
             Assert.AreSame(expectedState, state);
@@ -39,10 +39,10 @@ public class MessageDeserializerTests
 
         Assert.IsFalse(binaryDeserializer.IsRegistered(FirstCallback));
 
-        binaryDeserializer.Deserialized += FirstCallback;
+        binaryDeserializer.Deserialized2 += FirstCallback;
         Assert.IsTrue(binaryDeserializer.IsRegistered(FirstCallback));
 
-        void SecondCallback(object data, object? state, ISession? session)
+        void SecondCallback(object data, object? state, IConversation? session)
         {
             Assert.AreSame(expectedData, data);
             Assert.AreSame(expectedState, state);
@@ -52,7 +52,7 @@ public class MessageDeserializerTests
 
         Assert.IsFalse(binaryDeserializer.IsRegistered(SecondCallback));
 
-        binaryDeserializer.Deserialized += SecondCallback;
+        binaryDeserializer.Deserialized2 += SecondCallback;
         Assert.IsTrue(binaryDeserializer.IsRegistered(SecondCallback));
 
         moqPerfLogger.Setup(pl => pl.Add(SocketDataLatencyLogger.BeforePublish)).Verifiable();
@@ -74,7 +74,7 @@ public class MessageDeserializerTests
     {
         public override TM? Deserialize(ISerdeContext serdeContext) => null;
 
-        public void CallDispatch(TM data, object state, ISession repositorySession,
+        public void CallDispatch(TM data, object state, IConversation repositorySession,
             IPerfLogger detectionToPublishLatencyLogger)
         {
             Dispatch(data, state, repositorySession, detectionToPublishLatencyLogger);

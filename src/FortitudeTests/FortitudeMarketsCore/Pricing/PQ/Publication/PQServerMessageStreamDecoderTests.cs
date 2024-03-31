@@ -23,6 +23,7 @@ public class PQServerMessageStreamDecoderTests
     private IConversationRequester? lastReceivedConversation;
 
     private uint[] lastReceivedSnapshotRequestIds = null!;
+    private Mock<IConversation> moqConversation = null!;
     private Mock<ISocketConversation> moqSocketConversation = null!;
     private Mock<IConversationRequester> moqSocketConversationRequester = null!;
 
@@ -37,12 +38,13 @@ public class PQServerMessageStreamDecoderTests
     {
         moqSocketSessionConnection = new Mock<ISocketSessionContext>();
         moqSocketConversationRequester = new Mock<IConversationRequester>();
+        moqConversation = new Mock<IConversation>();
         moqSocketConversation = moqSocketConversationRequester.As<ISocketConversation>();
         moqSocketSessionConnection.SetupGet(x => x.OwningConversation).Returns(moqSocketConversation.Object);
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
         readSocketBufferContext = new ReadSocketBufferContext
         {
-            EncodedBuffer = readWriteBuffer, SessionContext = moqSocketSessionConnection.Object
+            EncodedBuffer = readWriteBuffer, Conversation = moqSocketConversation.Object
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
 

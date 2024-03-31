@@ -77,13 +77,8 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
                     if (sockBuffContext.Conversation != null)
                         Dispatch(simpleMessage, sockBuffContext.MessageHeader, sockBuffContext.Conversation
                             , sockBuffContext.DispatchLatencyLogger);
-                    else if (sockBuffContext.Session != null)
-                        Dispatch(simpleMessage, sockBuffContext.MessageHeader, sockBuffContext.Session
-                            , sockBuffContext.DispatchLatencyLogger);
                     else
-                        Dispatch(simpleMessage
-                            , new BasicMessageHeader(version, (ushort)simpleMessage.MessageId, messageSize
-                                , bufferContext));
+                        Dispatch(simpleMessage, bufferContext);
 
                 return simpleMessage;
             }

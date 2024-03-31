@@ -25,26 +25,12 @@ public sealed class OrxDeserializer<Tm> : MessageDeserializer<Tm> where Tm : cla
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         var tradingMessage = orxByteDeserializer.Deserialize(readContext);
         if (readContext is ReadSocketBufferContext sockBuffContext)
-        {
-            if (sockBuffContext.Session != null)
-                Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
-                    sockBuffContext.Session, sockBuffContext.DispatchLatencyLogger);
-            else if (sockBuffContext.LegacySession != null)
-                Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
-                    sockBuffContext.LegacySession, sockBuffContext.DispatchLatencyLogger);
-            else if (sockBuffContext.SessionContext != null)
-                Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
-                    sockBuffContext.Conversation, sockBuffContext.DispatchLatencyLogger);
-        }
+            Dispatch(tradingMessage, sockBuffContext.MessageHeader!,
+                sockBuffContext.Conversation, sockBuffContext.DispatchLatencyLogger);
         else if (readContext is IBufferContext bufferContext)
-        {
-            var messageHeader = bufferContext.ReadBasicMessageHeader();
-            Dispatch(tradingMessage, messageHeader);
-        }
+            Dispatch(tradingMessage, bufferContext);
         else
-        {
             throw new ArgumentException("Expected readContext to be of type IBufferContext");
-        }
 
         return tradingMessage;
     }

@@ -18,10 +18,10 @@ namespace FortitudeTests.TestHelpers;
 public class TestMetrics
 {
     private const int MaxAllowedUntestedClassesInCommon = 125;
-    private const int MaxAllowedUntestedClassesInFortitudeIO = 114;
-    private const int MaxAllowedUntestedClassesInFortitudeMarketsApi = 20;
-    private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 83;
-    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 37;
+    private const int MaxAllowedUntestedClassesInFortitudeIO = 91;
+    private const int MaxAllowedUntestedClassesInFortitudeMarketsApi = 17;
+    private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 79;
+    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 33;
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses = null!;
     private Type fortitudeBusRulesType = null!;
 
@@ -67,44 +67,44 @@ public class TestMetrics
     [TestMethod]
     public void ListProdClassesWithoutMatchingTestClass()
     {
-        Console.Out.WriteLine("FortitudeCommon Assembly Classes Without Tests");
         var countUnTestedInAssembly = fortitudeCommonAssemblyClasses.Values.SelectMany(lt => lt)
             .Count(PrintTestClassStateIfApplicable);
+        Console.Out.WriteLine($"FortitudeCommon Assembly Classes Without Tests - {countUnTestedInAssembly}");
         Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInCommon,
             $"Common has {countUnTestedInAssembly} which is greater " +
             $"than max allowed of {MaxAllowedUntestedClassesInCommon}");
 
-        Console.Out.WriteLine("\nFortitudeIO Assembly Classes Without Tests");
         countUnTestedInAssembly = fortitudeIOAssemblyClasses.Values.SelectMany(lt => lt)
             .Count(PrintTestClassStateIfApplicable);
+        Console.Out.WriteLine($"\nFortitudeIO Assembly Classes Without Tests- {countUnTestedInAssembly}");
         Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeIO,
             $"FortitudeIO has {countUnTestedInAssembly} which is greater " +
             $"than max allowed of {MaxAllowedUntestedClassesInFortitudeIO}");
 
-        Console.Out.WriteLine("\nFortitudeMarketsApi Assembly Classes Without Tests");
         countUnTestedInAssembly = fortitudeMarketsApiAssemblyClasses.Values.SelectMany(lt => lt)
             .Count(PrintTestClassStateIfApplicable);
+        Console.Out.WriteLine($"\nFortitudeMarketsApi Assembly Classes Without Tests- {countUnTestedInAssembly}");
         Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeMarketsApi,
             $"FortitudeMarketsApi has {countUnTestedInAssembly} which is greater " +
             $"than max allowed of {MaxAllowedUntestedClassesInFortitudeMarketsApi}");
 
-        Console.Out.WriteLine("\nFortitudeMarketsCore Assembly Classes Without Tests");
         countUnTestedInAssembly = fortitudeMarketsCoreAssemblyClasses.Values.SelectMany(lt => lt)
             .Count(PrintTestClassStateIfApplicable);
+        Console.Out.WriteLine($"\nFortitudeMarketsCore Assembly Classes Without Tests- {countUnTestedInAssembly}");
         Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeMarketsCore,
             $"FortitudeMarketsCore has {countUnTestedInAssembly} which is greater " +
             $"than max allowed of {MaxAllowedUntestedClassesInFortitudeMarketsCore}");
 
-        Console.Out.WriteLine("\nFortitudeBusRules Assembly Classes Without Tests");
         countUnTestedInAssembly = fortitudeBusRulesAssemblyClasses.Values.SelectMany(lt => lt)
             .Count(PrintTestClassStateIfApplicable);
+        Console.Out.WriteLine($"\nFortitudeBusRules Assembly Classes Without Tests- {countUnTestedInAssembly}");
         Assert.IsTrue(countUnTestedInAssembly < MaxAllowedUntestedClassesInFortitudeBusRules,
             $"FortitudeBusRules has {countUnTestedInAssembly} which is greater " +
             $"than max allowed of {MaxAllowedUntestedClassesInFortitudeBusRules}");
 
-        Console.Out.WriteLine("\nFortitudeTests Assembly Test Classes Production Class");
         countUnTestedInAssembly = testClassNames.Values.SelectMany(lt => lt)
             .Count(PrintTestClassWithNoMatchingProductionClass);
+        Console.Out.WriteLine($"\nFortitudeTests Assembly Test Classes Production Class- {countUnTestedInAssembly}");
         Assert.IsTrue(countUnTestedInAssembly == 0, "FortitudeTests has unaccounted for test classes!");
         Console.Out.WriteLine("End of Test");
     }

@@ -95,7 +95,7 @@ public class SocketReceiverTests
         moqSocketSessionContext.SetupGet(ssc => ssc.StreamControls).Returns(moqStreamControls.Object);
 
         moqPerfPoolFac.Setup(ltcspf => ltcspf.GetLatencyTracingLoggerPool(
-                "Receive.SocketReceiverTests", TimeSpan.FromMilliseconds(1), typeof(ISessionConnection)))
+                "Receive.SocketReceiverTests", TimeSpan.FromMilliseconds(1), typeof(ISession)))
             .Returns(moqPerfLoggerPool.Object).Verifiable();
 
         moqFloggerFactory.Setup(ff => ff.GetLogger(It.IsAny<Type>())).Returns(moqTextFlogger.Object);

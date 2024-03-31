@@ -25,7 +25,6 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
-using ISocketDispatcher = FortitudeIO.Transports.Sockets.Dispatcher.ISocketDispatcher;
 
 #endregion
 

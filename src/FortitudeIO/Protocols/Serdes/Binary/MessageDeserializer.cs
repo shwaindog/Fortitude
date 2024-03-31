@@ -2,9 +2,9 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeIO.Transports;
 using FortitudeIO.Transports.NewSocketAPI.Logging;
 
 #endregion
@@ -42,19 +42,12 @@ public readonly struct BasicMessageHeader
 public abstract class MessageDeserializer<TM> : ICallbackMessageDeserializer<TM>
     where TM : class, IVersionedMessage, new()
 {
-    object? IMessageDeserializer.Deserialize(ReadSocketBufferContext readSocketBufferContext) =>
-        Deserialize(readSocketBufferContext);
+    object? IMessageDeserializer.Deserialize(ReadSocketBufferContext readSocketBufferContext) => Deserialize(readSocketBufferContext);
 
     public MarshalType MarshalType => MarshalType.Binary;
     public abstract TM? Deserialize(ISerdeContext readContext);
 
-    TM? IMessageDeserializer<TM>.Deserialize(ReadSocketBufferContext readSocketBufferContext) =>
-        Deserialize(readSocketBufferContext);
-
-    //[Obsolete]  TODO restore when switched over
-    public event Action<TM, object?, ISession?>? Deserialized;
-
-    public event Action<TM, BasicMessageHeader>? MessageDeserialized;
+    TM? IMessageDeserializer<TM>.Deserialize(ReadSocketBufferContext readSocketBufferContext) => Deserialize(readSocketBufferContext);
 
     public bool IsRegistered(Action<TM, object, IConversation> deserializedHandler)
     {
@@ -62,24 +55,15 @@ public abstract class MessageDeserializer<TM> : ICallbackMessageDeserializer<TM>
             .Any(del => del.Target == deserializedHandler.Target && del.Method == deserializedHandler.Method);
     }
 
-    public bool IsRegistered(Action<TM, object, ISession> deserializedHandler)
-    {
-        return Deserialized != null && Deserialized.GetInvocationList()
-            .Any(del => del.Target == deserializedHandler.Target && del.Method == deserializedHandler.Method);
-    }
-
     public event Action<TM, object?, IConversation?>? Deserialized2;
 
-    protected void Dispatch(TM data, object? state, ISession? repositorySession,
-        IPerfLogger? detectionToPublishLatencyTraceLogger)
-    {
-        detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforePublish);
-        Deserialized?.Invoke(data, state, repositorySession);
-    }
 
-    protected void Dispatch(TM data, BasicMessageHeader messageHeader)
+    public event Action<TM, IBufferContext>? MessageDeserialized;
+
+
+    protected void Dispatch(TM data, IBufferContext bufferContext)
     {
-        MessageDeserialized?.Invoke(data, messageHeader);
+        MessageDeserialized?.Invoke(data, bufferContext);
     }
 
     protected void Dispatch(TM data, object? state, IConversation? sender,
