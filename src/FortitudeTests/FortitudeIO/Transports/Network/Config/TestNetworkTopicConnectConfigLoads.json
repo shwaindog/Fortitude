@@ -1,0 +1,31 @@
+{
+  "NetworkTopicConnectionConfig": {
+    "TopicName": "TestCanLoadFromJson",
+    "ConversationProtocol": "TcpClient",
+    "AvailableConnections": [
+      {
+        "InstanceName": "FirstInstanceName",
+        "Hostname": "FirstHostname",
+        "Port": 1
+      },
+      {
+        "InstanceName": "SecondInstanceName",
+        "Hostname": "SecondHostname",
+        "Port": 2,
+        "SubnetMask": "127.0.0.1"
+      }
+    ],
+    "TopicDescription": "This topic tests that the application can load this json config",
+    "ReceiveBufferSize": 9000,
+    "SendBufferSize": 7000,
+    "ConnectionAttributes": "Multicast,Fast",
+    "ConnectionSelectionOrder": "ListedOrder",
+    "ConnectionTimeoutMs": 1000,
+    "ResponseTimeoutMs": 9000,
+    "ReconnectConfig": {
+      "StartReconnectIntervalMs": 5000,
+      "MaxReconnectIntervalMs": 20000,
+      "IncrementReconnectIntervalMs": 1000
+    }
+  }
+}

@@ -3,6 +3,8 @@
 using System.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.Topics.Config.ConnectionConfig;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 
 #endregion
 
@@ -30,9 +32,30 @@ public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IEnumer
     INetworkTopicConnectionConfig ToggleProtocolDirection();
 }
 
-public class NetworkTopicConnectionConfig : INetworkTopicConnectionConfig
+public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicConnectionConfig
 {
+    public const string DefaultNetworkTopicConnectionConfigPath = "NetworkTopicConnectionConfig";
+
+    private static readonly Dictionary<string, string?> Defaults = new()
+    {
+        { nameof(ReceiveBufferSize), (1024 * 1024 * 2).ToString() }, { nameof(SendBufferSize), (1024 * 1024 * 2).ToString() }
+        , { nameof(NumberOfReceivesPerPoll), "50" }, { nameof(ConnectionAttributes), SocketConnectionAttributes.None.ToString() }
+        , { nameof(ConnectionSelectionOrder), ConnectionSelectionOrder.ListedOrder.ToString() }, { nameof(ConnectionTimeoutMs), "2000" }
+        , { nameof(ResponseTimeoutMs), "10000" }
+    };
+
+    private readonly IConfigurationRoot configRoot;
+
     private readonly List<IEndpointConfig> returnedItems = new();
+    private List<IEndpointConfig>? endpointConfigs;
+    private ISocketReconnectConfig? reconnectConfig;
+
+    public NetworkTopicConnectionConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
+    {
+        this.configRoot = configRoot;
+        foreach (var checkDefault in Defaults) this[checkDefault.Key] ??= checkDefault.Value;
+        Current = null!;
+    }
 
     public NetworkTopicConnectionConfig(string topicName, SocketConversationProtocol conversationProtocol
         , IEnumerable<IEndpointConfig> availableConnections,
@@ -41,7 +64,9 @@ public class NetworkTopicConnectionConfig : INetworkTopicConnectionConfig
         , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
         ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,
         uint connectionTimeoutMs = 2_000, uint responseTimeoutMs = 10_000
-        , ISocketReconnectConfig? reconnectConfig = null)
+        , ISocketReconnectConfig? reconnectConfig = null) :
+        this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultNetworkTopicConnectionConfigPath)
+
     {
         TopicName = topicName;
         ConversationProtocol = conversationProtocol;
@@ -58,8 +83,10 @@ public class NetworkTopicConnectionConfig : INetworkTopicConnectionConfig
         Current = AvailableConnections.First();
     }
 
-    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone)
+    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone, IConfigurationRoot configRoot, string path) : base(
+        configRoot, path)
     {
+        this.configRoot = configRoot;
         TopicName = toClone.TopicName;
         ConversationProtocol = toClone.ConversationProtocol;
         AvailableConnections = toClone.AvailableConnections.Select(scc => scc.Clone()).ToList();
@@ -75,18 +102,94 @@ public class NetworkTopicConnectionConfig : INetworkTopicConnectionConfig
         Current = AvailableConnections.First();
     }
 
-    public string TopicName { get; set; }
-    public SocketConversationProtocol ConversationProtocol { get; set; }
-    public List<IEndpointConfig> AvailableConnections { get; set; }
-    public string? TopicDescription { get; set; }
-    public int ReceiveBufferSize { get; set; }
-    public int SendBufferSize { get; set; }
-    public int NumberOfReceivesPerPoll { get; set; }
-    public SocketConnectionAttributes ConnectionAttributes { get; set; }
-    public ConnectionSelectionOrder ConnectionSelectionOrder { get; set; }
-    public uint ConnectionTimeoutMs { get; set; }
-    public uint ResponseTimeoutMs { get; set; }
-    public ISocketReconnectConfig ReconnectConfig { get; set; }
+    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone) : this(toClone,
+        new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultNetworkTopicConnectionConfigPath) { }
+
+    public string TopicName
+    {
+        get => this[nameof(TopicName)]!;
+        set => this[nameof(TopicName)] = value;
+    }
+
+    public SocketConversationProtocol ConversationProtocol
+    {
+        get => Enum.Parse<SocketConversationProtocol>(this[nameof(ConversationProtocol)]!);
+        set => this[nameof(ConversationProtocol)] = value.ToString();
+    }
+
+    public List<IEndpointConfig> AvailableConnections
+    {
+        get
+        {
+            if (endpointConfigs != null) return endpointConfigs;
+            endpointConfigs = new List<IEndpointConfig>();
+            foreach (var configurationSection in GetSection(nameof(AvailableConnections)).GetChildren())
+                if (configurationSection["Hostname"] != null)
+                    endpointConfigs.Add(new EndpointConfig(configRoot, configurationSection.Path));
+            return endpointConfigs;
+        }
+        set
+        {
+            endpointConfigs = new List<IEndpointConfig>();
+            for (var i = 0; i < value.Count; i++)
+                endpointConfigs.Add(new EndpointConfig(value[i], configRoot, Path + ":" + nameof(AvailableConnections) + $":{i}"));
+        }
+    }
+
+    public string? TopicDescription
+    {
+        get => this[nameof(TopicDescription)]!;
+        set => this[nameof(TopicDescription)] = value;
+    }
+
+    public int ReceiveBufferSize
+    {
+        get => int.Parse(this[nameof(ReceiveBufferSize)]!);
+        set => this[nameof(ReceiveBufferSize)] = value.ToString();
+    }
+
+    public int SendBufferSize
+    {
+        get => int.Parse(this[nameof(SendBufferSize)]!);
+        set => this[nameof(SendBufferSize)] = value.ToString();
+    }
+
+    public int NumberOfReceivesPerPoll
+    {
+        get => int.Parse(this[nameof(NumberOfReceivesPerPoll)]!);
+        set => this[nameof(NumberOfReceivesPerPoll)] = value.ToString();
+    }
+
+    public SocketConnectionAttributes ConnectionAttributes
+    {
+        get => Enum.Parse<SocketConnectionAttributes>(this[nameof(ConnectionAttributes)]!);
+        set => this[nameof(ConnectionAttributes)] = value.ToString();
+    }
+
+    public ConnectionSelectionOrder ConnectionSelectionOrder
+    {
+        get => Enum.Parse<ConnectionSelectionOrder>(this[nameof(ConnectionSelectionOrder)]!);
+        set => this[nameof(ConnectionSelectionOrder)] = value.ToString();
+    }
+
+    public uint ConnectionTimeoutMs
+    {
+        get => uint.Parse(this[nameof(ConnectionTimeoutMs)]!);
+        set => this[nameof(ConnectionTimeoutMs)] = value.ToString();
+    }
+
+    public uint ResponseTimeoutMs
+    {
+        get => uint.Parse(this[nameof(ResponseTimeoutMs)]!);
+        set => this[nameof(ResponseTimeoutMs)] = value.ToString();
+    }
+
+    public ISocketReconnectConfig ReconnectConfig
+    {
+        get => reconnectConfig ??= new SocketReconnectConfig(configRoot, Path + $":{nameof(ReconnectConfig)}");
+        set => reconnectConfig = new SocketReconnectConfig(value, configRoot, Path + $":{nameof(ReconnectConfig)}");
+    }
+
     public TransportType TransportType => TransportType.Sockets;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -2,94 +2,52 @@
 
 using FortitudeBusRules.Injection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 
 #endregion
 
 namespace FortitudeBusRules.Config;
 
-public class BusRulesConfig
+public class BusRulesConfig : ConfigurationSection
 {
-    private readonly IConfigurationSection busRulesConfig;
+    public const string DefaultBusRulesConfigPath = "BusRulesConfig";
+    private readonly IConfigurationRoot configRoot;
+    private ClusterConfig? clusterConfig;
 
-    private readonly Dictionary<string, string?> defaults = new()
-    {
-        { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }
-        , { nameof(RequiredIOInboundQueues), "1" }, { nameof(RequiredIOOutboundQueues), "1" }
-        , { nameof(MaxWorkerQueues), "10" }, { nameof(MinWorkerQueues), "1" }
-        , { nameof(EventQueueSize), "50_000" }, { nameof(DefaultQueueSize), "10_000" }
-        , { nameof(MessagePumpMaxWaitMs), "30" }
-    };
+    private QueuesConfig? queuesConfig;
 
-    public BusRulesConfig(IConfigurationSection? busRulesConfig)
+    public BusRulesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) => this.configRoot = configRoot;
+
+    public BusRulesConfig() : this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultBusRulesConfigPath) { }
+
+    public string? Name
     {
-        if (busRulesConfig != null)
+        get => this[nameof(Name)];
+        set => this[nameof(Name)] = value;
+    }
+
+    public string? Description
+    {
+        get => this[nameof(Description)];
+        set => this[nameof(Description)] = value;
+    }
+
+    public QueuesConfig QueuesConfig
+    {
+        get => queuesConfig ??= new QueuesConfig(configRoot, Path + ":" + nameof(QueuesConfig));
+        set => queuesConfig = new QueuesConfig(value, configRoot, Path + ":" + nameof(QueuesConfig));
+    }
+
+    public ClusterConfig? ClusterConfig
+    {
+        get
         {
-            this.busRulesConfig = busRulesConfig;
-            foreach (var defaultKvp in defaults) busRulesConfig[defaultKvp.Key] ??= defaultKvp.Value;
+            if (GetSection(nameof(ClusterConfig)).GetChildren().Any())
+                return clusterConfig ??= new ClusterConfig(configRoot, Path + ":" + nameof(ClusterConfig));
+            return null;
         }
-        else
-        {
-            var builder = new ConfigurationBuilder();
-            builder.AddInMemoryCollection(defaults);
-            this.busRulesConfig = new ConfigurationSection(builder.Build(), "");
-        }
-    }
-
-    public int MinEventQueues
-    {
-        get => int.Parse(busRulesConfig[nameof(MinEventQueues)]!);
-        set => busRulesConfig[nameof(MinEventQueues)] = value.ToString();
-    }
-
-    public int MaxEventQueues
-    {
-        get => int.Parse(busRulesConfig[nameof(MaxEventQueues)]!);
-        set => busRulesConfig[nameof(MaxEventQueues)] = value.ToString();
-    }
-
-    public int RequiredIOInboundQueues
-    {
-        get => int.Parse(busRulesConfig[nameof(RequiredIOInboundQueues)]!);
-        set => busRulesConfig[nameof(RequiredIOInboundQueues)] = value.ToString();
-    }
-
-    public int RequiredIOOutboundQueues
-    {
-        get => int.Parse(busRulesConfig[nameof(RequiredIOOutboundQueues)]!);
-        set => busRulesConfig[nameof(RequiredIOOutboundQueues)] = value.ToString();
-    }
-
-    public int MinWorkerQueues
-    {
-        get => int.Parse(busRulesConfig[nameof(MinWorkerQueues)]!);
-        set => busRulesConfig[nameof(MinWorkerQueues)] = value.ToString();
-    }
-
-    public int MaxWorkerQueues
-    {
-        get => int.Parse(busRulesConfig[nameof(MaxWorkerQueues)]!);
-        set => busRulesConfig[nameof(MaxWorkerQueues)] = value.ToString();
-    }
-
-    public int DefaultQueueSize
-    {
-        get => int.Parse(busRulesConfig[nameof(DefaultQueueSize)]!);
-        set => busRulesConfig[nameof(DefaultQueueSize)] = value.ToString();
-    }
-
-    public int EventQueueSize
-    {
-        get => int.Parse(busRulesConfig[nameof(EventQueueSize)]!);
-        set => busRulesConfig[nameof(EventQueueSize)] = value.ToString();
-    }
-
-    public int MessagePumpMaxWaitMs
-    {
-        get => int.Parse(busRulesConfig[nameof(MessagePumpMaxWaitMs)]!);
-        set => busRulesConfig[nameof(MessagePumpMaxWaitMs)] = value.ToString();
+        set => clusterConfig = value != null ? new ClusterConfig(value, configRoot, Path + ":" + nameof(ClusterConfig)) : null;
     }
 
     public IDependencyResolver? Resolver { get; set; }
-
-    public IConfigurationSection ToConfigurationSection() => busRulesConfig;
 }

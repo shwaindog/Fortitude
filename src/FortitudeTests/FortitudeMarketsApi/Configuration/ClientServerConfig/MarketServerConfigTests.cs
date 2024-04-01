@@ -7,7 +7,7 @@ using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeTests.FortitudeCommon.Configuration.Availability;
-using FortitudeTests.FortitudeIO.Transports.Network.ConnectionConfig;
+using FortitudeTests.FortitudeIO.Transports.Network.Config;
 
 #endregion
 
