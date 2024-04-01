@@ -2,6 +2,8 @@
 
 using System.Net;
 using FortitudeCommon.Types;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 
 #endregion
 
@@ -16,9 +18,12 @@ public interface IEndpointConfig : ICloneable<IEndpointConfig>
     IPAddress? SubnetMaskIpAddress { get; }
 }
 
-public class EndpointConfig : IEndpointConfig
+public class EndpointConfig : ConfigurationSection, IEndpointConfig
 {
-    public EndpointConfig(string hostname, ushort port, string? instanceName = null, string? subnetMask = null)
+    public EndpointConfig(IConfigurationRoot root, string path) : base(root, path) { }
+
+    public EndpointConfig(string hostname, ushort port, string? instanceName = null, string? subnetMask = null) : base(
+        new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), "")
     {
         Hostname = hostname;
         Port = port;
@@ -26,7 +31,9 @@ public class EndpointConfig : IEndpointConfig
         InstanceName = instanceName ?? $"{hostname}:{port}";
     }
 
-    public EndpointConfig(IEndpointConfig toClone)
+    public EndpointConfig(IEndpointConfig toClone) : this(toClone, new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), "") { }
+
+    public EndpointConfig(IEndpointConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         Hostname = toClone.Hostname;
         Port = toClone.Port;
@@ -34,11 +41,31 @@ public class EndpointConfig : IEndpointConfig
         InstanceName = toClone.InstanceName;
     }
 
-    public string InstanceName { get; set; }
-    public string Hostname { get; set; }
-    public string? SubnetMask { get; set; }
+    public string InstanceName
+    {
+        get => this[nameof(InstanceName)]!;
+        set => this[nameof(InstanceName)] = value;
+    }
+
+    public string Hostname
+    {
+        get => this[nameof(Hostname)]!;
+        set => this[nameof(Hostname)] = value;
+    }
+
+    public string? SubnetMask
+    {
+        get => this[nameof(SubnetMask)];
+        set => this[nameof(SubnetMask)] = value;
+    }
+
     public IPAddress? SubnetMaskIpAddress => SubnetMask != null ? IPAddress.Parse(SubnetMask) : null;
-    public ushort Port { get; set; }
+
+    public ushort Port
+    {
+        get => ushort.Parse(this[nameof(Port)]!);
+        set => this[nameof(Port)] = value.ToString();
+    }
 
     object ICloneable.Clone() => Clone();
 

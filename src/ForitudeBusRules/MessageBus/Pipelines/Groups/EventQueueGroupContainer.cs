@@ -64,26 +64,26 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         recycler = new Recycler();
         strategySelector = new DeployDispatchStrategySelector(recycler);
         this.owningEventBus = owningEventBus;
-        var defaultQueueSize = Math.Max(config.DefaultQueueSize, 1);
-        var ioInboundNum = Math.Max(config.RequiredIOInboundQueues, MaximumIOQueues);
+        var defaultQueueSize = Math.Max(config.QueuesConfig.DefaultQueueSize, 1);
+        var ioInboundNum = Math.Max(config.QueuesConfig.RequiredIOInboundQueues, MaximumIOQueues);
         IOInboundGroup
             = new SpecificEventQueueGroup(owningEventBus, IOInbound, recycler, defaultQueueSize);
         IOInboundGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, IOInbound, (uint)ioInboundNum));
-        var ioOutboundNum = Math.Max(config.RequiredIOOutboundQueues, MaximumIOQueues);
+        var ioOutboundNum = Math.Max(config.QueuesConfig.RequiredIOOutboundQueues, MaximumIOQueues);
         IOOutboundGroup
             = new SpecificEventQueueGroup(owningEventBus, IOOutbound, recycler, defaultQueueSize);
         IOOutboundGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, IOOutbound, (uint)ioOutboundNum));
 
-        var eventQueueSize = Math.Max(config.EventQueueSize, 1);
-        var eventMinNum = Math.Max(config.MinEventQueues, MinimumEventQueues);
-        var eventQueueNum = Math.Max(Math.Min(config.MaxEventQueues, Environment.ProcessorCount - ReservedCoresForIO)
+        var eventQueueSize = Math.Max(config.QueuesConfig.EventQueueSize, 1);
+        var eventMinNum = Math.Max(config.QueuesConfig.MinEventQueues, MinimumEventQueues);
+        var eventQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxEventQueues, Environment.ProcessorCount - ReservedCoresForIO)
             , eventMinNum);
         EventGroup
             = new SpecificEventQueueGroup(owningEventBus, Event, recycler, eventQueueSize);
         EventGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Event, (uint)eventQueueNum));
 
-        var workerMinNum = Math.Max(config.MinWorkerQueues, MinimumWorkerQueues);
-        var workerQueueNum = Math.Max(Math.Min(config.MaxWorkerQueues, Environment.ProcessorCount - ReservedCoresForIO)
+        var workerMinNum = Math.Max(config.QueuesConfig.MinWorkerQueues, MinimumWorkerQueues);
+        var workerQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxWorkerQueues, Environment.ProcessorCount - ReservedCoresForIO)
             , workerMinNum);
         WorkerGroup
             = new SpecificEventQueueGroup(owningEventBus, Worker, recycler, defaultQueueSize);
@@ -292,8 +292,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         }
     }
 
-    public int Count =>
-        EventGroup.Count + WorkerGroup.Count + IOInboundGroup.Count + IOOutboundGroup.Count + CustomGroup.Count;
+    public int Count => EventGroup.Count + WorkerGroup.Count + IOInboundGroup.Count + IOOutboundGroup.Count + CustomGroup.Count;
 
     public bool HasStarted =>
         EventGroup.HasStarted || WorkerGroup.HasStarted || IOInboundGroup.HasStarted || IOOutboundGroup.HasStarted ||
@@ -312,8 +311,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
     public IEventQueueGroup IOOutboundGroup { get; }
     public IEventQueueGroup CustomGroup { get; }
 
-    public IEventQueueGroup SelectEventQueueGroup(IEventQueue childOfGroup) =>
-        SelectEventQueueGroup(childOfGroup.QueueType);
+    public IEventQueueGroup SelectEventQueueGroup(IEventQueue childOfGroup) => SelectEventQueueGroup(childOfGroup.QueueType);
 
     public IEventQueueGroup SelectEventQueueGroup(EventQueueType selector)
     {

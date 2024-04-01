@@ -1,0 +1,111 @@
+{
+  "BusRulesConfig": {
+    "Name": "TestLoadConfig",
+    "Description": "To load this file and assert configuration values are expected",
+    "QueuesConfig": {
+      "MinEventQueues": 2,
+      "MaxEventQueues": 10,
+      "RequiredIOInboundQueues": 5,
+      "RequiredIOOutboundQueues": 1,
+      "MinWorkerQueues": 3,
+      "MaxWorkerQueues": 7,
+      "DefaultQueueSize": 3000,
+      "EventQueueSize": 9000,
+      "MessagePumpMaxWaitMs": 9
+    },
+    "ClusterConfig": {
+      "ClusterConnectivityEndpoint": {
+        "Name": "TestClusterConnectionManager",
+        "StreamType": "ClusterComms",
+        "ClusterAccessibleHostname": "localhost",
+        "ClusterAccessiblePort": 7777,
+        "ServiceStartConnectionConfig": {
+          "TopicName": "TestClusterConnectionManager",
+          "ConversationProtocol": "TcpAcceptor",
+          "AvailableConnections": [
+            {
+              "Hostname": "0.0.0.0",
+              "Port": 7777,
+              "InstanceName": "TestClusterConnectionManager"
+            }
+          ],
+          "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+        }
+      },
+      "RemoteServiceConfigs": [
+        {
+          "Name": "FirstRemoteHostService",
+          "StreamType": "ClusterComms",
+          "Description": "First Service Provides some service to this bus rules instance",
+          "RemoteServiceConnectionConfig": {
+            "TopicName": "FirstRemoteHostTopic",
+            "ConversationProtocol": "TcpClient",
+            "AvailableConnections": [
+              {
+                "Hostname": "FirstRemoteHostName",
+                "Port": 1111,
+                "InstanceName": "TestClusterConnectionManager"
+              }
+            ],
+            "TopicDescription": "Connects this Bus Rules instance to a remote cluster"
+          }
+        },
+        {
+          "Name": "SecondRemoteHostService",
+          "StreamType": "OrdersExecution",
+          "Description": "Second Service Provides pricing",
+          "RemoteServiceConnectionConfig": {
+            "TopicName": "SecondRemoteHostTopic",
+            "ConversationProtocol": "TcpClient",
+            "AvailableConnections": [
+              {
+                "Hostname": "SecondRemoteHostName",
+                "Port": 2222,
+                "InstanceName": "SomeOtherInstance"
+              }
+            ],
+            "TopicDescription": "provides order execution services"
+          }
+        }
+      ],
+      "AdditionalLocalServices": [
+        {
+          "Name": "FirstAdditionalServiceProvidedToOtherClients",
+          "StreamType": "SomeKnownType",
+          "ClusterAccessibleHostname": "localhost",
+          "ClusterAccessiblePort": 5555,
+          "ServiceStartConnectionConfig": {
+            "TopicName": "FirstAdditionalServiceProvidedToOtherClients",
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "Hostname": "0.0.0.0",
+                "Port": 5555,
+                "InstanceName": "NameOfServiceInstance"
+              }
+            ],
+            "TopicDescription": "Provides well known service to clients connecting on this endpoint"
+          }
+        },
+        {
+          "Name": "SecondAdditionalServiceProvidedToOtherClients",
+          "StreamType": "SomeOtherKnownType",
+          "ClusterAccessibleHostname": "localhost",
+          "ClusterAccessiblePort": 6666,
+          "ServiceStartConnectionConfig": {
+            "TopicName": "SecondAdditionalServiceProvidedToOtherClients",
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "Hostname": "0.0.0.0",
+                "Port": 6666,
+                "InstanceName": "OtherNameOfServiceInstance"
+              }
+            ],
+            "TopicDescription": "Provides well known service"
+          }
+        }
+      ]
+    }
+  }
+}
