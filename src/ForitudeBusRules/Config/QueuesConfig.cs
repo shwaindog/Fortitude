@@ -7,7 +7,20 @@ using Microsoft.Extensions.Configuration.Memory;
 
 namespace FortitudeBusRules.Config;
 
-public class QueuesConfig : ConfigurationSection
+public interface IQueuesConfig
+{
+    int MinEventQueues { get; set; }
+    int MaxEventQueues { get; set; }
+    int RequiredIOInboundQueues { get; set; }
+    int RequiredIOOutboundQueues { get; set; }
+    int MinWorkerQueues { get; set; }
+    int MaxWorkerQueues { get; set; }
+    int DefaultQueueSize { get; set; }
+    int EventQueueSize { get; set; }
+    int MessagePumpMaxWaitMs { get; set; }
+}
+
+public class QueuesConfig : ConfigurationSection, IQueuesConfig
 {
     public const string DefaultQueuesConfigPath = BusRulesConfig.DefaultBusRulesConfigPath + ":" + "QueuesConfig";
 
@@ -30,7 +43,7 @@ public class QueuesConfig : ConfigurationSection
 
     public QueuesConfig() : this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultQueuesConfigPath) { }
 
-    public QueuesConfig(QueuesConfig toClone, IConfigurationRoot root, string path) : this(root, path)
+    public QueuesConfig(IQueuesConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
         MinEventQueues = toClone.MinEventQueues;
         MaxEventQueues = toClone.MaxEventQueues;

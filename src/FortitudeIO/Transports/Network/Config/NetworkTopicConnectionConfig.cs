@@ -66,7 +66,6 @@ public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicC
         uint connectionTimeoutMs = 2_000, uint responseTimeoutMs = 10_000
         , ISocketReconnectConfig? reconnectConfig = null) :
         this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultNetworkTopicConnectionConfigPath)
-
     {
         TopicName = topicName;
         ConversationProtocol = conversationProtocol;

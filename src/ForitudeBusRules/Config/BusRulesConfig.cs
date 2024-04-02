@@ -32,13 +32,13 @@ public class BusRulesConfig : ConfigurationSection
         set => this[nameof(Description)] = value;
     }
 
-    public QueuesConfig QueuesConfig
+    public IQueuesConfig QueuesConfig
     {
         get => queuesConfig ??= new QueuesConfig(configRoot, Path + ":" + nameof(QueuesConfig));
         set => queuesConfig = new QueuesConfig(value, configRoot, Path + ":" + nameof(QueuesConfig));
     }
 
-    public ClusterConfig? ClusterConfig
+    public IClusterConfig? ClusterConfig
     {
         get
         {
