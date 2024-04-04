@@ -6,7 +6,6 @@ using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
@@ -22,7 +21,7 @@ public class PQSnapshotClientRepositoryTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationFactory = null!;
+    private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteDeserializationFactory = null!;
     private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
@@ -43,7 +42,7 @@ public class PQSnapshotClientRepositoryTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
-        moqPQQuoteSerializationFactory = new Mock<IPQQuoteSerializerRepository>();
+        moqPQQuoteDeserializationFactory = new Mock<IPQClientQuoteDeserializerRepository>();
         moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
 
@@ -59,7 +58,7 @@ public class PQSnapshotClientRepositoryTests
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
-        moqPQQuoteSerializationFactory.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
+        moqPQQuoteDeserializationFactory.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqSnapshotClientRegRepo = new PQSnapshotClientRepository(moqSocketDispatcherResolver.Object);

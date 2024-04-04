@@ -3,7 +3,7 @@
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.ClientServer;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Dispatcher;
@@ -32,7 +32,7 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
 
         var sockFactories = SocketFactories;
 
-        var serdesFactory = new SerdesFactory();
+        var serdesFactory = new OrxSerdesRepositoryFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory

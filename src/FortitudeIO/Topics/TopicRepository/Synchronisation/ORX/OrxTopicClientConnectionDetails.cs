@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 
 #endregion

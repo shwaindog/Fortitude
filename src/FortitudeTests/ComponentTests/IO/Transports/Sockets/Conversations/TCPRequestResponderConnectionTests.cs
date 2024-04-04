@@ -1,9 +1,9 @@
 ﻿#region
 
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Conversations.Builders;
 using FortitudeTests.FortitudeCommon.Types;
@@ -53,10 +53,10 @@ public class TcpRequestResponderConnectionTests
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var responderStreamDecoderFactory
+        var responderStreamDeserializerRepo
             = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(responderDeserializers);
-        var responderSerdesFactory = new SerdesFactory(responderStreamDecoderFactory
-            , new SocketStreamMessageEncoderFactory(serializers));
+        var streamSerializerRepo = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
+        var responderSerdesFactory = new MessageSerdesRepositoryFactory(streamSerializerRepo, responderStreamDeserializerRepo);
         // create server
         var tcpResponderBuilder = new TcpConversationResponderBuilder();
         tcpResponder = tcpResponderBuilder.Build(responderTopicConConfig, responderSerdesFactory);
@@ -66,10 +66,9 @@ public class TcpRequestResponderConnectionTests
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var requesterStreamDecoderFactory
+        var requesterStreamDeserializerRepo
             = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(requesterDeserializers);
-        var requesterSerdesFactory = new SerdesFactory(requesterStreamDecoderFactory
-            , new SocketStreamMessageEncoderFactory(serializers));
+        var requesterSerdesFactory = new MessageSerdesRepositoryFactory(streamSerializerRepo, requesterStreamDeserializerRepo);
         // create client
         var tcpRequesterBuilder = new TcpConversationRequesterBuilder();
         var requesterTopicConConfig = responderTopicConConfig.Clone();
@@ -84,6 +83,7 @@ public class TcpRequestResponderConnectionTests
     {
         tcpRequester.Stop();
         tcpResponder.Stop();
+        FLoggerFactory.GracefullyTerminateProcessLogging();
     }
 
     [TestMethod]

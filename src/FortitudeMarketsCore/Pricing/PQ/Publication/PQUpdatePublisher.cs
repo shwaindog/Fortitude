@@ -1,14 +1,12 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using SocketsAPI = FortitudeIO.Transports.Network;
 
@@ -16,15 +14,14 @@ using SocketsAPI = FortitudeIO.Transports.Network;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
+public interface IPQUpdateServer : IConversationPublisher { }
+
 public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
 {
-    private static readonly PQServerSerializationRepository UpdateSerializationRepository = new(PQFeedType.Update);
     private static ISocketFactoryResolver? socketFactories;
 
-    public PQUpdatePublisher(ISocketSessionContext socketSessionContext,
-        IInitiateControls initiateControls)
-        : base(socketSessionContext, initiateControls) =>
-        socketSessionContext.SerdesFactory.StreamEncoderFactory = UpdateSerializationRepository;
+    public PQUpdatePublisher(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls) : base(socketSessionContext
+        , initiateControls) { }
 
     public static ISocketFactoryResolver SocketFactories
     {
@@ -42,7 +39,7 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
 
         var socFactories = SocketFactories;
 
-        var serdesFactory = new SerdesFactory();
+        var serdesFactory = new PQServerSerdesRepositoryFactory(PQFeedType.Update);
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory

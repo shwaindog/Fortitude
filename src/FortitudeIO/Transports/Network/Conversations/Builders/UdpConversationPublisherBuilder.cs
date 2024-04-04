@@ -22,7 +22,7 @@ public class UdpConversationPublisherBuilder
     }
 
     public ConversationPublisher Build(INetworkTopicConnectionConfig networkConnectionConfig
-        , ISerdesFactory serdesFactory)
+        , IMessageSerdesRepositoryFactory serdesFactory)
     {
         var conversationType = ConversationType.Publisher;
         var conversationProtocol = SocketConversationProtocol.UdpPublisher;

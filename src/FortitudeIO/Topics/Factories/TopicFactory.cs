@@ -10,7 +10,7 @@ namespace FortitudeIO.Topics.Factories;
 
 public class TopicFactory : ITopicFactory
 {
-    public PublisherTopic? CreatePublisherTopic(string topicName, string instanceName, ISerdesFactory serdesFactory)
+    public PublisherTopic? CreatePublisherTopic(string topicName, string instanceName, IMessageSerdesRepositoryFactory serdesFactory)
     {
         var configForTopic = topicConfigRepository!.GetConfigForTopic(topicName);
 

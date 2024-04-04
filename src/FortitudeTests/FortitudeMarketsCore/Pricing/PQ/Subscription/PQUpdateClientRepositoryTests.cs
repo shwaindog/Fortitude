@@ -9,7 +9,6 @@ using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
@@ -27,7 +26,7 @@ public class PQUpdateClientRepositoryTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
+    private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
     private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
@@ -51,7 +50,7 @@ public class PQUpdateClientRepositoryTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqServerConnectionConfig = new Mock<IEndpointConfig>();
-        moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
+        moqPQQuoteSerializationRepo = new Mock<IPQClientQuoteDeserializerRepository>();
         moqStreamControlsFactory = new Mock<IStreamControlsFactory>();
         moqInitiateControls = new Mock<IInitiateControls>();
         moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();

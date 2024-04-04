@@ -15,29 +15,32 @@
     },
     "ClusterConfig": {
       "ClusterConnectivityEndpoint": {
-        "ServiceStartConnectionConfig": {
-          "TopicName": "TestClusterConnectionManager",
-          "ConversationProtocol": "TcpAcceptor",
-          "AvailableConnections": [
-            {
-              "Hostname": "0.0.0.0",
-              "Port": 7777,
-              "InstanceName": "TestClusterConnectionManager"
-            }
-          ],
-          "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
-        },
-        "ClusterAccessibleClientConnectionConfig": {
-          "TopicName": "TestClusterConnectionManager",
-          "ConversationProtocol": "TcpClient",
-          "AvailableConnections": [
-            {
-              "Hostname": "ServiceHostname",
-              "Port": 7777,
-              "InstanceName": "TestClusterConnectionManager"
-            }
-          ],
-          "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+        "ActivationState": "OnStartup",
+        "ClusterServiceEndpoint": {
+          "ServiceStartConnectionConfig": {
+            "TopicName": "TestClusterConnectionManager",
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "Hostname": "0.0.0.0",
+                "Port": 7777,
+                "InstanceName": "TestClusterConnectionManager"
+              }
+            ],
+            "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+          },
+          "ClusterAccessibleClientConnectionConfig": {
+            "TopicName": "TestClusterConnectionManager",
+            "ConversationProtocol": "TcpClient",
+            "AvailableConnections": [
+              {
+                "Hostname": "ServiceHostname",
+                "Port": 7777,
+                "InstanceName": "TestClusterConnectionManager"
+              }
+            ],
+            "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+          }
         }
       },
       "RemoteServiceConfigs": [

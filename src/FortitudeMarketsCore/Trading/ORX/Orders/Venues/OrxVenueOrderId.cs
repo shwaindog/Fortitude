@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 
 #endregion
@@ -49,8 +49,7 @@ public class OrxVenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
         set => VenueOrderIdentifier = (MutableString)value;
     }
 
-    public override IVenueOrderId Clone() =>
-        Recycler?.Borrow<OrxVenueOrderId>().CopyFrom(this) ?? new OrxVenueOrderId(this);
+    public override IVenueOrderId Clone() => Recycler?.Borrow<OrxVenueOrderId>().CopyFrom(this) ?? new OrxVenueOrderId(this);
 
     public override IVenueOrderId CopyFrom(IVenueOrderId venueOrderId
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

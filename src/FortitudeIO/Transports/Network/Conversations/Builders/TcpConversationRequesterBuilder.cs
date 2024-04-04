@@ -22,7 +22,7 @@ public class TcpConversationRequesterBuilder
     }
 
     public ConversationRequester Build(INetworkTopicConnectionConfig networkConnectionConfig
-        , ISerdesFactory serdesFactory)
+        , IMessageSerdesRepositoryFactory serdesFactory)
     {
         var conversationType = ConversationType.Requester;
         var conversationProtocol = SocketConversationProtocol.TcpClient;

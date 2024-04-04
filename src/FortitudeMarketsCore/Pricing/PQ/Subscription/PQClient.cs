@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Reactive.Disposables;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Config;
@@ -28,7 +29,9 @@ public class PQClient : IDisposable
     private readonly IPricingClientConfigRepository pricingServersConfigRepository;
     private readonly IIntraOSThreadSignal shutDownSignal;
     private readonly IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory;
-    private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
+
+    private readonly IPQClientQuoteDeserializerRepository snapshotSerializationRepository
+        = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
 
     private readonly object unsubscribeSyncLock = new();
     private readonly IPQConversationRepository<IPQUpdateClient> updateClientFactory;
@@ -117,7 +120,7 @@ public class PQClient : IDisposable
                 tii => tii.Ticker == sourceTickerQuoteInfo.Ticker);
         if (sourceTickerPublicationConfig != null)
         {
-            var quoteDeserializer = snapshotSerializationRepository.GetQuoteDeserializer(sourceTickerPublicationConfig);
+            var quoteDeserializer = snapshotSerializationRepository.GetDeserializer(sourceTickerPublicationConfig);
             if (quoteDeserializer != null)
                 throw new Exception("Subscription for " + sourceTickerQuoteInfo.Ticker + " on " +
                                     marketsServerConfig?.Name +
@@ -142,11 +145,11 @@ public class PQClient : IDisposable
 
             var updateClient
                 = updateClientFactory.RetrieveOrCreateConversation(marketsServerConfig!.UpdateConnectionConfig!);
-            updateClient.MessageStreamDecoder.AddMessageDeserializer(sourceTickerPublicationConfig.Id
+            updateClient.DeserializerRepository.RegisterDeserializer(sourceTickerPublicationConfig.Id
                 , pqQuoteDeserializer);
             var snapShotClient
                 = snapshotClientFactory.RetrieveOrCreateConversation(marketsServerConfig.SnapshotConnectionConfig!);
-            snapShotClient.MessageStreamDecoder.AddMessageDeserializer(sourceTickerPublicationConfig.Id
+            snapShotClient.DeserializerRepository.RegisterDeserializer(sourceTickerPublicationConfig.Id
                 , pqQuoteDeserializer);
 
             pqClientSyncMonitoring.CheckStartMonitoring();
@@ -169,7 +172,7 @@ public class PQClient : IDisposable
             feedRef.SourceTickerPublicationConfigs!.FirstOrDefault(tii => tii.Ticker == ticker);
         if (sourceTickerPublicationConfig != null)
         {
-            var quoteDeserializer = snapshotSerializationRepository.GetQuoteDeserializer(sourceTickerPublicationConfig)
+            var quoteDeserializer = snapshotSerializationRepository.GetDeserializer(sourceTickerPublicationConfig)
                                     ?? throw new Exception(
                                         $"Subscription for {ticker} on {feedRef.Name} does not exists");
 
@@ -182,9 +185,9 @@ public class PQClient : IDisposable
                 pqClientSyncMonitoring.UnregisterSerializer(quoteDeserializer);
             }
 
-            snapshotSerializationRepository.RemoveQuoteDeserializer(sourceTickerPublicationConfig);
+            snapshotSerializationRepository.UnregisterDeserializer(sourceTickerPublicationConfig);
 
-            if (!snapshotSerializationRepository.HasPictureDeserializers)
+            if (!snapshotSerializationRepository.RegisteredMessageIds.Any())
                 pqClientSyncMonitoring.CheckStopMonitoring();
 
             Logger.Info($"Unsubscribed from {sourceTickerPublicationConfig}");

@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.State;
 
@@ -17,10 +16,6 @@ public interface ISocketReceiverFactory
 
 public class SocketReceiverFactory : ISocketReceiverFactory
 {
-    private readonly IStreamDecoderFactory? decoderFactory;
-
-    public SocketReceiverFactory(IStreamDecoderFactory? decoderFactory = null) => this.decoderFactory = decoderFactory;
-
     public bool HasConversationListener(ConversationType conversationType) =>
         conversationType == ConversationType.Subscriber
         || conversationType == ConversationType.Requester

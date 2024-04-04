@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -21,12 +20,11 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 public class PQSnapshotServerTests
 {
     private Mock<IAcceptorControls> moqAcceptorControls = null!;
+    private Mock<IMessageSerializationRepository> moqMessageSerializationFactory = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<ISocketSessionContext> moqNewClientContext = null!;
-    private Mock<IOSParallelController> moqParallelController = null!;
-    private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<ISocketSessionContext> moqPqSnapshotServerSessionConnection = null!;
-    private Mock<ISerdesFactory> moqSerdesFactory = null!;
+    private Mock<IMessageSerdesRepositoryFactory> moqSerdesFactory = null!;
     private Mock<IOSSocket> moqSocket = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
     private Mock<ISocketDispatcher> moqSocketDispatcher = null!;
@@ -41,22 +39,18 @@ public class PQSnapshotServerTests
     {
         moqSocket = new Mock<IOSSocket>();
         moqSocket.SetupAllProperties();
-        moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
-        moqParallelController = new Mock<IOSParallelController>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
-        moqSerdesFactory = new Mock<ISerdesFactory>();
+        moqSerdesFactory = new Mock<IMessageSerdesRepositoryFactory>();
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         moqSocketDispatcher = new Mock<ISocketDispatcher>();
         moqSocketDispatcherListener = new Mock<ISocketDispatcherListener>();
         moqAcceptorControls = new Mock<IAcceptorControls>();
         moqNewClientContext = new Mock<ISocketSessionContext>();
         moqSocketConnection = new Mock<ISocketConnection>();
-        moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
-            .Returns(moqParallelController.Object);
+        moqMessageSerializationFactory = new Mock<IMessageSerializationRepository>();
 
-        OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqAcceptorControls.SetupAdd(ac => ac.NewClient += It.IsAny<Action<IConversationRequester>>()).Verifiable();
 
         moqNewClientContext.SetupGet(ssc => ssc.Name).Returns("New Client Connection");
@@ -74,12 +68,15 @@ public class PQSnapshotServerTests
         moqSocketFactories.SetupGet(pcf => pcf.NetworkingController).Returns(moqNetworkingController.Object);
         moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
         moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
+
+        moqSerdesFactory.SetupGet(msrf => msrf.MessageSerializationRepository).Returns(moqMessageSerializationFactory.Object);
         // PQSnapshotServer.SocketFactories = moqSocketFactories.Object;
         var socketConConfig = new NetworkTopicConnectionConfig("PQSnapshotServerTests"
             , SocketConversationProtocol.TcpAcceptor, new[]
             {
                 new EndpointConfig("testHostName", 3333)
             });
+
         var socketSessionContext = new SocketSessionContext(ConversationType.Responder
             , SocketConversationProtocol.TcpAcceptor, "PQSnapshotServerTests", socketConConfig
             , moqSocketFactories.Object, moqSerdesFactory.Object);
@@ -89,18 +86,9 @@ public class PQSnapshotServerTests
         moqPqSnapshotServerSessionConnection.SetupGet(ssc => ssc.SocketDispatcher).Returns(moqSocketDispatcher.Object);
     }
 
-    [TestCleanup]
-    public void TearDown()
-    {
-        OSParallelControllerFactory.Instance = new OSParallelControllerFactory();
-    }
-
     [TestMethod]
-    public void NewPQSnapshotServer_SerdesForAcceptor_ReturnsNoSerdesFromFactory()
+    public void NewPQSnapshotServer_MessageSerializationRepo_IsNotNull()
     {
-        var registeredSerializers = pqSnapshotServer.SerdesFactory!;
-
-        Assert.IsTrue(registeredSerializers.StreamEncoderFactory == null);
-        Assert.IsTrue(registeredSerializers.StreamDecoderFactory == null);
+        Assert.IsNotNull(pqSnapshotServer.MessageSerializationRepository);
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 using FortitudeMarketsCore.Trading.ORX.Session;
 
@@ -64,8 +64,7 @@ public class OrxVenueOrderUpdate : OrxTradingMessage, IVenueOrderUpdate
         base.StateReset();
     }
 
-    public override IVenueOrderUpdate Clone() =>
-        Recycler?.Borrow<OrxVenueOrderUpdate>().CopyFrom(this) ?? new OrxVenueOrderUpdate(this);
+    public override IVenueOrderUpdate Clone() => Recycler?.Borrow<OrxVenueOrderUpdate>().CopyFrom(this) ?? new OrxVenueOrderUpdate(this);
 
     public IVenueOrderUpdate CopyFrom(IVenueOrderUpdate venueOrderUpdate
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

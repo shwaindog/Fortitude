@@ -23,8 +23,5 @@ public class ClusterServices
         if (clusterConfig.ClusterConnectivityEndpoint != null) StartInterClusterCommunications();
     }
 
-    private void StartInterClusterCommunications()
-    {
-        throw new NotImplementedException();
-    }
+    private void StartInterClusterCommunications() { }
 }

@@ -10,7 +10,6 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeIO.Transports.Network.Receiving;
-using Microsoft.Extensions.Configuration;
 
 #endregion
 
@@ -32,7 +31,6 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
     private readonly IPerfLoggerPool receiveSocketDispatcherLatencyTraceLoggerPool;
     private readonly ISocketSelector selector;
     private readonly SocketBufferReadContext socketBufferReadContext = new();
-    private readonly IConfigurationSection socketConfigurationRepository = SocketsConfigurationContext.Instance;
     private readonly ISocketDataLatencyLogger? socketDataLatencyLogger;
 
     protected SocketRingPollerListener(IPollingRing<T> ring, uint noDataPauseTimeoutMs, ISocketSelector selector,
@@ -50,7 +48,7 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
                 .GetLatencyTracingLoggerPool(Name + ".Receive",
                     //  Heartbeats are normally set at 1 second so wait just over 1 second on select.
                     TimeSpan.FromMilliseconds(1100), typeof(ISocketDispatcher));
-        Logger = FLoggerFactory.Instance.GetLogger(socketConfigurationRepository["LoggerName"]!);
+        Logger = FLoggerFactory.Instance.GetLogger("FortitudeIO.Transports.Network.Dispatcher.SocketRingPollerListener." + Ring.Name);
     }
 
     public override void Stop()
@@ -72,7 +70,11 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
     public void UnregisterForListen(IStreamListener receiver)
     {
-        if (receiver is ISocketReceiver socketReceiver) UnregisterForListen(socketReceiver);
+        if (receiver is ISocketReceiver socketReceiver)
+        {
+            socketReceiver.ListenActive = false;
+            UnregisterForListen(socketReceiver);
+        }
     }
 
     protected void RunPolling()
@@ -166,6 +168,7 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
             }
             catch (Exception ex)
             {
+                Logger.Warn($"Caught exception attempting to read {sockRecr}. Got {ex}");
                 detectionToPublishLatencyTraceLogger.Indent();
                 detectionToPublishLatencyTraceLogger.Add("Read error: ", ex);
                 detectionToPublishLatencyTraceLogger.Dedent();
@@ -177,8 +180,8 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
             detectionToPublishLatencyTraceLogger.Indent();
             detectionToPublishLatencyTraceLogger.Add("Connection lost on SocketRingPoller " + Name);
             detectionToPublishLatencyTraceLogger.Dedent();
-            sockRecr.HandleReceiveError("Connection lost on SocketRingPoller " + Name
-                , new Exception("Connection Lost to SocketRingPoller " + Name));
+            sockRecr.HandleReceiveError("Connection lost on SocketRingPoller " + Name + $" with socketReceiver {sockRecr}"
+                , new Exception("Connection Lost on SocketRingPoller " + Name + $" with SocketReceiver {sockRecr}"));
         }
     }
 
@@ -191,7 +194,6 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
 
     public void RemoveFromListen(ISocketReceiver receiver)
     {
-        receiver.ListenActive = false;
         if (selector.HasRegisteredReceiver(receiver) && selector.CountRegisteredReceivers == 1)
             manualResetEvent.Reset();
         selector.Unregister(receiver);
@@ -244,6 +246,7 @@ public class SimpleSocketRingPollerListener : SocketRingPollerListener<SocketRec
 
     public override void UnregisterForListen(ISocketReceiver receiver)
     {
+        receiver.ListenActive = false;
         var seqId = Ring.Claim();
         var evt = Ring[seqId];
         evt.SocketReceiver = receiver;

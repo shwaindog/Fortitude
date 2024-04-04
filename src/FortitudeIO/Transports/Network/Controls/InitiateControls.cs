@@ -115,6 +115,8 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
 
     protected void Disconnect(bool inError)
     {
+        if (SocketSessionContext.SocketReceiver != null)
+            SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(SocketSessionContext.SocketReceiver);
         lock (connSync)
         {
             if (!inError || socketSessionContext.SocketSessionState == SocketSessionState.Connected ||
@@ -124,7 +126,7 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
             {
                 triggerConnectNowSignal?.Set();
                 StopMessaging();
-                logger.Info("Connection to {0} {1} id {2}:{3} closed",
+                logger.Info("Connection to {0} {1} id {2}:{3} closed.",
                     socketSessionContext.Name, socketSessionContext.Id,
                     socketSessionContext.NetworkTopicConnectionConfig.Current.Hostname,
                     socketSessionContext.SocketConnection.ConnectedPort);

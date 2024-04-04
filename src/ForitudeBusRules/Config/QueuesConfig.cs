@@ -1,7 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.Configuration;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 
 #endregion
 
@@ -20,10 +20,8 @@ public interface IQueuesConfig
     int MessagePumpMaxWaitMs { get; set; }
 }
 
-public class QueuesConfig : ConfigurationSection, IQueuesConfig
+public class QueuesConfig : ConfigSection, IQueuesConfig
 {
-    public const string DefaultQueuesConfigPath = BusRulesConfig.DefaultBusRulesConfigPath + ":" + "QueuesConfig";
-
     private static readonly Dictionary<string, string?> Defaults = new()
     {
         { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }
@@ -33,15 +31,12 @@ public class QueuesConfig : ConfigurationSection, IQueuesConfig
         , { nameof(MessagePumpMaxWaitMs), "30" }
     };
 
-    private readonly IConfigurationRoot configRoot;
-
     public QueuesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
     {
-        this.configRoot = configRoot;
         foreach (var checkDefault in Defaults) this[checkDefault.Key] ??= checkDefault.Value;
     }
 
-    public QueuesConfig() : this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultQueuesConfigPath) { }
+    public QueuesConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public QueuesConfig(IQueuesConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
@@ -55,6 +50,8 @@ public class QueuesConfig : ConfigurationSection, IQueuesConfig
         EventQueueSize = toClone.EventQueueSize;
         MessagePumpMaxWaitMs = toClone.MessagePumpMaxWaitMs;
     }
+
+    public QueuesConfig(IQueuesConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public int MinEventQueues
     {

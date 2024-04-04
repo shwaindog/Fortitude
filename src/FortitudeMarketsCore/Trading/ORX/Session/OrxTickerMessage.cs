@@ -6,7 +6,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 
 #endregion
 
@@ -86,8 +86,7 @@ public sealed class OrxTickerMessage : OrxTradingMessage
     public override IAuthenticatedMessage Clone() =>
         (IAuthenticatedMessage?)Recycler?.Borrow<OrxTickerMessage>().CopyFrom(this) ?? new OrxTickerMessage(this);
 
-    public override bool Equals(object? obj) =>
-        obj is OrxTickerMessage m && m.Exchange == Exchange && m.Ticker == Ticker;
+    public override bool Equals(object? obj) => obj is OrxTickerMessage m && m.Exchange == Exchange && m.Ticker == Ticker;
 
     public override int GetHashCode()
     {

@@ -18,8 +18,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
     {
         get
         {
-            var currentNode =
-                Chain.Head;
+            var currentNode = Chain.Head;
             for (; currentNode != null; currentNode = currentNode.Next)
                 if (currentNode.Payload.Key?.Equals(key) ?? false)
                     return currentNode.Payload.Value;
@@ -27,6 +26,26 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
             throw new KeyNotFoundException($"Could not find '{key}' in SafeChainMap");
         }
         set => AddOrUpdate(key, value!);
+    }
+
+    public IEnumerable<TK> Keys
+    {
+        get
+        {
+            var currentNode = Chain.Head;
+            for (; currentNode != null; currentNode = currentNode.Next)
+                yield return currentNode.Payload.Key;
+        }
+    }
+
+    public IEnumerable<TV> Values
+    {
+        get
+        {
+            var currentNode = Chain.Head;
+            for (; currentNode != null; currentNode = currentNode.Next)
+                yield return currentNode.Payload.Value;
+        }
     }
 
     public TV? GetValue(TK key)

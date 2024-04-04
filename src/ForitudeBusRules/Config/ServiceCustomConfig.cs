@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Configuration;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -21,9 +22,9 @@ public interface IServiceCustomConfig
     string Content { get; set; }
 }
 
-public class ServiceCustomConfig : ConfigurationSection, IServiceCustomConfig
+public class ServiceCustomConfig : ConfigSection, IServiceCustomConfig
 {
-    public ServiceCustomConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) => ConfigSectionConfigurationRoot = configRoot;
+    public ServiceCustomConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
 
     public ServiceCustomConfig(IServiceCustomConfig toClone, IConfigurationRoot configRoot, string path) : this(configRoot, path)
     {
@@ -31,7 +32,9 @@ public class ServiceCustomConfig : ConfigurationSection, IServiceCustomConfig
         Content = toClone.Content;
     }
 
-    public IConfigurationRoot ConfigSectionConfigurationRoot { get; }
+    public ServiceCustomConfig(IServiceCustomConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+
+    public IConfigurationRoot ConfigSectionConfigurationRoot => ConfigRoot;
 
     public CustomConfigType CustomConfigType
     {

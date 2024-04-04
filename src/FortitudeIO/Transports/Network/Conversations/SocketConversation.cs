@@ -31,7 +31,7 @@ public class SocketConversation : ISocketConversation
         SocketSessionContext = socketSessionContext;
     }
 
-    public ISerdesFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
+    public IMessageSerdesRepositoryFactory? SerdesFactory => SocketSessionContext.SerdesFactory;
 
     public IStreamListener? StreamListener => SocketSessionContext.SocketReceiver;
 

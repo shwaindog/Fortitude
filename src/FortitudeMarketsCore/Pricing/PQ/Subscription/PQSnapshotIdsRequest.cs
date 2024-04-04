@@ -8,12 +8,16 @@ using FortitudeIO.Protocols;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
+public interface IPQSnapshotIdsRequest : IVersionedMessage
+{
+    uint[] RequestSourceTickerIds { get; set; }
+}
+
 public class PQSnapshotIdsRequest : ReusableObject<IVersionedMessage>, IPQSnapshotIdsRequest
 {
     public PQSnapshotIdsRequest() => RequestSourceTickerIds = Array.Empty<uint>();
 
-    public PQSnapshotIdsRequest(IList<uint> requestSourceTickerIds) =>
-        RequestSourceTickerIds = requestSourceTickerIds.ToArray();
+    public PQSnapshotIdsRequest(IList<uint> requestSourceTickerIds) => RequestSourceTickerIds = requestSourceTickerIds.ToArray();
 
     public PQSnapshotIdsRequest(uint[] requestSourceTickerIds) => RequestSourceTickerIds = requestSourceTickerIds;
 
@@ -54,8 +58,7 @@ public class PQSnapshotIdsRequest : ReusableObject<IVersionedMessage>, IPQSnapsh
         return this;
     }
 
-    public override IVersionedMessage Clone() =>
-        Recycler?.Borrow<PQSnapshotIdsRequest>().CopyFrom(this) ?? new PQSnapshotIdsRequest(this);
+    public override IVersionedMessage Clone() => Recycler?.Borrow<PQSnapshotIdsRequest>().CopyFrom(this) ?? new PQSnapshotIdsRequest(this);
 
     protected bool Equals(IPQSnapshotIdsRequest other)
     {

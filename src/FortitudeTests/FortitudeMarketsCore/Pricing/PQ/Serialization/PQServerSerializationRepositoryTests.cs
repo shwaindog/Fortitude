@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serialization;
@@ -17,15 +18,17 @@ public class PQServerSerializationRepositoryTests
     [TestInitialize]
     public void SetUp()
     {
-        snapshotServerSerializationRepository = new PQServerSerializationRepository(PQFeedType.Snapshot);
+        snapshotServerSerializationRepository = new PQServerSerializationRepository(PQFeedType.Snapshot, new Recycler());
     }
 
     [TestMethod]
     public void NewSerializationFactory_GetSerializer_ReturnsAppropriateSerializerForMessageType()
     {
-        var quoteSerializer = snapshotServerSerializationRepository.GetSerializer<PQLevel0Quote>(0);
+        snapshotServerSerializationRepository.RegisterSerializer<PQLevel0Quote>();
+        var quoteSerializer = snapshotServerSerializationRepository.GetSerializer(0);
         Assert.IsInstanceOfType(quoteSerializer, typeof(PQQuoteSerializer));
 
+        snapshotServerSerializationRepository.RegisterSerializer<PQHeartBeatQuotesMessage>();
         var heartBeatSerializer = snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>(1);
         Assert.IsInstanceOfType(heartBeatSerializer, typeof(PQHeartbeatSerializer));
     }

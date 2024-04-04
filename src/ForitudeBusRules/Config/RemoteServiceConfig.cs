@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Configuration;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -18,15 +19,13 @@ public interface IRemoteServiceConfig
     IServiceCustomConfig? ServiceCustomConfig { get; set; }
 }
 
-public class RemoteServiceConfig : ConfigurationSection, IRemoteServiceConfig
+public class RemoteServiceConfig : ConfigSection, IRemoteServiceConfig
 {
-    public const string DefaultRemoteServiceConfigPath = ClusterConfig.DefaultClusterConfigPath + ":" + "RemoteServiceConfig";
-    private readonly IConfigurationRoot configRoot;
     private List<string>? connectRemoteServiceNames;
     private List<INetworkTopicConnectionConfig>? remoteServiceConnectionConfigs;
     private IServiceCustomConfig? serviceCustomConfig;
 
-    public RemoteServiceConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) => this.configRoot = configRoot;
+    public RemoteServiceConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
 
     public RemoteServiceConfig(IRemoteServiceConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
@@ -37,6 +36,8 @@ public class RemoteServiceConfig : ConfigurationSection, IRemoteServiceConfig
         RemoteServiceConnectionConfigs = toClone.RemoteServiceConnectionConfigs;
         ServiceCustomConfig = toClone.ServiceCustomConfig;
     }
+
+    public RemoteServiceConfig(IRemoteServiceConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public List<string> ConnectToRemoteServiceNames
     {
@@ -97,14 +98,14 @@ public class RemoteServiceConfig : ConfigurationSection, IRemoteServiceConfig
             remoteServiceConnectionConfigs = new List<INetworkTopicConnectionConfig>();
             foreach (var configurationSection in GetSection(nameof(RemoteServiceConnectionConfigs)).GetChildren())
                 if (configurationSection["TopicName"] != null)
-                    remoteServiceConnectionConfigs.Add(new NetworkTopicConnectionConfig(configRoot, configurationSection.Path));
+                    remoteServiceConnectionConfigs.Add(new NetworkTopicConnectionConfig(ConfigRoot, configurationSection.Path));
             return remoteServiceConnectionConfigs;
         }
         set
         {
             remoteServiceConnectionConfigs = new List<INetworkTopicConnectionConfig>();
             for (var i = 0; i < value.Count; i++)
-                remoteServiceConnectionConfigs.Add(new NetworkTopicConnectionConfig(value[i], configRoot
+                remoteServiceConnectionConfigs.Add(new NetworkTopicConnectionConfig(value[i], ConfigRoot
                     , Path + ":" + nameof(RemoteServiceConnectionConfigs) + $":{i}"));
         }
     }
@@ -114,9 +115,9 @@ public class RemoteServiceConfig : ConfigurationSection, IRemoteServiceConfig
         get
         {
             if (GetSection(nameof(ServiceCustomConfig)).GetChildren().Any())
-                return serviceCustomConfig ??= new ServiceCustomConfig(configRoot, Path + ":" + nameof(ServiceCustomConfig));
+                return serviceCustomConfig ??= new ServiceCustomConfig(ConfigRoot, Path + ":" + nameof(ServiceCustomConfig));
             return null;
         }
-        set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, configRoot, Path + ":" + nameof(ServiceCustomConfig)) : null;
+        set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, ConfigRoot, Path + ":" + nameof(ServiceCustomConfig)) : null;
     }
 }

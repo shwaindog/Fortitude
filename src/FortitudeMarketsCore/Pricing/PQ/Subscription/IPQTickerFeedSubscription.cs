@@ -1,6 +1,7 @@
 #region
 
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 
@@ -13,3 +14,6 @@ public interface IPQTickerFeedSubscription
     ISnapshotUpdatePricingServerConfig Feed { get; }
     void Unsubscribe();
 }
+
+public interface IPQTickerFeedSubscriptionQuoteStream<out T> : IPQTickerFeedSubscription, IObservable<T>
+    where T : class, ILevel0Quote { }

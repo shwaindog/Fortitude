@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
@@ -26,7 +25,7 @@ public class PQClientMessageStreamDecoderTests
     private const int TotalDataHeaderByteSize = 14;
     private const int MessageSizeToQuoteSerializer = 126 + PQQuoteMessageHeader.HeaderSize;
     private Mock<IMessageDeserializer> moqBinaryDeserializer = null!;
-    private Mock<IMap<uint, IMessageDeserializer>> moqDeserializersMap = null!;
+    private Mock<IPQClientQuoteDeserializerRepository> moqDeserializersMap = null!;
     private PQClientMessageStreamDecoder pqClientMessageStreamDecoder = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
     private SocketBufferReadContext socketBufferReadContext = null!;
@@ -48,11 +47,11 @@ public class PQClientMessageStreamDecoderTests
             LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
             LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
-        moqDeserializersMap = new Mock<IMap<uint, IMessageDeserializer>>();
+        moqDeserializersMap = new Mock<IPQClientQuoteDeserializerRepository>();
         moqBinaryDeserializer = new Mock<IMessageDeserializer>();
         // ReSharper disable once NotAccessedVariable -- sets the mock with the object to return.
         var binUnserialzierObj = moqBinaryDeserializer.Object;
-        moqDeserializersMap.Setup(um => um.TryGetValue(ExpectedStreamId, out binUnserialzierObj)).Returns(true)
+        moqDeserializersMap.Setup(um => um.TryGetDeserializer(ExpectedStreamId, out binUnserialzierObj)).Returns(true)
             .Verifiable();
 
         pqClientMessageStreamDecoder

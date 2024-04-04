@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsCore.Trading.ORX.Session;
 
 #endregion

@@ -1,8 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
@@ -14,30 +12,27 @@ using FortitudeIO.Transports.Network.State;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
+public interface IPQUpdateClient : IConversationSubscriber
+{
+    IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
+}
+
 public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 {
     private static ISocketFactoryResolver? socketFactories;
-    private readonly PQClientMessageStreamDecoder messageStreamDecoder;
 
     public PQUpdateClient(ISocketSessionContext socketSessionContext,
         IInitiateControls initiateControls)
-        : base(socketSessionContext, initiateControls)
-    {
-        messageStreamDecoder
-            = new PQClientMessageStreamDecoder(new ConcurrentMap<uint, IMessageDeserializer>(), PQFeedType.Snapshot);
-        socketSessionContext.SerdesFactory.StreamDecoderFactory
-            = new SocketStreamDecoderFactory(deserializers => messageStreamDecoder);
-    }
+        : base(socketSessionContext, initiateControls) =>
+        DeserializerRepository = (IPQClientQuoteDeserializerRepository)socketSessionContext.SerdesFactory.MessageDeserializationRepository;
 
     public static ISocketFactoryResolver SocketFactories
     {
-        get =>
-            socketFactories
-                ??= SocketFactoryResolver.GetRealSocketFactories();
+        get => socketFactories ??= SocketFactoryResolver.GetRealSocketFactories();
         set => socketFactories = value;
     }
 
-    public IMessageStreamDecoder MessageStreamDecoder => messageStreamDecoder;
+    public IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
 
     public static PQUpdateClient BuildUdpSubscriber(INetworkTopicConnectionConfig networkConnectionConfig
         , ISocketDispatcherResolver? socketDispatcherResolver = null)
@@ -47,7 +42,7 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 
         var sockFactories = SocketFactories;
 
-        var serdesFactory = new SerdesFactory();
+        var serdesFactory = new PQClientClientSerdesRepositoryFactory(PQFeedType.Update);
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories

@@ -2,7 +2,6 @@
 
 using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
@@ -21,7 +20,8 @@ public interface ISocketSender : IStreamPublisher
 {
     int Id { get; }
     bool SendActive { get; }
-    IEnumerable<KeyValuePair<uint, IMessageSerializer>> RegisteredSerializers { get; }
+    IMessageSerializationRepository MessageSerializationRepository { get; }
+
     IOSSocket Socket { get; set; }
     void HandleSendError(string message, Exception exception);
 }
@@ -36,17 +36,17 @@ public sealed class SocketSender : ISocketSender
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketSender));
 
     private readonly ISyncLock sendLock = new SpinLockLight();
-    private readonly IMap<uint, IMessageSerializer> serializers = new LinkedListCache<uint, IMessageSerializer>();
 
     private readonly ISocketSessionContext socketSocketSessionContext;
 
     private readonly BufferContext writeBufferContext;
     private volatile bool sendActive;
 
-    public SocketSender(ISocketSessionContext socketSocketSessionContext)
+    public SocketSender(ISocketSessionContext socketSocketSessionContext, IMessageSerializationRepository messageSerializationRepository)
     {
         Socket = socketSocketSessionContext.SocketConnection!.OSSocket;
         this.socketSocketSessionContext = socketSocketSessionContext;
+        MessageSerializationRepository = messageSerializationRepository;
         directOSNetworkingApi = socketSocketSessionContext.SocketFactoryResolver.NetworkingController!
             .DirectOSNetworkingApi;
         writeBufferContext = new BufferContext(new ReadWriteBuffer(new byte[Socket.SendBufferSize]))
@@ -57,21 +57,13 @@ public sealed class SocketSender : ISocketSender
 
     public int Id => socketSocketSessionContext.Id;
 
+    public IMessageSerializationRepository MessageSerializationRepository { get; }
+
     public bool SendActive
     {
         get => sendActive;
         private set => sendActive = value;
     }
-
-    public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
-    {
-        if (!serializers.TryGetValue(messageId, out var binSerializer) || binSerializer == null)
-            serializers.Add(messageId, serializer);
-        else
-            throw new Exception("Two different message types cannot be registered to the same Id");
-    }
-
-    public IEnumerable<KeyValuePair<uint, IMessageSerializer>> RegisteredSerializers => serializers;
 
     public void Send(IVersionedMessage message)
     {
@@ -94,12 +86,14 @@ public sealed class SocketSender : ISocketSender
     public void Enqueue(IVersionedMessage message)
     {
         message.IncrementRefCount();
+        var checkSerializer = MessageSerializationRepository.GetSerializer(message.MessageId)!;
+        if (checkSerializer == null) throw new KeyNotFoundException($"Can not find MessageSerializer with id {message.MessageId}");
         sendLock.Acquire();
         try
         {
             var encoder = encoders.Claim();
             encoder.Message = message;
-            encoder.Serializer = serializers[message.MessageId]!;
+            encoder.Serializer = checkSerializer;
             encoder.AttemptCount = 1;
         }
         finally
@@ -165,13 +159,6 @@ public sealed class SocketSender : ISocketSender
         {
             sendLock.Release();
         }
-    }
-
-    public void UnregisterSerializer(uint msgId)
-    {
-        if (!serializers.TryGetValue(msgId, out var binSerializer) || binSerializer == null)
-            throw new Exception("Message Type could not be matched with the provided Id");
-        serializers.Remove(msgId);
     }
 
     private unsafe bool WriteToSocketSucceeded()

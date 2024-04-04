@@ -3,7 +3,7 @@
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 
 #endregion
@@ -39,8 +39,7 @@ public class OrxVenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
 
     public int Count => VenueList.Count;
 
-    public override IVenueCriteria Clone() =>
-        Recycler?.Borrow<OrxVenueCriteria>().CopyFrom(this) ?? new OrxVenueCriteria(this);
+    public override IVenueCriteria Clone() => Recycler?.Borrow<OrxVenueCriteria>().CopyFrom(this) ?? new OrxVenueCriteria(this);
 
     public IEnumerator<IVenue> GetEnumerator() => VenueList.GetEnumerator();
 

@@ -25,6 +25,9 @@ public class TopicTransportMap<T> : IMap<ITopicEndpointInfo, T> where T : ITrans
 
     public int Count => backingMap.Count;
 
+    public IEnumerable<ITopicEndpointInfo> Keys => backingMap.Keys;
+    public IEnumerable<T> Values => backingMap.Values;
+
     public T? GetValue(ITopicEndpointInfo key)
     {
         TryGetValue(key, out var value);

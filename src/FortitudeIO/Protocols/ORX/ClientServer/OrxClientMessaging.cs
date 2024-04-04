@@ -1,10 +1,8 @@
 ﻿#region
 
-using System.Collections.Concurrent;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.ORX.Serialization;
-using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
+using FortitudeIO.Protocols.ORX.Serdes;
+using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -26,16 +24,10 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
     protected OrxClientMessaging(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
         : base(socketSessionContext, initiateControls)
     {
-        RecyclingFactory = new Recycler();
-        OrxSerdesFactory = new OrxSerdesFactory(RecyclingFactory);
-        DeserializationRepository
-            = new OrxStreamDecoderFactory((deserializers) =>
-                new OrxMessageStreamDecoder(deserializers), OrxSerdesFactory, RecyclingFactory);
-        socketSessionContext.SerdesFactory.StreamDecoderFactory = DeserializationRepository;
-        SerializationRepository
-            = new OrxSerializationRepository(new ConcurrentDictionary<uint, IMessageSerializer>(), OrxSerdesFactory
-                , RecyclingFactory);
-        socketSessionContext.SerdesFactory.StreamEncoderFactory = SerializationRepository;
+        var orxSerdesRepoFactory = (IOrxSerdesRepositoryFactory)socketSessionContext.SerdesFactory;
+
+        DeserializationRepository = orxSerdesRepoFactory.MessageDeserializationRepository;
+        SerializationRepository = orxSerdesRepoFactory.MessageSerializationRepository;
     }
 
     public static ISocketFactoryResolver SocketFactories
@@ -44,13 +36,10 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
         set => socketFactories = value;
     }
 
-    internal OrxSerdesFactory OrxSerdesFactory { get; }
 
     public IOrxDeserializationRepository DeserializationRepository { get; }
 
-    public IOrxSerializationRepository SerializationRepository { get; }
-
-    public IRecycler RecyclingFactory { get; }
+    public IMessageSerializationRepository SerializationRepository { get; }
 
 
     public static OrxClientMessaging BuildTcpRequester(INetworkTopicConnectionConfig networkTopicConnectionConfig
@@ -61,7 +50,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
 
         var sockFactories = SocketFactories;
 
-        var serdesFactory = new SerdesFactory();
+        var serdesFactory = new OrxSerdesRepositoryFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkTopicConnectionConfig.TopicName, networkTopicConnectionConfig, sockFactories, serdesFactory

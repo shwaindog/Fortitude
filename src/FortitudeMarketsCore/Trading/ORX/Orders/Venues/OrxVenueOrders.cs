@@ -3,7 +3,7 @@
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 
 #endregion
@@ -34,11 +34,9 @@ public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
         set => VenueOrdersList![index] = (OrxVenueOrder)value!;
     }
 
-    public override IVenueOrders Clone() =>
-        Recycler?.Borrow<OrxVenueOrders>().CopyFrom(this) ?? new OrxVenueOrders(this);
+    public override IVenueOrders Clone() => Recycler?.Borrow<OrxVenueOrders>().CopyFrom(this) ?? new OrxVenueOrders(this);
 
-    public IEnumerator<IVenueOrder> GetEnumerator() =>
-        VenueOrdersList?.GetEnumerator() ?? Enumerable.Empty<IVenueOrder>().GetEnumerator();
+    public IEnumerator<IVenueOrder> GetEnumerator() => VenueOrdersList?.GetEnumerator() ?? Enumerable.Empty<IVenueOrder>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -63,8 +61,7 @@ public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
         return this;
     }
 
-    protected bool Equals(OrxVenueOrders other) =>
-        VenueOrdersList?.SequenceEqual(other.VenueOrdersList!) ?? other.VenueOrdersList == null;
+    protected bool Equals(OrxVenueOrders other) => VenueOrdersList?.SequenceEqual(other.VenueOrdersList!) ?? other.VenueOrdersList == null;
 
     public override bool Equals(object? obj)
     {

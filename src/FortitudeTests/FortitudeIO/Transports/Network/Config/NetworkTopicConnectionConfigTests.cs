@@ -22,7 +22,7 @@ public class NetworkTopicConnectionConfigTests
             .AddJsonFile("FortitudeIO/Transports/Network/Config/TestNetworkTopicConnectConfigLoads.json")
             .Build();
         var networkTopicConnectionConfig
-            = new NetworkTopicConnectionConfig(config, NetworkTopicConnectionConfig.DefaultNetworkTopicConnectionConfigPath);
+            = new NetworkTopicConnectionConfig(config, "NetworkTopicConnectionConfig");
 
         Assert.AreEqual("TestCanLoadFromJson", networkTopicConnectionConfig.TopicName);
         Assert.AreEqual(SocketConversationProtocol.TcpClient, networkTopicConnectionConfig.ConversationProtocol);

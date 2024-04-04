@@ -18,7 +18,7 @@ public class BusRulesConfigTests
             .AddJsonFile("FortitudeBusRules/Config/TestBusRulesConfigLoads.json")
             .Build();
         var busRulesConfig
-            = new BusRulesConfig(config, BusRulesConfig.DefaultBusRulesConfigPath);
+            = new BusRulesConfig(config, "BusRulesConfig");
 
         Assert.AreEqual(2, busRulesConfig.QueuesConfig.MinEventQueues);
         Assert.AreEqual(10, busRulesConfig.QueuesConfig.MaxEventQueues);
@@ -31,7 +31,8 @@ public class BusRulesConfigTests
         Assert.AreEqual(9, busRulesConfig.QueuesConfig.MessagePumpMaxWaitMs);
         var clusterConfig = busRulesConfig.ClusterConfig;
         var clusterConnectEndpoint = clusterConfig!.ClusterConnectivityEndpoint!;
-        var clusterConnectServiceStartConConfig = clusterConnectEndpoint.ServiceStartConnectionConfig;
+        Assert.AreEqual(ActivationState.OnStartup, clusterConnectEndpoint.ActivationState);
+        var clusterConnectServiceStartConConfig = clusterConnectEndpoint.ClusterServiceEndpoint!.ServiceStartConnectionConfig;
         Assert.AreEqual("TestClusterConnectionManager", clusterConnectServiceStartConConfig.TopicName);
         Assert.AreEqual(SocketConversationProtocol.TcpAcceptor, clusterConnectServiceStartConConfig.ConversationProtocol);
         var clusterConnectStartConConfigFirstEndpoint = clusterConnectServiceStartConConfig.AvailableConnections.First();
@@ -40,7 +41,7 @@ public class BusRulesConfigTests
         Assert.AreEqual("TestClusterConnectionManager", clusterConnectStartConConfigFirstEndpoint.InstanceName);
         Assert.AreEqual("Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
             , clusterConnectServiceStartConConfig.TopicDescription);
-        var clusterConnectClientConConfig = clusterConnectEndpoint.ClusterAccessibleClientConnectionConfig;
+        var clusterConnectClientConConfig = clusterConnectEndpoint.ClusterServiceEndpoint.ClusterAccessibleClientConnectionConfig;
         Assert.AreEqual("TestClusterConnectionManager", clusterConnectClientConConfig.TopicName);
         Assert.AreEqual(SocketConversationProtocol.TcpClient, clusterConnectClientConConfig.ConversationProtocol);
         var clusterConnectClientConConfigFirstEndpoint = clusterConnectClientConConfig.AvailableConnections.First();

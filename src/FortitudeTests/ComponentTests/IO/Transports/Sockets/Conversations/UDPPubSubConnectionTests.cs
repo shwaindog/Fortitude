@@ -1,9 +1,9 @@
 ﻿#region
 
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Conversations.Builders;
 using FortitudeTests.FortitudeCommon.Types;
@@ -49,7 +49,8 @@ public class UdpPubSubConnectionTests
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
         var streamDecoderFactory = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(deserializers);
-        var serdesFactory = new SerdesFactory(streamDecoderFactory, new SocketStreamMessageEncoderFactory(serializers));
+        var streamEncoderFactory = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
+        var serdesFactory = new MessageSerdesRepositoryFactory(streamEncoderFactory, streamDecoderFactory);
         // create server
         var udpPublisherBuilder = new UdpConversationPublisherBuilder();
         conversationPublisher = udpPublisherBuilder.Build(udpPublisherTopicConConfig, serdesFactory);
@@ -66,6 +67,7 @@ public class UdpPubSubConnectionTests
     {
         conversationSubscriber.Disconnect();
         conversationPublisher.Disconnect();
+        FLoggerFactory.GracefullyTerminateProcessLogging();
     }
 
     [TestMethod]

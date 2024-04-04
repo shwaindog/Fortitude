@@ -15,10 +15,10 @@ using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Publishing;
+using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -37,6 +37,7 @@ public class PQSnapshotClientTests
     private string expectedHost = null!;
     private byte[] expectedIpAddress = null!;
     private ushort expectedPort;
+    private Mock<IPQClientMessageStreamDecoder> moqClientMessageStreamDecoder = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<ISocketDispatcherResolver> moqDispatcherResolver = null!;
     private Mock<IFLogger> moqFlogger = null!;
@@ -48,8 +49,8 @@ public class PQSnapshotClientTests
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQQuoteSerializerRepository> moqPQQuoteSerializationRepo = null!;
-    private Mock<ISerdesFactory> moqSerdesFactory = null!;
+    private Mock<IPQClientSerdesRepositoryFactory> moqPqClientSerdesRepoFactory = null!;
+    private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteDeserializationRepo = null!;
     private Mock<IMap<uint, IMessageDeserializer>> moqSerializerCache = null!;
     private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
@@ -81,7 +82,7 @@ public class PQSnapshotClientTests
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqIIntraOSThreadSignal = new Mock<IIntraOSThreadSignal>();
         moqSocketConnection = new Mock<ISocketConnection>();
-        moqSerdesFactory = new Mock<ISerdesFactory>();
+        moqPqClientSerdesRepoFactory = new Mock<IPQClientSerdesRepositoryFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelController.Object);
 
@@ -93,7 +94,8 @@ public class PQSnapshotClientTests
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
-        moqPQQuoteSerializationRepo = new Mock<IPQQuoteSerializerRepository>();
+        moqPQQuoteDeserializationRepo = new Mock<IPQClientQuoteDeserializerRepository>();
+        moqClientMessageStreamDecoder = new Mock<IPQClientMessageStreamDecoder>();
         moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
         stubContext = new TimeContextTests.StubTimeContext();
@@ -116,7 +118,7 @@ public class PQSnapshotClientTests
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.NetworkTopicConnectionConfig)
             .Returns(moqSocketTopicConnectionConfig.Object);
-        moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
+        moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqPqClientSerdesRepoFactory.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketSender).Returns(moqSocketSender.Object);
         moqSocketSessionContext.SetupAdd(ssc => ssc.SocketConnected += null);
         expectedHost = "TestHostname";
@@ -133,8 +135,10 @@ public class PQSnapshotClientTests
         moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
         moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqDispatcherResolver.Object);
         moqSocketFactories.SetupGet(pcf => pcf.ParallelController).Returns(moqParallelController.Object);
-        moqSerdesFactory.SetupProperty(sf => sf.StreamDecoderFactory);
-        moqSerdesFactory.SetupProperty(sf => sf.StreamEncoderFactory);
+        moqPQQuoteDeserializationRepo.Setup(qdr => qdr.Supply()).Returns(moqClientMessageStreamDecoder.Object);
+        moqPqClientSerdesRepoFactory.SetupGet(sf => sf.MessageDeserializationRepository).Returns(moqPQQuoteDeserializationRepo.Object);
+        moqPqClientSerdesRepoFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(new Mock<IMessageSerializationRepository>().Object);
+        ;
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqOsSocket.SetupAllProperties();
@@ -150,7 +154,7 @@ public class PQSnapshotClientTests
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
-        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
+        moqPQQuoteDeserializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
@@ -244,9 +248,18 @@ public class PQSnapshotClientTests
     public void ConnectedPQSnapshotClient_GetDecoderOnResponse_ResetsDisconnectionTimer()
     {
         ConnectMoqSetup();
-        pqSnapshotClient.Connect();
 
-        var decoder = pqSnapshotClient.MessageStreamDecoder;
+        var moqSocketReceiver = new Mock<ISocketReceiver>();
+        moqSocketSessionContext.Setup(ssc => ssc.SocketReceiver).Returns(moqSocketReceiver.Object);
+        var decoder = new PQClientMessageStreamDecoder(moqPQQuoteDeserializationRepo.Object, PQFeedType.Snapshot);
+        moqSocketReceiver.SetupGet(sr => sr.Decoder).Returns(decoder);
+        moqSocketSessionContext.SetupAdd(ssc => ssc.SocketReceiverUpdated += It.IsAny<Action>());
+        moqPQQuoteDeserializationRepo.Setup(qdr => qdr.Supply())
+            .Returns(decoder);
+        pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
+        pqSnapshotClient.Connect();
+        moqSocketSessionContext.Raise(ssc => ssc.SocketReceiverUpdated += null);
+
         moqTimerCallbackSubscription.Setup(tcs => tcs.Unregister(moqIntraOsThreadSignal.Object)).Verifiable();
 
         decoder.Process(new SocketBufferReadContext
@@ -259,7 +272,7 @@ public class PQSnapshotClientTests
                 WriteCursor = 14
             }
         });
-        Assert.IsInstanceOfType(decoder, typeof(PQClientMessageStreamDecoder));
+        Assert.IsNotNull(decoder);
         moqParallelController.Verify();
         moqTimerCallbackSubscription.Verify();
         moqSerializerCache.Verify();

@@ -20,7 +20,7 @@ public class TopicResolverService
     }
 
     private PublisherTopic ResolvePublisherTopic(string topicName, string instanceName,
-        ISerdesFactory serdesFactory)
+        IMessageSerdesRepositoryFactory serdesFactory)
     {
         var existingTopic = topicRegistry.SupplyPublisherTopic(topicName, instanceName);
         if (existingTopic != null) return existingTopic;

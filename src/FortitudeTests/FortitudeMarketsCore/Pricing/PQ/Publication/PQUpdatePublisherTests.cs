@@ -22,11 +22,12 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 public class PQUpdatePublisherTests
 {
     private Mock<IInitiateControls> moqInitiatorControls = null!;
+    private Mock<IMessageSerializationRepository> moqMessageSerializationRepo = null!;
     private Mock<ISocketSessionContext> moqNewClientContext = null!;
     private Mock<IOSNetworkingController> moqNeworkingController = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<ISerdesFactory> moqSerdesFactory = null!;
+    private Mock<IMessageSerdesRepositoryFactory> moqSerdesFactory = null!;
     private Mock<IOSSocket> moqSocket = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
     private Mock<ISocketDispatcher> moqSocketDispatcher = null!;
@@ -44,7 +45,8 @@ public class PQUpdatePublisherTests
         moqParallelController = new Mock<IOSParallelController>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
-        moqSerdesFactory = new Mock<ISerdesFactory>();
+        moqSerdesFactory = new Mock<IMessageSerdesRepositoryFactory>();
+        moqMessageSerializationRepo = new Mock<IMessageSerializationRepository>();
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         moqSocketDispatcher = new Mock<ISocketDispatcher>();
         moqSocket = new Mock<IOSSocket>();
@@ -65,7 +67,8 @@ public class PQUpdatePublisherTests
             .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupGet(sd => sd.Listener).Returns(moqSocketDispatcherListener.Object);
 
-        moqSerdesFactory.SetupProperty(sf => sf.StreamEncoderFactory);
+        moqSerdesFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(moqMessageSerializationRepo.Object);
+        moqMessageSerializationRepo.SetupGet(sf => sf.RegisteredMessageIds).Returns(new uint[] { 0, 1 });
 
         var moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
         Func<ISocketSessionContext, ISocketConnectivityChanged> moqCallback = context =>
@@ -99,9 +102,9 @@ public class PQUpdatePublisherTests
     {
         var registeredSerializers = pqUpdatePublisher.SerdesFactory!;
 
-        Assert.IsTrue(registeredSerializers.StreamEncoderFactory != null);
-        Assert.AreEqual(2, registeredSerializers.StreamEncoderFactory.RegisteredSerializerCount);
-        Assert.IsTrue(registeredSerializers.StreamDecoderFactory == null);
+        Assert.IsTrue(registeredSerializers.MessageSerializationRepository != null);
+        Assert.AreEqual(2, registeredSerializers.MessageSerializationRepository.RegisteredMessageIds.Count());
+        Assert.IsTrue(registeredSerializers.MessageDeserializationRepository == null);
     }
 
     [TestMethod]
@@ -109,15 +112,15 @@ public class PQUpdatePublisherTests
     {
         var registeredSerializers = pqUpdatePublisher.SerdesFactory!;
 
-        Assert.IsTrue(registeredSerializers.StreamEncoderFactory != null);
-        Assert.AreEqual(2, registeredSerializers.StreamEncoderFactory.RegisteredSerializerCount);
+        Assert.IsTrue(registeredSerializers.MessageSerializationRepository != null);
+        Assert.AreEqual(2, registeredSerializers.MessageSerializationRepository.RegisteredMessageIds.Count());
 
         Assert.IsNotNull(registeredSerializers);
-        var pqMessageSerializer = registeredSerializers.StreamEncoderFactory.MessageEncoder<IPQLevel0Quote>(0u);
+        var pqMessageSerializer = registeredSerializers.MessageSerializationRepository.RegisterSerializer<PQLevel0Quote>();
 
         Assert.IsNotNull(pqMessageSerializer);
         var pqHeartBeatSerializer
-            = registeredSerializers.StreamEncoderFactory.MessageEncoder<PQHeartBeatQuotesMessage>(1u);
+            = registeredSerializers.MessageSerializationRepository.RegisterSerializer<PQHeartBeatQuotesMessage>();
 
         Assert.IsNotNull(pqHeartBeatSerializer);
     }

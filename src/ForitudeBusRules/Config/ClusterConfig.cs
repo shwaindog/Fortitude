@@ -1,7 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.Configuration;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 
 #endregion
 
@@ -9,15 +9,13 @@ namespace FortitudeBusRules.Config;
 
 public interface IClusterConfig
 {
-    IServiceEndpoint? ClusterConnectivityEndpoint { get; set; }
+    IClusterInstance ClusterConnectivityEndpoint { get; set; }
     List<IRemoteServiceConfig> RemoteServiceConfigs { get; set; }
     List<ILocalServiceConfig> LocalServiceConfigs { get; set; }
 }
 
-public class ClusterConfig : ConfigurationSection, IClusterConfig
+public class ClusterConfig : ConfigSection, IClusterConfig
 {
-    public const string DefaultClusterConfigPath = BusRulesConfig.DefaultBusRulesConfigPath + ":" + "ClusterConfig";
-
     private static readonly Dictionary<string, string?> Defaults = new()
     {
         { "ClusterConnectivityEndpoint:Name", "ClusterConnectionManager" }, { "ClusterConnectivityEndpoint:StreamType", "InterClusterCommsManager" }
@@ -27,19 +25,16 @@ public class ClusterConfig : ConfigurationSection, IClusterConfig
         , { "ClusterConnectivityEndpoint:LocalConnectionConfig:AvailableConnections:0:Port", "9090" }
     };
 
-    private readonly IConfigurationRoot configRoot;
-
-    private IServiceEndpoint? clusterConnectivityEndpoint;
+    private IClusterInstance? clusterConnectivityEndpoint;
     private List<IRemoteServiceConfig> lastestRemoteServiceConfigs = new();
     private List<ILocalServiceConfig> latestLocalServiceConfigs = new();
 
     public ClusterConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
     {
-        this.configRoot = configRoot;
         foreach (var checkDefault in Defaults) this[checkDefault.Key] ??= checkDefault.Value;
     }
 
-    public ClusterConfig() : this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultClusterConfigPath) { }
+    public ClusterConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
 
     public ClusterConfig(IClusterConfig toClone, IConfigurationRoot configRoot, string path) : this(configRoot, path)
@@ -49,13 +44,14 @@ public class ClusterConfig : ConfigurationSection, IClusterConfig
         LocalServiceConfigs = toClone.LocalServiceConfigs;
     }
 
+    public ClusterConfig(IClusterConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public IServiceEndpoint? ClusterConnectivityEndpoint
+    public IClusterInstance ClusterConnectivityEndpoint
     {
-        get => clusterConnectivityEndpoint ??= new ServiceEndpoint(configRoot, Path + ":" + nameof(ClusterConnectivityEndpoint));
+        get => clusterConnectivityEndpoint ??= new ClusterInstance(ConfigRoot, Path + ":" + nameof(ClusterConnectivityEndpoint));
         set =>
             clusterConnectivityEndpoint
-                = value != null ? new ServiceEndpoint(value, configRoot, Path + ":" + nameof(ClusterConnectivityEndpoint)) : null;
+                = value != null ? new ClusterInstance(value, ConfigRoot, Path + ":" + nameof(ClusterConnectivityEndpoint)) : null;
     }
 
     public List<IRemoteServiceConfig> RemoteServiceConfigs
@@ -64,14 +60,14 @@ public class ClusterConfig : ConfigurationSection, IClusterConfig
         {
             lastestRemoteServiceConfigs.Clear();
             foreach (var serviceName in GetSection(nameof(RemoteServiceConfigs)).GetChildren())
-                lastestRemoteServiceConfigs.Add(new RemoteServiceConfig(configRoot, serviceName.Path));
+                lastestRemoteServiceConfigs.Add(new RemoteServiceConfig(ConfigRoot, serviceName.Path));
             return lastestRemoteServiceConfigs;
         }
         set
         {
             lastestRemoteServiceConfigs.Clear();
             for (var i = 0; i < value.Count; i++)
-                lastestRemoteServiceConfigs.Add(new RemoteServiceConfig(value[i], configRoot, Path + ":" + nameof(RemoteServiceConfigs) + $":{i}"));
+                lastestRemoteServiceConfigs.Add(new RemoteServiceConfig(value[i], ConfigRoot, Path + ":" + nameof(RemoteServiceConfigs) + $":{i}"));
         }
     }
 
@@ -81,14 +77,14 @@ public class ClusterConfig : ConfigurationSection, IClusterConfig
         {
             latestLocalServiceConfigs.Clear();
             foreach (var serviceName in GetSection(nameof(LocalServiceConfigs)).GetChildren())
-                latestLocalServiceConfigs.Add(new LocalServiceConfig(configRoot, serviceName.Path));
+                latestLocalServiceConfigs.Add(new LocalServiceConfig(ConfigRoot, serviceName.Path));
             return latestLocalServiceConfigs;
         }
         set
         {
             latestLocalServiceConfigs.Clear();
             for (var i = 0; i < value.Count; i++)
-                latestLocalServiceConfigs.Add(new LocalServiceConfig(value[i], configRoot, Path + ":" + nameof(LocalServiceConfigs) + $":{i}"));
+                latestLocalServiceConfigs.Add(new LocalServiceConfig(value[i], ConfigRoot, Path + ":" + nameof(LocalServiceConfigs) + $":{i}"));
         }
     }
 }

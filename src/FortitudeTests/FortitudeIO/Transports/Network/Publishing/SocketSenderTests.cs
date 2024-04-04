@@ -29,6 +29,7 @@ public class SocketSenderTests
     private DirectOSNetworkingStub directOsNetworkingStub = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
+    private Mock<IMessageSerializationRepository> moqMessageSerializationRepo = null!;
     private Mock<IMessageSerializer> moqMessageSerializer = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
@@ -56,6 +57,7 @@ public class SocketSenderTests
         moqSocketDispatcher = new Mock<ISocketDispatcher>();
         moqSocketDispatcherSender = new Mock<ISocketDispatcherSender>();
         moqNetworkingController = new Mock<IOSNetworkingController>();
+        moqMessageSerializationRepo = new Mock<IMessageSerializationRepository>();
 
         calledApiSendCount = 0;
         sendCallBack = (_, buffPtr, len, _) =>
@@ -88,12 +90,12 @@ public class SocketSenderTests
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactoryResolver.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketDispatcher).Returns(moqSocketDispatcher.Object);
 
+        moqMessageSerializationRepo.Setup(msr => msr.GetSerializer(It.IsAny<uint>())).Returns(moqMessageSerializer.Object);
+
         moqFloggerFactory.Setup(ff => ff.GetLogger(It.IsAny<Type>())).Returns(moqFlogger.Object);
         FLoggerFactory.Instance = moqFloggerFactory.Object;
 
-        socketSender = new SocketSender(moqSocketSessionContext.Object);
-
-        socketSender.RegisterSerializer(MessageId, moqMessageSerializer.Object);
+        socketSender = new SocketSender(moqSocketSessionContext.Object, moqMessageSerializationRepo.Object);
     }
 
     [TestCleanup]
@@ -125,8 +127,8 @@ public class SocketSenderTests
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
         moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqMessageSerializationRepo.Setup(msr => msr.GetSerializer(It.IsAny<uint>())).Returns(null as IMessageSerializer);
 
-        socketSender.UnregisterSerializer(MessageId);
         socketSender.Send(moqVersionedMessage.Object);
     }
 
@@ -161,9 +163,9 @@ public class SocketSenderTests
         sendCallBack = (_, _, _, _) => -1;
         directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
         moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
-        socketSender = new SocketSender(moqSocketSessionContext.Object);
+        socketSender = new SocketSender(moqSocketSessionContext.Object, moqMessageSerializationRepo.Object);
 
-        socketSender.RegisterSerializer(MessageId, moqMessageSerializer.Object);
+        socketSender.MessageSerializationRepository.RegisterSerializer(MessageId, moqMessageSerializer.Object);
         RegisteredMessageSerializer_SendVersionMessage_CallsEnqueueAndAddToSendQueue();
 
         socketSender.SendQueued();
@@ -247,8 +249,8 @@ public class SocketSenderTests
         sendCallBack = (_, _, _, _) => 0;
         directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
         moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
-        socketSender = new SocketSender(moqSocketSessionContext.Object);
-        socketSender.RegisterSerializer(MessageId, moqMessageSerializer.Object);
+        socketSender = new SocketSender(moqSocketSessionContext.Object, moqMessageSerializationRepo.Object);
+        socketSender.MessageSerializationRepository.RegisterSerializer(MessageId, moqMessageSerializer.Object);
 
         socketSender.Send(moqVersionedMessage.Object);
 
@@ -283,8 +285,8 @@ public class SocketSenderTests
         };
         directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
         moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
-        socketSender = new SocketSender(moqSocketSessionContext.Object);
-        socketSender.RegisterSerializer(MessageId, moqMessageSerializer.Object);
+        socketSender = new SocketSender(moqSocketSessionContext.Object, moqMessageSerializationRepo.Object);
+        socketSender.MessageSerializationRepository.RegisterSerializer(MessageId, moqMessageSerializer.Object);
 
         socketSender.Send(moqVersionedMessage.Object);
         socketSender.Send(moqVersionedMessage.Object);

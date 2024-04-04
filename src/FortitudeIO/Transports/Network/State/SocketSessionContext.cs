@@ -29,22 +29,26 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
     ISocketSender? SocketSender { get; set; }
     ISocketDispatcher SocketDispatcher { get; }
     ISocketFactoryResolver SocketFactoryResolver { get; }
-    ISerdesFactory SerdesFactory { get; }
+    IMessageSerdesRepositoryFactory SerdesFactory { get; set; }
     void OnSocketStateChanged(SocketSessionState newSessionState);
     void OnDisconnected();
     void OnReconnecting();
     void OnDisconnecting();
     void OnConnected(ISocketConnection socketConnection);
+    event Action? SocketReceiverUpdated;
+    event Action? SocketSenderUpdated;
 }
 
 public class SocketSessionContext : ISocketSessionContext
 {
     private static int idGen;
+    private ISocketReceiver? socketReceiver;
+    private ISocketSender? socketSender;
 
     public SocketSessionContext(ConversationType conversationType,
         SocketConversationProtocol socketConversationProtocol,
         string sessionDescription, INetworkTopicConnectionConfig networkConnectionConfig,
-        ISocketFactoryResolver socketFactoryResolver, ISerdesFactory serdesFactory,
+        ISocketFactoryResolver socketFactoryResolver, IMessageSerdesRepositoryFactory serdesFactory,
         ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
         SocketFactoryResolver = socketFactoryResolver;
@@ -68,16 +72,34 @@ public class SocketSessionContext : ISocketSessionContext
     public ConversationType ConversationType { get; }
     public SocketConversationProtocol SocketConversationProtocol { get; }
     public ISocketFactoryResolver SocketFactoryResolver { get; }
-    public ISerdesFactory SerdesFactory { get; }
+    public IMessageSerdesRepositoryFactory SerdesFactory { get; set; }
     public ISocketDispatcher SocketDispatcher { get; set; }
     public ISocketConnection? SocketConnection { get; private set; }
     public INetworkTopicConnectionConfig NetworkTopicConnectionConfig { get; }
     public SocketSessionState SocketSessionState { get; set; }
     public string Name { get; set; }
 
-    public ISocketReceiver? SocketReceiver { get; set; }
+    public ISocketReceiver? SocketReceiver
+    {
+        get => socketReceiver;
+        set
+        {
+            if (socketReceiver == value) return;
+            socketReceiver = value;
+            SocketReceiverUpdated?.Invoke();
+        }
+    }
 
-    public ISocketSender? SocketSender { get; set; }
+    public ISocketSender? SocketSender
+    {
+        get => socketSender;
+        set
+        {
+            if (socketSender == value) return;
+            socketSender = value;
+            SocketSenderUpdated?.Invoke();
+        }
+    }
 
     public event Action<SocketSessionState>? StateChanged;
 
@@ -90,6 +112,8 @@ public class SocketSessionContext : ISocketSessionContext
     public event Action? Disconnecting;
     public event Action? Started;
     public event Action? Stopped;
+    public event Action? SocketReceiverUpdated;
+    public event Action? SocketSenderUpdated;
 
     public ConversationState ConversationState
     {

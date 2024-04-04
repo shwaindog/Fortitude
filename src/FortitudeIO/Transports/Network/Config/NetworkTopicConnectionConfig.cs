@@ -1,10 +1,10 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 
 #endregion
 
@@ -32,10 +32,8 @@ public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IEnumer
     INetworkTopicConnectionConfig ToggleProtocolDirection();
 }
 
-public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicConnectionConfig
+public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnectionConfig
 {
-    public const string DefaultNetworkTopicConnectionConfigPath = "NetworkTopicConnectionConfig";
-
     private static readonly Dictionary<string, string?> Defaults = new()
     {
         { nameof(ReceiveBufferSize), (1024 * 1024 * 2).ToString() }, { nameof(SendBufferSize), (1024 * 1024 * 2).ToString() }
@@ -44,15 +42,12 @@ public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicC
         , { nameof(ResponseTimeoutMs), "10000" }
     };
 
-    private readonly IConfigurationRoot configRoot;
-
     private readonly List<IEndpointConfig> returnedItems = new();
     private List<IEndpointConfig>? endpointConfigs;
     private ISocketReconnectConfig? reconnectConfig;
 
     public NetworkTopicConnectionConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
     {
-        this.configRoot = configRoot;
         foreach (var checkDefault in Defaults) this[checkDefault.Key] ??= checkDefault.Value;
         Current = null!;
     }
@@ -64,8 +59,7 @@ public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicC
         , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
         ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,
         uint connectionTimeoutMs = 2_000, uint responseTimeoutMs = 10_000
-        , ISocketReconnectConfig? reconnectConfig = null) :
-        this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultNetworkTopicConnectionConfigPath)
+        , ISocketReconnectConfig? reconnectConfig = null)
     {
         TopicName = topicName;
         ConversationProtocol = conversationProtocol;
@@ -82,10 +76,9 @@ public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicC
         Current = AvailableConnections.First();
     }
 
-    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone, IConfigurationRoot configRoot, string path) : base(
-        configRoot, path)
+    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone, IConfigurationRoot configRoot, string path)
+        : base(configRoot, path)
     {
-        this.configRoot = configRoot;
         TopicName = toClone.TopicName;
         ConversationProtocol = toClone.ConversationProtocol;
         AvailableConnections = toClone.AvailableConnections.Select(scc => scc.Clone()).ToList();
@@ -101,8 +94,7 @@ public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicC
         Current = AvailableConnections.First();
     }
 
-    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone) : this(toClone,
-        new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultNetworkTopicConnectionConfigPath) { }
+    public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public string TopicName
     {
@@ -124,14 +116,14 @@ public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicC
             endpointConfigs = new List<IEndpointConfig>();
             foreach (var configurationSection in GetSection(nameof(AvailableConnections)).GetChildren())
                 if (configurationSection["Hostname"] != null)
-                    endpointConfigs.Add(new EndpointConfig(configRoot, configurationSection.Path));
+                    endpointConfigs.Add(new EndpointConfig(ConfigRoot, configurationSection.Path));
             return endpointConfigs;
         }
         set
         {
             endpointConfigs = new List<IEndpointConfig>();
             for (var i = 0; i < value.Count; i++)
-                endpointConfigs.Add(new EndpointConfig(value[i], configRoot, Path + ":" + nameof(AvailableConnections) + $":{i}"));
+                endpointConfigs.Add(new EndpointConfig(value[i], ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}"));
         }
     }
 
@@ -185,8 +177,8 @@ public class NetworkTopicConnectionConfig : ConfigurationSection, INetworkTopicC
 
     public ISocketReconnectConfig ReconnectConfig
     {
-        get => reconnectConfig ??= new SocketReconnectConfig(configRoot, Path + $":{nameof(ReconnectConfig)}");
-        set => reconnectConfig = new SocketReconnectConfig(value, configRoot, Path + $":{nameof(ReconnectConfig)}");
+        get => reconnectConfig ??= new SocketReconnectConfig(ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
+        set => reconnectConfig = new SocketReconnectConfig(value, ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
     }
 
     public TransportType TransportType => TransportType.Sockets;

@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Configuration;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -22,14 +23,12 @@ public interface IServiceEndpoint
     INetworkTopicConnectionConfig ClusterAccessibleClientConnectionConfig { get; set; }
 }
 
-public class ServiceEndpoint : ConfigurationSection, IServiceEndpoint
+public class ServiceEndpoint : ConfigSection, IServiceEndpoint
 {
-    public const string DefaultLocalServiceEndpointsPath = ClusterConfig.DefaultClusterConfigPath + ":" + "ServiceEndpoint";
-    private readonly IConfigurationRoot configRoot;
     private INetworkTopicConnectionConfig? clusterAccessibleClientConnectionConfig;
     private INetworkTopicConnectionConfig? serviceStartConnectionConfig;
 
-    public ServiceEndpoint(IConfigurationRoot configRoot, string path) : base(configRoot, path) => this.configRoot = configRoot;
+    public ServiceEndpoint(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
 
     public ServiceEndpoint(IServiceEndpoint toClone, IConfigurationRoot root, string path) : this(root, path)
     {
@@ -37,19 +36,21 @@ public class ServiceEndpoint : ConfigurationSection, IServiceEndpoint
         ServiceStartConnectionConfig = toClone.ServiceStartConnectionConfig;
     }
 
+    public ServiceEndpoint(IServiceEndpoint toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+
     public INetworkTopicConnectionConfig ClusterAccessibleClientConnectionConfig
     {
         get =>
             clusterAccessibleClientConnectionConfig
-                = new NetworkTopicConnectionConfig(configRoot, Path + ":" + nameof(ClusterAccessibleClientConnectionConfig));
+                = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(ClusterAccessibleClientConnectionConfig));
         set =>
             clusterAccessibleClientConnectionConfig
-                = new NetworkTopicConnectionConfig(value, configRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
+                = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
     }
 
     public INetworkTopicConnectionConfig ServiceStartConnectionConfig
     {
-        get => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(configRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
-        set => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(value, configRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
+        get => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
+        set => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
     }
 }

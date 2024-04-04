@@ -72,6 +72,22 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     public int Count => queueWithElements.Count();
 
+    public IEnumerable<TK> Keys
+    {
+        get
+        {
+            foreach (var con in queueWithElements) yield return con.KeyValuePair.Key;
+        }
+    }
+
+    public IEnumerable<TV> Values
+    {
+        get
+        {
+            foreach (var con in queueWithElements) yield return con.KeyValuePair.Value;
+        }
+    }
+
     public TV? GetValue(TK key)
     {
         TryGetValue(key, out var value);
@@ -188,8 +204,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator() =>
-        enumeratorPool.Borrow().SourceEnumerator(queueWithElements.GetEnumerator());
+    public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator() => enumeratorPool.Borrow().SourceEnumerator(queueWithElements.GetEnumerator());
 
     private class KvpEnumerator : IEnumerator<KeyValuePair<TK, TV>>,
         IDisposableEnumerable<KeyValuePair<TK, TV>>
