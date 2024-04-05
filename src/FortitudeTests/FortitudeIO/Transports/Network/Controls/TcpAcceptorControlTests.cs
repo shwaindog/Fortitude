@@ -37,7 +37,7 @@ public class TcpAcceptorControlsTests
     private Mock<INetworkTopicConnectionConfig> moqNetworkTopicConnectionConfig = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<ISerdesFactory> moqSerdesFactory = null!;
+    private Mock<IMessageSerdesRepositoryFactory> moqSerdesFactory = null!;
     private Mock<ISocketConnection> moqSocketConnection = null!;
     private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
@@ -75,7 +75,7 @@ public class TcpAcceptorControlsTests
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
-        moqSerdesFactory = new Mock<ISerdesFactory>();
+        moqSerdesFactory = new Mock<IMessageSerdesRepositoryFactory>();
         connectedIpEndPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), testHostPort);
         moqSocketConnection = new Mock<ISocketConnection>();
         moqSocketReceiver = new Mock<ISocketReceiver>();
@@ -114,6 +114,7 @@ public class TcpAcceptorControlsTests
         moqSocketFactories.SetupGet(ssc => ssc.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
         //moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqAcceptorOsSocket.SetupAllProperties();
+        moqDispatcher.SetupGet(sd => sd.Listener).Returns(moqSocketDispatchListener.Object);
         moqSocketDispatcherResolver.Setup(dr => dr.Resolve(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqDispatcher.Object);
 

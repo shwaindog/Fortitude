@@ -29,9 +29,7 @@ public class SocketSenderFactory : ISocketSenderFactory
 
     public SocketSender GetConversationPublisher(ISocketSessionContext socketSocketSessionContext)
     {
-        var newSocketSender = new SocketSender(socketSocketSessionContext);
-        foreach (var serializerKvp in socketSocketSessionContext.SerdesFactory.StreamEncoderFactory!)
-            newSocketSender.RegisterSerializer(serializerKvp.Key, serializerKvp.Value);
+        var newSocketSender = new SocketSender(socketSocketSessionContext, socketSocketSessionContext.SerdesFactory.MessageSerializationRepository);
 
         return newSocketSender;
     }

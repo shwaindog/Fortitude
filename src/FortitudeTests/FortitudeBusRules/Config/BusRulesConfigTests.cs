@@ -18,7 +18,7 @@ public class BusRulesConfigTests
             .AddJsonFile("FortitudeBusRules/Config/TestBusRulesConfigLoads.json")
             .Build();
         var busRulesConfig
-            = new BusRulesConfig(config, BusRulesConfig.DefaultBusRulesConfigPath);
+            = new BusRulesConfig(config, "BusRulesConfig");
 
         Assert.AreEqual(2, busRulesConfig.QueuesConfig.MinEventQueues);
         Assert.AreEqual(10, busRulesConfig.QueuesConfig.MaxEventQueues);
@@ -30,25 +30,33 @@ public class BusRulesConfigTests
         Assert.AreEqual(9000, busRulesConfig.QueuesConfig.EventQueueSize);
         Assert.AreEqual(9, busRulesConfig.QueuesConfig.MessagePumpMaxWaitMs);
         var clusterConfig = busRulesConfig.ClusterConfig;
-        var clusterConnectEndpoint = clusterConfig!.ClusterConnectivityEndpoint;
-        Assert.AreEqual("TestClusterConnectionManager", clusterConnectEndpoint.Name);
-        Assert.AreEqual("ClusterComms", clusterConnectEndpoint.StreamType);
-        Assert.AreEqual("localhost", clusterConnectEndpoint.ClusterAccessibleHostname);
-        Assert.AreEqual((ushort)7777, clusterConnectEndpoint.ClusterAccessiblePort);
-        var clusterConnectServiceStart = clusterConnectEndpoint.ServiceStartConnectionConfig;
-        Assert.AreEqual("TestClusterConnectionManager", clusterConnectServiceStart.TopicName);
-        Assert.AreEqual(SocketConversationProtocol.TcpAcceptor, clusterConnectServiceStart.ConversationProtocol);
-        var clusterConnectStartFirstEndpoint = clusterConnectServiceStart.AvailableConnections.First();
-        Assert.AreEqual("0.0.0.0", clusterConnectStartFirstEndpoint.Hostname);
-        Assert.AreEqual((ushort)7777, clusterConnectStartFirstEndpoint.Port);
-        Assert.AreEqual("TestClusterConnectionManager", clusterConnectStartFirstEndpoint.InstanceName);
+        var clusterConnectEndpoint = clusterConfig!.ClusterConnectivityEndpoint!;
+        Assert.AreEqual(ActivationState.OnStartup, clusterConnectEndpoint.ActivationState);
+        var clusterConnectServiceStartConConfig = clusterConnectEndpoint.ClusterServiceEndpoint!.ServiceStartConnectionConfig;
+        Assert.AreEqual("TestClusterConnectionManager", clusterConnectServiceStartConConfig.TopicName);
+        Assert.AreEqual(SocketConversationProtocol.TcpAcceptor, clusterConnectServiceStartConConfig.ConversationProtocol);
+        var clusterConnectStartConConfigFirstEndpoint = clusterConnectServiceStartConConfig.AvailableConnections.First();
+        Assert.AreEqual("0.0.0.0", clusterConnectStartConConfigFirstEndpoint.Hostname);
+        Assert.AreEqual((ushort)7777, clusterConnectStartConConfigFirstEndpoint.Port);
+        Assert.AreEqual("TestClusterConnectionManager", clusterConnectStartConConfigFirstEndpoint.InstanceName);
         Assert.AreEqual("Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
-            , clusterConnectServiceStart.TopicDescription);
+            , clusterConnectServiceStartConConfig.TopicDescription);
+        var clusterConnectClientConConfig = clusterConnectEndpoint.ClusterServiceEndpoint.ClusterAccessibleClientConnectionConfig;
+        Assert.AreEqual("TestClusterConnectionManager", clusterConnectClientConConfig.TopicName);
+        Assert.AreEqual(SocketConversationProtocol.TcpClient, clusterConnectClientConConfig.ConversationProtocol);
+        var clusterConnectClientConConfigFirstEndpoint = clusterConnectClientConConfig.AvailableConnections.First();
+        Assert.AreEqual("ServiceHostname", clusterConnectClientConConfigFirstEndpoint.Hostname);
+        Assert.AreEqual((ushort)7777, clusterConnectClientConConfigFirstEndpoint.Port);
+        Assert.AreEqual("TestClusterConnectionManager", clusterConnectClientConConfigFirstEndpoint.InstanceName);
+        Assert.AreEqual("Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+            , clusterConnectClientConConfig.TopicDescription);
         var firstRemoteServiceConfig = clusterConfig!.RemoteServiceConfigs.First();
         Assert.AreEqual("FirstRemoteHostService", firstRemoteServiceConfig.Name);
         Assert.AreEqual("ClusterComms", firstRemoteServiceConfig.StreamType);
+        Assert.AreEqual(ActivationState.OnStartup, firstRemoteServiceConfig.ActivationState);
         Assert.AreEqual("First Service Provides some service to this bus rules instance", firstRemoteServiceConfig.Description);
-        var firstRemoteServiceConnConfig = firstRemoteServiceConfig.RemoteServiceConnectionConfig;
+        Assert.AreEqual("MyCompany.MyProject.MyInitiatorServiceClassName", firstRemoteServiceConfig.ClientInitiatorFullClassName);
+        var firstRemoteServiceConnConfig = firstRemoteServiceConfig.RemoteServiceConnectionConfigs.First();
         Assert.AreEqual("FirstRemoteHostTopic", firstRemoteServiceConnConfig.TopicName);
         Assert.AreEqual(SocketConversationProtocol.TcpClient, firstRemoteServiceConnConfig.ConversationProtocol);
         var firstRemoteServiceConnFirstEndpointConfig = firstRemoteServiceConnConfig.AvailableConnections.First();
@@ -60,8 +68,10 @@ public class BusRulesConfigTests
         var lastRemoteServiceConfig = clusterConfig!.RemoteServiceConfigs.Last();
         Assert.AreEqual("SecondRemoteHostService", lastRemoteServiceConfig.Name);
         Assert.AreEqual("OrdersExecution", lastRemoteServiceConfig.StreamType);
+        Assert.AreEqual(ActivationState.OnEachRequest, lastRemoteServiceConfig.ActivationState);
         Assert.AreEqual("Second Service Provides pricing", lastRemoteServiceConfig.Description);
-        var lastRemoteServiceConnConfig = lastRemoteServiceConfig.RemoteServiceConnectionConfig;
+        Assert.AreEqual("MyCompany.MyDifferentProject.MyInitiatorServiceClassName", lastRemoteServiceConfig.ClientInitiatorFullClassName);
+        var lastRemoteServiceConnConfig = lastRemoteServiceConfig.RemoteServiceConnectionConfigs.First();
         Assert.AreEqual("SecondRemoteHostTopic", lastRemoteServiceConnConfig.TopicName);
         Assert.AreEqual(SocketConversationProtocol.TcpClient, lastRemoteServiceConnConfig.ConversationProtocol);
         var lastRemoteServiceConnFirstEndpointConfig = lastRemoteServiceConnConfig.AvailableConnections.First();
@@ -70,32 +80,68 @@ public class BusRulesConfigTests
         Assert.AreEqual("SomeOtherInstance", lastRemoteServiceConnFirstEndpointConfig.InstanceName);
         Assert.AreEqual("provides order execution services"
             , lastRemoteServiceConnConfig.TopicDescription);
-        var firstAddLocalServiceConfig = clusterConfig!.AdditionalLocalServices.First();
+        Assert.AreEqual(CustomConfigType.ConfigSectionPath, lastRemoteServiceConfig.ServiceCustomConfig!.CustomConfigType);
+        Assert.AreEqual("FirstChild:ThirdGrandChild:CustomConfig", lastRemoteServiceConfig.ServiceCustomConfig.Content);
+        var firstAddLocalServiceConfig = clusterConfig!.LocalServiceConfigs.First();
         Assert.AreEqual("FirstAdditionalServiceProvidedToOtherClients", firstAddLocalServiceConfig.Name);
         Assert.AreEqual("SomeKnownType", firstAddLocalServiceConfig.StreamType);
-        Assert.AreEqual("localhost", firstAddLocalServiceConfig.ClusterAccessibleHostname);
-        Assert.AreEqual((ushort)5555, firstAddLocalServiceConfig.ClusterAccessiblePort);
-        var firstAddLocalServiceConnConfig = firstAddLocalServiceConfig.ServiceStartConnectionConfig;
-        Assert.AreEqual("FirstAdditionalServiceProvidedToOtherClients", firstAddLocalServiceConnConfig.TopicName);
-        Assert.AreEqual(SocketConversationProtocol.TcpAcceptor, firstAddLocalServiceConnConfig.ConversationProtocol);
-        var firstAddLocalServiceConnFirstEndpointConfig = firstAddLocalServiceConnConfig.AvailableConnections.First();
+        Assert.AreEqual(ActivationState.OnStartup, firstAddLocalServiceConfig.ActivationState);
+        Assert.AreEqual("MyCompany.MyProject.MyServiceInitatorClassName", firstAddLocalServiceConfig.ServiceInitiatorFullClassName);
+        var firstAddLocalServiceConfigFirstEndpoint = firstAddLocalServiceConfig.Endpoints.First();
+        Assert.AreEqual("FirstAdditionalServiceProvidedToOtherClients"
+            , firstAddLocalServiceConfigFirstEndpoint.ServiceStartConnectionConfig.TopicName);
+        Assert.AreEqual(SocketConversationProtocol.TcpAcceptor
+            , firstAddLocalServiceConfigFirstEndpoint.ServiceStartConnectionConfig.ConversationProtocol);
+        var firstAddLocalServiceConnFirstEndpointConfig
+            = firstAddLocalServiceConfigFirstEndpoint.ServiceStartConnectionConfig.AvailableConnections.First();
         Assert.AreEqual("0.0.0.0", firstAddLocalServiceConnFirstEndpointConfig.Hostname);
         Assert.AreEqual((ushort)5555, firstAddLocalServiceConnFirstEndpointConfig.Port);
         Assert.AreEqual("NameOfServiceInstance", firstAddLocalServiceConnFirstEndpointConfig.InstanceName);
         Assert.AreEqual("Provides well known service to clients connecting on this endpoint"
-            , firstAddLocalServiceConnConfig.TopicDescription);
-        var lastAddLocalServiceConfig = clusterConfig!.AdditionalLocalServices.Last();
+            , firstAddLocalServiceConfigFirstEndpoint.ServiceStartConnectionConfig.TopicDescription);
+        Assert.AreEqual("FirstAdditionalServiceProvidedToOtherClients"
+            , firstAddLocalServiceConfigFirstEndpoint.ClusterAccessibleClientConnectionConfig.TopicName);
+        Assert.AreEqual(SocketConversationProtocol.TcpClient
+            , firstAddLocalServiceConfigFirstEndpoint.ClusterAccessibleClientConnectionConfig.ConversationProtocol);
+        var firstAddLocalClientConnFirstEndpointConfig
+            = firstAddLocalServiceConfigFirstEndpoint.ClusterAccessibleClientConnectionConfig.AvailableConnections.First();
+        Assert.AreEqual("169.254.224.238", firstAddLocalClientConnFirstEndpointConfig.Hostname);
+        Assert.AreEqual((ushort)5555, firstAddLocalClientConnFirstEndpointConfig.Port);
+        Assert.AreEqual("NameOfServiceInstance", firstAddLocalClientConnFirstEndpointConfig.InstanceName);
+        Assert.AreEqual("Provides well known service to clients connecting on this endpoint"
+            , firstAddLocalServiceConfigFirstEndpoint.ServiceStartConnectionConfig.TopicDescription);
+        Assert.AreEqual(CustomConfigType.Json, firstAddLocalServiceConfig.ServiceCustomConfig!.CustomConfigType);
+        Assert.AreEqual("{\"Key1\": \"Value1\", \"Key2\": \"Value2\" }", firstAddLocalServiceConfig.ServiceCustomConfig.Content);
+        var lastAddLocalServiceConfig = clusterConfig!.LocalServiceConfigs.Last();
         Assert.AreEqual("SecondAdditionalServiceProvidedToOtherClients", lastAddLocalServiceConfig.Name);
         Assert.AreEqual("SomeOtherKnownType", lastAddLocalServiceConfig.StreamType);
-        Assert.AreEqual("localhost", lastAddLocalServiceConfig.ClusterAccessibleHostname);
-        Assert.AreEqual((ushort)6666, lastAddLocalServiceConfig.ClusterAccessiblePort);
-        var lastAddLocalServiceConnConfig = lastAddLocalServiceConfig.ServiceStartConnectionConfig;
-        Assert.AreEqual("SecondAdditionalServiceProvidedToOtherClients", lastAddLocalServiceConnConfig.TopicName);
-        Assert.AreEqual(SocketConversationProtocol.TcpAcceptor, lastAddLocalServiceConnConfig.ConversationProtocol);
-        var lastAddLocalServiceConnFirstEndpointConfig = lastAddLocalServiceConnConfig.AvailableConnections.First();
-        Assert.AreEqual("0.0.0.0", lastAddLocalServiceConnFirstEndpointConfig.Hostname);
+        Assert.AreEqual(ActivationState.Disabled, lastAddLocalServiceConfig.ActivationState);
+        Assert.AreEqual("MyCompany.MyOtherProject.MyServiceInitatorClassName", lastAddLocalServiceConfig.ServiceInitiatorFullClassName);
+        var lastAddLocalServiceConnConfigFirstEndpoint = lastAddLocalServiceConfig.Endpoints.First();
+        Assert.AreEqual("SecondAdditionalServiceProvidedToOtherClients"
+            , lastAddLocalServiceConnConfigFirstEndpoint.ServiceStartConnectionConfig.TopicName);
+        Assert.AreEqual(SocketConversationProtocol.UdpPublisher
+            , lastAddLocalServiceConnConfigFirstEndpoint.ServiceStartConnectionConfig.ConversationProtocol);
+        var lastAddLocalServiceConnFirstEndpointConfig
+            = lastAddLocalServiceConnConfigFirstEndpoint.ServiceStartConnectionConfig.AvailableConnections.First();
+        Assert.AreEqual("169.254.224.238", lastAddLocalServiceConnFirstEndpointConfig.Hostname);
         Assert.AreEqual((ushort)6666, lastAddLocalServiceConnFirstEndpointConfig.Port);
+        Assert.AreEqual("224.1.0.222", lastAddLocalServiceConnFirstEndpointConfig.SubnetMask);
         Assert.AreEqual("OtherNameOfServiceInstance", lastAddLocalServiceConnFirstEndpointConfig.InstanceName);
-        Assert.AreEqual("Provides well known service", lastAddLocalServiceConnConfig.TopicDescription);
+        Assert.AreEqual("Provides well known service", lastAddLocalServiceConnConfigFirstEndpoint.ServiceStartConnectionConfig.TopicDescription);
+        Assert.AreEqual("LastAdditionalServiceProvidedToOtherClients"
+            , lastAddLocalServiceConnConfigFirstEndpoint.ClusterAccessibleClientConnectionConfig.TopicName);
+        Assert.AreEqual(SocketConversationProtocol.UdpSubscriber
+            , lastAddLocalServiceConnConfigFirstEndpoint.ClusterAccessibleClientConnectionConfig.ConversationProtocol);
+        var lastAddLocalServiceConnLastEndpointConfig
+            = lastAddLocalServiceConnConfigFirstEndpoint.ClusterAccessibleClientConnectionConfig.AvailableConnections.First();
+        Assert.AreEqual("169.254.224.238", lastAddLocalServiceConnLastEndpointConfig.Hostname);
+        Assert.AreEqual((ushort)6666, lastAddLocalServiceConnLastEndpointConfig.Port);
+        Assert.AreEqual("224.1.0.222", lastAddLocalServiceConnLastEndpointConfig.SubnetMask);
+        Assert.AreEqual("OtherNameOfServiceInstance", lastAddLocalServiceConnLastEndpointConfig.InstanceName);
+        Assert.AreEqual("Provides well known service"
+            , lastAddLocalServiceConnConfigFirstEndpoint.ClusterAccessibleClientConnectionConfig.TopicDescription);
+        Assert.AreEqual(CustomConfigType.StringContent, lastAddLocalServiceConfig.ServiceCustomConfig!.CustomConfigType);
+        Assert.AreEqual("SingleStringValue", lastAddLocalServiceConfig.ServiceCustomConfig.Content);
     }
 }

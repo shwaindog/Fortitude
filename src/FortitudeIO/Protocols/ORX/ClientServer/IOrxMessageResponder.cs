@@ -1,9 +1,8 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.ORX.Serialization;
-using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
+using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports;
 using FortitudeIO.Transports.Network.State;
 
@@ -13,9 +12,8 @@ namespace FortitudeIO.Protocols.ORX.ClientServer;
 
 public interface IOrxMessageResponder : IConversationResponder
 {
-    IRecycler RecyclingFactory { get; }
     IOrxDeserializationRepository DeserializationRepository { get; }
-    IOrxSerializationRepository SerializationRepository { get; }
+    IMessageSerializationRepository SerializationRepository { get; }
 
     event Action Disconnecting;
     void Send(ISession client, IVersionedMessage message);

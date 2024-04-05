@@ -1,6 +1,6 @@
 ﻿namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-internal enum PQFeedType
+public enum PQFeedType
 {
     Snapshot
     , Update

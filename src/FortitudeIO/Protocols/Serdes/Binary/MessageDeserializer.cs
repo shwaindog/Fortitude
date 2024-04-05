@@ -20,21 +20,14 @@ public interface IMessageDeserializer<out TM> : IMessageDeserializer, IDeseriali
     new TM? Deserialize(IBufferContext socketBufferReadContext);
 }
 
-public readonly struct BasicMessageHeader
+public interface INotifyingMessageDeserializer<out TM> : IMessageDeserializer<TM>
+    where TM : class, IVersionedMessage, new()
 {
-    public BasicMessageHeader(byte version, uint messageId, uint messageSize
-        , ISerdeContext? deserializationContext = null)
-    {
-        Version = version;
-        MessageId = messageId;
-        MessageSize = messageSize;
-        DeserializationContext = deserializationContext;
-    }
+    event Action<TM, object?, IConversation?>? ConversationMessageDeserialized;
+    event Action<TM, IBufferContext>? MessageDeserialized;
 
-    public byte Version { get; }
-    public uint MessageId { get; }
-    public uint MessageSize { get; }
-    public ISerdeContext? DeserializationContext { get; }
+    bool IsRegistered(Action<TM, IBufferContext> deserializedHandler);
+    bool IsRegistered(Action<TM, object, IConversation> deserializedHandler);
 }
 
 public abstract class MessageDeserializer<TM> : INotifyingMessageDeserializer<TM>

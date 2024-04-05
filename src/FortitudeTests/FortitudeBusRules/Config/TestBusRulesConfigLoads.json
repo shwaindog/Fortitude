@@ -15,94 +15,159 @@
     },
     "ClusterConfig": {
       "ClusterConnectivityEndpoint": {
-        "Name": "TestClusterConnectionManager",
-        "StreamType": "ClusterComms",
-        "ClusterAccessibleHostname": "localhost",
-        "ClusterAccessiblePort": 7777,
-        "ServiceStartConnectionConfig": {
-          "TopicName": "TestClusterConnectionManager",
-          "ConversationProtocol": "TcpAcceptor",
-          "AvailableConnections": [
-            {
-              "Hostname": "0.0.0.0",
-              "Port": 7777,
-              "InstanceName": "TestClusterConnectionManager"
-            }
-          ],
-          "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+        "ActivationState": "OnStartup",
+        "ClusterServiceEndpoint": {
+          "ServiceStartConnectionConfig": {
+            "TopicName": "TestClusterConnectionManager",
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "Hostname": "0.0.0.0",
+                "Port": 7777,
+                "InstanceName": "TestClusterConnectionManager"
+              }
+            ],
+            "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+          },
+          "ClusterAccessibleClientConnectionConfig": {
+            "TopicName": "TestClusterConnectionManager",
+            "ConversationProtocol": "TcpClient",
+            "AvailableConnections": [
+              {
+                "Hostname": "ServiceHostname",
+                "Port": 7777,
+                "InstanceName": "TestClusterConnectionManager"
+              }
+            ],
+            "TopicDescription": "Allows other Bus Rules instances to connect and communicate and send and receive remote topics"
+          }
         }
       },
       "RemoteServiceConfigs": [
         {
           "Name": "FirstRemoteHostService",
           "StreamType": "ClusterComms",
+          "ActivationState": "OnStartup",
           "Description": "First Service Provides some service to this bus rules instance",
-          "RemoteServiceConnectionConfig": {
-            "TopicName": "FirstRemoteHostTopic",
-            "ConversationProtocol": "TcpClient",
-            "AvailableConnections": [
-              {
-                "Hostname": "FirstRemoteHostName",
-                "Port": 1111,
-                "InstanceName": "TestClusterConnectionManager"
-              }
-            ],
-            "TopicDescription": "Connects this Bus Rules instance to a remote cluster"
-          }
+          "ClientInitiatorFullClassName": "MyCompany.MyProject.MyInitiatorServiceClassName",
+          "RemoteServiceConnectionConfigs": [
+            {
+              "TopicName": "FirstRemoteHostTopic",
+              "ConversationProtocol": "TcpClient",
+              "AvailableConnections": [
+                {
+                  "Hostname": "FirstRemoteHostName",
+                  "Port": 1111,
+                  "InstanceName": "TestClusterConnectionManager"
+                }
+              ],
+              "TopicDescription": "Connects this Bus Rules instance to a remote cluster"
+            }
+          ]
         },
         {
           "Name": "SecondRemoteHostService",
           "StreamType": "OrdersExecution",
+          "ActivationState": "OnEachRequest",
           "Description": "Second Service Provides pricing",
-          "RemoteServiceConnectionConfig": {
-            "TopicName": "SecondRemoteHostTopic",
-            "ConversationProtocol": "TcpClient",
-            "AvailableConnections": [
-              {
-                "Hostname": "SecondRemoteHostName",
-                "Port": 2222,
-                "InstanceName": "SomeOtherInstance"
-              }
-            ],
-            "TopicDescription": "provides order execution services"
+          "ClientInitiatorFullClassName": "MyCompany.MyDifferentProject.MyInitiatorServiceClassName",
+          "RemoteServiceConnectionConfigs": [
+            {
+              "TopicName": "SecondRemoteHostTopic",
+              "ConversationProtocol": "TcpClient",
+              "AvailableConnections": [
+                {
+                  "Hostname": "SecondRemoteHostName",
+                  "Port": 2222,
+                  "InstanceName": "SomeOtherInstance"
+                }
+              ],
+              "TopicDescription": "provides order execution services"
+            }
+          ],
+          "ServiceCustomConfig": {
+            "CustomConfigType": "ConfigSectionPath",
+            "Content": "FirstChild:ThirdGrandChild:CustomConfig"
           }
         }
       ],
-      "AdditionalLocalServices": [
+      "LocalServiceConfigs": [
         {
           "Name": "FirstAdditionalServiceProvidedToOtherClients",
           "StreamType": "SomeKnownType",
-          "ClusterAccessibleHostname": "localhost",
-          "ClusterAccessiblePort": 5555,
-          "ServiceStartConnectionConfig": {
-            "TopicName": "FirstAdditionalServiceProvidedToOtherClients",
-            "ConversationProtocol": "TcpAcceptor",
-            "AvailableConnections": [
-              {
-                "Hostname": "0.0.0.0",
-                "Port": 5555,
-                "InstanceName": "NameOfServiceInstance"
+          "ActivationState": "OnStartup",
+          "ServiceInitiatorFullClassName": "MyCompany.MyProject.MyServiceInitatorClassName",
+          "Endpoints": [
+            {
+              "ServiceStartConnectionConfig": {
+                "TopicName": "FirstAdditionalServiceProvidedToOtherClients",
+                "ConversationProtocol": "TcpAcceptor",
+                "AvailableConnections": [
+                  {
+                    "Hostname": "0.0.0.0",
+                    "Port": 5555,
+                    "InstanceName": "NameOfServiceInstance"
+                  }
+                ],
+                "TopicDescription": "Provides well known service to clients connecting on this endpoint"
+              },
+              "ClusterAccessibleClientConnectionConfig": {
+                "TopicName": "FirstAdditionalServiceProvidedToOtherClients",
+                "ConversationProtocol": "TcpClient",
+                "AvailableConnections": [
+                  {
+                    "Hostname": "169.254.224.238",
+                    "Port": 5555,
+                    "InstanceName": "NameOfServiceInstance"
+                  }
+                ],
+                "TopicDescription": "Provides well known service to clients connecting on this endpoint"
               }
-            ],
-            "TopicDescription": "Provides well known service to clients connecting on this endpoint"
+            }
+          ],
+          "ServiceCustomConfig": {
+            "CustomConfigType": "Json",
+            "Content": "{\"Key1\": \"Value1\", \"Key2\": \"Value2\" }"
           }
         },
         {
           "Name": "SecondAdditionalServiceProvidedToOtherClients",
           "StreamType": "SomeOtherKnownType",
-          "ClusterAccessibleHostname": "localhost",
-          "ClusterAccessiblePort": 6666,
-          "ServiceStartConnectionConfig": {
-            "TopicName": "SecondAdditionalServiceProvidedToOtherClients",
-            "ConversationProtocol": "TcpAcceptor",
-            "AvailableConnections": [
-              {
-                "Hostname": "0.0.0.0",
-                "Port": 6666,
-                "InstanceName": "OtherNameOfServiceInstance"
+          "ActivationState": "Disabled",
+          "ServiceInitiatorFullClassName": "MyCompany.MyOtherProject.MyServiceInitatorClassName",
+          "Endpoints": [
+            {
+              "ServiceStartConnectionConfig": {
+                "TopicName": "SecondAdditionalServiceProvidedToOtherClients",
+                "ConversationProtocol": "UdpPublisher",
+                "AvailableConnections": [
+                  {
+                    "Hostname": "169.254.224.238",
+                    "Port": 6666,
+                    "SubnetMask": "224.1.0.222",
+                    "InstanceName": "OtherNameOfServiceInstance"
+                  }
+                ],
+                "TopicDescription": "Provides well known service"
+              },
+              "ClusterAccessibleClientConnectionConfig": {
+                "TopicName": "LastAdditionalServiceProvidedToOtherClients",
+                "ConversationProtocol": "UdpSubscriber",
+                "AvailableConnections": [
+                  {
+                    "Hostname": "169.254.224.238",
+                    "Port": 6666,
+                    "SubnetMask": "224.1.0.222",
+                    "InstanceName": "OtherNameOfServiceInstance"
+                  }
+                ],
+                "TopicDescription": "Provides well known service"
               }
-            ],
-            "TopicDescription": "Provides well known service"
+            }
+          ],
+          "ServiceCustomConfig": {
+            "CustomConfigType": "StringContent",
+            "Content": "SingleStringValue"
           }
         }
       ]

@@ -2,7 +2,6 @@
 
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.State;
 
@@ -36,11 +35,4 @@ public class ConversationResponder : SocketConversation, IAcceptorControls, ICon
     public void RemoveClient(IConversationRequester clientSocketSessionContext) => acceptorControls.RemoveClient(clientSocketSessionContext);
 
     public void Broadcast(IVersionedMessage message) => acceptorControls.Broadcast(message);
-
-    public void RegisterSerializer(uint messageId, IMessageSerializer serializer)
-    {
-        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisterMessageSerializer(messageId, serializer);
-        foreach (var client in acceptorControls.Clients.Values)
-            client.StreamPublisher!.RegisterSerializer(messageId, serializer);
-    }
 }

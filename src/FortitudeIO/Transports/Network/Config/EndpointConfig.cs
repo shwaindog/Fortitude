@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Net;
+using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -18,12 +19,11 @@ public interface IEndpointConfig : ICloneable<IEndpointConfig>
     IPAddress? SubnetMaskIpAddress { get; }
 }
 
-public class EndpointConfig : ConfigurationSection, IEndpointConfig
+public class EndpointConfig : ConfigSection, IEndpointConfig
 {
     public EndpointConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
-    public EndpointConfig(string hostname, ushort port, string? instanceName = null, string? subnetMask = null) : base(
-        new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), "")
+    public EndpointConfig(string hostname, ushort port, string? instanceName = null, string? subnetMask = null)
     {
         Hostname = hostname;
         Port = port;

@@ -3,7 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 
 #endregion

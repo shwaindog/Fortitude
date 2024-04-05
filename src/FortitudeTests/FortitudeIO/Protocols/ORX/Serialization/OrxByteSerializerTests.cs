@@ -4,8 +4,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Protocols.ORX.Serialization;
-using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
+using FortitudeIO.Protocols.ORX.Serdes;
+using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion

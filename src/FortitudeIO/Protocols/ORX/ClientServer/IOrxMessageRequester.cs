@@ -1,9 +1,8 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols.ORX.Serialization;
-using FortitudeIO.Protocols.ORX.Serialization.Deserialization;
+using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Conversations;
 
 #endregion
@@ -12,7 +11,6 @@ namespace FortitudeIO.Protocols.ORX.ClientServer;
 
 public interface IOrxMessageRequester : IConversationRequester, ISocketConversation
 {
-    IRecycler RecyclingFactory { get; }
     IOrxDeserializationRepository DeserializationRepository { get; }
-    IOrxSerializationRepository SerializationRepository { get; }
+    IMessageSerializationRepository SerializationRepository { get; }
 }

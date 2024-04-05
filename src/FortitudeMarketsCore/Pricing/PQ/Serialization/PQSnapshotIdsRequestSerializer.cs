@@ -4,7 +4,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serialization;
 
-public class PQSnapshotIdsRequestSerializer : IMessageSerializer<IPQSnapshotIdsRequest>
+public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRequest>
 {
     private const int FixedSize = 2 * sizeof(byte) + sizeof(ushort);
 
@@ -20,10 +20,10 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<IPQSnapshotIdsR
 
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
-        Serialize((IPQSnapshotIdsRequest)message, (ISerdeContext)writeContext);
+        Serialize((PQSnapshotIdsRequest)message, (ISerdeContext)writeContext);
     }
 
-    public void Serialize(IPQSnapshotIdsRequest obj, ISerdeContext writeContext)
+    public void Serialize(PQSnapshotIdsRequest obj, ISerdeContext writeContext)
     {
         if ((writeContext.Direction & ContextDirection.Write) == 0)
             throw new ArgumentException("Expected readContext to support writing");

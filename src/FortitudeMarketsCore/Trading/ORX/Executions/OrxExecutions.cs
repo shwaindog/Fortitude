@@ -3,7 +3,7 @@
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Executions;
 
 #endregion
@@ -74,8 +74,7 @@ public class OrxExecutions : ReusableObject<IExecutions>, IExecutions
         return this;
     }
 
-    protected bool Equals(OrxExecutions other) =>
-        ExecutionsList?.SequenceEqual(other.ExecutionsList) ?? other.ExecutionsList == null;
+    protected bool Equals(OrxExecutions other) => ExecutionsList?.SequenceEqual(other.ExecutionsList) ?? other.ExecutionsList == null;
 
     public override bool Equals(object? obj)
     {

@@ -1,24 +1,22 @@
 ﻿#region
 
 using FortitudeBusRules.Injection;
+using FortitudeCommon.Configuration;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 
 #endregion
 
 namespace FortitudeBusRules.Config;
 
-public class BusRulesConfig : ConfigurationSection
+public class BusRulesConfig : ConfigSection
 {
-    public const string DefaultBusRulesConfigPath = "BusRulesConfig";
-    private readonly IConfigurationRoot configRoot;
     private ClusterConfig? clusterConfig;
 
     private QueuesConfig? queuesConfig;
 
-    public BusRulesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) => this.configRoot = configRoot;
+    public BusRulesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
 
-    public BusRulesConfig() : this(new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), DefaultBusRulesConfigPath) { }
+    public BusRulesConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public string? Name
     {
@@ -32,21 +30,21 @@ public class BusRulesConfig : ConfigurationSection
         set => this[nameof(Description)] = value;
     }
 
-    public QueuesConfig QueuesConfig
+    public IQueuesConfig QueuesConfig
     {
-        get => queuesConfig ??= new QueuesConfig(configRoot, Path + ":" + nameof(QueuesConfig));
-        set => queuesConfig = new QueuesConfig(value, configRoot, Path + ":" + nameof(QueuesConfig));
+        get => queuesConfig ??= new QueuesConfig(ConfigRoot, Path + ":" + nameof(QueuesConfig));
+        set => queuesConfig = new QueuesConfig(value, ConfigRoot, Path + ":" + nameof(QueuesConfig));
     }
 
-    public ClusterConfig? ClusterConfig
+    public IClusterConfig? ClusterConfig
     {
         get
         {
             if (GetSection(nameof(ClusterConfig)).GetChildren().Any())
-                return clusterConfig ??= new ClusterConfig(configRoot, Path + ":" + nameof(ClusterConfig));
+                return clusterConfig ??= new ClusterConfig(ConfigRoot, Path + ":" + nameof(ClusterConfig));
             return null;
         }
-        set => clusterConfig = value != null ? new ClusterConfig(value, configRoot, Path + ":" + nameof(ClusterConfig)) : null;
+        set => clusterConfig = value != null ? new ClusterConfig(value, ConfigRoot, Path + ":" + nameof(ClusterConfig)) : null;
     }
 
     public IDependencyResolver? Resolver { get; set; }

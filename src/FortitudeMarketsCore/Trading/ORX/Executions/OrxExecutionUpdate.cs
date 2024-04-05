@@ -3,7 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsCore.Trading.ORX.Session;
 
@@ -91,6 +91,5 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, IS
         (OrxExecutionUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
 
 
-    public override IExecutionUpdate Clone() =>
-        Recycler?.Borrow<OrxExecutionUpdate>().CopyFrom(this) ?? new OrxExecutionUpdate(this);
+    public override IExecutionUpdate Clone() => Recycler?.Borrow<OrxExecutionUpdate>().CopyFrom(this) ?? new OrxExecutionUpdate(this);
 }

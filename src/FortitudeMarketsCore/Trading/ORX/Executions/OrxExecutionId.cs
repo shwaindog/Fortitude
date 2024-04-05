@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Executions;
 
 #endregion
@@ -53,8 +53,7 @@ public class OrxExecutionId : ReusableObject<IExecutionId>, IExecutionId
         set => BookingSystemId = (MutableString)value;
     }
 
-    public override IExecutionId Clone() =>
-        Recycler?.Borrow<OrxExecutionId>().CopyFrom(this) ?? new OrxExecutionId(this);
+    public override IExecutionId Clone() => Recycler?.Borrow<OrxExecutionId>().CopyFrom(this) ?? new OrxExecutionId(this);
 
     public override IExecutionId CopyFrom(IExecutionId executionId
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

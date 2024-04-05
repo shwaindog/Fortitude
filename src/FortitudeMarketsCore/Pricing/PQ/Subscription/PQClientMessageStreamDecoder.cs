@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Reflection;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -13,7 +12,13 @@ using FortitudeMarketsCore.Pricing.PQ.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
-internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
+public interface IPQClientMessageStreamDecoder : IMessageStreamDecoder
+{
+    event Action? ReceivedMessage;
+    event Action? ReceivedData;
+}
+
+internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecoder
 {
     private static readonly IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
@@ -24,39 +29,18 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
 
     private uint messagesTotalSize;
 
-    public PQClientMessageStreamDecoder(IMap<uint, IMessageDeserializer> deserializers, PQFeedType feed)
+    public PQClientMessageStreamDecoder(IMessageDeserializationRepository messageDeserializationRepository, PQFeedType feed)
     {
-        Deserializers = deserializers;
+        MessageDeserializationRepository = messageDeserializationRepository;
         messageSection = MessageSection.TransmissionHeader;
         ExpectedSize = PQQuoteMessageHeader.HeaderSize;
 
         msgHeader = new PQQuoteTransmissionHeader(feed);
     }
 
-    public IMap<uint, IMessageDeserializer> Deserializers { get; set; }
-
     public int ExpectedSize { get; private set; }
 
-    public bool ZeroByteReadIsDisconnection => true;
-
-    public int NumberOfReceivesPerPoll => 50;
-
-    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => Deserializers;
-
-    public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer)
-    {
-        try
-        {
-            Deserializers[msgId] = deserializer;
-        }
-        catch (Exception ex)
-        {
-            Logger.Warn($"Caught exception attempting to add msgId: {msgId}.  Got {ex}");
-            return false;
-        }
-
-        return true;
-    }
+    public IMessageDeserializationRepository MessageDeserializationRepository { get; }
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
@@ -87,7 +71,7 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
                     {
                         var ptr = fptr + read + PQQuoteMessageHeader.SourceTickerIdOffset;
                         var sourceTickerId = StreamByteOps.ToUInt(ref ptr);
-                        if (Deserializers.TryGetValue(sourceTickerId, out var bu))
+                        if (MessageDeserializationRepository.TryGetDeserializer(sourceTickerId, out var bu))
                         {
                             socketBufferReadContext.EncodedBuffer.ReadCursor = read;
                             bu!.Deserialize(socketBufferReadContext);
@@ -107,7 +91,7 @@ internal sealed class PQClientMessageStreamDecoder : IMessageStreamDecoder
                     socketBufferReadContext.EncodedBuffer.ReadCursor = read;
                     var streamId = socketBufferReadContext.ReadCurrentMessageSourceTickerId();
                     socketBufferReadContext.MessageSize = ExpectedSize;
-                    if (Deserializers.TryGetValue(streamId, out var u))
+                    if (MessageDeserializationRepository.TryGetDeserializer(streamId, out var u))
                     {
                         u!.Deserialize(socketBufferReadContext);
                         ReceivedMessage?.Invoke();

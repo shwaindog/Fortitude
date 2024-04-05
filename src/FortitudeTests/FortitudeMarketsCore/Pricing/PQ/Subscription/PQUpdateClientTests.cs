@@ -18,15 +18,19 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQUpdateClientTests
 {
+    private Mock<IPQClientMessageStreamDecoder> moqClientMessageStreamDecoder = null!;
+    private Mock<IPQClientQuoteDeserializerRepository> moqDeserializationRepo = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IInitiateControls> moqInitiateControls = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<ISerdesFactory> moqSerdesFactory = null!;
+    private Mock<IMessageSerdesRepositoryFactory> moqSerdesFactory = null!;
+    private Mock<IMessageSerializationRepository> moqSerializationRepo = null!;
     private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
+
     private PQUpdateClient pqUpdateClient = null!;
     private string testHostName = null!;
     private ushort testHostPort;
@@ -44,8 +48,11 @@ public class PQUpdateClientTests
             .Returns(moqParallelController.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqServerConnectionConfig = new Mock<IEndpointConfig>();
-        moqSerdesFactory = new Mock<ISerdesFactory>();
+        moqSerdesFactory = new Mock<IMessageSerdesRepositoryFactory>();
         moqOsSocket = new Mock<IOSSocket>();
+        moqSerializationRepo = new Mock<IMessageSerializationRepository>();
+        moqDeserializationRepo = new Mock<IPQClientQuoteDeserializerRepository>();
+        moqClientMessageStreamDecoder = new Mock<IPQClientMessageStreamDecoder>();
 
         var stateChangedFunc = new Mock<Func<ISocketSessionContext, ISocketConnectivityChanged>>();
         var moqSocketConnectivityChange = new Mock<ISocketConnectivityChanged>();
@@ -64,9 +71,9 @@ public class PQUpdateClientTests
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
-
-        moqSerdesFactory.SetupProperty(sf => sf.StreamDecoderFactory);
-        moqSerdesFactory.SetupProperty(sf => sf.StreamEncoderFactory);
+        moqDeserializationRepo.Setup(mdr => mdr.Supply()).Returns(moqClientMessageStreamDecoder.Object);
+        moqSerdesFactory.SetupGet(sf => sf.MessageDeserializationRepository).Returns(moqDeserializationRepo.Object);
+        moqSerdesFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(moqSerializationRepo.Object);
 
         pqUpdateClient = new PQUpdateClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
     }
@@ -80,8 +87,8 @@ public class PQUpdateClientTests
     [TestMethod]
     public void UpdateClient_GetDecoder_ReturnsPQClientDecoder()
     {
-        var decoder = pqUpdateClient.MessageStreamDecoder;
+        var deserializerRepository = pqUpdateClient.DeserializerRepository;
 
-        Assert.IsInstanceOfType(decoder, typeof(PQClientMessageStreamDecoder));
+        Assert.IsNotNull(deserializerRepository);
     }
 }

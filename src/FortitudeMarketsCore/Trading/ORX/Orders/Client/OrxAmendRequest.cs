@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders.Client;
 using FortitudeMarketsCore.Trading.ORX.Session;
 

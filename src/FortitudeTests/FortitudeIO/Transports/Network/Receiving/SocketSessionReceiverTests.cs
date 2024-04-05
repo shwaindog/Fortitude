@@ -107,7 +107,7 @@ public class SocketReceiverTests
         moqFeedDecoder = new Mock<IMessageStreamDecoder>();
         socketReceiver = new SocketReceiver(moqSocketSessionContext.Object)
         {
-            Decoder = moqFeedDecoder.Object
+            Decoder = moqFeedDecoder.Object, ListenActive = true
         };
 
         moqReadSocketPerfLogger.Setup(ltcsl => ltcsl.Add(It.IsAny<string>(), It.IsAny<int>()))
@@ -210,7 +210,7 @@ public class SocketReceiverTests
         directOsNetworkingApiStub.ClearQueue();
         socketReceiver = new SocketReceiver(moqSocketSessionContext.Object)
         {
-            Decoder = moqFeedDecoder.Object
+            Decoder = moqFeedDecoder.Object, ListenActive = true
         };
 
         CallReceiveDataAssertDataBurstAlertTimes(unreadBytes, 1, new DateTime(2017, 05, 14, 17, 40, 01));
@@ -378,7 +378,7 @@ public class SocketReceiverTests
             directOsNetworkingApiStub.QueueResponseBytes(new byte[10], true);
             socketReceiver = new SocketReceiver(moqSocketSessionContext.Object)
             {
-                Decoder = moqFeedDecoder.Object
+                Decoder = moqFeedDecoder.Object, ListenActive = true
             };
 
             var receiveData = socketReceiver.Poll(socketBufferReadContext);
@@ -456,7 +456,7 @@ public class SocketReceiverTests
         moqNetworkTopicConConfig.Setup(ntcc => ntcc.NumberOfReceivesPerPoll).Returns(4);
         socketReceiver = new SocketReceiver(moqSocketSessionContext.Object)
         {
-            Decoder = moqFeedDecoder.Object
+            Decoder = moqFeedDecoder.Object, ListenActive = true
         };
         var receiveData = socketReceiver.Poll(socketBufferReadContext);
         Assert.IsTrue(receiveData);
@@ -467,7 +467,7 @@ public class SocketReceiverTests
     [TestMethod]
     public void SocketReceiver_HandleReceiveError_CallsOnSessionFailure()
     {
-        moqTextFlogger.Setup(fl => fl.Warn("{0} got {1}. Exception {2}", It.IsAny<object[]>())).Verifiable();
+        moqTextFlogger.Setup(fl => fl.Warn("Receive Error - {0} got on {1}", It.IsAny<object[]>())).Verifiable();
         moqStreamControls.Setup(sc => sc.OnSessionFailure(It.IsAny<string>())).Verifiable();
 
         socketReceiver.HandleReceiveError("read error.", new Exception("Something bad happened!"));

@@ -11,24 +11,23 @@ namespace FortitudeIO.Topics.Factories;
 public interface ITopicTransportFactory
 {
     ISubscriberTransportTopicConversation? CreateSubscriberTransportTopic(
-        ISerdesFactory serdesFactory, ITopicEndpointInfo topicEndpointInfo);
+        IMessageSerdesRepositoryFactory serdesFactory, ITopicEndpointInfo topicEndpointInfo);
 
     IPublisherTransportTopicConversation? CreatePublisherTransportTopic(
-        ISerdesFactory serdesFactory, ITopicConnectionConfig topicEndpointInfo);
+        IMessageSerdesRepositoryFactory serdesFactory, ITopicConnectionConfig topicEndpointInfo);
 }
 
 public class TopicTransportFactory : ITopicTransportFactory
 {
     private readonly ITopicTransportFactory sockeTopicTransportFactory;
 
-    public TopicTransportFactory(ITopicTransportFactory sockeTopicTransportFactory) =>
-        this.sockeTopicTransportFactory = sockeTopicTransportFactory;
+    public TopicTransportFactory(ITopicTransportFactory sockeTopicTransportFactory) => this.sockeTopicTransportFactory = sockeTopicTransportFactory;
 
-    public ISubscriberTransportTopicConversation CreateSubscriberTransportTopic(ISerdesFactory serdesFactory,
+    public ISubscriberTransportTopicConversation CreateSubscriberTransportTopic(IMessageSerdesRepositoryFactory serdesFactory,
         ITopicEndpointInfo topicEndpointInfo) =>
         throw new NotImplementedException();
 
-    public IPublisherTransportTopicConversation? CreatePublisherTransportTopic(ISerdesFactory serdesFactory,
+    public IPublisherTransportTopicConversation? CreatePublisherTransportTopic(IMessageSerdesRepositoryFactory serdesFactory,
         ITopicConnectionConfig topicEndpointInfo)
     {
         if (topicEndpointInfo.TransportType == TransportType.Sockets)

@@ -63,7 +63,7 @@ public static class PQQuoteMessageHeader
     }
 }
 
-internal sealed class PQQuoteSerializer : IMessageSerializer<IPQLevel0Quote>
+internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 {
     private const int FieldSize = 2 * sizeof(byte) + sizeof(uint);
     private readonly UpdateStyle updateStyle;
@@ -77,10 +77,10 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<IPQLevel0Quote>
 
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
-        Serialize((IPQLevel0Quote)message, (ISerdeContext)writeContext);
+        Serialize((PQLevel0Quote)message, (ISerdeContext)writeContext);
     }
 
-    public void Serialize(IPQLevel0Quote obj, ISerdeContext writeContext)
+    public void Serialize(PQLevel0Quote obj, ISerdeContext writeContext)
     {
         if ((writeContext.Direction & ContextDirection.Write) == 0)
             throw new ArgumentException("Expected readContext to support writing");

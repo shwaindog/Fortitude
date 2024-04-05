@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;
 using FortitudeMarketsCore.Trading.ORX.Session;

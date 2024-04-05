@@ -51,9 +51,9 @@ public sealed class SocketReceiver : ISocketReceiver
 
     public SocketReceiver(ISocketSessionContext socketSessionContext)
     {
+        this.socketSessionContext = socketSessionContext;
         Socket = socketSessionContext.SocketConnection!.OSSocket;
         directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!.DirectOSNetworkingApi;
-        this.socketSessionContext = socketSessionContext;
         numberOfReceivesPerPoll = socketSessionContext.NetworkTopicConnectionConfig.NumberOfReceivesPerPoll;
 
         var socketUseDescriptionNoWhiteSpaces = this.socketSessionContext.Name.Replace(" ", "");
@@ -84,7 +84,7 @@ public sealed class SocketReceiver : ISocketReceiver
 
     public bool Poll(SocketBufferReadContext socketBufferReadContext)
     {
-        if (Decoder == null) return true;
+        if (Decoder == null || !ListenActive) return true;
         var receivingTs = TimeContext.UtcNow;
         socketBufferReadContext.DispatchLatencyLogger?.Indent();
         var recvLen = PrepareBufferAndReceiveData(socketBufferReadContext.DispatchLatencyLogger);
@@ -124,8 +124,8 @@ public sealed class SocketReceiver : ISocketReceiver
 
     public void HandleReceiveError(string message, Exception exception)
     {
-        logger.Warn("{0} got {1}. Exception {2}", socketSessionContext, message, exception);
-        socketSessionContext.StreamControls?.OnSessionFailure($"{message}. Got {exception}");
+        logger.Warn("Receive Error - {0} got on {1}", message, this);
+        socketSessionContext.StreamControls?.OnSessionFailure($"{message}");
     }
 
     private int PrepareBufferAndReceiveData(IPerfLogger? detectionToPublishLatencyTraceLogger)
@@ -163,9 +163,10 @@ public sealed class SocketReceiver : ISocketReceiver
         fixed (byte* ptr = receiveBuffer.Buffer)
         {
             socketTraceLogger.Add("before ioctlsocket");
+            var socketHandle = Socket.Handle;
             if (directOSNetworkingApi.IoCtlSocket(Socket.Handle, ref bufferRecvLen) != 0)
                 throw new Exception("Win32 error " + directOSNetworkingApi.GetLastCallError()
-                                                   + " on ioctlsocket call");
+                                                   + $" on ioctlsocket call with Socket.Handle {socketHandle} on {socketSessionContext}");
 
             socketTraceLogger.AddContextMeasurement(bufferRecvLen);
             if (socketTraceLogger.Enabled)

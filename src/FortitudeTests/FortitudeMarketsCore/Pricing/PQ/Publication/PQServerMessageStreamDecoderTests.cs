@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.State;
@@ -24,6 +25,7 @@ public class PQServerMessageStreamDecoderTests
 
     private uint[] lastReceivedSnapshotRequestIds = null!;
     private Mock<IConversation> moqConversation = null!;
+    private Mock<IMessageDeserializationRepository> moqDeserializationRepo = null!;
     private Mock<ISocketConversation> moqSocketConversation = null!;
     private Mock<IConversationRequester> moqSocketConversationRequester = null!;
 
@@ -39,6 +41,7 @@ public class PQServerMessageStreamDecoderTests
         moqSocketSessionConnection = new Mock<ISocketSessionContext>();
         moqSocketConversationRequester = new Mock<IConversationRequester>();
         moqConversation = new Mock<IConversation>();
+        moqDeserializationRepo = new Mock<IMessageDeserializationRepository>();
         moqSocketConversation = moqSocketConversationRequester.As<ISocketConversation>();
         moqSocketSessionConnection.SetupGet(x => x.OwningConversation).Returns(moqSocketConversation.Object);
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
@@ -56,14 +59,14 @@ public class PQServerMessageStreamDecoderTests
 
         pqSnapshotIdsRequestSerializer = new PQSnapshotIdsRequestSerializer();
 
-        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(deserializerCallBack);
+        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(moqDeserializationRepo.Object);
+        pqServerMessageStreamDecoder.SnapshotRequestIds += deserializerCallBack;
     }
 
     [TestMethod]
     public void NewServerDecoder_New_PropertiesInitializedAsExpected()
     {
         Assert.AreEqual(6, pqServerMessageStreamDecoder.ExpectedSize);
-        Assert.AreEqual(1, pqServerMessageStreamDecoder.NumberOfReceivesPerPoll);
     }
 
     [TestMethod]

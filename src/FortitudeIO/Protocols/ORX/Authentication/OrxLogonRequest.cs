@@ -4,7 +4,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 
 #endregion
 
@@ -71,6 +71,5 @@ public sealed class OrxLogonRequest : OrxVersionedMessage
         return this;
     }
 
-    public override IVersionedMessage Clone() =>
-        Recycler?.Borrow<OrxLogonRequest>().CopyFrom(this) ?? new OrxLogonRequest(this);
+    public override IVersionedMessage Clone() => Recycler?.Borrow<OrxLogonRequest>().CopyFrom(this) ?? new OrxLogonRequest(this);
 }

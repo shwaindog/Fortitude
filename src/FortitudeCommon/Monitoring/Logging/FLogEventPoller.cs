@@ -1,6 +1,7 @@
 #region
 
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.OSWrapper.AsyncWrappers;
 
 #endregion
 
@@ -10,8 +11,8 @@ internal class FLogEventPoller : IPollSink<FLogEvent>, IRingPoller
 {
     private readonly RingPollerSink<FLogEvent> ringPoller;
 
-    public FLogEventPoller(PollingRing<FLogEvent> ring, uint timeoutMs) =>
-        ringPoller = new RingPollerSink<FLogEvent>(ring, timeoutMs, this);
+    public FLogEventPoller(PollingRing<FLogEvent> ring, uint timeoutMs, IOSParallelController? osParallelController = null) =>
+        ringPoller = new RingPollerSink<FLogEvent>(ring, timeoutMs, this, null, osParallelController ?? new OSParallelController());
 
     public void Processor(long sequence, long batchSize, FLogEvent data, bool startOfBatch,
         bool endOfBatch)

@@ -9,8 +9,8 @@ using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
+using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsCore.Pricing.PQ.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using SocketsAPI = FortitudeIO.Transports.Network;
 
@@ -21,27 +21,22 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotServer));
-    private static readonly PQServerSerializationRepository SnapshotSerializationRepository = new(PQFeedType.Snapshot);
     private static ISocketFactoryResolver? socketFactories;
 
     public PQSnapshotServer(ISocketSessionContext socketSessionContext, IAcceptorControls acceptorControls)
         : base(socketSessionContext, acceptorControls)
     {
-        socketSessionContext.SerdesFactory.StreamDecoderFactory
-            = new SocketStreamDecoderFactory(deserializer => new PQServerMessageStreamDecoder(OnRequest));
-        socketSessionContext.SerdesFactory.StreamEncoderFactory = SnapshotSerializationRepository;
+        MessageSerializationRepository = socketSessionContext.SerdesFactory.MessageSerializationRepository;
         NewClient += HandleNewClient;
     }
 
     public static ISocketFactoryResolver SocketFactories
     {
-        get =>
-            socketFactories
-                ??= SocketFactoryResolver.GetRealSocketFactories();
+        get => socketFactories ??= SocketFactoryResolver.GetRealSocketFactories();
         set => socketFactories = value;
     }
 
-    public int RegisteredSerializersCount => SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisteredSerializerCount;
+    public IMessageSerializationRepository MessageSerializationRepository { get; }
 
     public event Action<IConversationRequester, uint[]>? OnSnapshotRequest;
 
@@ -58,7 +53,7 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 
         var socFactories = SocketFactories;
 
-        var serdesFactory = new SerdesFactory();
+        var serdesFactory = new PQServerSerdesRepositoryFactory(PQFeedType.Snapshot);
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory
@@ -74,27 +69,14 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 
     private void HandleNewClient(IConversationRequester newClient)
     {
+        var clientSocketReceiver = (ISocketReceiver)newClient.StreamListener!;
+        var clientDecoder = (IPQServerMessageStreamDecoder)clientSocketReceiver.Decoder!;
+        clientDecoder.SnapshotRequestIds += OnRequest;
         logger.Info($"New PQSnapshot Client Request {newClient}");
     }
 
     private void OnRequest(IConversationRequester cx, uint[] streamIDs)
     {
         OnSnapshotRequest?.Invoke(cx, streamIDs);
-    }
-
-    public void RegisterSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new()
-    {
-        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.RegisterMessageSerializer(msgId
-            , SnapshotSerializationRepository.GetSerializer<TM>(msgId));
-    }
-
-    public void UnregisterSerializer(uint msgId)
-    {
-        SocketSessionContext.SerdesFactory.StreamEncoderFactory!.UnregisterMessageSerializer(msgId);
-    }
-
-    public void Enqueue(IConversationRequester requester, IVersionedMessage message)
-    {
-        requester.StreamPublisher!.Enqueue(message);
     }
 }

@@ -2,7 +2,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 
 #endregion
 
@@ -29,6 +29,5 @@ public class OrxInactiveTrades : ReusableObject<OrxInactiveTrades>
         return this;
     }
 
-    public override OrxInactiveTrades Clone() =>
-        Recycler?.Borrow<OrxInactiveTrades>().CopyFrom(this) ?? new OrxInactiveTrades(this);
+    public override OrxInactiveTrades Clone() => Recycler?.Borrow<OrxInactiveTrades>().CopyFrom(this) ?? new OrxInactiveTrades(this);
 }

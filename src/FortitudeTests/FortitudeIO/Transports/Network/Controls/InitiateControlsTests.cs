@@ -131,7 +131,7 @@ public class InitiateControlsTests
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object).Verifiable();
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true).Verifiable();
         moqDispatcher.Setup(sd => sd.Stop()).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1} id {2}:{3} closed", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1} id {2}:{3} closed.", It.IsAny<object[]>())).Verifiable();
         moqSocketConnection.Setup(sf => sf.OSSocket).Returns(moqOsSocket.Object).Verifiable();
         moqOsSocket.Setup(sf => sf.Close()).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected()).Verifiable();

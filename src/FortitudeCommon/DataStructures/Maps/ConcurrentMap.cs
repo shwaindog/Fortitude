@@ -29,6 +29,9 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
         }
     }
 
+    public IEnumerable<TK> Keys => concurrentDictionary.Keys;
+    public IEnumerable<TV> Values => concurrentDictionary.Values;
+
     public TV? GetValue(TK key)
     {
         TryGetValue(key, out var value);

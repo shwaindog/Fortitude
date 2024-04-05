@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Counterparties;
 
 #endregion
@@ -45,8 +45,7 @@ public class OrxBookingInfo : ReusableObject<IBookingInfo>, IBookingInfo
         set => SubPortfolio = value as MutableString;
     }
 
-    public override IBookingInfo Clone() =>
-        Recycler?.Borrow<OrxBookingInfo>().CopyFrom(this) ?? new OrxBookingInfo(this);
+    public override IBookingInfo Clone() => Recycler?.Borrow<OrxBookingInfo>().CopyFrom(this) ?? new OrxBookingInfo(this);
 
     public override IBookingInfo CopyFrom(IBookingInfo bookingInfo
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

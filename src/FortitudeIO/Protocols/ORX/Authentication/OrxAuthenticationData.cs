@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Authentication;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 
 #endregion
 
@@ -30,8 +30,7 @@ public class OrxAuthenticationData : ReusableObject<IAuthenticationData>, IAuthe
         set => AuthenticationBytes = (List<byte>)value!;
     }
 
-    public override IAuthenticationData Clone() =>
-        Recycler?.Borrow<OrxAuthenticationData>().CopyFrom(this) ?? new OrxAuthenticationData(this);
+    public override IAuthenticationData Clone() => Recycler?.Borrow<OrxAuthenticationData>().CopyFrom(this) ?? new OrxAuthenticationData(this);
 
 
     public override void StateReset()

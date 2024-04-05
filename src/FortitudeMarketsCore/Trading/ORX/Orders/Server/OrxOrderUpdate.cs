@@ -5,7 +5,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;
 using FortitudeMarketsCore.Trading.ORX.Session;
@@ -75,8 +75,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
         (IOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
 
 
-    public override IOrderUpdate Clone() =>
-        (IOrderUpdate?)Recycler?.Borrow<OrxOrderUpdate>().CopyFrom(this) ?? new OrxOrderUpdate(this);
+    public override IOrderUpdate Clone() => (IOrderUpdate?)Recycler?.Borrow<OrxOrderUpdate>().CopyFrom(this) ?? new OrxOrderUpdate(this);
 
     public OrxOrderUpdate CopyFrom(OrxOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         (OrxOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);

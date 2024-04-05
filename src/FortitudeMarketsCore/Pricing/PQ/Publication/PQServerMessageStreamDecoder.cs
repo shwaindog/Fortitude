@@ -9,32 +9,29 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
-internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
+public interface IPQServerMessageStreamDecoder : IMessageStreamDecoder
+{
+    event Action<IConversationRequester, uint[]>? SnapshotRequestIds;
+}
+
+public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 {
     private const int HeaderSize = 2 * sizeof(byte) + 2 * sizeof(ushort);
     private const int RequestSize = sizeof(uint);
-    private readonly Action<IConversationRequester, uint[]>? requestsHandlerNew;
     private MessageSection messageSection;
 
     private ushort requestsCount;
 
-
-    public PQServerMessageStreamDecoder(Action<IConversationRequester, uint[]> requestsHandler)
+    public PQServerMessageStreamDecoder(IMessageDeserializationRepository messageDeserializationRepository)
     {
+        MessageDeserializationRepository = messageDeserializationRepository;
         messageSection = MessageSection.Header;
         ExpectedSize = HeaderSize;
-        requestsHandlerNew = requestsHandler;
     }
 
-    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => [];
-
-    public int NumberOfReceivesPerPoll => 1;
     public int ExpectedSize { get; private set; }
 
-    public bool ZeroByteReadIsDisconnection => false;
-
-    public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer) =>
-        throw new NotImplementedException("No deserializers required for this stream");
+    public IMessageDeserializationRepository MessageDeserializationRepository { get; }
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
@@ -76,7 +73,7 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
                     }
 
                     socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-                    requestsHandlerNew?.Invoke((IConversationRequester)socketBufferReadContext.Conversation!, streamIDs);
+                    SnapshotRequestIds?.Invoke((IConversationRequester)socketBufferReadContext.Conversation!, streamIDs);
                     read += requestsCount * RequestSize;
                     messageSection = MessageSection.Header;
                     ExpectedSize = HeaderSize;
@@ -86,6 +83,8 @@ internal sealed class PQServerMessageStreamDecoder : IMessageStreamDecoder
         socketBufferReadContext.EncodedBuffer.ReadCursor = read;
         return read - originalRead;
     }
+
+    public event Action<IConversationRequester, uint[]>? SnapshotRequestIds;
 
     private enum MessageSection
     {

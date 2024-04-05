@@ -2,6 +2,8 @@ namespace FortitudeCommon.DataStructures.Maps;
 
 public interface IMap<TK, TV> : IEnumerable<KeyValuePair<TK, TV>> where TK : notnull
 {
+    IEnumerable<TK> Keys { get; }
+    IEnumerable<TV> Values { get; }
     TV? this[TK key] { get; set; }
     int Count { get; }
     TV? GetValue(TK key);

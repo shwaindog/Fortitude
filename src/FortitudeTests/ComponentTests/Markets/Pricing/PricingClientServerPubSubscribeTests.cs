@@ -106,6 +106,12 @@ public class PricingClientServerPubSubscribeTests
         updateClientFactory = new PQUpdateClientRepository(clientDispatcherResolver);
     }
 
+    [TestCleanup]
+    public void TearDown()
+    {
+        FLoggerFactory.GracefullyTerminateProcessLogging();
+    }
+
     [TestCategory("Integration")]
     [TestCategory("LoopBackIPRequired")]
     [TestMethod]
@@ -175,6 +181,8 @@ public class PricingClientServerPubSubscribeTests
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
         logger.Info("Finished Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
         //FLoggerFactory.GracefullyTerminateProcessLogging();
+        pqServer.Dispose();
+        pqClient.Dispose();
     }
 
     private static void SetExpectedDiffFieldsToSame(ILevel2Quote destinationSnapshot, ILevel2Quote sourcePriceQuote)
@@ -239,6 +247,8 @@ public class PricingClientServerPubSubscribeTests
         Console.Out.WriteLine(sourcePriceQuote.DiffQuotes(destinationSnapshot));
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
         //FLoggerFactory.GracefullyTerminateProcessLogging();
+        pqServer.Dispose();
+        pqClient.Dispose();
     }
 
     private static void ResetL2QuoteLayers(ILevel2Quote level2PriceQuote)

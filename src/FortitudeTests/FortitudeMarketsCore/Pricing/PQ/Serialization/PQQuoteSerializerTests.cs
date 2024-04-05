@@ -1,12 +1,10 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
@@ -31,7 +29,7 @@ public class PQQuoteSerializerTests
     private const int BufferReadWriteOffset = 5;
     private readonly bool allowCatchup = true;
     private readonly uint retryWaitMs = 2000;
-    private IMap<uint, IMessageDeserializer> binaryDeserializers = null!;
+    private PQClientQuoteDeserializerRepository deserializerRepository = null!;
 
     private IReadOnlyList<IPQLevel0Quote> differingQuotes = null!;
     private PQLevel2Quote everyLayerL2Quote = null!;
@@ -133,25 +131,19 @@ public class PQQuoteSerializerTests
 
         TimeContext.Provider = moqTimeContext.Object;
 
-        binaryDeserializers = new LinkedListCache<uint, IMessageDeserializer>
-        {
-            { level0QuoteInfo.Id, new PQQuoteDeserializer<PQLevel0Quote>(level0QuoteInfo) }
-            , { level1QuoteInfo.Id, new PQQuoteDeserializer<PQLevel1Quote>(level1QuoteInfo) }
-            , { valueDateQuoteInfo.Id, new PQQuoteDeserializer<PQLevel2Quote>(valueDateQuoteInfo) }
-            , { everyLayerQuoteInfo.Id, new PQQuoteDeserializer<PQLevel2Quote>(everyLayerQuoteInfo) },
-            {
-                simpleNoRecentlyTradedQuoteInfo.Id
-                , new PQQuoteDeserializer<PQLevel3Quote>(simpleNoRecentlyTradedQuoteInfo)
-            }
-            , { srcNmLstTrdQuoteInfo.Id, new PQQuoteDeserializer<PQLevel3Quote>(srcNmLstTrdQuoteInfo) }
-            , { srcQtRfPdGvnVlmQuoteInfo.Id, new PQQuoteDeserializer<PQLevel3Quote>(srcQtRfPdGvnVlmQuoteInfo) },
-            {
-                trdrLyrTrdrPdGvnVlmDtlsQuoteInfo.Id
-                , new PQQuoteDeserializer<PQLevel3Quote>(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo)
-            }
-        };
-        pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(binaryDeserializers, PQFeedType.Snapshot);
+        deserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
+        deserializerRepository.RegisterDeserializer(level0QuoteInfo.Id, new PQQuoteDeserializer<PQLevel0Quote>(level0QuoteInfo));
+        deserializerRepository.RegisterDeserializer(level1QuoteInfo.Id, new PQQuoteDeserializer<PQLevel1Quote>(level1QuoteInfo));
+        deserializerRepository.RegisterDeserializer(valueDateQuoteInfo.Id, new PQQuoteDeserializer<PQLevel2Quote>(valueDateQuoteInfo));
+        deserializerRepository.RegisterDeserializer(everyLayerQuoteInfo.Id, new PQQuoteDeserializer<PQLevel2Quote>(everyLayerQuoteInfo));
+        deserializerRepository.RegisterDeserializer(simpleNoRecentlyTradedQuoteInfo.Id
+            , new PQQuoteDeserializer<PQLevel3Quote>(simpleNoRecentlyTradedQuoteInfo));
+        deserializerRepository.RegisterDeserializer(srcNmLstTrdQuoteInfo.Id, new PQQuoteDeserializer<PQLevel3Quote>(srcNmLstTrdQuoteInfo));
+        deserializerRepository.RegisterDeserializer(srcQtRfPdGvnVlmQuoteInfo.Id, new PQQuoteDeserializer<PQLevel3Quote>(srcQtRfPdGvnVlmQuoteInfo));
+        deserializerRepository.RegisterDeserializer(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo.Id
+            , new PQQuoteDeserializer<PQLevel3Quote>(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo));
 
+        pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(deserializerRepository, PQFeedType.Snapshot);
 
         testBuffer = new byte[400];
     }
@@ -229,7 +221,7 @@ public class PQQuoteSerializerTests
 
             Assert.AreEqual(amtWritten, bytesConsumed);
 
-            var deserializedQuote = binaryDeserializers[pqQuote.SourceTickerQuoteInfo!.Id];
+            var deserializedQuote = deserializerRepository.GetDeserializer(pqQuote.SourceTickerQuoteInfo!.Id);
 
             Assert.IsNotNull(deserializedQuote);
             IPQLevel0Quote? clientSideQuote = null;

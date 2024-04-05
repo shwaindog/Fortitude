@@ -5,7 +5,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.ORX.Serialization;
+using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Client;
 using FortitudeMarketsCore.Trading.Orders.Client;

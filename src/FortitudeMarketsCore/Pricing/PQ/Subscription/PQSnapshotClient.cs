@@ -1,12 +1,9 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Conversations;
-using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
@@ -20,21 +17,26 @@ using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
+public interface IPQSnapshotClient : IConversationRequester
+{
+    IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
+
+    void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds);
+}
+
 public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 {
     private static ISocketFactoryResolver? socketFactories;
     private readonly uint cxTimeoutMs;
     private readonly IIntraOSThreadSignal intraOSThreadSignal;
     private readonly IFLogger logger;
-    private readonly PQClientMessageStreamDecoder messageStreamDecoder;
     private readonly IOSParallelController parallelController;
 
     private readonly IDictionary<uint, IUniqueSourceTickerIdentifier> requestsQueue =
         new Dictionary<uint, IUniqueSourceTickerIdentifier>();
 
-    private readonly IPQQuoteSerializerRepository snapshotSerializationRepository = new PQQuoteSerializerRepository();
-
     private DateTime lastSnapshotSent = DateTime.MinValue;
+    private IPQClientMessageStreamDecoder? messageStreamDecoder;
     private ITimerCallbackSubscription? timerSubscription;
 
     public PQSnapshotClient(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
@@ -47,13 +49,18 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         socketSessionContext.SocketConnected += SocketConnection;
         socketSessionContext.SocketConnected += SendQueuedRequests;
         socketSessionContext.StateChanged += SocketSessionContextOnStateChanged;
-        messageStreamDecoder
-            = new PQClientMessageStreamDecoder(new ConcurrentMap<uint, IMessageDeserializer>(), PQFeedType.Snapshot);
-        messageStreamDecoder.ReceivedMessage += OnReceivedMessage;
-        messageStreamDecoder.ReceivedData += OnReceivedMessage;
-        socketSessionContext.SerdesFactory.StreamDecoderFactory
-            = new SocketStreamDecoderFactory(deserializer => messageStreamDecoder);
-        socketSessionContext.SerdesFactory.StreamEncoderFactory = snapshotSerializationRepository;
+
+        var serdesFactor = (IPQClientSerdesRepositoryFactory)socketSessionContext.SerdesFactory;
+        DeserializerRepository = serdesFactor.MessageDeserializationRepository;
+        socketSessionContext.SocketReceiverUpdated += () =>
+        {
+            if (socketSessionContext.SocketReceiver != null)
+            {
+                messageStreamDecoder = (IPQClientMessageStreamDecoder)socketSessionContext.SocketReceiver.Decoder!;
+                messageStreamDecoder.ReceivedMessage += OnReceivedMessage;
+                messageStreamDecoder.ReceivedData += OnReceivedMessage;
+            }
+        };
     }
 
     public static ISocketFactoryResolver SocketFactories
@@ -64,7 +71,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         set => socketFactories = value;
     }
 
-    public IMessageStreamDecoder MessageStreamDecoder => messageStreamDecoder;
+    public IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
 
     public void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds)
     {
@@ -117,7 +124,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
         var sockFactories = SocketFactories;
 
-        var serdesFactory = new SerdesFactory();
+        var serdesFactory = new PQClientClientSerdesRepositoryFactory(PQFeedType.Snapshot);
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory
@@ -177,23 +184,5 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
     {
         DisableTimeout();
         EnableTimeout();
-    }
-
-    public class SnapShotStreamPublisher : VersionedMessage
-    {
-        public SnapShotStreamPublisher() { }
-        public SnapShotStreamPublisher(IVersionedMessage toClone) : base(toClone) { }
-        public SnapShotStreamPublisher(byte version) : base(version) { }
-
-        public SnapShotStreamPublisher(SnapShotStreamPublisher toClone)
-        {
-            Version = toClone.Version;
-            Ids = toClone.Ids.ToArray();
-        }
-
-        public override uint MessageId => 2121502;
-        private uint[] Ids { get; } = Array.Empty<uint>();
-
-        public override IVersionedMessage Clone() => new SnapShotStreamPublisher(this);
     }
 }

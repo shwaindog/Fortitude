@@ -73,11 +73,7 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
         Disconnected();
     }
 
-    private void Disconnected()
-    {
-        if (socketSessionContext.SocketReceiver != null)
-            socketSessionContext.SocketDispatcher?.Listener.UnregisterForListen(socketSessionContext.SocketReceiver);
-    }
+    private void Disconnected() { }
 
     private void Reconnected()
     {
@@ -105,16 +101,14 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
             if (socketSessionContext.SocketReceiver == null)
             {
                 var socketReceiver = socketReceiverFactory.GetConversationListener(socketSessionContext);
+                socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.MessageDeserializationRepository?.Supply();
                 socketSessionContext.SocketReceiver = socketReceiver;
-                socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.StreamDecoderFactory?.Supply();
             }
             else
             {
                 socketSessionContext.SocketDispatcher.Listener.UnregisterForListen(socketSessionContext.SocketReceiver);
                 socketSessionContext.SocketReceiver.Socket = socketCon.OSSocket;
             }
-
-            socketSessionContext.SocketDispatcher.Listener.RegisterForListen(socketSessionContext.SocketReceiver);
         }
     }
 

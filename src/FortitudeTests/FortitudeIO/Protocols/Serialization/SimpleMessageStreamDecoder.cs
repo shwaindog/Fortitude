@@ -10,20 +10,11 @@ namespace FortitudeTests.FortitudeIO.Protocols.Serialization;
 
 public class SimpleMessageStreamDecoder : IMessageStreamDecoder
 {
-    private readonly IDictionary<uint, IMessageDeserializer> deserializers
-        = new Dictionary<uint, IMessageDeserializer>();
+    public SimpleMessageStreamDecoder(IMessageDeserializationRepository messageDeserializationRepository) =>
+        MessageDeserializationRepository = messageDeserializationRepository;
 
-    public bool ZeroByteReadIsDisconnection { get; } = true;
-    public int ExpectedSize { get; } = 1;
-    public int NumberOfReceivesPerPoll { get; } = 1;
+    public IMessageDeserializationRepository MessageDeserializationRepository { get; }
 
-    public bool AddMessageDeserializer(uint msgId, IMessageDeserializer deserializer)
-    {
-        deserializers.Add(msgId, deserializer);
-        return true;
-    }
-
-    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers => deserializers;
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
@@ -40,10 +31,10 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
                 socketBufferReadContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
             }
 
-            if (deserializers.TryGetValue(messageId, out var u))
+            if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var u))
             {
                 socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-                u.Deserialize(socketBufferReadContext);
+                u?.Deserialize(socketBufferReadContext);
             }
 
             read += socketBufferReadContext.MessageSize;
@@ -55,33 +46,27 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
         return amountRead;
     }
 
-    public class SimpleDeserializerFactory : IStreamDecoderFactory
+    public class SimpleDeserializerFactory : FactoryDeserializationRepository
     {
-        private readonly IDictionary<uint, IMessageDeserializer> deserializers;
-
-        public SimpleDeserializerFactory(IDictionary<uint, IMessageDeserializer> deserializers) => this.deserializers = deserializers;
-
-        public int RegisteredDeserializerCount => 0;
-
-        public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializers =>
-            Enumerable.Empty<KeyValuePair<uint, IMessageDeserializer>>();
-
-        public void RegisterMessageDeserializer(uint id, IMessageDeserializer messageSerializer)
+        public SimpleDeserializerFactory(IDictionary<uint, IMessageDeserializer> deserializers) : base(new Recycler())
         {
-            throw new NotImplementedException();
+            foreach (var msgDesKvp in deserializers) RegisterDeserializer(msgDesKvp.Key, msgDesKvp.Value);
         }
 
-        public void UnregisterMessageDeserializer(uint id)
+        public override IMessageStreamDecoder Supply() => new SimpleMessageStreamDecoder(this);
+
+        protected override IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId) =>
+            throw new NotImplementedException("Creates no new Deserializers");
+    }
+
+    public class SimpleSerializerFactory : FactorySerializationRepository
+    {
+        public SimpleSerializerFactory(IDictionary<uint, IMessageSerializer> serializers) : base(new Recycler())
         {
-            throw new NotImplementedException();
+            foreach (var msgDesKvp in serializers) RegisterSerializer(msgDesKvp.Key, msgDesKvp.Value);
         }
 
-        public IMessageStreamDecoder Supply()
-        {
-            var streamDecoder = new SimpleMessageStreamDecoder();
-            foreach (var binaryDeserializerEntry in deserializers)
-                streamDecoder.AddMessageDeserializer(binaryDeserializerEntry.Key, binaryDeserializerEntry.Value);
-            return streamDecoder;
-        }
+        protected override IMessageSerializer? SourceMessageSerializer<TM>(uint msgId) =>
+            throw new NotImplementedException("Creates no new Deserializers");
     }
 }
