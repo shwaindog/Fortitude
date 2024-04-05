@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
+using FortitudeIO.Protocols.ORX.Serdes.Serialization;
 using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion

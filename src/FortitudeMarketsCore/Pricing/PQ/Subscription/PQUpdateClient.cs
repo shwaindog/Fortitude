@@ -7,6 +7,8 @@ using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
+using FortitudeMarketsCore.Pricing.PQ.Serdes;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
 

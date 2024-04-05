@@ -5,6 +5,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
+using FortitudeIO.Protocols.ORX.Serdes.Serialization;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsCore.Trading;
 using FortitudeMarketsCore.Trading.ORX.Orders;

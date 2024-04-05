@@ -16,7 +16,7 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
 
     private State state = State.Header;
 
-    public OrxMessageStreamDecoder(IMessageDeserializationRepository deserializersRepo) => this.MessageDeserializationRepository = deserializersRepo;
+    public OrxMessageStreamDecoder(IMessageDeserializationRepository deserializersRepo) => MessageDeserializationRepository = deserializersRepo;
 
     public int ExpectedSize { get; private set; } = OrxMessageHeader.HeaderSize;
 
