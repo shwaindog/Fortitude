@@ -2,7 +2,7 @@
 
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Injection;
-using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Messages.ListeningSubscriptions;
 using FortitudeBusRules.MessageBus.Pipelines;
 using FortitudeBusRules.MessageBus.Pipelines.Groups;
 using FortitudeBusRules.Messaging;
@@ -88,15 +88,13 @@ public class EventBus : IConfigureEventBus
         return DeployRuleAsync(sender, resolvedRuled, options);
     }
 
-    public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
-        , DispatchOptions dispatchOptions) =>
+    public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         allEventQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
     public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options) =>
         allEventQueues.LaunchRule(sender, toDeployRule, options);
 
-    public ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
-        , DispatchOptions dispatchOptions) =>
+    public ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         allEventQueues.RequestAsync<T, U>(sender, publishAddress, msg, dispatchOptions);
 
     public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress

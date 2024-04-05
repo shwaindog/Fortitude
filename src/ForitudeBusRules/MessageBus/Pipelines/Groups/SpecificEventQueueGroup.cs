@@ -1,9 +1,15 @@
 ﻿#region
 
 using System.Collections;
+using FortitudeBusRules.Config;
+using FortitudeBusRules.Connectivity.Network.Dispatcher;
+using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Waiting;
+using FortitudeIO.Transports.Network.Receiving;
 
 #endregion
 
@@ -21,13 +27,23 @@ public interface IEventQueueGroup : IEnumerable<IEventQueue>
     new IEnumerator<IEventQueue> GetEnumerator();
 }
 
-public class SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
-        , int defaultNewQueueSize = 10_000)
-    : IEventQueueGroup
+public class SpecificEventQueueGroup : IEventQueueGroup
 {
     private readonly List<IEventQueue?> eventQueues = [];
+    
+    protected readonly IQueuesConfig QueuesConfig;
+    private readonly IEventBus owningEventBus;
+    private readonly EventQueueType groupType;
+    public SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+        , IQueuesConfig queuesConfig)
+    {
+        this.owningEventBus = owningEventBus;
+        this.groupType = groupType;
+        QueuesConfig = queuesConfig;
+        Recycler = recycler;
+    }
 
-    public IRecycler Recycler { get; set; } = recycler;
+    public IRecycler Recycler { get; set; }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -73,9 +89,27 @@ public class SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType gr
     public int AddNewQueues(DeploymentOptions deploymentOptions)
     {
         var existingCount = eventQueues.Count;
+        var defaultNewQueueSize = groupType == EventQueueType.Event ? QueuesConfig.EventQueueSize : QueuesConfig.DefaultQueueSize;
         for (var i = existingCount; i < existingCount + deploymentOptions.Instances; i++)
-            eventQueues.Add(new EventQueue(owningEventBus, groupType, i, defaultNewQueueSize));
+        {
+            
+            var name = $"{groupType}-{i}";
+
+            eventQueues.Add(new EventQueue(owningEventBus, groupType, i, CreateMessageRingPoller(name, i, defaultNewQueueSize, QueuesConfig.MessagePumpMaxWaitMs)));
+        }
+
         return eventQueues.Count;
+    }
+
+    public virtual IRingPollerSink<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
+    {
+        var ring = new PollingRing<Message>(
+            $"EventQueue-{name}",
+            size,
+            () => new Message(),
+            ClaimStrategyType.MultiProducers,
+            false);
+        return new RingPollerSink<Message>(ring, noDataPauseTimeoutMs);
     }
 
     public void Add(IEventQueue item)
@@ -96,4 +130,34 @@ public class SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType gr
     }
 
     public bool Contains(IEventQueue item) => eventQueues.Contains(item);
+}
+
+class SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+    , IQueuesConfig queuesConfig) : SpecificEventQueueGroup(owningEventBus, groupType, recycler, queuesConfig)
+{
+    public override IRingPollerSink<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
+    {
+        var ring = new PollingRing<Message>(
+            $"EventQueue-{name}",
+            size,
+            () => new Message(),
+            ClaimStrategyType.MultiProducers,
+            false);
+        return new SocketEventQueueRingPollerListener(ring, noDataPauseTimeoutMs, new SocketSelector(QueuesConfig.SelectorPollIntervalMs));
+    }
+}
+
+public class SocketEventQueueSenderGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+    , IQueuesConfig queuesConfig) : SpecificEventQueueGroup(owningEventBus, groupType, recycler, queuesConfig)
+{
+    public override IRingPollerSink<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
+    {
+        var ring = new PollingRing<Message>(
+            $"EventQueue-{name}",
+            size,
+            () => new Message(),
+            ClaimStrategyType.MultiProducers,
+            false);
+        return new SocketEventQueueRingPollerSender(ring, noDataPauseTimeoutMs);
+    }
 }

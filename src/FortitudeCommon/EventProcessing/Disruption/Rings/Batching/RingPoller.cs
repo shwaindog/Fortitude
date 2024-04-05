@@ -2,6 +2,7 @@
 
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 
@@ -23,12 +24,18 @@ public interface IRingPoller : IDisposable
     void Stop();
 }
 
-public interface IRingPollerSink<T> : IRingPoller where T : class
+public interface IRingPoller<T> : IRingPoller where T : class
 {
-    IPollSink<T>? PollSink { get; set; }
+    IPollingRing<T> Ring { get; }
 }
 
-public abstract class RingPollerBase<T> : IRingPoller where T : class
+public interface IRingPollerSink<T> : IRingPoller<T> where T : class
+{
+    IPollSink<T>? PollSink { get; set; }
+    IRecycler Recycler { get; set; }
+}
+
+public abstract class RingPollerBase<T> : IRingPoller<T> where T : class
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(RingPollerBase<T>));
 
@@ -38,7 +45,6 @@ public abstract class RingPollerBase<T> : IRingPoller where T : class
     private readonly int timeoutMs;
     private volatile bool isRunning;
     private string name;
-    protected IPollingRing<T> Ring;
     private IOSThread? ringPollingThread;
     private Action? threadStartInitialization;
 
@@ -58,6 +64,8 @@ public abstract class RingPollerBase<T> : IRingPoller where T : class
         get => name;
         set => name = value;
     }
+
+    public IPollingRing<T> Ring { get; }
 
     public virtual int UsageCount { get; private set; }
 
@@ -155,7 +163,14 @@ public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T
     : RingPollerBase<T>(ring, timeoutMs, threadStartInitialization, parallelController), IRingPollerSink<T>
     where T : class
 {
+    private IRecycler? recycler;
     public IPollSink<T>? PollSink { get; set; } = pollSink;
+
+    public IRecycler Recycler
+    {
+        get => recycler ??= new Recycler();
+        set => recycler = value;
+    }
 
     protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, T data, bool ringStartOfBatch
         , bool ringEndOfBatch)

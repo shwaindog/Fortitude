@@ -35,11 +35,9 @@ public interface IEventQueueGroupContainer : IEnumerable<IEventQueue>
     void Stop();
     ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, DeploymentOptions deployment);
 
-    ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
-        , DispatchOptions dispatchOptions);
+    ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 
-    ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
-        , DispatchOptions dispatchOptions);
+    ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 }
 
 public class EventQueueGroupContainer : IEventQueueGroupContainer
@@ -47,8 +45,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
     // ideal minimum number of cores is 6 to avoid excessive context switching
     public const int MaximumIOQueues = 10; // inbound, outbound
 
-    public const int
-        ReservedCoresForIO = 4; // inbound (deserializers), outbound (serializers), logging, acceptor listening thread
+    public const int ReservedCoresForIO = 4; // inbound (deserializers), outbound (serializers), logging, acceptor listening thread
 
     public const int MinimumEventQueues = 1; // at least one
     public const int MinimumWorkerQueues = 1; // at least one
@@ -64,33 +61,25 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         recycler = new Recycler();
         strategySelector = new DeployDispatchStrategySelector(recycler);
         this.owningEventBus = owningEventBus;
-        var defaultQueueSize = Math.Max(config.QueuesConfig.DefaultQueueSize, 1);
         var ioInboundNum = Math.Max(config.QueuesConfig.RequiredIOInboundQueues, MaximumIOQueues);
-        IOInboundGroup
-            = new SpecificEventQueueGroup(owningEventBus, IOInbound, recycler, defaultQueueSize);
+        IOInboundGroup = new SocketEventQueueListenerGroup(owningEventBus, IOInbound, recycler, config.QueuesConfig);
         IOInboundGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, IOInbound, (uint)ioInboundNum));
         var ioOutboundNum = Math.Max(config.QueuesConfig.RequiredIOOutboundQueues, MaximumIOQueues);
-        IOOutboundGroup
-            = new SpecificEventQueueGroup(owningEventBus, IOOutbound, recycler, defaultQueueSize);
+        IOOutboundGroup = new SocketEventQueueSenderGroup(owningEventBus, IOOutbound, recycler, config.QueuesConfig);
         IOOutboundGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, IOOutbound, (uint)ioOutboundNum));
 
-        var eventQueueSize = Math.Max(config.QueuesConfig.EventQueueSize, 1);
         var eventMinNum = Math.Max(config.QueuesConfig.MinEventQueues, MinimumEventQueues);
-        var eventQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxEventQueues, Environment.ProcessorCount - ReservedCoresForIO)
-            , eventMinNum);
-        EventGroup
-            = new SpecificEventQueueGroup(owningEventBus, Event, recycler, eventQueueSize);
+        var eventQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxEventQueues, Environment.ProcessorCount - ReservedCoresForIO), eventMinNum);
+        EventGroup = new SpecificEventQueueGroup(owningEventBus, Event, recycler, config.QueuesConfig);
         EventGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Event, (uint)eventQueueNum));
 
         var workerMinNum = Math.Max(config.QueuesConfig.MinWorkerQueues, MinimumWorkerQueues);
-        var workerQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxWorkerQueues, Environment.ProcessorCount - ReservedCoresForIO)
-            , workerMinNum);
-        WorkerGroup
-            = new SpecificEventQueueGroup(owningEventBus, Worker, recycler, defaultQueueSize);
+        var workerQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxWorkerQueues, Environment.ProcessorCount - ReservedCoresForIO), workerMinNum);
+        WorkerGroup = new SpecificEventQueueGroup(owningEventBus, Worker, recycler, config.QueuesConfig);
         WorkerGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Worker, (uint)workerQueueNum));
 
         // Runtime added group of custom queue use cases.
-        CustomGroup = new SpecificEventQueueGroup(owningEventBus, Custom, recycler, defaultQueueSize);
+        CustomGroup = new SpecificEventQueueGroup(owningEventBus, Custom, recycler, config.QueuesConfig);
     }
 
     internal EventQueueGroupContainer(IEventBus owningEventBus
@@ -103,27 +92,27 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         this.owningEventBus = owningEventBus;
         recycler = new Recycler();
         strategySelector = new DeployDispatchStrategySelector(recycler);
+        var defaultQueuesConfig = new QueuesConfig();
         IOOutboundGroup = createIoOutboundGroup?.Invoke(owningEventBus) ??
-                          new SpecificEventQueueGroup(owningEventBus, IOOutbound, recycler, 1_000);
+                          new SpecificEventQueueGroup(owningEventBus, IOOutbound, recycler, defaultQueuesConfig);
         IOInboundGroup = createIoInboundGroup?.Invoke(owningEventBus) ??
-                         new SpecificEventQueueGroup(owningEventBus, IOInbound, recycler, 1_000);
+                         new SpecificEventQueueGroup(owningEventBus, IOInbound, recycler, defaultQueuesConfig);
         EventGroup = createEventQueueGroup?.Invoke(owningEventBus) ??
-                     new SpecificEventQueueGroup(owningEventBus, Event, recycler, 1_000);
-        WorkerGroup = createWorkerGroup?.Invoke(owningEventBus) ??
-                      new SpecificEventQueueGroup(owningEventBus, Worker, recycler, 1_000);
-        CustomGroup = createCustomGroup?.Invoke(owningEventBus) ??
-                      new SpecificEventQueueGroup(owningEventBus, Custom, recycler, 1_000);
+                     new SpecificEventQueueGroup(owningEventBus, Event, recycler, defaultQueuesConfig);
+        WorkerGroup = createWorkerGroup?.Invoke(owningEventBus) ?? new SpecificEventQueueGroup(owningEventBus, Worker, recycler, defaultQueuesConfig);
+        CustomGroup = createCustomGroup?.Invoke(owningEventBus) ?? new SpecificEventQueueGroup(owningEventBus, Custom, recycler, defaultQueuesConfig);
     }
 
     internal EventQueueGroupContainer(IEventBus owningEventBus, IEnumerable<IEventQueue> queuesToAdd)
     {
         recycler = new Recycler();
+        var defaultQueuesConfig = new QueuesConfig();
         strategySelector = new DeployDispatchStrategySelector(recycler);
-        IOOutboundGroup = new SpecificEventQueueGroup(owningEventBus, IOOutbound, recycler, 1_000);
-        IOInboundGroup = new SpecificEventQueueGroup(owningEventBus, IOInbound, recycler, 1_000)!;
-        EventGroup = new SpecificEventQueueGroup(owningEventBus, Event, recycler, 10_000)!;
-        WorkerGroup = new SpecificEventQueueGroup(owningEventBus, Worker, recycler, 1_000)!;
-        CustomGroup = new SpecificEventQueueGroup(owningEventBus, Custom, recycler, 1_000)!;
+        IOOutboundGroup = new SpecificEventQueueGroup(owningEventBus, IOOutbound, recycler, defaultQueuesConfig);
+        IOInboundGroup = new SpecificEventQueueGroup(owningEventBus, IOInbound, recycler, defaultQueuesConfig)!;
+        EventGroup = new SpecificEventQueueGroup(owningEventBus, Event, recycler, defaultQueuesConfig)!;
+        WorkerGroup = new SpecificEventQueueGroup(owningEventBus, Worker, recycler, defaultQueuesConfig)!;
+        CustomGroup = new SpecificEventQueueGroup(owningEventBus, Custom, recycler, defaultQueuesConfig)!;
         this.owningEventBus = owningEventBus;
         foreach (var eventQueue in queuesToAdd) Add(eventQueue);
     }
@@ -167,8 +156,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
             return destinationEventQueue.LaunchRuleAsync(sender, rule, routeSelectionResult);
         }
 
-        var message
-            = $"Could not find the required group to deploy rule {rule} to event Queue type {options.EventGroupType}";
+        var message = $"Could not find the required group to deploy rule {rule} to event Queue type {options.EventGroupType}";
         Logger.Warn(message);
         throw new ArgumentException(message);
     }

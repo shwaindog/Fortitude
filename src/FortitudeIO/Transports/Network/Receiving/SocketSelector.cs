@@ -32,10 +32,10 @@ public sealed class SocketSelector : ISocketSelector
     private IntPtr[] rollingFds = { 0 };
     private TimeValue timeout;
 
-    public SocketSelector(uint timeoutMs, IOSNetworkingController networkingController)
+    public SocketSelector(uint timeoutMs, IOSNetworkingController? networkingController = null)
     {
         timeout = new TimeValue((int)timeoutMs);
-        directOSNetworkingApi = networkingController.DirectOSNetworkingApi;
+        directOSNetworkingApi = (networkingController ?? OSNetworkingController.Instance).DirectOSNetworkingApi;
     }
 
     public DateTime WakeTs { get; private set; }

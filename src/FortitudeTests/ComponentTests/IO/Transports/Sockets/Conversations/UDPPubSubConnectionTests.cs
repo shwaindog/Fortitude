@@ -38,7 +38,7 @@ public class UdpPubSubConnectionTests
 
     private Dictionary<uint, IMessageDeserializer> deserializers = null!;
 
-    private SimpleVersionedMessage recevedSimpleVersionedMessage = null!;
+    private SimpleVersionedMessage receivedSimpleVersionedMessage = null!;
 
     [TestInitialize]
     public void Setup()
@@ -50,7 +50,7 @@ public class UdpPubSubConnectionTests
         };
         var streamDecoderFactory = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(deserializers);
         var streamEncoderFactory = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
-        var serdesFactory = new MessageSerdesRepositoryFactory(streamEncoderFactory, streamDecoderFactory);
+        var serdesFactory = new MessageSerdesRepositoryFactory(streamEncoderFactory, streamDecoderFactory, streamDecoderFactory);
         // create server
         var udpPublisherBuilder = new UdpConversationPublisherBuilder();
         conversationPublisher = udpPublisherBuilder.Build(udpPublisherTopicConConfig, serdesFactory);
@@ -87,14 +87,14 @@ public class UdpPubSubConnectionTests
 
         Thread.Sleep(20);
         // assert server receives properly
-        Assert.AreEqual(v2Message.PayLoad2, recevedSimpleVersionedMessage.PayLoad2);
-        Assert.AreEqual(v2Message.MessageId, recevedSimpleVersionedMessage.MessageId);
-        Assert.AreEqual(v2Message.Version, recevedSimpleVersionedMessage.Version);
+        Assert.AreEqual(v2Message.PayLoad2, receivedSimpleVersionedMessage.PayLoad2);
+        Assert.AreEqual(v2Message.MessageId, receivedSimpleVersionedMessage.MessageId);
+        Assert.AreEqual(v2Message.Version, receivedSimpleVersionedMessage.Version);
     }
 
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, object? header
         , IConversation? selfSession)
     {
-        recevedSimpleVersionedMessage = msg;
+        receivedSimpleVersionedMessage = msg;
     }
 }

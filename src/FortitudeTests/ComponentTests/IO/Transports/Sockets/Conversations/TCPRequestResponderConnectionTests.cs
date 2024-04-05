@@ -56,7 +56,8 @@ public class TcpRequestResponderConnectionTests
         var responderStreamDeserializerRepo
             = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(responderDeserializers);
         var streamSerializerRepo = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
-        var responderSerdesFactory = new MessageSerdesRepositoryFactory(streamSerializerRepo, responderStreamDeserializerRepo);
+        var responderSerdesFactory
+            = new MessageSerdesRepositoryFactory(streamSerializerRepo, responderStreamDeserializerRepo, responderStreamDeserializerRepo);
         // create server
         var tcpResponderBuilder = new TcpConversationResponderBuilder();
         tcpResponder = tcpResponderBuilder.Build(responderTopicConConfig, responderSerdesFactory);
@@ -68,7 +69,8 @@ public class TcpRequestResponderConnectionTests
         };
         var requesterStreamDeserializerRepo
             = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(requesterDeserializers);
-        var requesterSerdesFactory = new MessageSerdesRepositoryFactory(streamSerializerRepo, requesterStreamDeserializerRepo);
+        var requesterSerdesFactory
+            = new MessageSerdesRepositoryFactory(streamSerializerRepo, requesterStreamDeserializerRepo, requesterStreamDeserializerRepo);
         // create client
         var tcpRequesterBuilder = new TcpConversationRequesterBuilder();
         var requesterTopicConConfig = responderTopicConConfig.Clone();

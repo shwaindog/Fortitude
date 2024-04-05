@@ -5,7 +5,7 @@ using FortitudeBusRules.Rules;
 
 #endregion
 
-namespace FortitudeBusRules.MessageBus.Messages;
+namespace FortitudeBusRules.MessageBus.Messages.ListeningSubscriptions;
 
 public interface ISubscription
 {

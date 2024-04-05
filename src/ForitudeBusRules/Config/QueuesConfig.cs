@@ -17,7 +17,8 @@ public interface IQueuesConfig
     int MaxWorkerQueues { get; set; }
     int DefaultQueueSize { get; set; }
     int EventQueueSize { get; set; }
-    int MessagePumpMaxWaitMs { get; set; }
+    uint MessagePumpMaxWaitMs { get; set; }
+    uint SelectorPollIntervalMs { get; set; }
 }
 
 public class QueuesConfig : ConfigSection, IQueuesConfig
@@ -101,9 +102,15 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         set => this[nameof(EventQueueSize)] = value.ToString();
     }
 
-    public int MessagePumpMaxWaitMs
+    public uint MessagePumpMaxWaitMs
     {
-        get => int.Parse(this[nameof(MessagePumpMaxWaitMs)]!);
+        get => uint.Parse(this[nameof(MessagePumpMaxWaitMs)]!);
         set => this[nameof(MessagePumpMaxWaitMs)] = value.ToString();
+    }
+
+    public uint SelectorPollIntervalMs
+    {
+        get => uint.Parse(this[nameof(SelectorPollIntervalMs)]!);
+        set => this[nameof(SelectorPollIntervalMs)] = value.ToString();
     }
 }

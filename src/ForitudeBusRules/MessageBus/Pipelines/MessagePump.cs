@@ -1,12 +1,12 @@
 ﻿#region
 
 using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Messages.ListeningSubscriptions;
 using FortitudeBusRules.MessageBus.Pipelines.Timers;
 using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -15,7 +15,11 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeBusRules.MessageBus.Pipelines;
 
-public interface IMessagePump : IPollSink<Message>, IRingPoller { }
+public interface IMessagePump : IPollSink<Message>, IRingPoller
+{
+    bool IsListeningOn(string address);
+    IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address);
+}
 
 public class MessagePump : IMessagePump
 {
@@ -23,13 +27,11 @@ public class MessagePump : IMessagePump
 
     private static readonly Action<ValueTask, object?> RuleStarted = RuleStartedCallback;
     private static readonly Action<ValueTask, object?> RuleStopped = RuleStoppedCallback;
-    private readonly List<string> destinationAddresses = [];
 
-    private readonly List<IListeningRule> livingRules = [];
+    private readonly ListenerRegistry listenerRegistry = new();
+
+    private readonly List<IListeningRule> livingRules = new();
     private readonly IRingPollerSink<Message> ringPoller;
-
-    public IMap<string, List<IMessageListenerSubscription>> Listeners
-        = new ConcurrentMap<string, List<IMessageListenerSubscription>>();
 
     private MessagePumpSyncContext syncContext = null!;
 
@@ -52,6 +54,10 @@ public class MessagePump : IMessagePump
     public bool IsRunning => ringPoller.IsRunning;
 
     public int UsageCount => ringPoller.UsageCount;
+
+    public bool IsListeningOn(string address) => listenerRegistry.IsListeningOn(address);
+
+    public IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address) => listenerRegistry.MatchingSubscriptions(address);
 
     public void WakeIfAsleep()
     {
@@ -102,41 +108,30 @@ public class MessagePump : IMessagePump
                 case MessageType.ListenerSubscribe:
                 {
                     var subscribePayLoad = (IMessageListenerSubscription)data.PayLoad!.BodyObj!;
-                    subscribePayLoad.SubscriberRule.IncrementLifeTimeCount();
-                    var listeningAddress = subscribePayLoad.PublishAddress;
-                    if (!Listeners.TryGetValue(listeningAddress, out var ruleListeners))
-                    {
-                        ruleListeners = [];
-                        Listeners.Add(listeningAddress, ruleListeners);
-                    }
-
-                    ruleListeners!.Add(subscribePayLoad);
+                    listenerRegistry.AddListenerToWatchList(subscribePayLoad);
                     break;
                 }
                 case MessageType.ListenerUnsubscribe:
                 {
                     var unsubscribePayLoad = ((PayLoad<MessageListenerUnsubscribe>)data.PayLoad!).Body!;
-                    var listeningAddress = unsubscribePayLoad.PublishAddress;
-                    if (Listeners.TryGetValue(listeningAddress, out var ruleListeners))
-                    {
-                        for (var i = 0; i < ruleListeners!.Count; i++)
-                        {
-                            var ruleListener = ruleListeners[i];
-                            if (ruleListener.SubscriberId == unsubscribePayLoad.SubscriberId) ruleListeners.RemoveAt(i);
-                        }
-
-                        if (ruleListeners.Count == 0) Listeners.Remove(listeningAddress);
-                    }
-
-                    unsubscribePayLoad.SubscriberRule.DecrementLifeTimeCount();
+                    listenerRegistry.RemoveListenerFromWatchList(unsubscribePayLoad);
+                    break;
+                }
+                case MessageType.AddListenSubscribeInterceptor:
+                {
+                    var subscribePayLoad = (IListenSubscribeInterceptor)data.PayLoad!.BodyObj!;
+                    listenerRegistry.AddSubscribeInterceptor(subscribePayLoad);
+                    break;
+                }
+                case MessageType.RemoveListenSubscribeInterceptor:
+                {
+                    var unsubscribePayLoad = (IListenSubscribeInterceptor)data.PayLoad!.BodyObj!;
+                    listenerRegistry.RemoveSubscribeInterceptor(unsubscribePayLoad);
                     break;
                 }
                 default:
                 {
-                    if (Listeners.TryGetValue(data.DestinationAddress!, out var ruleListeners))
-                        foreach (var ruleListener in ruleListeners!)
-                            ruleListener.Handler(data);
-
+                    CheckListenersForSubscription(data);
                     break;
                 }
             }
@@ -154,6 +149,11 @@ public class MessagePump : IMessagePump
         {
             Logger.Warn("MessagePump id: {0} caught the following exception. ", e);
         }
+    }
+
+    private void CheckListenersForSubscription(Message data)
+    {
+        foreach (var matcherListener in listenerRegistry.MatchingSubscriptions(data.DestinationAddress!)) matcherListener.Handler(data);
     }
 
     public void InitializeInPollingThread()
@@ -193,7 +193,7 @@ public class MessagePump : IMessagePump
             if (livingRules.Contains(toShutdown) && toShutdown.LifeCycleState == RuleLifeCycle.Started)
             {
                 UndeployChildren(toShutdown);
-                UnsubscribeAllListenersForRule(toShutdown);
+                listenerRegistry.UnsubscribeAllListenersForRule(toShutdown);
                 var stopTask = toShutdown.StopAsync();
                 livingRules.Remove(toShutdown);
 
@@ -224,27 +224,6 @@ public class MessagePump : IMessagePump
                 {
                     var _ = child.Context.RegisteredOn.StopRuleAsync(parentRule, child);
                 }
-    }
-
-    private void UnsubscribeAllListenersForRule(IRule removeListeners)
-    {
-        destinationAddresses.Clear();
-        foreach (var listenKvp in Listeners)
-        {
-            for (var i = 0; i < listenKvp.Value.Count; i++)
-            {
-                var currentListener = listenKvp.Value[i];
-                if (currentListener.SubscriberRule == removeListeners) listenKvp.Value.RemoveAt(i--);
-            }
-
-            if (listenKvp.Value.Count <= 0) destinationAddresses.Add(listenKvp.Key);
-        }
-
-        for (var i = 0; i < destinationAddresses.Count; i++)
-        {
-            var emptyDestinationAddress = destinationAddresses[i];
-            Listeners.Remove(emptyDestinationAddress);
-        }
     }
 
     private void LoadNewRule(Message data)

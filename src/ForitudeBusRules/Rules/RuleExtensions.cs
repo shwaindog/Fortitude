@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messaging;
 
 #endregion
