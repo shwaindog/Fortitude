@@ -6,7 +6,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.Serialization;
+using FortitudeMarketsCore.Pricing.PQ.Serdes;
 
 #endregion
 

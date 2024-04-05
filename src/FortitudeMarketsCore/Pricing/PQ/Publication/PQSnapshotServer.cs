@@ -11,8 +11,7 @@ using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
-using SocketsAPI = FortitudeIO.Transports.Network;
+using FortitudeMarketsCore.Pricing.PQ.Serdes;
 
 #endregion
 
