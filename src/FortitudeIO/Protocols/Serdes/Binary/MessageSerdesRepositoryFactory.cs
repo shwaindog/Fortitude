@@ -3,12 +3,14 @@
 public class MessageSerdesRepositoryFactory : IMessageSerdesRepositoryFactory
 {
     public MessageSerdesRepositoryFactory(IMessageSerializationRepository messageSerializationRepository
-        , IMessageDeserializationRepository messageDeserializationRepository)
+        , IMessageDeserializationRepository messageDeserializationRepository, IMessageStreamDecoderFactory messageStreamDecoderFactory)
     {
         MessageSerializationRepository = messageSerializationRepository;
         MessageDeserializationRepository = messageDeserializationRepository;
+        MessageStreamDecoderFactory = messageStreamDecoderFactory;
     }
 
+    public IMessageStreamDecoderFactory MessageStreamDecoderFactory { get; }
     public IMessageSerializationRepository MessageSerializationRepository { get; }
     public IMessageDeserializationRepository MessageDeserializationRepository { get; }
 }

@@ -9,7 +9,7 @@ namespace FortitudeIO.Protocols.Serdes.Binary;
 
 public interface IMessageDeserializationRepository : IMessageSerdesRepository
 {
-    bool RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM> messageDeserializer) where TM : class, IVersionedMessage, new();
+    bool RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null) where TM : class, IVersionedMessage, new();
     bool RegisterDeserializer(uint msgId, IMessageDeserializer messageDeserializer);
     bool UnregisterDeserializer(uint msgId);
 
@@ -17,22 +17,31 @@ public interface IMessageDeserializationRepository : IMessageSerdesRepository
     IMessageDeserializer? GetDeserializer(uint msgId);
     INotifyingMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
     bool IsRegisteredWithType<TS, TM>(uint msgId) where TS : INotifyingMessageDeserializer<TM> where TM : class, IVersionedMessage, new();
-    IMessageStreamDecoder Supply();
 }
 
-public abstract class DeserializationRepositoryBase : IMessageDeserializationRepository
+public class MessageDeserializationRepository : IMessageDeserializationRepository
 {
     protected readonly IMessageDeserializationRepository? CascadingFallbackDeserializationRepo;
+    protected readonly IRecycler Recycler;
     protected readonly IMap<uint, IMessageDeserializer> RegisteredDeserializers = new ConcurrentMap<uint, IMessageDeserializer>();
 
-    protected DeserializationRepositoryBase(IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) =>
+    protected MessageDeserializationRepository(IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null)
+    {
+        Recycler = recycler;
         CascadingFallbackDeserializationRepo = cascadingFallbackDeserializationRepo;
+    }
 
     public IEnumerable<uint> RegisteredMessageIds => RegisteredDeserializers.Keys;
     public bool IsRegistered(uint msgId) => RegisteredDeserializers.ContainsKey(msgId);
 
-    public abstract bool RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
-        where TM : class, IVersionedMessage, new();
+    public virtual bool RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
+        where TM : class, IVersionedMessage, new()
+    {
+        var instanceOfTypeToSerialize = Recycler.Borrow<TM>();
+        var msgId = instanceOfTypeToSerialize.MessageId;
+        instanceOfTypeToSerialize.DecrementRefCount();
+        return RegisterDeserializer(msgId, messageDeserializer!);
+    }
 
     public bool RegisterDeserializer(uint msgId, IMessageDeserializer messageDeserializer)
     {
@@ -70,17 +79,19 @@ public abstract class DeserializationRepositoryBase : IMessageDeserializationRep
         RegisteredDeserializers.TryGetValue(msgId, out var msgSerializer) ?
             msgSerializer is TS :
             CascadingFallbackDeserializationRepo?.IsRegisteredWithType<TS, TM>(msgId) ?? false;
-
-    public abstract IMessageStreamDecoder Supply();
 }
 
-public abstract class FactoryDeserializationRepository : DeserializationRepositoryBase, IMessageDeserializationRepository
+public interface IMessageStreamDecoderFactory
 {
-    protected readonly IRecycler Recycler;
+    IMessageStreamDecoder Supply();
+}
 
+public abstract class FactoryDeserializationRepository : MessageDeserializationRepository, IMessageStreamDecoderFactory
+{
     protected FactoryDeserializationRepository(IRecycler recycler
-        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) : base(cascadingFallbackDeserializationRepo) =>
-        Recycler = recycler;
+        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) : base(recycler, cascadingFallbackDeserializationRepo) { }
+
+    public abstract IMessageStreamDecoder Supply();
 
     public override bool RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
     {

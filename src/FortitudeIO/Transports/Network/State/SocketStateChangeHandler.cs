@@ -101,7 +101,7 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
             if (socketSessionContext.SocketReceiver == null)
             {
                 var socketReceiver = socketReceiverFactory.GetConversationListener(socketSessionContext);
-                socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.MessageDeserializationRepository?.Supply();
+                socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.MessageStreamDecoderFactory?.Supply();
                 socketSessionContext.SocketReceiver = socketReceiver;
             }
             else

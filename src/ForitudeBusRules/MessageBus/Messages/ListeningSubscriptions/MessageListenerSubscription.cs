@@ -10,15 +10,18 @@ using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace FortitudeBusRules.MessageBus.Messages;
+namespace FortitudeBusRules.MessageBus.Messages.ListeningSubscriptions;
 
-public interface IMessageListenerSubscription
+public interface IMessageListenerSubscription : IDisposable
 {
     string SubscriberId { get; }
     IEventContext RegisteredContext { get; }
     IListeningRule SubscriberRule { get; }
     string PublishAddress { get; }
+    IAddressMatcher? Matcher { get; }
     Action<Message> Handler { get; }
+
+    event Action<IListeningRule, string>? Unsubscribed;
 }
 
 public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListenerSubscription
@@ -28,6 +31,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
 
     private readonly Action<Task<TResponse>, object?> onDependentTaskCompleted;
     private readonly Action<object?> onDependentValueTaskCompleted;
+    private string publishAddress = null!;
 
     public MessageListenerSubscription()
     {
@@ -46,8 +50,26 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     public string SubscriberId { get; set; } = null!;
     public IEventContext RegisteredContext => SubscriberRule.Context;
     public IListeningRule SubscriberRule { get; set; } = null!;
-    public string PublishAddress { get; set; } = null!;
+
+    public string PublishAddress
+    {
+        get => publishAddress;
+        set
+        {
+            publishAddress = value;
+            Matcher = AddressMatcher.IsMatcherPattern(publishAddress) ? new AddressMatcher(publishAddress) : null;
+        }
+    }
+
+    public IAddressMatcher? Matcher { get; set; }
     public Action<Message> Handler { get; private set; } = null!;
+
+    public void Dispose()
+    {
+        Unsubscribed?.Invoke(SubscriberRule, PublishAddress);
+    }
+
+    public event Action<IListeningRule, string>? Unsubscribed;
 
     private void CallbackTaskCompleted(Task<TResponse> completed, object? state)
     {

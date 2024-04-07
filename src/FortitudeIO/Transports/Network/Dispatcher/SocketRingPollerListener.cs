@@ -94,6 +94,11 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
         if (!IsRunning) return;
         PollSocketSelector();
 
+        ProcessEventMessages();
+    }
+
+    private void ProcessEventMessages()
+    {
         foreach (var data in Ring)
             try
             {
@@ -108,8 +113,10 @@ public abstract class SocketRingPollerListener<T> : RingPollerBase<T>, ISocketDi
                             RemoveFromListen(socketReceiver);
                     }
                 }
-
-                Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+                else
+                {
+                    Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch, Ring.EndOfBatch);
+                }
             }
             catch (Exception ex)
             {

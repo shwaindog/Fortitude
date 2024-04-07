@@ -17,7 +17,7 @@ public interface IMessageDeserializer
 public interface IMessageDeserializer<out TM> : IMessageDeserializer, IDeserializer<TM>
     where TM : class, IVersionedMessage, new()
 {
-    new TM? Deserialize(IBufferContext socketBufferReadContext);
+    new TM? Deserialize(IBufferContext bufferContext);
 }
 
 public interface INotifyingMessageDeserializer<out TM> : IMessageDeserializer<TM>
@@ -33,12 +33,12 @@ public interface INotifyingMessageDeserializer<out TM> : IMessageDeserializer<TM
 public abstract class MessageDeserializer<TM> : INotifyingMessageDeserializer<TM>
     where TM : class, IVersionedMessage, new()
 {
-    object? IMessageDeserializer.Deserialize(IBufferContext socketBufferReadContext) => Deserialize(socketBufferReadContext);
+    object? IMessageDeserializer.Deserialize(IBufferContext bufferContext) => Deserialize(bufferContext);
 
     public MarshalType MarshalType => MarshalType.Binary;
     public abstract TM? Deserialize(ISerdeContext readContext);
 
-    TM? IMessageDeserializer<TM>.Deserialize(IBufferContext socketBufferReadContext) => Deserialize(socketBufferReadContext);
+    TM? IMessageDeserializer<TM>.Deserialize(IBufferContext bufferContext) => Deserialize(bufferContext);
 
     public bool IsRegistered(Action<TM, object, IConversation> deserializedHandler)
     {

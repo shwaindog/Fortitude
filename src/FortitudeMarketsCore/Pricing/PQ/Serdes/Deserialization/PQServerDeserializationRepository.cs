@@ -6,12 +6,14 @@ using FortitudeMarketsCore.Pricing.PQ.Publication;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Serdes;
+namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQServerDeserializationRepository : IMessageDeserializationRepository
+public interface IPQServerMessageStreamDecodedFactory : IMessageStreamDecoderFactory
 {
     new IPQServerMessageStreamDecoder Supply();
 }
+
+public interface IPQServerDeserializationRepository : IMessageDeserializationRepository, IPQServerMessageStreamDecodedFactory { }
 
 public sealed class PQServerDeserializationRepository(IRecycler recycler
         , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null)

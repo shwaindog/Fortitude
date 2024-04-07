@@ -10,6 +10,9 @@ namespace FortitudeIO.Protocols.Serdes.Binary;
 public interface IMessageSerdesRepositoryFactory
 {
     IMessageSerializationRepository MessageSerializationRepository { get; }
+
+    IMessageStreamDecoderFactory MessageStreamDecoderFactory { get; }
+
     IMessageDeserializationRepository MessageDeserializationRepository { get; }
 }
 

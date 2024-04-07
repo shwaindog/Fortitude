@@ -20,10 +20,18 @@ public interface IOSNetworkingController
 
 public class OSNetworkingController : IOSNetworkingController
 {
+    private static IOSNetworkingController? instance;
+
     public IDirectOSNetworkingApi directOSNetworkingApi { get; set; } =
         RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
             new DirectWindowsNetworkingApi() :
             new DirectLinuxNetworkingApi();
+
+    public static IOSNetworkingController Instance
+    {
+        get => instance ?? new OSNetworkingController();
+        set => instance = value;
+    }
 
     public IOSSocket CreateOSSocket(SocketType socketType, ProtocolType protocolType) => new OSSocket(new Socket(socketType, protocolType));
 

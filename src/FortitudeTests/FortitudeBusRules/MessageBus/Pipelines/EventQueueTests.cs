@@ -1,11 +1,15 @@
 ﻿#region
 
+using FortitudeBusRules.Config;
 using FortitudeBusRules.MessageBus;
 using FortitudeBusRules.MessageBus.Pipelines;
 using FortitudeBusRules.MessageBus.Pipelines.Groups;
 using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
+using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeTests.FortitudeBusRules.Rules;
 
 #endregion
@@ -22,11 +26,22 @@ public class EventQueueTests
     [TestInitialize]
     public void Setup()
     {
+        var defaultQueuesConfig = new QueuesConfig();
+        defaultQueuesConfig.DefaultQueueSize = 12;
+        defaultQueuesConfig.EventQueueSize = 12;
+
+        var ring = new PollingRing<Message>(
+            $"EventQueueTests",
+            12,
+            () => new Message(),
+            ClaimStrategyType.MultiProducers,
+            false);
+        var ringPoller = new RingPollerSink<Message>(ring, 30);
         eventBus = new EventBus(evtBus =>
         {
-            eventQueue = new EventQueue(evtBus, EventQueueType.Event, 1, 12);
+            eventQueue = new EventQueue(evtBus, EventQueueType.Event, 1, ringPoller);
             var eventGroupContainer = new EventQueueGroupContainer(evtBus, evBus =>
-                new SpecificEventQueueGroup(evtBus, EventQueueType.Event, new Recycler(), 12)
+                new SpecificEventQueueGroup(evtBus, EventQueueType.Event, new Recycler(), defaultQueuesConfig)
                     { eventQueue });
             return eventGroupContainer;
         });

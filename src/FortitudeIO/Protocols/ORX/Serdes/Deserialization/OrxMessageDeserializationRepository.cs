@@ -8,7 +8,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 
 namespace FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 
-public interface IOrxDeserializationRepository : IMessageDeserializationRepository
+public interface IOrxDeserializationRepository : IMessageDeserializationRepository, IMessageStreamDecoderFactory
 {
     IOrxDeserializationRepository RegisterDeserializer<TM>(Action<TM, object?, IConversation?>? msgHandler)
         where TM : class, IVersionedMessage, new();

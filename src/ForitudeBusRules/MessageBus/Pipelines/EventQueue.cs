@@ -6,7 +6,6 @@ using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
-using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -58,33 +57,22 @@ public class EventQueue : IEventQueue
     private readonly string name;
 
     private readonly uint[] recentMessageCountReceived = new uint[MessageCountHistoryEntries];
-    private readonly PollingRing<Message> ring;
-    private DateTime lastUpDateTime = DateTime.Now;
-    private MessagePump? messagePump;
+    private readonly IPollingRing<Message> ring;
 
-    public EventQueue(IEventBus eventBus, EventQueueType queueType, int id, int size)
+    private DateTime lastUpDateTime = DateTime.Now;
+
+    public EventQueue(IEventBus eventBus, EventQueueType queueType, int id, IRingPollerSink<Message> ringPoller)
     {
         QueueType = queueType;
         Id = id;
-        name = $"{queueType}-{id}";
-        ring = new PollingRing<Message>(
-            $"EventQueue-{name}",
-            size,
-            () => new Message(),
-            ClaimStrategyType.MultiProducers,
-            false);
+        name = ringPoller.Ring.Name;
+        ring = ringPoller.Ring;
         eventContext = new EventContext(this, eventBus);
+        ringPoller.Recycler = eventContext.PooledRecycler;
+        MessagePump = new MessagePump(ringPoller, eventContext);
     }
 
-    public MessagePump? MessagePump
-    {
-        get => messagePump;
-        set
-        {
-            messagePump = value;
-            if (messagePump != null) messagePump.EventContext = eventContext;
-        }
-    }
+    public MessagePump MessagePump { get; set; }
 
     public string Name => name;
 
@@ -92,7 +80,7 @@ public class EventQueue : IEventQueue
 
     public int Id { get; }
 
-    public bool IsRunning => messagePump?.IsRunning ?? false;
+    public bool IsRunning => MessagePump.IsRunning;
 
     public void EnqueueMessage(Message msg)
     {
@@ -108,7 +96,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = msg.ProcessorRegistry;
         evt.RuleFilter = msg.RuleFilter;
         ring.Publish(seqId);
-        messagePump?.WakeIfAsleep();
+        MessagePump.WakeIfAsleep();
     }
 
     public ValueTask<IDispatchResult> EnqueuePayloadWithStatsAsync<TPayload>(TPayload payload, IRule sender,
@@ -118,8 +106,10 @@ public class EventQueue : IEventQueue
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
+        var payLoadContainer = eventContext.PooledRecycler.Borrow<PayLoad<TPayload>>();
+        payLoadContainer.Body = payload;
         evt.Type = msgType;
-        evt.PayLoad = new PayLoad<TPayload>(payload);
+        evt.PayLoad = payLoadContainer;
         evt.DestinationAddress = destinationAddress;
         evt.Response = Message.NoOpCompletionSource;
         evt.Sender = sender;
@@ -128,7 +118,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = processorRegistry;
         evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
-        messagePump?.WakeIfAsleep();
+        MessagePump.WakeIfAsleep();
         return processorRegistry.GenerateValueTask();
     }
 
@@ -140,8 +130,10 @@ public class EventQueue : IEventQueue
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
+        var payLoadContainer = eventContext.PooledRecycler.Borrow<PayLoad<TPayload>>();
+        payLoadContainer.Body = payload;
         evt.Type = msgType;
-        evt.PayLoad = new PayLoad<TPayload>(payload);
+        evt.PayLoad = payLoadContainer;
         evt.DestinationAddress = destinationAddress;
         var reusableValueTaskSource
             = eventContext.PooledRecycler.Borrow<ReusableResponseValueTaskSource<TResponse>>();
@@ -154,7 +146,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = processorRegistry;
         evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
-        messagePump?.WakeIfAsleep();
+        MessagePump.WakeIfAsleep();
         return reusableValueTaskSource.GenerateValueTask();
     }
 
@@ -169,12 +161,11 @@ public class EventQueue : IEventQueue
         return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.UnloadRule);
     }
 
-    public bool IsListeningToAddress(string destinationAddress) =>
-        messagePump?.Listeners.ContainsKey(destinationAddress) ?? false;
+    public bool IsListeningToAddress(string destinationAddress) => MessagePump.IsListeningOn(destinationAddress);
 
     public int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress)
     {
-        var listenersAtDestination = messagePump?.Listeners[destinationAddress];
+        var listenersAtDestination = MessagePump.ListeningSubscriptionsOn(destinationAddress);
         var count = 0;
         if (listenersAtDestination == null) return count;
         foreach (var subscription in listenersAtDestination)
@@ -192,14 +183,16 @@ public class EventQueue : IEventQueue
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
+        var payLoadContainer = eventContext.PooledRecycler.Borrow<PayLoad<Action>>();
+        payLoadContainer.Body = action;
         evt.Type = MessageType.RunActionPayload;
-        evt.PayLoad = new PayLoad<Action>(action);
+        evt.PayLoad = payLoadContainer;
         evt.DestinationAddress = null;
         evt.Response = Message.NoOpCompletionSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
         ring.Publish(seqId);
-        messagePump?.WakeIfAsleep();
+        MessagePump.WakeIfAsleep();
     }
 
     public void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
@@ -208,7 +201,9 @@ public class EventQueue : IEventQueue
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
-        evt.PayLoad = new PayLoad<TPayload>(payload);
+        var payLoadContainer = eventContext.PooledRecycler.Borrow<PayLoad<TPayload>>();
+        payLoadContainer.Body = payload;
+        evt.PayLoad = payLoadContainer;
         evt.Type = msgType;
         evt.DestinationAddress = destinationAddress;
         evt.Response = Message.NoOpCompletionSource;
@@ -217,7 +212,7 @@ public class EventQueue : IEventQueue
         evt.ProcessorRegistry = null;
         evt.RuleFilter = ruleFilter ?? Message.AppliesToAll;
         ring.Publish(seqId);
-        messagePump?.WakeIfAsleep();
+        MessagePump.WakeIfAsleep();
     }
 
     public uint RecentlyReceivedMessagesCount
@@ -248,18 +243,16 @@ public class EventQueue : IEventQueue
         }
     }
 
-    public int CompareTo(IEventQueue? other) =>
-        (int)RecentlyReceivedMessagesCount - (int)(other?.RecentlyReceivedMessagesCount ?? 0);
+    public int CompareTo(IEventQueue? other) => (int)RecentlyReceivedMessagesCount - (int)(other?.RecentlyReceivedMessagesCount ?? 0);
 
     public void Start()
     {
-        MessagePump ??= new MessagePump(new RingPollerSink<Message>(ring, 30), eventContext);
-        messagePump?.Start();
+        MessagePump?.Start();
     }
 
     public void Shutdown()
     {
-        messagePump?.Dispose();
+        MessagePump.Dispose();
     }
 
     public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult)

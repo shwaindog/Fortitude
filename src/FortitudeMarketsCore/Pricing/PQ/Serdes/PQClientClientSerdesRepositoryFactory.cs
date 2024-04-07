@@ -28,6 +28,10 @@ public class PQClientClientSerdesRepositoryFactory(PQFeedType feedType, IRecycle
         singleInstanceSerializationRepo ??=
             new PQClientQuoteSerializerRepository(serializationRecycler, coalescingFallbackPQQuoteSerializerRepository);
 
+    public IMessageStreamDecoderFactory MessageStreamDecoderFactory =>
+        singleInstanceDeserializationRepo ??=
+            new PQClientQuoteDeserializerRepository(deserializationRecycler, feedType, coalescingFallbackPQQuoteDeserializerRepository);
+
     IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository => MessageDeserializationRepository;
 
     public IPQClientQuoteDeserializerRepository MessageDeserializationRepository =>

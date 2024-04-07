@@ -12,7 +12,12 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQClientQuoteDeserializerRepository : IMessageDeserializationRepository
+public interface IPQClientMessageStreamDecoderFactory : IMessageStreamDecoderFactory
+{
+    new IPQClientMessageStreamDecoder Supply();
+}
+
+public interface IPQClientQuoteDeserializerRepository : IMessageDeserializationRepository, IPQClientMessageStreamDecoderFactory
 {
     new IPQClientMessageStreamDecoder Supply();
 
@@ -24,24 +29,22 @@ public interface IPQClientQuoteDeserializerRepository : IMessageDeserializationR
     bool UnregisterDeserializer(IUniqueSourceTickerIdentifier identifier);
 }
 
-public sealed class PQClientQuoteDeserializerRepository : DeserializationRepositoryBase, IPQClientQuoteDeserializerRepository
+public sealed class PQClientQuoteDeserializerRepository : MessageDeserializationRepository, IPQClientQuoteDeserializerRepository
 {
     private readonly PQFeedType feedType;
-    private readonly IRecycler recycler1;
 
     public PQClientQuoteDeserializerRepository(IRecycler recycler, PQFeedType feed
-        , IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(fallbackCoalasingDeserializer)
-    {
-        recycler1 = recycler;
+        , IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(recycler, fallbackCoalasingDeserializer) =>
         feedType = feed;
-    }
 
-    public override IPQClientMessageStreamDecoder Supply() => new PQClientMessageStreamDecoder(this, feedType);
+    public IPQClientMessageStreamDecoder Supply() => new PQClientMessageStreamDecoder(this, feedType);
+
+    IMessageStreamDecoder IMessageStreamDecoderFactory.Supply() => Supply();
 
     public override bool RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
     {
         if (messageDeserializer == null) return false;
-        var instanceOfTypeToSerialize = recycler1.Borrow<TM>();
+        var instanceOfTypeToSerialize = Recycler.Borrow<TM>();
         var msgId = instanceOfTypeToSerialize.MessageId;
         if (!RegisteredDeserializers.TryGetValue(msgId, out var existingMessageDeserializer))
         {

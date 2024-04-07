@@ -89,6 +89,11 @@ public enum MessageType
     , ListenerSubscribe
     , ListenerUnsubscribe
     , TaskAction
+    , SendToRemote
+    , AddWatchSocket
+    , RemoveWatchSocket
+    , AddListenSubscribeInterceptor
+    , RemoveListenSubscribeInterceptor
 }
 
 public interface IMessage<TPayLoad> : IMessage, IRecyclableObject
@@ -138,8 +143,7 @@ public class Message : IMessage
         return castClone;
     }
 
-    public IMessage<TPayLoad> BorrowCopy<TPayLoad>(IEventContext messageContext) =>
-        BorrowCopy<TPayLoad, object>(messageContext);
+    public IMessage<TPayLoad> BorrowCopy<TPayLoad>(IEventContext messageContext) => BorrowCopy<TPayLoad, object>(messageContext);
 
     public IMessage CopyFrom(IMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

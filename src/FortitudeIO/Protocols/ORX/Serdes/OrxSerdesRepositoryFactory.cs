@@ -35,6 +35,11 @@ public sealed class OrxSerdesRepositoryFactory : IOrxSerdesRepositoryFactory
             ??= new OrxMessageDeserializationRepository(deserializationRecycler
                 , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository);
 
+    public IMessageStreamDecoderFactory MessageStreamDecoderFactory =>
+        messageDeserializationRepository
+            ??= new OrxMessageDeserializationRepository(deserializationRecycler
+                , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository);
+
     public IMessageSerializationRepository MessageSerializationRepository =>
         messageSerializationRepository
             ??= new OrxMessageSerializationRepository(serializationRecycler, fallbackMessageSerdesRepositoryFactory?.MessageSerializationRepository);

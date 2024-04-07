@@ -1,4 +1,10 @@
-﻿namespace FortitudeCommon.Serdes;
+﻿#region
+
+using FortitudeCommon.DataStructures.Memory;
+
+#endregion
+
+namespace FortitudeCommon.Serdes;
 
 [Flags]
 public enum MarshalType
@@ -15,4 +21,14 @@ public interface ISerdes<in TIn, out TOut>
     MarshalType MarshalType { get; }
     ISerializer<TIn>? Serializer { get; }
     IDeserializer<TOut>? Deserializer { get; }
+}
+
+public interface IConverter<in TIn, out TOut>
+{
+    TOut Convert(TIn original, IRecycler? recycler = null);
+}
+
+public interface IConvertingSerdes<in TIn, out TOut> : IConverter<TIn, TOut>, ISerdes<TIn, TOut>
+{
+    ISerdeContext SerdeContext { get; }
 }
