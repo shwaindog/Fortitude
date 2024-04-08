@@ -2,8 +2,8 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -43,6 +43,8 @@ public class PQSnapshotIdsRequestSerializerTests
             Assert.AreEqual(snapshotIdsMessage.Version, protocolVersion);
             var messageFlags = *currPtr++;
             Assert.AreEqual((byte)0, messageFlags);
+            var messageId = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(snapshotIdsMessage.MessageId, messageId);
             var messagesTotalSize = StreamByteOps.ToUShort(ref currPtr);
             Assert.AreEqual((uint)amtWritten, messagesTotalSize);
             var numberOfIds = StreamByteOps.ToUShort(ref currPtr);

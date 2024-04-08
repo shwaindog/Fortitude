@@ -227,7 +227,6 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 var clientStreamInitiator = new TcpAcceptedClientControls(client);
                 var clientRequester = new ConversationRequester(client, clientStreamInitiator);
                 clientRequester.Disconnected += () => RemoveClient(clientRequester);
-                clientRequester.StartMessaging();
                 clientsSync.Acquire();
                 try
                 {
@@ -239,6 +238,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 }
 
                 NewClient?.Invoke(clientRequester);
+                clientRequester.StartMessaging();
             }
             else
             {

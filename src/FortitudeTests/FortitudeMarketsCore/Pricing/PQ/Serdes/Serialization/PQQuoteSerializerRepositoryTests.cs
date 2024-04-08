@@ -7,10 +7,10 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -49,7 +49,7 @@ public class PQClientQuoteSerializerRepositoryTests
     {
         pqClientQuoteSerializerRepository.RegisterSerializer<PQSnapshotIdsRequest>();
         var uintArraySerializer
-            = pqClientQuoteSerializerRepository.GetSerializer<PQSnapshotIdsRequest>(0);
+            = pqClientQuoteSerializerRepository.GetSerializer<PQSnapshotIdsRequest>((uint)PQMessageIds.SnapshotIdsRequest);
         Assert.IsNotNull(uintArraySerializer);
         Assert.IsInstanceOfType(uintArraySerializer, typeof(PQSnapshotIdsRequestSerializer));
     }

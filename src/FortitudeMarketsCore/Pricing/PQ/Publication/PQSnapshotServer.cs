@@ -11,7 +11,9 @@ using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.State;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
 
@@ -37,7 +39,7 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 
     public IMessageSerializationRepository MessageSerializationRepository { get; }
 
-    public event Action<IConversationRequester, uint[]>? OnSnapshotRequest;
+    public event Action<IConversationRequester, PQSnapshotIdsRequest>? OnSnapshotRequest;
 
     public void Send(IConversationRequester client, IVersionedMessage message)
     {
@@ -70,12 +72,12 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
     {
         var clientSocketReceiver = (ISocketReceiver)newClient.StreamListener!;
         var clientDecoder = (IPQServerMessageStreamDecoder)clientSocketReceiver.Decoder!;
-        clientDecoder.SnapshotRequestIds += OnRequest;
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>(OnRequest);
         logger.Info($"New PQSnapshot Client Request {newClient}");
     }
 
-    private void OnRequest(IConversationRequester cx, uint[] streamIDs)
+    private void OnRequest(PQSnapshotIdsRequest snapshotIdsRequest, object? header, IConversation? cx)
     {
-        OnSnapshotRequest?.Invoke(cx, streamIDs);
+        OnSnapshotRequest?.Invoke((IConversationRequester)cx, snapshotIdsRequest);
     }
 }

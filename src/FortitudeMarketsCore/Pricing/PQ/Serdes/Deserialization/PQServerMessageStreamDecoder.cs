@@ -1,28 +1,24 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Publication;
+namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 public interface IPQServerMessageStreamDecoder : IMessageStreamDecoder
 {
-    event Action<IConversationRequester, uint[]>? SnapshotRequestIds;
+    new IConversationDeserializationRepository MessageDeserializationRepository { get; }
 }
 
 public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 {
-    private const int HeaderSize = 2 * sizeof(byte) + 2 * sizeof(ushort);
-    private const int RequestSize = sizeof(uint);
+    private const int HeaderSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(ushort);
     private MessageSection messageSection;
 
-    private ushort requestsCount;
-
-    public PQServerMessageStreamDecoder(IMessageDeserializationRepository messageDeserializationRepository)
+    public PQServerMessageStreamDecoder(IConversationDeserializationRepository messageDeserializationRepository)
     {
         MessageDeserializationRepository = messageDeserializationRepository;
         messageSection = MessageSection.Header;
@@ -31,31 +27,33 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 
     public int ExpectedSize { get; private set; }
 
-    public IMessageDeserializationRepository MessageDeserializationRepository { get; }
+    public IConversationDeserializationRepository MessageDeserializationRepository { get; }
+    IMessageDeserializationRepository IMessageStreamDecoder.MessageDeserializationRepository => MessageDeserializationRepository;
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
+        var readCursor = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
         byte flags = 0;
-        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - read)
+        uint messageId = 0;
+        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - readCursor)
             switch (messageSection)
             {
                 case MessageSection.Header:
                     fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
-                        var ptr = fptr + read;
+                        var ptr = fptr + readCursor;
                         socketBufferReadContext.MessageVersion = *ptr++;
                         flags = *ptr++;
+                        messageId = StreamByteOps.ToUInt(ref ptr);
                         socketBufferReadContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
-                        requestsCount = StreamByteOps.ToUShort(ref ptr);
                     }
 
-                    read += HeaderSize;
-                    if (requestsCount > 0)
+                    readCursor += HeaderSize;
+                    if (socketBufferReadContext.MessageSize - HeaderSize > 0)
                     {
                         messageSection = MessageSection.Data;
-                        ExpectedSize = requestsCount * RequestSize;
+                        ExpectedSize = socketBufferReadContext.MessageSize - HeaderSize;
                     }
                     else
                     {
@@ -65,26 +63,22 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 
                     break;
                 case MessageSection.Data:
-                    var streamIDs = new uint[requestsCount];
-                    fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
+
+                    if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var u))
                     {
-                        var ptr = fptr + read;
-                        for (var i = 0; i < streamIDs.Length; i++) streamIDs[i] = StreamByteOps.ToUInt(ref ptr);
+                        socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
+                        u!.Deserialize(socketBufferReadContext);
                     }
 
-                    socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-                    SnapshotRequestIds?.Invoke((IConversationRequester)socketBufferReadContext.Conversation!, streamIDs);
-                    read += requestsCount * RequestSize;
+                    readCursor += socketBufferReadContext.LastReadLength - HeaderSize;
                     messageSection = MessageSection.Header;
                     ExpectedSize = HeaderSize;
                     break;
             }
 
-        socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-        return read - originalRead;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
+        return readCursor - originalRead;
     }
-
-    public event Action<IConversationRequester, uint[]>? SnapshotRequestIds;
 
     private enum MessageSection
     {
