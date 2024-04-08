@@ -31,13 +31,14 @@ public class UniqueSourceTickerIdentifier : IMutableUniqueSourceTickerIdentifier
     }
 
     public uint Id { get; set; }
+    public ushort SourceId => (ushort)(Id >> 16);
+    public ushort TickerId => (ushort)(0xFFFF & Id);
     public string Source { get; set; }
     public string Ticker { get; set; }
 
     public virtual object Clone() => new UniqueSourceTickerIdentifier(this);
 
-    IUniqueSourceTickerIdentifier ICloneable<IUniqueSourceTickerIdentifier>.Clone() =>
-        (IUniqueSourceTickerIdentifier)Clone();
+    IUniqueSourceTickerIdentifier ICloneable<IUniqueSourceTickerIdentifier>.Clone() => (IUniqueSourceTickerIdentifier)Clone();
 
     public virtual bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
     {
@@ -50,11 +51,9 @@ public class UniqueSourceTickerIdentifier : IMutableUniqueSourceTickerIdentifier
         return idSame && sourceSame && tickerSame;
     }
 
-    public static uint GenerateUniqueSourceTickerId(ushort sourceId, ushort tickerId) =>
-        ((uint)sourceId << 16) + tickerId;
+    public static uint GenerateUniqueSourceTickerId(ushort sourceId, ushort tickerId) => ((uint)sourceId << 16) + tickerId;
 
-    public override bool Equals(object? obj) =>
-        ReferenceEquals(this, obj) || AreEquivalent(obj as IUniqueSourceTickerIdentifier, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IUniqueSourceTickerIdentifier, true);
 
     public override int GetHashCode()
     {

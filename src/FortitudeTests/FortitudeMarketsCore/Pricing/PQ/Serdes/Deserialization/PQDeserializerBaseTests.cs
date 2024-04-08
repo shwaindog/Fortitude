@@ -15,6 +15,7 @@ using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
@@ -27,8 +28,8 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 [TestClass]
 public class PQDeserializerBaseTests
 {
-    private const int MessageHeaderByteSize = 14;
-    private const int BufferReadWriteOffset = 20;
+    private const int MessageHeaderByteSize = PQQuoteMessageHeader.HeaderSize;
+    private const int BufferReadWriteOffset = 6;
     private DummyPQQuoateDeserializerBase<IPQLevel0Quote> dummyLevel0QuoteDeserializer = null!;
     private DummyPQQuoateDeserializerBase<IPQLevel1Quote> dummyLevel1QuoteDeserializer = null!;
     private DummyPQQuoateDeserializerBase<IPQLevel2Quote> dummyLevel2QuoteDeserializer = null!;
@@ -70,9 +71,10 @@ public class PQDeserializerBaseTests
         {
             DetectTimestamp = new DateTime(2017, 07, 01, 18, 59, 22)
             , ReceivingTimestamp = new DateTime(2017, 07, 01, 19, 03, 22)
-            , DeserializerTimestamp = new DateTime(2017, 07, 01, 19, 03, 52), EncodedBuffer = readWriteBuffer
+            , DeserializerTimestamp = new DateTime(2017, 07, 01, 19, 03, 52), EncodedBuffer = readWriteBuffer, MessageVersion = 1
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset;
 
         sourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource", "TestTicker",
             20, 0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
@@ -269,6 +271,7 @@ public class PQDeserializerBaseTests
         var actualL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 101u;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + MessageHeaderByteSize;
         dummyLevel0QuoteDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualL0Quote, expectedSequenceId);
 
         Assert.AreEqual(socketBufferReadContext.DetectTimestamp, actualL0Quote.ClientReceivedTime);
@@ -300,6 +303,7 @@ public class PQDeserializerBaseTests
         var actualL1Quote = new PQLevel1Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 102u;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
         dummyLevel0QuoteDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualL1Quote, expectedSequenceId);
 
         Assert.AreEqual(expectedL1Quote.Executable, actualL1Quote.Executable);
@@ -336,7 +340,7 @@ public class PQDeserializerBaseTests
         var actualL2Quote = new PQLevel2Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 102u;
-        socketBufferReadContext.MessageSize = amountWritten - MessageHeaderByteSize;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
         dummyLevel0QuoteDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualL2Quote, expectedSequenceId);
 
         for (var i = 0; i < numLayers; i++)
@@ -381,7 +385,7 @@ public class PQDeserializerBaseTests
         var actualL3Quote = new PQLevel3Quote(sourceTickerQuoteInfo);
 
         var expectedSequenceId = 102u;
-        socketBufferReadContext.MessageSize = amountWritten - MessageHeaderByteSize;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
         dummyLevel0QuoteDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualL3Quote, expectedSequenceId);
 
         for (var i = 0; i < deepestPossibleLayerIndex && i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)

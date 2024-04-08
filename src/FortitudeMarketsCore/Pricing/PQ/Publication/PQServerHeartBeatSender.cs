@@ -6,6 +6,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 #endregion
@@ -25,8 +26,7 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
     private volatile bool hasStarted;
     private IOSThread? heartBeatOSThread;
 
-    public PQServerHeartBeatSender() =>
-        parallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
+    public PQServerHeartBeatSender() => parallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
 
     public IPQUpdateServer? UpdateServer { get; set; }
 

@@ -7,6 +7,7 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -33,16 +34,16 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
 
     public virtual bool HasJustGoneStale(DateTime utcNow) => false;
 
-    public virtual void ProcessInState(IBufferContext bufferContext)
+    public virtual void ProcessInState(IMessageBufferContext bufferContext)
     {
-        var msgFlags = bufferContext.EncodedBuffer!.Buffer[bufferContext.EncodedBuffer.ReadCursor + 1];
-        if ((msgFlags & (byte)PQBinaryMessageFlags.PublishAll) > 0)
+        var msgFlags = ((PQQuoteTransmissionHeader)bufferContext.MessageHeader!).MessageFlags;
+        if ((msgFlags & PQMessageFlags.PublishAll) > 0)
             ProcessSnapshot(bufferContext);
         else
             ProcessUpdate(bufferContext);
     }
 
-    protected virtual void ProcessUpdate(IBufferContext bufferContext)
+    protected virtual void ProcessUpdate(IMessageBufferContext bufferContext)
     {
         var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
         if (sequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId + 1 ||
@@ -52,7 +53,7 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
             ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
     }
 
-    public virtual void ProcessSnapshot(IBufferContext bufferContext)
+    public virtual void ProcessSnapshot(IMessageBufferContext bufferContext)
     {
         var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
         if (sequenceId > LinkedDeserializer.PublishedQuote.PQSequenceId + 1)
@@ -68,12 +69,12 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
         }
     }
 
-    protected virtual void ProcessNextExpectedUpdate(IBufferContext bufferContext, uint sequenceId)
+    protected virtual void ProcessNextExpectedUpdate(IMessageBufferContext bufferContext, uint sequenceId)
     {
         LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
     }
 
-    protected virtual void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
+    protected virtual void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
     {
         if (sequenceId < LinkedDeserializer.PublishedQuote.PQSequenceId)
         {
@@ -108,7 +109,7 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
         LinkedDeserializer.SwitchSyncState(newState);
     }
 
-    protected void SaveMessageToSyncSlot(IBufferContext bufferContext, uint sequenceId)
+    protected void SaveMessageToSyncSlot(IMessageBufferContext bufferContext, uint sequenceId)
     {
         var ent = LinkedDeserializer.ClaimSyncSlotEntry();
         ent.HasUpdates = false;

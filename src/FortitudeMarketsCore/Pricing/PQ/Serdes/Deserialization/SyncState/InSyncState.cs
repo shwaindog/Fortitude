@@ -21,7 +21,7 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
     protected InSyncState(IPQQuoteDeserializer<T> linkedDeserializer, QuoteSyncState state)
         : base(linkedDeserializer, state) { }
 
-    protected override void ProcessUpdate(IBufferContext bufferContext)
+    protected override void ProcessUpdate(IMessageBufferContext bufferContext)
     {
         var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
         if (sequenceId == LinkedDeserializer.PublishedQuote.PQSequenceId + 1 ||
@@ -31,7 +31,7 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
             ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
     }
 
-    protected override void ProcessNextExpectedUpdate(IBufferContext bufferContext, uint sequenceId)
+    protected override void ProcessNextExpectedUpdate(IMessageBufferContext bufferContext, uint sequenceId)
     {
         base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
         LastSuccessfulUpdateSequienceId = sequenceId;
@@ -40,7 +40,7 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
             LinkedDeserializer.OnReceivedUpdate);
     }
 
-    protected override void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
+    protected override void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
     {
         if (LinkedDeserializer.AllowUpdatesCatchup && sequenceId < LinkedDeserializer.PublishedQuote.PQSequenceId
                                                    && sequenceId > LastSuccessfulUpdateSequienceId &&

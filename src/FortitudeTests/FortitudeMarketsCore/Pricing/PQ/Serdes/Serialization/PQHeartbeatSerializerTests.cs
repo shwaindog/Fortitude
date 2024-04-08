@@ -6,7 +6,7 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.Publication;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -97,17 +97,17 @@ public class PQHeartbeatSerializerTests
             var startWritten = bufferPtr + BufferReadWriteOffset;
             var currPtr = bufferPtr + BufferReadWriteOffset;
             Assert.AreEqual(amtWritten
-                , PQQuoteMessageHeader.HeaderSize * firstBatchOfQuotes.QuotesToSendHeartBeats.Count);
+                , (PQQuoteMessageHeader.HeaderSize + 4) * firstBatchOfQuotes.QuotesToSendHeartBeats.Count);
             foreach (var firstBatchOfQuote in firstBatchOfQuotes)
             {
                 var protocolVersion = *currPtr++;
                 Assert.AreEqual(1, protocolVersion);
                 var messageFlags = *currPtr++;
-                Assert.AreEqual((byte)PQBinaryMessageFlags.IsHeartBeat, messageFlags);
-                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize);
+                Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
                 var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
                 Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
+                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
                 var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
                 Assert.AreEqual(sequenceNumber, firstBatchOfQuote.PQSequenceId);
             }
@@ -124,17 +124,17 @@ public class PQHeartbeatSerializerTests
             var startWritten = bufferPtr + readWriteBuffer.ReadCursor;
             var currPtr = bufferPtr + readWriteBuffer.ReadCursor;
             Assert.AreEqual(amtWritten
-                , PQQuoteMessageHeader.HeaderSize * secondBatchOfQuotes.QuotesToSendHeartBeats.Count);
+                , (PQQuoteMessageHeader.HeaderSize + sizeof(uint)) * secondBatchOfQuotes.QuotesToSendHeartBeats.Count);
             foreach (var firstBatchOfQuote in secondBatchOfQuotes)
             {
                 var protocolVersion = *currPtr++;
                 Assert.AreEqual(1, protocolVersion);
                 var messageFlags = *currPtr++;
-                Assert.AreEqual((byte)PQBinaryMessageFlags.IsHeartBeat, messageFlags);
-                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize);
+                Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
                 var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
                 Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
+                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
                 var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
                 Assert.AreEqual(sequenceNumber, firstBatchOfQuote.PQSequenceId);
             }
@@ -166,7 +166,7 @@ public class PQHeartbeatSerializerTests
             var protocolVersion = *currPtr++;
             Assert.AreEqual(1, protocolVersion);
             var messageFlags = *currPtr++;
-            Assert.AreEqual((byte)PQBinaryMessageFlags.IsHeartBeat, messageFlags);
+            Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
         }
     }
 }

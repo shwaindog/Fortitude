@@ -382,26 +382,30 @@ public class PQSourceTickerQuoteInfo : PQUniqueSourceTickerIdentifier, IPQSource
 
     IMutableSourceTickerQuoteInfo IMutableSourceTickerQuoteInfo.Clone() => (IMutableSourceTickerQuoteInfo)Clone();
 
-    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    public bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
     {
-        if (!(other is ISourceTickerQuoteInfo srcTkrQtInfo)) return false;
-
         var baseSame = base.AreEquivalent(other, exactTypes);
-        var roundingPrecisionSame = RoundingPrecision == srcTkrQtInfo.RoundingPrecision;
-        var minSubmitSizeSame = MinSubmitSize == srcTkrQtInfo.MinSubmitSize;
-        var maxSubmitSizeSame = MaxSubmitSize == srcTkrQtInfo.MaxSubmitSize;
-        var incrementSizeSame = IncrementSize == srcTkrQtInfo.IncrementSize;
-        var minQuoteLifeSame = MinimumQuoteLife == srcTkrQtInfo.MinimumQuoteLife;
-        var layerFlagsSame = LayerFlags == srcTkrQtInfo.LayerFlags;
-        var maxPublishLayersSame = MaximumPublishedLayers == srcTkrQtInfo.MaximumPublishedLayers;
-        var lastTradedFlagsSame = LastTradedFlags == srcTkrQtInfo.LastTradedFlags;
+        var roundingPrecisionSame = RoundingPrecision == other?.RoundingPrecision;
+        var minSubmitSizeSame = MinSubmitSize == other?.MinSubmitSize;
+        var maxSubmitSizeSame = MaxSubmitSize == other?.MaxSubmitSize;
+        var incrementSizeSame = IncrementSize == other?.IncrementSize;
+        var minQuoteLifeSame = MinimumQuoteLife == other?.MinimumQuoteLife;
+        var layerFlagsSame = LayerFlags == other?.LayerFlags;
+        var maxPublishLayersSame = MaximumPublishedLayers == other?.MaximumPublishedLayers;
+        var lastTradedFlagsSame = LastTradedFlags == other?.LastTradedFlags;
 
         return baseSame && roundingPrecisionSame && minSubmitSizeSame && maxSubmitSizeSame && incrementSizeSame
                && minQuoteLifeSame && layerFlagsSame && maxPublishLayersSame && lastTradedFlagsSame;
     }
 
-    public override bool Equals(object? obj) =>
-        ReferenceEquals(this, obj) || AreEquivalent((ISourceTickerQuoteInfo?)obj, true);
+    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    {
+        if (!(other is ISourceTickerQuoteInfo srcTkrQtInfo)) return false;
+
+        return AreEquivalent(srcTkrQtInfo, exactTypes);
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ISourceTickerQuoteInfo?)obj, true);
 
     public override int GetHashCode()
     {

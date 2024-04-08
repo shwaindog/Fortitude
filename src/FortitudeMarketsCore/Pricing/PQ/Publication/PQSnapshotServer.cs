@@ -78,6 +78,6 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 
     private void OnRequest(PQSnapshotIdsRequest snapshotIdsRequest, object? header, IConversation? cx)
     {
-        OnSnapshotRequest?.Invoke((IConversationRequester)cx, snapshotIdsRequest);
+        OnSnapshotRequest?.Invoke((cx as IConversationRequester)!, snapshotIdsRequest);
     }
 }

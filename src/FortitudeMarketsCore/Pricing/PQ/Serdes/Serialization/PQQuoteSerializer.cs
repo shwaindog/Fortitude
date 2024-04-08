@@ -57,14 +57,16 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
         fixed (byte* fptr = buffer)
         {
             if (!publishAll && !level0Quote.HasUpdates) return FinishProcessingMessageReturnValue(message, 0);
-            var currentPtr = fptr + writeOffset;
+            var writeStart = fptr + writeOffset;
+            var currentPtr = writeStart;
             var end = fptr + buffer.Length;
             *currentPtr++ = message.Version; //protocol version
             var messageFlags = currentPtr++;
-            var flags = publishAll ? (byte)PQBinaryMessageFlags.PublishAll : (byte)PQBinaryMessageFlags.None;
+            var flags = publishAll ? (byte)(PQMessageFlags.PublishAll | PQMessageFlags.IsQuote) : (byte)PQMessageFlags.IsQuote;
+            *messageFlags = flags;
+            StreamByteOps.ToBytes(ref currentPtr, level0Quote.SourceTickerQuoteInfo!.Id);
             var messageSizePtr = currentPtr;
             currentPtr += 4;
-            StreamByteOps.ToBytes(ref currentPtr, level0Quote.SourceTickerQuoteInfo!.Id);
             var sequenceIdptr = currentPtr;
             currentPtr += 4;
 
@@ -77,14 +79,9 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                     if (currentPtr + FieldSize > end) return FinishProcessingMessageReturnValue(message, -1);
                     *currentPtr++ = field.Flag;
                     if ((field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                    {
                         *currentPtr++ = (byte)field.Id;
-                    }
                     else
-                    {
-                        flags |= (byte)PQBinaryMessageFlags.ExtendedFieldId;
                         StreamByteOps.ToBytes(ref currentPtr, field.Id);
-                    }
 
                     StreamByteOps.ToBytes(ref currentPtr, field.Value);
                 }
@@ -95,7 +92,6 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 {
                     if (currentPtr + 100 > end) return FinishProcessingMessageReturnValue(message, -1);
 
-                    flags |= (byte)PQBinaryMessageFlags.ContainsStringUpdate;
                     *currentPtr++ = fieldStringUpdate.Field.Flag;
                     if ((fieldStringUpdate.Field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
                         *currentPtr++ = (byte)fieldStringUpdate.Field.Id;
@@ -121,8 +117,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 level0Quote.Lock.Release();
             }
 
-            *messageFlags = flags;
-            var written = (int)(currentPtr - fptr - writeOffset);
+            var written = (int)(currentPtr - writeStart);
             /*logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +
                                  $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
                                  $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +

@@ -52,7 +52,7 @@ public class SourceTickerQuoteInfo : UniqueSourceTickerIdentifier, IMutableSourc
     public LastTradedFlags LastTradedFlags { get; set; }
 
     public string FormatPrice =>
-        formatPrice ?? (formatPrice = RoundingPrecision
+        formatPrice ??= RoundingPrecision
             .ToString(CultureInfo.InvariantCulture)
             .Replace('1', '0')
             .Replace('2', '0')
@@ -62,7 +62,7 @@ public class SourceTickerQuoteInfo : UniqueSourceTickerIdentifier, IMutableSourc
             .Replace('6', '0')
             .Replace('7', '0')
             .Replace('8', '0')
-            .Replace('9', '0'));
+            .Replace('9', '0');
 
     public override object Clone() => new SourceTickerQuoteInfo(this);
 
@@ -70,27 +70,31 @@ public class SourceTickerQuoteInfo : UniqueSourceTickerIdentifier, IMutableSourc
 
     IMutableSourceTickerQuoteInfo IMutableSourceTickerQuoteInfo.Clone() => (IMutableSourceTickerQuoteInfo)Clone();
 
-    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
     {
-        if (!(other is ISourceTickerQuoteInfo srcTkrQuoteInfo)) return false;
-
         var baseSame = base.AreEquivalent(other, exactTypes);
-        var maxPublishedLayersSame = MaximumPublishedLayers == srcTkrQuoteInfo.MaximumPublishedLayers;
-        var roundingPrecisionSame = RoundingPrecision == srcTkrQuoteInfo.RoundingPrecision;
-        var minSubmitSizeSame = MinSubmitSize == srcTkrQuoteInfo.MinSubmitSize;
-        var maxSubmitSizeSame = MaxSubmitSize == srcTkrQuoteInfo.MaxSubmitSize;
-        var incrmntSizeSame = IncrementSize == srcTkrQuoteInfo.IncrementSize;
-        var minQuoteLifeSame = MinimumQuoteLife == srcTkrQuoteInfo.MinimumQuoteLife;
-        var layerFlagsSame = LayerFlags == srcTkrQuoteInfo.LayerFlags;
-        var lastTradedFlagsSame = LastTradedFlags == srcTkrQuoteInfo.LastTradedFlags;
+        var maxPublishedLayersSame = MaximumPublishedLayers == other?.MaximumPublishedLayers;
+        var roundingPrecisionSame = RoundingPrecision == other?.RoundingPrecision;
+        var minSubmitSizeSame = MinSubmitSize == other?.MinSubmitSize;
+        var maxSubmitSizeSame = MaxSubmitSize == other?.MaxSubmitSize;
+        var incrmntSizeSame = IncrementSize == other?.IncrementSize;
+        var minQuoteLifeSame = MinimumQuoteLife == other?.MinimumQuoteLife;
+        var layerFlagsSame = LayerFlags == other?.LayerFlags;
+        var lastTradedFlagsSame = LastTradedFlags == other?.LastTradedFlags;
 
         return baseSame && maxPublishedLayersSame && roundingPrecisionSame && minSubmitSizeSame
                && maxSubmitSizeSame && incrmntSizeSame && minQuoteLifeSame && layerFlagsSame
                && lastTradedFlagsSame;
     }
 
-    public override bool Equals(object? obj) =>
-        ReferenceEquals(this, obj) || AreEquivalent(obj as IUniqueSourceTickerIdentifier, true);
+
+    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    {
+        if (!(other is ISourceTickerQuoteInfo srcTkrQuoteInfo)) return false;
+        return AreEquivalent(srcTkrQuoteInfo, exactTypes);
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ISourceTickerQuoteInfo, true);
 
     public override int GetHashCode()
     {

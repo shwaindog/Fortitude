@@ -14,7 +14,7 @@ public class StaleState<T> : InSyncState<T> where T : PQLevel0Quote, new()
     public StaleState(IPQQuoteDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Stale) { }
 
-    protected override void ProcessNextExpectedUpdate(IBufferContext bufferContext, uint sequenceId)
+    protected override void ProcessNextExpectedUpdate(IMessageBufferContext bufferContext, uint sequenceId)
     {
         LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
         Logger.Info("Stream {0} recovered after timeout, RecvSeqID={1}", LinkedDeserializer.Identifier,

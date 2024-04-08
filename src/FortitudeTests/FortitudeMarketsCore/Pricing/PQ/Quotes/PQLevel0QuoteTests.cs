@@ -12,8 +12,8 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
@@ -526,7 +526,7 @@ public class PQLevel0QuoteTests
     /// the most base form of the property leaving the redefined property unsetup.
     internal class DummyPQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, IStoreState<DummyPQLevel0Quote>
     {
-        public uint MessageId => (uint)PricingMessageIds.PricingMessage;
+        public uint MessageId => (uint)PQMessageIds.Quote;
         public byte Version => 1;
         public uint PQSequenceId { get; set; }
         public ISyncLock Lock { get; } = new SpinLockLight();

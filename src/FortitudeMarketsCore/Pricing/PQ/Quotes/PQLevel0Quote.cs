@@ -8,6 +8,7 @@ using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
 
 #endregion
@@ -31,8 +32,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public PQLevel0Quote() { }
 
-    public PQLevel0Quote(ISourceTickerQuoteInfo sourceTickerInfo) =>
-        SourceTickerQuoteInfo = (IMutableSourceTickerQuoteInfo)sourceTickerInfo;
+    public PQLevel0Quote(ISourceTickerQuoteInfo sourceTickerInfo) => SourceTickerQuoteInfo = (IMutableSourceTickerQuoteInfo)sourceTickerInfo;
 
     public PQLevel0Quote(ILevel0Quote toClone)
     {
@@ -66,7 +66,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         $"{nameof(IsSinglePriceUpdated)}: {IsSinglePriceUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
         $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
 
-    public uint MessageId => (uint)PricingMessageIds.PricingMessage;
+    public uint MessageId => (uint)PQMessageIds.Quote;
 
     public uint PQSequenceId { get; set; }
     public ISyncLock Lock => SyncLock;
@@ -426,8 +426,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     IMutableLevel0Quote IMutableLevel0Quote.Clone() => Clone();
 
-    public override IPQLevel0Quote Clone() =>
-        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this) ?? new PQLevel0Quote(this);
+    public override IPQLevel0Quote Clone() => (IPQLevel0Quote?)Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this) ?? new PQLevel0Quote(this);
 
     public virtual bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

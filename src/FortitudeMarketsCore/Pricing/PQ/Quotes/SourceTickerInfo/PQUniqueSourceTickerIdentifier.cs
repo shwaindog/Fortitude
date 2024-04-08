@@ -57,6 +57,9 @@ public class PQUniqueSourceTickerIdentifier : IPQUniqueSourceTickerIdentifier
         }
     }
 
+    public ushort SourceId => (ushort)(Id >> 16);
+    public ushort TickerId => (ushort)(0xFFFF & Id);
+
     public bool IsIdUpdated
     {
         get => (UpdatedFlags & SourceTickerInfoUpdatedFlags.SourceTickerId) > 0;
@@ -193,8 +196,7 @@ public class PQUniqueSourceTickerIdentifier : IPQUniqueSourceTickerIdentifier
 
     public virtual object Clone() => new PQUniqueSourceTickerIdentifier(this);
 
-    IUniqueSourceTickerIdentifier ICloneable<IUniqueSourceTickerIdentifier>.Clone() =>
-        (IUniqueSourceTickerIdentifier)Clone();
+    IUniqueSourceTickerIdentifier ICloneable<IUniqueSourceTickerIdentifier>.Clone() => (IUniqueSourceTickerIdentifier)Clone();
 
     public virtual bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
     {

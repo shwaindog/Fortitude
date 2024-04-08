@@ -21,7 +21,8 @@ public sealed class PQServerDeserializationRepository : ConversationDeserializat
     {
         switch (msgId)
         {
-            case (uint)PQMessageIds.SnapshotIdsRequest: return new SnapshotIdsDeserializer(Recycler);
+            case (uint)PQMessageIds.SnapshotIdsRequest: return new PQSnapshotIdsRequestDeserializer(Recycler);
+            case (uint)PQMessageIds.SourceTickerInfoRequest: return new PQSourceTickerInfoRequestDeserializer(Recycler);
         }
 
         return null;

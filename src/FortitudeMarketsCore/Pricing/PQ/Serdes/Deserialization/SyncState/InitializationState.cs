@@ -12,7 +12,7 @@ public class InitializationState<T> : SynchronisingState<T> where T : PQLevel0Qu
     public InitializationState(IPQQuoteDeserializer<T> linkedDeserializer) : base(linkedDeserializer,
         QuoteSyncState.InitializationState) { }
 
-    protected override void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
+    protected override void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
     {
         base.ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
         SwitchState(QuoteSyncState.Synchronising);
@@ -24,7 +24,7 @@ public class InitializationState<T> : SynchronisingState<T> where T : PQLevel0Qu
             LinkedDeserializer.Identifier, sequenceId);
     }
 
-    protected override void ProcessUpdate(IBufferContext bufferContext)
+    protected override void ProcessUpdate(IMessageBufferContext bufferContext)
     {
         var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
         if (sequenceId == 0)

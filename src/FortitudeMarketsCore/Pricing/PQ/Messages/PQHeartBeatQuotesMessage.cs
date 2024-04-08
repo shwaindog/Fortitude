@@ -4,25 +4,25 @@ using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Publication;
+namespace FortitudeMarketsCore.Pricing.PQ.Messages;
 
 public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHeartBeatQuotesMessage
     , IEnumerable<IPQLevel0Quote>
 {
     public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQLevel0Quote>();
 
-    public PQHeartBeatQuotesMessage(IList<IPQLevel0Quote> quotesToSendHeartBeats) =>
-        QuotesToSendHeartBeats = quotesToSendHeartBeats;
+    public PQHeartBeatQuotesMessage(IList<IPQLevel0Quote> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<IPQLevel0Quote> GetEnumerator() => QuotesToSendHeartBeats.GetEnumerator();
 
-    public uint MessageId => (uint)PricingMessageIds.HeartBeatMessage;
+    public uint MessageId => (uint)PQMessageIds.HeartBeat;
 
     public byte Version => 1;
     public IList<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; }
@@ -43,8 +43,7 @@ public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHe
 
     public override IVersionedMessage Clone() => throw new NotImplementedException();
 
-    protected bool Equals(PQHeartBeatQuotesMessage other) =>
-        Equals(QuotesToSendHeartBeats, other.QuotesToSendHeartBeats);
+    protected bool Equals(PQHeartBeatQuotesMessage other) => Equals(QuotesToSendHeartBeats, other.QuotesToSendHeartBeats);
 
     public override bool Equals(object? obj)
     {

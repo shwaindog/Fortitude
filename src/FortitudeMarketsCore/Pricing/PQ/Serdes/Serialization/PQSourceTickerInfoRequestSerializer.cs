@@ -13,7 +13,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
-public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRequest>
+public class PQSourceTickerInfoRequestSerializer : IMessageSerializer<PQSourceTickerInfoRequest>
 {
     private const int FixedSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(uint);
 
@@ -21,10 +21,10 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
 
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
-        Serialize((PQSnapshotIdsRequest)message, (ISerdeContext)writeContext);
+        Serialize((PQSourceTickerInfoRequest)message, (ISerdeContext)writeContext);
     }
 
-    public void Serialize(PQSnapshotIdsRequest obj, ISerdeContext writeContext)
+    public void Serialize(PQSourceTickerInfoRequest obj, ISerdeContext writeContext)
     {
         if ((writeContext.Direction & ContextDirection.Write) == 0)
             throw new ArgumentException("Expected readContext to support writing");
@@ -43,26 +43,18 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
 
     public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
     {
-        var ids = ((IPQSnapshotIdsRequest)message).RequestSourceTickerIds;
-        if (FixedSize + ids.Count * sizeof(uint) <= buffer.Length - writeOffset)
-            fixed (byte* bufStrt = buffer)
-            {
-                var writeStart = bufStrt + writeOffset;
-                var currPtr = writeStart;
-                *currPtr++ = message.Version;
-                *currPtr++ = (byte)PQMessageFlags.None; // header flags
-                StreamByteOps.ToBytes(ref currPtr, message.MessageId);
-                var messageSize = currPtr;
-                currPtr += OrxConstants.UInt32Sz;
-                StreamByteOps.ToBytes(ref currPtr, (ushort)ids.Count);
-                for (var i = 0; i < ids.Count; i++) StreamByteOps.ToBytes(ref currPtr, ids[i]);
-
-                var amtWritten = currPtr - writeStart;
-                StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
-                message.DecrementRefCount();
-                return (int)amtWritten;
-            }
-
-        return -1;
+        fixed (byte* bufStrt = buffer)
+        {
+            var writeStart = bufStrt + writeOffset;
+            var currPtr = writeStart;
+            *currPtr++ = message.Version;
+            *currPtr++ = (byte)PQMessageFlags.None;
+            ; // header flags
+            StreamByteOps.ToBytes(ref currPtr, message.MessageId);
+            var amtWritten = currPtr - writeStart + OrxConstants.UInt32Sz;
+            StreamByteOps.ToBytes(ref currPtr, (uint)amtWritten);
+            message.DecrementRefCount();
+            return (int)amtWritten;
+        }
     }
 }

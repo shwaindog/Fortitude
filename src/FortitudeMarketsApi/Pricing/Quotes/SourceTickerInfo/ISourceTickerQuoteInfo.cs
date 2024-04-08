@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 
@@ -7,7 +8,7 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 
 namespace FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
-public interface ISourceTickerQuoteInfo : IUniqueSourceTickerIdentifier
+public interface ISourceTickerQuoteInfo : IUniqueSourceTickerIdentifier, IInterfacesComparable<ISourceTickerQuoteInfo>
 {
     decimal RoundingPrecision { get; }
     decimal MinSubmitSize { get; }

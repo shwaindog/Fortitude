@@ -10,11 +10,11 @@ using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public class SnapshotIdsDeserializer : MessageDeserializer<PQSnapshotIdsRequest>
+public class PQSnapshotIdsRequestDeserializer : MessageDeserializer<PQSnapshotIdsRequest>
 {
     private readonly IRecycler recycler;
 
-    public SnapshotIdsDeserializer(IRecycler recycler) => this.recycler = recycler;
+    public PQSnapshotIdsRequestDeserializer(IRecycler recycler) => this.recycler = recycler;
 
 
     public override unsafe PQSnapshotIdsRequest? Deserialize(ISerdeContext readContext)

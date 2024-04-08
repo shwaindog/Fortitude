@@ -41,7 +41,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
 
     public override PQLevel0Quote Deserialize(ISerdeContext readContext)
     {
-        if (readContext is IBufferContext bufferContext)
+        if (readContext is IMessageBufferContext bufferContext)
         {
             if (bufferContext is SocketBufferReadContext dispachContext)
             {

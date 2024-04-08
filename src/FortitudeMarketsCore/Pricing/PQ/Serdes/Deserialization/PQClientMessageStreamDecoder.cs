@@ -7,6 +7,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
 
@@ -14,6 +15,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 public interface IPQClientMessageStreamDecoder : IMessageStreamDecoder
 {
+    new IConversationDeserializationRepository MessageDeserializationRepository { get; }
+
     event Action? ReceivedMessage;
     event Action? ReceivedData;
 }
@@ -24,12 +27,12 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
     private readonly PQQuoteTransmissionHeader msgHeader;
-    private PQBinaryMessageFlags messageFlags;
+    private uint messageId;
     private MessageSection messageSection;
 
     private uint messagesTotalSize;
 
-    public PQClientMessageStreamDecoder(IMessageDeserializationRepository messageDeserializationRepository, PQFeedType feed)
+    public PQClientMessageStreamDecoder(IConversationDeserializationRepository messageDeserializationRepository, PQFeedType feed)
     {
         MessageDeserializationRepository = messageDeserializationRepository;
         messageSection = MessageSection.TransmissionHeader;
@@ -40,60 +43,38 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
 
     public int ExpectedSize { get; private set; }
 
-    public IMessageDeserializationRepository MessageDeserializationRepository { get; }
+    public IConversationDeserializationRepository MessageDeserializationRepository { get; }
+
+    IMessageDeserializationRepository IMessageStreamDecoder.MessageDeserializationRepository => MessageDeserializationRepository;
+
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
+        var readCursor = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
         socketBufferReadContext.MessageHeader = msgHeader;
-        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - read)
+        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - readCursor)
             switch (messageSection)
             {
                 case MessageSection.TransmissionHeader:
                     fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
-                        var ptr = fptr + read;
+                        var ptr = fptr + readCursor;
                         socketBufferReadContext.MessageVersion = *ptr++;
-                        messageFlags = (PQBinaryMessageFlags)(*ptr++);
+                        msgHeader.MessageFlags = (PQMessageFlags)(*ptr++);
+                        messageId = StreamByteOps.ToUInt(ref ptr);
                         messagesTotalSize = StreamByteOps.ToUInt(ref ptr);
-                        messageSection = (messageFlags & PQBinaryMessageFlags.IsHeartBeat)
-                                         == PQBinaryMessageFlags.IsHeartBeat ?
-                            MessageSection.HeartBeats :
-                            MessageSection.MessageData;
-                        if (messagesTotalSize > 0)
-                            ExpectedSize = (int)messagesTotalSize;
+                        messageSection = MessageSection.MessageData;
+                        if (messagesTotalSize > 0) ExpectedSize = (int)messagesTotalSize;
                     }
 
-                    break;
-                case MessageSection.HeartBeats:
-                    fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
-                    {
-                        var ptr = fptr + read + PQQuoteMessageHeader.SourceTickerIdOffset;
-                        var sourceTickerId = StreamByteOps.ToUInt(ref ptr);
-                        if (MessageDeserializationRepository.TryGetDeserializer(sourceTickerId, out var bu))
-                        {
-                            socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-                            bu!.Deserialize(socketBufferReadContext);
-                            ReceivedMessage?.Invoke();
-                        }
-                        else
-                        {
-                            ReceivedData?.Invoke();
-                        }
-                    }
-
-                    read += ExpectedSize;
-                    ExpectedSize = PQQuoteMessageHeader.HeaderSize;
-                    messageSection = MessageSection.TransmissionHeader;
                     break;
                 case MessageSection.MessageData:
-                    socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-                    var streamId = socketBufferReadContext.ReadCurrentMessageSourceTickerId();
-                    socketBufferReadContext.MessageSize = ExpectedSize;
-                    if (MessageDeserializationRepository.TryGetDeserializer(streamId, out var u))
+                    if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var bu))
                     {
-                        u!.Deserialize(socketBufferReadContext);
+                        socketBufferReadContext.MessageSize = (int)messagesTotalSize;
+                        socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor + PQQuoteMessageHeader.HeaderSize;
+                        bu!.Deserialize(socketBufferReadContext);
                         ReceivedMessage?.Invoke();
                     }
                     else
@@ -101,7 +82,7 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
                         ReceivedData?.Invoke();
                     }
 
-                    read += ExpectedSize;
+                    readCursor += ExpectedSize;
                     ExpectedSize = PQQuoteMessageHeader.HeaderSize;
                     messageSection = MessageSection.TransmissionHeader;
                     break;
@@ -111,14 +92,14 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
         {
             Logger.Error($"The value to read from the socket {ExpectedSize:N0}B is larger than any PQ message is " +
                          "expected to be.  Resetting socket read location as it is probably corrupt.");
-            read = socketBufferReadContext.EncodedBuffer.WriteCursor;
+            readCursor = socketBufferReadContext.EncodedBuffer.WriteCursor;
             messageSection = MessageSection.TransmissionHeader;
             ExpectedSize = PQQuoteMessageHeader.HeaderSize;
         }
 
-        var amountRead = read - originalRead;
+        var amountRead = readCursor - originalRead;
 
-        socketBufferReadContext.EncodedBuffer.ReadCursor = read;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
         return amountRead;
     }
 
@@ -128,7 +109,6 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
     private enum MessageSection
     {
         TransmissionHeader
-        , HeartBeats
         , MessageData
     }
 }

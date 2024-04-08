@@ -44,8 +44,16 @@ public abstract class Topic : ITopic
     {
         private readonly IList<IPublisherTransportTopicConversation> publisherTransportSessions;
 
-        public PublisherConversationPublisher(IList<IPublisherTransportTopicConversation> publisherTransportSessions) =>
+        public PublisherConversationPublisher(IList<IPublisherTransportTopicConversation> publisherTransportSessions)
+        {
+            Error += (_, _) => { };
+            Started += () => { };
+            Stopped += () => { };
+            Error?.Invoke("To hide complier warnings", 0);
+            Started?.Invoke();
+            Stopped?.Invoke();
             this.publisherTransportSessions = publisherTransportSessions;
+        }
 
         public void Send(IVersionedMessage message)
         {
