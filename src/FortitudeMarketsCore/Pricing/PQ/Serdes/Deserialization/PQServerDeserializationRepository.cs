@@ -2,25 +2,28 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarketsCore.Pricing.PQ.Publication;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQServerMessageStreamDecodedFactory : IMessageStreamDecoderFactory
-{
-    new IPQServerMessageStreamDecoder Supply();
-}
+public interface IPQServerDeserializationRepository : IConversationDeserializationRepository, IMessageStreamDecoderFactory { }
 
-public interface IPQServerDeserializationRepository : IMessageDeserializationRepository, IPQServerMessageStreamDecodedFactory { }
-
-public sealed class PQServerDeserializationRepository(IRecycler recycler
-        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null)
-    : FactoryDeserializationRepository(recycler, cascadingFallbackDeserializationRepo), IPQServerDeserializationRepository
+public sealed class PQServerDeserializationRepository : ConversationDeserializationRepository, IPQServerDeserializationRepository
 {
+    public PQServerDeserializationRepository(IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
+        base(recycler, cascadingFallbackDeserializationRepo) { }
+
     public override IPQServerMessageStreamDecoder Supply() => new PQServerMessageStreamDecoder(this);
 
-    protected override INotifyingMessageDeserializer<TM>? SourceMessageDeserializer<TM>(uint msgId) =>
-        throw new NotImplementedException("No Server Deserializers are required");
+    protected override IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId)
+    {
+        switch (msgId)
+        {
+            case (uint)PQMessageIds.SnapshotIdsRequest: return new SnapshotIdsDeserializer(Recycler);
+        }
+
+        return null;
+    }
 }

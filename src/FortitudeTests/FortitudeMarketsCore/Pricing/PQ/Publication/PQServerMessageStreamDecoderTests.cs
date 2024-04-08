@@ -1,14 +1,16 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsCore.Pricing.PQ.Publication;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
 
 #endregion
@@ -20,14 +22,14 @@ public class PQServerMessageStreamDecoderTests
 {
     private const int BufferReadWriteOffset = 5;
 
-    private Action<IConversationRequester, uint[]> deserializerCallBack = null!;
-    private IConversationRequester? lastReceivedConversation;
+    private Action<PQSnapshotIdsRequest, object, IConversation> deserializerCallBack = null!;
+    private IConversation? lastReceivedConversation;
 
-    private uint[] lastReceivedSnapshotRequestIds = null!;
+    private List<uint> lastReceivedSnapshotRequestIds = null!;
     private Mock<IConversation> moqConversation = null!;
     private Mock<IMessageDeserializationRepository> moqDeserializationRepo = null!;
     private Mock<ISocketConversation> moqSocketConversation = null!;
-    private Mock<IConversationRequester> moqSocketConversationRequester = null!;
+    private Mock<IConversation> moqSocketConversationRequester = null!;
 
     private Mock<ISocketSessionContext> moqSocketSessionConnection = null!;
     private PQServerMessageStreamDecoder pqServerMessageStreamDecoder = null!;
@@ -39,34 +41,36 @@ public class PQServerMessageStreamDecoderTests
     public void SetUp()
     {
         moqSocketSessionConnection = new Mock<ISocketSessionContext>();
-        moqSocketConversationRequester = new Mock<IConversationRequester>();
+        moqSocketConversationRequester = new Mock<IConversation>();
         moqConversation = new Mock<IConversation>();
         moqDeserializationRepo = new Mock<IMessageDeserializationRepository>();
         moqSocketConversation = moqSocketConversationRequester.As<ISocketConversation>();
         moqSocketSessionConnection.SetupGet(x => x.OwningConversation).Returns(moqSocketConversation.Object);
+
         readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
         socketBufferReadContext = new SocketBufferReadContext
         {
             EncodedBuffer = readWriteBuffer, Conversation = moqSocketConversation.Object
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset;
 
-        deserializerCallBack = (ssc, rsi) =>
+        deserializerCallBack = (snapshotIdsReq, header, conversation) =>
         {
-            lastReceivedConversation = ssc;
-            lastReceivedSnapshotRequestIds = rsi;
+            lastReceivedConversation = conversation;
+            lastReceivedSnapshotRequestIds = snapshotIdsReq.RequestSourceTickerIds;
         };
 
         pqSnapshotIdsRequestSerializer = new PQSnapshotIdsRequestSerializer();
 
-        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(moqDeserializationRepo.Object);
-        pqServerMessageStreamDecoder.SnapshotRequestIds += deserializerCallBack;
+        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(new PQServerDeserializationRepository(new Recycler()));
+        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(deserializerCallBack);
     }
 
     [TestMethod]
     public void NewServerDecoder_New_PropertiesInitializedAsExpected()
     {
-        Assert.AreEqual(6, pqServerMessageStreamDecoder.ExpectedSize);
+        Assert.AreEqual(8, pqServerMessageStreamDecoder.ExpectedSize);
     }
 
     [TestMethod]
@@ -74,9 +78,8 @@ public class PQServerMessageStreamDecoderTests
     {
         uint[] expectedIdsToReceive = { 0, 77, 95, 23, 11, 51 };
         var snapshotIdsRequest = new PQSnapshotIdsRequest(expectedIdsToReceive);
-        var amtWritten = pqSnapshotIdsRequestSerializer.Serialize(readWriteBuffer.Buffer,
-            BufferReadWriteOffset, snapshotIdsRequest);
-        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
+        pqSnapshotIdsRequestSerializer.Serialize(snapshotIdsRequest, (ISerdeContext)socketBufferReadContext);
+        var amtWritten = socketBufferReadContext.LastWriteLength;
 
         pqServerMessageStreamDecoder.Process(socketBufferReadContext);
 

@@ -11,6 +11,7 @@ using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 #endregion
@@ -169,9 +170,9 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         IsStarted = false;
     }
 
-    private void OnSnapshotContextRequest(IConversationRequester cx, uint[] streamIDs)
+    private void OnSnapshotContextRequest(IConversationRequester cx, PQSnapshotIdsRequest snapshotIdsRequest)
     {
-        foreach (var streamId in streamIDs)
+        foreach (var streamId in snapshotIdsRequest.RequestSourceTickerIds)
             if (entities.TryGetValue(streamId, out var ent))
                 cx.Send(ent!);
     }

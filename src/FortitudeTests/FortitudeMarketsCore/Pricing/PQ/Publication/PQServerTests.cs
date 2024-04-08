@@ -13,7 +13,7 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsCore.Pricing.PQ;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
@@ -471,7 +471,7 @@ public class PQServerTests
         pqServer.Register(TestTicker3);
 
         moqSnapshotService.Raise(sss => sss.OnSnapshotRequest += null, moqConvoRequester.Object
-            , new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id });
+            , new PQSnapshotIdsRequest(new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id }));
 
         moqConvoRequester.Verify();
     }

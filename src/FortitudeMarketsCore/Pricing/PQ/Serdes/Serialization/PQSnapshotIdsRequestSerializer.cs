@@ -6,7 +6,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 #endregion
 
@@ -43,17 +43,18 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
     public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
     {
         var ids = ((IPQSnapshotIdsRequest)message).RequestSourceTickerIds;
-        if (ids != null && FixedSize + ids.Length * sizeof(uint) <= buffer.Length - writeOffset)
+        if (ids != null && FixedSize + ids.Count * sizeof(uint) <= buffer.Length - writeOffset)
             fixed (byte* bufStrt = buffer)
             {
                 var writeStart = bufStrt + writeOffset;
                 var currPtr = writeStart;
                 *currPtr++ = message.Version;
                 *currPtr++ = 0; // header flags
+                StreamByteOps.ToBytes(ref currPtr, message.MessageId);
                 var messageSize = currPtr;
                 currPtr += OrxConstants.UInt16Sz;
-                StreamByteOps.ToBytes(ref currPtr, (ushort)ids.Length);
-                for (var i = 0; i < ids.Length; i++) StreamByteOps.ToBytes(ref currPtr, ids[i]);
+                StreamByteOps.ToBytes(ref currPtr, (ushort)ids.Count);
+                for (var i = 0; i < ids.Count; i++) StreamByteOps.ToBytes(ref currPtr, ids[i]);
 
                 var amtWritten = currPtr - writeStart;
                 StreamByteOps.ToBytes(ref messageSize, (ushort)amtWritten);
