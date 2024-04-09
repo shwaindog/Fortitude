@@ -45,7 +45,7 @@ public class PQSnapshotIdsRequestSerializerTests
             Assert.AreEqual((byte)0, messageFlags);
             var messageId = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(snapshotIdsMessage.MessageId, messageId);
-            var messagesTotalSize = StreamByteOps.ToUShort(ref currPtr);
+            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual((uint)amtWritten, messagesTotalSize);
             var numberOfIds = StreamByteOps.ToUShort(ref currPtr);
             Assert.AreEqual(expectedIdsToReceive.Length, numberOfIds);

@@ -9,10 +9,11 @@ namespace FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
 
 public class EventContextPublishRegistration
 {
-    public EventContextPublishRegistration(IEventContext eventContext, AddRemoveCommand addRemoveCommand)
+    public EventContextPublishRegistration(IEventContext eventContext, AddRemoveCommand addRemoveCommand, string requestedFullTopicAddress)
     {
         EventContext = eventContext;
         AddRemoveCommand = addRemoveCommand;
+        FullTopicAddress = requestedFullTopicAddress;
     }
 
     public IEventContext EventContext { get; }

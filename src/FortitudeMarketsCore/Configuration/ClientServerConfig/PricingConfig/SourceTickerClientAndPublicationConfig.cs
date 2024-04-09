@@ -52,10 +52,9 @@ public class SourceTickerClientAndPublicationConfig : SourceTickerPublicationCon
 
     public override object Clone() => new SourceTickerClientAndPublicationConfig(this);
 
-    ISourceTickerClientAndPublicationConfig ISourceTickerClientAndPublicationConfig.Clone() =>
-        (ISourceTickerClientAndPublicationConfig)Clone();
+    ISourceTickerClientAndPublicationConfig ISourceTickerClientAndPublicationConfig.Clone() => (ISourceTickerClientAndPublicationConfig)Clone();
 
-    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    public override bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
     {
         if (!(other is ISourceTickerClientAndPublicationConfig srcTkrClientAndPubConfig)) return false;
 
@@ -64,6 +63,13 @@ public class SourceTickerClientAndPublicationConfig : SourceTickerPublicationCon
         var allowUpdatesCatchupSame = AllowUpdatesCatchup == srcTkrClientAndPubConfig.AllowUpdatesCatchup;
 
         return baseSame && syncRetrySame && allowUpdatesCatchupSame;
+    }
+
+
+    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    {
+        if (!(other is ISourceTickerClientAndPublicationConfig srcTkrClientAndPubConfig)) return false;
+        return AreEquivalent(srcTkrClientAndPubConfig, exactTypes);
     }
 
     public override bool Equals(object? obj)

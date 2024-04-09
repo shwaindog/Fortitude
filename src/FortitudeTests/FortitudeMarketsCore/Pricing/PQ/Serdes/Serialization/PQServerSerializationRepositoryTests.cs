@@ -2,9 +2,8 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarketsCore.Pricing.PQ;
-using FortitudeMarketsCore.Pricing.PQ.Publication;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
@@ -26,11 +25,16 @@ public class PQServerSerializationRepositoryTests
     public void NewSerializationFactory_GetSerializer_ReturnsAppropriateSerializerForMessageType()
     {
         snapshotServerSerializationRepository.RegisterSerializer<PQLevel0Quote>();
-        var quoteSerializer = snapshotServerSerializationRepository.GetSerializer(0);
+        var quoteSerializer = snapshotServerSerializationRepository.GetSerializer((uint)PQMessageIds.Quote);
         Assert.IsInstanceOfType(quoteSerializer, typeof(PQQuoteSerializer));
 
         snapshotServerSerializationRepository.RegisterSerializer<PQHeartBeatQuotesMessage>();
-        var heartBeatSerializer = snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>(1);
+        var heartBeatSerializer = snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>((uint)PQMessageIds.HeartBeat);
         Assert.IsInstanceOfType(heartBeatSerializer, typeof(PQHeartbeatSerializer));
+
+        snapshotServerSerializationRepository.RegisterSerializer<PQSourceTickerInfoResponse>();
+        var sourceTickerInfoResponseSerializer
+            = snapshotServerSerializationRepository.GetSerializer<PQSourceTickerInfoResponse>((uint)PQMessageIds.SourceTickerInfoResponse);
+        Assert.IsInstanceOfType(sourceTickerInfoResponseSerializer, typeof(PQSourceTickerInfoResponseSerializer));
     }
 }

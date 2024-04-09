@@ -10,6 +10,8 @@ public interface IUniqueSourceTickerIdentifier : ICloneable<IUniqueSourceTickerI
     IInterfacesComparable<IUniqueSourceTickerIdentifier>
 {
     uint Id { get; }
+    ushort SourceId { get; }
+    ushort TickerId { get; }
     string Source { get; }
     string Ticker { get; }
 }

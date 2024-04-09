@@ -6,7 +6,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.Publication;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 #endregion
@@ -54,16 +54,13 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
                     foreach (var quote in quotes)
                     {
                         *ptr++ = message.Version;
-                        *ptr++ = (byte)PQBinaryMessageFlags.IsHeartBeat;
-
+                        *ptr++ = (byte)PQMessageFlags.None;
+                        StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.Id);
                         var messageSize = ptr;
                         ptr += sizeof(uint);
-
-                        if (ptr + HeartbeatSize > end) return -1;
                         quote.Lock.Acquire();
                         try
                         {
-                            StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.Id);
                             StreamByteOps.ToBytes(ref ptr, unchecked(++quote.PQSequenceId));
                         }
                         finally
@@ -71,8 +68,10 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
                             quote.Lock.Release();
                         }
 
+                        if (ptr + HeartbeatSize > end) return -1;
+
                         StreamByteOps.ToBytes(ref messageSize
-                            , PQQuoteMessageHeader.HeaderSize); // just a heartbeat header
+                            , PQQuoteMessageHeader.HeaderSize + sizeof(uint)); // just a heartbeat header
                     }
 
                 message.DecrementRefCount();

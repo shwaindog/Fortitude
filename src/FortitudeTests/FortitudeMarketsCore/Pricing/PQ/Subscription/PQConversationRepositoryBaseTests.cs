@@ -152,8 +152,19 @@ public class PQConversationRepositoryBaseTests
 
     public class DummyConversationSubscriber : IConversationSubscriber
     {
+        public DummyConversationSubscriber()
+        {
+            Error += (_, _) => { };
+            Started += () => { };
+            Stopped += () => { };
+            Error?.Invoke("To hide complier warnings", 0);
+            Started?.Invoke();
+            Stopped?.Invoke();
+        }
+
         public ConversationType ConversationType { get; set; } = ConversationType.Subscriber;
         public ConversationState ConversationState { get; set; } = ConversationState.New;
+
 
         public int Id { get; } = 0;
         public IConversationSession Session { get; } = null!;

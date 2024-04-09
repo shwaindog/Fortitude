@@ -10,21 +10,7 @@ using FortitudeIO.Conversations;
 
 namespace FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
-public interface IBufferReadContext : IMessageBufferContext
-{
-    DateTime DeserializerTimestamp { get; set; }
-    object? MessageHeader { get; set; }
-}
-
-[TestClassNotRequired]
-public class BufferReadContext : MessageBufferContext, IBufferReadContext
-{
-    public BufferReadContext(IBuffer buffer) : base(buffer) { }
-    public DateTime DeserializerTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
-    public object? MessageHeader { get; set; }
-}
-
-public interface ISocketBufferReadContext : IBufferReadContext
+public interface ISocketBufferReadContext : IMessageBufferContext
 {
     DateTime DetectTimestamp { get; set; }
     DateTime ReceivingTimestamp { get; set; }
@@ -33,7 +19,7 @@ public interface ISocketBufferReadContext : IBufferReadContext
 }
 
 [TestClassNotRequired]
-public class SocketBufferReadContext : BufferReadContext, ISocketBufferReadContext
+public class SocketBufferReadContext : MessageBufferContext, ISocketBufferReadContext
 {
     public SocketBufferReadContext() : base(new ReadWriteBuffer(Array.Empty<byte>())) { }
     public SocketBufferReadContext(IBuffer buffer) : base(buffer) { }

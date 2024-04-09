@@ -104,7 +104,7 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
         });
     }
 
-    public unsafe void UpdateQuote(IBufferContext readContext, T ent, uint sequenceId)
+    public unsafe void UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
         var sockBuffContext = readContext as SocketBufferReadContext;
         ent.ClientReceivedTime = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
@@ -115,18 +115,17 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");
         fixed (byte* fptr = readContext.EncodedBuffer.Buffer)
         {
-            var msgHeader = fptr + offset;
-            var msgSizePtr = msgHeader + PQQuoteMessageHeader.MessageSizeOffset;
-            var msgSize = StreamByteOps.ToUInt(ref msgSizePtr);
-            var end = msgHeader + msgSize;
-            var version = *msgHeader;
+            var msgHeaderEnd = fptr + offset;
+            var msgSize = readContext.MessageSize;
+            var end = msgHeaderEnd + msgSize - PQQuoteMessageHeader.HeaderSize;
+            var version = readContext.MessageVersion;
             if (version < SupportFromVersion || version > SupportToVersion)
             {
                 logger.Warn("Received unsupported message version {0} will skip processing", version);
                 return;
             }
 
-            var ptr = msgHeader + PQQuoteMessageHeader.HeaderSize;
+            var ptr = msgHeaderEnd + sizeof(uint);
 
             while (ptr < end)
             {

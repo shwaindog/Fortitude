@@ -29,12 +29,11 @@ public class SourceTickerPublicationConfig : SourceTickerQuoteInfo, IMutableSour
 
     public override object Clone() => new SourceTickerPublicationConfig(this);
 
-    IMutableSourceTickerPublicationConfig IMutableSourceTickerPublicationConfig.Clone() =>
-        (IMutableSourceTickerPublicationConfig)Clone();
+    IMutableSourceTickerPublicationConfig IMutableSourceTickerPublicationConfig.Clone() => (IMutableSourceTickerPublicationConfig)Clone();
 
     ISourceTickerPublicationConfig ISourceTickerPublicationConfig.Clone() => (ISourceTickerPublicationConfig)Clone();
 
-    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    public override bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
     {
         if (!(other is ISourceTickerPublicationConfig otherSrcTkrId)) return false;
         var baseSame = base.AreEquivalent(other, exactTypes);
@@ -43,8 +42,13 @@ public class SourceTickerPublicationConfig : SourceTickerQuoteInfo, IMutableSour
         return baseSame && mrktPxQtServerSame;
     }
 
-    public override bool Equals(object? obj) =>
-        ReferenceEquals(this, obj) || AreEquivalent(obj as IUniqueSourceTickerIdentifier, true);
+    public override bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
+    {
+        if (!(other is ISourceTickerPublicationConfig otherSrcTkrId)) return false;
+        return AreEquivalent(otherSrcTkrId, exactTypes);
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IUniqueSourceTickerIdentifier, true);
 
     public override int GetHashCode()
     {

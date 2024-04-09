@@ -6,7 +6,6 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
@@ -18,7 +17,7 @@ public interface IPQClientMessageStreamDecoderFactory : IMessageStreamDecoderFac
     new IPQClientMessageStreamDecoder Supply();
 }
 
-public interface IPQClientQuoteDeserializerRepository : IMessageDeserializationRepository, IPQClientMessageStreamDecoderFactory
+public interface IPQClientQuoteDeserializerRepository : IConversationDeserializationRepository, IPQClientMessageStreamDecoderFactory
 {
     new IPQClientMessageStreamDecoder Supply();
 
@@ -30,7 +29,7 @@ public interface IPQClientQuoteDeserializerRepository : IMessageDeserializationR
     bool UnregisterDeserializer(IUniqueSourceTickerIdentifier identifier);
 }
 
-public sealed class PQClientQuoteDeserializerRepository : MessageDeserializationRepository, IPQClientQuoteDeserializerRepository
+public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializationRepository, IPQClientQuoteDeserializerRepository
 {
     private readonly PQFeedType feedType;
 
@@ -38,33 +37,9 @@ public sealed class PQClientQuoteDeserializerRepository : MessageDeserialization
         , IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(recycler, fallbackCoalasingDeserializer) =>
         feedType = feed;
 
-    public IPQClientMessageStreamDecoder Supply() => new PQClientMessageStreamDecoder(this, feedType);
+    public override IPQClientMessageStreamDecoder Supply() => new PQClientMessageStreamDecoder(this, feedType);
 
     IMessageStreamDecoder IMessageStreamDecoderFactory.Supply() => Supply();
-
-    public override bool RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
-    {
-        if (messageDeserializer == null) return false;
-        var instanceOfTypeToSerialize = Recycler.Borrow<TM>();
-        var msgId = instanceOfTypeToSerialize.MessageId;
-        if (!RegisteredDeserializers.TryGetValue(msgId, out var existingMessageDeserializer))
-        {
-            if (CascadingFallbackDeserializationRepo == null ||
-                !CascadingFallbackDeserializationRepo.IsRegisteredWithType<INotifyingMessageDeserializer<TM>, TM>(msgId))
-            {
-                RegisteredDeserializers.Add(msgId, messageDeserializer);
-                return true;
-            }
-
-            return CascadingFallbackDeserializationRepo.IsRegistered(msgId);
-        }
-
-        if (existingMessageDeserializer as INotifyingMessageDeserializer<TM> == null)
-            throw new Exception("Two different message types cannot be registered to the same Id");
-
-        RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
-        return true;
-    }
 
     public IPQDeserializer CreateQuoteDeserializer<T>(ISourceTickerClientAndPublicationConfig streamPubConfig) where T : PQLevel0Quote, new()
     {
@@ -79,20 +54,13 @@ public sealed class PQClientQuoteDeserializerRepository : MessageDeserialization
             CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.Id) as IPQDeserializer;
 
     public bool UnregisterDeserializer(IUniqueSourceTickerIdentifier identifier) => UnregisterDeserializer(identifier.Id);
-}
 
-public sealed class PQClientQuoteSerializerRepository :
-    FactorySerializationRepository
-{
-    public PQClientQuoteSerializerRepository(IRecycler recycler, IMessageSerializationRepository? fallbackCoalasingDeserializer = null) : base(
-        recycler, fallbackCoalasingDeserializer)
+    protected override IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId)
     {
-        RegisterSerializer<PQSnapshotIdsRequest>();
-    }
-
-    protected override IMessageSerializer? SourceMessageSerializer<TM>(uint msgId)
-    {
-        if (typeof(TM) == typeof(PQSnapshotIdsRequest)) return new PQSnapshotIdsRequestSerializer();
-        throw new NotSupportedException();
+        return msgId switch
+        {
+            (uint)PQMessageIds.SourceTickerInfoResponse => new PQSourceTickerInfoResponseDeserializer(Recycler)
+            , _ => null
+        };
     }
 }

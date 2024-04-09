@@ -1,10 +1,11 @@
 ﻿#region
 
 using FortitudeCommon.Types;
+using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 [TestClassNotRequired]
 internal class PQQuoteTransmissionHeader
@@ -17,4 +18,6 @@ internal class PQQuoteTransmissionHeader
         Origin = origin;
         SequenceId = 0;
     }
+
+    public PQMessageFlags MessageFlags { get; set; }
 }

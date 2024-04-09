@@ -15,7 +15,7 @@ public interface IPQQuoteDeserializer<T> : IPQDeserializer<T> where T : PQLevel0
     bool AllowUpdatesCatchup { get; }
     uint SyncRetryMs { get; }
 
-    void UpdateQuote(IBufferContext readContext, T ent, uint sequenceId);
+    void UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId);
 
     void PushQuoteToSubscribers(PQSyncStatus syncStatus,
         IPerfLogger? detectionToPublishLatencyTraceLogger = null);

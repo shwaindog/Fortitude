@@ -15,17 +15,16 @@ using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 [TestClass]
 public class PQServerMessageStreamDecoderTests
 {
     private const int BufferReadWriteOffset = 5;
-
-    private Action<PQSnapshotIdsRequest, object, IConversation> deserializerCallBack = null!;
     private IConversation? lastReceivedConversation;
 
     private List<uint> lastReceivedSnapshotRequestIds = null!;
+    private PQSourceTickerInfoRequest? lastReceivedSourceTickerInfoRequest = null;
     private Mock<IConversation> moqConversation = null!;
     private Mock<IMessageDeserializationRepository> moqDeserializationRepo = null!;
     private Mock<ISocketConversation> moqSocketConversation = null!;
@@ -34,8 +33,13 @@ public class PQServerMessageStreamDecoderTests
     private Mock<ISocketSessionContext> moqSocketSessionConnection = null!;
     private PQServerMessageStreamDecoder pqServerMessageStreamDecoder = null!;
     private PQSnapshotIdsRequestSerializer pqSnapshotIdsRequestSerializer = null!;
+    private PQSourceTickerInfoRequestSerializer pqSourceTickerInfoRequestSerializer = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
+
+
+    private Action<PQSnapshotIdsRequest, object?, IConversation?> snapshotIdsResponseCallBack = null!;
     private SocketBufferReadContext socketBufferReadContext = null!;
+    private Action<PQSourceTickerInfoRequest, object?, IConversation?> sourceTickerInfoResponseCallBack = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -55,22 +59,29 @@ public class PQServerMessageStreamDecoderTests
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
         readWriteBuffer.WriteCursor = BufferReadWriteOffset;
 
-        deserializerCallBack = (snapshotIdsReq, header, conversation) =>
+        snapshotIdsResponseCallBack = (snapshotIdsReq, header, conversation) =>
         {
             lastReceivedConversation = conversation;
             lastReceivedSnapshotRequestIds = snapshotIdsReq.RequestSourceTickerIds;
         };
+        sourceTickerInfoResponseCallBack = (srcTkrInfoRequest, header, conversation) =>
+        {
+            lastReceivedConversation = conversation;
+            lastReceivedSourceTickerInfoRequest = srcTkrInfoRequest;
+        };
 
         pqSnapshotIdsRequestSerializer = new PQSnapshotIdsRequestSerializer();
+        pqSourceTickerInfoRequestSerializer = new PQSourceTickerInfoRequestSerializer();
 
         pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(new PQServerDeserializationRepository(new Recycler()));
-        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(deserializerCallBack);
+        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(snapshotIdsResponseCallBack);
+        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(sourceTickerInfoResponseCallBack);
     }
 
     [TestMethod]
     public void NewServerDecoder_New_PropertiesInitializedAsExpected()
     {
-        Assert.AreEqual(8, pqServerMessageStreamDecoder.ExpectedSize);
+        Assert.AreEqual(10, pqServerMessageStreamDecoder.ExpectedSize);
     }
 
     [TestMethod]
@@ -89,14 +100,39 @@ public class PQServerMessageStreamDecoderTests
 
         uint[] nextExpectedIdsToReceive = { 0, 77, 71, 51, 97, 98 };
         snapshotIdsRequest = new PQSnapshotIdsRequest(nextExpectedIdsToReceive);
-        amtWritten = pqSnapshotIdsRequestSerializer.Serialize(readWriteBuffer.Buffer,
-            readWriteBuffer.WriteCursor, snapshotIdsRequest);
-        readWriteBuffer.WriteCursor = readWriteBuffer.WriteCursor + amtWritten;
+        pqSnapshotIdsRequestSerializer.Serialize(snapshotIdsRequest, (ISerdeContext)socketBufferReadContext);
+        amtWritten = socketBufferReadContext.LastWriteLength;
         lastReceivedConversation = null;
 
         pqServerMessageStreamDecoder.Process(socketBufferReadContext);
 
         Assert.IsTrue(lastReceivedSnapshotRequestIds.SequenceEqual(nextExpectedIdsToReceive));
+        Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
+    }
+
+    [TestMethod]
+    public void TwoSourceTickerInfoRequests_ProcessTwice_DecodesStreamAndCompletes()
+    {
+        lastReceivedSourceTickerInfoRequest = null;
+        var sourceTickerInfoRequest = new PQSourceTickerInfoRequest();
+        pqSourceTickerInfoRequestSerializer.Serialize(sourceTickerInfoRequest, (ISerdeContext)socketBufferReadContext);
+        var amtWritten = socketBufferReadContext.LastWriteLength;
+
+        pqServerMessageStreamDecoder.Process(socketBufferReadContext);
+
+        Assert.IsNotNull(lastReceivedSourceTickerInfoRequest);
+        Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
+        Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
+
+        pqSourceTickerInfoRequestSerializer.Serialize(sourceTickerInfoRequest, (ISerdeContext)socketBufferReadContext);
+        amtWritten = socketBufferReadContext.LastWriteLength;
+        lastReceivedConversation = null;
+        lastReceivedSourceTickerInfoRequest = null;
+
+        pqServerMessageStreamDecoder.Process(socketBufferReadContext);
+
+        Assert.IsNotNull(lastReceivedSourceTickerInfoRequest);
         Assert.AreSame(moqSocketConversationRequester.Object, lastReceivedConversation);
         Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
     }

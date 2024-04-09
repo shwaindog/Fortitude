@@ -7,8 +7,8 @@ using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
 #endregion
@@ -66,14 +66,19 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
                 , ReceivingTimestamp = RecevingTimestampBaseTime(sequenceIdTimeSpan)
                 , EncodedBuffer = new ReadWriteBuffer(new byte[UDP_DATAGRAM_PAYLOAD_SIZE * 4])
                 , DispatchLatencyLogger = perfLogger
+                , MessageVersion = 1
             };
 
             var amountWritten = quoteSerializer.Serialize(sockBuffContext.EncodedBuffer.Buffer,
                 BufferReadWriteOffset, quote);
             if (amountWritten < 0) throw new Exception("Serializer wrote less than expected to buffer.");
-            sockBuffContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset;
+            sockBuffContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
             sockBuffContext.EncodedBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
-            sockBuffContext.MessageHeader = new PQQuoteTransmissionHeader(feedType) { SequenceId = sequenceId };
+            sockBuffContext.MessageHeader = new PQQuoteTransmissionHeader(feedType)
+            {
+                SequenceId = sequenceId
+                , MessageFlags = feedType == PQFeedType.Snapshot ? PQMessageFlags.PublishAll | PQMessageFlags.IsQuote : PQMessageFlags.IsQuote
+            };
             sockBuffContext.MessageSize = amountWritten;
             sockBuffContext.LastWriteLength = amountWritten;
             deserializeContexts.Add(sockBuffContext);

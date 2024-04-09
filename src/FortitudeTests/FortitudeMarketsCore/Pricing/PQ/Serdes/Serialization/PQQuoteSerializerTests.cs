@@ -215,7 +215,8 @@ public class PQQuoteSerializerTests
             {
                 EncodedBuffer = readWriteBuffer
                 , DispatchLatencyLogger = new PerfLogger("test", TimeSpan.FromSeconds(2), "")
-                , DetectTimestamp = pqQuote.ClientReceivedTime, ReceivingTimestamp = pqQuote.SocketReceivingTime
+                , DetectTimestamp = pqQuote.ClientReceivedTime
+                , ReceivingTimestamp = pqQuote.SocketReceivingTime
                 , DeserializerTimestamp = frozenDateTime
             };
             var bytesConsumed = pqClientMessageStreamDecoder.Process(sockBuffContext);
@@ -275,13 +276,12 @@ public class PQQuoteSerializerTests
             var messageFlags = *currPtr++;
             var extendedFields = (originalQuote.SourceTickerQuoteInfo!.LayerFlags & LayerFlags.ValueDate) > 0;
 
-            Assert.AreEqual((byte)(PQBinaryMessageFlags.ContainsStringUpdate |
-                                   (isSnapshot ? PQBinaryMessageFlags.PublishAll : 0) |
-                                   (extendedFields ? PQBinaryMessageFlags.ExtendedFieldId : 0)), messageFlags);
-            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual((uint)amtWritten, messagesTotalSize);
+            Assert.AreEqual((byte)(PQMessageFlags.IsQuote |
+                                   (isSnapshot ? PQMessageFlags.PublishAll : 0)), messageFlags);
             var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(originalQuote.SourceTickerQuoteInfo.Id, sourceTickerId);
+            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual((uint)amtWritten, messagesTotalSize);
             var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(level0Quote.PQSequenceId, sequenceNumber);
             foreach (var fieldUpdate in expectedFieldUpdates)

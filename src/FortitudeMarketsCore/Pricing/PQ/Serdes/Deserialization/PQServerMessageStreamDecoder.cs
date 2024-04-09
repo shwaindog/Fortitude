@@ -15,7 +15,7 @@ public interface IPQServerMessageStreamDecoder : IMessageStreamDecoder
 
 public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 {
-    private const int HeaderSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(ushort);
+    private const int HeaderSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(uint);
     private MessageSection messageSection;
 
     public PQServerMessageStreamDecoder(IConversationDeserializationRepository messageDeserializationRepository)
@@ -46,11 +46,11 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
                         socketBufferReadContext.MessageVersion = *ptr++;
                         flags = *ptr++;
                         messageId = StreamByteOps.ToUInt(ref ptr);
-                        socketBufferReadContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
+                        socketBufferReadContext.MessageSize = (int)StreamByteOps.ToUInt(ref ptr);
                     }
 
                     readCursor += HeaderSize;
-                    if (socketBufferReadContext.MessageSize - HeaderSize > 0)
+                    if (socketBufferReadContext.MessageSize - HeaderSize >= 0)
                     {
                         messageSection = MessageSection.Data;
                         ExpectedSize = socketBufferReadContext.MessageSize - HeaderSize;

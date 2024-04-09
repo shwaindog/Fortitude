@@ -19,7 +19,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
     public SynchronisingState(IPQQuoteDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Synchronising) { }
 
-    protected override void ProcessNextExpectedUpdate(IBufferContext bufferContext, uint sequenceId)
+    protected override void ProcessNextExpectedUpdate(IMessageBufferContext bufferContext, uint sequenceId)
     {
         base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
 
@@ -46,13 +46,13 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
             LinkedDeserializer.Identifier, sequenceId);
     }
 
-    protected override void ProcessUnsyncedUpdateMessage(IBufferContext bufferContext, uint sequenceId)
+    protected override void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
     {
         base.ProcessUnsyncedUpdateMessage(bufferContext, sequenceId);
         SaveMessageToSyncSlot(bufferContext, sequenceId);
     }
 
-    public override void ProcessSnapshot(IBufferContext bufferContext)
+    public override void ProcessSnapshot(IMessageBufferContext bufferContext)
     {
         var prevSeqId = LinkedDeserializer.PublishedQuote.PQSequenceId;
         var currSeqId = bufferContext.ReadCurrentMessageSequenceId();

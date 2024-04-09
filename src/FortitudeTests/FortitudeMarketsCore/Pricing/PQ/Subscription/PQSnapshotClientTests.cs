@@ -269,7 +269,7 @@ public class PQSnapshotClientTests
         {
             EncodedBuffer = new ReadWriteBuffer(new byte[]
             {
-                1, (byte)PQBinaryMessageFlags.IsHeartBeat, 0, 0, 0, 14, 0, 0, 0x4C, 0x7B, 0, 0, 0, 1
+                1, (byte)PQMessageFlags.None, 0, 0, 0x4C, 0x7B, 0, 0, 0, 14, 0, 0, 0, 1
             })
             {
                 WriteCursor = 14

@@ -7,5 +7,9 @@ public static class PQMessage
 
 public enum PQMessageIds : uint
 {
-    SnapshotIdsRequest = PQMessage.PQMessageIdBase + 1
+    Quote = PQMessage.PQMessageIdBase + 1
+    , HeartBeat = PQMessage.PQMessageIdBase + 2
+    , SnapshotIdsRequest = PQMessage.PQMessageIdBase + 3
+    , SourceTickerInfoRequest = PQMessage.PQMessageIdBase + 4
+    , SourceTickerInfoResponse = PQMessage.PQMessageIdBase + 5
 }
