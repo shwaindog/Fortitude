@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Types;
 using FortitudeMarketsCore.Pricing.PQ;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 using Moq;
 

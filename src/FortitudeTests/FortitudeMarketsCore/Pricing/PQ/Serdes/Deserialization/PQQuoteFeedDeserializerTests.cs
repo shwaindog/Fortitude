@@ -8,7 +8,7 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using Moq;

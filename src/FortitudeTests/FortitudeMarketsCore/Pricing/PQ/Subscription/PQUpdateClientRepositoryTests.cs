@@ -9,7 +9,7 @@ using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;

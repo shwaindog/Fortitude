@@ -4,8 +4,8 @@ using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
 
 #endregion
 

@@ -3,7 +3,7 @@
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

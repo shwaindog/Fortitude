@@ -5,7 +5,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.Conflation;
-using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 #endregion
 
@@ -534,8 +534,7 @@ public class PQPeriodSummary : IPQPeriodSummary
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPeriodSummary)source, copyMergeFlags);
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPeriodSummary)source, copyMergeFlags);
 
     public IMutablePeriodSummary Clone() => new PQPeriodSummary(this);
 

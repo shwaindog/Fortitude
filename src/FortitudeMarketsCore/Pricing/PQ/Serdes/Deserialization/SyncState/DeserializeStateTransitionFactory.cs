@@ -1,7 +1,7 @@
 #region
 
 using System.ComponentModel;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

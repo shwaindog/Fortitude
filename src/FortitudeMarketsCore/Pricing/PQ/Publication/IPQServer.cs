@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

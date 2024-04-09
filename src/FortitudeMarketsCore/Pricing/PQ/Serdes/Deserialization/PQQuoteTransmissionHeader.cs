@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 #endregion
 

@@ -2,7 +2,7 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

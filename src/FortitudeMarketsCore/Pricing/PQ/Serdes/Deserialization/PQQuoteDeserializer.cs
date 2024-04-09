@@ -8,7 +8,7 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 #endregion

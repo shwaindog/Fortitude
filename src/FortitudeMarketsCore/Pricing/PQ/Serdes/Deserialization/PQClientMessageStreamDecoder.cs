@@ -5,7 +5,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 

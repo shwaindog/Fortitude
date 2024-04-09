@@ -7,7 +7,7 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.LastTraded;
+using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
 

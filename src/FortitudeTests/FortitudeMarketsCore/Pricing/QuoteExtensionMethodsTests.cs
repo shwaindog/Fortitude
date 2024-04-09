@@ -6,8 +6,8 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Conflation;
-using FortitudeMarketsCore.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion

@@ -7,8 +7,8 @@ using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 #endregion
 
