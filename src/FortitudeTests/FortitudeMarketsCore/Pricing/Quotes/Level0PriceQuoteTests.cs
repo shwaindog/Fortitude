@@ -6,8 +6,8 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 

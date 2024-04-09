@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Protocols;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

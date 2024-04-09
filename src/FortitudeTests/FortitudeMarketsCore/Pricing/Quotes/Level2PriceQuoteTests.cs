@@ -7,13 +7,13 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Conflation;
-using FortitudeMarketsCore.Pricing.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
-using FortitudeTests.FortitudeMarketsCore.Pricing.LayeredBook;
+using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -64,7 +64,8 @@ public class Level2PriceQuoteTests
         sourceQuoteRefSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue,
             "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference, LastTradedFlags.PaidOrGiven |
-            LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+                                                                                    LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                                                                    LastTradedFlags.LastTradedTime);
         traderDetailsSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue,
             "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize |

@@ -9,9 +9,9 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Conflation;
-using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
 #endregion

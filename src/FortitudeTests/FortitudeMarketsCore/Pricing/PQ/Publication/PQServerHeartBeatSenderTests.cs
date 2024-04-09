@@ -7,10 +7,9 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
-using FortitudeMarketsCore.Pricing.PQ;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using Moq;
 
 #endregion

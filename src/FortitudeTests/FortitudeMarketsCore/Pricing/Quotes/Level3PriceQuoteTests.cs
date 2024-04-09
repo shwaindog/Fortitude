@@ -8,14 +8,14 @@ using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.Conflation;
-using FortitudeMarketsCore.Pricing.LastTraded;
-using FortitudeMarketsCore.Pricing.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.LastTraded;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
-using FortitudeTests.FortitudeMarketsCore.Pricing.LastTraded;
+using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
+using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
+using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
 

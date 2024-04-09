@@ -8,7 +8,7 @@ using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
 

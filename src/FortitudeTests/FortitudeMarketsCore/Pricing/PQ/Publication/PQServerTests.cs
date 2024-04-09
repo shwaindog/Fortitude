@@ -14,10 +14,10 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
-using FortitudeMarketsCore.Pricing.PQ.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Quotes;
+using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeTests.TestEnvironment;
 using Moq;
 
