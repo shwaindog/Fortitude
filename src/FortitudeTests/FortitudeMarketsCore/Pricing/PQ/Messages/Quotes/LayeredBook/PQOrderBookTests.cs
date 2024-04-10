@@ -2,9 +2,9 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
@@ -108,12 +108,10 @@ public class PQOrderBookTests
             simpleFullyPopulatedOrderBook, sourceFullyPopulatedOrderBook, sourceQtRefFullyPopulatedOrderBook
             , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
         };
-        publicationPrecisionSettings = new PQSourceTickerQuoteInfo(new SourceTickerClientAndPublicationConfig(
-            uint.MaxValue, "TestSource", "TestTicker", MaxNumberOfLayers, 0.00001m, 30000m, 50000000m, 1000m, 1,
+        publicationPrecisionSettings = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(
+            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", MaxNumberOfLayers, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-                                                  LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime
-            , null,
-            250u));
+                                                  LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
     }
 
     [TestMethod]

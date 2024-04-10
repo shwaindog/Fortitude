@@ -3,16 +3,15 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -28,7 +27,7 @@ public class OrderBookTests
     private List<IReadOnlyList<IPriceVolumeLayer>> allPopulatedLayers = null!;
 
     private List<OrderBook> allPopulatedOrderBooks = null!;
-    private IMutableSourceTickerQuoteInfo publicationPrecisionSettings = null!;
+    private ISourceTickerQuoteInfo publicationPrecisionSettings = null!;
 
     private OrderBook simpleFullyPopulatedOrderBook = null!;
     private IList<IPriceVolumeLayer> simpleLayers = null!;
@@ -94,7 +93,7 @@ public class OrderBookTests
             simpleFullyPopulatedOrderBook, sourceFullyPopulatedOrderBook, sourceQtRefFullyPopulatedOrderBook
             , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
         };
-        publicationPrecisionSettings = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource", "TestTicker", 20,
+        publicationPrecisionSettings = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", 20,
             0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven |
                                                                                          LastTradedFlags.TraderName |
                                                                                          LastTradedFlags.LastTradedVolume |

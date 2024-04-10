@@ -3,7 +3,6 @@
 using System.Reactive.Disposables;
 using FortitudeCommon.AsyncProcessing;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
@@ -18,7 +17,7 @@ public class PQTickerFeedSubscriptionQuoteStream<T> : PQTickerFeedSubscription, 
     private Exception? lastException;
     private IList<IObserver<T>>? observers = new List<IObserver<T>>();
 
-    public PQTickerFeedSubscriptionQuoteStream(ISnapshotUpdatePricingServerConfig feedServerConfig,
+    public PQTickerFeedSubscriptionQuoteStream(IPricingServerConfig feedServerConfig,
         ISourceTickerQuoteInfo sourceTickerQuoteInfo, T publishedQuote)
         : base(feedServerConfig, sourceTickerQuoteInfo) =>
         quoteLockLight = publishedQuote.Lock;

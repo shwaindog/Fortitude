@@ -3,12 +3,11 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
@@ -25,9 +24,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 [TestClass]
 public class PQLevel3QuoteTests
 {
-    private readonly bool allowCatchup = true;
-
-    private readonly uint retryWaitMs = 2000;
     private IList<PQLevel3Quote> allEmptyQuotes = null!;
 
     private IList<PQLevel3Quote> allFullyPopulatedQuotes = null!;
@@ -51,29 +47,27 @@ public class PQLevel3QuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        noRecentlyTradedSrcTkrQtInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue, "TestSource",
+        noRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
-            LastTradedFlags.None, null, retryWaitMs, allowCatchup);
-        simpleRecentlyTradedSrcTkrQtInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue, "TestSource",
+            LastTradedFlags.None);
+        simpleRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
-            LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice, null,
-            retryWaitMs, allowCatchup);
-        paidGivenVolumeRecentlyTradedSrcTkrQtInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue,
-            "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice);
+        paidGivenVolumeRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
+            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
             LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
-            LastTradedFlags.LastTradedVolume, null, retryWaitMs, allowCatchup);
-        traderPaidGivenVolumeRecentlyTradedSrcTkrQtInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue,
-            "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            LastTradedFlags.LastTradedVolume);
+        traderPaidGivenVolumeRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
+            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
-            LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.TraderName, null,
-            retryWaitMs, allowCatchup);
+            LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.TraderName);
         noRecentlyTradedEmptyQuote = new PQLevel3Quote(noRecentlyTradedSrcTkrQtInfo) { HasUpdates = false };
         noRecentlyTradedFullyPopulatedQuote = new PQLevel3Quote(noRecentlyTradedSrcTkrQtInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(noRecentlyTradedFullyPopulatedQuote, 9);

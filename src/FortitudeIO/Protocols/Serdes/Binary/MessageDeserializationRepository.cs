@@ -129,7 +129,7 @@ public abstract class FactoryDeserializationRepository : MessageDeserializationR
 
 public interface IConversationDeserializationRepository : IMessageDeserializationRepository
 {
-    bool RegisterDeserializer<TM>(Action<TM, object?, IConversation?>? msgHandler) where TM : class, IVersionedMessage, new();
+    bool RegisterDeserializer<TM>(Action<TM, object?, IConversation?> msgHandler) where TM : class, IVersionedMessage, new();
 }
 
 public abstract class ConversationDeserializationRepository : FactoryDeserializationRepository, IConversationDeserializationRepository
@@ -138,7 +138,7 @@ public abstract class ConversationDeserializationRepository : FactoryDeserializa
         , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
         base(recycler, cascadingFallbackDeserializationRepo) { }
 
-    public bool RegisterDeserializer<T>(Action<T, object?, IConversation?>? msgHandler)
+    public bool RegisterDeserializer<T>(Action<T, object?, IConversation?> msgHandler)
         where T : class, IVersionedMessage, new()
     {
         var instanceOfTypeToDeserialize = Recycler.Borrow<T>();
@@ -148,7 +148,7 @@ public abstract class ConversationDeserializationRepository : FactoryDeserializa
     }
 
     public bool RegisterDeserializer<TM>(uint msgId
-        , Action<TM, object?, IConversation?>? msgHandler)
+        , Action<TM, object?, IConversation?> msgHandler)
         where TM : class, IVersionedMessage, new()
     {
         if (msgHandler == null)

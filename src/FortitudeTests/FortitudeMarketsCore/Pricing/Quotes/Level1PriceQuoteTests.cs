@@ -2,15 +2,14 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -22,14 +21,14 @@ public class Level1PriceQuoteTests
     private Level1PriceQuote emptyQuote = null!;
     private Level1PriceQuote fullyPopulatedLevel1Quote = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private IMutableSourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName

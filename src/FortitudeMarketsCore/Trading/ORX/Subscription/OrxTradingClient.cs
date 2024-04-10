@@ -51,7 +51,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         ILoginCredentials loginCredentials, string defaultAccount, bool forwardAllMessages,
         ITradingFeedWatchdog? tradingFeedWatchdog = null,
         IAlertManager? alertMgr = null, bool cancelOnAmendReject = true)
-        : base(OrxClientMessaging.BuildTcpRequester(tradingServerConfig.ServerConnections!.First(), dispatchResolver)
+        : base(OrxClientMessaging.BuildTcpRequester(tradingServerConfig.TradingServerConnectionConfig, dispatchResolver)
             , serverName, loginCredentials, defaultAccount)
     {
         CancelOnAmendReject = cancelOnAmendReject;

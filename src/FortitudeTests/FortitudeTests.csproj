@@ -32,7 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="FortitudeIO\Configuration\ClientServerConfig\" />
+    <Folder Include="FortitudeMarketsCore\Configuration\ClientServerConfig\PricingConfig\" />
+    <Folder Include="FortitudeMarketsCore\Pricing\Quotes\SourceTickerInfo\" />
   </ItemGroup>
 
   <ItemGroup>

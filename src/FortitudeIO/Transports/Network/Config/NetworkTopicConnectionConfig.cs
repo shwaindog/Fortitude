@@ -43,13 +43,13 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     };
 
     private readonly List<IEndpointConfig> returnedItems = new();
+    private IEndpointConfig? current;
     private List<IEndpointConfig>? endpointConfigs;
     private ISocketReconnectConfig? reconnectConfig;
 
     public NetworkTopicConnectionConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
     {
         foreach (var checkDefault in Defaults) this[checkDefault.Key] ??= checkDefault.Value;
-        Current = null!;
     }
 
     public NetworkTopicConnectionConfig(string topicName, SocketConversationProtocol conversationProtocol
@@ -203,7 +203,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         }
         else
         {
-            var indexOfCurrent = AvailableConnections.IndexOf(Current);
+            var indexOfCurrent = current != null ? AvailableConnections.IndexOf(Current) : 0;
             if (returnedItems.Count > 0) indexOfCurrent++;
             Current = AvailableConnections[indexOfCurrent];
             returnedItems.Add(Current);
@@ -224,7 +224,11 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         returnedItems.Clear();
     }
 
-    public IEndpointConfig Current { get; private set; }
+    public IEndpointConfig Current
+    {
+        get => current ?? throw new Exception("No Endpoint connections available");
+        private set => current = value;
+    }
 
     object ICloneable.Clone() => Clone();
 
@@ -281,17 +285,6 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     {
         var hashCode = new HashCode();
         hashCode.Add(TopicName);
-        hashCode.Add((int)ConversationProtocol);
-        hashCode.Add(AvailableConnections);
-        hashCode.Add(TopicDescription);
-        hashCode.Add(ReceiveBufferSize);
-        hashCode.Add(SendBufferSize);
-        hashCode.Add(NumberOfReceivesPerPoll);
-        hashCode.Add((int)ConnectionAttributes);
-        hashCode.Add((int)ConnectionSelectionOrder);
-        hashCode.Add(ConnectionTimeoutMs);
-        hashCode.Add(ResponseTimeoutMs);
-        hashCode.Add(ReconnectConfig);
         return hashCode.ToHashCode();
     }
 
@@ -301,5 +294,5 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         $"{ReceiveBufferSize}, {nameof(SendBufferSize)}: {SendBufferSize}, {nameof(NumberOfReceivesPerPoll)}: {NumberOfReceivesPerPoll}, " +
         $"{nameof(ConnectionAttributes)}: {ConnectionAttributes}, {nameof(ConnectionSelectionOrder)}: {ConnectionSelectionOrder}, " +
         $"{nameof(ConnectionTimeoutMs)}: {ConnectionTimeoutMs}, {nameof(ResponseTimeoutMs)}: {ResponseTimeoutMs}, {nameof(ReconnectConfig)}: " +
-        $"{ReconnectConfig}, {nameof(Current)}: {Current})";
+        $"{ReconnectConfig}, {nameof(Current)}: {current?.ToString() ?? "null"})";
 }

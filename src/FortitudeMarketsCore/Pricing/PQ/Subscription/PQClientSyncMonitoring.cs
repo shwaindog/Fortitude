@@ -7,8 +7,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Config;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
@@ -32,11 +32,11 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private static IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
-    private readonly Func<string, ISnapshotUpdatePricingServerConfig?> getSourceServerConfig;
+    private readonly Func<string, IMarketConnectionConfig?> getSourceServerConfig;
     private readonly IOSParallelController osParallelController;
 
     private readonly ISequencer pqSeq = new Sequencer();
-    private readonly Action<INetworkTopicConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction;
+    private readonly Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction;
     private readonly IIntraOSThreadSignal stopSignal;
     private readonly IDoublyLinkedList<IPQDeserializer> syncKo = new DoublyLinkedList<IPQDeserializer>();
 
@@ -44,8 +44,8 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private volatile bool tasksActive;
     private IOSThread? tasksThread;
 
-    public PQClientSyncMonitoring(Func<string, ISnapshotUpdatePricingServerConfig?> getSourceServerConfig,
-        Action<INetworkTopicConnectionConfig, List<IUniqueSourceTickerIdentifier>> snapShotRequestAction)
+    public PQClientSyncMonitoring(Func<string, IMarketConnectionConfig?> getSourceServerConfig,
+        Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction)
     {
         osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
         stopSignal = osParallelController.SingleOSThreadActivateSignal(false);
@@ -215,7 +215,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private void FindAndSnapshotKnockedOutTickersReadyForSnapshot()
     {
         IPQDeserializer? firstToResync = null;
-        var deserializersInNeedOfSnapshots = new Dictionary<string, List<IUniqueSourceTickerIdentifier>>();
+        var deserializersInNeedOfSnapshots = new Dictionary<string, List<ISourceTickerQuoteInfo>>();
         for (var count = 0; tasksActive && count < MaxSnapshotBatch; count++)
         {
             IPQDeserializer? pu;
@@ -243,7 +243,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
             if (!deserializersInNeedOfSnapshots.TryGetValue(pu.Identifier.Source,
                     out var pqQuoteDeserializerList))
                 deserializersInNeedOfSnapshots[pu.Identifier.Source] =
-                    pqQuoteDeserializerList = new List<IUniqueSourceTickerIdentifier>();
+                    pqQuoteDeserializerList = new List<ISourceTickerQuoteInfo>();
             if (!pqQuoteDeserializerList.Contains(pu.Identifier))
                 pqQuoteDeserializerList.Add(pu.Identifier);
         }
@@ -252,13 +252,13 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     }
 
     private void RequestSnapshotsForTickers(
-        Dictionary<string, List<IUniqueSourceTickerIdentifier>> deserializersInNeedOfSnapshots)
+        Dictionary<string, List<ISourceTickerQuoteInfo>> deserializersInNeedOfSnapshots)
     {
         foreach (var kv in deserializersInNeedOfSnapshots)
         {
             var feedRef = getSourceServerConfig(kv.Key);
             if (feedRef != null)
-                snapShotRequestAction(feedRef.SnapshotConnectionConfig!, kv.Value);
+                snapShotRequestAction(feedRef.PricingServerConfig!.SnapshotConnectionConfig!, kv.Value);
         }
     }
 }

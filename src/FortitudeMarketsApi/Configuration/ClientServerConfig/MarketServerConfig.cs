@@ -1,194 +1,167 @@
 #region
 
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using FortitudeCommon.Configuration.Availability;
-using FortitudeCommon.EventProcessing;
-using FortitudeCommon.Extensions;
+using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
-using FortitudeIO.Transports.Network.Config;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
+using Microsoft.Extensions.Configuration;
 
 #endregion
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig;
 
-public class MarketServerConfig<T> : IMarketServerConfig<T> where T : class, IMarketServerConfig<T>
+public interface IMarketConnectionConfig : ICloneable<IMarketConnectionConfig>, IInterfacesComparable<IMarketConnectionConfig>
 {
-    private readonly IObservable<IMarketServerConfigUpdate<T>>? repoUpdateStream;
-    private ITimeTable? availabilityTimeTable;
-    protected ISubject<IConnectionUpdate> ConnectionUpdateStream;
-    private MarketServerType marketServerType;
-    private string? name;
-    private IEnumerable<INetworkTopicConnectionConfig>? serverConnections;
-    protected ISubject<IMarketServerConfigUpdate<T>>? UpdateStream;
-    private IDisposable? updateStreamSub;
+    ushort SourceId { get; set; }
+    string Name { get; set; }
+    MarketConnectionType MarketConnectionType { get; set; }
+    ISourceTickersConfig? SourceTickerConfig { get; set; }
+    IPricingServerConfig? PricingServerConfig { get; set; }
+    ITradingServerConfig? TradingServerConfig { get; set; }
 
-    public MarketServerConfig(string name, MarketServerType marketServerType
-        , IEnumerable<INetworkTopicConnectionConfig> serverConnections, ITimeTable? availabilityTimeTable = null,
-        IObservable<IMarketServerConfigUpdate<T>>? repoUpdateStream = null)
+    ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker);
+    IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos();
+    IMarketConnectionConfig ToggleProtocolDirection();
+}
+
+public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
+{
+    private IPricingServerConfig? lastPricingServerConfig;
+    private ITradingServerConfig? lastTradingServerConfig;
+    private ISourceTickersConfig? sourceTickerPublicationConfigs;
+    public MarketConnectionConfig(IConfigurationRoot root, string path) : base(root, path) { }
+    public MarketConnectionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
+
+
+    public MarketConnectionConfig(ushort sourceId, string name, MarketConnectionType marketConnectionType, ISourceTickersConfig sourceTickersConfig
+        , IPricingServerConfig? pricingServerConfig = null, ITradingServerConfig? tradingServerConfig = null) : this()
     {
-        Id = IdGenLong.Next();
-        ConnectionUpdateStream = new Subject<IConnectionUpdate>();
-        this.name = name;
-        this.marketServerType = marketServerType;
-        this.serverConnections = serverConnections;
-        this.availabilityTimeTable = availabilityTimeTable;
-        this.repoUpdateStream = repoUpdateStream;
-        UpdateStream = new Subject<IMarketServerConfigUpdate<T>>();
-        updateStreamSub = repoUpdateStream?.Subscribe(UpdateStream);
-        UpdateStream.Subscribe(ListenForUpdates);
+        SourceId = sourceId;
+        Name = name;
+        MarketConnectionType = marketConnectionType;
+        SourceTickerConfig = sourceTickersConfig;
+        PricingServerConfig = pricingServerConfig;
+        TradingServerConfig = tradingServerConfig;
     }
 
-    public MarketServerConfig(MarketServerConfig<T> toClone, bool toggleProtocolDirection = false)
+    public MarketConnectionConfig(IMarketConnectionConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
-        Id = toClone.Id;
-        ConnectionUpdateStream = new Subject<IConnectionUpdate>();
-        name = toClone.Name;
-        marketServerType = toClone.MarketServerType;
-        serverConnections = toClone.ServerConnections?
-                                .Select(sc => toggleProtocolDirection ? sc.ToggleProtocolDirection() : sc.Clone())
-                                .ToArray()
-                            ?? Array.Empty<INetworkTopicConnectionConfig>();
-        availabilityTimeTable = toClone.AvailabilityTimeTable;
-        repoUpdateStream = toClone.repoUpdateStream;
-        UpdateStream = new Subject<IMarketServerConfigUpdate<T>>();
-        updateStreamSub = repoUpdateStream?.Subscribe(UpdateStream);
-        UpdateStream.Subscribe(ListenForUpdates);
+        SourceId = toClone.SourceId;
+        Name = toClone.Name;
+        MarketConnectionType = toClone.MarketConnectionType;
+        SourceTickerConfig = toClone.SourceTickerConfig;
+        PricingServerConfig = toClone.PricingServerConfig;
+        TradingServerConfig = toClone.TradingServerConfig;
     }
 
-    public long Id { get; }
+    public MarketConnectionConfig(IMarketConnectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public string? Name
+    public ushort SourceId
     {
-        get => name;
-        protected set
+        get => ushort.Parse(this[nameof(SourceId)]!);
+        set => this[nameof(SourceId)] = value.ToString();
+    }
+
+    public string Name
+    {
+        get => this[nameof(Name)]!;
+        set => this[nameof(Name)] = value;
+    }
+
+    public MarketConnectionType MarketConnectionType
+    {
+        get => Enum.Parse<MarketConnectionType>(this[nameof(MarketConnectionType)]!);
+        set => this[nameof(MarketConnectionType)] = value.ToString();
+    }
+
+    public ISourceTickersConfig? SourceTickerConfig
+    {
+        get
         {
-            if (name == value) return;
-            name = value;
-            UpdateStream?.OnNext(new MarketServerConfigUpdate<T>(this as T, EventType.Updated));
+            if (GetSection(nameof(SourceTickerConfig)).GetChildren().Any())
+                return sourceTickerPublicationConfigs ??= new SourceTickersConfig(ConfigRoot, Path + ":" + nameof(SourceTickerConfig));
+            return null;
         }
+        set =>
+            sourceTickerPublicationConfigs
+                = value != null ? new SourceTickersConfig(value, ConfigRoot, Path + ":" + nameof(SourceTickerConfig)) : null;
     }
 
-    public MarketServerType MarketServerType
+    public IPricingServerConfig? PricingServerConfig
     {
-        get => marketServerType;
-        protected set
+        get
         {
-            if (marketServerType == value) return;
-            marketServerType = value;
-            UpdateStream?.OnNext(new MarketServerConfigUpdate<T>(this as T, EventType.Updated));
+            if (GetSection(nameof(PricingServerConfig)).GetChildren().Any())
+                return lastPricingServerConfig = new PricingServerConfig(ConfigRoot, Path + ":" + nameof(PricingServerConfig));
+            return null;
         }
+        set => lastPricingServerConfig = value != null ? new PricingServerConfig(value, ConfigRoot, Path + ":" + nameof(PricingServerConfig)) : null;
     }
 
-    public IEnumerable<INetworkTopicConnectionConfig>? ServerConnections
+    public ITradingServerConfig? TradingServerConfig
     {
-        get => serverConnections;
-        protected set
+        get
         {
-            if (Equals(serverConnections, value)) return;
-            serverConnections = value;
-            UpdateStream?.OnNext(new MarketServerConfigUpdate<T>(this as T, EventType.Updated));
+            if (GetSection(nameof(TradingServerConfig)).GetChildren().Any())
+                return lastTradingServerConfig = new TradingServerConfig(ConfigRoot, Path + ":" + nameof(TradingServerConfig));
+            return null;
         }
+        set => lastTradingServerConfig = value != null ? new TradingServerConfig(value, ConfigRoot, Path + ":" + nameof(TradingServerConfig)) : null;
     }
 
-    public ITimeTable? AvailabilityTimeTable
-    {
-        get => availabilityTimeTable;
-        protected set
-        {
-            if (availabilityTimeTable == value) return;
-            availabilityTimeTable = value;
-            UpdateStream?.OnNext(new MarketServerConfigUpdate<T>(this as T, EventType.Updated));
-        }
-    }
+    public ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker) => SourceTickerConfig?.GetSourceTickerInfo(SourceId, Name, ticker);
 
-    public IObservable<IMarketServerConfigUpdate<T>>? Updates
-    {
-        get => UpdateStream?.AsObservable();
-        set
-        {
-            if (ReferenceEquals(value, UpdateStream)) return;
-            updateStreamSub?.Dispose();
-            if (value != null) updateStreamSub = value.Subscribe(UpdateStream!);
-        }
-    }
+    public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos() =>
+        SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+
+    public IMarketConnectionConfig Clone() => new MarketConnectionConfig(this);
 
     object ICloneable.Clone() => Clone();
 
-    public IMarketServerConfig<T> Clone() => new MarketServerConfig<T>(this, false);
+    public IMarketConnectionConfig ToggleProtocolDirection() =>
+        new MarketConnectionConfig(this)
+        {
+            PricingServerConfig = PricingServerConfig?.ToggleProtocolDirection(), TradingServerConfig = TradingServerConfig?.ToggleProtocolDirection()
+        };
 
-    IMarketServerConfig IMarketServerConfig.ToggleProtocolDirection() => ToggleProtocolDirection();
-
-    public virtual T ToggleProtocolDirection() => (T)(object)new MarketServerConfig<T>(this, true);
-
-    private void ListenForUpdates(IMarketServerConfigUpdate<T> scu)
+    public bool AreEquivalent(IMarketConnectionConfig? other, bool exactTypes = false)
     {
-        if (scu.ServerConfig?.Id != Id) return;
-        if (scu.EventType == EventType.Updated ||
-            scu.EventType == EventType.Retrieved)
-        {
-            name = scu.ServerConfig.Name;
-            marketServerType = scu.ServerConfig.MarketServerType;
-            UpdateConnectionsList(scu.ServerConfig.ServerConnections);
-            availabilityTimeTable = scu.ServerConfig.AvailabilityTimeTable;
-            UpdateFields(scu.ServerConfig);
-        }
-        else if (scu.EventType == EventType.Deleted)
-        {
-            updateStreamSub?.Dispose();
-        }
+        if (other == null) return false;
+        var idSame = SourceId == other.SourceId;
+        var nameSame = string.Equals(Name, other.Name);
+        var serverTypeSame = MarketConnectionType == other.MarketConnectionType;
+        var sourceTickerConfigSame = SourceTickerConfig?.AreEquivalent(other.SourceTickerConfig, exactTypes) ?? other.SourceTickerConfig == null;
+        var pricingServersSame = PricingServerConfig?.AreEquivalent(other.PricingServerConfig, exactTypes) ?? other.PricingServerConfig == null;
+        var tradingServersSame = TradingServerConfig?.AreEquivalent(other.TradingServerConfig, exactTypes) ?? other.TradingServerConfig == null;
 
-        if (ReferenceEquals(this, scu.ServerConfig)) return;
-        UpdateStream?.OnNext(new MarketServerConfigUpdate<T>(this as T, scu.EventType));
+        return idSame && nameSame && serverTypeSame && sourceTickerConfigSame && pricingServersSame && tradingServersSame;
     }
 
-    protected virtual void UpdateFields(T updatedServerConfig) { }
-
-    private void UpdateConnectionsList(IEnumerable<INetworkTopicConnectionConfig>? newConnectionsList)
-    {
-        var originalServerConnection = serverConnections;
-        serverConnections = newConnectionsList?.Select(scc =>
-        {
-            var clonedScc = scc.Clone();
-            return clonedScc;
-        })?.ToList();
-        var diffResults = originalServerConnection?.Diff(serverConnections, scc => scc.TopicName)
-                          ?? new DiffResults<INetworkTopicConnectionConfig>(Array.Empty<INetworkTopicConnectionConfig>()
-                              ,
-                              Array.Empty<INetworkTopicConnectionConfig>()
-                              , Array.Empty<INetworkTopicConnectionConfig>());
-        foreach (var scc in diffResults.NewItems)
-            ConnectionUpdateStream.OnNext(new ConnectionUpdate(scc, EventType.Created));
-        foreach (var scc in diffResults.UpdatedItems)
-            ConnectionUpdateStream.OnNext(new ConnectionUpdate(scc, EventType.Updated));
-        foreach (var scc in diffResults.DeletedItems)
-            ConnectionUpdateStream.OnNext(new ConnectionUpdate(scc, EventType.Deleted));
-    }
-
-    protected bool Equals(MarketServerConfig<T> other) =>
-        string.Equals(name, other.name) && marketServerType == other.marketServerType
-                                        && serverConnections != null && other.ServerConnections != null &&
-                                        serverConnections.SequenceEqual(other.ServerConnections)
-                                        && Equals(availabilityTimeTable, other.availabilityTimeTable) && Id == other.Id;
+    protected bool Equals(IMarketConnectionConfig other) => AreEquivalent(other, true);
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((MarketServerConfig<T>)obj);
+        return Equals((IMarketConnectionConfig)obj);
     }
 
     public override int GetHashCode()
     {
         unchecked
         {
-            var hashCode = name != null ? name.GetHashCode() : 0;
-            hashCode = (hashCode * 397) ^ (int)marketServerType;
-            hashCode = (hashCode * 397) ^ (serverConnections != null ? serverConnections.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (availabilityTimeTable != null ? availabilityTimeTable.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ Id.GetHashCode();
+            var hashCode = (int)SourceId;
+            hashCode = (hashCode * 397) ^ Name.GetHashCode();
+            hashCode = (hashCode * 397) ^ (int)MarketConnectionType;
+            hashCode = (hashCode * 397) ^ SourceId.GetHashCode();
             return hashCode;
         }
     }
+
+    public override string ToString() =>
+        $"{nameof(MarketConnectionConfig)}({nameof(SourceId)}: {SourceId}, {nameof(Name)}: {Name}, " +
+        $"{nameof(MarketConnectionType)}: {MarketConnectionType}, {nameof(SourceTickerConfig)}: {SourceTickerConfig}, " +
+        $"{nameof(PricingServerConfig)}: {PricingServerConfig}, {nameof(TradingServerConfig)}: {TradingServerConfig}, " +
+        $"{nameof(Path)}: {Path})";
 }

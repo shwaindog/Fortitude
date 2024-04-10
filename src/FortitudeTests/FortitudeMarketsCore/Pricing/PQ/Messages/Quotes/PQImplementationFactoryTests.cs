@@ -1,8 +1,8 @@
 ﻿#region
 
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
@@ -12,19 +12,14 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 [TestClass]
 public class PQImplementationFactoryTests
 {
-    private bool allowCatchup = true;
-
-    private uint retryWaitMs = 2000;
-
     [TestMethod]
     public void NewPQImplementationFactory_GetConcreteMapping_GetsConcreateImplementationOfInterface()
     {
-        var sourceTickerQuoteInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue, "TestSource",
+        var sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                                  | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup);
+                                                                  | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         var pqImplementationFactory = new PQImplementationFactory();
 
         var pqLevel0Quote = pqImplementationFactory.GetConcreteMapping<IPQLevel0Quote>(sourceTickerQuoteInfo);
@@ -44,12 +39,11 @@ public class PQImplementationFactoryTests
     [ExpectedException(typeof(ArgumentOutOfRangeException))]
     public void NonSupportedPQType_GetConcreteMapping_GetsConcreateImplementationOfInterface()
     {
-        var sourceTickerQuoteInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue, "TestSource",
+        var sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                                  | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup);
+                                                                  | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         var pqImplementationFactory = new PQImplementationFactory();
 
         pqImplementationFactory.GetConcreteMapping<PQLevel1QuoteTests.DummyLevel1Quote>(sourceTickerQuoteInfo);

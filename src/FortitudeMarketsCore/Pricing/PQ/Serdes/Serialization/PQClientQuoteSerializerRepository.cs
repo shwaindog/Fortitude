@@ -15,7 +15,7 @@ public sealed class PQClientQuoteSerializerRepository :
         recycler, fallbackCoalasingDeserializer)
     {
         RegisterSerializer<PQSnapshotIdsRequest>();
-        RegisterSerializer<PQSourceTickerInfoResponse>();
+        RegisterSerializer<PQSourceTickerInfoRequest>();
     }
 
     protected override IMessageSerializer? SourceMessageSerializer<TM>(uint msgId)
@@ -23,7 +23,7 @@ public sealed class PQClientQuoteSerializerRepository :
         switch (msgId)
         {
             case (uint)PQMessageIds.SnapshotIdsRequest: return new PQSnapshotIdsRequestSerializer();
-            case (uint)PQMessageIds.SourceTickerInfoResponse: return new PQSourceTickerInfoResponseSerializer();
+            case (uint)PQMessageIds.SourceTickerInfoRequest: return new PQSourceTickerInfoRequestSerializer();
         }
 
         throw new NotSupportedException();

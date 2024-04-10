@@ -4,9 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -21,7 +20,7 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null)
     {
         SourceTickerQuoteInfo = sourceTickerQuoteInfo is SourceTickerQuoteInfo ?
-            (IMutableSourceTickerQuoteInfo)sourceTickerQuoteInfo :
+            sourceTickerQuoteInfo :
             new SourceTickerQuoteInfo(sourceTickerQuoteInfo);
         SourceTime = sourceTime ?? DateTimeConstants.UnixEpoch;
         IsReplay = isReplay;
@@ -33,7 +32,7 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
     public Level0PriceQuote(ILevel0Quote toClone)
     {
         SourceTickerQuoteInfo = toClone.SourceTickerQuoteInfo is SourceTickerQuoteInfo ?
-            (IMutableSourceTickerQuoteInfo)toClone.SourceTickerQuoteInfo :
+            toClone.SourceTickerQuoteInfo :
             new SourceTickerQuoteInfo(toClone.SourceTickerQuoteInfo!);
         SourceTime = toClone.SourceTime;
         IsReplay = toClone.IsReplay;
@@ -41,7 +40,7 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
         ClientReceivedTime = toClone.ClientReceivedTime;
     }
 
-    public IMutableSourceTickerQuoteInfo? SourceTickerQuoteInfo { get; set; }
+    public ISourceTickerQuoteInfo? SourceTickerQuoteInfo { get; set; }
     ISourceTickerQuoteInfo? ILevel0Quote.SourceTickerQuoteInfo => SourceTickerQuoteInfo;
     public virtual DateTime SourceTime { get; set; }
     public bool IsReplay { get; set; }
@@ -51,7 +50,7 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         ClientReceivedTime = source.ClientReceivedTime;
-        SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
+        SourceTickerQuoteInfo = source.SourceTickerQuoteInfo;
         SourceTime = source.SourceTime;
         IsReplay = source.IsReplay;
         SinglePrice = source.SinglePrice;

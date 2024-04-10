@@ -13,7 +13,6 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
@@ -21,7 +20,6 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
 
@@ -44,50 +42,45 @@ public class PricingClientServerPubSubscribeTests
     private ISocketDispatcherResolver clientDispatcherResolver = null!;
 
     private PQServerHeartBeatSender hbSender = null!;
+    private IMarketConnectionConfig marketConnectionConfig = null!;
     private INameIdLookupGenerator nameIdLookupGenerator = null!;
     private OSNetworkingController networkingController = null!;
     private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> pqSnapshotFactory = null!;
     private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> pqUpdateFactory = null!;
-    private PricingServersConfigRepository pricingServersConfigRepository = null!;
+    private IMarketConnectionConfigRepository pricingConnectionsConfigRepository = null!;
+    private IPricingServerConfig pricingServerConfig = null!;
     private ISocketDispatcherResolver serverDispatcherResolver = null!;
     private IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory = null!;
-    private SnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig = null!;
+    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
-    private SourceTickerPublicationConfig sourceTickerPublicationConfig = null!;
-    private SourceTickerPublicationConfigRepository sourceTickerPublicationConfigs = null!;
-    private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private ISourceTickersConfig sourceTickersConfig = null!;
     private IPQConversationRepository<IPQUpdateClient> updateClientFactory = null!;
 
     public void Setup(LayerFlags layerDetails, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
         nameIdLookupGenerator = new NameIdLookupGenerator();
-        sourceTickerPublicationConfig =
-            new SourceTickerPublicationConfig(
-                UniqueSourceTickerIdentifier.GenerateUniqueSourceTickerId(ExchangeId, TickerId),
-                ExchangeName, TestTicker, 20, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails, lastTradedFlags);
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(sourceTickerPublicationConfig);
-        sourceTickerPublicationConfigs
-            = new SourceTickerPublicationConfigRepository(new[] { sourceTickerPublicationConfig });
-        snapshotUpdatePricingServerConfig = new SnapshotUpdatePricingServerConfig(ExchangeName,
-            MarketServerType.MarketData,
-            new[]
-            {
-                new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
-                    new List<IEndpointConfig>
-                    {
-                        new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                            , TestMachineConfig.ServerSnapshotPort)
-                    }, "TestSnapshotServerDescription")
-                , new NetworkTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher,
-                    new List<IEndpointConfig>
-                    {
-                        new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                            , TestMachineConfig.ServerUpdatePort, subnetMask: TestMachineConfig.NetworkSubAddress)
-                    }, "TestUpdateServerDescription"
-                    , connectionAttributes: SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast)
-            }, null, 9000, sourceTickerPublicationConfigs, false, false);
-        pricingServersConfigRepository =
-            new PricingServersConfigRepository(new[] { snapshotUpdatePricingServerConfig });
+        sourceTickersConfig =
+            new SourceTickersConfig(new TickerConfig(TickerId, TestTicker, TickerAvailability.AllEnabled, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails
+                , 20, lastTradedFlags));
+        sourceTickerQuoteInfo = sourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
+        pricingServerConfig = new PricingServerConfig(
+            new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
+                new List<IEndpointConfig>
+                {
+                    new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                        , TestMachineConfig.ServerSnapshotPort)
+                }, "TestSnapshotServerDescription")
+            , new NetworkTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher,
+                new List<IEndpointConfig>
+                {
+                    new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                        , TestMachineConfig.ServerUpdatePort, subnetMask: TestMachineConfig.NetworkSubAddress)
+                }, "TestUpdateServerDescription"
+                , connectionAttributes: SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast));
+        marketConnectionConfig = new MarketConnectionConfig(1, ExchangeName, MarketConnectionType.Pricing
+            , sourceTickersConfig, pricingServerConfig);
+        pricingConnectionsConfigRepository =
+            new MarketConnectionConfigRepository(marketConnectionConfig);
         networkingController = new OSNetworkingController();
         hbSender = new PQServerHeartBeatSender();
         serverDispatcherResolver = new SimpleSocketDispatcherResolver(new SocketDispatcher(
@@ -119,11 +112,11 @@ public class PricingClientServerPubSubscribeTests
         logger.Info("Starting Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
         var autoResetEvent = new AutoResetEvent(false);
-        var pqServer = new PQServer<PQLevel2Quote>(snapshotUpdatePricingServerConfig, hbSender, serverDispatcherResolver
+        var pqServer = new PQServer<PQLevel2Quote>(marketConnectionConfig, hbSender, serverDispatcherResolver
             ,
             pqSnapshotFactory, pqUpdateFactory);
         var pqPublisher = new PQPublisher<PQLevel2Quote>(pqServer);
-        pqPublisher.RegisterTickersWithServer(sourceTickerPublicationConfigs);
+        pqPublisher.RegisterTickersWithServer(marketConnectionConfig);
         var sourcePriceQuote = GenerateL2QuoteWithSourceNameLayer();
 
         logger.Info("Started PQServer");
@@ -132,10 +125,10 @@ public class PricingClientServerPubSubscribeTests
 
         // setup listener after publish means first message will be missed and snapshot will be required.
         ILevel2Quote? alwaysUpdatedQuote = null;
-        var pqClient = new PQClient(pricingServersConfigRepository.ToPricingClientConfigRepository()
+        var pqClient = new PQClient(pricingConnectionsConfigRepository.ToggleProtocolDirection()
             , SingletonSocketDispatcherResolver.Instance, true
             , updateClientFactory, snapshotClientFactory);
-        var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(sourceTickerPublicationConfig, 0);
+        var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(sourceTickerQuoteInfo, 0);
         streamSubscription!.Subscribe(
             pQuote =>
             {
@@ -207,10 +200,10 @@ public class PricingClientServerPubSubscribeTests
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.
         var autoResetEvent = new AutoResetEvent(false);
         ILevel3Quote? alwaysUpdatedQuote = null;
-        var pqClient = new PQClient(pricingServersConfigRepository.ToPricingClientConfigRepository()
+        var pqClient = new PQClient(pricingConnectionsConfigRepository.ToggleProtocolDirection()
             , SingletonSocketDispatcherResolver.Instance, true
             , updateClientFactory, snapshotClientFactory);
-        var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(sourceTickerPublicationConfig, 0);
+        var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(sourceTickerQuoteInfo, 0);
 
         streamSubscription!.Subscribe(
             pQuote =>
@@ -219,11 +212,11 @@ public class PricingClientServerPubSubscribeTests
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });
 
-        var pqServer = new PQServer<PQLevel3Quote>(snapshotUpdatePricingServerConfig, hbSender, serverDispatcherResolver
+        var pqServer = new PQServer<PQLevel3Quote>(marketConnectionConfig, hbSender, serverDispatcherResolver
             ,
             pqSnapshotFactory, pqUpdateFactory);
         var pqPublisher = new PQPublisher<PQLevel3Quote>(pqServer);
-        pqPublisher.RegisterTickersWithServer(sourceTickerPublicationConfigs);
+        pqPublisher.RegisterTickersWithServer(marketConnectionConfig);
         var sourcePriceQuote = GenerateL3QuoteWithTraderLayerAndLastTrade();
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 

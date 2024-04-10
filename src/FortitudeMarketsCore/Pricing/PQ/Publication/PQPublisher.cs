@@ -3,6 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -21,12 +22,12 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
 
     public PQPublisher(IPQServer<T> pqServer) => this.pqServer = pqServer;
 
-    public void RegisterTickersWithServer(ISourceTickerPublicationConfigRepository tickersIdRef)
+    public void RegisterTickersWithServer(IMarketConnectionConfig marketConnectionConfig)
     {
         pqServer.StartServices();
 
         if (!shutdownFlag)
-            foreach (var tickerRef in tickersIdRef)
+            foreach (var tickerRef in marketConnectionConfig.AllSourceTickerInfos())
             {
                 var picture = pqServer.Register(tickerRef.Ticker);
                 if (picture != null) pictures.AddOrUpdate(tickerRef.Ticker, picture);
@@ -71,5 +72,16 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
         }
 
         pqServer.Dispose();
+    }
+
+    public void RegisterTickersWithServer(ISourceTickerQuoteInfo sourceTickerQuoteInfo)
+    {
+        pqServer.StartServices();
+
+        if (!shutdownFlag)
+        {
+            var picture = pqServer.Register(sourceTickerQuoteInfo.Ticker);
+            if (picture != null) pictures.AddOrUpdate(sourceTickerQuoteInfo.Ticker, picture);
+        }
     }
 }

@@ -8,17 +8,16 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using Moq;
 
 #endregion
@@ -47,7 +46,7 @@ public class PQDeserializerBaseTests
     private Mock<IPerfLoggerPool> moqPerfLoggerPool = null!;
     private Mock<IPQDeserializer> moqQuoteDeserializer = null!;
     private Mock<ISyncLock> moqSyncLock = null!;
-    private Mock<IMutableSourceTickerQuoteInfo> moqUniqueSrcTkrId = null!;
+    private Mock<ISourceTickerQuoteInfo> moqUniqueSrcTkrId = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
     private SocketBufferReadContext socketBufferReadContext = null!;
     private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
@@ -59,7 +58,7 @@ public class PQDeserializerBaseTests
     [TestInitialize]
     public void SetUp()
     {
-        moqUniqueSrcTkrId = new Mock<IMutableSourceTickerQuoteInfo>();
+        moqUniqueSrcTkrId = new Mock<ISourceTickerQuoteInfo>();
         dummyLevel0QuoteDeserializer = new DummyPQQuoateDeserializerBase<IPQLevel0Quote>(moqUniqueSrcTkrId.Object);
         dummyLevel1QuoteDeserializer = new DummyPQQuoateDeserializerBase<IPQLevel1Quote>(moqUniqueSrcTkrId.Object);
         dummyLevel2QuoteDeserializer = new DummyPQQuoateDeserializerBase<IPQLevel2Quote>(moqUniqueSrcTkrId.Object);
@@ -76,7 +75,7 @@ public class PQDeserializerBaseTests
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
         readWriteBuffer.WriteCursor = BufferReadWriteOffset;
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource", "TestTicker",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker",
             20, 0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
             LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
             LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);

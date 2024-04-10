@@ -19,6 +19,13 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
+public interface IPQSnapshotServer : IConversationResponder
+{
+    event Action<IConversationRequester, PQSnapshotIdsRequest>? OnSnapshotRequest;
+    event Action<IConversationRequester>? ReceivedSourceTickerInfoRequest;
+    void Send(IConversationRequester client, IVersionedMessage message);
+}
+
 public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotServer));
@@ -40,6 +47,8 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
     public IMessageSerializationRepository MessageSerializationRepository { get; }
 
     public event Action<IConversationRequester, PQSnapshotIdsRequest>? OnSnapshotRequest;
+
+    public event Action<IConversationRequester>? ReceivedSourceTickerInfoRequest;
 
     public void Send(IConversationRequester client, IVersionedMessage message)
     {
@@ -72,12 +81,19 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
     {
         var clientSocketReceiver = (ISocketReceiver)newClient.StreamListener!;
         var clientDecoder = (IPQServerMessageStreamDecoder)clientSocketReceiver.Decoder!;
-        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>(OnRequest);
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>(OnSnapshotIdsRequest);
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoRequest>(OnSourceTickerInfoRequest);
         logger.Info($"New PQSnapshot Client Request {newClient}");
     }
 
-    private void OnRequest(PQSnapshotIdsRequest snapshotIdsRequest, object? header, IConversation? cx)
+    private void OnSnapshotIdsRequest(PQSnapshotIdsRequest snapshotIdsRequest, object? header, IConversation? cx)
     {
         OnSnapshotRequest?.Invoke((cx as IConversationRequester)!, snapshotIdsRequest);
+    }
+
+    private void OnSourceTickerInfoRequest(PQSourceTickerInfoRequest snapshotIdsRequest, object? header, IConversation? cx)
+    {
+        logger.Info("PQSnapshot Server received request for SourceTickerQuotInfo");
+        ReceivedSourceTickerInfoRequest?.Invoke((cx as IConversationRequester)!);
     }
 }

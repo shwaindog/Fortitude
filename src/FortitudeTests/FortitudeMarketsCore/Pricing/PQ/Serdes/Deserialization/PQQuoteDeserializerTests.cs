@@ -7,10 +7,10 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
+using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using Moq;
 
@@ -21,8 +21,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 [TestClass]
 public class PQQuoteDeserializerTests
 {
-    private readonly bool allowCatchup = true;
-    private readonly uint retryWaitMs = 2000;
     private bool compareQuoteWithExpected;
     private int countLevel0SerializerPublishes;
     private int countLevel0SerializerUpdates;
@@ -59,22 +57,25 @@ public class PQQuoteDeserializerTests
     private PQQuoteDeserializer<PQLevel3Quote> pqLevel3QuoteDeserializer = null!;
     private PQQuoteDeserializationSequencedTestDataBuilder quoteDeserializerSequencedTestDataBuilder = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private ISourceTickerClientAndPublicationConfig sourceTickerQuoteInfo = null!;
+    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private ITickerPricingSubscriptionConfig tickerPricingSubscriptionConfig = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        sourceTickerQuoteInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue, "TestSource",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null, retryWaitMs
-            , allowCatchup);
-        pqLevel0QuoteDeserializer = new PQQuoteDeserializer<PQLevel0Quote>(sourceTickerQuoteInfo);
-        pqLevel1QuoteDeserializer = new PQQuoteDeserializer<PQLevel1Quote>(sourceTickerQuoteInfo);
-        pqLevel2QuoteDeserializer = new PQQuoteDeserializer<PQLevel2Quote>(sourceTickerQuoteInfo);
-        pqLevel3QuoteDeserializer = new PQQuoteDeserializer<PQLevel3Quote>(sourceTickerQuoteInfo);
+                                                                  LastTradedFlags.LastTradedTime);
+        tickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig(sourceTickerQuoteInfo, new PricingServerConfig(
+            NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig,
+            NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig));
+        pqLevel0QuoteDeserializer = new PQQuoteDeserializer<PQLevel0Quote>(tickerPricingSubscriptionConfig);
+        pqLevel1QuoteDeserializer = new PQQuoteDeserializer<PQLevel1Quote>(tickerPricingSubscriptionConfig);
+        pqLevel2QuoteDeserializer = new PQQuoteDeserializer<PQLevel2Quote>(tickerPricingSubscriptionConfig);
+        pqLevel3QuoteDeserializer = new PQQuoteDeserializer<PQLevel3Quote>(tickerPricingSubscriptionConfig);
 
         SetupDefaultState();
 

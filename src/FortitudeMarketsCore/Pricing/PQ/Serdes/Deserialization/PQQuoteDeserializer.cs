@@ -23,15 +23,16 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
     private readonly StaticRing<T> syncRing;
     private SyncStateBase<T> currentSyncState;
 
-    public PQQuoteDeserializer(ISourceTickerClientAndPublicationConfig identifier) : base(identifier)
+    public PQQuoteDeserializer(ITickerPricingSubscriptionConfig tickerPricingSubscriptionConfig) : base(tickerPricingSubscriptionConfig
+        .SourceTickerQuoteInfo)
     {
-        SyncRetryMs = identifier.SyncRetryIntervalMs;
+        SyncRetryMs = tickerPricingSubscriptionConfig.PricingServerConfig.SyncRetryIntervalMs;
         currentSyncState = new InitializationState<T>(this);
         stateTransitionFactory = new DeserializeStateTransitionFactory<T>();
-        AllowUpdatesCatchup = identifier.AllowUpdatesCatchup;
+        AllowUpdatesCatchup = tickerPricingSubscriptionConfig.PricingServerConfig.AllowUpdatesCatchup;
         syncRing = new StaticRing<T>(MaxBufferedUpdates, () =>
         {
-            var newQuote = QuoteFactory(identifier);
+            var newQuote = QuoteFactory(tickerPricingSubscriptionConfig.SourceTickerQuoteInfo);
             newQuote.EnsureRelatedItemsAreConfigured(PublishedQuote);
             return newQuote;
         }, true);

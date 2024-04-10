@@ -1,12 +1,9 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.Transports.Network.Config;
-using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -18,27 +15,18 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 [TestClass]
 public class PQClientQuoteSerializerRepositoryTests
 {
-    private const uint ExpectedStreamId = uint.MaxValue;
+    private const ushort ExpectedSourceId = ushort.MaxValue;
+    private const ushort ExpectedTickerd = ushort.MaxValue;
     private PQClientQuoteSerializerRepository pqClientQuoteSerializerRepository = null!;
-    private ISourceTickerClientAndPublicationConfig sourceTickerClientAndPublicationConfig = null!;
+    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        sourceTickerClientAndPublicationConfig = new SourceTickerClientAndPublicationConfig(
-            new SourceTickerPublicationConfig(ExpectedStreamId, "TestSource", "TestTicker", 20,
-                0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
-                LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-                LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime,
-                new SnapshotUpdatePricingServerConfig("SnapshortServerName", MarketServerType.MarketData,
-                    new[]
-                    {
-                        new NetworkTopicConnectionConfig("ConnectionName", SocketConversationProtocol.TcpClient, new[]
-                        {
-                            new EndpointConfig("ConnectionName", 9090)
-                        })
-                    }, null, 0,
-                    new List<ISourceTickerPublicationConfig>(), true, true)));
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", 20,
+            0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
+            LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
+            LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
         pqClientQuoteSerializerRepository = new PQClientQuoteSerializerRepository(new Recycler(), null);
     }
@@ -56,7 +44,7 @@ public class PQClientQuoteSerializerRepositoryTests
     [TestMethod]
     public void NoEnteredDeserializer_GetSerializerNonSupportedType_ReturnsNull()
     {
-        var result = pqClientQuoteSerializerRepository.GetSerializer<PQLevel0Quote>(sourceTickerClientAndPublicationConfig.Id);
+        var result = pqClientQuoteSerializerRepository.GetSerializer<PQLevel0Quote>(sourceTickerQuoteInfo.Id);
         Assert.IsNull(result);
     }
 }

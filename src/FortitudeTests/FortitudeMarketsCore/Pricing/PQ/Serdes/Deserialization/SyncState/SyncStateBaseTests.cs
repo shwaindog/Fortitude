@@ -8,11 +8,11 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
+using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using Moq;
 
 #endregion
@@ -32,7 +32,7 @@ public class SyncStateBaseTests
     protected PQQuoteDeserializer<PQLevel0Quote> pqQuoteStreamDeserializer = null!;
     protected PQQuoteDeserializationSequencedTestDataBuilder QuoteSequencedTestDataBuilder = null!;
     protected PQLevel0Quote SendPqLevel0Quote = null!;
-    protected ISourceTickerClientAndPublicationConfig SourceTickerQuoteInfo = null!;
+    protected ISourceTickerQuoteInfo SourceTickerQuoteInfo = null!;
     protected PQLevel0Quote SyncSlotPqLevel0Quote = null!;
     protected SyncStateBase<PQLevel0Quote> syncState = null!;
 
@@ -78,15 +78,18 @@ public class SyncStateBaseTests
 
     private void BuildPQQuote()
     {
-        SourceTickerQuoteInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue, "TestSource",
+        SourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime,
-            null, retryWaitMs, allowCatchup);
+                                                                  LastTradedFlags.LastTradedTime);
         pqQuoteStreamDeserializer
-            = new PQQuoteDeserializer<PQLevel0Quote>(new SourceTickerClientAndPublicationConfig(SourceTickerQuoteInfo));
+            = new PQQuoteDeserializer<PQLevel0Quote>(new TickerPricingSubscriptionConfig(SourceTickerQuoteInfo,
+                new PricingServerConfig(
+                    NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig,
+                    NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig,
+                    syncRetryIntervalMs: retryWaitMs, allowUpdatesCatchup: allowCatchup)));
         SendPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
             { PQSyncStatus = PQSyncStatus.Good };
         DesersializerPqLevel0Quote = pqQuoteStreamDeserializer.PublishedQuote;

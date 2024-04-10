@@ -1,11 +1,10 @@
 ﻿#region
 
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -30,7 +29,7 @@ public class RecentlyTradedLastTradeEntrySelectorTests
 
     private PQLastTrade pqLastTrade = null!;
     private PQLastTraderPaidGivenTrade pqLastTraderPaidGivenTrade = null!;
-    private IMutableSourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -53,7 +52,7 @@ public class RecentlyTradedLastTradeEntrySelectorTests
             TraderName = expectedTraderName
         };
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
     }
 
