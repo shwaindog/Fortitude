@@ -6,8 +6,8 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 

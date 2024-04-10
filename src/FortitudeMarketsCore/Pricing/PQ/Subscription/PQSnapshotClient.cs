@@ -11,7 +11,7 @@ using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -24,7 +24,14 @@ public interface IPQSnapshotClient : IConversationRequester
 {
     IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
 
-    void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds);
+    IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; }
+
+    bool HasSourceTickerInfo { get; }
+    event Action<IList<ISourceTickerQuoteInfo>> PublishedSourceTickerQuoteInfo;
+
+    void RequestSourceTickerQuoteInfoList();
+
+    void RequestSnapshots(IList<ISourceTickerQuoteInfo> sourceTickerIds);
 }
 
 public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
@@ -35,8 +42,8 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
     private readonly IFLogger logger;
     private readonly IOSParallelController parallelController;
 
-    private readonly IDictionary<uint, IUniqueSourceTickerIdentifier> requestsQueue =
-        new Dictionary<uint, IUniqueSourceTickerIdentifier>();
+    private readonly IDictionary<uint, ISourceTickerQuoteInfo> requestsQueue =
+        new Dictionary<uint, ISourceTickerQuoteInfo>();
 
     private DateTime lastSnapshotSent = DateTime.MinValue;
     private IPQClientMessageStreamDecoder? messageStreamDecoder;
@@ -62,8 +69,11 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
                 messageStreamDecoder = (IPQClientMessageStreamDecoder)socketSessionContext.SocketReceiver.Decoder!;
                 messageStreamDecoder.ReceivedMessage += OnReceivedMessage;
                 messageStreamDecoder.ReceivedData += OnReceivedMessage;
+                messageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoResponse>(
+                    ReceivedSourceTickerInfoResponse);
             }
         };
+        Connected += CheckHasAvailableSourceTickerInfoRequests;
     }
 
     public static ISocketFactoryResolver SocketFactories
@@ -74,9 +84,15 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         set => socketFactories = value;
     }
 
+    public event Action<IList<ISourceTickerQuoteInfo>>? PublishedSourceTickerQuoteInfo;
+
+    public IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; private set; } = new List<ISourceTickerQuoteInfo>();
+
+    public bool HasSourceTickerInfo => LastPublishedSourceTickerQuoteInfos.Any();
+
     public IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
 
-    public void RequestSnapshots(IList<IUniqueSourceTickerIdentifier> sourceTickerIds)
+    public void RequestSnapshots(IList<ISourceTickerQuoteInfo> sourceTickerIds)
     {
         Connect();
         if (IsStarted)
@@ -108,10 +124,28 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         }
     }
 
+    public void RequestSourceTickerQuoteInfoList()
+    {
+        logger.Info("Sending source ticker info request for streams to {0}", Name);
+        Send(new PQSourceTickerInfoRequest());
+    }
+
     public override void Connect()
     {
         base.Connect();
         EnableTimeout();
+    }
+
+    private void ReceivedSourceTickerInfoResponse(PQSourceTickerInfoResponse sourceTickerInfoResponse, object? header
+        , IConversation? conversation)
+    {
+        logger.Info("Received source ticker info response for streams to {0}", Name);
+        LastPublishedSourceTickerQuoteInfos = sourceTickerInfoResponse.SourceTickerQuoteInfos;
+    }
+
+    private void CheckHasAvailableSourceTickerInfoRequests()
+    {
+        if (!HasSourceTickerInfo) RequestSourceTickerQuoteInfoList();
     }
 
     private void SocketSessionContextOnStateChanged(SocketSessionState socketState)

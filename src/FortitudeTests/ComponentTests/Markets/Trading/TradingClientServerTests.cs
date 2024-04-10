@@ -1,7 +1,5 @@
 ﻿#region
 
-using System.Reactive.Linq;
-using FortitudeCommon.Configuration.Availability;
 using FortitudeCommon.Monitoring.Alerting;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types.Mutable;
@@ -10,8 +8,6 @@ using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
@@ -20,8 +16,6 @@ using FortitudeMarketsApi.Trading.Orders.Products.General;
 using FortitudeMarketsApi.Trading.Orders.Server;
 using FortitudeMarketsApi.Trading.Orders.Venues;
 using FortitudeMarketsCore.Configuration.ClientServerConfig.Authentication;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.TradingConfig;
 using FortitudeMarketsCore.Trading;
 using FortitudeMarketsCore.Trading.Counterparties;
 using FortitudeMarketsCore.Trading.Executions;
@@ -51,36 +45,13 @@ public class TradingClientServerTests
     {
         logger.Info("Starting setup of TradingClientServerTests");
 
-        tradingServerConfig = new TradingServerConfig(short.MaxValue, "TestExchangeAdapter",
-            MarketServerType.Trading, new[]
-            {
-                new NetworkTopicConnectionConfig("TestTradingServer", SocketConversationProtocol.TcpAcceptor
-                    , new List<IEndpointConfig>
-                    {
-                        new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                            , TestMachineConfig.TradingServerPort)
-                    })
-            }, new TimeTable(),
-            Observable.Empty<IMarketServerConfigUpdate<ITradingServerConfig>>(),
-            OrderType.Limit,
-            TimeInForce.GoodTillCancelled | TimeInForce.ImmediateOrCancel, VenueFeatures.Amends,
-            true, new SnapshotUpdatePricingServerConfig("TestExchangeName",
-                MarketServerType.MarketData,
-                new[]
+        tradingServerConfig = new TradingServerConfig(
+            new NetworkTopicConnectionConfig("TestTradingServer", SocketConversationProtocol.TcpAcceptor
+                , new List<IEndpointConfig>
                 {
-                    new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor
-                        , new List<IEndpointConfig>
-                        {
-                            new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                                , TestMachineConfig.ServerSnapshotPort)
-                        })
-                    , new NetworkTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher
-                        , new List<IEndpointConfig>
-                        {
-                            new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                                , TestMachineConfig.ServerUpdatePort, subnetMask: TestMachineConfig.NetworkSubAddress)
-                        })
-                }, null, 9000, Enumerable.Empty<ISourceTickerPublicationConfig>(), false, false));
+                    new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                        , TestMachineConfig.TradingServerPort)
+                }), supportedVenueFeatures: VenueFeatures.Amends);
         logger.Info("Ended setup of TradingClientServerTests");
     }
 
@@ -89,7 +60,7 @@ public class TradingClientServerTests
     [TestMethod]
     public void StartedTradingServer_ClientJoinsSendsOrder_ServerSendsConfirmation()
     {
-        var orxServer = OrxServerMessaging.BuildTcpResponder(tradingServerConfig.ServerConnections!.First());
+        var orxServer = OrxServerMessaging.BuildTcpResponder(tradingServerConfig.TradingServerConnectionConfig);
         var clientOrderAutoResetEvent = new AutoResetEvent(false);
         var serverResponseTradingHandler = new TradingFeedHandle
         {

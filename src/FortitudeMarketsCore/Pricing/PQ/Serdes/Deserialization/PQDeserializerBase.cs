@@ -9,8 +9,8 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
@@ -18,11 +18,11 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public abstract class PQDeserializerBase(IUniqueSourceTickerIdentifier identifier) : MessageDeserializer<PQLevel0Quote>
+public abstract class PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig) : MessageDeserializer<PQLevel0Quote>
     , IPQDeserializer
 {
     public static IPQImplementationFactory ConcreteFinder { get; set; } = new PQImplementationFactory();
-    public IUniqueSourceTickerIdentifier Identifier { get; } = identifier;
+    public ISourceTickerQuoteInfo Identifier { get; } = tickerPricingSubscriptionConfig;
     public IPQDeserializer? Previous { get; set; }
     public IPQDeserializer? Next { get; set; }
 
@@ -69,10 +69,10 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
 
     protected Func<ISourceTickerQuoteInfo, T> QuoteFactory;
 
-    protected PQDeserializerBase(ISourceTickerQuoteInfo identifier) : base(identifier)
+    protected PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig) : base(tickerPricingSubscriptionConfig)
     {
         QuoteFactory = sqi => ConcreteFinder.GetConcreteMapping<T>(sqi);
-        PublishedQuote = ConcreteFinder.GetConcreteMapping<T>(identifier);
+        PublishedQuote = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
     }
 
     protected virtual bool ShouldPublish => PublishedQuote.HasUpdates;

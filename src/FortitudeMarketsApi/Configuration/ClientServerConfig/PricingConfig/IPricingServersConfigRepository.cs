@@ -1,11 +1,11 @@
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-public interface IPricingServersConfigRepository : IMarketServerConfigRepository<ISnapshotUpdatePricingServerConfig>
+public interface IPricingConnectionsConfigRepository : IMarketConnectionConfigRepository
 {
     IPricingClientConfigRepository ToPricingClientConfigRepository();
 }
 
-public interface IPricingClientConfigRepository : IMarketServerConfigRepository<ISnapshotUpdatePricingServerConfig>
+public interface IPricingClientConfigRepository : IMarketConnectionConfigRepository
 {
-    IPricingServersConfigRepository ToPricingServerConfigRepository();
+    IPricingConnectionsConfigRepository ToPricingServerConfigRepository();
 }

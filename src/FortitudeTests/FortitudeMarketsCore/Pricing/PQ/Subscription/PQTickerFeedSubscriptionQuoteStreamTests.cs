@@ -4,12 +4,9 @@ using System.Reactive.Disposables;
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
@@ -21,7 +18,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQTickerFeedSubscriptionQuoteStreamTests
 {
-    private ISnapshotUpdatePricingServerConfig feedConfig = null!;
+    private IPricingServerConfig feedConfig = null!;
     private Mock<IPQLevel0Quote> initializingQuote = null!;
     private Mock<ISyncLock> intializingQuoteSyncLock = null!;
 
@@ -34,25 +31,23 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
     [TestInitialize]
     public void SetUp()
     {
-        feedConfig = new SnapshotUpdatePricingServerConfig("TestServerConfig", MarketServerType.MarketData,
-            new[]
-            {
-                new NetworkTopicConnectionConfig("testConnectionName", SocketConversationProtocol.TcpAcceptor
-                    , new List<IEndpointConfig>
-                    {
-                        new EndpointConfig("testhost", 9090)
-                    })
-            }, null, 1234,
-            new[] { new SourceTickerPublicationConfig(0, "", "") },
-            true, true);
+        feedConfig = new PricingServerConfig(
+            new NetworkTopicConnectionConfig("testConnectionName", SocketConversationProtocol.TcpAcceptor
+                , new List<IEndpointConfig>
+                {
+                    new EndpointConfig("testhost", 9090)
+                }), new NetworkTopicConnectionConfig("testConnectionName", SocketConversationProtocol.TcpAcceptor
+                , new List<IEndpointConfig>
+                {
+                    new EndpointConfig("testhost", 9090)
+                }));
 
-        sourceTickerQuoteInfo = new SourceTickerClientAndPublicationConfig(
-            uint.MaxValue, "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(
+            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null,
-            3000);
+                                                                  LastTradedFlags.LastTradedTime);
 
         publishingQuote = new PQLevel0Quote(sourceTickerQuoteInfo);
 

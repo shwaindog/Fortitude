@@ -2,9 +2,9 @@
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 

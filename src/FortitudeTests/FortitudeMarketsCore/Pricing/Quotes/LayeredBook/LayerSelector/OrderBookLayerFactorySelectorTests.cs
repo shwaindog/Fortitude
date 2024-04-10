@@ -1,12 +1,11 @@
 ﻿#region
 
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -34,7 +33,7 @@ public class OrderBookLayerFactorySelectorTests
     private PriceVolumeLayer priceVolumeLayer = null!;
     private SourcePriceVolumeLayer sourcePriceVolumeLayer = null!;
     private SourceQuoteRefPriceVolumeLayer sourceQutoeRefPriceVolumeLayer = null!;
-    private IMutableSourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
     private SourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPvl = null!;
     private TraderPriceVolumeLayer traderPriceVolumeLayer = null!;
     private ValueDatePriceVolumeLayer valueDatePriceVolumeLayer = null!;
@@ -80,7 +79,7 @@ public class OrderBookLayerFactorySelectorTests
             [0] = new PQTraderLayerInfo(null, expectedTraderName, ExpectedVolume)
         };
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);

@@ -1,10 +1,9 @@
 ﻿#region
 
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -14,14 +13,14 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySel
 public class LastTradeEntryFlagsSelectorTests
 {
     private DummyLastTradeEntryFlagsSelector layerSelector = null!;
-    private IMutableSourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         layerSelector = new DummyLastTradeEntryFlagsSelector();
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
@@ -148,14 +147,12 @@ public class LastTradeEntryFlagsSelectorTests
 
     internal class DummyLastTradeEntryFlagsSelector : LastTradeEntryFlagsSelector<string, ISourceTickerQuoteInfo>
     {
-        protected override string SelectSimpleLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-            nameof(SelectSimpleLastTradeEntry);
+        protected override string SelectSimpleLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectSimpleLastTradeEntry);
 
         protected override string SelectLastPaidGivenTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
             nameof(SelectLastPaidGivenTradeEntry);
 
-        protected override string SelectTraderLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-            nameof(SelectTraderLastTradeEntry);
+        protected override string SelectTraderLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectTraderLastTradeEntry);
 
         public override IMutableLastTrade? ConvertToExpectedImplementation(
             ILastTrade? checkLastTrade, bool clone = false) =>

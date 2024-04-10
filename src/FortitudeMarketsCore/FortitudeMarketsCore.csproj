@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <Folder Include="Configuration\ClientServerConfig\MarketsConfig\" />
+    <Folder Include="Configuration\ClientServerConfig\PricingConfig\" />
+    <Folder Include="Pricing\Quotes\SourceTickerInfo\" />
   </ItemGroup>
 
 </Project>

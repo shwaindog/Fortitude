@@ -2,7 +2,7 @@
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
@@ -13,7 +13,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 public interface IPQDeserializer : INotifyingMessageDeserializer<PQLevel0Quote>,
     IDoublyLinkedListNode<IPQDeserializer>
 {
-    IUniqueSourceTickerIdentifier Identifier { get; }
+    ISourceTickerQuoteInfo Identifier { get; }
     event Action<IPQDeserializer> ReceivedUpdate;
     event Action<IPQDeserializer> SyncOk;
     event Action<IPQDeserializer> OutOfSync;

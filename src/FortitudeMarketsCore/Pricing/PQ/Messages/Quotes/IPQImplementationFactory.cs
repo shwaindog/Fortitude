@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 #endregion
 

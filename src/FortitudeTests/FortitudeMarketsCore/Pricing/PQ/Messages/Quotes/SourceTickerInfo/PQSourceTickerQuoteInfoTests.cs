@@ -2,13 +2,11 @@
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -17,8 +15,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceT
 [TestClass]
 public class PQSourceTickerQuoteInfoTests
 {
-    private readonly bool allowCatchup = true;
-    private readonly uint retryWaitMs = 2000;
     private PQSourceTickerQuoteInfo emptySrcTkrQtInfo = null!;
     private PQSourceTickerQuoteInfo fullyPopulatedSrcTkrQtInfo = null!;
 
@@ -27,17 +23,122 @@ public class PQSourceTickerQuoteInfoTests
     [TestInitialize]
     public void SetUp()
     {
-        fullyPopulatedSrcTkrQtInfo = new PQSourceTickerQuoteInfo(new SourceTickerClientAndPublicationConfig(
-            uint.MaxValue, "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+        fullyPopulatedSrcTkrQtInfo = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(
+            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup));
-        emptySrcTkrQtInfo = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(0, "", "", 0, 0m, 0m,
+                                                                  LastTradedFlags.LastTradedTime));
+        emptySrcTkrQtInfo = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(0, "", 0, "", 0, 0m, 0m,
             0m, 0m, 0, LayerFlags.None));
 
         testDateTime = new DateTime(2017, 11, 07, 18, 33, 24);
+    }
+
+    [TestMethod]
+    public void EmptyQuoteInfo_IdChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        Assert.IsFalse(emptySrcTkrQtInfo.IsIdUpdated);
+        Assert.IsFalse(emptySrcTkrQtInfo.HasUpdates);
+        Assert.AreEqual(0u, emptySrcTkrQtInfo.Id);
+        Assert.IsTrue(emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+
+        var expectedId = ushort.MaxValue;
+        emptySrcTkrQtInfo.SourceId = expectedId;
+        Assert.IsTrue(emptySrcTkrQtInfo.IsIdUpdated);
+        Assert.IsTrue(emptySrcTkrQtInfo.HasUpdates);
+        var expectedStreamId = (uint)expectedId << 16;
+        Assert.AreEqual(expectedStreamId, emptySrcTkrQtInfo.Id);
+        var sourceUpdates = emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        Assert.AreEqual(1, sourceUpdates.Count);
+        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.SourceTickerId, expectedStreamId);
+        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+
+        emptySrcTkrQtInfo.IsIdUpdated = false;
+        Assert.IsFalse(emptySrcTkrQtInfo.IsIdUpdated);
+        Assert.IsFalse(emptySrcTkrQtInfo.HasUpdates);
+        Assert.IsTrue(emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+
+        sourceUpdates = (from update in emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot)
+            where update.Id == PQFieldKeys.SourceTickerId
+            select update).ToList();
+        Assert.AreEqual(1, sourceUpdates.Count);
+        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+
+        var newEmpty = new PQSourceTickerQuoteInfo(emptySrcTkrQtInfo);
+        newEmpty.UpdateField(sourceUpdates[0]);
+        Assert.AreEqual(expectedStreamId, newEmpty.Id);
+        Assert.IsFalse(newEmpty.IsIdUpdated);
+    }
+
+    [TestMethod]
+    public void EmptyQuoteInfo_SourceChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        Assert.IsFalse(emptySrcTkrQtInfo.IsSourceUpdated);
+        Assert.IsFalse(emptySrcTkrQtInfo.HasUpdates);
+        Assert.AreEqual("", emptySrcTkrQtInfo.Source);
+        Assert.IsTrue(emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+
+        var expectedSource = "NewSourceName";
+        emptySrcTkrQtInfo.Source = expectedSource;
+        Assert.IsTrue(emptySrcTkrQtInfo.IsSourceUpdated);
+        Assert.IsTrue(emptySrcTkrQtInfo.HasUpdates);
+        Assert.AreEqual(expectedSource, emptySrcTkrQtInfo.Source);
+        var sourceUpdates = emptySrcTkrQtInfo.GetStringUpdates(testDateTime, UpdateStyle.Updates).ToList();
+        Assert.AreEqual(1, sourceUpdates.Count);
+        var expectedFieldUpdate = ExpectedSourceStringUpdate(expectedSource);
+        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+
+        emptySrcTkrQtInfo.IsSourceUpdated = false;
+        Assert.IsFalse(emptySrcTkrQtInfo.IsSourceUpdated);
+        Assert.IsFalse(emptySrcTkrQtInfo.HasUpdates);
+        Assert.IsTrue(emptySrcTkrQtInfo.GetStringUpdates(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+
+        sourceUpdates = (from update in emptySrcTkrQtInfo.GetStringUpdates(testDateTime, UpdateStyle.FullSnapshot)
+            where update.Field.Id == PQFieldKeys.SourceTickerNames && update.StringUpdate.DictionaryId == 0
+            select update).ToList();
+        Assert.AreEqual(1, sourceUpdates.Count);
+        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+
+        var newEmpty = new PQSourceTickerQuoteInfo(emptySrcTkrQtInfo);
+        newEmpty.UpdateFieldString(sourceUpdates[0]);
+        Assert.AreEqual(expectedSource, newEmpty.Source);
+        Assert.IsFalse(newEmpty.IsSourceUpdated);
+    }
+
+    [TestMethod]
+    public void EmptyQuoteInfo_TickerChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        Assert.IsFalse(emptySrcTkrQtInfo.IsTickerUpdated);
+        Assert.IsFalse(emptySrcTkrQtInfo.HasUpdates);
+        Assert.AreEqual("", emptySrcTkrQtInfo.Ticker);
+        Assert.IsTrue(emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+
+        var expectedTicker = "NewTickerName";
+        emptySrcTkrQtInfo.Ticker = expectedTicker;
+        Assert.IsTrue(emptySrcTkrQtInfo.IsTickerUpdated);
+        Assert.IsTrue(emptySrcTkrQtInfo.HasUpdates);
+        Assert.AreEqual(expectedTicker, emptySrcTkrQtInfo.Ticker);
+        var tickerUpdates = emptySrcTkrQtInfo.GetStringUpdates(testDateTime, UpdateStyle.Updates).ToList();
+        Assert.AreEqual(1, tickerUpdates.Count);
+        var expectedFieldUpdate = ExpectedTickerStringUpdate(expectedTicker);
+        Assert.AreEqual(expectedFieldUpdate, tickerUpdates[0]);
+
+        emptySrcTkrQtInfo.IsTickerUpdated = false;
+        Assert.IsFalse(emptySrcTkrQtInfo.IsTickerUpdated);
+        Assert.IsFalse(emptySrcTkrQtInfo.HasUpdates);
+        Assert.IsTrue(emptySrcTkrQtInfo.GetStringUpdates(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+
+        tickerUpdates = (from update in emptySrcTkrQtInfo.GetStringUpdates(testDateTime, UpdateStyle.FullSnapshot)
+            where update.Field.Id == PQFieldKeys.SourceTickerNames && update.StringUpdate.DictionaryId == 1
+            select update).ToList();
+        Assert.AreEqual(1, tickerUpdates.Count);
+        Assert.AreEqual(expectedFieldUpdate, tickerUpdates[0]);
+
+        var newEmpty = new PQSourceTickerQuoteInfo(emptySrcTkrQtInfo);
+        newEmpty.UpdateFieldString(tickerUpdates[0]);
+        Assert.AreEqual(expectedTicker, newEmpty.Ticker);
+        Assert.IsFalse(newEmpty.IsTickerUpdated);
     }
 
     [TestMethod]
@@ -386,7 +487,7 @@ public class PQSourceTickerQuoteInfoTests
         fullyPopulatedSrcTkrQtInfo.HasUpdates = true;
         var pqFieldUpdates = fullyPopulatedSrcTkrQtInfo.GetDeltaUpdateFields(
             new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
-        var newEmpty = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(0, "", ""));
+        var newEmpty = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(0, "", 0, ""));
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         var stringFieldUpdates = fullyPopulatedSrcTkrQtInfo.GetStringUpdates(new DateTime(2017, 11, 04, 16, 33, 59),
             UpdateStyle.Updates);
@@ -399,10 +500,10 @@ public class PQSourceTickerQuoteInfoTests
     {
         var pqFieldUpdates = fullyPopulatedSrcTkrQtInfo.GetStringUpdates(
             new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
-        Assert.AreEqual(PQUniqueSourceTickerIdentifierTests.ExpectedSourceStringUpdate(
+        Assert.AreEqual(ExpectedSourceStringUpdate(
                 fullyPopulatedSrcTkrQtInfo.Source),
             PQLevel0QuoteTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 0));
-        Assert.AreEqual(PQUniqueSourceTickerIdentifierTests.ExpectedTickerStringUpdate(
+        Assert.AreEqual(ExpectedTickerStringUpdate(
                 fullyPopulatedSrcTkrQtInfo.Ticker),
             PQLevel0QuoteTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 1));
     }
@@ -422,8 +523,8 @@ public class PQSourceTickerQuoteInfoTests
         var expectedNewTicker = "NewTestTickerName";
         var expectedNewSource = "NewTestSourceName";
 
-        var tickerStringUpdate = PQUniqueSourceTickerIdentifierTests.ExpectedTickerStringUpdate(expectedNewTicker);
-        var sourceStringUpdate = PQUniqueSourceTickerIdentifierTests.ExpectedSourceStringUpdate(expectedNewSource);
+        var tickerStringUpdate = ExpectedTickerStringUpdate(expectedNewTicker);
+        var sourceStringUpdate = ExpectedSourceStringUpdate(expectedNewSource);
 
         emptySrcTkrQtInfo.UpdateFieldString(tickerStringUpdate);
         Assert.AreEqual(expectedNewTicker, emptySrcTkrQtInfo.Ticker);
@@ -534,7 +635,8 @@ public class PQSourceTickerQuoteInfoTests
     public static void AssertSourceTickerInfoContainsAllFields(IList<PQFieldUpdate> checkFieldUpdates,
         ISourceTickerQuoteInfo srcTkrInfo)
     {
-        PQUniqueSourceTickerIdentifierTests.AssertSourceTickerInfoContainsAllFields(checkFieldUpdates, srcTkrInfo);
+        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceTickerId, srcTkrInfo.Id),
+            PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.SourceTickerId));
         var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(
             srcTkrInfo.RoundingPrecision)[3])[2];
         var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
@@ -562,4 +664,26 @@ public class PQSourceTickerQuoteInfoTests
             Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradedFlags, (uint)srcTkrInfo.LastTradedFlags),
                 PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.LastTradedFlags));
     }
+
+
+    public static PQFieldStringUpdate ExpectedSourceStringUpdate(string sourceValue) =>
+        new()
+        {
+            Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpdate), StringUpdate
+                = new PQStringUpdate
+                {
+                    DictionaryId = 0, Value = sourceValue, Command = CrudCommand.Update
+                }
+        };
+
+
+    public static PQFieldStringUpdate ExpectedTickerStringUpdate(string tickerValue) =>
+        new()
+        {
+            Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpdate), StringUpdate
+                = new PQStringUpdate
+                {
+                    DictionaryId = 1, Value = tickerValue, Command = CrudCommand.Update
+                }
+        };
 }

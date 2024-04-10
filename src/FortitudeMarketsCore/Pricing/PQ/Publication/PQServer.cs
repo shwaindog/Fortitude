@@ -8,9 +8,9 @@ using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
@@ -18,19 +18,29 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
+public interface IPQServer<T> : IDisposable where T : IPQLevel0Quote
+{
+    bool IsStarted { get; }
+    void StartServices();
+    T? Register(string ticker);
+    void Unregister(T quote);
+    void Publish(T quote);
+}
+
 public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 {
     private readonly ISocketDispatcherResolver dispatcherResolver;
     private readonly IMap<uint, T> entities = new ConcurrentMap<uint, T>();
     private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
     private readonly ISyncLock heartBeatSync = new YieldLockLight();
+    private readonly IMarketConnectionConfig marketConnectionConfig;
+
+    private readonly IPricingServerConfig pricingServerConfig;
     private readonly Func<ISourceTickerQuoteInfo, T> quoteFactory;
     private readonly IPQServerHeartBeatSender serverHeartBeatSender;
 
     private readonly Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer>
         snapShotServerFactory;
-
-    private readonly ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig;
 
     private readonly Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer>
         updateServerFactory;
@@ -38,7 +48,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     private IPQSnapshotServer? snapshotServer;
     private IPQUpdateServer? updateServer;
 
-    public PQServer(ISnapshotUpdatePricingServerConfig snapshotUpdatePricingServerConfig,
+    public PQServer(IMarketConnectionConfig marketConnectionConfig,
         IPQServerHeartBeatSender serverHeartBeatSender,
         ISocketDispatcherResolver socketDispatcherResolver,
         Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> snapShotServerFactory,
@@ -47,7 +57,8 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         this.quoteFactory = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerQuoteInfo, T>();
         dispatcherResolver = socketDispatcherResolver;
-        this.snapshotUpdatePricingServerConfig = snapshotUpdatePricingServerConfig;
+        this.marketConnectionConfig = marketConnectionConfig;
+        pricingServerConfig = marketConnectionConfig.PricingServerConfig!;
         this.serverHeartBeatSender = serverHeartBeatSender;
         this.snapShotServerFactory = snapShotServerFactory;
         this.updateServerFactory = updateServerFactory;
@@ -57,11 +68,9 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 
     public T? Register(string ticker)
     {
-        var tickerInfo =
-            snapshotUpdatePricingServerConfig.SourceTickerPublicationConfigs!.FirstOrDefault(
-                tii => ticker.Equals(tii.Ticker, StringComparison.InvariantCultureIgnoreCase));
+        var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (!entities.TryGetValue(tickerInfo.Id, out var ent))
+            if (!entities.TryGetValue(tickerInfo.TickerId, out var ent))
             {
                 ent = quoteFactory(tickerInfo);
                 ent.PQSequenceId = uint.MaxValue;
@@ -185,16 +194,24 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         if (!IsStarted)
         {
-            snapshotServer = snapShotServerFactory(snapshotUpdatePricingServerConfig.SnapshotConnectionConfig!
+            snapshotServer = snapShotServerFactory(pricingServerConfig.SnapshotConnectionConfig!
                 , dispatcherResolver);
             snapshotServer.OnSnapshotRequest += OnSnapshotContextRequest;
+            snapshotServer.ReceivedSourceTickerInfoRequest += OnReceivedSourceTickerInfoRequest;
             snapshotServer.Start();
-            updateServer = updateServerFactory(snapshotUpdatePricingServerConfig.UpdateConnectionConfig!
+            updateServer = updateServerFactory(pricingServerConfig.UpdateConnectionConfig!
                 , dispatcherResolver);
             updateServer.Start();
             serverHeartBeatSender.UpdateServer = updateServer;
             IsStarted = true;
         }
+    }
+
+    private void OnReceivedSourceTickerInfoRequest(IConversationRequester clientConversationRequester)
+    {
+        var response = new PQSourceTickerInfoResponse(
+            marketConnectionConfig.AllSourceTickerInfos().Select(stpc => new SourceTickerQuoteInfoMessage(stpc)));
+        clientConversationRequester.Send(response);
     }
 
     #endregion

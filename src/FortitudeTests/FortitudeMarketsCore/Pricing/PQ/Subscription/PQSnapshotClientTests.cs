@@ -18,14 +18,13 @@ using FortitudeIO.Transports.Network.Publishing;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
 
@@ -66,7 +65,7 @@ public class PQSnapshotClientTests
     private Mock<ITimerCallbackSubscription> moqTimerCallbackSubscription = null!;
     private PQSnapshotClient pqSnapshotClient = null!;
 
-    private IList<IUniqueSourceTickerIdentifier> sendSrcTkrIds = null!;
+    private IList<ISourceTickerQuoteInfo> sendSrcTkrIds = null!;
     private string sessionDescription = null!;
     private TimeContextTests.StubTimeContext stubContext = null!;
 
@@ -146,13 +145,13 @@ public class PQSnapshotClientTests
         moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqOsSocket.SetupAllProperties();
 
-        sendSrcTkrIds = new List<IUniqueSourceTickerIdentifier>
+        sendSrcTkrIds = new List<ISourceTickerQuoteInfo>
         {
-            new UniqueSourceTickerIdentifier(07, "FirstSource", "FirstTicker")
-            , new UniqueSourceTickerIdentifier(77, "FirstSource", "SecondTicker")
-            , new UniqueSourceTickerIdentifier(15, "FirstSource", "ThirdTicker")
-            , new UniqueSourceTickerIdentifier(19, "FirstSource", "FourthTicker")
-            , new UniqueSourceTickerIdentifier(798, "FirstSource", "FifthTicker")
+            new SourceTickerQuoteInfo(7, "FirstSource", 7, "FirstTicker")
+            , new SourceTickerQuoteInfo(77, "FirstSource", 77, "SecondTicker")
+            , new SourceTickerQuoteInfo(15, "FirstSource", 16, "ThirdTicker")
+            , new SourceTickerQuoteInfo(19, "FirstSource", 19, "FourthTicker")
+            , new SourceTickerQuoteInfo(798, "FirstSource", 798, "FifthTicker")
         };
 
         moqSocketBinaryDeserializer.SetupAllProperties();

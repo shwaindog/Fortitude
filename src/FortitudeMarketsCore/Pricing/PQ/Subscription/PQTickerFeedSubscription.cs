@@ -1,7 +1,6 @@
 #region
 
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -11,7 +10,7 @@ public abstract class PQTickerFeedSubscription : IPQTickerFeedSubscription
 {
     private readonly ISourceTickerQuoteInfo sourceTickerQuoteInfo;
 
-    protected PQTickerFeedSubscription(ISnapshotUpdatePricingServerConfig feedServerConfig,
+    protected PQTickerFeedSubscription(IPricingServerConfig feedServerConfig,
         ISourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
         Feed = feedServerConfig;
@@ -20,7 +19,7 @@ public abstract class PQTickerFeedSubscription : IPQTickerFeedSubscription
 
     public string Source => sourceTickerQuoteInfo.Source;
     public string Ticker => sourceTickerQuoteInfo.Ticker;
-    public ISnapshotUpdatePricingServerConfig Feed { get; }
+    public IPricingServerConfig Feed { get; }
 
     public abstract void Unsubscribe();
 
@@ -32,8 +31,7 @@ public abstract class PQTickerFeedSubscription : IPQTickerFeedSubscription
         return hash;
     }
 
-    public override bool Equals(object? obj) =>
-        obj is PQTickerFeedSubscription sub && Source == sub.Source && Ticker == sub.Ticker;
+    public override bool Equals(object? obj) => obj is PQTickerFeedSubscription sub && Source == sub.Source && Ticker == sub.Ticker;
 
     public override string ToString() => $"PQTickerFeedSubscription {Source}-{Ticker}";
 }

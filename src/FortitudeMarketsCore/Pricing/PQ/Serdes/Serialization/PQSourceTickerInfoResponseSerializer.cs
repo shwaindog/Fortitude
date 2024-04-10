@@ -6,7 +6,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
@@ -79,7 +79,8 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
     private unsafe int Serialize(byte* currPtr, ISourceTickerQuoteInfo sourceTickerQuoteInfo, int remainingBytes)
     {
         var writeStart = currPtr;
-        StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.Id);
+        StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.SourceId);
+        StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.TickerId);
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.RoundingPrecision);
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.MinSubmitSize);
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.MaxSubmitSize);

@@ -5,8 +5,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 
@@ -31,7 +31,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public PQLevel0Quote() { }
 
-    public PQLevel0Quote(ISourceTickerQuoteInfo sourceTickerInfo) => SourceTickerQuoteInfo = (IMutableSourceTickerQuoteInfo)sourceTickerInfo;
+    public PQLevel0Quote(ISourceTickerQuoteInfo sourceTickerInfo) => SourceTickerQuoteInfo = sourceTickerInfo;
 
     public PQLevel0Quote(ILevel0Quote toClone)
     {
@@ -76,7 +76,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     ISourceTickerQuoteInfo? ILevel0Quote.SourceTickerQuoteInfo => PQSourceTickerQuoteInfo;
 
-    public IMutableSourceTickerQuoteInfo? SourceTickerQuoteInfo
+    public ISourceTickerQuoteInfo? SourceTickerQuoteInfo
     {
         get => PQSourceTickerQuoteInfo;
         set
@@ -86,7 +86,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                 PQSourceTickerQuoteInfo = pqSourceTickerInfo;
             if (PQSourceTickerQuoteInfo is PQSourceTickerQuoteInfo pqSourceTickInfo)
             {
-                PQSourceTickerQuoteInfo.CopyFrom((IUniqueSourceTickerIdentifier)pqSourceTickInfo);
+                PQSourceTickerQuoteInfo.CopyFrom(pqSourceTickInfo);
                 return;
             }
 
@@ -397,7 +397,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         else
         {
             ClientReceivedTime = source.ClientReceivedTime;
-            SourceTickerQuoteInfo = source.SourceTickerQuoteInfo as IMutableSourceTickerQuoteInfo;
+            SourceTickerQuoteInfo = source.SourceTickerQuoteInfo;
             SourceTime = source.SourceTime;
             IsReplay = source.IsReplay;
             SinglePrice = source.SinglePrice;

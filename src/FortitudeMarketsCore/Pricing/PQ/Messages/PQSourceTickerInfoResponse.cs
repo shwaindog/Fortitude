@@ -3,9 +3,9 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -20,13 +20,14 @@ public class SourceTickerQuoteInfoMessage : ReusableObject<ISourceTickerQuoteInf
         FormatPrice = "";
     }
 
-    public SourceTickerQuoteInfoMessage(uint uniqueId, string source, string ticker, byte maximumPublishedLayers = 20,
+    public SourceTickerQuoteInfoMessage(ushort sourceId, string source, ushort tickerId, string ticker, byte maximumPublishedLayers = 20,
         decimal roundingPrecision = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m,
         decimal incrementSize = 0.01m, ushort minimumQuoteLife = 100,
         LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume,
         LastTradedFlags lastTradedFlags = LastTradedFlags.None) : this()
     {
-        Id = uniqueId;
+        SourceId = sourceId;
+        TickerId = tickerId;
         Source = source;
         Ticker = ticker;
         MaximumPublishedLayers = maximumPublishedLayers;
@@ -45,9 +46,9 @@ public class SourceTickerQuoteInfoMessage : ReusableObject<ISourceTickerQuoteInf
         CopyFrom(toClone);
     }
 
-    public uint Id { get; set; }
-    public ushort SourceId => (ushort)(Id >> 16);
-    public ushort TickerId => (ushort)(0xFFFF & Id);
+    public uint Id => ((uint)SourceId << 16) | TickerId;
+    public ushort SourceId { get; set; }
+    public ushort TickerId { get; set; }
     public string Source { get; set; }
     public string Ticker { get; set; }
     public decimal RoundingPrecision { get; set; }
@@ -60,10 +61,6 @@ public class SourceTickerQuoteInfoMessage : ReusableObject<ISourceTickerQuoteInf
     public LastTradedFlags LastTradedFlags { get; set; }
     public string FormatPrice { get; set; }
 
-    public override ISourceTickerQuoteInfo Clone() =>
-        Recycler?.Borrow<SourceTickerQuoteInfoMessage>().CopyFrom(this) ?? new SourceTickerQuoteInfoMessage(this);
-
-    IUniqueSourceTickerIdentifier ICloneable<IUniqueSourceTickerIdentifier>.Clone() => Clone();
 
     public bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
     {
@@ -84,18 +81,13 @@ public class SourceTickerQuoteInfoMessage : ReusableObject<ISourceTickerQuoteInf
                minQuoteLifeSame && lastTradedFlagsSame && layerFlagsSame && maxPubLayersSame && formatPriceSame;
     }
 
-    public bool AreEquivalent(IUniqueSourceTickerIdentifier? other, bool exactTypes = false)
-    {
-        var idSame = Id == other?.Id;
-        var sourceSame = Source == other?.Source;
-        var tickerSame = Ticker == other?.Ticker;
-
-        return idSame && sourceSame && tickerSame;
-    }
+    public override ISourceTickerQuoteInfo Clone() =>
+        Recycler?.Borrow<SourceTickerQuoteInfoMessage>().CopyFrom(this) ?? new SourceTickerQuoteInfoMessage(this);
 
     public override ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        Id = source.Id;
+        SourceId = source.SourceId;
+        TickerId = source.TickerId;
         Source = source.Source;
         Ticker = source.Ticker;
         RoundingPrecision = source.RoundingPrecision;
@@ -116,7 +108,10 @@ public class SourceTickerQuoteInfoMessage : ReusableObject<ISourceTickerQuoteInf
     {
         unchecked
         {
-            var hashCode = base.GetHashCode();
+            var hashCode = (int)SourceId;
+            hashCode = (hashCode * 397) ^ TickerId;
+            hashCode = (hashCode * 397) ^ Source.GetHashCode();
+            hashCode = (hashCode * 397) ^ Ticker.GetHashCode();
             hashCode = (hashCode * 397) ^ MaximumPublishedLayers.GetHashCode();
             hashCode = (hashCode * 397) ^ (FormatPrice != null ? FormatPrice.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ RoundingPrecision.GetHashCode();
@@ -131,8 +126,8 @@ public class SourceTickerQuoteInfoMessage : ReusableObject<ISourceTickerQuoteInf
     }
 
     public override string ToString() =>
-        $"SourceTickerQuoteInfo {{{nameof(Id)}: {Id}, {nameof(Source)}: {Source}, " +
-        $"{nameof(Ticker)}: {Ticker},  {nameof(RoundingPrecision)}: {RoundingPrecision}, " +
+        $"SourceTickerQuoteInfo({nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, " +
+        $"{nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker},  {nameof(RoundingPrecision)}: {RoundingPrecision}, " +
         $"{nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, " +
         $"{nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +
         $"{nameof(LayerFlags)}: {LayerFlags}, {nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, " +
@@ -143,7 +138,7 @@ public class PQSourceTickerInfoResponse : VersionedMessage
 {
     public PQSourceTickerInfoResponse() => Version = 1;
 
-    public PQSourceTickerInfoResponse(IList<ISourceTickerQuoteInfo> requestSourceTickerIds) : this() =>
+    public PQSourceTickerInfoResponse(IEnumerable<ISourceTickerQuoteInfo> requestSourceTickerIds) : this() =>
         SourceTickerQuoteInfos.AddRange(requestSourceTickerIds);
 
     private PQSourceTickerInfoResponse(PQSourceTickerInfoResponse toClone) : this()

@@ -3,11 +3,11 @@
 using System.Linq.Expressions;
 using System.Text;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -173,9 +173,9 @@ public static class QuoteExtensionMethods
                 .Insert(sb.Length, " ", secondLinePadding)
                 .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
-        if (q1Value is IInterfacesComparable<IUniqueSourceTickerIdentifier> comparableQ1)
+        if (q1Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ1)
             areSame = comparableQ1.AreEquivalent(q2Value, exactValue);
-        else if (q2Value is IInterfacesComparable<IUniqueSourceTickerIdentifier> comparableQ2)
+        else if (q2Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ2)
             areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")
@@ -278,7 +278,7 @@ public static class QuoteExtensionMethods
         ILastTrade? lt1, ILastTrade? lt2)
     {
         if ((lt1 == null && lt2 != null) || (lt1 != null && lt2 == null) || (lt1 != null && (!lt1.Equals(lt2)
-                || !lt2.Equals(lt1))))
+                                                                                             || !lt2.Equals(lt1))))
             sb.Append($"{propertyName,PropertyNamePadding + secondLineIndexAdditionalPadding}[{level,2}]:" +
                       $"lt1={lt1?.ToString() ?? "null"}\n")
                 .Insert(sb.Length, " ", secondLinePadding)

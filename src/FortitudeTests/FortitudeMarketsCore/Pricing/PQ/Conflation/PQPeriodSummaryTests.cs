@@ -3,10 +3,10 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
@@ -21,8 +21,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Conflation;
 [TestClass]
 public class PQPeriodSummaryTests
 {
-    private readonly bool allowCatchup = true;
-    private readonly uint retryWaitMs = 2000;
     private PQPeriodSummary emptySummary = null!;
     private PQPeriodSummary fullyPopulatedPeriodSummary = null!;
     private PQSourceTickerQuoteInfo pricePrecisionSettings = null!;
@@ -34,13 +32,12 @@ public class PQPeriodSummaryTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        pricePrecisionSettings = new PQSourceTickerQuoteInfo(new SourceTickerClientAndPublicationConfig(
-            uint.MaxValue, "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+        pricePrecisionSettings = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(
+            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup)
+                                                                  LastTradedFlags.LastTradedTime)
         );
 
         emptySummary = new PQPeriodSummary();

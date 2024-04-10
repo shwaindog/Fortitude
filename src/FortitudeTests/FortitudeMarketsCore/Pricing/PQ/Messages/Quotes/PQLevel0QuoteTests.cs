@@ -6,18 +6,16 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
@@ -28,8 +26,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 [TestClass]
 public class PQLevel0QuoteTests
 {
-    private readonly bool allowCatchup = true;
-    private readonly uint retryWaitMs = 2000;
     private ISourceTickerQuoteInfo blankSourceTickerQuoteInfo = null!;
     private PQLevel0Quote emptyQuote = null!;
     private PQLevel0Quote fullyPopulatedPqLevel0Quote = null!;
@@ -43,14 +39,13 @@ public class PQLevel0QuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        sourceTickerQuoteInfo = new SourceTickerClientAndPublicationConfig(uint.MaxValue, "TestSource",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null, retryWaitMs
-            , allowCatchup);
-        blankSourceTickerQuoteInfo = new SourceTickerQuoteInfo(0, "", "");
+                                                                  LastTradedFlags.LastTradedTime);
+        blankSourceTickerQuoteInfo = new SourceTickerQuoteInfo(0, "", 0, "");
         emptyQuote = new PQLevel0Quote(sourceTickerQuoteInfo) { HasUpdates = false };
         fullyPopulatedPqLevel0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedPqLevel0Quote, 1);
@@ -302,10 +297,10 @@ public class PQLevel0QuoteTests
     {
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetStringUpdates(
             new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
-        Assert.AreEqual(PQUniqueSourceTickerIdentifierTests.ExpectedSourceStringUpdate(
+        Assert.AreEqual(PQSourceTickerQuoteInfoTests.ExpectedSourceStringUpdate(
                 fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo!.Source),
             ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 0));
-        Assert.AreEqual(PQUniqueSourceTickerIdentifierTests.ExpectedTickerStringUpdate(
+        Assert.AreEqual(PQSourceTickerQuoteInfoTests.ExpectedTickerStringUpdate(
                 fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo.Ticker),
             ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 1));
     }
@@ -325,8 +320,8 @@ public class PQLevel0QuoteTests
         var expectedNewTicker = "NewTestTickerName";
         var expectedNewSource = "NewTestSourceName";
 
-        var tickerStringUpdate = PQUniqueSourceTickerIdentifierTests.ExpectedTickerStringUpdate(expectedNewTicker);
-        var sourceStringUpdate = PQUniqueSourceTickerIdentifierTests.ExpectedSourceStringUpdate(expectedNewSource);
+        var tickerStringUpdate = PQSourceTickerQuoteInfoTests.ExpectedTickerStringUpdate(expectedNewTicker);
+        var sourceStringUpdate = PQSourceTickerQuoteInfoTests.ExpectedSourceStringUpdate(expectedNewSource);
 
 
         emptyQuote.UpdateFieldString(tickerStringUpdate);
@@ -546,9 +541,7 @@ public class PQLevel0QuoteTests
         bool ILevel0Quote.IsReplay => false;
         DateTime ILevel0Quote.SourceTime => DateTime.Now;
         DateTime ILevel0Quote.ClientReceivedTime => DateTime.Now;
-
-        ISourceTickerQuoteInfo? ILevel0Quote.SourceTickerQuoteInfo => SourceTickerQuoteInfo;
-        public IMutableSourceTickerQuoteInfo? SourceTickerQuoteInfo { get; set; }
+        public ISourceTickerQuoteInfo? SourceTickerQuoteInfo { get; set; }
         public DateTime SocketReceivingTime { get; set; }
         public DateTime ProcessedTime { get; set; }
         public DateTime DispatchedTime { get; set; }

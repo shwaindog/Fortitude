@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 
@@ -10,5 +10,5 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
 public interface IPQPublisher : IQuotePublisher<ILevel0Quote>
 {
-    void RegisterTickersWithServer(ISourceTickerPublicationConfigRepository tickersIdRef);
+    void RegisterTickersWithServer(IMarketConnectionConfig marketConnectionConfig);
 }

@@ -6,7 +6,6 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -20,8 +19,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 [TestClass]
 public class PQQuoteFeedDeserializerTests
 {
-    private readonly bool allowCatchup = true;
-    private readonly uint retryWaitMs = 2000;
     private bool compareQuoteWithExpected;
     private int countLevel0SerializerPublishes;
     private int countLevel0SerializerUpdates;
@@ -58,12 +55,12 @@ public class PQQuoteFeedDeserializerTests
     private PQQuoteFeedDeserializer<IPQLevel3Quote> pqLevel3QuoteDeserializer = null!;
     private PQQuoteDeserializationSequencedTestDataBuilder quoteDeserializerSequencedTestDataBuilder = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private ISourceTickerClientAndPublicationConfig sourceTickerQuoteInfo = null!;
+    private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        sourceTickerQuoteInfo = BuildSourceTickerQuoteInfo(unchecked((uint)(ushort.MaxValue << 16)), "");
+        sourceTickerQuoteInfo = BuildSourceTickerQuoteInfo(ushort.MaxValue, 0, "");
         pqLevel0QuoteDeserializer = new PQQuoteFeedDeserializer<IPQLevel0Quote>(sourceTickerQuoteInfo);
         pqLevel1QuoteDeserializer = new PQQuoteFeedDeserializer<IPQLevel1Quote>(sourceTickerQuoteInfo);
         pqLevel2QuoteDeserializer = new PQQuoteFeedDeserializer<IPQLevel2Quote>(sourceTickerQuoteInfo);
@@ -78,7 +75,7 @@ public class PQQuoteFeedDeserializerTests
             pqLevel0QuoteDeserializer, pqLevel1QuoteDeserializer, pqLevel2QuoteDeserializer, pqLevel3QuoteDeserializer
         };
 
-        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(unchecked((uint)(ushort.MaxValue << 16)) + 1, "TestTicker1"),
+        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(ushort.MaxValue, (ushort)1, "TestTicker1"),
             PQSyncStatus.Good);
 
         SetupQuoteListeners();
@@ -91,14 +88,13 @@ public class PQQuoteFeedDeserializerTests
             moqDispatchPerfLogger.Object);
     }
 
-    private SourceTickerClientAndPublicationConfig BuildSourceTickerQuoteInfo(uint sourceTickerId, string ticker) =>
-        new(sourceTickerId, "TestSource", ticker, 20,
+    private SourceTickerQuoteInfo BuildSourceTickerQuoteInfo(ushort sourceId, ushort tickerId, string ticker) =>
+        new(sourceId, "TestSource", tickerId, ticker, 20,
             0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime,
-            null, retryWaitMs, allowCatchup);
+                                                                  LastTradedFlags.LastTradedTime);
 
     [TestMethod]
     public void FreshSerializer_DeserializeSnapshot_SyncClientQuoteWithExpected()
@@ -110,12 +106,12 @@ public class PQQuoteFeedDeserializerTests
                 .ClientReceivedTimestamp(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(20))
             , false);
 
-        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(unchecked((uint)(ushort.MaxValue << 16)) + 2, "TestTicker1"),
+        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(ushort.MaxValue, 2, "TestTicker1"),
             PQSyncStatus.Stale);
         AssertDeserializerHasTimedOutAndNeedsSnapshotIs(PQQuoteDeserializationSequencedTestDataBuilder
             .ClientReceivedTimestamp(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(21)), true);
 
-        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(unchecked((uint)(ushort.MaxValue << 16)) + 2, "TestTicker2"),
+        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(ushort.MaxValue, 2, "TestTicker2"),
             PQSyncStatus.Good);
         SendsSequenceIdFromTo(2, 2, true);
         AssertDeserializerHasTimedOutAndNeedsSnapshotIs(PQQuoteDeserializationSequencedTestDataBuilder
@@ -125,7 +121,7 @@ public class PQQuoteFeedDeserializerTests
                 .ClientReceivedTimestamp(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(23))
             , false);
 
-        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(unchecked((uint)(ushort.MaxValue << 16)) + 2, "TestTicker2"),
+        SetupPQLevelQuotes(BuildSourceTickerQuoteInfo(ushort.MaxValue, 2, "TestTicker2"),
             PQSyncStatus.Stale);
         AssertDeserializerHasTimedOutAndNeedsSnapshotIs(PQQuoteDeserializationSequencedTestDataBuilder
             .ClientReceivedTimestamp(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(24)), true);
@@ -279,7 +275,7 @@ public class PQQuoteFeedDeserializerTests
             ).Verifiable();
     }
 
-    private void SetupPQLevelQuotes(ISourceTickerClientAndPublicationConfig publicationQuotes,
+    private void SetupPQLevelQuotes(ISourceTickerQuoteInfo publicationQuotes,
         PQSyncStatus expectedSyncStatus)
     {
         expectedL0FullyInitializedQuote = new PQLevel0Quote(publicationQuotes)

@@ -4,8 +4,8 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -18,19 +18,27 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQClientTests
 {
-    private readonly uint firstSourceTickerPublicationConfigId = 123;
-    private readonly uint secondSourceTickerPublicationConfigId = 234;
-    private bool defaultAllowCatchUps;
-    private uint defaultSyncRetryInterval;
+    private const ushort FirstSourceId = 123;
+    private const ushort FirstTickerId = 456;
+    private const ushort SecondSourceId = 234;
+    private const ushort SecondTickerId = 567;
+
+    private const uint FirstSourceTickerId = ((uint)FirstSourceId << 16) | FirstTickerId;
+    private const uint SecondSourceTickerId = ((uint)SecondSourceId << 16) | SecondTickerId;
+    private readonly bool defaultAllowCatchUps = true;
+    private readonly uint defaultSyncRetryInterval = 60000;
+    private readonly string firstTestSourceName = "FirstTestSourceName";
+    private readonly string firstTestTicker = "FirstTestTicker";
     private PQLevel0Quote dummyLevel0Quote = null!;
     private PQLevel1Quote dummyLevel1Quote = null!;
     private PQLevel2Quote dummyLevel2Quote = null!;
     private PQLevel3Quote dummyLevel3Quote = null!;
-    private string firstTestSourceName = null!;
-    private string firstTestTicker = null!;
     private Mock<IDisposable> moqDeserializerSubscription = null!;
+    private Mock<IMarketConnectionConfig> moqFirstMarketConnectionConfig = null!;
+    private Mock<IPricingServerConfig> moqFirstPricingServerConfig = null!;
     private Mock<ISocketDispatcher> moqFirstSocketDispatcher = null!;
-    private Mock<IMutableSourceTickerPublicationConfig> moqFirstTestTickerPublicationConfig = null!;
+    private Mock<ISourceTickerQuoteInfo> moqFirstTestSourceTickerQuoteInfo = null!;
+    private Mock<IMarketConnectionConfigRepository> moqMarketConnectionConfigRepo = null!;
     private Mock<IPQClientMessageStreamDecoder> moqMessageStreamDecoder = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
@@ -41,34 +49,32 @@ public class PQClientTests
     private Mock<IPQDeserializer<PQLevel3Quote>> moqPQLvl3QuoteSerializer = null!;
     private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteDeserializerRepo = null!;
     private Mock<IPQDeserializer> moqPQQuoteSerializer = null!;
-    private Mock<IPricingClientConfigRepository> moqPricingServersConfigRepo = null!;
-    private Mock<IMutableSourceTickerPublicationConfig> moqSecondTestTickerPublicationConfig = null!;
+    private Mock<IMarketConnectionConfig> moqSecondMarketConnectionConfig = null!;
+    private Mock<IPricingServerConfig> moqSecondPricingServerConfig = null!;
+    private Mock<ISourceTickerQuoteInfo> moqSecondTestSourceTickerQuoteInfo = null!;
     private Mock<IIntraOSThreadSignal> moqSingleOsThreadSignal = null!;
     private Mock<IPQSnapshotClient> moqSnapshotClient = null!;
     private Mock<IPQConversationRepository<IPQSnapshotClient>> moqSnapshotClientFactory = null!;
     private Mock<IEndpointConfig> moqSnapshotServerConfig = null!;
     private Mock<INetworkTopicConnectionConfig> moqSnapshotTopicServerConfig = null!;
-    private Mock<ISnapshotUpdatePricingServerConfig> moqSnapshotUpdatePricingServerConfig = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<IPQUpdateClient> moqUpdateClient = null!;
     private Mock<IPQConversationRepository<IPQUpdateClient>> moqUpdateClientFactory = null!;
     private Mock<IEndpointConfig> moqUpdateServerConfig = null!;
     private Mock<INetworkTopicConnectionConfig> moqUpdateTopicServerConfig = null!;
     private PQClient pqClient = null!;
-    private string secondTestSourceName = null!;
-    private string secondTestTicker = null!;
-    private List<ISourceTickerPublicationConfig> serverTickerConfigs = null!;
+    private string secondTestSourceName = "SecondTestSourceName";
+    private string secondTestTicker = "SecondTestTicker";
 
     [TestInitialize]
     public void SetUp()
     {
-        PrepareInitialValues();
         PrepareNewPQClientInitializationMocks();
 
         PrepareQuoteLevelMocks();
 
         PrepareGetQuoteStreamMocks();
-        pqClient = new PQClient(moqPricingServersConfigRepo.Object, moqSocketDispatcherResolver.Object,
+        pqClient = new PQClient(moqMarketConnectionConfigRepo.Object, moqSocketDispatcherResolver.Object,
             defaultAllowCatchUps, moqUpdateClientFactory.Object, moqSnapshotClientFactory.Object);
 
         NonPublicInvocator.SetInstanceField(pqClient, "pqClientSyncMonitoring", moqPQClientSyncMonitoring.Object);
@@ -94,54 +100,36 @@ public class PQClientTests
             .Returns(moqParallelController.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
-        moqFirstTestTickerPublicationConfig = new Mock<IMutableSourceTickerPublicationConfig>();
-        moqFirstTestTickerPublicationConfig.As<IMutableUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Source)
-            .Returns(firstTestSourceName);
-        moqFirstTestTickerPublicationConfig.As<IMutableUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Ticker)
-            .Returns(firstTestTicker);
-        moqFirstTestTickerPublicationConfig.As<IMutableUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Id)
-            .Returns(firstSourceTickerPublicationConfigId);
-        moqFirstTestTickerPublicationConfig.As<IUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Source)
-            .Returns(firstTestSourceName);
-        moqFirstTestTickerPublicationConfig.As<IUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Ticker)
-            .Returns(firstTestTicker);
-        moqFirstTestTickerPublicationConfig.As<IUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Id)
-            .Returns(firstSourceTickerPublicationConfigId);
-        moqFirstTestTickerPublicationConfig.SetupGet(stpc => stpc.Source)
-            .Returns(firstTestSourceName);
-        moqFirstTestTickerPublicationConfig.SetupGet(stpc => stpc.Ticker)
-            .Returns(firstTestTicker);
-        moqFirstTestTickerPublicationConfig.SetupGet(stpc => stpc.Id)
-            .Returns(firstSourceTickerPublicationConfigId);
-        moqSecondTestTickerPublicationConfig = new Mock<IMutableSourceTickerPublicationConfig>();
-        moqSecondTestTickerPublicationConfig.As<IMutableUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Source)
-            .Returns(secondTestSourceName);
-        moqSecondTestTickerPublicationConfig.As<IMutableUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Ticker)
-            .Returns(secondTestTicker);
-        moqSecondTestTickerPublicationConfig.As<IMutableUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Id)
-            .Returns(secondSourceTickerPublicationConfigId);
-        moqSecondTestTickerPublicationConfig.As<IUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Source)
-            .Returns(secondTestSourceName);
-        moqSecondTestTickerPublicationConfig.As<IUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Ticker)
-            .Returns(secondTestTicker);
-        moqSecondTestTickerPublicationConfig.As<IUniqueSourceTickerIdentifier>().SetupGet(stpc => stpc.Id)
-            .Returns(secondSourceTickerPublicationConfigId);
-        moqSecondTestTickerPublicationConfig.SetupGet(stpc => stpc.Source)
-            .Returns(secondTestSourceName);
-        moqSecondTestTickerPublicationConfig.SetupGet(stpc => stpc.Ticker)
-            .Returns(secondTestTicker);
-        moqSecondTestTickerPublicationConfig.SetupGet(stpc => stpc.Id)
-            .Returns(secondSourceTickerPublicationConfigId);
-        serverTickerConfigs = new List<ISourceTickerPublicationConfig>
-        {
-            moqFirstTestTickerPublicationConfig.Object, moqSecondTestTickerPublicationConfig.Object
-        };
-        moqSnapshotUpdatePricingServerConfig = new Mock<ISnapshotUpdatePricingServerConfig>();
-        moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.SourceTickerPublicationConfigs)
-            .Returns(serverTickerConfigs).Verifiable();
-        moqPricingServersConfigRepo = new Mock<IPricingClientConfigRepository>();
-        moqPricingServersConfigRepo.Setup(pscr => pscr.Find(It.IsAny<string>()))
-            .Returns(moqSnapshotUpdatePricingServerConfig.Object);
+
+        moqFirstTestSourceTickerQuoteInfo = new Mock<ISourceTickerQuoteInfo>();
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Source).Returns(firstTestSourceName);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Ticker).Returns(firstTestTicker);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Id).Returns(FirstSourceTickerId);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.SourceId).Returns(FirstSourceId);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.TickerId).Returns(FirstTickerId);
+
+        moqSecondTestSourceTickerQuoteInfo = new Mock<ISourceTickerQuoteInfo>();
+
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Source).Returns(secondTestSourceName);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Ticker).Returns(secondTestTicker);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Id).Returns(SecondSourceTickerId);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.SourceId).Returns(SecondSourceId);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.TickerId).Returns(SecondTickerId);
+
+
+        moqFirstMarketConnectionConfig = new Mock<IMarketConnectionConfig>();
+        moqFirstPricingServerConfig = new Mock<IPricingServerConfig>();
+        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.PricingServerConfig).Returns(moqFirstPricingServerConfig.Object);
+        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.SourceId).Returns(FirstSourceId);
+        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.Name).Returns(firstTestSourceName);
+        moqFirstMarketConnectionConfig.Setup(mcc => mcc.GetSourceTickerInfo(firstTestTicker)).Returns(moqFirstTestSourceTickerQuoteInfo.Object);
+
+        moqSecondMarketConnectionConfig = new Mock<IMarketConnectionConfig>();
+        moqSecondPricingServerConfig = new Mock<IPricingServerConfig>();
+        moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.PricingServerConfig).Returns(moqSecondPricingServerConfig.Object);
+        moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.SourceId).Returns(SecondSourceId);
+        moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.Name).Returns(secondTestSourceName);
+        moqSecondMarketConnectionConfig.Setup(mcc => mcc.GetSourceTickerInfo(secondTestTicker)).Returns(moqSecondTestSourceTickerQuoteInfo.Object);
 
 
         moqSnapshotClientFactory = new Mock<IPQConversationRepository<IPQSnapshotClient>>();
@@ -153,6 +141,18 @@ public class PQClientTests
         moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSnapshotClient.Object);
 
+        moqMarketConnectionConfigRepo = new Mock<IMarketConnectionConfigRepository>();
+        moqMarketConnectionConfigRepo.Setup(pscr => pscr.Find(firstTestSourceName))
+            .Returns(moqFirstMarketConnectionConfig.Object);
+        moqMarketConnectionConfigRepo.Setup(pscr => pscr.Find(secondTestSourceName))
+            .Returns(moqSecondMarketConnectionConfig.Object);
+        var serverTickerConfigs = new List<IMarketConnectionConfig>
+        {
+            moqFirstMarketConnectionConfig.Object, moqSecondMarketConnectionConfig.Object
+        };
+        moqMarketConnectionConfigRepo.SetupGet(supsc => supsc.CurrentConfigs)
+            .Returns(serverTickerConfigs);
+
         moqUpdateClientFactory = new Mock<IPQConversationRepository<IPQUpdateClient>>();
         moqUpdateClient = new Mock<IPQUpdateClient>();
         moqUpdateClientFactory.Setup(scf => scf.RetrieveOrCreateConversation(It.IsAny<INetworkTopicConnectionConfig>()))
@@ -162,16 +162,6 @@ public class PQClientTests
 
         moqFirstSocketDispatcher = new Mock<ISocketDispatcher>();
         moqFirstSocketDispatcher.SetupAllProperties();
-    }
-
-    private void PrepareInitialValues()
-    {
-        defaultAllowCatchUps = true;
-        defaultSyncRetryInterval = 60000;
-        firstTestSourceName = "FirstTestSourceName";
-        firstTestTicker = "FirstTestTicker";
-        secondTestSourceName = "SecondTestSourceName";
-        secondTestTicker = "SecondTestTicker";
     }
 
     private void PrepareGetQuoteStreamMocks()
@@ -187,24 +177,24 @@ public class PQClientTests
         moqUpdateTopicServerConfig.Setup(utsc => utsc.GetEnumerator()).Returns(moqUpdateTopicServerConfig.Object);
         moqUpdateServerConfig.SetupGet(scc => scc.SubnetMask).Returns("123.0.0.123").Verifiable();
         moqUpdateServerConfig.SetupGet(scc => scc.Hostname).Returns("UpdateHostName").Verifiable();
-        moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.Name).Returns("TestServerName").Verifiable();
+        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.Name).Returns("TestServerName").Verifiable();
 
         moqSnapshotServerConfig = new Mock<IEndpointConfig>();
         moqSnapshotTopicServerConfig = new Mock<INetworkTopicConnectionConfig>();
         moqSnapshotTopicServerConfig.SetupGet(supsc => supsc.Current).Returns(moqSnapshotServerConfig.Object);
         moqSnapshotServerConfig.SetupGet(scc => scc.Hostname).Returns("SnapshotHostName");
-        moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
+        moqFirstPricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
             .Returns(moqSnapshotTopicServerConfig.Object).Verifiable();
-        moqSnapshotUpdatePricingServerConfig.SetupGet(supsc => supsc.UpdateConnectionConfig)
+        moqFirstPricingServerConfig.SetupGet(supsc => supsc.UpdateConnectionConfig)
             .Returns(moqUpdateTopicServerConfig.Object);
     }
 
     private void PrepareQuoteLevelMocks()
     {
-        dummyLevel0Quote = new PQLevel0Quote(moqFirstTestTickerPublicationConfig.Object);
-        dummyLevel1Quote = new PQLevel1Quote(moqFirstTestTickerPublicationConfig.Object);
-        dummyLevel2Quote = new PQLevel2Quote(moqFirstTestTickerPublicationConfig.Object);
-        dummyLevel3Quote = new PQLevel3Quote(moqFirstTestTickerPublicationConfig.Object);
+        dummyLevel0Quote = new PQLevel0Quote(moqFirstTestSourceTickerQuoteInfo.Object);
+        dummyLevel1Quote = new PQLevel1Quote(moqFirstTestSourceTickerQuoteInfo.Object);
+        dummyLevel2Quote = new PQLevel2Quote(moqFirstTestSourceTickerQuoteInfo.Object);
+        dummyLevel3Quote = new PQLevel3Quote(moqFirstTestSourceTickerQuoteInfo.Object);
 
         moqPQQuoteSerializer = new Mock<IPQDeserializer>();
         moqPQLvl0QuoteSerializer = moqPQQuoteSerializer.As<IPQDeserializer<PQLevel0Quote>>();
@@ -227,16 +217,16 @@ public class PQClientTests
 
         moqPQQuoteDeserializerRepo = new Mock<IPQClientQuoteDeserializerRepository>();
         moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel0Quote>(
-                It.IsAny<ISourceTickerClientAndPublicationConfig>()))
+                It.IsAny<ITickerPricingSubscriptionConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
         moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel1Quote>(
-                It.IsAny<ISourceTickerClientAndPublicationConfig>()))
+                It.IsAny<ITickerPricingSubscriptionConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
         moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel2Quote>(
-                It.IsAny<ISourceTickerClientAndPublicationConfig>()))
+                It.IsAny<ITickerPricingSubscriptionConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
         moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.CreateQuoteDeserializer<PQLevel3Quote>(
-                It.IsAny<ISourceTickerClientAndPublicationConfig>()))
+                It.IsAny<ITickerPricingSubscriptionConfig>()))
             .Returns(moqPQQuoteSerializer.Object);
         moqUpdateClient.SetupGet(sc => sc.DeserializerRepository).Returns(moqPQQuoteDeserializerRepo.Object);
         moqSnapshotClient.SetupGet(sc => sc.DeserializerRepository).Returns(moqPQQuoteDeserializerRepo.Object);
@@ -273,14 +263,14 @@ public class PQClientTests
 
     private IPQTickerFeedSubscriptionQuoteStream<T>
         NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<T>(
-            Mock<IMutableSourceTickerPublicationConfig>? sourceTickerQuoteInfo = null) where T : PQLevel0Quote, new()
+            Mock<ISourceTickerQuoteInfo>? sourceTickerQuoteInfo = null) where T : PQLevel0Quote, new()
     {
-        sourceTickerQuoteInfo ??= moqFirstTestTickerPublicationConfig;
+        sourceTickerQuoteInfo ??= moqFirstTestSourceTickerQuoteInfo;
         var result = pqClient.GetQuoteStream<T>(sourceTickerQuoteInfo.Object, defaultSyncRetryInterval);
 
         Assert.IsNotNull(result);
         sourceTickerQuoteInfo.Verify();
-        moqPricingServersConfigRepo.Verify();
+        moqMarketConnectionConfigRepo.Verify();
         moqPQQuoteDeserializerRepo.Verify();
         moqPQClientSyncMonitoring.Verify();
         moqFirstSocketDispatcher.Verify();
@@ -317,7 +307,7 @@ public class PQClientTests
     public void SubscribedQuoteStreamTyped_Unsubscribe_RegistersAndReturnsQuote<T>() where T : PQLevel0Quote, new()
     {
         var subQuoteStream
-            = pqClient.GetQuoteStream<T>(moqFirstTestTickerPublicationConfig.Object, defaultSyncRetryInterval);
+            = pqClient.GetQuoteStream<T>(moqFirstTestSourceTickerQuoteInfo.Object, defaultSyncRetryInterval);
 
         PrepareUnsubscribeMocks();
 
@@ -331,10 +321,10 @@ public class PQClientTests
 
     private void PrepareUnsubscribeMocks()
     {
-        moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.GetDeserializer(
-            moqFirstTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object);
-        moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.GetDeserializer(
-            moqSecondTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object);
+        moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.GetDeserializer(moqFirstTestSourceTickerQuoteInfo.Object))
+            .Returns(moqPQQuoteSerializer.Object);
+        moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.GetDeserializer(moqFirstTestSourceTickerQuoteInfo.Object))
+            .Returns(moqPQQuoteSerializer.Object);
 
         moqUpdateClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Verifiable();
@@ -361,7 +351,7 @@ public class PQClientTests
         var firstSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel0Quote>();
 
         var secondSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel1Quote>(
-            moqSecondTestTickerPublicationConfig);
+            moqSecondTestSourceTickerQuoteInfo);
 
         Assert.AreNotEqual(firstSub, secondSub);
     }
@@ -372,7 +362,7 @@ public class PQClientTests
         var firstSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel0Quote>();
 
         var secondSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel1Quote>(
-            moqSecondTestTickerPublicationConfig);
+            moqSecondTestSourceTickerQuoteInfo);
 
         Assert.AreNotEqual(firstSub, secondSub);
     }
@@ -383,22 +373,19 @@ public class PQClientTests
         var firstSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel0Quote>();
 
         var secondSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel1Quote>(
-            moqSecondTestTickerPublicationConfig);
+            moqSecondTestSourceTickerQuoteInfo);
 
         Assert.AreNotEqual(firstSub, secondSub);
         moqPQQuoteDeserializerRepo.Reset();
         moqPQQuoteSerializer.Reset();
-        moqFirstTestTickerPublicationConfig.Reset();
-        moqFirstTestTickerPublicationConfig.SetupGet(stpc => stpc.Ticker)
+        moqFirstTestSourceTickerQuoteInfo.Reset();
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Ticker)
             .Returns(firstTestTicker);
-        moqFirstTestTickerPublicationConfig.As<ISourceTickerPublicationConfig>().SetupGet(stpc => stpc.Id)
-            .Returns(firstSourceTickerPublicationConfigId);
-        moqFirstTestTickerPublicationConfig.As<ISourceTickerQuoteInfo>().SetupGet(stpc => stpc.Ticker)
-            .Returns(secondTestTicker);
-        moqFirstTestTickerPublicationConfig.As<ISourceTickerQuoteInfo>().SetupGet(stpc => stpc.Source)
-            .Returns(secondTestSourceName);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Id).Returns(FirstSourceTickerId);
+
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Source).Returns(secondTestSourceName);
         moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.GetDeserializer(
-            moqFirstTestTickerPublicationConfig.Object)).Returns(moqPQQuoteSerializer.Object).Verifiable();
+            moqFirstTestSourceTickerQuoteInfo.Object)).Returns(moqPQQuoteSerializer.Object).Verifiable();
 
         moqUpdateClientFactory.Setup(sscf => sscf.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Verifiable();
@@ -423,22 +410,25 @@ public class PQClientTests
         var firstSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel0Quote>();
 
         var secondSub = NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<PQLevel1Quote>(
-            moqSecondTestTickerPublicationConfig);
+            moqSecondTestSourceTickerQuoteInfo);
 
         Assert.AreNotEqual(firstSub, secondSub);
         moqPQQuoteDeserializerRepo.Reset();
-        moqFirstTestTickerPublicationConfig.Reset();
-        moqSecondTestTickerPublicationConfig.Reset();
+        moqFirstTestSourceTickerQuoteInfo.Reset();
+        moqSecondTestSourceTickerQuoteInfo.Reset();
         moqPQQuoteSerializer.Reset();
-        moqFirstTestTickerPublicationConfig.SetupGet(stpc => stpc.Ticker)
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Ticker)
             .Returns(firstTestTicker);
-        moqFirstTestTickerPublicationConfig.As<ISourceTickerPublicationConfig>().SetupGet(stpc => stpc.Id)
-            .Returns(firstSourceTickerPublicationConfigId);
-        moqSecondTestTickerPublicationConfig.SetupGet(stpc => stpc.Ticker)
-            .Returns(secondTestTicker);
-        moqSecondTestTickerPublicationConfig.As<ISourceTickerPublicationConfig>().SetupGet(stpc => stpc.Id)
-            .Returns(secondSourceTickerPublicationConfigId);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Id).Returns(FirstSourceTickerId);
+
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Source).Returns(firstTestSourceName);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Ticker)
+            .Returns(secondTestSourceName);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Id).Returns(SecondSourceTickerId);
+
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stpc => stpc.Source).Returns(secondTestSourceName);
         moqPQQuoteDeserializerRepo.SetupGet(pqqsf => pqqsf.RegisteredMessageIds).Returns(Array.Empty<uint>()).Verifiable();
+        moqPQQuoteDeserializerRepo.Setup(pqqsf => pqqsf.GetDeserializer(It.IsAny<uint>())).Returns(moqPQLvl1QuoteSerializer.Object);
         PrepareUnsubscribeMocks();
 
         pqClient.Dispose();
@@ -452,11 +442,11 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfo_ReturnsNullQueuesInfoRequestAttempt()
     {
-        moqPricingServersConfigRepo.Reset();
+        moqMarketConnectionConfigRepo.Reset();
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
             It.IsAny<WaitOrTimerCallback>(), 60000, true)).Verifiable();
         var subQuoteStream
-            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object
+            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestSourceTickerQuoteInfo.Object
                 , defaultSyncRetryInterval);
 
         Assert.IsNull(subQuoteStream);
@@ -466,8 +456,8 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfo_ReattemptFindsInfoNoMoreAttemptsAreQueued()
     {
-        moqPricingServersConfigRepo.Reset();
-        moqSnapshotUpdatePricingServerConfig.Reset();
+        moqMarketConnectionConfigRepo.Reset();
+        moqFirstPricingServerConfig.Reset();
         WaitOrTimerCallback? queuedReattemptHandler = null;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
                 It.IsAny<WaitOrTimerCallback>(), 60000, true))
@@ -476,18 +466,18 @@ public class PQClientTests
                 queuedReattemptHandler = callback;
             }).Returns(new Mock<ITimerCallbackSubscription>().Object).Verifiable();
         var subQuoteStream
-            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object
+            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestSourceTickerQuoteInfo.Object
                 , defaultSyncRetryInterval);
 
         Assert.IsNull(subQuoteStream);
         moqParallelController.Verify();
 
         moqParallelController.Reset();
-        moqPricingServersConfigRepo.Setup(pscr => pscr.Find(It.IsAny<string>()))
-            .Returns(moqSnapshotUpdatePricingServerConfig.Object);
+        moqMarketConnectionConfigRepo.Setup(pscr => pscr.Find(It.IsAny<string>()))
+            .Returns(moqFirstMarketConnectionConfig.Object);
         Assert.IsNotNull(queuedReattemptHandler);
         queuedReattemptHandler(null, true);
-        moqPricingServersConfigRepo.Verify();
+        moqMarketConnectionConfigRepo.Verify();
 
         moqParallelController.Verify(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
             It.IsAny<WaitOrTimerCallback>(), 60000, true), Times.Never);
@@ -496,7 +486,7 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfo_ReattemptStillDoesntFindInfoMoreAttemptsAreQueued()
     {
-        moqPricingServersConfigRepo.Reset();
+        moqMarketConnectionConfigRepo.Reset();
         WaitOrTimerCallback? queuedReattemptHandler = null;
         var scheduleCounter = 0;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
@@ -508,7 +498,7 @@ public class PQClientTests
             }).Returns(new Mock<ITimerCallbackSubscription>().Object)
             .Verifiable();
         var subQuoteStream
-            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object
+            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestSourceTickerQuoteInfo.Object
                 , defaultSyncRetryInterval);
 
         Assert.IsNull(subQuoteStream);
@@ -526,7 +516,7 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfoThenDispose_UnsubscribeOnReattemptNoInfosRequired()
     {
-        moqPricingServersConfigRepo.Reset();
+        moqMarketConnectionConfigRepo.Reset();
         WaitOrTimerCallback? queuedReattemptHandler = null;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
                 It.IsAny<WaitOrTimerCallback>(), 60000, true))
@@ -537,7 +527,7 @@ public class PQClientTests
             .Verifiable();
         moqSingleOsThreadSignal.Setup(sts => sts.Set()).Verifiable();
         var subQuoteStream
-            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object
+            = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestSourceTickerQuoteInfo.Object
                 , defaultSyncRetryInterval);
 
         Assert.IsNull(subQuoteStream);
@@ -548,7 +538,7 @@ public class PQClientTests
         moqSingleOsThreadSignal.Verify();
         Assert.IsNotNull(queuedReattemptHandler);
         queuedReattemptHandler(null, true);
-        moqPricingServersConfigRepo.Verify();
+        moqMarketConnectionConfigRepo.Verify();
 
         moqParallelController.Verify(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
             It.IsAny<WaitOrTimerCallback>(), 60000, true), Times.Never);
@@ -557,16 +547,16 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_MultipleGetQuoteStreamNoQuoteInfos_OnlyOneReattemptIsQueued()
     {
-        moqPricingServersConfigRepo.Reset();
+        moqMarketConnectionConfigRepo.Reset();
         var scheduleCounter = 0;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
                 It.IsAny<WaitOrTimerCallback>(), 60000, true))
             .Callback<IIntraOSThreadSignal, WaitOrTimerCallback, uint, bool>((its, callback, timeout, callOnce) => { scheduleCounter++; })
             .Returns(new Mock<ITimerCallbackSubscription>().Object)
             .Verifiable();
-        var subQuoteStream = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object,
+        var subQuoteStream = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestSourceTickerQuoteInfo.Object,
             defaultSyncRetryInterval);
-        var subQuoteStream2 = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object,
+        var subQuoteStream2 = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestSourceTickerQuoteInfo.Object,
             defaultSyncRetryInterval);
 
         Assert.IsNull(subQuoteStream);
@@ -586,18 +576,16 @@ public class PQClientTests
             .Returns(new Mock<ITimerCallbackSubscription>().Object)
             .Verifiable();
 
-        var diffQuoteInfo = new Mock<IMutableSourceTickerPublicationConfig>();
+        var diffQuoteInfo = new Mock<ISourceTickerQuoteInfo>();
 
-        diffQuoteInfo.As<ISourceTickerQuoteInfo>().SetupGet(stqi => stqi.Ticker)
-            .Returns("NewUnknownTicker").Verifiable();
-        diffQuoteInfo.As<ISourceTickerQuoteInfo>().SetupGet(stqi => stqi.Source)
-            .Returns(firstTestSourceName).Verifiable();
+        diffQuoteInfo.SetupGet(stqi => stqi.Ticker).Returns("SomeUnknownTicker").Verifiable();
+        diffQuoteInfo.SetupGet(stqi => stqi.Source).Returns(firstTestSourceName).Verifiable();
 
         var subQuoteStream = pqClient.GetQuoteStream<PQLevel0Quote>(diffQuoteInfo.Object,
             defaultSyncRetryInterval);
 
         Assert.IsNull(subQuoteStream);
-        moqFirstTestTickerPublicationConfig.Verify();
+        moqFirstTestSourceTickerQuoteInfo.Verify();
         moqParallelController.Verify(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
             It.IsAny<WaitOrTimerCallback>(), 60000, true), Times.Never);
         Assert.AreEqual(0, scheduleCounter);
@@ -606,33 +594,33 @@ public class PQClientTests
     [TestMethod]
     public void SubscribedLevel0_GetSourceServerConfig_FindsSnapshotUpdatePricingServerConfig()
     {
-        var subQuoteStream = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestTickerPublicationConfig.Object,
+        var subQuoteStream = pqClient.GetQuoteStream<PQLevel0Quote>(moqFirstTestSourceTickerQuoteInfo.Object,
             defaultSyncRetryInterval);
 
         Assert.IsNotNull(subQuoteStream);
-        var pricingServerConfig = pqClient.GetSourceServerConfig(moqFirstTestTickerPublicationConfig.Object.Source);
-        Assert.IsNotNull(pricingServerConfig);
-        Assert.AreEqual(moqSnapshotUpdatePricingServerConfig.Object, pricingServerConfig);
+        var marketConnConfig = pqClient.GetSourceServerConfig(moqFirstTestSourceTickerQuoteInfo.Object.Source);
+        Assert.IsNotNull(marketConnConfig);
+        Assert.AreEqual(moqFirstMarketConnectionConfig.Object, marketConnConfig);
     }
 
     [TestMethod]
     public void NewPQClient_GetSourceServerConfig_DoesntFindSnapshotUpdatePricingServerConfig()
     {
-        var pricingServerConfig = pqClient.GetSourceServerConfig(moqFirstTestTickerPublicationConfig.Object.Source);
+        var pricingServerConfig = pqClient.GetSourceServerConfig(moqFirstTestSourceTickerQuoteInfo.Object.Source);
         Assert.IsNull(pricingServerConfig);
     }
 
     [TestMethod]
     public void SubscribedLevel0Stream_RequestSnapshots_FindsSnapshotClientForwardsStreamIdRequests()
     {
-        moqSnapshotClient.Setup(sc => sc.RequestSnapshots(It.IsAny<List<IUniqueSourceTickerIdentifier>>()))
+        moqSnapshotClient.Setup(sc => sc.RequestSnapshots(It.IsAny<List<ISourceTickerQuoteInfo>>()))
             .Verifiable();
         moqSnapshotClientFactory.Reset();
         moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSnapshotClient.Object).Verifiable();
 
         var moqClientSnapshotServerConfig = new Mock<INetworkTopicConnectionConfig>();
-        pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<IUniqueSourceTickerIdentifier>());
+        pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<ISourceTickerQuoteInfo>());
 
         moqSnapshotClientFactory.Verify();
         moqSnapshotClient.Verify();
@@ -647,7 +635,7 @@ public class PQClientTests
 
 
         var moqClientSnapshotServerConfig = new Mock<INetworkTopicConnectionConfig>();
-        pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<IUniqueSourceTickerIdentifier>());
+        pqClient.RequestSnapshots(moqClientSnapshotServerConfig.Object, new List<ISourceTickerQuoteInfo>());
 
         moqSnapshotClientFactory.Verify();
     }

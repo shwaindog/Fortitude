@@ -2,15 +2,14 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -20,9 +19,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 public class PQHeartbeatSerializerTests
 {
     private const int BufferReadWriteOffset = 5;
-    private readonly bool allowCatchup = true;
-
-    private readonly uint retryWaitMs = 2000;
 
     private PQHeartBeatQuotesMessage firstBatchOfQuotes = null!;
 
@@ -42,34 +38,30 @@ public class PQHeartbeatSerializerTests
     [TestInitialize]
     public void SetUp()
     {
-        firstQuoteInfo = new SourceTickerClientAndPublicationConfig(1, "TestSource",
+        firstQuoteInfo = new SourceTickerQuoteInfo(1, "TestSource", 1,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup);
-        secondQuoteInfo = new SourceTickerClientAndPublicationConfig(2, "TestSource",
+                                                                  LastTradedFlags.LastTradedTime);
+        secondQuoteInfo = new SourceTickerQuoteInfo(2, "TestSource", 2,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup);
-        thirdQuoteInfo = new SourceTickerClientAndPublicationConfig(3, "TestSource",
+                                                                  LastTradedFlags.LastTradedTime);
+        thirdQuoteInfo = new SourceTickerQuoteInfo(3, "TestSource", 3,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup);
-        fourthQuoteInfo = new SourceTickerClientAndPublicationConfig(4, "TestSource",
+                                                                  LastTradedFlags.LastTradedTime);
+        fourthQuoteInfo = new SourceTickerQuoteInfo(4, "TestSource", 4,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime, null,
-            retryWaitMs, allowCatchup);
+                                                                  LastTradedFlags.LastTradedTime);
 
         firstQuote = new PQLevel0Quote(firstQuoteInfo);
         secondQuote = new PQLevel1Quote(secondQuoteInfo);

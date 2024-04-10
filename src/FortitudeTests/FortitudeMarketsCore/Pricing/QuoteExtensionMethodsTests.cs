@@ -2,13 +2,13 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -30,7 +30,7 @@ public class QuoteExtensionMethodsTests
     private readonly DateTime originalQuoteExchangeTime = new(2015, 11, 17, 22, 07, 23);
 
     private readonly SourceTickerQuoteInfo originalSourceTickerQuoteInfo = new(1,
-        OriginalQuoteExchangeName, OriginalQuoteTickerName, 20, 0.0001m, 1m, 1000000m, 1m);
+        OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, 20, 0.0001m, 1m, 1000000m, 1m);
 
     private ILevel3Quote originalQuote = null!;
 
@@ -79,7 +79,7 @@ public class QuoteExtensionMethodsTests
     {
         var q2 = originalQuote.Clone();
         var newExchangerName = "DifferentExchangeName";
-        var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo(1, newExchangerName,
+        var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo(1, newExchangerName, 1,
             OriginalQuoteTickerName, 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2,
             (Level3PriceQuote pq) => pq.SourceTickerQuoteInfo, newSourceTickerQuoteInfo);
@@ -101,7 +101,7 @@ public class QuoteExtensionMethodsTests
     {
         var q2 = originalQuote.Clone();
         var newTickerName = "DifferentTicker";
-        var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo(1, OriginalQuoteExchangeName,
+        var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo(1, OriginalQuoteExchangeName, 1,
             newTickerName, 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2, (Level3PriceQuote pq) => pq.SourceTickerQuoteInfo,
             newSourceTickerQuoteInfo);

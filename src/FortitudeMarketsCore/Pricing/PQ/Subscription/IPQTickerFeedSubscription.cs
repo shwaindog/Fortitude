@@ -11,7 +11,7 @@ public interface IPQTickerFeedSubscription
 {
     string Source { get; }
     string Ticker { get; }
-    ISnapshotUpdatePricingServerConfig Feed { get; }
+    IPricingServerConfig Feed { get; }
     void Unsubscribe();
 }
 

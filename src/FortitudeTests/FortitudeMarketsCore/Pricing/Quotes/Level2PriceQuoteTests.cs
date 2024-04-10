@@ -2,17 +2,16 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
@@ -51,33 +50,33 @@ public class Level2PriceQuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        simpleSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        simpleSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        sourceNameSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        sourceNameSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceName, LastTradedFlags.PaidOrGiven |
                                                                           LastTradedFlags.TraderName |
                                                                           LastTradedFlags.LastTradedVolume |
                                                                           LastTradedFlags.LastTradedTime);
-        sourceQuoteRefSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue,
-            "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+        sourceQuoteRefSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
+            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference, LastTradedFlags.PaidOrGiven |
                                                                                     LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                                                                     LastTradedFlags.LastTradedTime);
-        traderDetailsSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue,
-            "TestSource", "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+        traderDetailsSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
+            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize |
             LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                     LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        valueDateSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        valueDateSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.ValueDate, LastTradedFlags.PaidOrGiven |
                                                                          LastTradedFlags.TraderName |
                                                                          LastTradedFlags.LastTradedVolume |
                                                                          LastTradedFlags.LastTradedTime);
-        everyLayerSourceTickerQuoteInfo = new SourceTickerQuoteInfo(uint.MaxValue, "TestSource",
+        everyLayerSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume.AllFlags(), LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                           LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);

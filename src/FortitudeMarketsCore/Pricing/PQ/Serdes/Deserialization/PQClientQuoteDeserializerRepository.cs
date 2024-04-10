@@ -3,7 +3,6 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -21,12 +20,12 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
 {
     new IPQClientMessageStreamDecoder Supply();
 
-    IPQDeserializer CreateQuoteDeserializer<T>(ISourceTickerClientAndPublicationConfig streamPubConfig)
+    IPQDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
         where T : PQLevel0Quote, new();
 
-    IPQDeserializer? GetDeserializer(IUniqueSourceTickerIdentifier identifier);
+    IPQDeserializer? GetDeserializer(ISourceTickerQuoteInfo identifier);
 
-    bool UnregisterDeserializer(IUniqueSourceTickerIdentifier identifier);
+    bool UnregisterDeserializer(ISourceTickerQuoteInfo identifier);
 }
 
 public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializationRepository, IPQClientQuoteDeserializerRepository
@@ -41,19 +40,19 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializ
 
     IMessageStreamDecoder IMessageStreamDecoderFactory.Supply() => Supply();
 
-    public IPQDeserializer CreateQuoteDeserializer<T>(ISourceTickerClientAndPublicationConfig streamPubConfig) where T : PQLevel0Quote, new()
-    {
-        PQDeserializerBase quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
-        RegisteredDeserializers.Add(streamPubConfig.Id, quoteDeserializer);
-        return quoteDeserializer;
-    }
-
-    public IPQDeserializer? GetDeserializer(IUniqueSourceTickerIdentifier identifier) =>
+    public IPQDeserializer? GetDeserializer(ISourceTickerQuoteInfo identifier) =>
         TryGetDeserializer(identifier.Id, out var quoteDeserializer) ?
             quoteDeserializer as IPQDeserializer :
             CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.Id) as IPQDeserializer;
 
-    public bool UnregisterDeserializer(IUniqueSourceTickerIdentifier identifier) => UnregisterDeserializer(identifier.Id);
+    public bool UnregisterDeserializer(ISourceTickerQuoteInfo identifier) => UnregisterDeserializer(identifier.Id);
+
+    public IPQDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : PQLevel0Quote, new()
+    {
+        PQDeserializerBase quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
+        RegisteredDeserializers.Add(streamPubConfig.SourceTickerQuoteInfo.Id, quoteDeserializer);
+        return quoteDeserializer;
+    }
 
     protected override IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId)
     {
