@@ -53,4 +53,12 @@ public class ServiceEndpoint : ConfigSection, IServiceEndpoint
         get => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
         set => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
     }
+
+    public static void ClearValues(IConfigurationRoot root, string path)
+    {
+        NetworkTopicConnectionConfig.ClearValues(root, path + ":" + nameof(ClusterAccessibleClientConnectionConfig));
+        NetworkTopicConnectionConfig.ClearValues(root, path + ":" + nameof(ServiceStartConnectionConfig));
+        root[path + ":" + nameof(ClusterAccessibleClientConnectionConfig)] = null;
+        root[path + ":" + nameof(ServiceStartConnectionConfig)] = null;
+    }
 }

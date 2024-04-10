@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Configuration;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -10,7 +11,7 @@ namespace FortitudeBusRules.Config;
 
 public interface IRemoteServiceConfig
 {
-    List<INetworkTopicConnectionConfig> RemoteServiceConnectionConfigs { get; set; }
+    IEnumerable<INetworkTopicConnectionConfig> RemoteServiceConnectionConfigs { get; set; }
     string Name { get; set; }
     string StreamType { get; set; }
     ActivationState ActivationState { get; set; }
@@ -21,8 +22,7 @@ public interface IRemoteServiceConfig
 
 public class RemoteServiceConfig : ConfigSection, IRemoteServiceConfig
 {
-    private List<string>? connectRemoteServiceNames;
-    private List<INetworkTopicConnectionConfig>? remoteServiceConnectionConfigs;
+    private object? ignoreSuppressWarnings;
     private IServiceCustomConfig? serviceCustomConfig;
 
     public RemoteServiceConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
@@ -38,27 +38,6 @@ public class RemoteServiceConfig : ConfigSection, IRemoteServiceConfig
     }
 
     public RemoteServiceConfig(IRemoteServiceConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
-
-    public List<string> ConnectToRemoteServiceNames
-    {
-        get
-        {
-            if (connectRemoteServiceNames != null) return connectRemoteServiceNames;
-            connectRemoteServiceNames = new List<string>();
-            foreach (var serviceName in GetSection(nameof(ConnectToRemoteServiceNames)).GetChildren())
-                connectRemoteServiceNames.Add(serviceName!.Value!);
-            return connectRemoteServiceNames;
-        }
-        set
-        {
-            connectRemoteServiceNames = new List<string>();
-            for (var i = 0; i < value.Count; i++)
-            {
-                this[nameof(ConnectToRemoteServiceNames) + $":{i}"] = value[i];
-                connectRemoteServiceNames.Add(value[i]);
-            }
-        }
-    }
 
     public string Name
     {
@@ -90,23 +69,29 @@ public class RemoteServiceConfig : ConfigSection, IRemoteServiceConfig
         set => this[nameof(ClientInitiatorFullClassName)] = value;
     }
 
-    public List<INetworkTopicConnectionConfig> RemoteServiceConnectionConfigs
+    public IEnumerable<INetworkTopicConnectionConfig> RemoteServiceConnectionConfigs
     {
         get
         {
-            if (remoteServiceConnectionConfigs != null) return remoteServiceConnectionConfigs;
-            remoteServiceConnectionConfigs = new List<INetworkTopicConnectionConfig>();
+            var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<INetworkTopicConnectionConfig>>();
             foreach (var configurationSection in GetSection(nameof(RemoteServiceConnectionConfigs)).GetChildren())
                 if (configurationSection["TopicName"] != null)
-                    remoteServiceConnectionConfigs.Add(new NetworkTopicConnectionConfig(ConfigRoot, configurationSection.Path));
-            return remoteServiceConnectionConfigs;
+                    autoRecycleList.Add(new NetworkTopicConnectionConfig(ConfigRoot, configurationSection.Path));
+            return autoRecycleList;
         }
         set
         {
-            remoteServiceConnectionConfigs = new List<INetworkTopicConnectionConfig>();
-            for (var i = 0; i < value.Count; i++)
-                remoteServiceConnectionConfigs.Add(new NetworkTopicConnectionConfig(value[i], ConfigRoot
-                    , Path + ":" + nameof(RemoteServiceConnectionConfigs) + $":{i}"));
+            var oldCount = RemoteServiceConnectionConfigs.Count();
+            var i = 0;
+            foreach (var remoteServiceConfig in value)
+            {
+                ignoreSuppressWarnings = new NetworkTopicConnectionConfig(remoteServiceConfig, ConfigRoot
+                    , Path + ":" + nameof(RemoteServiceConnectionConfigs) + $":{i}");
+                i++;
+            }
+
+            for (var j = i; j < oldCount; j++)
+                NetworkTopicConnectionConfig.ClearValues(ConfigRoot, Path + ":" + nameof(RemoteServiceConnectionConfigs) + $":{i}");
         }
     }
 
@@ -119,5 +104,15 @@ public class RemoteServiceConfig : ConfigSection, IRemoteServiceConfig
             return null;
         }
         set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, ConfigRoot, Path + ":" + nameof(ServiceCustomConfig)) : null;
+    }
+
+    public static void ClearValues(IConfigurationRoot root, string path)
+    {
+        root[path + ":" + nameof(Name)] = null;
+        root[path + ":" + nameof(StreamType)] = null;
+        root[path + ":" + nameof(Description)] = null;
+        root[path + ":" + nameof(ClientInitiatorFullClassName)] = null;
+        root[path + ":" + nameof(RemoteServiceConnectionConfigs)] = null;
+        root[path + ":" + nameof(ServiceCustomConfig)] = null;
     }
 }

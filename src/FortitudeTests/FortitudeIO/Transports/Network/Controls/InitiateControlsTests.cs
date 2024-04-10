@@ -22,6 +22,7 @@ public class InitiateControlsTests
     private IPEndPoint connectedIpEndPoint = null!;
     private InitiateControls initiateControls = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
+    private Mock<IEnumerator<IEndpointConfig>> moqEndpointEnumerator = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
     private Mock<IIntraOSThreadSignal> moqIntraOsThreadSignal = null!;
@@ -50,6 +51,7 @@ public class InitiateControlsTests
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqIntraOsThreadSignal = new Mock<IIntraOSThreadSignal>();
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
@@ -70,9 +72,9 @@ public class InitiateControlsTests
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         moqSocketConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
         moqSocketTopicConnectionConfig.Setup(stcc => stcc.GetEnumerator())
-            .Returns(moqSocketTopicConnectionConfig.Object);
-        moqSocketTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
-        moqSocketTopicConnectionConfig.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
+            .Returns(moqEndpointEnumerator.Object);
+        moqEndpointEnumerator.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.ReconnectConfig).Returns(moqSocketReconnectConfig.Object);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("TestSessionDescription");
 
@@ -159,7 +161,7 @@ public class InitiateControlsTests
         moqSocketFactory.SetupSequence(sf => sf.Create(It.IsAny<INetworkTopicConnectionConfig>(),
                 It.IsAny<IEndpointConfig>())).Throws(new Exception("Connection failure"))
             .Returns(moqOsSocket.Object);
-        moqSocketTopicConnectionConfig.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(true)
+        moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(true)
             .Returns(false);
         moqFlogger.Setup(fl => fl.Info("Connection to {0} {1}:{2} rejected: {3}", It.IsAny<object[]>())).Verifiable();
 

@@ -9,6 +9,7 @@ namespace FortitudeCommon.DataStructures.Lists;
 
 public interface IAutoRecycleEnumerable<T> : IAutoRecycledObject, IEnumerable<T>
 {
+    IList<T> BackingList { get; }
     bool HasItems { get; }
     IAutoRecycleEnumerable<T> Add(T append);
     IAutoRecycleEnumerable<T> AddRange(IEnumerable<T> appendAll);
@@ -23,18 +24,18 @@ public class AutoRecycledEnumerable<T> : AutoRecycledObject, IAutoRecycleEnumera
     private bool disableEnumeratorRecycle;
     private ReusableList<T>? recycledBackingList;
 
-
-    private ReusableList<T> BackingList
+    public ReusableList<T> ReusableBackingList
     {
         get { return recycledBackingList ??= Recycler?.Borrow<ReusableList<T>>() ?? new ReusableList<T>(); }
     }
 
+    public IList<T> BackingList => ReusableBackingList;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<T> GetEnumerator()
     {
-        var autoRecycleEnumerator = BackingList.GetEnumerator();
+        var autoRecycleEnumerator = ReusableBackingList.GetEnumerator();
         if (disableEnumeratorRecycle) autoRecycleEnumerator.DisableAutoRecycle();
         if (AutoRecycleAtRefCountZero) // be able to switch off auto recycle
             DecrementRefCount();
@@ -44,29 +45,29 @@ public class AutoRecycledEnumerable<T> : AutoRecycledObject, IAutoRecycleEnumera
 
     public IAutoRecycleEnumerable<T> Add(T item)
     {
-        BackingList.Add(item);
+        ReusableBackingList.Add(item);
         return this;
     }
 
     public IAutoRecycleEnumerable<T> AddRange(IEnumerable<T> items)
     {
-        BackingList.AddRange(items);
+        ReusableBackingList.AddRange(items);
         return this;
     }
 
     public IAutoRecycleEnumerable<T> Remove(T remove)
     {
-        BackingList.Remove(remove);
+        ReusableBackingList.Remove(remove);
         return this;
     }
 
     public IAutoRecycleEnumerable<T> Clear()
     {
-        BackingList.Clear();
+        ReusableBackingList.Clear();
         return this;
     }
 
-    public bool HasItems => BackingList.Count > 0;
+    public bool HasItems => ReusableBackingList.Count > 0;
 
     public override void StateReset()
     {
@@ -89,9 +90,12 @@ public class AutoRecycledEnumerable<T> : AutoRecycledObject, IAutoRecycleEnumera
 
 public class EmptyAutoRecycledEnumerable<T> : RecyclableObject, IAutoRecycleEnumerable<T>
 {
+    // ReSharper disable once CollectionNeverUpdated.Local
+    private static readonly IList<T> AlwaysEmptyList = new List<T>().AsReadOnly();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<T> GetEnumerator() => Enumerable.Empty<T>().GetEnumerator();
+    public IList<T> BackingList => AlwaysEmptyList;
 
     public bool HasItems => false;
 

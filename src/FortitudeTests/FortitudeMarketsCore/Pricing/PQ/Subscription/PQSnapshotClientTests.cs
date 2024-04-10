@@ -42,6 +42,7 @@ public class PQSnapshotClientTests
     private Mock<IPQClientMessageStreamDecoder> moqClientMessageStreamDecoder = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
     private Mock<ISocketDispatcherResolver> moqDispatcherResolver = null!;
+    private Mock<IEnumerator<IEndpointConfig>> moqEndpointEnumerator = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
     private Mock<IIntraOSThreadSignal> moqIIntraOSThreadSignal = null!;
@@ -95,6 +96,7 @@ public class PQSnapshotClientTests
         moqNetworkingController = new Mock<IOSNetworkingController>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         sessionDescription = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteDeserializationRepo = new Mock<IPQClientQuoteDeserializerRepository>();
         moqClientMessageStreamDecoder = new Mock<IPQClientMessageStreamDecoder>();
@@ -129,7 +131,7 @@ public class PQSnapshotClientTests
         moqSocketConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("PQSnapshotClientTests");
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(expectedHost);
         moqSocketConnectionConfig.SetupGet(scc => scc.Port).Returns(expectedPort);
-        moqSocketTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqEndpointEnumerator.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("PQSnapshotClientTests");
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.ConnectionTimeoutMs).Returns(connectionTimeoutMs);
         moqSocketFactories.SetupGet(pcf => pcf.SocketFactory).Returns(moqSocketFactory.Object);

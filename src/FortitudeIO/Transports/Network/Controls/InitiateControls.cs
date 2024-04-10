@@ -128,7 +128,7 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
                 StopMessaging();
                 logger.Info("Connection to {0} {1} id {2}:{3} closed.",
                     socketSessionContext.Name, socketSessionContext.Id,
-                    socketSessionContext.NetworkTopicConnectionConfig.Current.Hostname,
+                    string.Join(", ", socketSessionContext.NetworkTopicConnectionConfig.AvailableConnections),
                     socketSessionContext.SocketConnection.ConnectedPort);
                 socketSessionContext.SocketConnection.OSSocket?.Close();
             }

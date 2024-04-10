@@ -114,8 +114,7 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         base.StateReset();
     }
 
-    public override IReusableList<T> Clone() =>
-        Recycler?.Borrow<ReusableList<T>>().CopyFrom(this) ?? new ReusableList<T>(this);
+    public override IReusableList<T> Clone() => Recycler?.Borrow<ReusableList<T>>().CopyFrom(this) ?? new ReusableList<T>(this);
 
     public IAutoRecycleEnumerator<T> GetEnumerator()
     {

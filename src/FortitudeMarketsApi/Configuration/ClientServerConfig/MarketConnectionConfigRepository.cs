@@ -18,7 +18,7 @@ public interface IMarketConnectionConfigRepository
 
 public class MarketConnectionConfigRepository : IMarketConnectionConfigRepository
 {
-    private readonly Dictionary<ushort, IMarketConnectionConfig> currentConfigs;
+    private readonly Dictionary<ushort, IMarketConnectionConfig> currentConfigs = new ();
 
     public MarketConnectionConfigRepository() => currentConfigs = [];
 

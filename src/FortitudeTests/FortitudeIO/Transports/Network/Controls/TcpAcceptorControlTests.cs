@@ -32,6 +32,7 @@ public class TcpAcceptorControlsTests
     private Mock<INetworkTopicConnectionConfig> moqClientNetworkTopicConnectionConfig = null!;
     private Mock<IOSSocket> moqClientOsSocket = null!;
     private Mock<ISocketDispatcher> moqDispatcher = null!;
+    private Mock<IEnumerator<IEndpointConfig>> moqEndpointEnumerator = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
     private Mock<INetworkTopicConnectionConfig> moqNetworkTopicConnectionConfig = null!;
@@ -64,6 +65,7 @@ public class TcpAcceptorControlsTests
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqNetworkTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         moqClientNetworkTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
@@ -91,9 +93,9 @@ public class TcpAcceptorControlsTests
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         moqSocketConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
         moqNetworkTopicConnectionConfig.Setup(stcc => stcc.GetEnumerator())
-            .Returns(moqNetworkTopicConnectionConfig.Object);
-        moqNetworkTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
-        moqNetworkTopicConnectionConfig.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
+            .Returns(moqEndpointEnumerator.Object);
+        moqEndpointEnumerator.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
         moqNetworkTopicConnectionConfig.SetupGet(scc => scc.ReconnectConfig).Returns(moqSocketReconnectConfig.Object);
         moqNetworkTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("TestSessionDescription");
         moqNetworkTopicConnectionConfig.Setup(scc => scc.ToggleProtocolDirection()).Returns(moqClientNetworkTopicConnectionConfig.Object);
@@ -150,7 +152,7 @@ public class TcpAcceptorControlsTests
     {
         ConnectMoqSetupCaptureOnCxAcceptCallback();
         SetupConnectionException();
-        moqNetworkTopicConnectionConfig.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(true)
+        moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(true)
             .Returns(false);
 
         tcpAcceptorControls.Connect();
@@ -218,7 +220,7 @@ public class TcpAcceptorControlsTests
         moqSocketFactory.SetupSequence(sf => sf.Create(It.IsAny<INetworkTopicConnectionConfig>(),
                 It.IsAny<IEndpointConfig>())).Throws(new Exception("Connection failure"))
             .Returns(moqAcceptorOsSocket.Object);
-        moqNetworkTopicConnectionConfig.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(true)
+        moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(true)
             .Returns(false);
         moqFlogger.Setup(fl => fl.Error("Failed to open socket for {0}. Got {1}", It.IsAny<object[]>())).Verifiable();
 

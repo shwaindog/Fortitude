@@ -91,7 +91,6 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         StreamByteOps.ToBytes(ref currPtr, (ushort)sourceTickerQuoteInfo.LastTradedFlags);
         StreamByteOps.ToBytesWithSizeHeader(ref currPtr, sourceTickerQuoteInfo.Source, remainingBytes);
         StreamByteOps.ToBytesWithSizeHeader(ref currPtr, sourceTickerQuoteInfo.Ticker, remainingBytes);
-        StreamByteOps.ToBytesWithSizeHeader(ref currPtr, sourceTickerQuoteInfo.FormatPrice, remainingBytes);
         return (int)(currPtr - writeStart);
     }
 }

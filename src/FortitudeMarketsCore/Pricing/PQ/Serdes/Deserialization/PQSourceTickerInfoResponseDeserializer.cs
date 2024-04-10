@@ -57,7 +57,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
 
     private unsafe ISourceTickerQuoteInfo DeserializeSourceTickerQuoteInfo(ref byte* currPtr)
     {
-        var deserializedSourceTickerQuoteInfo = recycler.Borrow<SourceTickerQuoteInfoMessage>();
+        var deserializedSourceTickerQuoteInfo = recycler.Borrow<SourceTickerQuoteInfo>();
         deserializedSourceTickerQuoteInfo.SourceId = StreamByteOps.ToUShort(ref currPtr);
         deserializedSourceTickerQuoteInfo.TickerId = StreamByteOps.ToUShort(ref currPtr);
         deserializedSourceTickerQuoteInfo.RoundingPrecision = StreamByteOps.ToDecimal(ref currPtr);
@@ -70,7 +70,6 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
         deserializedSourceTickerQuoteInfo.LastTradedFlags = (LastTradedFlags)StreamByteOps.ToUShort(ref currPtr);
         deserializedSourceTickerQuoteInfo.Source = StreamByteOps.ToStringWithSizeHeader(ref currPtr);
         deserializedSourceTickerQuoteInfo.Ticker = StreamByteOps.ToStringWithSizeHeader(ref currPtr);
-        deserializedSourceTickerQuoteInfo.FormatPrice = StreamByteOps.ToStringWithSizeHeader(ref currPtr);
 
         return deserializedSourceTickerQuoteInfo;
     }

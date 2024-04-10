@@ -71,6 +71,15 @@ public class EndpointConfig : ConfigSection, IEndpointConfig
 
     public IEndpointConfig Clone() => new EndpointConfig(this);
 
+    public static void ClearValues(IConfigurationRoot root, string path)
+    {
+        root[path + ":" + nameof(InstanceName)] = null;
+        root[path + ":" + nameof(Hostname)] = null;
+        root[path + ":" + nameof(SubnetMask)] = null;
+        root[path + ":" + nameof(SubnetMask)] = null;
+        root[path + ":" + nameof(Port)] = null;
+    }
+
     protected bool Equals(IEndpointConfig other)
     {
         var hostNameSame = Equals(Hostname, other.Hostname);

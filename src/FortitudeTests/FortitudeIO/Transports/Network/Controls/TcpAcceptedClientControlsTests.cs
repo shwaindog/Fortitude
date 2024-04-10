@@ -19,6 +19,7 @@ namespace FortitudeTests.FortitudeIO.Transports.Network.Controls;
 public class TcpAcceptedClientControlsTests
 {
     private Mock<ISocketDispatcher> moqDispatcher = null!;
+    private Mock<IEnumerator<IEndpointConfig>> moqEndpointEnumerator = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
@@ -46,6 +47,7 @@ public class TcpAcceptedClientControlsTests
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
@@ -65,9 +67,9 @@ public class TcpAcceptedClientControlsTests
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         moqSocketConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
         moqSocketTopicConnectionConfig.Setup(stcc => stcc.GetEnumerator())
-            .Returns(moqSocketTopicConnectionConfig.Object);
-        moqSocketTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
-        moqSocketTopicConnectionConfig.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
+            .Returns(moqEndpointEnumerator.Object);
+        moqEndpointEnumerator.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.ReconnectConfig).Returns(moqSocketReconnectConfig.Object);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("TestSessionDescription");
 

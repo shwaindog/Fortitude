@@ -71,7 +71,6 @@ public class PQUpdateClientRepositoryTests
         moqSocketFactories.SetupGet(sf => sf.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
         PQUpdateClient.SocketFactories = moqSocketFactories.Object;
         testHostName = "TestHostname";
-        moqSocketTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqServerConnectionConfig.Object);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicName).Returns("PQUpdateClientRepositoryTests");
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("PQUpdateClientRepositoryTests");
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);

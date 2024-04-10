@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Configuration;
+using FortitudeCommon.DataStructures.Lists;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -13,13 +14,13 @@ public interface ILocalServiceConfig
     string StreamType { get; set; }
     ActivationState ActivationState { get; set; }
     string ServiceInitiatorFullClassName { get; set; }
-    List<IServiceEndpoint> Endpoints { get; set; }
+    IEnumerable<IServiceEndpoint> Endpoints { get; set; }
     IServiceCustomConfig? ServiceCustomConfig { get; set; }
 }
 
 public class LocalServiceConfig : ConfigSection, ILocalServiceConfig
 {
-    private readonly List<IServiceEndpoint> lastAccessedServiceEndpoints = new();
+    private object? ignoreSuppressWarnings;
     private IServiceCustomConfig? serviceCustomConfig;
 
     public LocalServiceConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
@@ -60,22 +61,30 @@ public class LocalServiceConfig : ConfigSection, ILocalServiceConfig
         set => this[nameof(ServiceInitiatorFullClassName)] = value;
     }
 
-    public List<IServiceEndpoint> Endpoints
+    public IEnumerable<IServiceEndpoint> Endpoints
     {
         get
         {
-            lastAccessedServiceEndpoints.Clear();
+            var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<IServiceEndpoint>>();
             foreach (var configurationSection in GetSection(nameof(Endpoints)).GetChildren())
                 if (configurationSection.GetChildren().Any(cs => cs.Key == "ServiceStartConnectionConfig"))
-                    lastAccessedServiceEndpoints.Add(new ServiceEndpoint(ConfigRoot, configurationSection.Path));
-            return lastAccessedServiceEndpoints;
+                    if (configurationSection.GetChildren()
+                        .SelectMany(cs => cs.GetChildren())
+                        .Any(cs => cs is { Key: "TopicName", Value: not null }))
+                        autoRecycleList.Add(new ServiceEndpoint(ConfigRoot, configurationSection.Path));
+            return autoRecycleList;
         }
         set
         {
-            lastAccessedServiceEndpoints.Clear();
-            for (var i = 0; i < value.Count; i++)
-                lastAccessedServiceEndpoints.Add(new ServiceEndpoint(value[i], ConfigRoot
-                    , Path + ":" + nameof(Endpoints) + $":{i}"));
+            var oldCount = Endpoints.Count();
+            var i = 0;
+            foreach (var serviceEndpoint in value)
+            {
+                ignoreSuppressWarnings = new ServiceEndpoint(serviceEndpoint, ConfigRoot, Path + ":" + nameof(Endpoints) + $":{i}");
+                i++;
+            }
+
+            for (var j = i; j < oldCount; j++) ServiceEndpoint.ClearValues(ConfigRoot, Path + ":" + nameof(Endpoints) + $":{i}");
         }
     }
 
@@ -85,7 +94,7 @@ public class LocalServiceConfig : ConfigSection, ILocalServiceConfig
         {
             if (GetSection(nameof(ServiceCustomConfig)).GetChildren().Any())
                 return serviceCustomConfig ??= new ServiceCustomConfig(ConfigRoot, Path + ":" + nameof(ServiceCustomConfig));
-            return null;
+            return serviceCustomConfig;
         }
         set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, ConfigRoot, Path + ":" + nameof(ServiceCustomConfig)) : null;
     }

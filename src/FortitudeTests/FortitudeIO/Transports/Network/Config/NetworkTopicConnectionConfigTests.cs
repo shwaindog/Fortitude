@@ -26,15 +26,15 @@ public class NetworkTopicConnectionConfigTests
 
         Assert.AreEqual("TestCanLoadFromJson", networkTopicConnectionConfig.TopicName);
         Assert.AreEqual(SocketConversationProtocol.TcpClient, networkTopicConnectionConfig.ConversationProtocol);
-        Assert.AreEqual(2, networkTopicConnectionConfig.AvailableConnections.Count);
-        Assert.AreEqual("FirstInstanceName", networkTopicConnectionConfig.AvailableConnections[0].InstanceName);
-        Assert.AreEqual("FirstHostname", networkTopicConnectionConfig.AvailableConnections[0].Hostname);
-        Assert.AreEqual(1U, networkTopicConnectionConfig.AvailableConnections[0].Port);
-        Assert.IsNull(networkTopicConnectionConfig.AvailableConnections[0].SubnetMask);
-        Assert.AreEqual("SecondInstanceName", networkTopicConnectionConfig.AvailableConnections[1].InstanceName);
-        Assert.AreEqual("SecondHostname", networkTopicConnectionConfig.AvailableConnections[1].Hostname);
-        Assert.AreEqual(2U, networkTopicConnectionConfig.AvailableConnections[1].Port);
-        Assert.AreEqual("127.0.0.1", networkTopicConnectionConfig.AvailableConnections[1].SubnetMask);
+        Assert.AreEqual(2, networkTopicConnectionConfig.AvailableConnections.Count());
+        Assert.AreEqual("FirstInstanceName", networkTopicConnectionConfig.AvailableConnections.ElementAt(0).InstanceName);
+        Assert.AreEqual("FirstHostname", networkTopicConnectionConfig.AvailableConnections.ElementAt(0).Hostname);
+        Assert.AreEqual(1U, networkTopicConnectionConfig.AvailableConnections.ElementAt(0).Port);
+        Assert.IsNull(networkTopicConnectionConfig.AvailableConnections.ElementAt(0).SubnetMask);
+        Assert.AreEqual("SecondInstanceName", networkTopicConnectionConfig.AvailableConnections.ElementAt(1).InstanceName);
+        Assert.AreEqual("SecondHostname", networkTopicConnectionConfig.AvailableConnections.ElementAt(1).Hostname);
+        Assert.AreEqual(2U, networkTopicConnectionConfig.AvailableConnections.ElementAt(1).Port);
+        Assert.AreEqual("127.0.0.1", networkTopicConnectionConfig.AvailableConnections.ElementAt(1).SubnetMask);
         Assert.AreEqual("This topic tests that the application can load this json config", networkTopicConnectionConfig.TopicDescription);
         Assert.AreEqual(9_000, networkTopicConnectionConfig.ReceiveBufferSize);
         Assert.AreEqual(7_000, networkTopicConnectionConfig.SendBufferSize);
@@ -52,10 +52,10 @@ public class NetworkTopicConnectionConfigTests
             new EndpointConfig("MyFirstChangedHostname", 10, "MyFirstChangedInstance", "192.168.1.1")
         };
         networkTopicConnectionConfig.AvailableConnections = newEndPoints;
-        Assert.AreEqual(1, networkTopicConnectionConfig.AvailableConnections.Count);
-        Assert.AreEqual("MyFirstChangedInstance", networkTopicConnectionConfig.AvailableConnections[0].InstanceName);
-        Assert.AreEqual("MyFirstChangedHostname", networkTopicConnectionConfig.AvailableConnections[0].Hostname);
-        Assert.AreEqual("192.168.1.1", networkTopicConnectionConfig.AvailableConnections[0].SubnetMask);
+        Assert.AreEqual(1, networkTopicConnectionConfig.AvailableConnections.Count());
+        Assert.AreEqual("MyFirstChangedInstance", networkTopicConnectionConfig.AvailableConnections.ElementAt(0).InstanceName);
+        Assert.AreEqual("MyFirstChangedHostname", networkTopicConnectionConfig.AvailableConnections.ElementAt(0).Hostname);
+        Assert.AreEqual("192.168.1.1", networkTopicConnectionConfig.AvailableConnections.ElementAt(0).SubnetMask);
     }
 
     public static NetworkTopicConnectionConfig ServerConnectionConfigWithValues(string connectionName, string hostname,
@@ -73,8 +73,5 @@ public class NetworkTopicConnectionConfigTests
     {
         Assert.AreEqual(name, subjectToBeVerified.TopicName);
         Assert.AreEqual(description, subjectToBeVerified.TopicDescription);
-        Assert.AreEqual(hostname, subjectToBeVerified.Current.Hostname);
-        Assert.AreEqual(port, subjectToBeVerified.Current.Port);
-        Assert.AreEqual(networkSubAddress, subjectToBeVerified.Current.SubnetMask);
     }
 }
