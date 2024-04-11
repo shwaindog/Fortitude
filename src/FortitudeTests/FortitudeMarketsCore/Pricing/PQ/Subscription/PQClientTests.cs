@@ -55,11 +55,13 @@ public class PQClientTests
     private Mock<IIntraOSThreadSignal> moqSingleOsThreadSignal = null!;
     private Mock<IPQSnapshotClient> moqSnapshotClient = null!;
     private Mock<IPQConversationRepository<IPQSnapshotClient>> moqSnapshotClientFactory = null!;
+    private Mock<IEnumerator<IEndpointConfig>> moqSnapshotEndpointEnumerator = null!;
     private Mock<IEndpointConfig> moqSnapshotServerConfig = null!;
     private Mock<INetworkTopicConnectionConfig> moqSnapshotTopicServerConfig = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<IPQUpdateClient> moqUpdateClient = null!;
     private Mock<IPQConversationRepository<IPQUpdateClient>> moqUpdateClientFactory = null!;
+    private Mock<IEnumerator<IEndpointConfig>> moqUpdateEndpointEnumerator = null!;
     private Mock<IEndpointConfig> moqUpdateServerConfig = null!;
     private Mock<INetworkTopicConnectionConfig> moqUpdateTopicServerConfig = null!;
     private PQClient pqClient = null!;
@@ -173,15 +175,17 @@ public class PQClientTests
 
         moqUpdateServerConfig = new Mock<IEndpointConfig>();
         moqUpdateTopicServerConfig = new Mock<INetworkTopicConnectionConfig>();
-        moqUpdateTopicServerConfig.SetupGet(utsc => utsc.Current).Returns(moqUpdateServerConfig.Object);
-        moqUpdateTopicServerConfig.Setup(utsc => utsc.GetEnumerator()).Returns(moqUpdateTopicServerConfig.Object);
+        moqUpdateEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
+        moqUpdateEndpointEnumerator.SetupGet(utsc => utsc.Current).Returns(moqUpdateServerConfig.Object);
+        moqUpdateTopicServerConfig.Setup(utsc => utsc.GetEnumerator()).Returns(moqUpdateEndpointEnumerator.Object);
         moqUpdateServerConfig.SetupGet(scc => scc.SubnetMask).Returns("123.0.0.123").Verifiable();
         moqUpdateServerConfig.SetupGet(scc => scc.Hostname).Returns("UpdateHostName").Verifiable();
         moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.Name).Returns("TestServerName").Verifiable();
 
         moqSnapshotServerConfig = new Mock<IEndpointConfig>();
         moqSnapshotTopicServerConfig = new Mock<INetworkTopicConnectionConfig>();
-        moqSnapshotTopicServerConfig.SetupGet(supsc => supsc.Current).Returns(moqSnapshotServerConfig.Object);
+        moqSnapshotEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
+        moqSnapshotEndpointEnumerator.SetupGet(supsc => supsc.Current).Returns(moqSnapshotServerConfig.Object);
         moqSnapshotServerConfig.SetupGet(scc => scc.Hostname).Returns("SnapshotHostName");
         moqFirstPricingServerConfig.SetupGet(supsc => supsc.SnapshotConnectionConfig)
             .Returns(moqSnapshotTopicServerConfig.Object).Verifiable();

@@ -18,6 +18,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
 [TestClass]
 public class PQSnapshotClientRepositoryTests
 {
+    private Mock<IEnumerator<IEndpointConfig>> moqEndpointEnumerator = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelControler = null!;
@@ -42,13 +43,14 @@ public class PQSnapshotClientRepositoryTests
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+        moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqPQQuoteDeserializationFactory = new Mock<IPQClientQuoteDeserializerRepository>();
         moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
         moqOsSocket = new Mock<IOSSocket>();
 
         testHostName = "TestHostname";
-        moqSocketTopicConnectionConfig.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqEndpointEnumerator.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicName).Returns("PQSnapshotClientRepositoryTests");
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("PQSnapshotClientRepositoryTests");
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);

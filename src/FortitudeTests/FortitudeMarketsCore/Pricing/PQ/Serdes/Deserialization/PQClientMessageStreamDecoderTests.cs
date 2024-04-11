@@ -42,11 +42,11 @@ public class PQClientMessageStreamDecoderTests
 
     private List<ISourceTickerQuoteInfo> sendSourceTickerQuoteInfos = new()
     {
-        new SourceTickerQuoteInfoMessage(0x7777, "FirstSource", 3333, "FirstTicker", 7, 0.000005m, 1m, 10_000_000m, 2m, 1
+        new SourceTickerQuoteInfo(0x7777, "FirstSource", 3333, "FirstTicker", 7, 0.000005m, 1m, 10_000_000m, 2m, 1
             , LayerFlags.Price | LayerFlags.ValueDate, LastTradedFlags.LastTradedPrice)
-        , new SourceTickerQuoteInfoMessage(0x5151, "SecondSource", 7777, "SecondTicker", 20, 0.05m, 10_000m, 1_000_000m, 5_000m, 2_000
+        , new SourceTickerQuoteInfo(0x5151, "SecondSource", 7777, "SecondTicker", 20, 0.05m, 10_000m, 1_000_000m, 5_000m, 2_000
             , LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable, LastTradedFlags.PaidOrGiven)
-        , new SourceTickerQuoteInfoMessage(0xFFFF, "ThirdSource", 0001, "ThirdTicker", 1, 5m, 100_000m, 100_000_000m, 50_000m, 1, LayerFlags.None
+        , new SourceTickerQuoteInfo(0xFFFF, "ThirdSource", 0001, "ThirdTicker", 1, 5m, 100_000m, 100_000_000m, 50_000m, 1, LayerFlags.None
             , LastTradedFlags.None)
     };
 

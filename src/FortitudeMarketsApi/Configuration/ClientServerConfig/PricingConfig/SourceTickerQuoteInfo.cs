@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Globalization;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -27,9 +28,15 @@ public interface ISourceTickerQuoteInfo : IInterfacesComparable<ISourceTickerQuo
     string FormatPrice { get; }
 }
 
-public class SourceTickerQuoteInfo : ISourceTickerQuoteInfo
+public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISourceTickerQuoteInfo
 {
     private string? formatPrice;
+
+    public SourceTickerQuoteInfo()
+    {
+        Source = null!;
+        Ticker = null!;
+    }
 
     public SourceTickerQuoteInfo(ushort sourceId, string source, ushort tickerId, string ticker, byte maximumPublishedLayers = 20,
         decimal roundingPrecision = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m,
@@ -67,6 +74,10 @@ public class SourceTickerQuoteInfo : ISourceTickerQuoteInfo
         LastTradedFlags = toClone.LastTradedFlags;
     }
 
+    object ICloneable.Clone() => Clone();
+
+    public override ISourceTickerQuoteInfo Clone() => Recycler?.Borrow<SourceTickerQuoteInfo>()?.CopyFrom(this) ?? new SourceTickerQuoteInfo(this);
+
     public uint Id => (uint)((SourceId << 16) | TickerId);
     public ushort SourceId { get; set; }
     public ushort TickerId { get; set; }
@@ -94,7 +105,6 @@ public class SourceTickerQuoteInfo : ISourceTickerQuoteInfo
             .Replace('8', '0')
             .Replace('9', '0');
 
-
     public virtual bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
     {
         var sourceIdSame = SourceId == other?.SourceId;
@@ -114,9 +124,22 @@ public class SourceTickerQuoteInfo : ISourceTickerQuoteInfo
                && minSubmitSizeSame && maxSubmitSizeSame && incrmntSizeSame && minQuoteLifeSame && layerFlagsSame && lastTradedFlagsSame;
     }
 
-    object ICloneable.Clone() => Clone();
-
-    public ISourceTickerQuoteInfo Clone() => new SourceTickerQuoteInfo(this);
+    public override ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        SourceId = source.SourceId;
+        TickerId = source.TickerId;
+        Source = source.Source;
+        Ticker = source.Ticker;
+        RoundingPrecision = source.RoundingPrecision;
+        MinSubmitSize = source.MinSubmitSize;
+        MaxSubmitSize = source.MaxSubmitSize;
+        IncrementSize = source.IncrementSize;
+        MinimumQuoteLife = source.MinimumQuoteLife;
+        LayerFlags = source.LayerFlags;
+        MaximumPublishedLayers = MaximumPublishedLayers;
+        LastTradedFlags = LastTradedFlags;
+        return this;
+    }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ISourceTickerQuoteInfo, true);
 

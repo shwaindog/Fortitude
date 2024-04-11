@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Configuration;
+using FortitudeCommon.DataStructures.Lists;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -10,8 +11,8 @@ namespace FortitudeBusRules.Config;
 public interface IClusterConfig
 {
     IClusterInstance ClusterConnectivityEndpoint { get; set; }
-    List<IRemoteServiceConfig> RemoteServiceConfigs { get; set; }
-    List<ILocalServiceConfig> LocalServiceConfigs { get; set; }
+    IEnumerable<IRemoteServiceConfig> RemoteServiceConfigs { get; set; }
+    IEnumerable<ILocalServiceConfig> LocalServiceConfigs { get; set; }
 }
 
 public class ClusterConfig : ConfigSection, IClusterConfig
@@ -26,8 +27,7 @@ public class ClusterConfig : ConfigSection, IClusterConfig
     };
 
     private IClusterInstance? clusterConnectivityEndpoint;
-    private List<IRemoteServiceConfig> lastestRemoteServiceConfigs = new();
-    private List<ILocalServiceConfig> latestLocalServiceConfigs = new();
+    private object? ignoreSuppressWarnings;
 
     public ClusterConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
     {
@@ -54,37 +54,48 @@ public class ClusterConfig : ConfigSection, IClusterConfig
                 = value != null ? new ClusterInstance(value, ConfigRoot, Path + ":" + nameof(ClusterConnectivityEndpoint)) : null;
     }
 
-    public List<IRemoteServiceConfig> RemoteServiceConfigs
+    public IEnumerable<IRemoteServiceConfig> RemoteServiceConfigs
     {
         get
         {
-            lastestRemoteServiceConfigs.Clear();
+            var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<IRemoteServiceConfig>>();
             foreach (var serviceName in GetSection(nameof(RemoteServiceConfigs)).GetChildren())
-                lastestRemoteServiceConfigs.Add(new RemoteServiceConfig(ConfigRoot, serviceName.Path));
-            return lastestRemoteServiceConfigs;
+                if (serviceName["Name"] != null)
+                    autoRecycleList.Add(new RemoteServiceConfig(ConfigRoot, serviceName.Path));
+            return autoRecycleList;
         }
         set
         {
-            lastestRemoteServiceConfigs.Clear();
-            for (var i = 0; i < value.Count; i++)
-                lastestRemoteServiceConfigs.Add(new RemoteServiceConfig(value[i], ConfigRoot, Path + ":" + nameof(RemoteServiceConfigs) + $":{i}"));
+            var oldCount = RemoteServiceConfigs.Count();
+            var i = 0;
+            foreach (var remoteServiceConfig in value)
+            {
+                ignoreSuppressWarnings
+                    = new RemoteServiceConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(RemoteServiceConfigs) + $":{i}");
+                i++;
+            }
+
+            for (var j = i; j < oldCount; j++) RemoteServiceConfig.ClearValues(ConfigRoot, Path + ":" + nameof(RemoteServiceConfigs) + $":{i}");
         }
     }
 
-    public List<ILocalServiceConfig> LocalServiceConfigs
+    public IEnumerable<ILocalServiceConfig> LocalServiceConfigs
     {
         get
         {
-            latestLocalServiceConfigs.Clear();
+            var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<ILocalServiceConfig>>();
             foreach (var serviceName in GetSection(nameof(LocalServiceConfigs)).GetChildren())
-                latestLocalServiceConfigs.Add(new LocalServiceConfig(ConfigRoot, serviceName.Path));
-            return latestLocalServiceConfigs;
+                autoRecycleList.Add(new LocalServiceConfig(ConfigRoot, serviceName.Path));
+            return autoRecycleList;
         }
         set
         {
-            latestLocalServiceConfigs.Clear();
-            for (var i = 0; i < value.Count; i++)
-                latestLocalServiceConfigs.Add(new LocalServiceConfig(value[i], ConfigRoot, Path + ":" + nameof(LocalServiceConfigs) + $":{i}"));
+            var i = 0;
+            foreach (var remoteServiceConfig in value)
+            {
+                ignoreSuppressWarnings = new LocalServiceConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(LocalServiceConfigs) + $":{i}");
+                i++;
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 
 using System.Collections;
 using FortitudeCommon.Configuration;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using Microsoft.Extensions.Configuration;
@@ -17,10 +18,10 @@ public enum ConnectionSelectionOrder
 }
 
 public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IEnumerable<IEndpointConfig>
-    , IEnumerator<IEndpointConfig>, ICloneable<INetworkTopicConnectionConfig>
+    , ICloneable<INetworkTopicConnectionConfig>
 {
     SocketConversationProtocol ConversationProtocol { get; set; }
-    List<IEndpointConfig> AvailableConnections { get; set; }
+    IEnumerable<IEndpointConfig> AvailableConnections { get; set; }
     public int ReceiveBufferSize { get; set; }
     public int SendBufferSize { get; set; }
     int NumberOfReceivesPerPoll { get; set; }
@@ -42,10 +43,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         , { nameof(ResponseTimeoutMs), "10000" }
     };
 
-    private readonly List<IEndpointConfig> returnedItems = new();
-    private IEndpointConfig? current;
-    private List<IEndpointConfig>? endpointConfigs;
-    private ISocketReconnectConfig? reconnectConfig;
+    private object? ignoreSuppressWarnings;
 
     public NetworkTopicConnectionConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
     {
@@ -73,7 +71,6 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         ConnectionTimeoutMs = connectionTimeoutMs;
         ResponseTimeoutMs = responseTimeoutMs;
         ReconnectConfig = reconnectConfig ?? new SocketReconnectConfig();
-        Current = AvailableConnections.First();
     }
 
     public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone, IConfigurationRoot configRoot, string path)
@@ -91,7 +88,6 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         ConnectionTimeoutMs = toClone.ConnectionTimeoutMs;
         ResponseTimeoutMs = toClone.ResponseTimeoutMs;
         ReconnectConfig = toClone.ReconnectConfig.Clone();
-        Current = AvailableConnections.First();
     }
 
     public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -108,22 +104,28 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         set => this[nameof(ConversationProtocol)] = value.ToString();
     }
 
-    public List<IEndpointConfig> AvailableConnections
+    public IEnumerable<IEndpointConfig> AvailableConnections
     {
         get
         {
-            if (endpointConfigs != null) return endpointConfigs;
-            endpointConfigs = new List<IEndpointConfig>();
+            var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<IEndpointConfig>>();
             foreach (var configurationSection in GetSection(nameof(AvailableConnections)).GetChildren())
-                if (configurationSection["Hostname"] != null)
-                    endpointConfigs.Add(new EndpointConfig(ConfigRoot, configurationSection.Path));
-            return endpointConfigs;
+                if (configurationSection["HostName"] != null)
+                    autoRecycleList.Add(new EndpointConfig(ConfigRoot, configurationSection.Path));
+            return autoRecycleList;
         }
         set
         {
-            endpointConfigs = new List<IEndpointConfig>();
-            for (var i = 0; i < value.Count; i++)
-                endpointConfigs.Add(new EndpointConfig(value[i], ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}"));
+            var oldCount = AvailableConnections.Count();
+            var i = 0;
+            foreach (var remoteServiceConfig in value)
+            {
+                ignoreSuppressWarnings = new EndpointConfig(remoteServiceConfig, ConfigRoot
+                    , Path + ":" + nameof(AvailableConnections) + $":{i}");
+                i++;
+            }
+
+            for (var j = i; j < oldCount; j++) EndpointConfig.ClearValues(ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}");
         }
     }
 
@@ -177,8 +179,8 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public ISocketReconnectConfig ReconnectConfig
     {
-        get => reconnectConfig ??= new SocketReconnectConfig(ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
-        set => reconnectConfig = new SocketReconnectConfig(value, ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
+        get => new SocketReconnectConfig(ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
+        set => ignoreSuppressWarnings = new SocketReconnectConfig(value, ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
     }
 
     public TransportType TransportType => TransportType.Sockets;
@@ -187,47 +189,11 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public IEnumerator<IEndpointConfig> GetEnumerator()
     {
-        returnedItems.Clear();
-        return this;
-    }
+        var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<IEndpointConfig>>();
+        foreach (var endpointConfig in AvailableConnections) autoRecycleList.Add(endpointConfig);
+        if (ConnectionSelectionOrder == ConnectionSelectionOrder.Random) autoRecycleList.ReusableBackingList.Shuffle();
 
-    public bool MoveNext()
-    {
-        if (returnedItems.Count == AvailableConnections.Count) return false;
-        if (ConnectionSelectionOrder == ConnectionSelectionOrder.Random)
-        {
-            var remaining = AvailableConnections.Except(returnedItems).ToList();
-            var selectedItem = Random.Shared.Next(0, remaining.Count);
-            Current = remaining[selectedItem];
-            returnedItems.Add(Current);
-        }
-        else
-        {
-            var indexOfCurrent = current != null ? AvailableConnections.IndexOf(Current) : 0;
-            if (returnedItems.Count > 0) indexOfCurrent++;
-            Current = AvailableConnections[indexOfCurrent];
-            returnedItems.Add(Current);
-        }
-
-        return true;
-    }
-
-    public void Reset()
-    {
-        returnedItems.Clear();
-    }
-
-    object IEnumerator.Current => Current;
-
-    public void Dispose()
-    {
-        returnedItems.Clear();
-    }
-
-    public IEndpointConfig Current
-    {
-        get => current ?? throw new Exception("No Endpoint connections available");
-        private set => current = value;
+        return autoRecycleList.GetEnumerator();
     }
 
     object ICloneable.Clone() => Clone();
@@ -250,6 +216,22 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         new NetworkTopicConnectionConfig(TopicName, ConversationProtocol,
             AvailableConnections.ToList(), TopicDescription, ReceiveBufferSize, SendBufferSize, NumberOfReceivesPerPoll,
             ConnectionAttributes, ConnectionSelectionOrder, ConnectionTimeoutMs, ResponseTimeoutMs, ReconnectConfig);
+
+
+    public static void ClearValues(IConfigurationRoot root, string path)
+    {
+        root[path + ":" + nameof(TopicName)] = null;
+        root[path + ":" + nameof(ConversationProtocol)] = null;
+        root[path + ":" + nameof(AvailableConnections)] = null;
+        root[path + ":" + nameof(TopicDescription)] = null;
+        root[path + ":" + nameof(ReceiveBufferSize)] = null;
+        root[path + ":" + nameof(SendBufferSize)] = null;
+        root[path + ":" + nameof(ConnectionAttributes)] = null;
+        root[path + ":" + nameof(NumberOfReceivesPerPoll)] = null;
+        root[path + ":" + nameof(ConnectionTimeoutMs)] = null;
+        root[path + ":" + nameof(ResponseTimeoutMs)] = null;
+        root[path + ":" + nameof(ReconnectConfig)] = null;
+    }
 
     protected bool Equals(INetworkTopicConnectionConfig other)
     {
@@ -294,5 +276,5 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         $"{ReceiveBufferSize}, {nameof(SendBufferSize)}: {SendBufferSize}, {nameof(NumberOfReceivesPerPoll)}: {NumberOfReceivesPerPoll}, " +
         $"{nameof(ConnectionAttributes)}: {ConnectionAttributes}, {nameof(ConnectionSelectionOrder)}: {ConnectionSelectionOrder}, " +
         $"{nameof(ConnectionTimeoutMs)}: {ConnectionTimeoutMs}, {nameof(ResponseTimeoutMs)}: {ResponseTimeoutMs}, {nameof(ReconnectConfig)}: " +
-        $"{ReconnectConfig}, {nameof(Current)}: {current?.ToString() ?? "null"})";
+        $"{ReconnectConfig})";
 }

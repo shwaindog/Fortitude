@@ -97,6 +97,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
 
     public bool AreEquivalent(ITradingServerConfig? other, bool exactTypes = false)
     {
+        if (other == null) return false;
         var tradingConnSame = Equals(TradingServerConnectionConfig, other.TradingServerConnectionConfig);
         var supportedOrderTypesSame = SupportedOrderTypes == other.SupportedOrderTypes;
         var supportedTimeInForceSame = SupportedTimeInForce == other.SupportedTimeInForce;
