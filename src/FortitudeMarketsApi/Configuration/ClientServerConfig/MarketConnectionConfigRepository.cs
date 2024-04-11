@@ -1,17 +1,8 @@
-﻿#region
-
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using FortitudeCommon.Configuration;
-using FortitudeCommon.EventProcessing;
-
-#endregion
-
-namespace FortitudeMarketsApi.Configuration.ClientServerConfig;
+﻿namespace FortitudeMarketsApi.Configuration.ClientServerConfig;
 
 public interface IMarketConnectionConfigRepository
 {
-    IEnumerable<IMarketConnectionConfig> CurrentConfigs { get; }
+    IEnumerable<IMarketConnectionConfig> AllMarketConnectionConfigs { get; }
     IMarketConnectionConfig? Find(string name);
     IMarketConnectionConfigRepository ToggleProtocolDirection();
 }
@@ -24,7 +15,7 @@ public class MarketConnectionConfigRepository : IMarketConnectionConfigRepositor
 
     public MarketConnectionConfigRepository(IEnumerable<IMarketConnectionConfig> serverConfigs)
     {
-        CurrentConfigs = serverConfigs;
+        AllMarketConnectionConfigs = serverConfigs;
     }
     public MarketConnectionConfigRepository(params IMarketConnectionConfig[] serverConfigs) : this((IEnumerable<IMarketConnectionConfig>)serverConfigs)
     {
@@ -32,10 +23,10 @@ public class MarketConnectionConfigRepository : IMarketConnectionConfigRepositor
 
     public MarketConnectionConfigRepository(IMarketConnectionConfigRepository toClone)
     {
-        CurrentConfigs = toClone.CurrentConfigs.Select( mcc => mcc.Clone());
+        AllMarketConnectionConfigs = toClone.AllMarketConnectionConfigs.Select( mcc => mcc.Clone());
     }
 
-    public IEnumerable<IMarketConnectionConfig> CurrentConfigs
+    public IEnumerable<IMarketConnectionConfig> AllMarketConnectionConfigs
     {
         get => currentConfigs.Values;
         private init => currentConfigs = value.ToDictionary(item => item.SourceId);
@@ -77,6 +68,6 @@ public class MarketConnectionConfigRepository : IMarketConnectionConfigRepositor
 
     public IMarketConnectionConfigRepository ToggleProtocolDirection() => new MarketConnectionConfigRepository(this)
     {
-        CurrentConfigs = CurrentConfigs.Select( mcc => mcc.ToggleProtocolDirection())
+        AllMarketConnectionConfigs = AllMarketConnectionConfigs.Select( mcc => mcc.ToggleProtocolDirection())
     };
 }

@@ -36,7 +36,7 @@ public class PQPublisherTests
         moqPqServer.Verify(pqs => pqs.Register(It.IsAny<string>()), Times.Never);
 
         moqMarketConnectionConfig = new Mock<IMarketConnectionConfig>();
-        moqMarketConnectionConfig.Setup(stpcr => stpcr.AllSourceTickerInfos())
+        moqMarketConnectionConfig.Setup(stpcr => stpcr.AllSourceTickerInfos)
             .Returns(new List<ISourceTickerQuoteInfo>()
             {
                 new SourceTickerQuoteInfo(1, "First", 1, "First")
@@ -116,7 +116,7 @@ public class PQPublisherTests
         moqSourceTickerQuoteInfo.SetupGet(stpc => stpc.IncrementSize).Returns(1m);
 
         moqMarketConnectionConfig = new Mock<IMarketConnectionConfig>();
-        moqMarketConnectionConfig.Setup(stpcr => stpcr.AllSourceTickerInfos())
+        moqMarketConnectionConfig.Setup(stpcr => stpcr.AllSourceTickerInfos)
             .Returns(new List<ISourceTickerQuoteInfo> { moqSourceTickerQuoteInfo.Object });
 
         moqPQLevel1Quote = new Mock<IPQLevel1Quote>();

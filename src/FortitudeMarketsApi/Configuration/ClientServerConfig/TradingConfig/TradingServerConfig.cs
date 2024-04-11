@@ -37,7 +37,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         SupportedVenueFeatures = supportedVenueFeatures;
     }
 
-    public TradingServerConfig(ITradingServerConfig toClone, IConfigurationRoot root, string path)
+    public TradingServerConfig(ITradingServerConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         TradingServerConnectionConfig = toClone.TradingServerConnectionConfig.Clone();
         SupportedOrderTypes = toClone.SupportedOrderTypes;

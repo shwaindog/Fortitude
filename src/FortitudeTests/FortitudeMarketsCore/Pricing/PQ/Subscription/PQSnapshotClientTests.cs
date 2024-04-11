@@ -142,7 +142,8 @@ public class PQSnapshotClientTests
         moqPQQuoteDeserializationRepo.Setup(qdr => qdr.Supply()).Returns(moqClientMessageStreamDecoder.Object);
         moqPqClientSerdesRepoFactory.SetupGet(sf => sf.MessageDeserializationRepository).Returns(moqPQQuoteDeserializationRepo.Object);
         moqPqClientSerdesRepoFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(new Mock<IMessageSerializationRepository>().Object);
-        ;
+
+        moqSocketSessionContext.SetupAdd(sc => sc.Connected += null);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqOsSocket.SetupAllProperties();
@@ -243,7 +244,7 @@ public class PQSnapshotClientTests
 
         pqSnapshotClient.RequestSnapshots(sendSrcTkrIds);
 
-        moqSocketSessionContext.Raise(sc => sc.SocketConnected += null, moqSocketConnection.Object);
+        moqSocketSessionContext.Raise(sc => sc.Connected += null);
 
         moqFlogger.Verify();
     }
