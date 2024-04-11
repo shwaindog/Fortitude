@@ -126,8 +126,15 @@ public class PricingClientServerPubSubscribeTests
         // setup listener after publish means first message will be missed and snapshot will be required.
         ILevel2Quote? alwaysUpdatedQuote = null;
         var pqClient = new PQClient(pricingConnectionsConfigRepository.ToggleProtocolDirection()
-            , SingletonSocketDispatcherResolver.Instance, true
-            , updateClientFactory, snapshotClientFactory);
+            , SingletonSocketDispatcherResolver.Instance, updateClientFactory, snapshotClientFactory);
+        var availableSourceTickers = pqClient.RequestSourceTickerForSource(ExchangeName);
+        availableSourceTickers.UpdatedSourceTickerInfos += infos =>
+        {
+            logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
+            if (infos.Any(stqi => stqi.Source == sourceTickerQuoteInfo.Source &&
+                                  stqi.Ticker == sourceTickerQuoteInfo.Ticker)) autoResetEvent.Set();
+        };
+        autoResetEvent.WaitOne(3_000);
         var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(sourceTickerQuoteInfo, 0);
         streamSubscription!.Subscribe(
             pQuote =>
@@ -200,9 +207,26 @@ public class PricingClientServerPubSubscribeTests
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.
         var autoResetEvent = new AutoResetEvent(false);
         ILevel3Quote? alwaysUpdatedQuote = null;
-        var pqClient = new PQClient(pricingConnectionsConfigRepository.ToggleProtocolDirection()
-            , SingletonSocketDispatcherResolver.Instance, true
-            , updateClientFactory, snapshotClientFactory);
+        var clientMarketConnectionConfigRepository = pricingConnectionsConfigRepository.ToggleProtocolDirection();
+        var clientConnectionConfig = clientMarketConnectionConfigRepository.Find(ExchangeName);
+        clientConnectionConfig!.SourceTickerConfig = null;
+
+        var pqClient = new PQClient(clientMarketConnectionConfigRepository
+            , SingletonSocketDispatcherResolver.Instance, updateClientFactory, snapshotClientFactory);
+
+        var pqServer = new PQServer<PQLevel3Quote>(marketConnectionConfig, hbSender, serverDispatcherResolver
+            ,
+            pqSnapshotFactory, pqUpdateFactory);
+        var pqPublisher = new PQPublisher<PQLevel3Quote>(pqServer);
+        pqPublisher.RegisterTickersWithServer(marketConnectionConfig);
+        var availableSourceTickers = pqClient.RequestSourceTickerForSource(ExchangeName);
+        availableSourceTickers.UpdatedSourceTickerInfos += infos =>
+        {
+            logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
+            if (infos.Any(stqi => stqi.Source == sourceTickerQuoteInfo.Source &&
+                                  stqi.Ticker == sourceTickerQuoteInfo.Ticker)) autoResetEvent.Set();
+        };
+        autoResetEvent.WaitOne(3_000);
         var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(sourceTickerQuoteInfo, 0);
 
         streamSubscription!.Subscribe(
@@ -211,12 +235,6 @@ public class PricingClientServerPubSubscribeTests
                 alwaysUpdatedQuote = ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(pQuote);
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });
-
-        var pqServer = new PQServer<PQLevel3Quote>(marketConnectionConfig, hbSender, serverDispatcherResolver
-            ,
-            pqSnapshotFactory, pqUpdateFactory);
-        var pqPublisher = new PQPublisher<PQLevel3Quote>(pqServer);
-        pqPublisher.RegisterTickersWithServer(marketConnectionConfig);
         var sourcePriceQuote = GenerateL3QuoteWithTraderLayerAndLastTrade();
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 

@@ -209,7 +209,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 
     private void OnReceivedSourceTickerInfoRequest(IConversationRequester clientConversationRequester)
     {
-        var response = new PQSourceTickerInfoResponse(marketConnectionConfig.AllSourceTickerInfos());
+        var response = new PQSourceTickerInfoResponse(marketConnectionConfig.AllSourceTickerInfos);
         clientConversationRequester.Send(response);
     }
 

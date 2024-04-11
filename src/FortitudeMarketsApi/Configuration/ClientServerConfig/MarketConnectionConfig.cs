@@ -18,9 +18,9 @@ public interface IMarketConnectionConfig : ICloneable<IMarketConnectionConfig>, 
     ISourceTickersConfig? SourceTickerConfig { get; set; }
     IPricingServerConfig? PricingServerConfig { get; set; }
     ITradingServerConfig? TradingServerConfig { get; set; }
+    IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos { get; }
 
     ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker);
-    IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos();
     IMarketConnectionConfig ToggleProtocolDirection();
 }
 
@@ -111,7 +111,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker) => SourceTickerConfig?.GetSourceTickerInfo(SourceId, Name, ticker);
 
-    public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos() =>
+    public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos =>
         SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
 
     public IMarketConnectionConfig Clone() => new MarketConnectionConfig(this);

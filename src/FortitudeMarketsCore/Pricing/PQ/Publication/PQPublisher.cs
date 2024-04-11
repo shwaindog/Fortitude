@@ -27,7 +27,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
         pqServer.StartServices();
 
         if (!shutdownFlag)
-            foreach (var tickerRef in marketConnectionConfig.AllSourceTickerInfos())
+            foreach (var tickerRef in marketConnectionConfig.AllSourceTickerInfos)
             {
                 var picture = pqServer.Register(tickerRef.Ticker);
                 if (picture != null) pictures.AddOrUpdate(tickerRef.Ticker, picture);

@@ -9,7 +9,6 @@ using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
@@ -26,8 +25,9 @@ public interface IPQSnapshotClient : IConversationRequester
 
     IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; }
 
+    ISourceTickerQuoteInfoRepo SourceTickerQuoteInfoRepo { get; set; }
+
     bool HasSourceTickerInfo { get; }
-    event Action<IList<ISourceTickerQuoteInfo>> PublishedSourceTickerQuoteInfo;
 
     void RequestSourceTickerQuoteInfoList();
 
@@ -47,6 +47,8 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
     private DateTime lastSnapshotSent = DateTime.MinValue;
     private IPQClientMessageStreamDecoder? messageStreamDecoder;
+    private PQSourceTickerInfoRequest? queuedSourceTickerInfoRequest;
+    private ISourceTickerQuoteInfoRepo? sourceTickerQuoteInfoRepo;
     private ITimerCallbackSubscription? timerSubscription;
 
     public PQSnapshotClient(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
@@ -56,9 +58,9 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
         intraOSThreadSignal = parallelController!.SingleOSThreadActivateSignal(false);
         cxTimeoutMs = socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
-        socketSessionContext.SocketConnected += SocketConnection;
-        socketSessionContext.SocketConnected += SendQueuedRequests;
-        socketSessionContext.StateChanged += SocketSessionContextOnStateChanged;
+        Connected += SocketConnection;
+        Connected += SendQueuedRequests;
+        Disconnected += SocketSessionContextOnStateChanged;
 
         var serdesFactor = (IPQClientSerdesRepositoryFactory)socketSessionContext.SerdesFactory;
         DeserializerRepository = serdesFactor.MessageDeserializationRepository;
@@ -73,7 +75,6 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
                     ReceivedSourceTickerInfoResponse);
             }
         };
-        Connected += CheckHasAvailableSourceTickerInfoRequests;
     }
 
     public static ISocketFactoryResolver SocketFactories
@@ -84,7 +85,11 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         set => socketFactories = value;
     }
 
-    public event Action<IList<ISourceTickerQuoteInfo>>? PublishedSourceTickerQuoteInfo;
+    public ISourceTickerQuoteInfoRepo SourceTickerQuoteInfoRepo
+    {
+        get => sourceTickerQuoteInfoRepo ??= new SourceTickerQuoteInfoRepo(Name);
+        set => sourceTickerQuoteInfoRepo = value;
+    }
 
     public IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; private set; } = new List<ISourceTickerQuoteInfo>();
 
@@ -126,8 +131,17 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
     public void RequestSourceTickerQuoteInfoList()
     {
-        logger.Info("Sending source ticker info request for streams to {0}", Name);
-        Send(new PQSourceTickerInfoRequest());
+        Connect();
+        if (IsStarted)
+        {
+            logger.Info("Sending SourceTickerInfoRequest for source {0}", Name);
+            Send(new PQSourceTickerInfoRequest());
+        }
+        else
+        {
+            logger.Info("Queuing SourceTickerInfoRequest for source {0}", Name);
+            queuedSourceTickerInfoRequest = new PQSourceTickerInfoRequest();
+        }
     }
 
     public override void Connect()
@@ -140,17 +154,13 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         , IConversation? conversation)
     {
         logger.Info("Received source ticker info response for streams to {0}", Name);
+        SourceTickerQuoteInfoRepo.AppendReplace(sourceTickerInfoResponse.SourceTickerQuoteInfos);
         LastPublishedSourceTickerQuoteInfos = sourceTickerInfoResponse.SourceTickerQuoteInfos;
     }
 
-    private void CheckHasAvailableSourceTickerInfoRequests()
+    private void SocketSessionContextOnStateChanged()
     {
-        if (!HasSourceTickerInfo) RequestSourceTickerQuoteInfoList();
-    }
-
-    private void SocketSessionContextOnStateChanged(SocketSessionState socketState)
-    {
-        if (socketState == SocketSessionState.Disconnected) DisableTimeout();
+        DisableTimeout();
     }
 
     public static PQSnapshotClient BuildTcpRequester(INetworkTopicConnectionConfig networkConnectionConfig
@@ -174,7 +184,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         return new PQSnapshotClient(socketSessionContext, initControls);
     }
 
-    private void SendQueuedRequests(ISocketConnection socketConnection)
+    private void SendQueuedRequests()
     {
         uint[] streamIDs;
         string streams;
@@ -190,6 +200,13 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
             logger.Info("Sending queued snapshot requests for streams: {0}", streams);
             Send(new PQSnapshotIdsRequest(streamIDs));
             lastSnapshotSent = TimeContext.UtcNow;
+        }
+
+        if (queuedSourceTickerInfoRequest != null)
+        {
+            logger.Info("Sending queued SourceTickerInfoRequest for source {0}", Name);
+            Send(new PQSourceTickerInfoRequest());
+            queuedSourceTickerInfoRequest = null;
         }
     }
 
@@ -217,7 +234,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         EnableTimeout();
     }
 
-    private void SocketConnection(ISocketConnection socketConnection)
+    private void SocketConnection()
     {
         DisableTimeout();
         EnableTimeout();
