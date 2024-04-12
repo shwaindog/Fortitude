@@ -1,26 +1,26 @@
 ﻿#region
 
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
 using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+namespace FortitudeTests.FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 
 [TestClass]
-public class RingPollerBaseTests
+public class EnumerableBatchRingPollerTests
 {
-    private const string ExpectedThreadName = "RingPollerBaseTests-Poller";
+    private const string ExpectedThreadName = "EnumerableBatchRingPollerTests-EnumerableBatchRingPoller";
     private const uint NoDataPauseTimeout = 100U;
     private Action dispatchWorkerAction = null!;
-    private DummyRingPollerBase dummyRingPollerBase = null!;
+    private DummyEnumerableBatchRingPoller dummyEnumerableBatchRingPoller = null!;
     private bool haveCalledDispatchWorkerAction;
     private Mock<IOSThread> moqOsThread = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPollingRing<StringContainer>> moqPollingRing = null!;
+    private Mock<IEnumerableBatchPollingRing<StringContainer>> moqPollingRing = null!;
     private ThreadStart workerThreadMethod = null!;
 
     [TestInitialize]
@@ -44,7 +44,7 @@ public class RingPollerBaseTests
         var emptyEnumerable = new List<StringContainer>();
 
         dispatchWorkerAction = () => { haveCalledDispatchWorkerAction = true; };
-        moqPollingRing = new Mock<IPollingRing<StringContainer>>();
+        moqPollingRing = new Mock<IEnumerableBatchPollingRing<StringContainer>>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelController = new Mock<IOSParallelController>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
@@ -57,7 +57,7 @@ public class RingPollerBaseTests
             .Callback<ThreadStart>(workerMethod => { workerThreadMethod = workerMethod; })
             .Returns(moqOsThread.Object).Verifiable();
 
-        moqPollingRing.Setup(pr => pr.Name).Returns("RingPollerBaseTests");
+        moqPollingRing.Setup(pr => pr.Name).Returns("EnumerableBatchRingPollerTests");
         moqPollingRing.Setup(pr => pr[0L]).Returns(firstStringContainer);
         moqPollingRing.Setup(pr => pr[1L]).Returns(secondStringContainer);
         moqPollingRing.Setup(pr => pr[2L]).Returns(thirdStringContainer);
@@ -77,9 +77,9 @@ public class RingPollerBaseTests
     [TestMethod]
     public void NewRingPoller_New_SetsNameWithPoller()
     {
-        dummyRingPollerBase
-            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
-        Assert.AreEqual("RingPollerBaseTests-Poller", dummyRingPollerBase.Name);
+        dummyEnumerableBatchRingPoller
+            = new DummyEnumerableBatchRingPoller(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
+        Assert.AreEqual("EnumerableBatchRingPollerTests-EnumerableBatchRingPoller", dummyEnumerableBatchRingPoller.Name);
     }
 
     [TestMethod]
@@ -89,22 +89,22 @@ public class RingPollerBaseTests
         dispatchWorkerAction = () =>
         {
             haveCalledDispatchWorkerAction = true;
-            Assert.AreEqual(1, dummyRingPollerBase.UsageCount);
-            Assert.IsTrue(NonPublicInvocator.GetInstanceField<bool>(dummyRingPollerBase, "isRunning"));
-            dummyRingPollerBase.Stop();
+            Assert.AreEqual(1, dummyEnumerableBatchRingPoller.UsageCount);
+            Assert.IsTrue(NonPublicInvocator.GetInstanceField<bool>(dummyEnumerableBatchRingPoller, "isRunning"));
+            dummyEnumerableBatchRingPoller.Stop();
         };
-        dummyRingPollerBase
-            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
+        dummyEnumerableBatchRingPoller
+            = new DummyEnumerableBatchRingPoller(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
 
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
 
-        dummyRingPollerBase.Start();
+        dummyEnumerableBatchRingPoller.Start();
         workerThreadMethod();
 
         Assert.IsTrue(haveCalledDispatchWorkerAction);
-        Assert.IsFalse(NonPublicInvocator.GetInstanceField<bool>(dummyRingPollerBase, "isRunning"));
+        Assert.IsFalse(NonPublicInvocator.GetInstanceField<bool>(dummyEnumerableBatchRingPoller, "isRunning"));
         moqOsThread.Verify();
         moqParallelController.Verify();
     }
@@ -112,37 +112,38 @@ public class RingPollerBaseTests
     [TestMethod]
     public void StartedRingPoller_Start_IncrementsUsageCountDoesNotRelaunchWorkerThread()
     {
-        dummyRingPollerBase
-            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
+        dummyEnumerableBatchRingPoller
+            = new DummyEnumerableBatchRingPoller(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         moqOsThread.SetupSet(ost => ost.Name = ExpectedThreadName).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
-        dummyRingPollerBase.Start();
+        dummyEnumerableBatchRingPoller.Start();
         moqOsThread.Verify();
 
         moqOsThread.Reset();
-        dummyRingPollerBase.Start();
-        Assert.AreEqual(2, dummyRingPollerBase.UsageCount);
+        dummyEnumerableBatchRingPoller.Start();
+        Assert.AreEqual(2, dummyEnumerableBatchRingPoller.UsageCount);
         moqOsThread.Verify(ost => ost.Start(), Times.Never);
+        dummyEnumerableBatchRingPoller.Stop();
     }
 
     [TestMethod]
     public void StartedRingPollerUsageCount1_Stop_DecrementsUsageCountStopsWorkThread()
     {
-        dummyRingPollerBase
-            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
+        dummyEnumerableBatchRingPoller
+            = new DummyEnumerableBatchRingPoller(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
-        dummyRingPollerBase.Start();
-        Assert.AreEqual(1, dummyRingPollerBase.UsageCount);
+        dummyEnumerableBatchRingPoller.Start();
+        Assert.AreEqual(1, dummyEnumerableBatchRingPoller.UsageCount);
 
         moqOsThread.Setup(ost => ost.Join()).Verifiable();
 
-        dummyRingPollerBase.Stop();
+        dummyEnumerableBatchRingPoller.Stop();
 
-        Assert.AreEqual(0, dummyRingPollerBase.UsageCount);
-        Assert.IsFalse(NonPublicInvocator.GetInstanceField<bool>(dummyRingPollerBase, "isRunning"));
+        Assert.AreEqual(0, dummyEnumerableBatchRingPoller.UsageCount);
+        Assert.IsFalse(NonPublicInvocator.GetInstanceField<bool>(dummyEnumerableBatchRingPoller, "isRunning"));
         moqOsThread.Verify();
         moqParallelController.Verify();
     }
@@ -150,19 +151,20 @@ public class RingPollerBaseTests
     [TestMethod]
     public void StartedRingPollerUsageCount2_Stop_DecrementsUsageCountLeavesWorkerThreadRunning()
     {
-        dummyRingPollerBase
-            = new DummyRingPollerBase(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
+        dummyEnumerableBatchRingPoller
+            = new DummyEnumerableBatchRingPoller(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
-        dummyRingPollerBase.Start();
-        dummyRingPollerBase.Start();
-        Assert.AreEqual(2, dummyRingPollerBase.UsageCount);
+        dummyEnumerableBatchRingPoller.Start();
+        dummyEnumerableBatchRingPoller.Start();
+        Assert.AreEqual(2, dummyEnumerableBatchRingPoller.UsageCount);
 
-        dummyRingPollerBase.Stop();
+        dummyEnumerableBatchRingPoller.Stop();
 
-        Assert.AreEqual(1, dummyRingPollerBase.UsageCount);
+        Assert.AreEqual(1, dummyEnumerableBatchRingPoller.UsageCount);
         moqOsThread.Setup(ost => ost.Join()).Verifiable(Times.Never);
+        dummyEnumerableBatchRingPoller.Stop();
     }
 
     public class StringContainer
@@ -170,9 +172,11 @@ public class RingPollerBaseTests
         public string? Payload { get; set; }
     }
 
-    private class DummyRingPollerBase(IPollingRing<StringContainer> ring, uint noDataPauseTimeoutMs, Action dispatchWorkerAction
+    private class DummyEnumerableBatchRingPoller(IEnumerableBatchPollingRing<StringContainer> ring, uint noDataPauseTimeoutMs
+        , Action dispatchWorkerAction
         , Action? threadStartInitialization = null,
-        IOSParallelController? parallelController = null) : RingPollerBase<StringContainer>(ring, noDataPauseTimeoutMs, threadStartInitialization
+        IOSParallelController? parallelController = null) : EnumerableBatchRingPoller<StringContainer>(ring, noDataPauseTimeoutMs
+        , threadStartInitialization
         , parallelController)
     {
         protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, StringContainer data, bool ringStartOfBatch

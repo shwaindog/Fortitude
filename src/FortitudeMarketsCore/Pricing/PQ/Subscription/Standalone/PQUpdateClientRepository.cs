@@ -5,7 +5,7 @@ using FortitudeIO.Transports.Network.Dispatcher;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 public class PQUpdateClientRepository : PQConversationRepositoryBase<PQUpdateClient>
 {

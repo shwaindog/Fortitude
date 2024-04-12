@@ -33,6 +33,9 @@ public class TcpRequestResponderConnectionTests
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
+    private AutoResetEvent autoResetEvent = new(false);
+    private IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TcpRequestResponderConnectionTests));
+
     private Dictionary<uint, IMessageDeserializer> requesterDeserializers = null!;
     private SimpleVersionedMessage requesterReceivedResponseMessage = null!;
     private Dictionary<uint, IMessageDeserializer> responderDeserializers = null!;
@@ -93,6 +96,7 @@ public class TcpRequestResponderConnectionTests
     {
         // client connects
         tcpResponder.Start();
+        Thread.Sleep(20);
         tcpRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
@@ -103,8 +107,8 @@ public class TcpRequestResponderConnectionTests
         var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
         // send message
         tcpRequester.StreamPublisher!.Send(v1Message);
-
-        Thread.Sleep(20);
+        logger.Info("Sent Message to responder");
+        Thread.Sleep(100);
         // assert server receives properly
         Assert.AreEqual(v1Message.PayLoad, responderReceivedMessage.PayLoad);
         Assert.AreEqual(v1Message.MessageId, responderReceivedMessage.MessageId);
@@ -116,6 +120,7 @@ public class TcpRequestResponderConnectionTests
     {
         // client connects
         tcpResponder.Start();
+        Thread.Sleep(20);
         tcpRequester.Start();
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
@@ -132,7 +137,8 @@ public class TcpRequestResponderConnectionTests
         // send message
         tcpRequester.StreamPublisher!.Send(v1Message);
 
-        Thread.Sleep(300);
+        logger.Info("Sent Message to responder");
+        autoResetEvent.WaitOne(100);
         // assert server receives properly
         Assert.AreEqual(v2Message.PayLoad2, requesterReceivedResponseMessage.PayLoad2);
         Assert.AreEqual(v2Message.MessageId, requesterReceivedResponseMessage.MessageId);
@@ -161,5 +167,6 @@ public class TcpRequestResponderConnectionTests
         , IConversation? client)
     {
         requesterReceivedResponseMessage = msg;
+        autoResetEvent.Set();
     }
 }

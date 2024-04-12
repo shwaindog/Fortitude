@@ -5,7 +5,6 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
@@ -42,7 +41,7 @@ public class PQClientQuoteDeserializerRepositoryTests
                     new EndpointConfig("ConnectionName", 9090)
                 })));
 
-        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
+        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler());
     }
 
     [TestMethod]
@@ -52,17 +51,17 @@ public class PQClientQuoteDeserializerRepositoryTests
             .CreateQuoteDeserializer<PQLevel0Quote>(sourceTickerPricingSubscriptionConfig);
         Assert.IsNotNull(level0Deserializer);
         Assert.AreEqual(level0Deserializer.Identifier, sourceTickerQuoteInfo);
-        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
+        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler());
         var level1Deserializer = pqClientQuoteDeserializerRepository
             .CreateQuoteDeserializer<PQLevel1Quote>(sourceTickerPricingSubscriptionConfig);
         Assert.IsNotNull(level1Deserializer);
         Assert.AreEqual(level1Deserializer.Identifier, sourceTickerQuoteInfo);
-        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
+        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler());
         var level2Deserializer = pqClientQuoteDeserializerRepository
             .CreateQuoteDeserializer<PQLevel2Quote>(sourceTickerPricingSubscriptionConfig);
         Assert.IsNotNull(level2Deserializer);
         Assert.AreEqual(level2Deserializer.Identifier, sourceTickerQuoteInfo);
-        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
+        pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler());
         var level3Deserializer = pqClientQuoteDeserializerRepository
             .CreateQuoteDeserializer<PQLevel3Quote>(sourceTickerPricingSubscriptionConfig);
         Assert.IsNotNull(level3Deserializer);

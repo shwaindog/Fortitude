@@ -32,6 +32,8 @@ public class UdpPubSubConnectionTests
         }), "TestTCPReqRespConn", 1024 * 1024 * 2, 1024 * 1024 * 2, 50,
         SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast);
 
+    private AutoResetEvent autoReset = new(false);
+
     private ConversationPublisher conversationPublisher = null!;
 
     private ConversationSubscriber conversationSubscriber = null!;
@@ -75,6 +77,7 @@ public class UdpPubSubConnectionTests
     {
         // client connects
         conversationPublisher.Connect();
+        Thread.Sleep(20);
         conversationSubscriber.Connect();
 
         foreach (INotifyingMessageDeserializer<SimpleVersionedMessage> deserializersValue in
@@ -85,7 +88,7 @@ public class UdpPubSubConnectionTests
         // send message
         conversationPublisher.StreamPublisher!.Send(v2Message);
 
-        Thread.Sleep(20);
+        autoReset.WaitOne(50);
         // assert server receives properly
         Assert.AreEqual(v2Message.PayLoad2, receivedSimpleVersionedMessage.PayLoad2);
         Assert.AreEqual(v2Message.MessageId, receivedSimpleVersionedMessage.MessageId);
@@ -96,5 +99,6 @@ public class UdpPubSubConnectionTests
         , IConversation? selfSession)
     {
         receivedSimpleVersionedMessage = msg;
+        autoReset.Set();
     }
 }

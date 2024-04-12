@@ -44,7 +44,7 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 
         var sockFactories = SocketFactories;
 
-        var serdesFactory = new PQClientClientSerdesRepositoryFactory(PQFeedType.Update);
+        var serdesFactory = new PQClientClientSerdesRepositoryFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories

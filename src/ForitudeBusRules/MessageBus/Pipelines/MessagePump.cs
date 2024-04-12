@@ -3,11 +3,10 @@
 using FortitudeBusRules.MessageBus.Messages;
 using FortitudeBusRules.MessageBus.Messages.ListeningSubscriptions;
 using FortitudeBusRules.MessageBus.Pipelines.Timers;
-using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
@@ -15,7 +14,7 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeBusRules.MessageBus.Pipelines;
 
-public interface IMessagePump : IPollSink<Message>, IRingPoller
+public interface IMessagePump
 {
     bool IsListeningOn(string address);
     IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address);
@@ -31,25 +30,17 @@ public class MessagePump : IMessagePump
     private readonly ListenerRegistry listenerRegistry = new();
 
     private readonly List<IListeningRule> livingRules = new();
-    private readonly IRingPollerSink<Message> ringPoller;
+    private readonly IAsyncValueTaskRingPoller<Message> ringPoller;
 
-    private MessagePumpSyncContext syncContext = null!;
-
-    public MessagePump(IRingPollerSink<Message> ringPoller, EventContext? eventContext = null)
+    public MessagePump(IAsyncValueTaskRingPoller<Message> ringPoller, EventContext? eventContext = null)
     {
         this.ringPoller = ringPoller;
-        this.ringPoller.PollSink = this;
+        this.ringPoller.ProcessEvent = Processor;
         EventContext = eventContext;
     }
 
-    public MessagePumpTaskScheduler RingPollerScheduler { get; private set; } = null!;
+    public SyncContextTaskScheduler RingPollerScheduler { get; private set; } = null!;
     public EventContext? EventContext { get; set; }
-
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-        ringPoller.Dispose();
-    }
 
     public bool IsRunning => ringPoller.IsRunning;
 
@@ -58,6 +49,12 @@ public class MessagePump : IMessagePump
     public bool IsListeningOn(string address) => listenerRegistry.IsListeningOn(address);
 
     public IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address) => listenerRegistry.MatchingSubscriptions(address);
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        ringPoller.Dispose();
+    }
 
     public void WakeIfAsleep()
     {
@@ -74,18 +71,17 @@ public class MessagePump : IMessagePump
         ringPoller.Stop();
     }
 
-    public void Processor(long sequence, long batchSize, Message data, bool startOfBatch,
-        bool endOfBatch)
+    public async ValueTask<long> Processor(long sequence, Message data)
     {
         try
         {
             switch (data.Type)
             {
                 case MessageType.LoadRule:
-                    LoadNewRule(data);
+                    await LoadNewRule(data);
                     break;
                 case MessageType.UnloadRule:
-                    UnloadExistingRule(data);
+                    await UnloadExistingRule(data);
                     break;
                 case MessageType.RunActionPayload:
                 {
@@ -96,12 +92,6 @@ public class MessagePump : IMessagePump
                 case MessageType.TimerPayload:
                 {
                     var timerCallbackPayload = (ITimerCallbackPayload)data.PayLoad!.BodyObj!;
-                    timerCallbackPayload.Invoke();
-                    break;
-                }
-                case MessageType.TaskAction:
-                {
-                    var timerCallbackPayload = (ITaskPayload)data.PayLoad!.BodyObj!;
                     timerCallbackPayload.Invoke();
                     break;
                 }
@@ -149,6 +139,8 @@ public class MessagePump : IMessagePump
         {
             Logger.Warn("MessagePump id: {0} caught the following exception. ", e);
         }
+
+        return sequence;
     }
 
     private void CheckListenersForSubscription(Message data)
@@ -158,9 +150,7 @@ public class MessagePump : IMessagePump
 
     public void InitializeInPollingThread()
     {
-        syncContext = new MessagePumpSyncContext(EventContext!);
-        SynchronizationContext.SetSynchronizationContext(syncContext);
-        RingPollerScheduler = new MessagePumpTaskScheduler();
+        RingPollerScheduler = new SyncContextTaskScheduler();
     }
 
     private static void RuleStartedCallback(ValueTask launchTask, object? state)
@@ -185,29 +175,19 @@ public class MessagePump : IMessagePump
         }
     }
 
-    private void UnloadExistingRule(Message data)
+    private async ValueTask UnloadExistingRule(Message data)
     {
         var toShutdown = (IListeningRule)data.PayLoad!.BodyObj!;
         try
         {
             if (livingRules.Contains(toShutdown) && toShutdown.LifeCycleState == RuleLifeCycle.Started)
             {
-                UndeployChildren(toShutdown);
+                await UndeployChildren(toShutdown);
                 listenerRegistry.UnsubscribeAllListenersForRule(toShutdown);
-                var stopTask = toShutdown.StopAsync();
+                await toShutdown.StopAsync();
                 livingRules.Remove(toShutdown);
-
-                if (stopTask.IsCompleted)
-                {
-                    toShutdown.LifeCycleState = RuleLifeCycle.Stopped;
-                    data.ProcessorRegistry!.ProcessingComplete();
-                }
-                else
-                {
-                    data.ProcessorRegistry!.IncrementRefCount();
-                    data.ProcessorRegistry.RulePayLoad = toShutdown;
-                    var _ = stopTask.ContinueWith(RuleStopped, data.ProcessorRegistry);
-                }
+                toShutdown.LifeCycleState = RuleLifeCycle.Stopped;
+                data.ProcessorRegistry!.ProcessingComplete();
             }
         }
         catch (Exception ex)
@@ -216,37 +196,26 @@ public class MessagePump : IMessagePump
         }
     }
 
-    private static void UndeployChildren(IRule parentRule)
+    private static async ValueTask UndeployChildren(IRule parentRule)
     {
         if (parentRule.ChildRules.Any())
             foreach (var child in parentRule.ChildRules)
                 if (child.LifeCycleState == RuleLifeCycle.Started)
-                {
-                    var _ = child.Context.RegisteredOn.StopRuleAsync(parentRule, child);
-                }
+                    await child.Context.RegisteredOn.StopRuleAsync(parentRule, child);
     }
 
-    private void LoadNewRule(Message data)
+    private async ValueTask LoadNewRule(Message data)
     {
         var newRule = (IListeningRule)data.PayLoad!.BodyObj!;
         try
         {
             var processorRegistry = data.ProcessorRegistry!;
             processorRegistry.RegisterStart(newRule);
-            var started = newRule.StartAsync();
+            await newRule.StartAsync();
             livingRules.Add(newRule);
-            if (started.IsCompleted)
-            {
-                newRule.LifeCycleState = RuleLifeCycle.Started;
-                processorRegistry.RegisterFinish(newRule);
-                data.ProcessorRegistry!.ProcessingComplete();
-            }
-            else
-            {
-                processorRegistry.RegisterAwaiting(newRule);
-                processorRegistry.RulePayLoad = newRule;
-                var _ = started.ContinueWith(RuleStarted, processorRegistry);
-            }
+            newRule.LifeCycleState = RuleLifeCycle.Started;
+            processorRegistry.RegisterFinish(newRule);
+            data.ProcessorRegistry!.ProcessingComplete();
         }
         catch (Exception ex)
         {

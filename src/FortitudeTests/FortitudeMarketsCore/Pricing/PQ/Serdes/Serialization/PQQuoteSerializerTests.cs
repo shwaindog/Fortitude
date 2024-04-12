@@ -10,7 +10,6 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -123,7 +122,7 @@ public class PQQuoteSerializerTests
         var pricingServerConfig = new PricingServerConfig(NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig
             , NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig, syncRetryIntervalMs: retryWaitMs, allowUpdatesCatchup: allowCatchup);
 
-        deserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
+        deserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler());
         deserializerRepository.RegisterDeserializer(level0QuoteInfo.Id
             , new PQQuoteDeserializer<PQLevel0Quote>(new TickerPricingSubscriptionConfig(level0QuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer(level1QuoteInfo.Id
@@ -141,7 +140,7 @@ public class PQQuoteSerializerTests
         deserializerRepository.RegisterDeserializer(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo.Id
             , new PQQuoteDeserializer<PQLevel3Quote>(new TickerPricingSubscriptionConfig(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo, pricingServerConfig)));
 
-        pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(deserializerRepository, PQFeedType.Snapshot);
+        pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(deserializerRepository);
 
         testBuffer = new byte[400];
     }

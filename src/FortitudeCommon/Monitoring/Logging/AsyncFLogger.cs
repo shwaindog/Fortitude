@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 
 #endregion
 
@@ -11,10 +11,10 @@ namespace FortitudeCommon.Monitoring.Logging;
 internal sealed class AsyncFLogger : IFLogger
 {
     private readonly IFLogger logger;
-    private readonly PollingRing<FLogEvent> ring;
+    private readonly EnumerableBatchPollingRing<FLogEvent> ring;
     private bool defaultEnabled = true;
 
-    public AsyncFLogger(PollingRing<FLogEvent> ring, IFLogger logger)
+    public AsyncFLogger(EnumerableBatchPollingRing<FLogEvent> ring, IFLogger logger)
     {
         this.ring = ring;
         this.logger = logger;
@@ -22,6 +22,33 @@ internal sealed class AsyncFLogger : IFLogger
     }
 
     public bool IsDebugEnabled => logger.IsDebugEnabled;
+
+    public bool IsInfoEnabled => logger.IsInfoEnabled;
+
+    public bool IsWarnEnabled => logger.IsWarnEnabled;
+
+    public bool IsErrorEnabled => logger.IsErrorEnabled;
+
+    public string Name => logger.Name;
+
+    public string FullNameOfLogger => Name;
+
+    public Action<IHierarchicalLogger, string> SettingTranslation => logger.SettingTranslation;
+
+    public string DefaultStringValue => "default";
+
+    public bool Enabled { get; set; }
+    public string HierarchicalSetting { get; set; }
+
+    public bool DefaultEnabled
+    {
+        get => defaultEnabled;
+        set
+        {
+            defaultEnabled = value;
+            SettingTranslation(this, HierarchicalSetting);
+        }
+    }
 
     public void OnLogEvent(FLogEvent evt)
     {
@@ -46,8 +73,6 @@ internal sealed class AsyncFLogger : IFLogger
         PushObject(FLogLevel.Debug, obj);
     }
 
-    public bool IsInfoEnabled => logger.IsInfoEnabled;
-
     public void Info(string fmt, params object?[] args)
     {
         foreach (var checkRecyclable in args)
@@ -65,8 +90,6 @@ internal sealed class AsyncFLogger : IFLogger
     {
         PushObject(FLogLevel.Info, obj);
     }
-
-    public bool IsWarnEnabled => logger.IsWarnEnabled;
 
     public void Warn(string fmt, params object?[] args)
     {
@@ -86,8 +109,6 @@ internal sealed class AsyncFLogger : IFLogger
         PushObject(FLogLevel.Warn, obj);
     }
 
-    public bool IsErrorEnabled => logger.IsErrorEnabled;
-
     public void Error(string fmt, params object?[] args)
     {
         foreach (var checkRecyclable in args)
@@ -104,27 +125,6 @@ internal sealed class AsyncFLogger : IFLogger
     public void Error(object obj)
     {
         PushObject(FLogLevel.Error, obj);
-    }
-
-    public string Name => logger.Name;
-
-    public string FullNameOfLogger => Name;
-
-    public Action<IHierarchicalLogger, string> SettingTranslation => logger.SettingTranslation;
-
-    public string DefaultStringValue => "default";
-
-    public bool Enabled { get; set; }
-    public string HierarchicalSetting { get; set; }
-
-    public bool DefaultEnabled
-    {
-        get => defaultEnabled;
-        set
-        {
-            defaultEnabled = value;
-            SettingTranslation(this, HierarchicalSetting);
-        }
     }
 
     private void PushFormat(FLogLevel level, string fmt, object?[] args)

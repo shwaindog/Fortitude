@@ -7,23 +7,19 @@ using FortitudeCommon.EventProcessing.Disruption.Waiting;
 
 #endregion
 
-namespace FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+namespace FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 
-public interface IPollingRing<T> : IEnumerable<T> where T : class
+public interface IEnumerableBatchPollingRing<T> : IPollingRing<T>, IEnumerable<T> where T : class
 {
-    string Name { get; }
-    T this[long sequence] { get; }
     long CurrentSequence { get; }
     long CurrentBatchSize { get; }
     bool StartOfBatch { get; }
     bool EndOfBatch { get; }
-    long Claim();
-    void Publish(long sequence);
 }
 
-public class PollingRing<T> : IPollingRing<T> where T : class
+public class EnumerableBatchPollingRing<T> : IEnumerableBatchPollingRing<T> where T : class
 {
-    public PollingRing(string name, int size, Func<T> dataFactory, ClaimStrategyType claimStrategyType,
+    public EnumerableBatchPollingRing(string name, int size, Func<T> dataFactory, ClaimStrategyType claimStrategyType,
         bool logErrors = true)
     {
         Name = name;

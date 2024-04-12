@@ -5,7 +5,7 @@ using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -61,7 +61,7 @@ public class EventQueue : IEventQueue
 
     private DateTime lastUpDateTime = DateTime.Now;
 
-    public EventQueue(IEventBus eventBus, EventQueueType queueType, int id, IRingPollerSink<Message> ringPoller)
+    public EventQueue(IEventBus eventBus, EventQueueType queueType, int id, IAsyncValueTaskRingPoller<Message> ringPoller)
     {
         QueueType = queueType;
         Id = id;

@@ -4,7 +4,15 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
+
+public interface IPQTickerFeedSubscription
+{
+    string Source { get; }
+    string Ticker { get; }
+    IPricingServerConfig Feed { get; }
+    void Unsubscribe();
+}
 
 public abstract class PQTickerFeedSubscription : IPQTickerFeedSubscription
 {

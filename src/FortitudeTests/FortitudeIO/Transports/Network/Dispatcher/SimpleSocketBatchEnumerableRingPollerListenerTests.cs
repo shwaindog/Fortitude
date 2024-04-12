@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
@@ -17,12 +17,12 @@ using Moq;
 namespace FortitudeTests.FortitudeIO.Transports.Network.Dispatcher;
 
 [TestClass]
-public class SimpleSocketRingPollerListenerTests
+public class SimpleSocketBatchEnumerableRingPollerListenerTests
 {
     private const uint NoDataPauseTimeout = 100U;
-    private List<SocketReceiverUpdate> emptyEnumerable = new();
+    private List<SimpleSocketReceiverPayload> emptyEnumerable = new();
     private List<ISocketReceiver> firstListOfSocketsWithUpdate = new();
-    private SocketReceiverUpdate firstReceiverUpdate = null!;
+    private SimpleSocketReceiverPayload firstReceiverPayload = null!;
     private Mock<IIntraOSThreadSignal> intraOsThreadSignal = null!;
     private Mock<IOSThread> moqOsThread = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
@@ -30,16 +30,16 @@ public class SimpleSocketRingPollerListenerTests
     private Mock<IPerfLoggingPoolFactory> moqPerfFac = null!;
     private Mock<IPerfLogger> moqPerfLogger = null!;
     private Mock<IPerfLoggerPool> moqPerfPool = null!;
-    private Mock<IPollingRing<SocketReceiverUpdate>> moqPollingRing = null!;
+    private Mock<IEnumerableBatchPollingRing<SimpleSocketReceiverPayload>> moqPollingRing = null!;
     private Mock<ISocketDataLatencyLoggerFactory> moqSocketDataLatencyFactory = null!;
     private Mock<ISocketDataLatencyLogger> moqSocketDataLatencyLogger = null!;
     private Mock<ISocketReceiver> moqSocketReceiver = null!;
     private Mock<ISocketSelector> moqSocketSelector = null!;
-    private SocketReceiverUpdate secondReceiverUpdate = null!;
-    private List<SocketReceiverUpdate> singleItemEnumerable = null!;
+    private SimpleSocketReceiverPayload secondReceiverPayload = null!;
+    private List<SimpleSocketReceiverPayload> singleItemEnumerable = null!;
+    private SimpleSocketBatchEnumerableRingPollerListener socketBatchEnumerableRingPollerListener = null!;
     private SocketBufferReadContext socketBufferReadContext = null!;
-    private SimpleSocketRingPollerListener socketRingPollerListener = null!;
-    private SocketReceiverUpdate thirdRecieverUpdate = null!;
+    private SimpleSocketReceiverPayload thirdRecieverPayload = null!;
     private DateTime wakeTime;
     private ThreadStart workerThreadMethod = null!;
 
@@ -47,7 +47,7 @@ public class SimpleSocketRingPollerListenerTests
     public void SetUp()
     {
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
-        moqPollingRing = new Mock<IPollingRing<SocketReceiverUpdate>>();
+        moqPollingRing = new Mock<IEnumerableBatchPollingRing<SimpleSocketReceiverPayload>>();
         moqParallelController = new Mock<IOSParallelController>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelController.Object);
@@ -70,20 +70,20 @@ public class SimpleSocketRingPollerListenerTests
         moqSocketDataLatencyFactory
             .Setup(sdlf => sdlf.GetSocketDataLatencyLogger(It.IsAny<string>()))
             .Returns(moqSocketDataLatencyLogger.Object);
-        singleItemEnumerable = new List<SocketReceiverUpdate>();
+        singleItemEnumerable = new List<SimpleSocketReceiverPayload>();
 
-        firstReceiverUpdate = new SocketReceiverUpdate();
-        secondReceiverUpdate = new SocketReceiverUpdate();
-        thirdRecieverUpdate = new SocketReceiverUpdate();
+        firstReceiverPayload = new SimpleSocketReceiverPayload();
+        secondReceiverPayload = new SimpleSocketReceiverPayload();
+        thirdRecieverPayload = new SimpleSocketReceiverPayload();
 
         SocketDataLatencyLoggerFactory.Instance = moqSocketDataLatencyFactory.Object;
         PerfLoggingPoolFactory.Instance = moqPerfFac.Object;
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
         moqPollingRing.Setup(pr => pr.Name).Returns("SimpleSocketRingPollerSenderTests");
-        moqPollingRing.Setup(pr => pr[0L]).Returns(firstReceiverUpdate);
-        moqPollingRing.Setup(pr => pr[1L]).Returns(secondReceiverUpdate);
-        moqPollingRing.Setup(pr => pr[2L]).Returns(thirdRecieverUpdate);
+        moqPollingRing.Setup(pr => pr[0L]).Returns(firstReceiverPayload);
+        moqPollingRing.Setup(pr => pr[1L]).Returns(secondReceiverPayload);
+        moqPollingRing.Setup(pr => pr[2L]).Returns(thirdRecieverPayload);
         moqPollingRing.SetupSequence(pr => pr.Claim()).Returns(0).Returns(1).Returns(2);
         moqPollingRing.SetupGet(pr => pr.CurrentBatchSize).Returns(3);
         moqPollingRing.SetupSequence(pr => pr.StartOfBatch).Returns(true).Returns(false).Returns(false);
@@ -95,14 +95,18 @@ public class SimpleSocketRingPollerListenerTests
         moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
         {
             moqPollingRing.Setup(pr => pr.GetEnumerator()).Returns(emptyEnumerable.GetEnumerator());
-            socketRingPollerListener.Stop();
+            socketBatchEnumerableRingPollerListener.Stop();
         }).Returns(emptyEnumerable.GetEnumerator());
 
-        socketRingPollerListener = new SimpleSocketRingPollerListener(moqPollingRing.Object, NoDataPauseTimeout, moqSocketSelector.Object
+        socketBatchEnumerableRingPollerListener = new SimpleSocketBatchEnumerableRingPollerListener(moqPollingRing.Object, NoDataPauseTimeout
+            , moqSocketSelector.Object
             , null, moqParallelController.Object);
 
-        socketBufferReadContext = NonPublicInvocator.GetInstanceField<SocketBufferReadContext>(
-            socketRingPollerListener, "socketBufferReadContext");
+
+        var pollerAndDecoding
+            = NonPublicInvocator.GetInstanceField<SocketsPollerAndDecoding>(socketBatchEnumerableRingPollerListener, "socketsPollerAndDecoding");
+
+        socketBufferReadContext = NonPublicInvocator.GetInstanceField<SocketBufferReadContext>(pollerAndDecoding, "socketBufferReadContext");
     }
 
     [TestCleanup]
@@ -124,19 +128,19 @@ public class SimpleSocketRingPollerListenerTests
     {
         moqSocketSelector.Setup(ss => ss.Register(moqSocketReceiver.Object)).Verifiable();
         moqSocketReceiver.SetupSet(ssc => ssc.ListenActive = true).Verifiable();
-        singleItemEnumerable.Add(firstReceiverUpdate);
+        singleItemEnumerable.Add(firstReceiverPayload);
         moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
         {
             moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
                 {
                     moqPollingRing.Setup(pr => pr.GetEnumerator()).Returns(emptyEnumerable.GetEnumerator());
-                    socketRingPollerListener.Stop();
+                    socketBatchEnumerableRingPollerListener.Stop();
                 })
                 .Returns(emptyEnumerable.GetEnumerator());
         }).Returns(singleItemEnumerable.GetEnumerator());
 
-        socketRingPollerListener.Start();
-        socketRingPollerListener.RegisterForListen(moqSocketReceiver.Object);
+        socketBatchEnumerableRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.RegisterForListen(moqSocketReceiver.Object);
         workerThreadMethod();
 
         moqSocketReceiver.Verify();
@@ -148,19 +152,19 @@ public class SimpleSocketRingPollerListenerTests
     {
         moqSocketSelector.Setup(ss => ss.Unregister(moqSocketReceiver.Object)).Verifiable();
         moqSocketReceiver.SetupSet(ssc => ssc.ListenActive = false).Verifiable();
-        singleItemEnumerable.Add(firstReceiverUpdate);
+        singleItemEnumerable.Add(firstReceiverPayload);
         moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
         {
             moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
                 {
                     moqPollingRing.Setup(pr => pr.GetEnumerator()).Returns(emptyEnumerable.GetEnumerator());
-                    socketRingPollerListener.Stop();
+                    socketBatchEnumerableRingPollerListener.Stop();
                 })
                 .Returns(emptyEnumerable.GetEnumerator());
         }).Returns(singleItemEnumerable.GetEnumerator());
 
-        socketRingPollerListener.Start();
-        socketRingPollerListener.UnregisterForListen(moqSocketReceiver.Object);
+        socketBatchEnumerableRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.UnregisterForListen(moqSocketReceiver.Object);
         workerThreadMethod();
 
         moqSocketReceiver.Verify();
@@ -171,7 +175,7 @@ public class SimpleSocketRingPollerListenerTests
     public void SocketWithUpdate_ReceiveSuccessfullyCallsPoll_NormalProcessingOccurs()
     {
         PrepareOneSuccessfulReceive();
-        socketRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.Start();
         workerThreadMethod();
 
         moqParallelController.Verify();
@@ -192,7 +196,7 @@ public class SimpleSocketRingPollerListenerTests
             {
                 Assert.AreEqual(wakeTime, socketBufferReadContext.DetectTimestamp);
                 Assert.AreEqual(moqPerfLogger.Object, socketBufferReadContext.DispatchLatencyLogger);
-                NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false);
+                NonPublicInvocator.SetInstanceField(socketBatchEnumerableRingPollerListener, "isRunning", false);
             })
             .Returns(false).Verifiable();
         moqSocketReceiver.Setup(scc =>
@@ -205,7 +209,7 @@ public class SimpleSocketRingPollerListenerTests
         moqPerfLogger.Setup(ltcsl => ltcsl.Dedent()).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.AddContextMeasurement(1)).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.Add("End Processing Socket Data")).Verifiable();
-        socketRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.Start();
         workerThreadMethod();
 
         moqParallelController.Verify();
@@ -239,7 +243,7 @@ public class SimpleSocketRingPollerListenerTests
         moqPerfLogger.Setup(ltcsl => ltcsl.Dedent()).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.AddContextMeasurement(2)).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.Add("End Processing Socket Data")).Verifiable();
-        socketRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.Start();
         workerThreadMethod();
 
         moqParallelController.Verify();
@@ -268,11 +272,11 @@ public class SimpleSocketRingPollerListenerTests
             moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
                 {
                     moqPollingRing.Setup(pr => pr.GetEnumerator()).Returns(emptyEnumerable.GetEnumerator());
-                    socketRingPollerListener.Stop();
+                    socketBatchEnumerableRingPollerListener.Stop();
                 })
                 .Returns(emptyEnumerable.GetEnumerator());
         }).Returns(emptyEnumerable.GetEnumerator());
-        socketRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.Start();
         workerThreadMethod();
 
         moqParallelController.Verify();
@@ -297,11 +301,11 @@ public class SimpleSocketRingPollerListenerTests
             moqPollingRing.Setup(pr => pr.GetEnumerator()).Callback(() =>
                 {
                     moqPollingRing.Setup(pr => pr.GetEnumerator()).Returns(emptyEnumerable.GetEnumerator());
-                    socketRingPollerListener.Stop();
+                    socketBatchEnumerableRingPollerListener.Stop();
                 })
                 .Returns(emptyEnumerable.GetEnumerator());
         }).Returns(emptyEnumerable.GetEnumerator());
-        socketRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.Start();
         workerThreadMethod();
 
         moqParallelController.Verify();
@@ -318,10 +322,10 @@ public class SimpleSocketRingPollerListenerTests
         moqSocketReceiver.Reset();
         moqSocketReceiver.SetupGet(ssc => ssc.IsAcceptor).Returns(true).Verifiable();
         moqSocketReceiver.Setup(ssc => ssc.NewClientSocketRequest())
-            .Callback(() => { NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false); })
+            .Callback(() => { NonPublicInvocator.SetInstanceField(socketBatchEnumerableRingPollerListener, "isRunning", false); })
             .Verifiable();
 
-        socketRingPollerListener.Start();
+        socketBatchEnumerableRingPollerListener.Start();
         workerThreadMethod();
 
         moqParallelController.Verify();
@@ -350,7 +354,7 @@ public class SimpleSocketRingPollerListenerTests
             {
                 Assert.AreEqual(wakeTime, socketBufferReadContext.DetectTimestamp);
                 Assert.AreEqual(moqPerfLogger.Object, socketBufferReadContext.DispatchLatencyLogger);
-                NonPublicInvocator.SetInstanceField(socketRingPollerListener, "isRunning", false);
+                NonPublicInvocator.SetInstanceField(socketBatchEnumerableRingPollerListener, "isRunning", false);
             })
             .Returns(true).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.AddContextMeasurement(1)).Verifiable();

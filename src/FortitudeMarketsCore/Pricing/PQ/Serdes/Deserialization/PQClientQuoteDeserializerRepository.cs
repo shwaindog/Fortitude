@@ -30,13 +30,10 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
 
 public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializationRepository, IPQClientQuoteDeserializerRepository
 {
-    private readonly PQFeedType feedType;
+    public PQClientQuoteDeserializerRepository(IRecycler recycler, IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(
+        recycler, fallbackCoalasingDeserializer) { }
 
-    public PQClientQuoteDeserializerRepository(IRecycler recycler, PQFeedType feed
-        , IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(recycler, fallbackCoalasingDeserializer) =>
-        feedType = feed;
-
-    public override IPQClientMessageStreamDecoder Supply() => new PQClientMessageStreamDecoder(this, feedType);
+    public override IPQClientMessageStreamDecoder Supply() => new PQClientMessageStreamDecoder(this);
 
     IMessageStreamDecoder IMessageStreamDecoderFactory.Supply() => Supply();
 

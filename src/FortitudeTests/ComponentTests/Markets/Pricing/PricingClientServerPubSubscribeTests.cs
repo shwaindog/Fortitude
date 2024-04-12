@@ -17,6 +17,7 @@ using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
+using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
@@ -84,13 +85,13 @@ public class PricingClientServerPubSubscribeTests
         networkingController = new OSNetworkingController();
         hbSender = new PQServerHeartBeatSender();
         serverDispatcherResolver = new SimpleSocketDispatcherResolver(new SocketDispatcher(
-            new SimpleSocketRingPollerListener("PQServer", 100
-                , new SocketSelector(100, networkingController)),
-            new SimpleSocketRingPollerSender("PQServer", 100)));
+            new SimpleSocketAsyncValueTaskRingPollerListener("PQServer", 1
+                , new SocketSelector(1, networkingController)),
+            new SimpleAsyncValueTaskSocketRingPollerSender("PQServer", 1)));
         clientDispatcherResolver = new SimpleSocketDispatcherResolver(new SocketDispatcher(
-            new SimpleSocketRingPollerListener("PQClient", 100
-                , new SocketSelector(100, networkingController)),
-            new SimpleSocketRingPollerSender("PQClient", 100)));
+            new SimpleSocketAsyncValueTaskRingPollerListener("PQClient", 1
+                , new SocketSelector(1, networkingController)),
+            new SimpleAsyncValueTaskSocketRingPollerSender("PQClient", 1)));
 
         pqSnapshotFactory = PQSnapshotServer.BuildTcpResponder;
         pqUpdateFactory = PQUpdatePublisher.BuildUdpMulticastPublisher;
@@ -168,7 +169,7 @@ public class PricingClientServerPubSubscribeTests
         // adapter becomes sourceTime on Send
         logger.Info("About to publish second empty quote. {0}", sourcePriceQuote);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
-        autoResetEvent.WaitOne(60000); // 20 ms seems to work expand wait time if errors
+        autoResetEvent.WaitOne(3_000); // 20 ms seems to work expand wait time if errors
         logger.Info("Received second update {0}", alwaysUpdatedQuote);
         pqClient.Dispose();
         pqPublisher.Dispose();
@@ -176,7 +177,7 @@ public class PricingClientServerPubSubscribeTests
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
         logger.Info("Second diff.");
         logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
-        Thread.Sleep(5_000);
+        autoResetEvent.WaitOne(3_000);
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
         logger.Info("Finished Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
         //FLoggerFactory.GracefullyTerminateProcessLogging();

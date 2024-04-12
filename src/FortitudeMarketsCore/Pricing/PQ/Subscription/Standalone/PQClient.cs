@@ -13,11 +13,14 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 public class PQClient : IDisposable
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQClient));
+
+    private readonly IPQClientQuoteDeserializerRepository deserializationRepository
+        = new PQClientQuoteDeserializerRepository(new Recycler());
 
     private readonly IMarketConnectionConfigRepository marketConnectionConfigRepository;
 
@@ -25,9 +28,6 @@ public class PQClient : IDisposable
     private readonly IPQClientSyncMonitoring pqClientSyncMonitoring;
     private readonly IIntraOSThreadSignal shutDownSignal;
     private readonly IPQConversationRepository<IPQSnapshotClient> snapshotClientFactory;
-
-    private readonly IPQClientQuoteDeserializerRepository snapshotSerializationRepository
-        = new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot);
 
     private readonly IDictionary<string, PQSourceSubscriptionsContext> sourceSubscriptions =
         new Dictionary<string, PQSourceSubscriptionsContext>();
@@ -158,12 +158,12 @@ public class PQClient : IDisposable
         if (pricingServerConfig != null)
         {
             var tickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig(sourceTickerQuoteInfo, pricingServerConfig);
-            var quoteDeserializer = snapshotSerializationRepository.GetDeserializer(sourceTickerQuoteInfo);
+            var quoteDeserializer = deserializationRepository.GetDeserializer(sourceTickerQuoteInfo);
             if (quoteDeserializer != null)
                 throw new Exception("Subscription for " + sourceTickerQuoteInfo.Ticker + " on " +
                                     marketConnectionConfig?.Name +
                                     " already exists");
-            quoteDeserializer = snapshotSerializationRepository.CreateQuoteDeserializer<T>(tickerPricingSubscriptionConfig);
+            quoteDeserializer = deserializationRepository.CreateQuoteDeserializer<T>(tickerPricingSubscriptionConfig);
 
             if (quoteDeserializer is IPQDeserializer<T> pqQuoteDeserializer)
             {
@@ -206,7 +206,7 @@ public class PQClient : IDisposable
         if (sourceTickerPublicationConfig != null)
         {
             var pricingServerConfig = feedRef.PricingServerConfig!;
-            var quoteDeserializer = snapshotSerializationRepository.GetDeserializer(sourceTickerPublicationConfig)
+            var quoteDeserializer = deserializationRepository.GetDeserializer(sourceTickerPublicationConfig)
                                     ?? throw new Exception(
                                         $"Subscription for {ticker} on {feedRef.Name} does not exists");
 
@@ -219,9 +219,9 @@ public class PQClient : IDisposable
                 pqClientSyncMonitoring.UnregisterSerializer(quoteDeserializer);
             }
 
-            snapshotSerializationRepository.UnregisterDeserializer(sourceTickerPublicationConfig);
+            deserializationRepository.UnregisterDeserializer(sourceTickerPublicationConfig);
 
-            if (!snapshotSerializationRepository.RegisteredMessageIds.Any())
+            if (!deserializationRepository.RegisteredMessageIds.Any())
                 pqClientSyncMonitoring.CheckStopMonitoring();
 
             Logger.Info($"Unsubscribed from {sourceTickerPublicationConfig}");

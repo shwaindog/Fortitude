@@ -7,7 +7,7 @@ using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeIO.Transports.Network.Receiving;
 
@@ -101,15 +101,14 @@ public class SpecificEventQueueGroup : IEventQueueGroup
         return eventQueues.Count;
     }
 
-    public virtual IRingPollerSink<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
+    public virtual IAsyncValueTaskRingPoller<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
     {
-        var ring = new PollingRing<Message>(
+        var ring = new AsyncValueValueTaskPollingRing<Message>(
             $"EventQueue-{name}",
             size,
             () => new Message(),
-            ClaimStrategyType.MultiProducers,
-            false);
-        return new RingPollerSink<Message>(ring, noDataPauseTimeoutMs);
+            ClaimStrategyType.MultiProducers, null, null, false);
+        return new AsyncValueTaskRingPoller<Message>(ring, noDataPauseTimeoutMs);
     }
 
     public void Add(IEventQueue item)
@@ -135,29 +134,27 @@ public class SpecificEventQueueGroup : IEventQueueGroup
 class SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
     , IQueuesConfig queuesConfig) : SpecificEventQueueGroup(owningEventBus, groupType, recycler, queuesConfig)
 {
-    public override IRingPollerSink<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
+    public override IAsyncValueTaskRingPoller<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
     {
-        var ring = new PollingRing<Message>(
+        var ring = new AsyncValueValueTaskPollingRing<Message>(
             $"EventQueue-{name}",
             size,
             () => new Message(),
-            ClaimStrategyType.MultiProducers,
-            false);
-        return new SocketEventQueueRingPollerListener(ring, noDataPauseTimeoutMs, new SocketSelector(QueuesConfig.SelectorPollIntervalMs));
+            ClaimStrategyType.MultiProducers, null, null, false);
+        return new SocketAsyncValueTaskEventQueueListener(ring, noDataPauseTimeoutMs, new SocketSelector(queuesConfig.SelectorPollIntervalMs));
     }
 }
 
 public class SocketEventQueueSenderGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
     , IQueuesConfig queuesConfig) : SpecificEventQueueGroup(owningEventBus, groupType, recycler, queuesConfig)
 {
-    public override IRingPollerSink<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
+    public override IAsyncValueTaskRingPoller<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
     {
-        var ring = new PollingRing<Message>(
+        var ring = new AsyncValueValueTaskPollingRing<Message>(
             $"EventQueue-{name}",
             size,
             () => new Message(),
-            ClaimStrategyType.MultiProducers,
-            false);
-        return new SocketEventQueueRingPollerSender(ring, noDataPauseTimeoutMs);
+            ClaimStrategyType.MultiProducers, null, null, false);
+        return new SocketAsyncValueTaskEventQueueSender(ring, noDataPauseTimeoutMs);
     }
 }

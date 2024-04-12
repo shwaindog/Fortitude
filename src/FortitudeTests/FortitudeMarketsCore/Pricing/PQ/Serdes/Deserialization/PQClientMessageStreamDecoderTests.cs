@@ -9,7 +9,6 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
@@ -89,7 +88,7 @@ public class PQClientMessageStreamDecoderTests
         sourceTickerInfoResponseSerializer = new PQSourceTickerInfoResponseSerializer();
 
         pqClientMessageStreamDecoder
-            = new PQClientMessageStreamDecoder(moqDeserializersMap.Object, PQFeedType.Snapshot);
+            = new PQClientMessageStreamDecoder(moqDeserializersMap.Object);
         pqClientMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(sourceTickerInfoResponseCallBack);
     }
 
@@ -241,7 +240,7 @@ public class PQClientMessageStreamDecoderTests
     public void TwoSourceTickerInfoRequest_ProcessTwice_DecodesStreamAndCompletes()
     {
         pqClientMessageStreamDecoder
-            = new PQClientMessageStreamDecoder(new PQClientQuoteDeserializerRepository(new Recycler(), PQFeedType.Snapshot), PQFeedType.Snapshot);
+            = new PQClientMessageStreamDecoder(new PQClientQuoteDeserializerRepository(new Recycler()));
         pqClientMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(sourceTickerInfoResponseCallBack);
         var sourceTickerInfoResponse = new PQSourceTickerInfoResponse(sendSourceTickerQuoteInfos);
         sourceTickerInfoResponseSerializer.Serialize(sourceTickerInfoResponse, (ISerdeContext)socketBufferReadContext);
