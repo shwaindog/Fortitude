@@ -5,7 +5,7 @@ using FortitudeIO.Transports.Network.Config;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 public interface IPQConversationRepository<out T> where T : class, IConversation
 {

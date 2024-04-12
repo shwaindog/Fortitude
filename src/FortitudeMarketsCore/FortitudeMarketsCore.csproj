@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ForitudeBusRules\ForititudeBusRules.csproj" />
     <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
     <ProjectReference Include="..\FortitudeIO\FortitudeIO.csproj" />
     <ProjectReference Include="..\FortitudeMarketsApi\FortitudeMarketsApi.csproj" />
@@ -22,6 +23,7 @@
     <Folder Include="Configuration\ClientServerConfig\MarketsConfig\" />
     <Folder Include="Configuration\ClientServerConfig\PricingConfig\" />
     <Folder Include="Configuration\ClientServerConfig\TradingConfig\" />
+    <Folder Include="Pricing\PQ\Subscription\BusRules\BusMessages\" />
     <Folder Include="Pricing\Quotes\SourceTickerInfo\" />
   </ItemGroup>
 

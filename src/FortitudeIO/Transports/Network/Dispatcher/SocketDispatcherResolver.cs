@@ -49,10 +49,10 @@ public class PoolSocketDispatcherResolver : ISocketDispatcherResolver
     {
         var listeners = new List<ISocketDispatcherListener>();
         for (var i = 0; i < numListeners; i++)
-            listeners.Add(new SimpleSocketRingPollerListener($"{name}_{i}", 5
-                , new SocketSelector(100, new OSNetworkingController())));
+            listeners.Add(new SimpleSocketAsyncValueTaskRingPollerListener($"{name}_{i}", 1
+                , new SocketSelector(1, new OSNetworkingController())));
         var senders = new List<ISocketDispatcherSender>();
-        for (var i = 0; i < numListeners; i++) senders.Add(new SimpleSocketRingPollerSender($"{name}_{i}", 5));
+        for (var i = 0; i < numListeners; i++) senders.Add(new SimpleAsyncValueTaskSocketRingPollerSender($"{name}_{i}", 1));
 
         Func<IList<ISocketDispatcherListener>, ISocketDispatcherListener> minUsageListeners = (availableListeners) =>
         {
@@ -90,7 +90,7 @@ public class SingletonSocketDispatcherResolver : ISocketDispatcherResolver
 
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) =>
         singletonDispatcher ??= new SocketDispatcher(
-            new SimpleSocketRingPollerListener($"Singleton", 5
-                , new SocketSelector(100, new OSNetworkingController())),
-            new SimpleSocketRingPollerSender("Singleton", 5));
+            new SimpleSocketAsyncValueTaskRingPollerListener($"Singleton", 1
+                , new SocketSelector(1, new OSNetworkingController())),
+            new SimpleAsyncValueTaskSocketRingPollerSender("Singleton", 1));
 }

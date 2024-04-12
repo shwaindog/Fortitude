@@ -4,11 +4,11 @@ using FortitudeCommon.Types;
 
 #endregion
 
-namespace FortitudeBusRules.MessageBus.Tasks;
+namespace FortitudeCommon.AsyncProcessing.Tasks;
 
-public class MessagePumpTaskScheduler : TaskScheduler
+public class SyncContextTaskScheduler : TaskScheduler
 {
-    private readonly SynchronizationContext messagePumpSyncContext = SynchronizationContext.Current!;
+    private readonly SynchronizationContext myReplacedSyncContext = SynchronizationContext.Current!;
 
     private readonly Action<Task> threadPoolQueueTask =
         NonPublicInvocator.GetInstanceMethodAction<Task>(Default, "QueueTask");
@@ -25,8 +25,8 @@ public class MessagePumpTaskScheduler : TaskScheduler
 
     protected override void QueueTask(Task task)
     {
-        if (SynchronizationContext.Current == messagePumpSyncContext)
-            messagePumpSyncContext.Post(TryExecuteCallback, task);
+        if (SynchronizationContext.Current == myReplacedSyncContext)
+            myReplacedSyncContext.Post(TryExecuteCallback, task);
         else if (SynchronizationContext.Current != null)
             SynchronizationContext.Current.Post(TryExecuteCallback, task);
         else
@@ -40,7 +40,7 @@ public class MessagePumpTaskScheduler : TaskScheduler
     }
 
     protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) =>
-        SynchronizationContext.Current == messagePumpSyncContext ?
+        SynchronizationContext.Current == myReplacedSyncContext ?
             TryExecuteTask(task) :
             threadPoolTryExecuteTaskInline(task, taskWasPreviouslyQueued);
 

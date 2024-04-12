@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
@@ -10,31 +10,28 @@ using FortitudeIO.Transports.Network.Publishing;
 
 namespace FortitudeIO.Transports.Network.Dispatcher;
 
-public interface ISocketDispatcherSender : ISocketDispatcherCommon
+public abstract class SocketBatchEnumerableRingPollerSender<T> : EnumerableBatchRingPoller<T>, ISocketDispatcherSender
+    where T : class, ICanCarrySocketSenderPayload
 {
-    void AddToSendQueue(ISocketSender ss);
-}
-
-public abstract class SocketRingPollerSender<T> : RingPollerBase<T>, ISocketDispatcherSender where T : class
-{
-    protected readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketRingPollerSender<>));
+    protected readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketBatchEnumerableRingPollerSender<>));
     protected readonly IOSParallelController ParallelController;
 
-    protected SocketRingPollerSender(IPollingRing<T> ring, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null,
+    protected SocketBatchEnumerableRingPollerSender(IEnumerableBatchPollingRing<T> ring, uint noDataPauseTimeoutMs
+        , Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
     {
         Name = Ring.Name + "-SocketRingPollerSender";
         ParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
     }
 
-    public abstract void AddToSendQueue(ISocketSender ss);
+    public abstract void EnqueueSocketSender(ISocketSender socketSender);
 
     protected void PutQueuedSenderMessageOnSocket(ISocketSender ss)
     {
         try
         {
             var sent = ss.SendQueued();
-            if (!sent) AddToSendQueue(ss);
+            if (!sent) EnqueueSocketSender(ss);
         }
         catch (SocketSendException se)
         {
@@ -43,32 +40,29 @@ public abstract class SocketRingPollerSender<T> : RingPollerBase<T>, ISocketDisp
     }
 }
 
-public class SocketSenderContainer
+public class SimpleSocketBatchEnumerableRingPollerSender : SocketBatchEnumerableRingPollerSender<SimpleSocketSenderPayload>
 {
-    public ISocketSender? SocketSender { get; set; }
-}
-
-public class SimpleSocketRingPollerSender : SocketRingPollerSender<SocketSenderContainer>
-{
-    public SimpleSocketRingPollerSender(IPollingRing<SocketSenderContainer> ring, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null,
+    public SimpleSocketBatchEnumerableRingPollerSender(IEnumerableBatchPollingRing<SimpleSocketSenderPayload> ring
+        , uint noDataPauseTimeoutMs
+        , Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController) { }
 
-    public SimpleSocketRingPollerSender(string name, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null
+    public SimpleSocketBatchEnumerableRingPollerSender(string name, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null
         , IOSParallelController? parallelController = null)
-        : base(new PollingRing<SocketSenderContainer>(name, 4097, () => new SocketSenderContainer(),
+        : base(new EnumerableBatchPollingRing<SimpleSocketSenderPayload>(name, 4097, () => new SimpleSocketSenderPayload(),
             ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, threadStartInitialization, parallelController) { }
 
-    public override void AddToSendQueue(ISocketSender ss)
+    public override void EnqueueSocketSender(ISocketSender socketSender)
     {
         var seqId = Ring.Claim();
         var evt = Ring[seqId];
-        evt.SocketSender = ss;
+        evt.SetAsSocketSenderItem(socketSender);
         Ring.Publish(seqId);
         WakeIfAsleep();
         if (!IsRunning) Start();
     }
 
-    protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, SocketSenderContainer data
+    protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, SimpleSocketSenderPayload data
         , bool ringStartOfBatch, bool ringEndOfBatch)
     {
         PutQueuedSenderMessageOnSocket(data.SocketSender!);

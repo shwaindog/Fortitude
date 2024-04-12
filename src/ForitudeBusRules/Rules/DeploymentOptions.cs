@@ -14,6 +14,7 @@ public readonly struct DeploymentOptions
     public readonly RoutingFlags RoutingFlags;
     public readonly uint Instances;
     public readonly string? SpecificEventQueueName = null;
+    public readonly int TimeoutMs = 60_000;
 
     public DeploymentOptions()
     {
@@ -24,11 +25,12 @@ public readonly struct DeploymentOptions
 
     public DeploymentOptions(RoutingFlags routingFlags = RoutingFlags.DefaultDeploy
         , EventQueueType eventGroupType = EventQueueType.Event
-        , uint instances = 1, string? specificEventQueueName = null)
+        , uint instances = 1, string? specificEventQueueName = null, int timeoutMs = 60_000)
     {
         Instances = instances;
         EventGroupType = eventGroupType;
         SpecificEventQueueName = specificEventQueueName;
+        TimeoutMs = timeoutMs;
         RoutingFlags = routingFlags;
     }
 }
@@ -43,6 +45,5 @@ public static class DeploymentOptionsExtensions
             , instances ?? original.Instances
             , specificEventQueueName ?? original.SpecificEventQueueName);
 
-    public static bool RequiresSpecificEventQueue(this DeploymentOptions check) =>
-        check.SpecificEventQueueName.IsNotNullOrEmpty();
+    public static bool RequiresSpecificEventQueue(this DeploymentOptions check) => check.SpecificEventQueueName.IsNotNullOrEmpty();
 }

@@ -8,7 +8,7 @@ using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeTests.FortitudeBusRules.Rules;
 
@@ -30,13 +30,12 @@ public class EventQueueTests
         defaultQueuesConfig.DefaultQueueSize = 12;
         defaultQueuesConfig.EventQueueSize = 12;
 
-        var ring = new PollingRing<Message>(
+        var ring = new AsyncValueValueTaskPollingRing<Message>(
             $"EventQueueTests",
             12,
             () => new Message(),
-            ClaimStrategyType.MultiProducers,
-            false);
-        var ringPoller = new RingPollerSink<Message>(ring, 30);
+            ClaimStrategyType.MultiProducers, null, null, false);
+        var ringPoller = new AsyncValueTaskRingPoller<Message>(ring, 30);
         eventBus = new EventBus(evtBus =>
         {
             eventQueue = new EventQueue(evtBus, EventQueueType.Event, 1, ringPoller);
@@ -47,6 +46,13 @@ public class EventQueueTests
         });
         eventBus.Start();
         selectionResult = new RouteSelectionResult(eventQueue, "EventQueueTests", RoutingFlags.DefaultDeploy);
+    }
+
+    [TestCleanup]
+    public void TearDown()
+    {
+        eventBus.Stop();
+        SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     [TestMethod]

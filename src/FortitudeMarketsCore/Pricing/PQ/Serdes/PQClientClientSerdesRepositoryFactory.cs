@@ -14,7 +14,7 @@ public interface IPQClientSerdesRepositoryFactory : IMessageSerdesRepositoryFact
     new IPQClientQuoteDeserializerRepository MessageDeserializationRepository { get; }
 }
 
-public class PQClientClientSerdesRepositoryFactory(PQFeedType feedType, IRecycler? serializationRecycler = null,
+public class PQClientClientSerdesRepositoryFactory(IRecycler? serializationRecycler = null,
         IRecycler? deserializationRecycler = null, IMessageSerializationRepository? coalescingFallbackPQQuoteSerializerRepository = null,
         IPQClientQuoteDeserializerRepository? coalescingFallbackPQQuoteDeserializerRepository = null)
     : IPQClientSerdesRepositoryFactory
@@ -31,11 +31,11 @@ public class PQClientClientSerdesRepositoryFactory(PQFeedType feedType, IRecycle
 
     public IMessageStreamDecoderFactory MessageStreamDecoderFactory =>
         singleInstanceDeserializationRepo ??=
-            new PQClientQuoteDeserializerRepository(deserializationRecycler, feedType, coalescingFallbackPQQuoteDeserializerRepository);
+            new PQClientQuoteDeserializerRepository(deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
 
     IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository => MessageDeserializationRepository;
 
     public IPQClientQuoteDeserializerRepository MessageDeserializationRepository =>
         singleInstanceDeserializationRepo ??=
-            new PQClientQuoteDeserializerRepository(deserializationRecycler, feedType, coalescingFallbackPQQuoteDeserializerRepository);
+            new PQClientQuoteDeserializerRepository(deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
 }

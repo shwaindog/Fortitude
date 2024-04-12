@@ -32,13 +32,13 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
 
     private uint messagesTotalSize;
 
-    public PQClientMessageStreamDecoder(IConversationDeserializationRepository messageDeserializationRepository, PQFeedType feed)
+    public PQClientMessageStreamDecoder(IConversationDeserializationRepository messageDeserializationRepository)
     {
         MessageDeserializationRepository = messageDeserializationRepository;
         messageSection = MessageSection.TransmissionHeader;
         ExpectedSize = PQQuoteMessageHeader.HeaderSize;
 
-        msgHeader = new PQQuoteTransmissionHeader(feed);
+        msgHeader = new PQQuoteTransmissionHeader();
     }
 
     public int ExpectedSize { get; private set; }

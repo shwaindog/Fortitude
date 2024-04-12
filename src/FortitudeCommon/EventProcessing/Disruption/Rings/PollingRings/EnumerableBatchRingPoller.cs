@@ -8,64 +8,41 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 
 #endregion
 
-namespace FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+namespace FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 
-public interface IPollSink<in T> where T : class
+public interface IEnumerableBatchRingPoller<T> : IRingPoller<T> where T : class
 {
-    void Processor(long sequence, long batchSize, T data, bool startOfBatch, bool endOfBatch);
+    new IEnumerableBatchPollingRing<T> Ring { get; }
 }
 
-public interface IRingPoller : IDisposable
+public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<T> where T : class
 {
-    bool IsRunning { get; }
-    int UsageCount { get; }
-    void WakeIfAsleep();
-    void Start(Action? threadStartInitialize = null);
-    void Stop();
-}
-
-public interface IRingPoller<T> : IRingPoller where T : class
-{
-    IPollingRing<T> Ring { get; }
-}
-
-public interface IRingPollerSink<T> : IRingPoller<T> where T : class
-{
-    IPollSink<T>? PollSink { get; set; }
-    IRecycler Recycler { get; set; }
-}
-
-public abstract class RingPollerBase<T> : IRingPoller<T> where T : class
-{
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(RingPollerBase<T>));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(EnumerableBatchRingPoller<T>));
 
     private readonly AutoResetEvent are = new(true);
     private readonly object initLock = new();
     private readonly IOSParallelController osParallelController;
     private readonly int timeoutMs;
     private volatile bool isRunning;
-    private string name;
     private IOSThread? ringPollingThread;
     private Action? threadStartInitialization;
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    protected RingPollerBase(IPollingRing<T> ring, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null,
+    protected EnumerableBatchRingPoller(IEnumerableBatchPollingRing<T> ring, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
     {
         Ring = ring;
         timeoutMs = (int)noDataPauseTimeoutMs;
         osParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
-        name = Ring.Name + "-Poller";
+        Name = Ring.Name + "-EnumerableBatchRingPoller";
         this.threadStartInitialization = threadStartInitialization;
     }
 
-    public virtual string Name
-    {
-        get => name;
-        set => name = value;
-    }
+    public string Name { get; set; }
 
-    public IPollingRing<T> Ring { get; }
+    public IEnumerableBatchPollingRing<T> Ring { get; }
+
+    IPollingRing<T> IRingPoller<T>.Ring => Ring;
 
     public virtual int UsageCount { get; private set; }
 
@@ -158,13 +135,25 @@ public abstract class RingPollerBase<T> : IRingPoller<T> where T : class
         , bool ringEndOfBatch);
 }
 
-public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T>? pollSink = null, Action? threadStartInitialization = null
+public interface IEnumerableBatchPollSink<in T> where T : class
+{
+    void Processor(long sequence, long batchSize, T data, bool startOfBatch, bool endOfBatch);
+}
+
+public interface IEnumerableBatchRingPollerSink<T> : IEnumerableBatchRingPoller<T> where T : class
+{
+    IEnumerableBatchPollSink<T>? PollSink { get; set; }
+    IRecycler Recycler { get; set; }
+}
+
+public class EnumerableBatchRingPollerSink<T>(IEnumerableBatchPollingRing<T> ring, uint timeoutMs, IEnumerableBatchPollSink<T>? pollSink = null
+        , Action? threadStartInitialization = null
         , IOSParallelController? parallelController = null)
-    : RingPollerBase<T>(ring, timeoutMs, threadStartInitialization, parallelController), IRingPollerSink<T>
+    : EnumerableBatchRingPoller<T>(ring, timeoutMs, threadStartInitialization, parallelController), IEnumerableBatchRingPollerSink<T>
     where T : class
 {
     private IRecycler? recycler;
-    public IPollSink<T>? PollSink { get; set; } = pollSink;
+    public IEnumerableBatchPollSink<T>? PollSink { get; set; } = pollSink;
 
     public IRecycler Recycler
     {
@@ -179,9 +168,9 @@ public class RingPollerSink<T>(IPollingRing<T> ring, uint timeoutMs, IPollSink<T
     }
 }
 
-public class RingPollerObservable<T>(IPollingRing<T> ring, uint timeoutMs, Action? threadStartInitialization = null,
+public class EnumerableBatchRingPollerObservable<T>(IEnumerableBatchPollingRing<T> ring, uint timeoutMs, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
-    : RingPollerBase<T>(ring, timeoutMs, threadStartInitialization, parallelController) where T : class
+    : EnumerableBatchRingPoller<T>(ring, timeoutMs, threadStartInitialization, parallelController) where T : class
 {
     private readonly Subject<T> eventSubject = new();
     private IObservable<T> Events => eventSubject.AsObservable();

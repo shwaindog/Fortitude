@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.EventProcessing.Disruption.Rings.Batching;
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging.Diagnostics;
 using FortitudeCommon.Monitoring.Logging.NLogAdapter;
@@ -15,7 +15,7 @@ public class FLoggerFactory : IFLoggerFactory
 {
     private static readonly IFLoggerFactory LoggerFactory;
     private static readonly Dictionary<string, IFLogger> Loggers = [];
-    private static readonly PollingRing<FLogEvent> Ring;
+    private static readonly EnumerableBatchPollingRing<FLogEvent> Ring;
     private static readonly FLogEventPoller RingPoller;
     private static readonly object syncLock = new();
     private static volatile IFLoggerFactory? instance;
@@ -37,7 +37,7 @@ public class FLoggerFactory : IFLoggerFactory
 
         var configContext = builder.Build();
 
-        Ring = new PollingRing<FLogEvent>(
+        Ring = new EnumerableBatchPollingRing<FLogEvent>(
             "AsyncFLogger",
             configContext.GetSection("QueueSize").Value?.ToInt() ?? 50000,
             () => new FLogEvent(),

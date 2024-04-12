@@ -74,7 +74,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
             if (amountWritten < 0) throw new Exception("Serializer wrote less than expected to buffer.");
             sockBuffContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
             sockBuffContext.EncodedBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
-            sockBuffContext.MessageHeader = new PQQuoteTransmissionHeader(feedType)
+            sockBuffContext.MessageHeader = new PQQuoteTransmissionHeader
             {
                 SequenceId = sequenceId
                 , MessageFlags = feedType == PQFeedType.Snapshot ? PQMessageFlags.PublishAll | PQMessageFlags.IsQuote : PQMessageFlags.IsQuote

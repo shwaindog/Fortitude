@@ -208,16 +208,16 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public bool AreEquivalent(ISourceTickersConfig? other, bool exactTypes = false)
     {
-        var availabilitySame = DefaultTickerAvailability == other.DefaultTickerAvailability;
-        var roundingSame = DefaultRoundingPrecision == other.DefaultRoundingPrecision;
-        var minSubitSizeSame = DefaultMinSubmitSize == other.DefaultMinSubmitSize;
-        var maxSubitSizeSame = DefaultMaxSubmitSize == other.DefaultMaxSubmitSize;
-        var incrementSizeSame = DefaultIncrementSize == other.DefaultIncrementSize;
-        var minQuoteLifeSizeSame = DefaultMinimumQuoteLife == other.DefaultMinimumQuoteLife;
-        var layerFlagsSizeSame = DefaultLayerFlags == other.DefaultLayerFlags;
-        var maxLayersSame = DefaultMaximumPublishedLayers == other.DefaultMaximumPublishedLayers;
-        var lastTradedFlagsSame = DefaultLastTradedFlags == other.DefaultLastTradedFlags;
-        var tickerConfigsSame = Tickers.SequenceEqual(other.Tickers);
+        var availabilitySame = DefaultTickerAvailability == other?.DefaultTickerAvailability;
+        var roundingSame = DefaultRoundingPrecision == other?.DefaultRoundingPrecision;
+        var minSubitSizeSame = DefaultMinSubmitSize == other?.DefaultMinSubmitSize;
+        var maxSubitSizeSame = DefaultMaxSubmitSize == other?.DefaultMaxSubmitSize;
+        var incrementSizeSame = DefaultIncrementSize == other?.DefaultIncrementSize;
+        var minQuoteLifeSizeSame = DefaultMinimumQuoteLife == other?.DefaultMinimumQuoteLife;
+        var layerFlagsSizeSame = DefaultLayerFlags == other?.DefaultLayerFlags;
+        var maxLayersSame = DefaultMaximumPublishedLayers == other?.DefaultMaximumPublishedLayers;
+        var lastTradedFlagsSame = DefaultLastTradedFlags == other?.DefaultLastTradedFlags;
+        var tickerConfigsSame = Tickers.SequenceEqual(other?.Tickers ?? Array.Empty<ITickerConfig>());
 
         return availabilitySame && roundingSame && minSubitSizeSame && maxSubitSizeSame && incrementSizeSame &&
                minQuoteLifeSizeSame && layerFlagsSizeSame && maxLayersSame && lastTradedFlagsSame && tickerConfigsSame;

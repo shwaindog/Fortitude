@@ -19,7 +19,6 @@ using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
@@ -256,7 +255,7 @@ public class PQSnapshotClientTests
 
         var moqSocketReceiver = new Mock<ISocketReceiver>();
         moqSocketSessionContext.Setup(ssc => ssc.SocketReceiver).Returns(moqSocketReceiver.Object);
-        var decoder = new PQClientMessageStreamDecoder(moqPQQuoteDeserializationRepo.Object, PQFeedType.Snapshot);
+        var decoder = new PQClientMessageStreamDecoder(moqPQQuoteDeserializationRepo.Object);
         moqSocketReceiver.SetupGet(sr => sr.Decoder).Returns(decoder);
         moqSocketSessionContext.SetupAdd(ssc => ssc.SocketReceiverUpdated += It.IsAny<Action>());
         moqPQQuoteDeserializationRepo.Setup(qdr => qdr.Supply())

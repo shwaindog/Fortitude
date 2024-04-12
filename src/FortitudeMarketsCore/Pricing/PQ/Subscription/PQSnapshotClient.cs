@@ -171,7 +171,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
         var sockFactories = SocketFactories;
 
-        var serdesFactory = new PQClientClientSerdesRepositoryFactory(PQFeedType.Snapshot);
+        var serdesFactory = new PQClientClientSerdesRepositoryFactory();
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory

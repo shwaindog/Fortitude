@@ -13,7 +13,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 public interface IPQClientSyncMonitoring
 {

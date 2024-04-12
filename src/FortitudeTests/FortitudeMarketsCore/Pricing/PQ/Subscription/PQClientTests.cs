@@ -9,6 +9,7 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
+using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
 
 #endregion
@@ -78,7 +79,7 @@ public class PQClientTests
             moqUpdateClientFactory.Object, moqSnapshotClientFactory.Object);
 
         NonPublicInvocator.SetInstanceField(pqClient, "pqClientSyncMonitoring", moqPQClientSyncMonitoring.Object);
-        NonPublicInvocator.SetInstanceField(pqClient, "snapshotSerializationRepository"
+        NonPublicInvocator.SetInstanceField(pqClient, "deserializationRepository"
             , moqPQQuoteDeserializerRepo.Object);
     }
 

@@ -110,7 +110,7 @@ public class SocketSenderTests
         moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
-        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
 
         socketSender.Send(moqVersionedMessage.Object);
 
@@ -126,7 +126,7 @@ public class SocketSenderTests
         moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
-        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
         moqMessageSerializationRepo.Setup(msr => msr.GetSerializer(It.IsAny<uint>())).Returns(null as IMessageSerializer);
 
         socketSender.Send(moqVersionedMessage.Object);
@@ -141,7 +141,7 @@ public class SocketSenderTests
 
         moqVersionedMessage.Verify(vm => vm.MessageId, Times.AtLeast(2));
         moqVersionedMessage.Verify(vm => vm.IncrementRefCount(), Times.AtLeast(2));
-        moqSocketDispatcherSender.Verify(vm => vm.AddToSendQueue(socketSender), Times.Once);
+        moqSocketDispatcherSender.Verify(vm => vm.EnqueueSocketSender(socketSender), Times.Once);
     }
 
     [TestMethod]
@@ -186,7 +186,7 @@ public class SocketSenderTests
         moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
-        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>(
                 (_, bc) =>
@@ -216,7 +216,7 @@ public class SocketSenderTests
         moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
-        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>(
                 (_, bc) => { bc.LastWriteLength = 0; }
@@ -235,7 +235,7 @@ public class SocketSenderTests
         moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
-        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>(
                 (_, bc) =>
@@ -265,7 +265,7 @@ public class SocketSenderTests
         moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
-        moqSocketDispatcherSender.Setup(sd => sd.AddToSendQueue(socketSender)).Verifiable();
+        moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>(
                 (_, bc) =>

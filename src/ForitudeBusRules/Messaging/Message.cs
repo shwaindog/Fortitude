@@ -7,6 +7,9 @@ using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Transports.Network.Dispatcher;
+using FortitudeIO.Transports.Network.Publishing;
+using FortitudeIO.Transports.Network.Receiving;
 
 #endregion
 
@@ -61,7 +64,7 @@ public class PayLoad<T> : RecyclableObject, IPayLoad<T>
 
 public delegate bool RuleFilter(IRule appliesToRule);
 
-public interface IMessage : IStoreState<IMessage>
+public interface IMessage : IStoreState<IMessage>, ICanCarrySocketSenderPayload, ICanCarrySocketReceiverPayload
 {
     MessageType Type { get; }
     IRule? Sender { get; }
@@ -110,6 +113,7 @@ public class Message : IMessage
 {
     public static readonly NoMessageResponseSource NoOpCompletionSource = new();
     public static readonly RuleFilter AppliesToAll = _ => true;
+    private static readonly Recycler Recycler = new();
 
     public MessageType Type { get; set; }
     public IRule? Sender { get; set; }
@@ -162,6 +166,65 @@ public class Message : IMessage
     {
         CopyFrom((IMessage)source, copyMergeFlags);
         return this;
+    }
+
+    public bool IsTaskCallbackItem => Type == MessageType.TaskAction;
+
+    public void SetAsTaskCallbackItem(SendOrPostCallback callback, object? state)
+    {
+        var payLoad = Recycler.Borrow<PayLoad<TaskPayload>>();
+        var taskPayLoad = Recycler.Borrow<TaskPayload>();
+        taskPayLoad.Callback = callback;
+        taskPayLoad.State = state;
+        payLoad.Body = taskPayLoad;
+        Type = MessageType.TaskAction;
+        PayLoad = payLoad;
+        Sender = Rule.NoKnownSender;
+        DestinationAddress = "NotUsed";
+        SentTime = DateTime.UtcNow;
+        Response = NoOpCompletionSource;
+        ProcessorRegistry = null;
+        RuleFilter = AppliesToAll;
+    }
+
+    public void InvokeTaskCallback()
+    {
+        if (PayLoad!.BodyObj is TaskPayload taskPayload) taskPayload.Invoke();
+    }
+
+    public bool IsSocketSenderItem => Type == MessageType.SendToRemote;
+    public ISocketSender? SocketSender => PayLoad!.BodyObj as ISocketSender;
+
+    public void SetAsSocketSenderItem(ISocketSender socketSender)
+    {
+        var payLoad = Recycler.Borrow<PayLoad<ISocketSender>>();
+        payLoad.Body = socketSender;
+        Type = MessageType.SendToRemote;
+        PayLoad = payLoad;
+        Sender = Rule.NoKnownSender;
+        DestinationAddress = "NotUsed";
+        SentTime = DateTime.UtcNow;
+        Response = NoOpCompletionSource;
+        ProcessorRegistry = null;
+        RuleFilter = AppliesToAll;
+    }
+
+    public bool IsSocketReceiverItem => Type == MessageType.AddWatchSocket || Type == MessageType.RemoveWatchSocket;
+    public bool IsSocketAdd => Type == MessageType.AddWatchSocket;
+    public ISocketReceiver? SocketReceiver => PayLoad!.BodyObj as ISocketReceiver;
+
+    public void SetAsSocketReceiverItem(ISocketReceiver socketReceiver, bool isAdd)
+    {
+        var payLoad = Recycler.Borrow<PayLoad<ISocketReceiver>>();
+        payLoad.Body = socketReceiver;
+        Type = isAdd ? MessageType.AddWatchSocket : MessageType.RemoveWatchSocket;
+        PayLoad = payLoad;
+        Sender = Rule.NoKnownSender;
+        DestinationAddress = "NotUsed";
+        SentTime = DateTime.UtcNow;
+        Response = NoOpCompletionSource;
+        ProcessorRegistry = null;
+        RuleFilter = AppliesToAll;
     }
 
     public override string ToString() =>

@@ -9,6 +9,7 @@ using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
+using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
 
 #endregion

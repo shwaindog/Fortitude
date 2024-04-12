@@ -77,7 +77,11 @@ public class Rule : IListeningRule
         Id = id;
     }
 
-    public Rule(string id) : this() => Id = id;
+    public Rule(string id) : this()
+    {
+        FriendlyName = id;
+        Id = id;
+    }
 
     public IRule ParentRule
     {
