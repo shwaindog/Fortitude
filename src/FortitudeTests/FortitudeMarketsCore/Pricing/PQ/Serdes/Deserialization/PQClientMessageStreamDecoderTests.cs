@@ -11,11 +11,9 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using Moq;
 
 #endregion
@@ -29,12 +27,12 @@ public class PQClientMessageStreamDecoderTests
     private const ushort ExpectedSourceId = ushort.MaxValue;
     private const ushort ExpectedTickerId = ushort.MaxValue;
     private const uint ExpectedStreamId = uint.MaxValue;
-    private const int MessageSizeToQuoteSerializer = 130 + PQQuoteMessageHeader.HeaderSize;
+    private const uint MessageSizeToQuoteSerializer = 130 + PQQuoteMessageHeader.HeaderSize;
+    private Mock<IPQClientQuoteDeserializerRepository> clientDeserializerRepo = null!;
     private IConversation? lastReceivedConversation;
     private List<ISourceTickerQuoteInfo> lastReceivedSourceTickerQuoteInfos = null!;
     private Mock<IMessageDeserializer> moqBinaryDeserializer = null!;
     private Mock<IConversation> moqConversation = null!;
-    private Mock<IPQClientQuoteDeserializerRepository> moqDeserializersMap = null!;
     private PQClientMessageStreamDecoder pqClientMessageStreamDecoder = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
 
@@ -51,7 +49,7 @@ public class PQClientMessageStreamDecoderTests
     };
 
     private SocketBufferReadContext socketBufferReadContext = null!;
-    private Action<PQSourceTickerInfoResponse, object?, IConversation?> sourceTickerInfoResponseCallBack = null!;
+    private ConversationMessageReceivedHandler<PQSourceTickerInfoResponse> sourceTickerInfoResponseCallBack = null!;
     private PQSourceTickerInfoResponseSerializer sourceTickerInfoResponseSerializer = null!;
     private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
@@ -64,7 +62,7 @@ public class PQClientMessageStreamDecoderTests
         {
             DetectTimestamp = new DateTime(2017, 07, 01, 18, 59, 22)
             , ReceivingTimestamp = new DateTime(2017, 07, 01, 19, 03, 22)
-            , DeserializerTimestamp = new DateTime(2017, 07, 01, 19, 03, 52), EncodedBuffer = readWriteBuffer
+            , DeserializerTime = new DateTime(2017, 07, 01, 19, 03, 52), EncodedBuffer = readWriteBuffer
             , Conversation = moqConversation.As<IConversationRequester>().Object
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
@@ -74,11 +72,11 @@ public class PQClientMessageStreamDecoderTests
             LayerFlags.Volume | LayerFlags.Price,
             LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
-        moqDeserializersMap = new Mock<IPQClientQuoteDeserializerRepository>();
+        clientDeserializerRepo = new Mock<IPQClientQuoteDeserializerRepository>();
         moqBinaryDeserializer = new Mock<IMessageDeserializer>();
         // ReSharper disable once NotAccessedVariable -- sets the mock with the object to return.
         var binUnserialzierObj = moqBinaryDeserializer.Object;
-        moqDeserializersMap.Setup(um => um.TryGetDeserializer(ExpectedStreamId, out binUnserialzierObj)).Returns(true)
+        clientDeserializerRepo.Setup(um => um.TryGetDeserializer(ExpectedStreamId, out binUnserialzierObj)).Returns(true)
             .Verifiable();
         sourceTickerInfoResponseCallBack = (sourceTickerInfoResponse, header, conversation) =>
         {
@@ -88,8 +86,7 @@ public class PQClientMessageStreamDecoderTests
         sourceTickerInfoResponseSerializer = new PQSourceTickerInfoResponseSerializer();
 
         pqClientMessageStreamDecoder
-            = new PQClientMessageStreamDecoder(moqDeserializersMap.Object);
-        pqClientMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(sourceTickerInfoResponseCallBack);
+            = new PQClientMessageStreamDecoder(clientDeserializerRepo.Object);
     }
 
     [TestMethod]
@@ -102,7 +99,7 @@ public class PQClientMessageStreamDecoderTests
                 // ReSharper disable once AccessToModifiedClosure
                 Assert.AreEqual(writeStartOffset + PQQuoteMessageHeader.HeaderSize, bc.EncodedBuffer!.ReadCursor);
                 if (bc is ISocketBufferReadContext socketBufferReadContext)
-                    Assert.AreEqual(MessageSizeToQuoteSerializer, socketBufferReadContext.MessageSize);
+                    Assert.AreEqual(MessageSizeToQuoteSerializer, socketBufferReadContext.MessageHeader.MessageSize);
                 else
                     Assert.Fail("Expected bufferContext to be an ISocketBufferReadContext");
             })
@@ -112,7 +109,7 @@ public class PQClientMessageStreamDecoderTests
             SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
 
-        var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
             BufferReadWriteOffset, expectedL0Quote);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
@@ -145,7 +142,7 @@ public class PQClientMessageStreamDecoderTests
                 // ReSharper disable once AccessToModifiedClosure
                 Assert.AreEqual(writeStartOffset + PQQuoteMessageHeader.HeaderSize, bc.EncodedBuffer!.ReadCursor);
                 if (bc is ISocketBufferReadContext socketBufferReadContext)
-                    Assert.AreEqual(14, socketBufferReadContext.MessageSize);
+                    Assert.AreEqual(14U, socketBufferReadContext.MessageHeader.MessageSize);
                 else
                     Assert.Fail("Expected bufferContext to be an ISocketBufferReadContext");
             })
@@ -172,7 +169,7 @@ public class PQClientMessageStreamDecoderTests
             .Callback<IBufferContext>(dc => { Assert.AreEqual(writeStartOffset + PQQuoteMessageHeader.HeaderSize, dc.EncodedBuffer!.ReadCursor); })
             .Returns(null!).Verifiable();
 
-        var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         amtWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
             readWriteBuffer.WriteCursor, expectedL0Quote);
         readWriteBuffer.WriteCursor += amtWritten;
@@ -199,7 +196,7 @@ public class PQClientMessageStreamDecoderTests
         {
             SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
-        var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         var amtWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
             BufferReadWriteOffset, expectedL0Quote);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
@@ -216,7 +213,7 @@ public class PQClientMessageStreamDecoderTests
             {
                 Assert.AreEqual(writeStartOffset + PQQuoteMessageHeader.HeaderSize, bc.EncodedBuffer!.ReadCursor);
                 if (bc is IMessageBufferContext messageBufferContext)
-                    Assert.AreEqual(14, messageBufferContext.MessageSize);
+                    Assert.AreEqual(14U, messageBufferContext.MessageHeader.MessageSize);
                 else
                     Assert.Fail("Expected bufferContext to be an ISocketBufferReadContext");
             })
@@ -241,7 +238,9 @@ public class PQClientMessageStreamDecoderTests
     {
         pqClientMessageStreamDecoder
             = new PQClientMessageStreamDecoder(new PQClientQuoteDeserializerRepository(new Recycler()));
-        pqClientMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(sourceTickerInfoResponseCallBack);
+        pqClientMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoResponse>()
+            .AddDeserializedNotifier(new PassThroughDeserializedNotifier<PQSourceTickerInfoResponse>(
+                $"{nameof(PQClientMessageStreamDecoderTests)}.{nameof(sourceTickerInfoResponseCallBack)}", sourceTickerInfoResponseCallBack));
         var sourceTickerInfoResponse = new PQSourceTickerInfoResponse(sendSourceTickerQuoteInfos);
         sourceTickerInfoResponseSerializer.Serialize(sourceTickerInfoResponse, (ISerdeContext)socketBufferReadContext);
         var amtWritten = socketBufferReadContext.LastWriteLength;

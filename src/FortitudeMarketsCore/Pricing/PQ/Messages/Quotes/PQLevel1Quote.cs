@@ -318,12 +318,12 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var precisionSettings = quotePublicationPrecisionSettings ?? PQSourceTickerQuoteInfo;
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
-        foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, updateStyle,
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
             yield return updatedField;
         if (!updatedOnly || IsSourceBidTimeDateUpdated)
@@ -365,7 +365,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
                      precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
             yield return updatedField;
         if (PeriodSummary != null)
-            foreach (var periodSummaryUpdates in PeriodSummary.GetDeltaUpdateFields(snapShotTime, updateStyle,
+            foreach (var periodSummaryUpdates in PeriodSummary.GetDeltaUpdateFields(snapShotTime, messageFlags,
                          precisionSettings))
                 yield return periodSummaryUpdates;
     }

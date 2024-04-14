@@ -26,7 +26,7 @@ public class PQSourceTickerInfoRequestDeserializer : MessageDeserializer<PQSourc
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedSnapshotIdsRequest = recycler.Borrow<PQSourceTickerInfoRequest>();
-            messageBufferContext.LastReadLength = messageBufferContext.MessageSize;
+            messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             OnNotify(deserializedSnapshotIdsRequest, messageBufferContext);
             return deserializedSnapshotIdsRequest;
         }

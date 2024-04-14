@@ -3,15 +3,13 @@
 using System.Reflection;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.Serdes;
-using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 public interface IPQClientMessageStreamDecoder : IMessageStreamDecoder
 {
@@ -26,19 +24,16 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
     private static readonly IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
-    private readonly PQQuoteTransmissionHeader msgHeader;
     private uint messageId;
     private MessageSection messageSection;
 
-    private uint messagesTotalSize;
+    private uint messageSize;
 
     public PQClientMessageStreamDecoder(IConversationDeserializationRepository messageDeserializationRepository)
     {
         MessageDeserializationRepository = messageDeserializationRepository;
         messageSection = MessageSection.TransmissionHeader;
         ExpectedSize = PQQuoteMessageHeader.HeaderSize;
-
-        msgHeader = new PQQuoteTransmissionHeader();
     }
 
     public int ExpectedSize { get; private set; }
@@ -52,7 +47,6 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
     {
         var readCursor = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
-        socketBufferReadContext.MessageHeader = msgHeader;
         while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - readCursor)
             switch (messageSection)
             {
@@ -60,19 +54,20 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
                     fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + readCursor;
-                        socketBufferReadContext.MessageVersion = *ptr++;
-                        msgHeader.MessageFlags = (PQMessageFlags)(*ptr++);
+                        var version = *ptr++;
+                        var messageFlags = *ptr++;
                         messageId = StreamByteOps.ToUInt(ref ptr);
-                        messagesTotalSize = StreamByteOps.ToUInt(ref ptr);
+                        messageSize = StreamByteOps.ToUInt(ref ptr);
                         messageSection = MessageSection.MessageData;
-                        if (messagesTotalSize > 0) ExpectedSize = (int)messagesTotalSize;
+                        socketBufferReadContext.MessageHeader
+                            = new MessageHeader(version, messageFlags, messageId, messageSize, socketBufferReadContext);
+                        if (messageSize > 0) ExpectedSize = (int)messageSize;
                     }
 
                     break;
                 case MessageSection.MessageData:
                     if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var bu))
                     {
-                        socketBufferReadContext.MessageSize = (int)messagesTotalSize;
                         socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor + PQQuoteMessageHeader.HeaderSize;
                         bu!.Deserialize(socketBufferReadContext);
                         ReceivedMessage?.Invoke();

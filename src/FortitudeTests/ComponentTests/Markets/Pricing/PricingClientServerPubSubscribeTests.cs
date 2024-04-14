@@ -23,6 +23,7 @@ using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
+using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -84,13 +85,14 @@ public class PricingClientServerPubSubscribeTests
             new MarketConnectionConfigRepository(marketConnectionConfig);
         networkingController = new OSNetworkingController();
         hbSender = new PQServerHeartBeatSender();
+        var threadPoolTimer = new Timer("Test");
         serverDispatcherResolver = new SimpleSocketDispatcherResolver(new SocketDispatcher(
             new SimpleSocketAsyncValueTaskRingPollerListener("PQServer", 1
-                , new SocketSelector(1, networkingController)),
+                , new SocketSelector(1, networkingController), threadPoolTimer),
             new SimpleAsyncValueTaskSocketRingPollerSender("PQServer", 1)));
         clientDispatcherResolver = new SimpleSocketDispatcherResolver(new SocketDispatcher(
             new SimpleSocketAsyncValueTaskRingPollerListener("PQClient", 1
-                , new SocketSelector(1, networkingController)),
+                , new SocketSelector(1, networkingController), threadPoolTimer),
             new SimpleAsyncValueTaskSocketRingPollerSender("PQClient", 1)));
 
         pqSnapshotFactory = PQSnapshotServer.BuildTcpResponder;

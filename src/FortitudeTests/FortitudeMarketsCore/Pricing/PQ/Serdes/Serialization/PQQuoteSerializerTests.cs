@@ -62,8 +62,8 @@ public class PQQuoteSerializerTests
     public void SetUp()
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
-        updateQuoteSerializer = new PQQuoteSerializer(UpdateStyle.Updates);
-        snapshotQuoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        updateQuoteSerializer = new PQQuoteSerializer(PQMessageFlags.Update);
+        snapshotQuoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
 
         level0QuoteInfo = new SourceTickerQuoteInfo(1, "TestSource1", 1, "TestTicker1", 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
         level1QuoteInfo = new SourceTickerQuoteInfo(2, "TestSource2", 2, "TestTicker2", 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
@@ -156,14 +156,14 @@ public class PQQuoteSerializerTests
     {
         foreach (var pqQuote in differingQuotes)
         {
-            var expectedFieldUpdates = pqQuote.GetDeltaUpdateFields(frozenDateTime, UpdateStyle.Updates)
+            var expectedFieldUpdates = pqQuote.GetDeltaUpdateFields(frozenDateTime, PQMessageFlags.Update)
                 .ToList();
-            var expectedStringUpdates = pqQuote.GetStringUpdates(frozenDateTime, UpdateStyle.Updates)
+            var expectedStringUpdates = pqQuote.GetStringUpdates(frozenDateTime, PQMessageFlags.Update)
                 .ToList();
 
             // so that adapterSentTime is changed.
             // ReSharper disable once UnusedVariable
-            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, UpdateStyle.Updates);
+            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, PQMessageFlags.Update);
 
             var amtWritten = updateQuoteSerializer
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
@@ -179,14 +179,14 @@ public class PQQuoteSerializerTests
         foreach (var pqQuote in differingQuotes)
         {
             pqQuote.HasUpdates = false;
-            var expectedFieldUpdates = pqQuote.GetDeltaUpdateFields(frozenDateTime, UpdateStyle.FullSnapshot)
+            var expectedFieldUpdates = pqQuote.GetDeltaUpdateFields(frozenDateTime, PQMessageFlags.Snapshot)
                 .ToList();
-            var expectedStringUpdates = pqQuote.GetStringUpdates(frozenDateTime, UpdateStyle.FullSnapshot)
+            var expectedStringUpdates = pqQuote.GetStringUpdates(frozenDateTime, PQMessageFlags.Snapshot)
                 .ToList();
 
             // so that adapterSentTime is changed.
             // ReSharper disable once UnusedVariable
-            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, UpdateStyle.Updates);
+            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, PQMessageFlags.Update);
 
             var amtWritten = snapshotQuoteSerializer
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
@@ -213,7 +213,7 @@ public class PQQuoteSerializerTests
                 , DispatchLatencyLogger = new PerfLogger("test", TimeSpan.FromSeconds(2), "")
                 , DetectTimestamp = pqQuote.ClientReceivedTime
                 , ReceivingTimestamp = pqQuote.SocketReceivingTime
-                , DeserializerTimestamp = frozenDateTime
+                , DeserializerTime = frozenDateTime
             };
             var bytesConsumed = pqClientMessageStreamDecoder.Process(sockBuffContext);
 
@@ -272,8 +272,7 @@ public class PQQuoteSerializerTests
             var messageFlags = *currPtr++;
             var extendedFields = (originalQuote.SourceTickerQuoteInfo!.LayerFlags & LayerFlags.ValueDate) > 0;
 
-            Assert.AreEqual((byte)(PQMessageFlags.IsQuote |
-                                   (isSnapshot ? PQMessageFlags.PublishAll : 0)), messageFlags);
+            Assert.AreEqual((byte)(isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update), messageFlags);
             var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(originalQuote.SourceTickerQuoteInfo.Id, sourceTickerId);
             var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);

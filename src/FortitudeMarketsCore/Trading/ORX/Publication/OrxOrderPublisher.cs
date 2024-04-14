@@ -17,7 +17,7 @@ public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
 
     private IOrxMessageResponder? OrxServerMessaging { get; set; }
 
-    public IConversation? UnderlyingSession { get; set; }
+    public IConversationRequester? UnderlyingSession { get; set; }
 
     public void Dispose() { }
 
@@ -25,18 +25,22 @@ public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
     {
         //return UnderlyingSession.;
         if (orderUpdate.Order?.OrderPublisher?.UnderlyingSession != null)
-            OrxServerMessaging?.Send(orderUpdate.Order.OrderPublisher.UnderlyingSession,
-                new OrxOrderUpdate(orderUpdate));
+        {
+            var orxOrderUpdate = Recycler!.Borrow<OrxOrderUpdate>();
+            orxOrderUpdate.CopyFrom(orderUpdate);
+            orderUpdate.Order.OrderPublisher.UnderlyingSession.Send(new OrxOrderUpdate(orderUpdate));
+            orxOrderUpdate.DecrementRefCount();
+        }
+
         return false;
     }
 
-    public void Configure(IConversation underlyingSession, IOrxMessageResponder orxServerMessaging, bool errorSupport)
+    public void Configure(IConversationRequester underlyingSession, IOrxMessageResponder orxServerMessaging, bool errorSupport)
     {
         this.errorSupport = errorSupport;
         UnderlyingSession = underlyingSession;
         OrxServerMessaging = orxServerMessaging;
     }
-
 
     private OrxOrderEvent ToOrxOrderStatus(IOrder order)
     {

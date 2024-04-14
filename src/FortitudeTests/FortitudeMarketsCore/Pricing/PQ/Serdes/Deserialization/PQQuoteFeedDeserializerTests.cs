@@ -6,7 +6,6 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
@@ -99,7 +98,7 @@ public class PQQuoteFeedDeserializerTests
     [TestMethod]
     public void FreshSerializer_DeserializeSnapshot_SyncClientQuoteWithExpected()
     {
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Update);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Update);
         AssertDeserializerHasTimedOutAndNeedsSnapshotIs(PQQuoteDeserializationSequencedTestDataBuilder
             .ClientReceivedTimestamp(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(0)), false);
         AssertDeserializerHasTimedOutAndNeedsSnapshotIs(PQQuoteDeserializationSequencedTestDataBuilder
@@ -139,7 +138,7 @@ public class PQQuoteFeedDeserializerTests
         Assert.AreEqual(expected, l3PublicationStateWasExpected);
     }
 
-    private void FreshSerializerDeserializeGetsExpected(PQFeedType feedType)
+    private void FreshSerializerDeserializeGetsExpected(PQMessageFlags feedType)
     {
         AssertQuotesAreInSync(false);
         quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 0);

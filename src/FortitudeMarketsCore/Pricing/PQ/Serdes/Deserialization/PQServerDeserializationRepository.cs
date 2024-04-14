@@ -15,7 +15,7 @@ public sealed class PQServerDeserializationRepository : ConversationDeserializat
     public PQServerDeserializationRepository(IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
         base(recycler, cascadingFallbackDeserializationRepo) { }
 
-    public override IPQServerMessageStreamDecoder Supply() => new PQServerMessageStreamDecoder(this);
+    public override IPQServerMessageStreamDecoder Supply() => new PQServerMessageStreamDecoder(new PQServerDeserializationRepository(Recycler, this));
 
     protected override IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId)
     {

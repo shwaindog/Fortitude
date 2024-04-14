@@ -156,18 +156,18 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
         quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
 
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime,
-                     updateStyle, quotePublicationPrecisionSetting))
+                     messageFlags, quotePublicationPrecisionSetting))
             yield return updatedField;
         if (recentlyTraded != null)
             foreach (var recentlyTradedFields in recentlyTraded.GetDeltaUpdateFields(snapShotTime,
-                         updateStyle, quotePublicationPrecisionSetting))
+                         messageFlags, quotePublicationPrecisionSetting))
                 yield return recentlyTradedFields;
         if (!updatedOnly || IsBatchIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.BatchId, BatchId);
         if (!updatedOnly || IsSourceQuoteReferenceUpdated)
@@ -205,12 +205,12 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
     }
 
     public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        UpdateStyle updatedStyle)
+        PQMessageFlags messageFlags)
     {
-        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, updatedStyle))
+        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
             yield return pqFieldStringUpdate;
         if (recentlyTraded != null)
-            foreach (var stringUpdate in recentlyTraded.GetStringUpdates(snapShotTime, updatedStyle))
+            foreach (var stringUpdate in recentlyTraded.GetStringUpdates(snapShotTime, messageFlags))
                 yield return stringUpdate;
     }
 

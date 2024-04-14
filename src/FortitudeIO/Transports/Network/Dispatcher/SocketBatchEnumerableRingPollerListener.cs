@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
@@ -20,13 +21,13 @@ public abstract class SocketBatchEnumerableRingPollerListener<T> : EnumerableBat
     private readonly SocketsPollerAndDecoding socketsPollerAndDecoding;
 
     protected SocketBatchEnumerableRingPollerListener(IEnumerableBatchPollingRing<T> ring, uint noDataPauseTimeoutMs, ISocketSelector selector,
-        Action? threadStartInitialization = null, IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs
-        , threadStartInitialization, parallelController)
+        IUpdateableTimer backingTimer, Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
+        : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
     {
         ParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
         manualResetEvent = ParallelController.AllWaitingOSThreadActivateSignal(false);
         Name = Ring.Name + "-SocketRingPollerListener";
-        socketsPollerAndDecoding = new SocketsPollerAndDecoding(Name, selector, manualResetEvent);
+        socketsPollerAndDecoding = new SocketsPollerAndDecoding(Name, selector, manualResetEvent, new ActionListTimer(backingTimer, Recycler));
         Logger = FLoggerFactory.Instance.GetLogger("FortitudeIO.Transports.Network.Dispatcher.SocketRingPollerListener." + Name);
     }
 
@@ -119,16 +120,16 @@ public class SimpleSocketBatchEnumerableRingPollerListener : SocketBatchEnumerab
 {
     public SimpleSocketBatchEnumerableRingPollerListener(IEnumerableBatchPollingRing<SimpleSocketReceiverPayload> ring
         , uint noDataPauseTimeoutMs
-        , ISocketSelector selector, Action? threadStartInitialization = null,
+        , ISocketSelector selector, IUpdateableTimer timer, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
-        : base(ring, noDataPauseTimeoutMs, selector, threadStartInitialization, parallelController) { }
+        : base(ring, noDataPauseTimeoutMs, selector, timer, threadStartInitialization, parallelController) { }
 
     public SimpleSocketBatchEnumerableRingPollerListener(string name, uint noDataPauseTimeoutMs, ISocketSelector selector
-        , Action? threadStartInitialization = null
+        , IUpdateableTimer timer, Action? threadStartInitialization = null
         , IOSParallelController? parallelController = null)
         : base(new EnumerableBatchPollingRing<SimpleSocketReceiverPayload>(name, 13
             , () => new SimpleSocketReceiverPayload(),
-            ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, selector, threadStartInitialization, parallelController) { }
+            ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, selector, timer, threadStartInitialization, parallelController) { }
 
     protected override void EnqueueSocketReceiver(ISocketReceiver receiver, bool isAdd)
     {

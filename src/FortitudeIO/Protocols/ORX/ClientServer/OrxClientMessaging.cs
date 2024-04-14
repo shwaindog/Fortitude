@@ -15,19 +15,25 @@ using FortitudeIO.Transports.Network.State;
 
 namespace FortitudeIO.Protocols.ORX.ClientServer;
 
-public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
+public class OrxClientMessaging : ConversationRequester, IOrxClientRequester
 {
     private static ISocketFactoryResolver? socketFactories;
 
     protected readonly object SyncLock = new();
+
+    private IOrxResponderStreamDecoder? messageStreamDecoder;
 
     protected OrxClientMessaging(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
         : base(socketSessionContext, initiateControls)
     {
         var orxSerdesRepoFactory = (IOrxSerdesRepositoryFactory)socketSessionContext.SerdesFactory;
 
-        DeserializationRepository = orxSerdesRepoFactory.MessageDeserializationRepository;
         SerializationRepository = orxSerdesRepoFactory.MessageSerializationRepository;
+
+        socketSessionContext.SocketReceiverUpdated += () =>
+        {
+            messageStreamDecoder = (IOrxResponderStreamDecoder)socketSessionContext.SocketReceiver?.Decoder!;
+        };
     }
 
     public static ISocketFactoryResolver SocketFactories
@@ -37,7 +43,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxMessageRequester
     }
 
 
-    public IOrxDeserializationRepository DeserializationRepository { get; }
+    public IOrxDeserializationRepository DeserializationRepository => messageStreamDecoder?.MessageDeserializationRepository!;
 
     public IMessageSerializationRepository SerializationRepository { get; }
 

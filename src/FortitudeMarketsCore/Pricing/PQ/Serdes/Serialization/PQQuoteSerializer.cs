@@ -17,12 +17,12 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 {
     private const int FieldSize = 2 * sizeof(byte) + sizeof(uint);
-    private readonly UpdateStyle updateStyle;
+    private readonly PQMessageFlags messageFlags;
 
     // ReSharper disable once UnusedMember.Local
     private IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteSerializer));
 
-    public PQQuoteSerializer(UpdateStyle updateStyle) => this.updateStyle = updateStyle;
+    public PQQuoteSerializer(PQMessageFlags messageFlags) => this.messageFlags = messageFlags;
 
     public MarshalType MarshalType => MarshalType.Binary;
 
@@ -50,7 +50,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 
     public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
     {
-        var publishAll = (updateStyle & UpdateStyle.FullSnapshot) > 0;
+        var publishAll = (messageFlags & PQMessageFlags.Snapshot) > 0;
         if ((publishAll ? sizeof(uint) : 0) + PQQuoteMessageHeader.HeaderSize > buffer.Length - writeOffset)
             return FinishProcessingMessageReturnValue(message, -1);
         if (!(message is IPQLevel0Quote level0Quote)) return FinishProcessingMessageReturnValue(message, -1);
@@ -61,16 +61,14 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             var currentPtr = writeStart;
             var end = fptr + buffer.Length;
             *currentPtr++ = message.Version; //protocol version
-            var messageFlags = currentPtr++;
-            var flags = publishAll ? (byte)(PQMessageFlags.PublishAll | PQMessageFlags.IsQuote) : (byte)PQMessageFlags.IsQuote;
-            *messageFlags = flags;
+            *currentPtr++ = (byte)messageFlags;
             StreamByteOps.ToBytes(ref currentPtr, level0Quote.SourceTickerQuoteInfo!.Id);
             var messageSizePtr = currentPtr;
             currentPtr += 4;
             var sequenceIdptr = currentPtr;
             currentPtr += 4;
 
-            var fields = level0Quote.GetDeltaUpdateFields(TimeContext.UtcNow, updateStyle);
+            var fields = level0Quote.GetDeltaUpdateFields(TimeContext.UtcNow, messageFlags);
             level0Quote.Lock.Acquire();
             try
             {
@@ -87,7 +85,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 }
 
                 var stringUpdates = level0Quote.GetStringUpdates
-                    (TimeContext.UtcNow, updateStyle);
+                    (TimeContext.UtcNow, messageFlags);
                 foreach (var fieldStringUpdate in stringUpdates)
                 {
                     if (currentPtr + 100 > end) return FinishProcessingMessageReturnValue(message, -1);

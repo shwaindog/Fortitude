@@ -70,7 +70,8 @@ public class PQDeserializerBaseTests
         {
             DetectTimestamp = new DateTime(2017, 07, 01, 18, 59, 22)
             , ReceivingTimestamp = new DateTime(2017, 07, 01, 19, 03, 22)
-            , DeserializerTimestamp = new DateTime(2017, 07, 01, 19, 03, 52), EncodedBuffer = readWriteBuffer, MessageVersion = 1
+            , DeserializerTime = new DateTime(2017, 07, 01, 19, 03, 52), EncodedBuffer = readWriteBuffer
+            , MessageHeader = new MessageHeader(1, 0, 0, 1)
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
         readWriteBuffer.WriteCursor = BufferReadWriteOffset;
@@ -261,9 +262,9 @@ public class PQDeserializerBaseTests
             SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
 
-        var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL0Quote);
-        socketBufferReadContext.MessageSize = amountWritten;
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;
 
@@ -275,7 +276,7 @@ public class PQDeserializerBaseTests
 
         Assert.AreEqual(socketBufferReadContext.DetectTimestamp, actualL0Quote.ClientReceivedTime);
         Assert.AreEqual(socketBufferReadContext.ReceivingTimestamp, actualL0Quote.SocketReceivingTime);
-        Assert.AreEqual(socketBufferReadContext.DeserializerTimestamp, actualL0Quote.ProcessedTime);
+        Assert.AreEqual(socketBufferReadContext.DeserializerTime, actualL0Quote.ProcessedTime);
         Assert.AreEqual(expectedSequenceId, actualL0Quote.PQSequenceId);
         Assert.AreEqual(expectedL0Quote.SinglePrice, actualL0Quote.SinglePrice);
         Assert.AreEqual(expectedL0Quote.SourceTime, actualL0Quote.SourceTime);
@@ -293,9 +294,9 @@ public class PQDeserializerBaseTests
             , AdapterSentTime = new DateTime(2017, 07, 01, 19, 27, 39), BidPriceTop = 0.79324m, AskPriceTop = 0.79326m
         };
 
-        var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL1Quote);
-        socketBufferReadContext.MessageSize = amountWritten;
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;
 
@@ -330,9 +331,9 @@ public class PQDeserializerBaseTests
             askBooki.Volume = 30000 + 10000 * i;
         }
 
-        var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL2Quote);
-        socketBufferReadContext.MessageSize = amountWritten;
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;
 
@@ -375,9 +376,9 @@ public class PQDeserializerBaseTests
                 lastTradeInfo.TraderName = "NewTraderName " + i;
             }
 
-        var quoteSerializer = new PQQuoteSerializer(UpdateStyle.FullSnapshot);
+        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL3Quote);
-        socketBufferReadContext.MessageSize = amountWritten;
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;
 

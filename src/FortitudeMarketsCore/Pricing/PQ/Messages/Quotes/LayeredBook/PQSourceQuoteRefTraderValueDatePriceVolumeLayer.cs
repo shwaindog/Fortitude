@@ -204,11 +204,11 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
-        foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, updateStyle,
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsValueDateUpdated)
@@ -258,11 +258,11 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
-        foreach (var baseUpdates in base.GetStringUpdates(snapShotTime, updatedStyle)) yield return baseUpdates;
+        foreach (var baseUpdates in base.GetStringUpdates(snapShotTime, messageFlags)) yield return baseUpdates;
         if (SourceNameIdLookup is IPQNameIdLookupGenerator pqNameIdLookupGenerator)
-            foreach (var stringUpdate in pqNameIdLookupGenerator.GetStringUpdates(snapShotTime, updatedStyle))
+            foreach (var stringUpdate in pqNameIdLookupGenerator.GetStringUpdates(snapShotTime, messageFlags))
                 yield return stringUpdate;
     }
 

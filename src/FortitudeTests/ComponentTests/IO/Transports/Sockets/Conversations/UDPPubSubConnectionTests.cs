@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
@@ -95,8 +96,7 @@ public class UdpPubSubConnectionTests
         Assert.AreEqual(v2Message.Version, receivedSimpleVersionedMessage.Version);
     }
 
-    private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, object? header
-        , IConversation? selfSession)
+    private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, MessageHeader header, IConversation selfSession)
     {
         receivedSimpleVersionedMessage = msg;
         autoReset.Set();

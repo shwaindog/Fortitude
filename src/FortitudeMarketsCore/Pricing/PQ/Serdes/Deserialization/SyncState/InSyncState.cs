@@ -63,7 +63,7 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
                         "DeserializeTs={4}, ReceivingTimestamp={5}",
                 LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId,
                 sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
-                sockBuffContext.DeserializerTimestamp.ToString(DateTimeFormat),
+                sockBuffContext.DeserializerTime.ToString(DateTimeFormat),
                 sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
         else
             Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}",

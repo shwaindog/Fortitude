@@ -4,7 +4,6 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 #endregion
 
@@ -12,9 +11,9 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 public sealed class PQServerSerializationRepository : FactorySerializationRepository
 {
-    private readonly PQFeedType feedType;
+    private readonly PQMessageFlags feedType;
 
-    public PQServerSerializationRepository(PQFeedType feedType, IRecycler recycler
+    public PQServerSerializationRepository(PQMessageFlags feedType, IRecycler recycler
         , IMessageSerializationRepository? coalescingMessageSerializationRepository = null)
         : base(recycler, coalescingMessageSerializationRepository)
     {
@@ -29,7 +28,7 @@ public sealed class PQServerSerializationRepository : FactorySerializationReposi
         switch (msgId)
         {
             case (uint)PQMessageIds.Quote:
-                return new PQQuoteSerializer(feedType == PQFeedType.Snapshot ? UpdateStyle.FullSnapshot : UpdateStyle.Updates);
+                return new PQQuoteSerializer(feedType);
             case (uint)PQMessageIds.HeartBeat: return new PQHeartbeatSerializer();
             case (uint)PQMessageIds.SourceTickerInfoResponse: return new PQSourceTickerInfoResponseSerializer();
             default: return null;

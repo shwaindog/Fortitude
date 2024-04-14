@@ -3,6 +3,7 @@
 using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarketsApi.Trading.Counterparties;
@@ -19,6 +20,8 @@ namespace FortitudeMarketsCore.Trading.Orders;
 
 public sealed class Order : ReusableObject<IOrder>, IOrder
 {
+    private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Order));
+
     private IOrderPublisher? orderPublisher;
     private IProductOrder? product;
     private OrderStatus status;
@@ -180,6 +183,7 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
     {
         var sb = new StringBuilder();
         sb.Append("Order(");
+        sb.Append("InstanceNum: ").Append(InstanceNum).Append(", ");
         sb.Append("OrderId: ").Append(OrderId).Append(", ");
         if (TimeInForce != TimeInForce.None) sb.Append("TimeInForce: ").Append(TimeInForce).Append(", ");
         if (CreationTime != DateTimeConstants.UnixEpoch) sb.Append("CreationTime: ").Append(CreationTime).Append(", ");

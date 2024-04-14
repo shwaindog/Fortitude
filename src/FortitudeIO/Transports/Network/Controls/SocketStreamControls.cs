@@ -42,11 +42,13 @@ public abstract class SocketStreamControls : IStreamControls
         if (SocketSessionContext.SocketReceiver != null)
             SocketSessionContext.SocketDispatcher.Listener.RegisterForListen(SocketSessionContext.SocketReceiver);
         SocketSessionContext.SocketDispatcher.Start();
+        SocketSessionContext.OnStarted();
     }
 
     public virtual void StopMessaging()
     {
         SocketSessionContext.SocketDispatcher.Stop();
+        SocketSessionContext.OnStopped();
     }
 
     public virtual void Disconnect()

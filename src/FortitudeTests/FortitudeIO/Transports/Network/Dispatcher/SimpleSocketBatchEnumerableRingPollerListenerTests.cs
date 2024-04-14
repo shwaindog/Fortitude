@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
@@ -35,6 +36,7 @@ public class SimpleSocketBatchEnumerableRingPollerListenerTests
     private Mock<ISocketDataLatencyLogger> moqSocketDataLatencyLogger = null!;
     private Mock<ISocketReceiver> moqSocketReceiver = null!;
     private Mock<ISocketSelector> moqSocketSelector = null!;
+    private Mock<IUpdateableTimer> moqUpdateableTimer = null!;
     private SimpleSocketReceiverPayload secondReceiverPayload = null!;
     private List<SimpleSocketReceiverPayload> singleItemEnumerable = null!;
     private SimpleSocketBatchEnumerableRingPollerListener socketBatchEnumerableRingPollerListener = null!;
@@ -53,6 +55,7 @@ public class SimpleSocketBatchEnumerableRingPollerListenerTests
             .Returns(moqParallelController.Object);
         moqOsThread = new Mock<IOSThread>();
         moqSocketSelector = new Mock<ISocketSelector>();
+        moqUpdateableTimer = new Mock<IUpdateableTimer>();
         intraOsThreadSignal = new Mock<IIntraOSThreadSignal>();
         intraOsThreadSignal.Setup(iots => iots.WaitOne()).Verifiable();
         moqParallelController.Setup(pc => pc.CreateNewOSThread(It.IsAny<ThreadStart>()))
@@ -99,7 +102,7 @@ public class SimpleSocketBatchEnumerableRingPollerListenerTests
         }).Returns(emptyEnumerable.GetEnumerator());
 
         socketBatchEnumerableRingPollerListener = new SimpleSocketBatchEnumerableRingPollerListener(moqPollingRing.Object, NoDataPauseTimeout
-            , moqSocketSelector.Object
+            , moqSocketSelector.Object, moqUpdateableTimer.Object
             , null, moqParallelController.Object);
 
 

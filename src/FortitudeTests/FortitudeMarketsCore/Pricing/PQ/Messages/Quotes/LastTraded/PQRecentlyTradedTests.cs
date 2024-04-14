@@ -253,7 +253,7 @@ public class PQRecentlyTradedTests
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
             var pqFieldUpdates = populatedRecentlyTraded.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 12, 33, 1), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update).ToList();
             AssertContainsAllLevelRecentlyTradedFields(pqFieldUpdates, populatedRecentlyTraded);
         }
     }
@@ -265,7 +265,7 @@ public class PQRecentlyTradedTests
         {
             populatedRecentlyTraded.HasUpdates = false;
             var pqFieldUpdates = populatedRecentlyTraded.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 12, 33, 1), UpdateStyle.FullSnapshot).ToList();
+                new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
             AssertContainsAllLevelRecentlyTradedFields(pqFieldUpdates, populatedRecentlyTraded);
         }
     }
@@ -277,9 +277,9 @@ public class PQRecentlyTradedTests
         {
             populatedL3Quote.HasUpdates = false;
             var pqFieldUpdates = populatedL3Quote.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             var pqStringUpdates = populatedL3Quote.GetStringUpdates(
-                new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -292,9 +292,9 @@ public class PQRecentlyTradedTests
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
             var pqFieldUpdates = populatedRecentlyTraded.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
             var pqStringUpdates = populatedRecentlyTraded.GetStringUpdates(
-                new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
             var newEmpty = CreateNewEmpty(populatedRecentlyTraded);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
             foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);

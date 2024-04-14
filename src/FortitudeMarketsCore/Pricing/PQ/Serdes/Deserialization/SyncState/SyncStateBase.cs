@@ -6,7 +6,6 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 #endregion
 
@@ -35,8 +34,8 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
 
     public virtual void ProcessInState(IMessageBufferContext bufferContext)
     {
-        var msgFlags = ((PQQuoteTransmissionHeader)bufferContext.MessageHeader!).MessageFlags;
-        if ((msgFlags & PQMessageFlags.PublishAll) > 0)
+        var msgFlags = (PQMessageFlags)bufferContext.MessageHeader.Flags;
+        if ((msgFlags & PQMessageFlags.Snapshot) > 0)
             ProcessSnapshot(bufferContext);
         else
             ProcessUpdate(bufferContext);
@@ -84,7 +83,7 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
                                 "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
                         LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
                         sequenceId, sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
-                        sockBuffContext.DeserializerTimestamp.ToString(DateTimeFormat),
+                        sockBuffContext.DeserializerTime.ToString(DateTimeFormat),
                         sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
                 else
                     Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3} ",

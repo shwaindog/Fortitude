@@ -20,7 +20,7 @@ public sealed class OrxTickerServer
         {
             lock (cache)
             {
-                foreach (var m in cache.Values) orxServerMessaging.Send(cx, m);
+                foreach (var m in cache.Values) cx.Send(m);
             }
         };
     }

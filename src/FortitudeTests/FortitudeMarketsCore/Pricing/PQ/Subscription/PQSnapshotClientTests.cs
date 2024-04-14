@@ -19,8 +19,8 @@ using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription;
@@ -254,12 +254,15 @@ public class PQSnapshotClientTests
         ConnectMoqSetup();
 
         var moqSocketReceiver = new Mock<ISocketReceiver>();
+        var moqSourceTickerResponseDeserializer = new Mock<INotifyingMessageDeserializer<PQSourceTickerInfoResponse>>();
         moqSocketSessionContext.Setup(ssc => ssc.SocketReceiver).Returns(moqSocketReceiver.Object);
         var decoder = new PQClientMessageStreamDecoder(moqPQQuoteDeserializationRepo.Object);
         moqSocketReceiver.SetupGet(sr => sr.Decoder).Returns(decoder);
         moqSocketSessionContext.SetupAdd(ssc => ssc.SocketReceiverUpdated += It.IsAny<Action>());
         moqPQQuoteDeserializationRepo.Setup(qdr => qdr.Supply())
             .Returns(decoder);
+        moqPQQuoteDeserializationRepo.Setup(qdr => qdr.RegisterDeserializer<PQSourceTickerInfoResponse>())
+            .Returns(moqSourceTickerResponseDeserializer.Object);
         pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
         pqSnapshotClient.Connect();
         moqSocketSessionContext.Raise(ssc => ssc.SocketReceiverUpdated += null);

@@ -38,7 +38,7 @@ public class OrxOrderTests
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
-            , MessageVersion = TradingVersionInfo.CurrentVersion
+            , MessageHeader = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, 1)
         };
     }
 
@@ -52,8 +52,9 @@ public class OrxOrderTests
             , FourthOrder = BuildVenueOrders()
         };
 
-        socketBufferReadContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+        var messageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
+        socketBufferReadContext.MessageHeader = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, (uint)messageSize);
 
         var ordersDeserializer = new OrxByteDeserializer<Orders>(new OrxDeserializerLookup(
             new Recycler()));

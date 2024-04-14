@@ -47,7 +47,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
                 }
             }
 
-            messageBufferContext.LastReadLength = messageBufferContext.MessageSize;
+            messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             OnNotify(deserializedSourceTickerInfoResponse, messageBufferContext);
             return deserializedSourceTickerInfoResponse;
         }

@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -26,9 +27,10 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
             fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
             {
                 var ptr = fptr + read;
-                socketBufferReadContext.MessageVersion = *ptr++;
+                var version = *ptr++;
                 messageId = StreamByteOps.ToUShort(ref ptr);
-                socketBufferReadContext.MessageSize = StreamByteOps.ToUShort(ref ptr);
+                var messageSize = StreamByteOps.ToUShort(ref ptr);
+                socketBufferReadContext.MessageHeader = new MessageHeader(version, 0, messageId, messageSize, socketBufferReadContext);
             }
 
             if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var u))
@@ -37,7 +39,7 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
                 u?.Deserialize(socketBufferReadContext);
             }
 
-            read += socketBufferReadContext.MessageSize;
+            read += (int)socketBufferReadContext.MessageHeader.MessageSize;
         }
 
         socketBufferReadContext.DispatchLatencyLogger?.Dedent();

@@ -20,8 +20,8 @@ public class AdapterOrderSessionTracker
 
     private readonly IRecycler recycler;
 
-    private readonly IMap<IMutableString, IConversation> sessionFromOrderIdCache =
-        new GarbageAndLockFreeMap<IMutableString, IConversation>(OrderKeyComparison);
+    private readonly IMap<IMutableString, IConversationRequester> sessionFromOrderIdCache =
+        new GarbageAndLockFreeMap<IMutableString, IConversationRequester>(OrderKeyComparison);
 
     private readonly GarbageAndLockFreePooledFactory<IMap<IMutableString, OrxOrder>> surplusOrderMaps =
         new(() =>
@@ -47,7 +47,7 @@ public class AdapterOrderSessionTracker
 
         lock (sessionFromOrderIdCache)
         {
-            sessionFromOrderIdCache.Add(orderKey, repositorySession);
+            sessionFromOrderIdCache.Add(orderKey, (IConversationRequester)repositorySession);
         }
     }
 
@@ -146,7 +146,7 @@ public class AdapterOrderSessionTracker
         return order;
     }
 
-    public IConversation? FindSessionFromOrderId(IOrderId orderId)
+    public IConversationRequester? FindSessionFromOrderId(IOrderId orderId)
     {
         // ReSharper disable once InconsistentlySynchronizedField
         sessionFromOrderIdCache.TryGetValue(orderId.VenueAdapterOrderId!, out var session);

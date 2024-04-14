@@ -52,11 +52,11 @@ public class OrxVenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
         var venueCriteriaCount = venueCriteria.Count;
         if (venueCriteriaCount > 0)
         {
-            var orxVenueList = Recycler!.Borrow<List<OrxVenue>>();
+            var orxVenueList = Recycler?.Borrow<List<OrxVenue>>() ?? new List<OrxVenue>();
             orxVenueList.Clear();
             for (var i = 0; i < venueCriteriaCount; i++)
             {
-                var orxVenue = Recycler!.Borrow<OrxVenue>();
+                var orxVenue = Recycler?.Borrow<OrxVenue>() ?? new OrxVenue();
                 orxVenue.CopyFrom(venueCriteria[i], copyMergeFlags);
                 orxVenueList.Add(orxVenue);
             }

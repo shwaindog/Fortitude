@@ -3,7 +3,6 @@
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
@@ -11,112 +10,41 @@ namespace FortitudeBusRules.MessageBus.Pipelines.Timers;
 
 public class QueueTimer : Rule, IActionTimer
 {
-    private readonly IUpdateableTimer backingTimer;
-    private readonly WaitCallback intervalWaitCallback;
-    private readonly WaitCallback oneOffWaitCallback;
-    private readonly IRecycler recycler;
+    private readonly ActionTimer backingTimer;
 
     public QueueTimer(IUpdateableTimer backingTimer, IEventContext context)
     {
-        this.backingTimer = backingTimer;
+        this.backingTimer = new ActionTimer(backingTimer, context.PooledRecycler);
+        this.backingTimer.OneOffWaitCallback = OneOffTimerEnqueueAsMessage;
+        this.backingTimer.IntervalWaitCallback = IntervalTimerEnqueueAsMessage;
         Context = context;
-        recycler = context.PooledRecycler;
-        oneOffWaitCallback = OneOffTimerEnqueueAsMessage;
-        intervalWaitCallback = IntervalTimerEnqueueAsMessage;
         Id = "QueueTimer_" + Context.RegisteredOn.Name;
         FriendlyName = Id;
         ParentRule = this;
     }
 
-    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action callback)
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.ActionState = null;
-        actionPayload.State = null;
-        actionPayload.Action = callback;
-        return backingTimer.RunIn(waitTimeSpan, actionPayload, oneOffWaitCallback);
-    }
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action callback) => backingTimer.RunIn(waitTimeSpan, callback);
 
-    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.ActionState = callback;
-        actionPayload.State = state;
-        actionPayload.Action = null;
-        return backingTimer.RunIn(waitTimeSpan, actionPayload, oneOffWaitCallback);
-    }
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class =>
+        backingTimer.RunIn(waitTimeSpan, state, callback);
 
-    public ITimerUpdate RunIn(int waitMs, Action callback)
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.ActionState = null;
-        actionPayload.State = null;
-        actionPayload.Action = callback;
-        return backingTimer.RunIn(waitMs, actionPayload, oneOffWaitCallback);
-    }
+    public ITimerUpdate RunIn(int waitMs, Action callback) => backingTimer.RunIn(waitMs, callback);
 
-    public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.ActionState = callback;
-        actionPayload.State = state;
-        actionPayload.Action = null;
-        return backingTimer.RunIn(waitMs, actionPayload, oneOffWaitCallback);
-    }
+    public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class => backingTimer.RunIn(waitMs, state, callback);
 
-    public ITimerUpdate RunEvery(int intervalMs, Action callback)
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.ActionState = null;
-        actionPayload.State = null;
-        actionPayload.Action = callback;
-        return backingTimer.RunIn(intervalMs, actionPayload, intervalWaitCallback);
-    }
+    public ITimerUpdate RunEvery(int intervalMs, Action callback) => backingTimer.RunIn(intervalMs, callback);
 
-    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.ActionState = callback;
-        actionPayload.State = state;
-        actionPayload.Action = null;
-        return backingTimer.RunIn(intervalMs, actionPayload, intervalWaitCallback);
-    }
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class => backingTimer.RunIn(intervalMs, state, callback);
 
-    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback)
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.ActionState = null;
-        actionPayload.State = null;
-        actionPayload.Action = callback;
-        return backingTimer.RunIn(periodTimeSpan, actionPayload, intervalWaitCallback);
-    }
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback) => backingTimer.RunIn(periodTimeSpan, callback);
 
-    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.ActionState = callback;
-        actionPayload.State = state;
-        actionPayload.Action = null;
-        return backingTimer.RunIn(periodTimeSpan, actionPayload, intervalWaitCallback);
-    }
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class =>
+        backingTimer.RunIn(periodTimeSpan, state, callback);
 
-    public ITimerUpdate RunAt(DateTime futureDateTime, Action callback)
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.ActionState = null;
-        actionPayload.State = null;
-        actionPayload.Action = callback;
-        return backingTimer.RunAt(futureDateTime, actionPayload, oneOffWaitCallback);
-    }
+    public ITimerUpdate RunAt(DateTime futureDateTime, Action callback) => backingTimer.RunAt(futureDateTime, callback);
 
-    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<T?> callback) where T : class
-    {
-        var actionPayload = recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.ActionState = callback;
-        actionPayload.State = state;
-        actionPayload.Action = null;
-        return backingTimer.RunAt(futureDateTime, actionPayload, oneOffWaitCallback);
-    }
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<T?> callback) where T : class =>
+        backingTimer.RunAt(futureDateTime, state, callback);
 
     public void PauseAllTimers()
     {

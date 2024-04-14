@@ -62,7 +62,7 @@ public class PQLevel0QuoteTests
         Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
         emptyQuote.SourceTime = expectedSetTime;
@@ -70,7 +70,7 @@ public class PQLevel0QuoteTests
         Assert.IsTrue(emptyQuote.IsSourceTimeSubHourUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSetTime, emptyQuote.SourceTime);
-        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.GetHoursFromUnixEpoch();
         var subHourComponent = expectedSetTime.GetSubHourComponent();
@@ -81,16 +81,16 @@ public class PQLevel0QuoteTests
 
         emptyQuote.IsSourceTimeDateUpdated = false;
         Assert.IsTrue(emptyQuote.HasUpdates);
-        sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedSubHour, sourceUpdates[0]);
 
         emptyQuote.IsSourceTimeSubHourUpdated = false;
         Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot)
+        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id >= PQFieldKeys.SourceSentDateTime && update.Id <= PQFieldKeys.SourceSentSubHourTime
             orderby update.Id
             select update).ToList();
@@ -112,14 +112,14 @@ public class PQLevel0QuoteTests
         Assert.IsFalse(emptyQuote.IsSyncStatusUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedSyncStatus = PQSyncStatus.Good;
         emptyQuote.PQSyncStatus = expectedSyncStatus;
         Assert.IsTrue(emptyQuote.IsSyncStatusUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSyncStatus, emptyQuote.PQSyncStatus);
-        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)expectedSyncStatus);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -127,9 +127,9 @@ public class PQLevel0QuoteTests
         emptyQuote.IsSyncStatusUpdated = false;
         Assert.IsFalse(emptyQuote.IsSyncStatusUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot)
+        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id == PQFieldKeys.PQSyncStatus
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -147,14 +147,14 @@ public class PQLevel0QuoteTests
         Assert.IsFalse(emptyQuote.IsSinglePriceUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(0m, emptyQuote.SinglePrice);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedSinglePrice = 1.2345678m;
         emptyQuote.SinglePrice = expectedSinglePrice;
         Assert.IsTrue(emptyQuote.IsSinglePriceUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSinglePrice, emptyQuote.SinglePrice);
-        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.SinglePrice, expectedSinglePrice, 1);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -162,9 +162,9 @@ public class PQLevel0QuoteTests
         emptyQuote.IsSinglePriceUpdated = false;
         Assert.IsFalse(emptyQuote.IsSinglePriceUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot)
+        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id == PQFieldKeys.SinglePrice
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -182,14 +182,14 @@ public class PQLevel0QuoteTests
         Assert.IsFalse(emptyQuote.IsReplayUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         const bool expectedReplay = true;
         emptyQuote.IsReplay = expectedReplay;
         Assert.IsTrue(emptyQuote.IsReplayUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedReplay, emptyQuote.IsReplay);
-        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, 1);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -197,9 +197,9 @@ public class PQLevel0QuoteTests
         emptyQuote.IsReplayUpdated = false;
         Assert.IsFalse(emptyQuote.IsSinglePriceUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot)
+        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id == PQFieldKeys.QuoteBooleanFlags
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -217,7 +217,7 @@ public class PQLevel0QuoteTests
         Assert.IsFalse(emptyQuote.IsReplayUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         emptyQuote.IsReplay = true;
         emptyQuote.PQSyncStatus = PQSyncStatus.Good;
@@ -240,7 +240,7 @@ public class PQLevel0QuoteTests
     public void PopulatedQuoteWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllLevel0Fields()
     {
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote);
     }
 
@@ -249,7 +249,7 @@ public class PQLevel0QuoteTests
     {
         fullyPopulatedPqLevel0Quote.HasUpdates = false;
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.FullSnapshot).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote);
     }
 
@@ -258,7 +258,7 @@ public class PQLevel0QuoteTests
     {
         fullyPopulatedPqLevel0Quote.HasUpdates = false;
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
@@ -272,7 +272,7 @@ public class PQLevel0QuoteTests
         fullyPopulatedPqLevel0Quote.IsSinglePriceUpdated = true;
         fullyPopulatedPqLevel0Quote.IsSyncStatusUpdated = true;
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates | UpdateStyle.Persistence).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update | PQMessageFlags.Persistence).ToList();
         var newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         // not copied from field updates as is used in by server to track publication times.
@@ -284,7 +284,7 @@ public class PQLevel0QuoteTests
     public void PopulatedQuote_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewQuote_CopiesAllFieldsToNewQuote()
     {
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
         var newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         // not copied from field updates as is used in by server to track publication times.
@@ -296,7 +296,7 @@ public class PQLevel0QuoteTests
     public void PopulatedQuote_GetStringUpdates_GetsSourceAndTickerFromSourceTickerQuoteInfo()
     {
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetStringUpdates(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(PQSourceTickerQuoteInfoTests.ExpectedSourceStringUpdate(
                 fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo!.Source),
             ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 0));
@@ -562,13 +562,13 @@ public class PQLevel0QuoteTests
             , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             this;
 
-        public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+        public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
             IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
         {
             yield break;
         }
 
-        public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle)
+        public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
         {
             yield break;
         }

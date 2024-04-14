@@ -34,7 +34,7 @@ public class PQSnapshotIdsRequestDeserializer : MessageDeserializer<PQSnapshotId
                 for (var i = 0; i < streamIDs.Length; i++) deserializedSnapshotIdsRequest.RequestSourceTickerIds.Add(StreamByteOps.ToUInt(ref ptr));
             }
 
-            messageBufferContext.LastReadLength = messageBufferContext.MessageSize;
+            messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             OnNotify(deserializedSnapshotIdsRequest, messageBufferContext);
             return deserializedSnapshotIdsRequest;
         }

@@ -3,6 +3,7 @@
 using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
@@ -11,6 +12,7 @@ using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Products;
 using FortitudeMarketsApi.Trading.Orders.Venues;
+using FortitudeMarketsCore.Trading.Orders.Products.General;
 using FortitudeMarketsCore.Trading.ORX.CounterParties;
 using FortitudeMarketsCore.Trading.ORX.Executions;
 using FortitudeMarketsCore.Trading.ORX.Orders.Products;
@@ -21,8 +23,10 @@ using FortitudeMarketsCore.Trading.ORX.Orders.Venues;
 
 namespace FortitudeMarketsCore.Trading.ORX.Orders;
 
-public class OrxOrder : ReusableObject<IOrder>, IOrder
+public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
 {
+    private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OrxOrder));
+
     private IOrderPublisher? orderPublisher;
     private OrxProductOrder? product;
 
@@ -206,14 +210,13 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
 
     public override IOrder Clone() => Recycler?.Borrow<OrxOrder>().CopyFrom(this) ?? new OrxOrder(this);
 
-
     public override IOrder CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         OrderId = order.OrderId.SyncOrRecycle(OrderId)!;
         TimeInForce = order.TimeInForce;
         CreationTime = order.CreationTime;
         Status = order.Status;
-        Product = order.Product.CloneOrRecycle(Product);
+        Product = order.Product.CloneOrRecycle(Product) ?? ToOrxOrderProduct(order.Product);
         SubmitTime = order.SubmitTime;
         DoneTime = order.DoneTime;
         Parties = order.Parties.SyncOrRecycle(Parties);
@@ -223,6 +226,17 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
         Executions = order.Executions.SyncOrRecycle(Executions);
         Message = order.Message.SyncOrRecycle(Message)!;
         return this;
+    }
+
+    public OrxOrder CopyFrom(OrxOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (OrxOrder)CopyFrom((IOrder)source, copyMergeFlags);
+
+    public OrxProductOrder? ToOrxOrderProduct(IProductOrder? orderProduct)
+    {
+        return orderProduct switch
+        {
+            SpotOrder order => new OrxSpotOrder(order), _ => orderProduct as OrxProductOrder
+        };
     }
 
     protected bool Equals(OrxOrder other)
@@ -277,6 +291,7 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder
     {
         var sb = new StringBuilder();
         sb.Append("OrxOrder(");
+        sb.Append("InstanceNum: ").Append(InstanceNum).Append(", ");
         sb.Append("OrderId: ").Append(OrderId).Append(", ");
         if (TimeInForce != TimeInForce.None) sb.Append("TimeInForce: ").Append(TimeInForce).Append(", ");
         if (CreationTime != DateTimeConstants.UnixEpoch) sb.Append("CreationTime: ").Append(CreationTime).Append(", ");

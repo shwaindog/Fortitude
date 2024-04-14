@@ -400,7 +400,7 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
             var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 12, 33, 1), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update).ToList();
             AssertContainsAllOrderBookFields(pqFieldUpdates, populatedOrderBook);
         }
     }
@@ -412,7 +412,7 @@ public class PQOrderBookTests
         {
             populatedOrderBook.HasUpdates = false;
             var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                    new DateTime(2017, 11, 04, 12, 33, 1), UpdateStyle.FullSnapshot, publicationPrecisionSettings)
+                    new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot, publicationPrecisionSettings)
                 .ToList();
             AssertContainsAllOrderBookFields(pqFieldUpdates, populatedOrderBook);
         }
@@ -425,9 +425,9 @@ public class PQOrderBookTests
         {
             populatedOrderBook.HasUpdates = false;
             var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             var pqStringUpdates = populatedOrderBook.GetStringUpdates(
-                new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -439,9 +439,9 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
             var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
             var pqStringUpdates = populatedOrderBook.GetStringUpdates(
-                new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
             var newEmpty = CreateNewEmpty(populatedOrderBook);
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);

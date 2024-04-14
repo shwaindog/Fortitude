@@ -120,10 +120,10 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         UpdatedFlags = LastTradeUpdated.None;
     }
 
-    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
         if (!updatedOnly || IsTradeTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LastTradeTimeHourOffset,
                 TradeTime.GetHoursFromUnixEpoch());

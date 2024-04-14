@@ -35,6 +35,9 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
     void OnReconnecting();
     void OnDisconnecting();
     void OnConnected(ISocketConnection socketConnection);
+    void OnStarted();
+    void OnStopped();
+
     event Action? SocketReceiverUpdated;
     event Action? SocketSenderUpdated;
 }
@@ -77,6 +80,7 @@ public class SocketSessionContext : ISocketSessionContext
     public ISocketConnection? SocketConnection { get; private set; }
     public INetworkTopicConnectionConfig NetworkTopicConnectionConfig { get; }
     public SocketSessionState SocketSessionState { get; set; }
+
     public string Name { get; set; }
 
     public ISocketReceiver? SocketReceiver

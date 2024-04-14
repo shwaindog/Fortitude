@@ -39,7 +39,7 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
         if (readContext is IMessageBufferContext bufferContext)
         {
             var sockBuffContext = bufferContext as SocketBufferReadContext;
-            if (sockBuffContext != null) sockBuffContext.DeserializerTimestamp = TimeContext.UtcNow;
+            if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
 
             var sequenceId = StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
                 , bufferContext.EncodedBuffer.ReadCursor);

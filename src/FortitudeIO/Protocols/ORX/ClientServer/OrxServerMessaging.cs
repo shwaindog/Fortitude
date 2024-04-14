@@ -4,7 +4,6 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.Transports;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
@@ -20,13 +19,19 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
 {
     private static ISocketFactoryResolver? socketFactories;
 
+    private IOrxResponderStreamDecoder? messageStreamDecoder;
+
     public OrxServerMessaging(ISocketSessionContext socketSessionContext, IAcceptorControls acceptorControls)
         : base(socketSessionContext, acceptorControls)
     {
         var orxSerdesRepoFactory = (IOrxSerdesRepositoryFactory)socketSessionContext.SerdesFactory;
 
-        DeserializationRepository = orxSerdesRepoFactory.MessageDeserializationRepository;
         SerializationRepository = orxSerdesRepoFactory.MessageSerializationRepository;
+
+        socketSessionContext.SocketReceiverUpdated += () =>
+        {
+            messageStreamDecoder = (IOrxResponderStreamDecoder)socketSessionContext.SocketReceiver!.Decoder!;
+        };
     }
 
     public static ISocketFactoryResolver SocketFactories
@@ -35,25 +40,9 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
         set => socketFactories = value;
     }
 
-    public IOrxDeserializationRepository DeserializationRepository { get; }
+    public IOrxDeserializationRepository DeserializationRepository => messageStreamDecoder!.MessageDeserializationRepository;
 
     public IMessageSerializationRepository SerializationRepository { get; }
-
-    public void Send(ISession client, IVersionedMessage message)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Send(IConversation client, IVersionedMessage message)
-    {
-        var clientRequester = (IConversationRequester)client;
-        clientRequester.StreamPublisher!.Send(message);
-    }
-
-    public void Send(ISocketSessionContext client, IVersionedMessage message)
-    {
-        client.SocketSender!.Send(message);
-    }
 
     public static OrxServerMessaging BuildTcpResponder(INetworkTopicConnectionConfig networkConnectionConfig)
     {

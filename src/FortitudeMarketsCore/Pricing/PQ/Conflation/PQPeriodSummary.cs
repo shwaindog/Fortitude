@@ -5,6 +5,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.Conflation;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 #endregion
@@ -366,10 +367,10 @@ public class PQPeriodSummary : IPQPeriodSummary
     }
 
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
         if (!updatedOnly || IsStartTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.PeriodStartDateTime, startTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsStartTimeSubHourUpdated)

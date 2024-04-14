@@ -139,7 +139,7 @@ public class EventQueue : IEventQueue
             = eventContext.PooledRecycler.Borrow<ReusableResponseValueTaskSource<TResponse>>();
         reusableValueTaskSource.IncrementRefCount(); // decremented when value is read for valueTask;
         reusableValueTaskSource.DispatchResult = processorRegistry.DispatchResult;
-        reusableValueTaskSource.RecycleTimer = eventContext.Timer;
+        reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = eventContext.Timer;
         evt.Response = reusableValueTaskSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
@@ -157,7 +157,7 @@ public class EventQueue : IEventQueue
         var processorRegistry = eventContext.PooledRecycler.Borrow<ProcessorRegistry>();
         processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
         processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.RecycleTimer = eventContext.Timer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = eventContext.Timer;
         return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.UnloadRule);
     }
 
@@ -263,7 +263,7 @@ public class EventQueue : IEventQueue
         processorRegistry.DispatchResult = eventContext.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.DispatchResult.DeploymentSelectionResult = selectionResult;
         processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
-        processorRegistry.RecycleTimer = eventContext.Timer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = eventContext.Timer;
         return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.LoadRule);
     }
 

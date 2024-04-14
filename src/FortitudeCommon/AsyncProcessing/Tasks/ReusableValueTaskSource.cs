@@ -84,7 +84,9 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         set => Core.RunContinuationsAsynchronously = value;
     }
 
-    public IActionTimer? RecycleTimer { get; set; }
+    public IActionTimer? ResponseTimeoutAndRecycleTimer { get; set; }
+
+    public TimeSpan ResponseTimeout { get; set; }
 
     private bool ShouldPerformRecycle => Interlocked.CompareExchange(ref shouldRecycle, 1, 0) == 0;
 
@@ -149,11 +151,11 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         if (!IsInRecycler && AutoRecycleAtRefCountZero && Interlocked.Decrement(ref refCount) <= 0)
             if (ShouldPerformRecycle)
             {
-                if (RecycleTimer != null)
+                if (ResponseTimeoutAndRecycleTimer != null)
                 {
                     if (lastTimerActive != null) lastTimerActive.DecrementRefCount();
 
-                    lastTimerActive = RecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this
+                    lastTimerActive = ResponseTimeoutAndRecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this
                         , RecycleReusableValueTaskSource);
                 }
                 else
@@ -216,6 +218,8 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         , ValueTaskSourceOnCompletedFlags flags) =>
         Core.OnCompleted(continuation, state, token, flags);
 
+    public event Action<IReusableAsyncResponseSource<T>> ResponseTimeOut;
+
     private static void RecycleCompleted(IAsyncResponseSource? toRecycle)
     {
         toRecycle?.Recycle();
@@ -238,7 +242,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
             {
                 reusableValueTaskSource.lastTimerActive?.DecrementRefCount();
                 reusableValueTaskSource.lastTimerActive
-                    = reusableValueTaskSource.RecycleTimer?.RunIn(AfterGetResultRecycleInstanceMs
+                    = reusableValueTaskSource.ResponseTimeoutAndRecycleTimer?.RunIn(AfterGetResultRecycleInstanceMs
                         , reusableValueTaskSource, CheckTaskCompleteAgain);
             }
         }
@@ -255,22 +259,22 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         {
             state.lastTimerActive?.DecrementRefCount();
             state.lastTimerActive
-                = state.RecycleTimer?.RunIn(AfterGetResultRecycleInstanceMs, state, CheckTaskCompleteAgain);
+                = state.ResponseTimeoutAndRecycleTimer?.RunIn(AfterGetResultRecycleInstanceMs, state, CheckTaskCompleteAgain);
         }
     }
 
     private void StartRecycleDecrementRefCountTimer()
     {
         if (!ShouldStartDecrementCounter) return;
-        if (RecycleTimer != null)
+        if (ResponseTimeoutAndRecycleTimer != null)
             switch (lastTimerActive)
             {
                 case { IsFinished: true }:
                     lastTimerActive.DecrementRefCount();
-                    lastTimerActive = RecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this, DecrementUsageAction);
+                    lastTimerActive = ResponseTimeoutAndRecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this, DecrementUsageAction);
                     break;
                 case null:
-                    lastTimerActive = RecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this, DecrementUsageAction);
+                    lastTimerActive = ResponseTimeoutAndRecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this, DecrementUsageAction);
                     break;
             }
         else

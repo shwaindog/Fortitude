@@ -427,10 +427,10 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
 
     ISourceTickerQuoteInfo ICloneable<ISourceTickerQuoteInfo>.Clone() => Clone();
 
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags updateStyle,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
+        var updatedOnly = (updateStyle & PQMessageFlags.Update) > 0;
 
         if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, Id);
         if (!updatedOnly || IsRoundingPrecisionUpdated)
@@ -471,9 +471,9 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
             yield return new PQFieldUpdate(PQFieldKeys.LastTradedFlags, (uint)LastTradedFlags);
     }
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle)
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
-        var isUpdateOnly = updatedStyle == UpdateStyle.Updates;
+        var isUpdateOnly = messageFlags == PQMessageFlags.Update;
         if (!isUpdateOnly || IsSourceUpdated)
             yield return new PQFieldStringUpdate
             {

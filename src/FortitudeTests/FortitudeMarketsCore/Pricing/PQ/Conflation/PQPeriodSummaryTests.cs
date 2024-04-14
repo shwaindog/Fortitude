@@ -9,6 +9,7 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Conflation;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -54,7 +55,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsStartTimeSubHourUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptySummary.StartTime);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
@@ -63,7 +64,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsStartTimeSubHourUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedSetTime, emptySummary.StartTime);
-        var sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.GetHoursFromUnixEpoch();
@@ -76,7 +77,7 @@ public class PQPeriodSummaryTests
         emptySummary.IsStartTimeDateUpdated = false;
         Assert.IsFalse(emptySummary.IsStartTimeDateUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
-        sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceAskUpdates.Count);
         Assert.AreEqual(expectedSubHour, sourceAskUpdates[0]);
@@ -84,9 +85,9 @@ public class PQPeriodSummaryTests
         emptySummary.IsStartTimeSubHourUpdated = false;
         Assert.IsFalse(emptySummary.IsStartTimeSubHourUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
-        sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id >= PQFieldKeys.PeriodStartDateTime && update.Id <=
                 PQFieldKeys.PeriodStartSubHourTime
@@ -111,7 +112,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsEndTimeSubHourUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptySummary.EndTime);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
@@ -120,7 +121,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsEndTimeSubHourUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedSetTime, emptySummary.EndTime);
-        var sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.GetHoursFromUnixEpoch();
@@ -133,7 +134,7 @@ public class PQPeriodSummaryTests
         emptySummary.IsEndTimeDateUpdated = false;
         Assert.IsFalse(emptySummary.IsEndTimeDateUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
-        sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceAskUpdates.Count);
         Assert.AreEqual(expectedSubHour, sourceAskUpdates[0]);
@@ -141,9 +142,9 @@ public class PQPeriodSummaryTests
         emptySummary.IsEndTimeSubHourUpdated = false;
         Assert.IsFalse(emptySummary.IsEndTimeSubHourUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
-        sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id >= PQFieldKeys.PeriodEndDateTime && update.Id <=
                 PQFieldKeys.PeriodEndSubHourTime
@@ -167,7 +168,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsStartBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.StartBidPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedStartBidPrice = 1.2345678m;
@@ -175,7 +176,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsStartBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedStartBidPrice, emptySummary.StartBidPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodStartPrice, expectedStartBidPrice, 1);
@@ -184,10 +185,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsStartBidPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsStartBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodStartPrice
                   && update.Flag == 1
@@ -207,7 +208,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsStartAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.StartAskPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedStartAskPrice = 1.2345678m;
@@ -215,7 +216,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsStartAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedStartAskPrice, emptySummary.StartAskPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodStartPrice, expectedStartAskPrice,
@@ -225,10 +226,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsStartAskPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsStartAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodStartPrice
                   && update.Flag == (1 | PQFieldFlags.IsAskSideFlag)
@@ -248,7 +249,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsHighestBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.HighestBidPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedHighestBidPrice = 1.2345678m;
@@ -256,7 +257,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsHighestBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedHighestBidPrice, emptySummary.HighestBidPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodHighestPrice, expectedHighestBidPrice, 1);
@@ -265,10 +266,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsHighestBidPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsHighestBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodHighestPrice
                   && update.Flag == 1
@@ -288,7 +289,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsHighestAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.HighestAskPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedHighestAskPrice = 1.2345678m;
@@ -296,7 +297,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsHighestAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedHighestAskPrice, emptySummary.HighestAskPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodHighestPrice, expectedHighestAskPrice,
@@ -306,10 +307,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsHighestAskPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsHighestAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodHighestPrice
                   && update.Flag == (1 | PQFieldFlags.IsAskSideFlag)
@@ -329,7 +330,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsLowestBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.LowestBidPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedLowestBidPrice = 1.2345678m;
@@ -337,7 +338,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsLowestBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedLowestBidPrice, emptySummary.LowestBidPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodLowestPrice, expectedLowestBidPrice, 1);
@@ -346,10 +347,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsLowestBidPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsLowestBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodLowestPrice
                   && update.Flag == 1
@@ -369,7 +370,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsLowestAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.LowestAskPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedLowestAskPrice = 1.2345678m;
@@ -377,7 +378,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsLowestAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedLowestAskPrice, emptySummary.LowestAskPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodLowestPrice, expectedLowestAskPrice,
@@ -387,10 +388,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsLowestAskPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsLowestAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodLowestPrice
                   && update.Flag == (1 | PQFieldFlags.IsAskSideFlag)
@@ -410,7 +411,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsEndBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.EndBidPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedEndBidPrice = 1.2345678m;
@@ -418,7 +419,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsEndBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedEndBidPrice, emptySummary.EndBidPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodEndPrice, expectedEndBidPrice, 1);
@@ -427,10 +428,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsEndBidPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsEndBidPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodEndPrice
                   && update.Flag == 1
@@ -450,7 +451,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsTickCountUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.TickCount);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
         var expectedTickCount = uint.MaxValue;
@@ -458,7 +459,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsTickCountUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedTickCount, emptySummary.TickCount);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodTickCount, expectedTickCount);
@@ -467,10 +468,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsTickCountUpdated = false;
         Assert.IsFalse(emptySummary.IsTickCountUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodTickCount
             select update).ToList();
@@ -489,7 +490,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsEndAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0m, emptySummary.EndAskPrice);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedEndAskPrice = 1.2345678m;
@@ -497,7 +498,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsEndAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedEndAskPrice, emptySummary.EndAskPrice);
-        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PeriodEndPrice, expectedEndAskPrice,
@@ -507,10 +508,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsEndAskPriceUpdated = false;
         Assert.IsFalse(emptySummary.IsEndAskPriceUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id == PQFieldKeys.PeriodEndPrice
                   && update.Flag == (1 | PQFieldFlags.IsAskSideFlag)
@@ -531,7 +532,7 @@ public class PQPeriodSummaryTests
         Assert.IsFalse(emptySummary.IsPeriodVolumeUpperBytesUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
         Assert.AreEqual(0L, emptySummary.PeriodVolume);
-        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).Count());
 
         var expectedPeriodVolume = long.MaxValue;
@@ -540,7 +541,7 @@ public class PQPeriodSummaryTests
         Assert.IsTrue(emptySummary.IsPeriodVolumeUpperBytesUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
         Assert.AreEqual(expectedPeriodVolume, emptySummary.PeriodVolume);
-        var periodVolumeUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        var periodVolumeUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(2, periodVolumeUpdates.Count);
         var lowerBytes = (uint)emptySummary.PeriodVolume;
@@ -553,7 +554,7 @@ public class PQPeriodSummaryTests
         emptySummary.IsPeriodVolumeLowerBytesUpdated = false;
         Assert.IsFalse(emptySummary.IsPeriodVolumeLowerBytesUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
-        periodVolumeUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        periodVolumeUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).ToList();
         Assert.AreEqual(1, periodVolumeUpdates.Count);
         Assert.AreEqual(expectedUpperBytes, periodVolumeUpdates[0]);
@@ -561,10 +562,10 @@ public class PQPeriodSummaryTests
         emptySummary.IsPeriodVolumeUpperBytesUpdated = false;
         Assert.IsFalse(emptySummary.IsPeriodVolumeUpperBytesUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates,
+        Assert.IsTrue(emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update,
             pricePrecisionSettings).IsNullOrEmpty());
 
-        periodVolumeUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot,
+        periodVolumeUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                 pricePrecisionSettings)
             where update.Id >= PQFieldKeys.PeriodVolumeLowerBytes && update.Id <=
                 PQFieldKeys.PeriodVolumeUpperBytes
@@ -653,7 +654,7 @@ public class PQPeriodSummaryTests
     public void PopulatedPeriodSummaryWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllLevel0Fields()
     {
         var pqFieldUpdates = fullyPopulatedPeriodSummary.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates, pricePrecisionSettings).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update, pricePrecisionSettings).ToList();
         AssertPeriodSummaryContainsAllFields(pqFieldUpdates, fullyPopulatedPeriodSummary);
     }
 
@@ -662,7 +663,7 @@ public class PQPeriodSummaryTests
     {
         fullyPopulatedPeriodSummary.HasUpdates = false;
         var pqFieldUpdates = fullyPopulatedPeriodSummary.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.FullSnapshot, pricePrecisionSettings).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Snapshot, pricePrecisionSettings).ToList();
         AssertPeriodSummaryContainsAllFields(pqFieldUpdates, fullyPopulatedPeriodSummary);
     }
 
@@ -671,7 +672,7 @@ public class PQPeriodSummaryTests
     {
         fullyPopulatedPeriodSummary.HasUpdates = false;
         var pqFieldUpdates = fullyPopulatedPeriodSummary.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates, pricePrecisionSettings).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update, pricePrecisionSettings).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
@@ -679,7 +680,7 @@ public class PQPeriodSummaryTests
     public void PopulatedPeriodSummary_GetDeltaUpdatesUpdateThenUpdateFieldNewQuote_CopiesAllFieldsToNewQuote()
     {
         var pqFieldUpdates = fullyPopulatedPeriodSummary.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates | UpdateStyle.Replay
+                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update | PQMessageFlags.Replay
                 , pricePrecisionSettings)
             .ToList();
         var newEmpty = new PQPeriodSummary();

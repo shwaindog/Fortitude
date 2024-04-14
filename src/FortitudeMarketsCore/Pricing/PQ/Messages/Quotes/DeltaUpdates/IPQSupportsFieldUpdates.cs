@@ -10,6 +10,6 @@ public interface IPQSupportsFieldUpdates<T> : ITracksChanges<T> where T : class
 {
     int UpdateField(PQFieldUpdate fieldUpdate);
 
-    IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null);
 }

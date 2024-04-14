@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Client;
 using FortitudeMarketsApi.Trading.Orders.Products;
@@ -10,6 +11,7 @@ namespace FortitudeMarketsApi.Trading;
 
 public interface ITradingFeed : ITradingFeedListener
 {
+    IRecycler Recycler { get; set; }
     bool IsAvailable { get; }
     TimeInForce SupportedTimeInForce { get; }
     VenueFeatures SupportedVenueFeatures { get; }

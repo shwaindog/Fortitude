@@ -5,7 +5,6 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 #endregion
 
@@ -33,7 +32,8 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializ
     public PQClientQuoteDeserializerRepository(IRecycler recycler, IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(
         recycler, fallbackCoalasingDeserializer) { }
 
-    public override IPQClientMessageStreamDecoder Supply() => new PQClientMessageStreamDecoder(this);
+    public override IPQClientMessageStreamDecoder Supply() =>
+        new PQClientMessageStreamDecoder(new PQClientQuoteDeserializerRepository(Recycler, this));
 
     IMessageStreamDecoder IMessageStreamDecoderFactory.Supply() => Supply();
 

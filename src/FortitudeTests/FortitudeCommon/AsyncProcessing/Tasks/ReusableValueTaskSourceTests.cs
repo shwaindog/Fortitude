@@ -57,7 +57,7 @@ public class ReusableValueTaskSourceTests
         decimalReusableValueTaskSource.Recycler = recycler;
         Assert.AreEqual(1, decimalReusableValueTaskSource.RefCount);
         var threadPoolTimer = new Timer();
-        decimalReusableValueTaskSource.RecycleTimer = threadPoolTimer;
+        decimalReusableValueTaskSource.ResponseTimeoutAndRecycleTimer = threadPoolTimer;
         ReusableValueTaskSource<decimal>.AfterGetResultRecycleInstanceMs = 10;
 
         Assert.IsFalse(decimalReusableValueTaskSource.IsInRecycler);
@@ -82,7 +82,7 @@ public class ReusableValueTaskSourceTests
         objectReusableValueTaskSource.Recycler = recycler;
         Assert.AreEqual(1, objectReusableValueTaskSource.RefCount);
         var threadPoolTimer = new Timer();
-        objectReusableValueTaskSource.RecycleTimer = threadPoolTimer;
+        objectReusableValueTaskSource.ResponseTimeoutAndRecycleTimer = threadPoolTimer;
         ReusableValueTaskSource<object>.AfterGetResultRecycleInstanceMs = 10;
 
         Assert.IsFalse(objectReusableValueTaskSource.IsInRecycler);

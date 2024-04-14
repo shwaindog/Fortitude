@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -25,7 +26,7 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
         ExpectedSize = HeaderSize;
     }
 
-    public int ExpectedSize { get; private set; }
+    public uint ExpectedSize { get; private set; }
 
     public IConversationDeserializationRepository MessageDeserializationRepository { get; }
     IMessageDeserializationRepository IMessageStreamDecoder.MessageDeserializationRepository => MessageDeserializationRepository;
@@ -34,7 +35,7 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
     {
         var readCursor = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
-        byte flags = 0;
+        byte messageFlags = 0;
         uint messageId = 0;
         while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - readCursor)
             switch (messageSection)
@@ -43,17 +44,19 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
                     fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
                         var ptr = fptr + readCursor;
-                        socketBufferReadContext.MessageVersion = *ptr++;
-                        flags = *ptr++;
+                        var version = *ptr++;
+                        messageFlags = *ptr++;
                         messageId = StreamByteOps.ToUInt(ref ptr);
-                        socketBufferReadContext.MessageSize = (int)StreamByteOps.ToUInt(ref ptr);
+                        var messageSize = StreamByteOps.ToUInt(ref ptr);
+                        socketBufferReadContext.MessageHeader
+                            = new MessageHeader(version, messageFlags, messageId, messageSize, socketBufferReadContext);
                     }
 
                     readCursor += HeaderSize;
-                    if (socketBufferReadContext.MessageSize - HeaderSize >= 0)
+                    if ((int)socketBufferReadContext.MessageHeader.MessageSize - HeaderSize >= 0)
                     {
                         messageSection = MessageSection.Data;
-                        ExpectedSize = socketBufferReadContext.MessageSize - HeaderSize;
+                        ExpectedSize = socketBufferReadContext.MessageHeader.MessageSize - HeaderSize;
                     }
                     else
                     {

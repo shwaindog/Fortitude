@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 using Moq;
@@ -33,7 +32,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 1);
+            PQMessageFlags.Update, 1);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -54,13 +53,13 @@ public class SynchronisingStateTests : SyncStateBaseTests
     public virtual void NewSyncState_ProcessInStateProcessNextExpectedUpdateCantSync_LogsProblem()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 2);
+            PQMessageFlags.Update, 2);
         var sockBuffContext = deserializeInputList.First();
         syncState.ProcessInState(sockBuffContext);
 
         SendPqLevel0Quote.HasUpdates = true;
         deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, uint.MaxValue);
+            PQMessageFlags.Update, uint.MaxValue);
         sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -85,7 +84,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
         base.NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour();
 
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 1);
+            PQMessageFlags.Update, 1);
         var sockBuffContext = deserializeInputList.First();
 
         syncState.ProcessInState(sockBuffContext);
@@ -95,7 +94,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     public override void NewSyncState_ProcessSnapshot_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Snapshot, 1);
+            PQMessageFlags.Snapshot, 1);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -119,7 +118,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     public virtual void NewSyncState_ProcessInStateProcessSnapshotMovesToSnapshot_LogsRecovery()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Snapshot, 1);
+            PQMessageFlags.Snapshot, 1);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
