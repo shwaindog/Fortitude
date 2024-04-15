@@ -3,11 +3,8 @@
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
-using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
@@ -42,7 +39,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
             var isSnapshot = snapshotSequenceIds?.Contains(i) ?? false;
             quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, i);
             var currentBatch = BuildSerializeContextForQuotes(expectedQuotes,
-                isSnapshot ? PQFeedType.Snapshot : PQFeedType.Update, i);
+                isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update, i);
             sequenceIdBatches.Add(currentBatch);
         }
 
@@ -50,12 +47,12 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
     }
 
     internal IList<SocketBufferReadContext> BuildSerializeContextForQuotes(
-        IList<IPQLevel0Quote> serializeQuotes, PQFeedType feedType, uint sequenceId)
+        IList<IPQLevel0Quote> serializeQuotes, PQMessageFlags feedType, uint sequenceId)
     {
         var deserializeContexts = new List<SocketBufferReadContext>(
             serializeQuotes.Count);
         var quoteSerializer
-            = new PQQuoteSerializer(feedType == PQFeedType.Snapshot ? UpdateStyle.FullSnapshot : UpdateStyle.Updates);
+            = new PQQuoteSerializer(feedType);
         foreach (var quote in serializeQuotes)
         {
             quote.PQSequenceId = sequenceId;
@@ -66,7 +63,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
                 , ReceivingTimestamp = RecevingTimestampBaseTime(sequenceIdTimeSpan)
                 , EncodedBuffer = new ReadWriteBuffer(new byte[UDP_DATAGRAM_PAYLOAD_SIZE * 4])
                 , DispatchLatencyLogger = perfLogger
-                , MessageVersion = 1
+                , MessageHeader = new MessageHeader(1, 0, 0, 1)
             };
 
             var amountWritten = quoteSerializer.Serialize(sockBuffContext.EncodedBuffer.Buffer,
@@ -74,12 +71,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
             if (amountWritten < 0) throw new Exception("Serializer wrote less than expected to buffer.");
             sockBuffContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
             sockBuffContext.EncodedBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
-            sockBuffContext.MessageHeader = new PQQuoteTransmissionHeader
-            {
-                SequenceId = sequenceId
-                , MessageFlags = feedType == PQFeedType.Snapshot ? PQMessageFlags.PublishAll | PQMessageFlags.IsQuote : PQMessageFlags.IsQuote
-            };
-            sockBuffContext.MessageSize = amountWritten;
+            sockBuffContext.MessageHeader = new MessageHeader(1, (byte)feedType, quote.MessageId, (uint)amountWritten, sockBuffContext);
             sockBuffContext.LastWriteLength = amountWritten;
             deserializeContexts.Add(sockBuffContext);
         }

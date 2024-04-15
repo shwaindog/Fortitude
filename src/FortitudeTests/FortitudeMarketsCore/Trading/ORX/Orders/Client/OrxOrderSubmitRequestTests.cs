@@ -39,7 +39,7 @@ public class OrxOrderSubmitRequestTests
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
-            , MessageVersion = TradingVersionInfo.CurrentVersion
+            , MessageHeader = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, 1)
         };
     }
 
@@ -53,8 +53,9 @@ public class OrxOrderSubmitRequestTests
             , ThirdRequest = BuildSubmitRequest(), FourthRequest = BuildSubmitRequest()
         };
 
-        socketBufferReadContext.MessageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
+        var messageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
+        socketBufferReadContext.MessageHeader = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, (uint)messageSize);
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<OrderSubmitRequests>(new OrxDeserializerLookup(
             new Recycler()));

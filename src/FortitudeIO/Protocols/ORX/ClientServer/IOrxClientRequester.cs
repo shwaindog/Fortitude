@@ -9,7 +9,7 @@ using FortitudeIO.Transports.Network.Conversations;
 
 namespace FortitudeIO.Protocols.ORX.ClientServer;
 
-public interface IOrxMessageRequester : IConversationRequester, ISocketConversation
+public interface IOrxClientRequester : IConversationRequester, ISocketConversation
 {
     IOrxDeserializationRepository DeserializationRepository { get; }
     IMessageSerializationRepository SerializationRepository { get; }

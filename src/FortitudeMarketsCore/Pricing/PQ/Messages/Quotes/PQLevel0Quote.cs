@@ -244,10 +244,10 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         IsReplay = false;
     }
 
-    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var persistenceOrReplay = (updateStyle & (UpdateStyle.Persistence | UpdateStyle.Replay)) > 0;
+        var persistenceOrReplay = (messageFlags & (PQMessageFlags.Persistence | PQMessageFlags.Replay)) > 0;
         if (persistenceOrReplay)
         {
             yield return new PQFieldUpdate(PQFieldKeys.PQSequenceId, PQSequenceId);
@@ -271,9 +271,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             yield return new PQFieldUpdate(PQFieldKeys.ClientReceivedSubHourTime, lower4Bytes, fifthByte);
         }
 
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
         if (PQSourceTickerQuoteInfo != null)
-            foreach (var field in PQSourceTickerQuoteInfo.GetDeltaUpdateFields(snapShotTime, updateStyle,
+            foreach (var field in PQSourceTickerQuoteInfo.GetDeltaUpdateFields(snapShotTime, messageFlags,
                          quotePublicationPrecisionSettings))
                 yield return field;
         if (!updatedOnly || IsSyncStatusUpdated)
@@ -354,10 +354,10 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         return -1;
     }
 
-    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle)
+    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         if (PQSourceTickerQuoteInfo != null)
-            foreach (var field in PQSourceTickerQuoteInfo.GetStringUpdates(snapShotTime, updatedStyle))
+            foreach (var field in PQSourceTickerQuoteInfo.GetStringUpdates(snapShotTime, messageFlags))
                 yield return field;
     }
 

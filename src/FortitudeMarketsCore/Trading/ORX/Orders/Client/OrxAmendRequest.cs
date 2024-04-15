@@ -10,6 +10,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Client;
 
 public class OrxAmendRequest : OrxOrderSubmitRequest, IOrderAmendRequest
 {
+    private OrxOrderAmend? amendment;
     public OrxAmendRequest() { }
 
     public OrxAmendRequest(IOrderAmendRequest toClone) : base(toClone) =>
@@ -20,7 +21,23 @@ public class OrxAmendRequest : OrxOrderSubmitRequest, IOrderAmendRequest
         : base(orderDetails, attemptNumber, currentAttemptTime, originalAttemptTime, tag) =>
         Amendment = amendment;
 
-    [OrxMandatoryField(20)] public OrxOrderAmend? Amendment { get; set; }
+    [OrxMandatoryField(20)]
+    public OrxOrderAmend? Amendment
+    {
+        get => amendment;
+        set
+        {
+            value?.IncrementRefCount();
+            amendment = value;
+        }
+    }
+
+    public override void StateReset()
+    {
+        Amendment?.DecrementRefCount();
+        Amendment = null;
+        base.StateReset();
+    }
 
     public override uint MessageId => (uint)TradingMessageIds.Amend;
 

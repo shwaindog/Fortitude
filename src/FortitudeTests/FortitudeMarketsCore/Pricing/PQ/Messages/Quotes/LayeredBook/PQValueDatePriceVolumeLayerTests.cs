@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
@@ -136,14 +137,14 @@ public class PQValueDatePriceVolumeLayerTests
         Assert.IsFalse(emptyPvl.IsValueDateUpdated);
         Assert.IsFalse(emptyPvl.HasUpdates);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPvl.ValueDate);
-        Assert.AreEqual(0, emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+        Assert.AreEqual(0, emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         var expectedDateTime = new DateTime(2017, 12, 17, 19, 00, 00);
         emptyPvl.ValueDate = expectedDateTime;
         Assert.IsTrue(emptyPvl.IsValueDateUpdated);
         Assert.IsTrue(emptyPvl.HasUpdates);
         Assert.AreEqual(expectedDateTime, emptyPvl.ValueDate);
-        var sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        var sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LayerDateOffset,
@@ -153,20 +154,20 @@ public class PQValueDatePriceVolumeLayerTests
         emptyPvl.IsValueDateUpdated = false;
         Assert.IsFalse(emptyPvl.IsValueDateUpdated);
         Assert.IsFalse(emptyPvl.HasUpdates);
-        Assert.IsTrue(emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var nextExpectedValueDate = new DateTime(2017, 12, 17, 20, 00, 00);
         emptyPvl.ValueDate = nextExpectedValueDate;
         Assert.IsTrue(emptyPvl.IsValueDateUpdated);
         Assert.IsTrue(emptyPvl.HasUpdates);
         Assert.AreEqual(nextExpectedValueDate, emptyPvl.ValueDate);
-        sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LayerDateOffset,
             nextExpectedValueDate.GetHoursFromUnixEpoch(), PQFieldFlags.IsExtendedFieldId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        sourceUpdates = (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.FullSnapshot)
+        sourceUpdates = (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id == PQFieldKeys.LayerDateOffset
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -209,7 +210,7 @@ public class PQValueDatePriceVolumeLayerTests
     public void PopulatedPvlWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllPvlFields()
     {
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
         AssertContainsAllPvlFields(pqFieldUpdates, populatedPvl);
     }
 
@@ -218,7 +219,7 @@ public class PQValueDatePriceVolumeLayerTests
     {
         populatedPvl.HasUpdates = false;
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), UpdateStyle.FullSnapshot).ToList();
+            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllPvlFields(pqFieldUpdates, populatedPvl);
     }
 
@@ -227,7 +228,7 @@ public class PQValueDatePriceVolumeLayerTests
     {
         populatedPvl.HasUpdates = false;
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
@@ -235,7 +236,7 @@ public class PQValueDatePriceVolumeLayerTests
     public void PopulatedPvl_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewQuote_CopiesAllFieldsToNewPvl()
     {
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
         var newEmpty = new PQValueDatePriceVolumeLayer(0m, 0m, DateTimeConstants.UnixEpoch);
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         Assert.AreEqual(populatedPvl, newEmpty);

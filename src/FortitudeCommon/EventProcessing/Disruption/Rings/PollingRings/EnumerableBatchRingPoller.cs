@@ -12,6 +12,7 @@ namespace FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 
 public interface IEnumerableBatchRingPoller<T> : IRingPoller<T> where T : class
 {
+    IRecycler Recycler { get; set; }
     new IEnumerableBatchPollingRing<T> Ring { get; }
 }
 
@@ -47,6 +48,7 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
     public virtual int UsageCount { get; private set; }
 
     public bool IsRunning => isRunning;
+    public IRecycler Recycler { get; set; } = new Recycler();
 
     public void Dispose()
     {
@@ -86,7 +88,7 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
         }
     }
 
-    protected void ForceStop()
+    public void ForceStop()
     {
         try
         {

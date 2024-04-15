@@ -141,7 +141,7 @@ public class PQLevel3QuoteTests
         Assert.IsFalse(noRecentlyTradedEmptyQuote.IsBatchIdUpdated);
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.AreEqual(0u, noRecentlyTradedEmptyQuote.BatchId);
-        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
             .Count());
 
         var expectedBatchId = 4_111_222_333;
@@ -150,7 +150,7 @@ public class PQLevel3QuoteTests
         Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.AreEqual(expectedBatchId, noRecentlyTradedEmptyQuote.BatchId);
         var level3QuoteUpdates = noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime,
-            UpdateStyle.Updates).ToList();
+            PQMessageFlags.Update).ToList();
         Assert.AreEqual(3, level3QuoteUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFieldKeys.BatchId, expectedBatchId);
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[2]);
@@ -160,12 +160,12 @@ public class PQLevel3QuoteTests
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated = false;
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeSubHourUpdated = false;
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
             .IsNullOrEmpty());
 
         noRecentlyTradedEmptyQuote.IsBatchIdUpdated = true;
         level3QuoteUpdates =
-            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                 where update.Id == PQFieldKeys.BatchId
                 select update).ToList();
         Assert.AreEqual(1, level3QuoteUpdates.Count);
@@ -184,7 +184,7 @@ public class PQLevel3QuoteTests
         Assert.IsFalse(noRecentlyTradedEmptyQuote.IsSourceQuoteReferenceUpdated);
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.AreEqual(0u, noRecentlyTradedEmptyQuote.SourceQuoteReference);
-        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
             .Count());
 
         var expectedSourceQuoteReference = 4_111_222_333;
@@ -193,7 +193,7 @@ public class PQLevel3QuoteTests
         Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.AreEqual(expectedSourceQuoteReference, noRecentlyTradedEmptyQuote.SourceQuoteReference);
         var level3QuoteUpdates = noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime,
-            UpdateStyle.Updates).ToList();
+            PQMessageFlags.Update).ToList();
         Assert.AreEqual(3, level3QuoteUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFieldKeys.SourceQuoteReference, expectedSourceQuoteReference);
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[2]);
@@ -203,12 +203,12 @@ public class PQLevel3QuoteTests
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated = false;
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeSubHourUpdated = false;
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
             .IsNullOrEmpty());
 
         noRecentlyTradedEmptyQuote.IsSourceQuoteReferenceUpdated = true;
         level3QuoteUpdates =
-            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                 where update.Id == PQFieldKeys.SourceQuoteReference
                 select update).ToList();
         Assert.AreEqual(1, level3QuoteUpdates.Count);
@@ -227,7 +227,7 @@ public class PQLevel3QuoteTests
         Assert.IsFalse(noRecentlyTradedEmptyQuote.IsValueDateUpdated);
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, noRecentlyTradedEmptyQuote.ValueDate);
-        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
             .Count());
 
         var expectedValueDate = new DateTime(2017, 12, 31, 0, 0, 0);
@@ -236,7 +236,7 @@ public class PQLevel3QuoteTests
         Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.AreEqual(expectedValueDate, noRecentlyTradedEmptyQuote.ValueDate);
         var level3QuoteUpdates = noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime,
-            UpdateStyle.Updates).ToList();
+            PQMessageFlags.Update).ToList();
         Assert.AreEqual(3, level3QuoteUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFieldKeys.ValueDate,
             expectedValueDate.GetHoursFromUnixEpoch());
@@ -247,12 +247,12 @@ public class PQLevel3QuoteTests
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated = false;
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeSubHourUpdated = false;
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
             .IsNullOrEmpty());
 
         noRecentlyTradedEmptyQuote.IsValueDateUpdated = true;
         level3QuoteUpdates =
-            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                 where update.Id == PQFieldKeys.ValueDate
                 select update).ToList();
         Assert.AreEqual(1, level3QuoteUpdates.Count);
@@ -280,18 +280,18 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.IsTradePriceUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(0m, lastTrade.TradePrice);
-                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .Count());
-                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
                 var expectedPrice = 200.1234m;
                 lastTrade.TradePrice = expectedPrice;
                 Assert.IsTrue(lastTrade.IsTradePriceUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedPrice, lastTrade.TradePrice);
-                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
                 Assert.AreEqual(3, quoteUpdates.Count);
-                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField = new PQFieldUpdate(PQFieldKeys.LastTradePriceOffset,
@@ -308,11 +308,11 @@ public class PQLevel3QuoteTests
                 emptyQuote.IsAdapterSentTimeDateUpdated = false;
                 emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
-                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
                 lastTrade.IsTradePriceUpdated = true;
                 quoteUpdates =
-                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                         where update.Id == PQFieldKeys.LastTradePriceOffset + i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
@@ -346,9 +346,9 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.IsTradeTimeSubHourUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(DateTimeConstants.UnixEpoch, lastTrade.TradeTime);
-                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .Count());
-                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
                 var expectedTradeTime = new DateTime(2017, 12, 31, 13, 12, 20).AddTicks(9_999_999);
                 lastTrade.TradeTime = expectedTradeTime;
@@ -356,9 +356,9 @@ public class PQLevel3QuoteTests
                 Assert.IsTrue(lastTrade.IsTradeTimeSubHourUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedTradeTime, lastTrade.TradeTime);
-                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
                 Assert.AreEqual(4, quoteUpdates.Count);
-                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(2, lastTradeUpdates.Count);
                 var hoursFromEpoch = expectedTradeTime.GetHoursFromUnixEpoch();
@@ -380,11 +380,11 @@ public class PQLevel3QuoteTests
                 lastTrade.IsTradeTimeDateUpdated = false;
                 Assert.IsTrue(lastTrade.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
-                var lastTradeJustSubHourUpdate = lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var lastTradeJustSubHourUpdate = lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(1, lastTradeJustSubHourUpdate.Count);
                 Assert.AreEqual(expectedLastTradeSubHoursField, lastTradeJustSubHourUpdate[0]);
-                var quoteSubHourUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var quoteSubHourUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(3, quoteSubHourUpdates.Count);
                 Assert.AreEqual(expectedQuoteLastTradeTimeSubHoursField, quoteSubHourUpdates[2]);
@@ -395,12 +395,12 @@ public class PQLevel3QuoteTests
                 emptyQuote.IsAdapterSentTimeDateUpdated = false;
                 emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
-                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
                 lastTrade.IsTradeTimeDateUpdated = true;
                 lastTrade.IsTradeTimeSubHourUpdated = true;
                 quoteUpdates =
-                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                         where update.Id == PQFieldKeys.LastTradeTimeHourOffset + i ||
                               update.Id == PQFieldKeys.LastTradeTimeSubHourOffset + i
                         select update).ToList();
@@ -438,18 +438,18 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.IsWasGivenUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(false, lastTrade.WasGiven);
-                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .Count());
-                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
                 const bool expectedWasGiven = true;
                 lastTrade.WasGiven = expectedWasGiven;
                 Assert.IsTrue(lastTrade.IsWasGivenUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedWasGiven, lastTrade.WasGiven);
-                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
                 Assert.AreEqual(3, quoteUpdates.Count);
-                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset,
@@ -466,11 +466,11 @@ public class PQLevel3QuoteTests
                 emptyQuote.IsAdapterSentTimeDateUpdated = false;
                 emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
-                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
                 lastTrade.IsWasGivenUpdated = true;
                 quoteUpdates =
-                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                         where update.Id == PQFieldKeys.LastTradeVolumeOffset + i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
@@ -503,18 +503,18 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.IsWasPaidUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(false, lastTrade.WasPaid);
-                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .Count());
-                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
                 const bool expectedWasPaid = true;
                 lastTrade.WasPaid = expectedWasPaid;
                 Assert.IsTrue(lastTrade.IsWasPaidUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedWasPaid, lastTrade.WasPaid);
-                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
                 Assert.AreEqual(3, quoteUpdates.Count);
-                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset,
@@ -531,11 +531,11 @@ public class PQLevel3QuoteTests
                 emptyQuote.IsAdapterSentTimeDateUpdated = false;
                 emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
-                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
                 lastTrade.IsWasPaidUpdated = true;
                 quoteUpdates =
-                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                         where update.Id == PQFieldKeys.LastTradeVolumeOffset + i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
@@ -568,18 +568,18 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.IsTradeVolumeUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(0m, lastTrade.TradeVolume);
-                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .Count());
-                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
                 var expectedVolume = 42_111_333m;
                 lastTrade.TradeVolume = expectedVolume;
                 Assert.IsTrue(lastTrade.IsTradeVolumeUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedVolume, lastTrade.TradeVolume);
-                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
                 Assert.AreEqual(3, quoteUpdates.Count);
-                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset,
@@ -596,11 +596,11 @@ public class PQLevel3QuoteTests
                 emptyQuote.IsAdapterSentTimeDateUpdated = false;
                 emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
-                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
                 lastTrade.IsTradeVolumeUpdated = true;
                 quoteUpdates =
-                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                         where update.Id == PQFieldKeys.LastTradeVolumeOffset + i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
@@ -633,18 +633,18 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.IsTraderNameUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(null, lastTrade.TraderName);
-                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .Count());
-                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+                Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
                 var expectedTraderName = "LastTrade_TraderName" + i;
                 lastTrade.TraderName = expectedTraderName;
                 Assert.IsTrue(lastTrade.IsTraderNameUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedTraderName, lastTrade.TraderName);
-                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
                 Assert.AreEqual(3, quoteUpdates.Count);
-                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField = new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset,
@@ -654,7 +654,7 @@ public class PQLevel3QuoteTests
                     lastTrade.TraderId);
                 Assert.AreEqual(expectedLastTradeField, lastTradeUpdates[0]);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[2]);
-                var stringUpdates = emptyQuote.GetStringUpdates(testDateTime, UpdateStyle.Updates)
+                var stringUpdates = emptyQuote.GetStringUpdates(testDateTime, PQMessageFlags.Update)
                     .ToList();
                 var expectedStringUpdates = new PQFieldStringUpdate
                 {
@@ -677,11 +677,11 @@ public class PQLevel3QuoteTests
                 emptyQuote.IsAdapterSentTimeDateUpdated = false;
                 emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
-                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+                Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
                 lastTrade.IsTraderNameUpdated = true;
                 quoteUpdates =
-                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                         where update.Id == PQFieldKeys.LastTraderIdOffset + i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
@@ -737,7 +737,7 @@ public class PQLevel3QuoteTests
         foreach (var populatedL3Quote in allFullyPopulatedQuotes)
         {
             var pqFieldUpdates = populatedL3Quote.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 12, 33, 1), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update).ToList();
             AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote);
         }
     }
@@ -749,7 +749,7 @@ public class PQLevel3QuoteTests
         {
             populatedL3Quote.HasUpdates = false;
             var pqFieldUpdates = populatedL3Quote.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 12, 33, 1), UpdateStyle.FullSnapshot).ToList();
+                new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
             AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote);
         }
     }
@@ -762,9 +762,9 @@ public class PQLevel3QuoteTests
             populatedL3Quote.IsReplay = true;
             populatedL3Quote.HasUpdates = false;
             var pqFieldUpdates = populatedL3Quote.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             var pqStringUpdates = populatedL3Quote.GetStringUpdates(
-                new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -776,9 +776,9 @@ public class PQLevel3QuoteTests
         foreach (var populatedL3Quote in allFullyPopulatedQuotes)
         {
             var pqFieldUpdates = populatedL3Quote.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
             var pqStringUpdates = populatedL3Quote.GetStringUpdates(
-                new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
             var emptyQuoteSourceTickerQuoteInfo
                 = new PQSourceTickerQuoteInfo(populatedL3Quote.SourceTickerQuoteInfo!)
                 {

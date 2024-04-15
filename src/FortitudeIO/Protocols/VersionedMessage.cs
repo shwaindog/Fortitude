@@ -7,6 +7,12 @@ using FortitudeCommon.Types;
 
 namespace FortitudeIO.Protocols;
 
+public interface IVersionedMessage : IReusableObject<IVersionedMessage>
+{
+    uint MessageId { get; }
+    byte Version { get; }
+}
+
 public abstract class VersionedMessage : ReusableObject<IVersionedMessage>, IVersionedMessage
 {
     protected VersionedMessage() { }

@@ -28,7 +28,7 @@ public class OrxByteSerializerTests
         socketBufferReadContext = new SocketBufferReadContext
         {
             EncodedBuffer = new ReadWriteBuffer(byteBuffer)
-            , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, ""), MessageVersion = 1
+            , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, ""), MessageHeader = new MessageHeader(1, 0, 0, 1)
         };
     }
 
@@ -42,8 +42,9 @@ public class OrxByteSerializerTests
             , SecondStringArray = new[] { "Second1", "Second2", "Second3" }
         };
 
-        socketBufferReadContext.MessageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
+        var messageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize);
 
         var orxDoubleStringArrayDeserializer = new OrxByteDeserializer<DoubleStringArray>(new OrxDeserializerLookup(
             new Recycler()));
@@ -66,8 +67,9 @@ public class OrxByteSerializerTests
             , FourthLong = long.MinValue / 2
         };
 
-        socketBufferReadContext.MessageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
+        var messageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize);
 
         var orxLongsDeserializer = new OrxByteDeserializer<Longs>(new OrxDeserializerLookup(
             new Recycler()));
@@ -90,8 +92,9 @@ public class OrxByteSerializerTests
             , FourthString = "FourthString"
         };
 
-        socketBufferReadContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
+        var messageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<Strings>(new OrxDeserializerLookup(
             new Recycler()));
@@ -115,8 +118,9 @@ public class OrxByteSerializerTests
             , FourthString = "FourthString"
         };
 
-        socketBufferReadContext.MessageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
+        var messageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
+        socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize);
 
         var orxStringsDeserializer = new OrxByteDeserializer<MutableStrings>(new OrxDeserializerLookup(
             new Recycler()));

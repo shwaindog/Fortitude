@@ -21,7 +21,7 @@ public class MessageDeserializerTests
         var binaryDeserializer = new DummyMessageDeserializer<DummyMessage>();
 
         var expectedData = new DummyMessage();
-        var expectedState = new DummyMessage();
+        var expectedMessageHeader = new MessageHeader(1, 0, 0, 1);
 
         var moqConversation = new Mock<IConversation>();
         var moqSocketReadBufferContext = new Mock<ISocketBufferReadContext>();
@@ -30,12 +30,12 @@ public class MessageDeserializerTests
         var secondCallbackCalled = false;
 
         moqSocketReadBufferContext.SetupGet(srbc => srbc.Conversation).Returns(moqConversation.Object);
-        moqSocketReadBufferContext.SetupGet(srbc => srbc.MessageHeader).Returns(expectedState);
+        moqSocketReadBufferContext.SetupGet(srbc => srbc.MessageHeader).Returns(expectedMessageHeader);
 
-        void FirstCallback(object data, object? state, IConversation? session)
+        void FirstCallback(object data, MessageHeader messageHeader, IConversation session)
         {
             Assert.AreSame(expectedData, data);
-            Assert.AreSame(expectedState, state);
+            Assert.IsTrue(expectedMessageHeader.Equals(messageHeader));
             Assert.AreSame(moqConversation.Object, session);
             firstCallbackCalled = true;
         }
@@ -45,10 +45,10 @@ public class MessageDeserializerTests
         binaryDeserializer.ConversationMessageDeserialized += FirstCallback;
         Assert.IsTrue(binaryDeserializer.IsRegistered(FirstCallback));
 
-        void SecondCallback(object data, object? state, IConversation? session)
+        void SecondCallback(object data, MessageHeader messageHeader, IConversation session)
         {
             Assert.AreSame(expectedData, data);
-            Assert.AreSame(expectedState, state);
+            Assert.IsTrue(expectedMessageHeader.Equals(messageHeader));
             Assert.AreSame(moqConversation.Object, session);
             secondCallbackCalled = true;
         }

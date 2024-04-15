@@ -10,6 +10,6 @@ namespace FortitudeMarketsApi.Trading.Orders;
 
 public interface IOrderPublisher : IDisposable, IRecyclableObject
 {
-    IConversation? UnderlyingSession { get; }
+    IConversationRequester? UnderlyingSession { get; }
     bool Publish(IOrderUpdate orderUpdate);
 }

@@ -7,6 +7,7 @@ using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 
 #endregion
@@ -38,7 +39,7 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
 
         var socFactories = SocketFactories;
 
-        var serdesFactory = new PQServerSerdesRepositoryFactory(PQFeedType.Update);
+        var serdesFactory = new PQServerSerdesRepositoryFactory(PQMessageFlags.Update);
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory

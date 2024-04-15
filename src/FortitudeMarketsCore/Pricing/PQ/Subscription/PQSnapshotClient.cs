@@ -3,7 +3,9 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
@@ -71,8 +73,11 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
                 messageStreamDecoder = (IPQClientMessageStreamDecoder)socketSessionContext.SocketReceiver.Decoder!;
                 messageStreamDecoder.ReceivedMessage += OnReceivedMessage;
                 messageStreamDecoder.ReceivedData += OnReceivedMessage;
-                messageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoResponse>(
-                    ReceivedSourceTickerInfoResponse);
+                messageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoResponse>()
+                    .AddDeserializedNotifier(
+                        new PassThroughDeserializedNotifier<PQSourceTickerInfoResponse>(
+                            $"{nameof(PQSnapshotClient)}.{nameof(ReceivedSourceTickerInfoResponse)}"
+                            , ReceivedSourceTickerInfoResponse));
             }
         };
     }
@@ -150,8 +155,8 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         EnableTimeout();
     }
 
-    private void ReceivedSourceTickerInfoResponse(PQSourceTickerInfoResponse sourceTickerInfoResponse, object? header
-        , IConversation? conversation)
+    private void ReceivedSourceTickerInfoResponse(PQSourceTickerInfoResponse sourceTickerInfoResponse, MessageHeader messageHeader
+        , IConversation conversation)
     {
         logger.Info("Received source ticker info response for streams to {0}", Name);
         SourceTickerQuoteInfoRepo.AppendReplace(sourceTickerInfoResponse.SourceTickerQuoteInfos);

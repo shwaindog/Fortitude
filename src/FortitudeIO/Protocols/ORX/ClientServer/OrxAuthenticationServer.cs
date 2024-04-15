@@ -4,9 +4,12 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Authentication;
+using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.State;
 
 #endregion
@@ -16,12 +19,13 @@ namespace FortitudeIO.Protocols.ORX.ClientServer;
 public class OrxAuthenticationServer
 {
     private static readonly IFLogger SecurityLogger = FLoggerFactory.Instance.GetLogger("Security");
+
+    protected readonly IOrxMessageResponder AcceptorSession;
     private readonly byte currentVersion;
 
     private readonly IMap<IConversationRequester, DateTime> loggedInSessions =
         new GarbageAndLockFreeMap<IConversationRequester, DateTime>(ReferenceEquals);
 
-    protected readonly IOrxMessageResponder MessageMessageResponder;
     private readonly AutoResetEvent paAre = new(false);
 
     private readonly IMap<IConversationRequester, DateTime> pendingAuths =
@@ -30,20 +34,19 @@ public class OrxAuthenticationServer
     protected IRecycler Recycler = new Recycler();
     protected bool Stopping;
 
-    public OrxAuthenticationServer(IOrxMessageResponder messageMessageResponder, byte currentVersion)
+    public OrxAuthenticationServer(IOrxMessageResponder acceptorSession, byte currentVersion)
     {
-        MessageMessageResponder = messageMessageResponder;
+        AcceptorSession = acceptorSession;
         this.currentVersion = currentVersion;
-        messageMessageResponder.DeserializationRepository.RegisterDeserializer<OrxLogonRequest>(OnLogonRequest);
-        messageMessageResponder.SerializationRepository.RegisterSerializer<OrxLogonResponse>();
-        messageMessageResponder.SerializationRepository.RegisterSerializer<OrxLoggedOutMessage>();
+        acceptorSession.SerializationRepository.RegisterSerializer<OrxLogonResponse>();
+        acceptorSession.SerializationRepository.RegisterSerializer<OrxLoggedOutMessage>();
 
-        messageMessageResponder.ClientRemoved += OnClientRemoved;
-        messageMessageResponder.Disconnecting += OnDisconnecting;
+        acceptorSession.ClientRemoved += OnClientRemoved;
+        acceptorSession.Disconnecting += OnDisconnecting;
 
-        messageMessageResponder.Disconnecting += ClearPendingAuths;
-        messageMessageResponder.NewClient += AddToPendingAuths;
-        messageMessageResponder.ClientRemoved += RemoveFromPendingAuths;
+        acceptorSession.Disconnecting += ClearPendingAuths;
+        acceptorSession.NewClient += OnNewAuthClientConversation;
+        acceptorSession.ClientRemoved += RemoveFromPendingAuths;
     }
 
     protected void ClearPendingAuths()
@@ -54,8 +57,12 @@ public class OrxAuthenticationServer
         }
     }
 
-    protected void AddToPendingAuths(IConversationRequester cx)
+    protected void OnNewAuthClientConversation(IConversationRequester cx)
     {
+        var clientDecoder = (IOrxResponderStreamDecoder)cx.StreamListener!.Decoder!;
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<OrxLogonRequest>()
+            .AddDeserializedNotifier(
+                new PassThroughDeserializedNotifier<OrxLogonRequest>($"{nameof(OrxAuthenticationServer)}.{nameof(OnLogonRequest)}", OnLogonRequest));
         lock (pendingAuths)
         {
             pendingAuths.Add(cx, TimeContext.UtcNow);
@@ -92,8 +99,8 @@ public class OrxAuthenticationServer
                 {
                     var loggedOutMessage = Recycler.Borrow<OrxLoggedOutMessage>();
                     loggedOutMessage.Configure(currentVersion, "Authentication timeout");
-                    MessageMessageResponder.Send(cx, loggedOutMessage);
-                    MessageMessageResponder.RemoveClient(cx);
+                    cx.Send(loggedOutMessage);
+                    AcceptorSession.RemoveClient(cx);
                 }
 
                 ThreadPool.RegisterWaitForSingleObject(paAre, (s, t) => CheckAuthsTimeout(), null, 1000, true);
@@ -114,7 +121,8 @@ public class OrxAuthenticationServer
         {
             var orxLoggedOutMessage = Recycler.Borrow<OrxLoggedOutMessage>();
             orxLoggedOutMessage.Configure(currentVersion, "Disconnecting");
-            MessageMessageResponder.Send(loggedInSession.Key, orxLoggedOutMessage);
+            loggedInSession.Key.Send(orxLoggedOutMessage);
+            orxLoggedOutMessage.DecrementRefCount();
         }
 
         var timeout = 10;
@@ -133,14 +141,14 @@ public class OrxAuthenticationServer
 
     public event OrxAuthenticator? OnAuthenticate;
 
-    protected virtual void OnLogonRequest(OrxLogonRequest request, object? context, IConversation? repositorySession)
+    protected virtual void OnLogonRequest(OrxLogonRequest request, MessageHeader messageHeader, IConversation repositorySession)
     {
-        Validate(request, context, repositorySession);
+        Validate(request, messageHeader, repositorySession);
     }
 
-    protected virtual bool Validate(OrxLogonRequest request, object? context, IConversation? repositorySession)
+    protected virtual bool Validate(OrxLogonRequest request, MessageHeader messageHeader, IConversation conversation)
     {
-        var repoSess = (IConversationRequester)repositorySession!;
+        var repoSess = (IConversationRequester)conversation!;
         RemoveFromPendingAuths(repoSess);
         if (repoSess.Session is not ISocketSessionContext socketSessionContext) return false;
         if (socketSessionContext.SocketConnection!.IsAuthenticated)
@@ -160,14 +168,17 @@ public class OrxAuthenticationServer
             socketSessionContext.SocketConnection!.IsAuthenticated = true;
 
             loggedInSessions.Add(repoSess, TimeContext.UtcNow);
-            MessageMessageResponder.Send(repoSess, Recycler.Borrow<OrxLogonResponse>());
+            var orxLogonResponse = Recycler.Borrow<OrxLogonResponse>();
+            repoSess.Send(orxLogonResponse);
+            orxLogonResponse.DecrementRefCount();
 
             return true;
         }
 
         var orxLoggedOutMessage = Recycler.Borrow<OrxLoggedOutMessage>();
         orxLoggedOutMessage.Configure(currentVersion, message);
-        MessageMessageResponder.Send(repoSess, orxLoggedOutMessage);
+        repoSess.Send(orxLoggedOutMessage);
+        orxLoggedOutMessage.DecrementRefCount();
         return false;
     }
 }

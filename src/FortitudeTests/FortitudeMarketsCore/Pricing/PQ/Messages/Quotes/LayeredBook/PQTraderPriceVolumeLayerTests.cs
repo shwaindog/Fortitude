@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -290,20 +291,20 @@ public class PQTraderPriceVolumeLayerTests
             Assert.IsFalse(traderLayerInfo!.IsTraderNameUpdated);
             Assert.IsFalse(emptyPvl.HasUpdates);
             Assert.AreEqual(null, traderLayerInfo.TraderName);
-            Assert.AreEqual(0, emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+            Assert.AreEqual(0, emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
             var expectedTraderName = TraderNameBase + i;
             traderLayerInfo.TraderName = expectedTraderName;
             Assert.IsTrue(traderLayerInfo.IsTraderNameUpdated);
             Assert.IsTrue(emptyPvl.HasUpdates);
             Assert.AreEqual(expectedTraderName, traderLayerInfo.TraderName);
-            var layerUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+            var layerUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             var indexShifted = i << 24;
             var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerTraderIdOffset,
                 indexShifted | emptyPvl.TraderNameIdLookup[traderLayerInfo.TraderName]);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
-            var stringUpdates = emptyPvl.GetStringUpdates(testDateTime, UpdateStyle.Updates)
+            var stringUpdates = emptyPvl.GetStringUpdates(testDateTime, PQMessageFlags.Update)
                 .ToList();
             Assert.AreEqual(1, stringUpdates.Count);
             var expectedStringUpdates = new PQFieldStringUpdate
@@ -322,11 +323,11 @@ public class PQTraderPriceVolumeLayerTests
             Assert.IsTrue(emptyPvl.HasUpdates);
             traderLayerInfo.TraderNameIdLookup.HasUpdates = false;
             Assert.IsFalse(emptyPvl.HasUpdates);
-            Assert.IsTrue(emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+            Assert.IsTrue(emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
             traderLayerInfo.IsTraderNameUpdated = true;
             layerUpdates =
-                (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     where update.Id == PQFieldKeys.LayerTraderIdOffset
                     select update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
@@ -356,14 +357,14 @@ public class PQTraderPriceVolumeLayerTests
             Assert.IsFalse(traderLayerInfo!.IsTraderVolumeUpdated);
             Assert.IsFalse(emptyPvl.HasUpdates);
             Assert.AreEqual(0m, traderLayerInfo.TraderVolume);
-            Assert.AreEqual(0, emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+            Assert.AreEqual(0, emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
             var expectedTraderVolume = 100_000m + (i + 1);
             traderLayerInfo.TraderVolume = expectedTraderVolume;
             Assert.IsTrue(traderLayerInfo.IsTraderVolumeUpdated);
             Assert.IsTrue(emptyPvl.HasUpdates);
             Assert.AreEqual(expectedTraderVolume, traderLayerInfo.TraderVolume);
-            var layerUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+            var layerUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             var indexShifted = i << 24;
             var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerTraderVolumeOffset,
@@ -372,11 +373,11 @@ public class PQTraderPriceVolumeLayerTests
 
             traderLayerInfo.IsTraderVolumeUpdated = false;
             Assert.IsFalse(emptyPvl.HasUpdates);
-            Assert.IsTrue(emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+            Assert.IsTrue(emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
             traderLayerInfo.IsTraderVolumeUpdated = true;
             layerUpdates =
-                (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+                (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                     where update.Id == PQFieldKeys.LayerTraderVolumeOffset
                     select update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
@@ -402,12 +403,12 @@ public class PQTraderPriceVolumeLayerTests
 
         Assert.IsFalse(populatedPvl.IsTraderCountOnly);
         Assert.IsFalse(populatedPvl.HasUpdates);
-        Assert.AreEqual(0, populatedPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).Count());
+        Assert.AreEqual(0, populatedPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         populatedPvl.SetTradersCountOnly(byte.MaxValue);
         Assert.IsTrue(populatedPvl.HasUpdates);
         Assert.AreEqual(byte.MaxValue, populatedPvl.Count);
-        var layerUpdates = populatedPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).ToList();
+        var layerUpdates = populatedPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, layerUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerTraderIdOffset,
             0x00800000 | byte.MaxValue);
@@ -415,11 +416,11 @@ public class PQTraderPriceVolumeLayerTests
 
         populatedPvl.HasUpdates = false;
         Assert.IsFalse(populatedPvl.HasUpdates);
-        Assert.IsTrue(populatedPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates).IsNullOrEmpty());
+        Assert.IsTrue(populatedPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         populatedPvl.HasUpdates = true;
         layerUpdates =
-            (from update in populatedPvl.GetDeltaUpdateFields(testDateTime, UpdateStyle.Updates)
+            (from update in populatedPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                 where update.Id == PQFieldKeys.LayerTraderIdOffset
                 select update).ToList();
         Assert.AreEqual(1, layerUpdates.Count);
@@ -547,12 +548,12 @@ public class PQTraderPriceVolumeLayerTests
     public void PopulatedPvlWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllPvlFields()
     {
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
         AssertContainsAllPvlFields(pqFieldUpdates, populatedPvl);
 
         populatedPvl.SetTradersCountOnly(3);
         pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
         AssertContainsAllPvlFields(pqFieldUpdates, populatedPvl);
     }
 
@@ -561,13 +562,13 @@ public class PQTraderPriceVolumeLayerTests
     {
         populatedPvl.HasUpdates = false;
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), UpdateStyle.FullSnapshot).ToList();
+            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllPvlFields(pqFieldUpdates, populatedPvl);
 
         populatedPvl.SetTradersCountOnly(3);
         populatedPvl.HasUpdates = false;
         pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), UpdateStyle.FullSnapshot).ToList();
+            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllPvlFields(pqFieldUpdates, populatedPvl);
     }
 
@@ -576,18 +577,18 @@ public class PQTraderPriceVolumeLayerTests
     {
         populatedPvl.HasUpdates = false;
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         var pqStringUpdates = populatedPvl.GetStringUpdates(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
         Assert.AreEqual(0, pqStringUpdates.Count);
 
         populatedPvl.SetTradersCountOnly(3);
         populatedPvl.HasUpdates = false;
         pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         pqStringUpdates = populatedPvl.GetStringUpdates(
-            new DateTime(2017, 11, 04, 16, 33, 59), UpdateStyle.Updates).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
         Assert.AreEqual(0, pqStringUpdates.Count);
     }
@@ -596,9 +597,9 @@ public class PQTraderPriceVolumeLayerTests
     public void PopulatedPvl_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewQuote_CopiesAllFieldsToNewPvl()
     {
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
         var pqStringUpdates = populatedPvl.GetStringUpdates(
-            new DateTime(2017, 11, 04, 13, 33, 3), UpdateStyle.Updates | UpdateStyle.Replay).ToList();
+            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
         var newEmpty = new PQTraderPriceVolumeLayer(0m, 0m, emptyNameIdLookup.Clone());
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);

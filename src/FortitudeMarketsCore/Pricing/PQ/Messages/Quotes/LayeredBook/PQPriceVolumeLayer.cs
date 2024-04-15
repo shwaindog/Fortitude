@@ -100,10 +100,10 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Volume = 0m;
     }
 
-    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
         if (!updatedOnly || IsPriceUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, Price,
                 quotePublicationPrecisionSetting?.PriceScalingPrecision ?? 1);

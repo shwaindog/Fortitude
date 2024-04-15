@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
@@ -145,26 +146,24 @@ public class TcpRequestResponderConnectionTests
         Assert.AreEqual(v2Message.Version, requesterReceivedResponseMessage.Version);
     }
 
-    private void RespondToClientMessage(SimpleVersionedMessage msg, object? header, IConversation? client)
+    private void RespondToClientMessage(SimpleVersionedMessage msg, MessageHeader messageHeader, IConversation client)
     {
         responderReceivedMessage = msg;
         if (client is IConversationRequester conversationRequester)
             conversationRequester.StreamPublisher!.Send(v2Message);
     }
 
-    private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, object? header
-        , IConversation? client)
+    private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, MessageHeader header, IConversation client)
     {
         responderReceivedMessage = msg;
     }
 
-    private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, BasicMessageHeader msgHeader)
+    private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, MessageHeader msgHeader)
     {
         responderReceivedMessage = msg;
     }
 
-    private void ReceivedFromResponderDeserializerCallback(SimpleVersionedMessage msg, object? header
-        , IConversation? client)
+    private void ReceivedFromResponderDeserializerCallback(SimpleVersionedMessage msg, MessageHeader messageHeader, IConversation client)
     {
         requesterReceivedResponseMessage = msg;
         autoResetEvent.Set();

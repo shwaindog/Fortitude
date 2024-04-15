@@ -1,8 +1,10 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Receiving;
+using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -10,6 +12,7 @@ namespace FortitudeIO.Transports.Network.Dispatcher;
 
 public interface ISocketDispatcherResolver
 {
+    IUpdateableTimer RealTimer { get; set; }
     ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext);
 }
 
@@ -18,6 +21,7 @@ public class SimpleSocketDispatcherResolver : ISocketDispatcherResolver
     private ISocketDispatcher dispatcher;
 
     public SimpleSocketDispatcherResolver(ISocketDispatcher dispatcher) => this.dispatcher = dispatcher;
+    public IUpdateableTimer RealTimer { get; set; } = new Timer("SimpleSocketDispatcher");
 
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) => dispatcher;
 }
@@ -40,17 +44,19 @@ public class PoolSocketDispatcherResolver : ISocketDispatcherResolver
         this.senderSelector = senderSelector;
     }
 
+    public IUpdateableTimer RealTimer { get; set; } = new Timer("PoolSocketDispatcher");
+
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) =>
         new SocketDispatcher(listenerSelector(pooledListeners),
             senderSelector(pooledSenders));
 
-    public static ISocketDispatcherResolver BuildLeastUsedPooledDispatcherResolver(string name, int numListeners
+    public ISocketDispatcherResolver BuildLeastUsedPooledDispatcherResolver(string name, int numListeners
         , int numSenders)
     {
         var listeners = new List<ISocketDispatcherListener>();
         for (var i = 0; i < numListeners; i++)
             listeners.Add(new SimpleSocketAsyncValueTaskRingPollerListener($"{name}_{i}", 1
-                , new SocketSelector(1, new OSNetworkingController())));
+                , new SocketSelector(1, new OSNetworkingController()), RealTimer));
         var senders = new List<ISocketDispatcherSender>();
         for (var i = 0; i < numListeners; i++) senders.Add(new SimpleAsyncValueTaskSocketRingPollerSender($"{name}_{i}", 1));
 
@@ -88,9 +94,11 @@ public class SingletonSocketDispatcherResolver : ISocketDispatcherResolver
         }
     }
 
+    public IUpdateableTimer RealTimer { get; set; } = new Timer("SingletonSocketDispatcher");
+
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) =>
         singletonDispatcher ??= new SocketDispatcher(
             new SimpleSocketAsyncValueTaskRingPollerListener($"Singleton", 1
-                , new SocketSelector(1, new OSNetworkingController())),
+                , new SocketSelector(1, new OSNetworkingController()), RealTimer),
             new SimpleAsyncValueTaskSocketRingPollerSender("Singleton", 1));
 }

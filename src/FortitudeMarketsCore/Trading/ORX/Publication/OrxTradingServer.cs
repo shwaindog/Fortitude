@@ -1,8 +1,12 @@
 #region
 
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
+using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Trading;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
@@ -27,30 +31,42 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
     private readonly Dictionary<string, bool> statuses = new();
     private int adapterOrderId;
 
-    public OrxTradingServer(IOrxMessageResponder messageMessageResponder, ITradingFeed feed, bool errorSupport = false)
-        : base(messageMessageResponder, TradingVersionInfo.CurrentVersion)
+    public OrxTradingServer(IOrxMessageResponder acceptorSession, ITradingFeed feed, bool errorSupport = false)
+        : base(acceptorSession, TradingVersionInfo.CurrentVersion)
     {
         this.feed = feed;
+        feed.Recycler = new Recycler();
         this.errorSupport = errorSupport;
         orderSessionTracker = new AdapterOrderSessionTracker(Recycler);
 
-        var orxPublisher = messageMessageResponder;
-
-        orxPublisher.DeserializationRepository.RegisterDeserializer<OrxOrderSubmitRequest>(OnSubmit);
-        orxPublisher.DeserializationRepository.RegisterDeserializer<OrxCancelRequest>(OnCancel);
-        orxPublisher.DeserializationRepository.RegisterDeserializer<OrxAmendRequest>(AmendOrder);
+        var orxPublisher = acceptorSession;
 
         orxPublisher.SerializationRepository.RegisterSerializer<OrxStatusMessage>();
         orxPublisher.SerializationRepository.RegisterSerializer<OrxOrderUpdate>();
         orxPublisher.SerializationRepository.RegisterSerializer<OrxOrderAmendResponse>();
         orxPublisher.SerializationRepository.RegisterSerializer<OrxExecutionUpdate>();
         orxPublisher.SerializationRepository.RegisterSerializer<OrxVenueOrderUpdate>();
+        acceptorSession.NewClient += OnNewTradingClientConversation;
 
         feed.FeedStatusUpdate += OnStatus;
-        feed.OrderUpdate += OnOrder;
+        feed.OrderUpdate += OnOrderUpdated;
         feed.OrderAmendResponse += OnAmendOrderResponse;
         feed.Execution += OnExecution;
         feed.VenueOrderUpdated += OnVenueOrder;
+    }
+
+    protected void OnNewTradingClientConversation(IConversationRequester cx)
+    {
+        var clientDecoder = (IOrxResponderStreamDecoder)cx.StreamListener!.Decoder!;
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<OrxOrderSubmitRequest>()
+            .AddDeserializedNotifier(
+                new PassThroughDeserializedNotifier<OrxOrderSubmitRequest>($"{nameof(OrxTradingServer)}.{nameof(OnSubmit)}", OnSubmit));
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<OrxCancelRequest>()
+            .AddDeserializedNotifier(
+                new PassThroughDeserializedNotifier<OrxCancelRequest>($"{nameof(OrxTradingServer)}.{nameof(OnCancel)}", OnCancel));
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<OrxAmendRequest>()
+            .AddDeserializedNotifier(
+                new PassThroughDeserializedNotifier<OrxAmendRequest>($"{nameof(OrxTradingServer)}.{nameof(AmendOrder)}", AmendOrder));
     }
 
     protected override void OnClientRemoved(IConversationRequester client)
@@ -66,14 +82,15 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         orderSessionTracker.ClearAll();
     }
 
-    protected override bool Validate(OrxLogonRequest request, object? context, IConversation? repositorySession)
+    protected override bool Validate(OrxLogonRequest request, MessageHeader messageHeader, IConversation conversation)
     {
-        if (base.Validate(request, context, repositorySession))
+        if (base.Validate(request, messageHeader, conversation))
         {
+            var requestingConversation = (IConversationRequester)conversation;
             var orxUpStatusMessage = Recycler.Borrow<OrxStatusMessage>();
             orxUpStatusMessage.Configure(feed.IsAvailable ? OrxExchangeStatus.Up : OrxExchangeStatus.Down,
                 "general line", Recycler);
-            MessageMessageResponder.Send(repositorySession!, orxUpStatusMessage);
+            requestingConversation.Send(orxUpStatusMessage);
             lock (statuses)
             {
                 foreach (var kv in statuses)
@@ -82,7 +99,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
                     orxStatusMessage.Configure(
                         kv.Value && feed.IsAvailable ? OrxExchangeStatus.Up : OrxExchangeStatus.Down,
                         kv.Key, Recycler);
-                    MessageMessageResponder.Send(repositorySession!, orxStatusMessage);
+                    requestingConversation.Send(orxStatusMessage);
                 }
             }
 
@@ -92,13 +109,13 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         return false;
     }
 
-    private void OnSubmit(OrxOrderSubmitRequest orderSubmitRequest, object? context, IConversation? repositorySession)
+    private void OnSubmit(OrxOrderSubmitRequest orderSubmitRequest, MessageHeader messageHeader, IConversation conversation)
     {
         var id = Interlocked.Increment(ref adapterOrderId).ToString();
         if (!Stopping)
         {
             var orxOrderPublisher = Recycler.Borrow<OrxOrderPublisher>();
-            orxOrderPublisher.Configure(repositorySession!, MessageMessageResponder, errorSupport);
+            orxOrderPublisher.Configure((IConversationRequester)conversation!, AcceptorSession, errorSupport);
             orderSubmitRequest.OrderDetails!.OrderPublisher = orxOrderPublisher;
             orderSubmitRequest.OrderDetails.OrderId.VenueAdapterOrderId = id;
 
@@ -107,31 +124,35 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
             {
                 var orxOrder = Recycler.Borrow<OrxOrder>();
                 orxOrder.CopyFrom(orderSubmitRequest.OrderDetails);
-                orderSessionTracker.RegisterOrderIdWithSession(orxOrder, repositorySession!);
+                orderSessionTracker.RegisterOrderIdWithSession(orxOrder, conversation!);
             }
 
             orxOrderPublisher.DecrementRefCount();
         }
         else
         {
+            var conversationRequester = (IConversationRequester)conversation;
             var orxOrderStatusUpdate = Recycler.Borrow<OrxOrderStatusUpdate>();
             orxOrderStatusUpdate.Configure(orderSubmitRequest.OrderDetails!.OrderId, OrderStatus.Dead,
                 OrderUpdateEventType.Error | OrderUpdateEventType.OrderRejected, Recycler);
-            MessageMessageResponder.Send(repositorySession!, orxOrderStatusUpdate);
+            conversationRequester.Send(orxOrderStatusUpdate);
+            orxOrderStatusUpdate.DecrementRefCount();
         }
     }
 
-    private void AmendOrder(OrxAmendRequest orxAmendRequest, object? context, IConversation? repositorySession)
+    private void AmendOrder(OrxAmendRequest orxAmendRequest, MessageHeader messageHeader, IConversation conversation)
     {
+        var conversationRequester = (IConversationRequester)conversation;
         if (!Stopping)
         {
             var previousOrder = orderSessionTracker.FindOrderFromSessionId(
-                orxAmendRequest.OrderDetails!.OrderId.VenueAdapterOrderId!, repositorySession!);
+                orxAmendRequest.OrderDetails!.OrderId.VenueAdapterOrderId!, conversation!);
             if (previousOrder == null)
             {
                 var orxAmendReject = Recycler.Borrow<OrxAmendReject>();
                 orxAmendReject.Configure();
-                MessageMessageResponder.Send(repositorySession!, orxAmendReject);
+                conversationRequester.Send(orxAmendReject);
+                orxAmendReject.DecrementRefCount();
                 return;
             }
 
@@ -141,11 +162,11 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         {
             var orxAmendReject = Recycler.Borrow<OrxAmendReject>();
             orxAmendReject.Configure();
-            MessageMessageResponder.Send(repositorySession!, orxAmendReject);
+            conversationRequester.Send(orxAmendReject);
         }
     }
 
-    private void OnCancel(OrxCancelRequest message, object? context, IConversation? repositorySession)
+    private void OnCancel(OrxCancelRequest message, MessageHeader messageHeader, IConversation repositorySession)
     {
         var order = orderSessionTracker.FindOrderFromSessionId(message.OrderId!.VenueAdapterOrderId!
             , repositorySession!);
@@ -157,7 +178,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         var orxStatusMessage = Recycler.Borrow<OrxStatusMessage>();
         orxStatusMessage.Configure(feedStatus ? OrxExchangeStatus.Up : OrxExchangeStatus.Down,
             feedName ?? "general line", Recycler);
-        MessageMessageResponder.Broadcast(orxStatusMessage);
+        AcceptorSession.Broadcast(orxStatusMessage);
         if (string.IsNullOrEmpty(feedName))
         {
             if (!feedStatus)
@@ -174,19 +195,22 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         }
     }
 
-    private void OnOrder(IOrderUpdate orderUpdate)
+    private void OnOrderUpdated(IOrderUpdate orderUpdate)
     {
-        if (!orderUpdate.Order!.IsPending() || orderUpdate.Order!.Status == OrderStatus.Unknown)
-            orderSessionTracker.UnregisterOrderWithSession(orderUpdate.Order!);
-
         if (orderUpdate.Order?.OrderPublisher?.UnderlyingSession != null)
         {
-            var orxOrderUpdate = Recycler.Borrow<OrxOrderUpdate>();
-            orxOrderUpdate.CopyFrom(orderUpdate);
-            MessageMessageResponder.Send(orderUpdate.Order.OrderPublisher.UnderlyingSession,
-                orxOrderUpdate);
-            orxOrderUpdate.DecrementRefCount();
+            if (orderUpdate is not OrxOrderUpdate orxOrderUpdate)
+            {
+                orxOrderUpdate = Recycler.Borrow<OrxOrderUpdate>();
+                orxOrderUpdate.CopyFrom(orderUpdate);
+            }
+
+            orderUpdate.Order.OrderPublisher.UnderlyingSession.Send(orxOrderUpdate);
+            if (orderUpdate is not OrxOrderUpdate) orxOrderUpdate.DecrementRefCount();
         }
+
+        if (!orderUpdate.Order!.IsPending() || orderUpdate.Order!.Status == OrderStatus.Unknown)
+            orderSessionTracker.UnregisterOrderWithSession(orderUpdate.Order!);
     }
 
     private void OnAmendOrderResponse(IOrderAmendResponse amendResponse)
@@ -196,11 +220,14 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
 
         if (amendResponse.Order?.OrderPublisher?.UnderlyingSession != null)
         {
-            var orxOrderAmendResponse = Recycler.Borrow<OrxOrderAmendResponse>();
-            orxOrderAmendResponse.CopyFrom(amendResponse);
-            MessageMessageResponder.Send(amendResponse.Order.OrderPublisher.UnderlyingSession,
-                orxOrderAmendResponse);
-            amendResponse.DecrementRefCount();
+            if (amendResponse is not OrxOrderAmendResponse orxOrderAmendResponse)
+            {
+                orxOrderAmendResponse = Recycler.Borrow<OrxOrderAmendResponse>();
+                orxOrderAmendResponse.CopyFrom(amendResponse);
+            }
+
+            amendResponse.Order.OrderPublisher.UnderlyingSession.Send(orxOrderAmendResponse);
+            if (amendResponse is not OrxOrderAmendResponse) orxOrderAmendResponse.DecrementRefCount();
         }
     }
 
@@ -209,9 +236,14 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         var orderSession = orderSessionTracker.FindSessionFromOrderId(venueOrderUpdate.VenueOrder!.OrderId!);
         if (orderSession != null)
         {
-            var orxOrxVenueOrderUpdate = Recycler.Borrow<OrxVenueOrderUpdate>();
-            orxOrxVenueOrderUpdate.CopyFrom(venueOrderUpdate);
-            MessageMessageResponder.Send(orderSession, orxOrxVenueOrderUpdate);
+            if (venueOrderUpdate is not OrxVenueOrderUpdate orxOrxVenueOrderUpdate)
+            {
+                orxOrxVenueOrderUpdate = Recycler.Borrow<OrxVenueOrderUpdate>();
+                orxOrxVenueOrderUpdate.CopyFrom(venueOrderUpdate);
+            }
+
+            orderSession.Send(orxOrxVenueOrderUpdate);
+            if (venueOrderUpdate is not OrxVenueOrderUpdate) orxOrxVenueOrderUpdate.DecrementRefCount();
         }
     }
 
@@ -219,10 +251,15 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
     {
         if (executionUpdate.Execution?.OrderId != null)
         {
+            if (executionUpdate is not OrxExecutionUpdate orxExecutionUpdate)
+            {
+                orxExecutionUpdate = Recycler.Borrow<OrxExecutionUpdate>();
+                orxExecutionUpdate.CopyFrom(executionUpdate);
+            }
+
             var orderSession = orderSessionTracker.FindSessionFromOrderId(executionUpdate.Execution.OrderId);
-            var orxExecutionUpdate = Recycler.Borrow<OrxExecutionUpdate>();
-            orxExecutionUpdate.CopyFrom(executionUpdate);
-            MessageMessageResponder.Send(orderSession!, new OrxExecutionUpdate(executionUpdate));
+            orderSession!.Send(orxExecutionUpdate);
+            if (executionUpdate is not OrxExecutionUpdate) orxExecutionUpdate.DecrementRefCount();
         }
     }
 }

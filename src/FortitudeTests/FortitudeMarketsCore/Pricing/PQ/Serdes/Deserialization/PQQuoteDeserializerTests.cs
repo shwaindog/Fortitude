@@ -7,7 +7,6 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
@@ -101,13 +100,13 @@ public class PQQuoteDeserializerTests
     [TestMethod]
     public void FreshSerializer_DeserializeSnapshot_SyncClientQuoteWithExpected()
     {
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
     }
 
     [TestMethod]
     public void FreshSerializer_DeserializeFullUpdateSequenceId0_SyncClientQuoteWithExpected()
     {
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Update);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Update);
     }
 
     [TestMethod]
@@ -132,7 +131,7 @@ public class PQQuoteDeserializerTests
             new List<uint> { 2 }).First();
 
         quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 4);
-        quoteDeserializerSequencedTestDataBuilder.BuildSerializeContextForQuotes(expectedQuotes, PQFeedType.Update, 4);
+        quoteDeserializerSequencedTestDataBuilder.BuildSerializeContextForQuotes(expectedQuotes, PQMessageFlags.Update, 4);
         SetupMockPublishQuoteIsExpected();
 
         CallDeserializer(snapshotSequence1);
@@ -146,7 +145,7 @@ public class PQQuoteDeserializerTests
     public void InSyncDeserializer_DeserializeOutofOrderUpdateThenMissingIdUpdate_GoesOutOfSyncThenInSyncAgain()
     {
         AssertQuotesAreInSync(false);
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
         AssertQuotesAreInSync();
         AssertPublishCountIs(1);
         SendsSequenceIdFromTo(1, 3, false);
@@ -158,7 +157,7 @@ public class PQQuoteDeserializerTests
 
         quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes
             , 3); // gets PQSequenceId is incremented on serialization to 2
-        quoteDeserializerSequencedTestDataBuilder.BuildSerializeContextForQuotes(expectedQuotes, PQFeedType.Update
+        quoteDeserializerSequencedTestDataBuilder.BuildSerializeContextForQuotes(expectedQuotes, PQMessageFlags.Update
             , 3);
 
         SetupMockPublishQuoteIsExpected();
@@ -174,7 +173,7 @@ public class PQQuoteDeserializerTests
     public void InSyncDeserializer_DeserializeOutofOrderUpdateThenHigherSnapshotId_GoesOutOfSyncThenInSyncAgain()
     {
         AssertQuotesAreInSync(false);
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
         AssertQuotesAreInSync();
         AssertPublishCountIs(1);
         SendsSequenceIdFromTo(3, 3, false);
@@ -195,7 +194,7 @@ public class PQQuoteDeserializerTests
     public void InSyncDeserializer_Timesout_PublishesTimeoutState()
     {
         AssertQuotesAreInSync(false);
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
         AssertDeserializerHasTimedOutAndNeedsSnapshotIs(PQQuoteDeserializationSequencedTestDataBuilder
             .ClientReceivedTimestamp(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(0)), false);
         AssertDeserializerHasTimedOutAndNeedsSnapshotIs(PQQuoteDeserializationSequencedTestDataBuilder
@@ -308,7 +307,7 @@ public class PQQuoteDeserializerTests
     [TestMethod]
     public void OutOfSyncDeserializer_RequestSnapshotReceivesUpdatesUpToBuffer_GoesInSyncPublishesLatestUpdate()
     {
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
 
         SendsSequenceIdFromTo(1, PQQuoteDeserializer<PQLevel0Quote>.MaxBufferedUpdates, false);
 
@@ -336,7 +335,7 @@ public class PQQuoteDeserializerTests
     [TestMethod]
     public void OutOfSyncDeserializer_RequestSnapshotReceivesUpdatesMoreThanBuffer_PublishesNothing()
     {
-        FreshSerializerDeserializeGetsExpected(PQFeedType.Snapshot);
+        FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
 
         SendsSequenceIdFromTo(2, PQQuoteDeserializer<PQLevel0Quote>.MaxBufferedUpdates + 1, false);
 
@@ -423,10 +422,10 @@ public class PQQuoteDeserializerTests
         Assert.AreEqual(expected, l3QuoteSame);
     }
 
-    private void FreshSerializerDeserializeGetsExpected(PQFeedType feedType)
+    private void FreshSerializerDeserializeGetsExpected(PQMessageFlags feedType)
     {
         AssertQuotesAreInSync(false);
-        var batchId = feedType == PQFeedType.Update ? uint.MaxValue : 0u;
+        var batchId = feedType == PQMessageFlags.Update ? uint.MaxValue : 0u;
         quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 0);
         var deserializeInputList = quoteDeserializerSequencedTestDataBuilder
             .BuildSerializeContextForQuotes(expectedQuotes, feedType, batchId);

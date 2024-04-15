@@ -16,13 +16,12 @@ namespace FortitudeMarketsCore.Trading.ORX.Orders.Server;
 
 public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOrderUpdate>
 {
+    private OrxOrder? order;
     public OrxOrderUpdate() { }
 
     public OrxOrderUpdate(IOrderUpdate toClone) : base(toClone)
     {
-        Order = new OrxOrder(toClone.Order!);
-        AdapterUpdateTime = toClone.AdapterUpdateTime;
-        OrderUpdateType = toClone.OrderUpdateType;
+        CopyFrom(toClone);
     }
 
     public OrxOrderUpdate(IOrder order, OrderUpdateEventType reason, DateTime adapterUpdateTime)
@@ -32,7 +31,18 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
         AdapterUpdateTime = adapterUpdateTime;
     }
 
-    [OrxMandatoryField(9)] public OrxOrder? Order { get; set; }
+    [OrxMandatoryField(9)]
+    public OrxOrder? Order
+    {
+        get => order;
+        set
+        {
+            if (value == order) return;
+            value?.IncrementRefCount();
+            order?.DecrementRefCount();
+            order = value;
+        }
+    }
 
     public override uint MessageId => (ushort)TradingMessageIds.OrderUpdate;
 
@@ -52,8 +62,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
     {
         OrderUpdateType = OrderUpdateEventType.Unknown;
         AdapterUpdateTime = DateTimeConstants.UnixEpoch;
-        Order?.DecrementRefCount();
-        Order = null;
+        Order = null; // decremented in setter
         base.StateReset();
     }
 
@@ -71,14 +80,26 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
         return this;
     }
 
-    public IOrderUpdate CopyFrom(IOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        (IOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
+    public IOrderUpdate CopyFrom(IOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        Order = source.Order.CopyOrClone(Order);
+        OrderUpdateType = source.OrderUpdateType;
+        AdapterUpdateTime = source.AdapterUpdateTime;
+        return this;
+    }
 
 
-    public override IOrderUpdate Clone() => (IOrderUpdate?)Recycler?.Borrow<OrxOrderUpdate>().CopyFrom(this) ?? new OrxOrderUpdate(this);
+    public override IOrderUpdate Clone() => Recycler?.Borrow<OrxOrderUpdate>().CopyFrom(this) ?? new OrxOrderUpdate(this);
 
-    public OrxOrderUpdate CopyFrom(OrxOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        (OrxOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
+    public OrxOrderUpdate CopyFrom(OrxOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        Order = source.Order.CopyOrClone(Order);
+        OrderUpdateType = source.OrderUpdateType;
+        AdapterUpdateTime = source.AdapterUpdateTime;
+        return this;
+    }
 
 
     public override string ToString()

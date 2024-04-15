@@ -109,16 +109,16 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
         var sockBuffContext = readContext as SocketBufferReadContext;
         ent.ClientReceivedTime = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
         ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
-        ent.ProcessedTime = sockBuffContext?.DeserializerTimestamp ?? DateTime.Now;
+        ent.ProcessedTime = sockBuffContext?.DeserializerTime ?? DateTime.Now;
         ent.PQSequenceId = sequenceId;
         var offset = readContext.EncodedBuffer!.ReadCursor;
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");
         fixed (byte* fptr = readContext.EncodedBuffer.Buffer)
         {
             var msgHeaderEnd = fptr + offset;
-            var msgSize = readContext.MessageSize;
+            var msgSize = readContext.MessageHeader.MessageSize;
             var end = msgHeaderEnd + msgSize - PQQuoteMessageHeader.HeaderSize;
-            var version = readContext.MessageVersion;
+            var version = readContext.MessageHeader.Version;
             if (version < SupportFromVersion || version > SupportToVersion)
             {
                 logger.Warn("Received unsupported message version {0} will skip processing", version);

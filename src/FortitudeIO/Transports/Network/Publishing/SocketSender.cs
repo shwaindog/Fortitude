@@ -2,6 +2,7 @@
 
 using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
@@ -119,6 +120,7 @@ public sealed class SocketSender : ISocketSender
                     sendLock.Release();
                 }
 
+                var message = encoder.Message;
                 encoder.Serializer!.Serialize(encoder.Message, writeBufferContext);
                 var writtenSize = writeBufferContext.LastWriteLength;
 
@@ -129,6 +131,8 @@ public sealed class SocketSender : ISocketSender
                     encoder.AttemptCount++;
                     break;
                 }
+
+                if (message is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
 
                 MoveNextEncoder(encoder);
             }

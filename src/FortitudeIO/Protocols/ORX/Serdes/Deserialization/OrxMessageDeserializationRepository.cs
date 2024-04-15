@@ -14,7 +14,7 @@ internal class OrxMessageDeserializationRepository : ConversationDeserialization
     public OrxMessageDeserializationRepository(IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
         base(recycler, cascadingFallbackDeserializationRepo) { }
 
-    public override IMessageStreamDecoder Supply() => new OrxMessageStreamDecoder(this);
+    public override IMessageStreamDecoder Supply() => new OrxMessageStreamDecoder(new OrxMessageDeserializationRepository(Recycler, this));
 
     protected override INotifyingMessageDeserializer<TM>? SourceMessageDeserializer<TM>(uint msgId) => new OrxDeserializer<TM>(Recycler, msgId);
 }

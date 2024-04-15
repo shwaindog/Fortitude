@@ -126,12 +126,12 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
             lastTrades[Count] = (IPQLastTrade)newLastTrade;
     }
 
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         for (var i = 0; i < lastTrades.Count; i++)
             if (this[i] is PQLastTrade lastTrade)
-                foreach (var layerFields in lastTrade.GetDeltaUpdateFields(snapShotTime, updateStyle,
+                foreach (var layerFields in lastTrade.GetDeltaUpdateFields(snapShotTime, messageFlags,
                              quotePublicationPrecisionSetting))
                     yield return new PQFieldUpdate((byte)(layerFields.Id + i), layerFields.Value, layerFields.Flag);
     }
@@ -150,10 +150,10 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
         return -1;
     }
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle)
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         if (lastTrades.Any() && lastTrades[0] is IPQSupportsStringUpdates<ILastTrade> firstLastTrade)
-            foreach (var pqLastTradeStringUpdate in firstLastTrade.GetStringUpdates(snapShotTime, updatedStyle))
+            foreach (var pqLastTradeStringUpdate in firstLastTrade.GetStringUpdates(snapShotTime, messageFlags))
                 yield return pqLastTradeStringUpdate;
     }
 

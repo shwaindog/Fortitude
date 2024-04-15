@@ -2,7 +2,6 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion
 
@@ -31,11 +30,11 @@ public static class OrxMessageHeader
         StreamByteOps.ToUShort(bufferContext.EncodedBuffer!.Buffer
             , bufferContext.EncodedBuffer.ReadCursor + MessageSizeOffset);
 
-    public static BasicMessageHeader ReadBasicMessageHeader(this IBufferContext bufferContext)
+    public static MessageHeader ReadBasicMessageHeader(this IBufferContext bufferContext)
     {
         var version = bufferContext.ReadCurrentMessageVersion();
         var messageId = bufferContext.ReadCurrentMessageId();
         var messageSize = bufferContext.ReadCurrentMessageSize();
-        return new BasicMessageHeader(version, messageId, messageSize, bufferContext);
+        return new MessageHeader(version, 0, messageId, messageSize, bufferContext);
     }
 }

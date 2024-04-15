@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -18,7 +17,7 @@ public class PQServerSerializationRepositoryTests
     [TestInitialize]
     public void SetUp()
     {
-        snapshotServerSerializationRepository = new PQServerSerializationRepository(PQFeedType.Snapshot, new Recycler());
+        snapshotServerSerializationRepository = new PQServerSerializationRepository(PQMessageFlags.Snapshot, new Recycler());
     }
 
     [TestMethod]

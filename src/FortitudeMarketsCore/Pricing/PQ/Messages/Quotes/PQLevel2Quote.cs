@@ -142,18 +142,18 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
-        foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, updateStyle,
+        foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      quotePublicationPrecisionSetting))
             yield return updatedField;
-        foreach (var bidFields in bidBook.GetDeltaUpdateFields(snapShotTime, updateStyle,
+        foreach (var bidFields in bidBook.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      quotePublicationPrecisionSetting))
             yield return bidFields;
         foreach (var askField in askBook.GetDeltaUpdateFields(snapShotTime,
-                     updateStyle, quotePublicationPrecisionSetting))
+                     messageFlags, quotePublicationPrecisionSetting))
             yield return new PQFieldUpdate(askField.Id, askField.Value,
                 (byte)(askField.Flag | PQFieldFlags.IsAskSideFlag));
     }
@@ -185,12 +185,12 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     }
 
     public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        UpdateStyle updatedStyle)
+        PQMessageFlags messageFlags)
     {
-        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, updatedStyle))
+        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
             yield return pqFieldStringUpdate;
         // bid and askbook should share same dictionary so just pick either one.
-        foreach (var pqFieldStringUpdate in bidBook.GetStringUpdates(snapShotTime, updatedStyle))
+        foreach (var pqFieldStringUpdate in bidBook.GetStringUpdates(snapShotTime, messageFlags))
             yield return pqFieldStringUpdate;
     }
 

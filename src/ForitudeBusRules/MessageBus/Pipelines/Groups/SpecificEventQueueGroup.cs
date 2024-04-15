@@ -5,6 +5,7 @@ using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
@@ -134,6 +135,8 @@ public class SpecificEventQueueGroup : IEventQueueGroup
 class SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
     , IQueuesConfig queuesConfig) : SpecificEventQueueGroup(owningEventBus, groupType, recycler, queuesConfig)
 {
+    public static IUpdateableTimer timer = new FortitudeCommon.Chronometry.Timers.Timer("Fortitude.BusRules.SocketEventQueueListenerGroup.ThreadPoolTimer");
+
     public override IAsyncValueTaskRingPoller<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
     {
         var ring = new AsyncValueValueTaskPollingRing<Message>(
@@ -141,7 +144,7 @@ class SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType gro
             size,
             () => new Message(),
             ClaimStrategyType.MultiProducers, null, null, false);
-        return new SocketAsyncValueTaskEventQueueListener(ring, noDataPauseTimeoutMs, new SocketSelector(queuesConfig.SelectorPollIntervalMs));
+        return new SocketAsyncValueTaskEventQueueListener(ring, noDataPauseTimeoutMs, new SocketSelector(queuesConfig.SelectorPollIntervalMs), timer);
     }
 }
 

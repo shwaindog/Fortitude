@@ -36,10 +36,9 @@ public class PQServerMessageStreamDecoderTests
     private PQSourceTickerInfoRequestSerializer pqSourceTickerInfoRequestSerializer = null!;
     private ReadWriteBuffer readWriteBuffer = null!;
 
-
-    private Action<PQSnapshotIdsRequest, object?, IConversation?> snapshotIdsResponseCallBack = null!;
+    private ConversationMessageReceivedHandler<PQSnapshotIdsRequest> snapshotIdsResponseCallBack = null!;
     private SocketBufferReadContext socketBufferReadContext = null!;
-    private Action<PQSourceTickerInfoRequest, object?, IConversation?> sourceTickerInfoResponseCallBack = null!;
+    private ConversationMessageReceivedHandler<PQSourceTickerInfoRequest> sourceTickerInfoResponseCallBack = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -74,14 +73,18 @@ public class PQServerMessageStreamDecoderTests
         pqSourceTickerInfoRequestSerializer = new PQSourceTickerInfoRequestSerializer();
 
         pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(new PQServerDeserializationRepository(new Recycler()));
-        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(snapshotIdsResponseCallBack);
-        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer(sourceTickerInfoResponseCallBack);
+        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>()
+            .AddDeserializedNotifier(new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>(
+                $"{nameof(PQServerMessageStreamDecoderTests)}.{nameof(snapshotIdsResponseCallBack)}", snapshotIdsResponseCallBack));
+        pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoRequest>()
+            .AddDeserializedNotifier(new PassThroughDeserializedNotifier<PQSourceTickerInfoRequest>(
+                $"{nameof(PQServerMessageStreamDecoderTests)}.{nameof(sourceTickerInfoResponseCallBack)}", sourceTickerInfoResponseCallBack));
     }
 
     [TestMethod]
     public void NewServerDecoder_New_PropertiesInitializedAsExpected()
     {
-        Assert.AreEqual(10, pqServerMessageStreamDecoder.ExpectedSize);
+        Assert.AreEqual(10U, pqServerMessageStreamDecoder.ExpectedSize);
     }
 
     [TestMethod]

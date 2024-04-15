@@ -173,7 +173,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
             processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.RecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
             var requestResponseSelectionResult = selectionResult.First();
             var destinationEventQueue = requestResponseSelectionResult.EventQueue;
             var destinationRule = requestResponseSelectionResult.Rule;
@@ -197,7 +197,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
             processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.RecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
 
             foreach (var routeResult in selectionResult)
             {

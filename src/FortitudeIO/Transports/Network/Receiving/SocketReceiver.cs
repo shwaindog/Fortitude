@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
@@ -22,6 +23,8 @@ public interface ISocketReceiver : IStreamListener
     IntPtr SocketHandle { get; }
     bool ZeroBytesReadIsDisconnection { get; set; }
     IOSSocket Socket { get; set; }
+
+    IActionTimer? ResponseTimer { get; set; }
     bool Poll(SocketBufferReadContext socketBufferReadContext);
     event Action? Accept;
     void HandleReceiveError(string message, Exception exception);
@@ -81,6 +84,8 @@ public sealed class SocketReceiver : ISocketReceiver
     public bool IsAcceptor => Accept != null;
 
     public IMessageStreamDecoder? Decoder { get; set; }
+
+    public IActionTimer? ResponseTimer { get; set; }
 
     public bool Poll(SocketBufferReadContext socketBufferReadContext)
     {

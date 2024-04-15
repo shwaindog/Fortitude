@@ -15,6 +15,7 @@ namespace FortitudeMarketsCore.Trading.Orders.Server;
 
 public class OrderUpdate : TradingMessage, IOrderUpdate
 {
+    private IOrder? order;
     public OrderUpdate() { }
 
     public OrderUpdate(IOrderUpdate toClone) : base(toClone)
@@ -28,13 +29,25 @@ public class OrderUpdate : TradingMessage, IOrderUpdate
     public OrderUpdate(IOrder order, OrderUpdateEventType orderUpdateType, DateTime adapterUpdateTime)
     {
         Order = order;
+        Order.IncrementRefCount();
         OrderUpdateType = orderUpdateType;
         AdapterUpdateTime = adapterUpdateTime;
     }
 
     public override uint MessageId => (uint)TradingMessageIds.OrderUpdate;
 
-    public IOrder? Order { get; set; }
+    public IOrder? Order
+    {
+        get => order;
+        set
+        {
+            if (value == order) return;
+            value?.IncrementRefCount();
+            order?.DecrementRefCount();
+            order = value;
+        }
+    }
+
     public OrderUpdateEventType OrderUpdateType { get; set; }
     public DateTime AdapterUpdateTime { get; set; }
     public DateTime ClientReceivedTime { get; set; }
@@ -67,9 +80,7 @@ public class OrderUpdate : TradingMessage, IOrderUpdate
     public IOrderUpdate CopyFrom(IOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         (IOrderUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
 
-    public override IOrderUpdate Clone() =>
-        (IOrderUpdate?)Recycler?.Borrow<OrderUpdate>().CopyFrom(this) ?? new OrderUpdate(this);
-
+    public override IOrderUpdate Clone() => Recycler?.Borrow<OrderUpdate>().CopyFrom(this) ?? new OrderUpdate(this);
 
     public override string ToString()
     {

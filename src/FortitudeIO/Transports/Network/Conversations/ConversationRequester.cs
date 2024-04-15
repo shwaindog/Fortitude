@@ -16,6 +16,7 @@ public class ConversationRequester : SocketConversation, IInitiateControls, ICon
 
     public virtual void Send(IVersionedMessage versionedMessage)
     {
+        versionedMessage.IncrementRefCount();
         SocketSessionContext.SocketSender!.Send(versionedMessage);
     }
 

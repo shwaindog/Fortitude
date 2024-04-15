@@ -131,7 +131,7 @@ public class PQConversationRepositoryBaseTests
         Assert.AreSame(socketClient, kvp.Value);
 
         moqSocketBinaryDeserializer.Setup(sbd =>
-            sbd.IsRegistered(It.IsAny<Action<PQLevel0Quote, object, IConversation>>())).Returns(true).Verifiable();
+            sbd.IsRegistered(It.IsAny<ConversationMessageReceivedHandler<PQLevel0Quote>>())).Returns(true).Verifiable();
 
         dummySktSubRegFctryBs.RemoveConversation(moqSocketTopicConnectionConfig.Object);
 

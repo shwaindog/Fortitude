@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
@@ -14,15 +15,17 @@ namespace FortitudeIO.Transports.Network.Dispatcher;
 
 public class SocketsPollerAndDecoding
 {
+    private readonly ActionListTimer actionListTimer;
     protected readonly IFLogger Logger;
     private readonly string name;
     private readonly IPerfLoggerPool receiveSocketDispatcherLatencyTraceLoggerPool;
     private readonly ISocketSelector selector;
     private readonly SocketBufferReadContext socketBufferReadContext = new();
     private readonly ISocketDataLatencyLogger? socketDataLatencyLogger;
+    private readonly List<ITimerCallbackPayload> timerActionsToExecute = new();
     private readonly IIntraOSThreadSignal unpauseSignaller;
 
-    public SocketsPollerAndDecoding(string name, ISocketSelector selector, IIntraOSThreadSignal unpauseSignaller)
+    public SocketsPollerAndDecoding(string name, ISocketSelector selector, IIntraOSThreadSignal unpauseSignaller, ActionListTimer actionListTimer)
     {
         this.name = name;
         this.selector = selector;
@@ -33,6 +36,7 @@ public class SocketsPollerAndDecoding
                 .GetLatencyTracingLoggerPool(name + ".Receive",
                     //  Heartbeats are normally set at 1 second so wait just over 1 second on select.
                     TimeSpan.FromMilliseconds(1100), typeof(ISocketDispatcher));
+        this.actionListTimer = actionListTimer;
         Logger = FLoggerFactory.Instance.GetLogger("FortitudeIO.Transports.Network.Dispatcher.SocketRingPollerListener." + name);
     }
 
@@ -41,6 +45,7 @@ public class SocketsPollerAndDecoding
     public void AddForListen(ISocketReceiver receiver)
     {
         receiver.ListenActive = true;
+        receiver.ResponseTimer = actionListTimer;
         selector.Register(receiver);
         unpauseSignaller.Set();
     }
@@ -50,6 +55,7 @@ public class SocketsPollerAndDecoding
         if (selector.HasRegisteredReceiver(receiver) && selector.CountRegisteredReceivers == 1)
             unpauseSignaller.Reset();
         selector.Unregister(receiver);
+        receiver.ResponseTimer = null;
         if (selector.CountRegisteredReceivers > 0) unpauseSignaller.Set();
     }
 
@@ -87,6 +93,9 @@ public class SocketsPollerAndDecoding
                 }
             }
         }
+
+        actionListTimer.GetTimerActionsToExecute(timerActionsToExecute);
+        foreach (var timerCallbackPayload in timerActionsToExecute) timerCallbackPayload.Invoke();
     }
 
     private void ProcessSocketEvent(ISocketReceiver sockRecr, IPerfLogger detectionToPublishLatencyTraceLogger)

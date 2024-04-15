@@ -1,9 +1,11 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
 using FortitudeMarketsApi.Trading.Orders.Server;
@@ -28,18 +30,30 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
     protected bool HaveReceivedAllExecutions;
     protected bool HaveReceivedAllOrders;
 
-    public OrxHistoricalTradesClient(IOrxMessageRequester messageRequester, string serverName,
-        ILoginCredentials loginCredentials, string defaultAccount)
-        : base(messageRequester, serverName, loginCredentials, defaultAccount)
-    {
-        MessageRequester.SerializationRepository.RegisterSerializer<OrxGetOrderBookMessage>();
-        MessageRequester.SerializationRepository.RegisterSerializer<OrxGetTradeBookMessage>();
+    private IMessageStreamDecoder? messageStreamDecoder;
 
-        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxReplayMessage>(HandleReplayMessage);
-        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxOrdersReceivedComplete>(
-            HandleOrderReplayFinished);
-        MessageRequester.DeserializationRepository.RegisterDeserializer<OrxExecutionsReceivedComplete>(
-            HandleExecutionReplayFinished);
+    public OrxHistoricalTradesClient(IOrxClientRequester clientRequester, string serverName,
+        ILoginCredentials loginCredentials, string defaultAccount)
+        : base(clientRequester, serverName, loginCredentials, defaultAccount)
+    {
+        ClientRequester.SerializationRepository.RegisterSerializer<OrxGetOrderBookMessage>();
+        ClientRequester.SerializationRepository.RegisterSerializer<OrxGetTradeBookMessage>();
+
+        clientRequester.Connected += () =>
+        {
+            ClientRequester.DeserializationRepository.RegisterDeserializer<OrxReplayMessage>()
+                .AddDeserializedNotifier(
+                    new PassThroughDeserializedNotifier<OrxReplayMessage>($"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleReplayMessage)}"
+                        , HandleReplayMessage));
+            ClientRequester.DeserializationRepository.RegisterDeserializer<OrxOrdersReceivedComplete>()
+                .AddDeserializedNotifier(
+                    new PassThroughDeserializedNotifier<OrxOrdersReceivedComplete>(
+                        $"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleOrderReplayFinished)}", HandleOrderReplayFinished));
+            ClientRequester.DeserializationRepository.RegisterDeserializer<OrxExecutionsReceivedComplete>()
+                .AddDeserializedNotifier(
+                    new PassThroughDeserializedNotifier<OrxExecutionsReceivedComplete>(
+                        $"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleExecutionReplayFinished)}", HandleExecutionReplayFinished));
+        };
     }
 
     public event Action<IReplayMessage>? ReplayMessage;
@@ -48,25 +62,25 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
     {
         HaveReceivedAllOrders = false;
         HaveReceivedAllExecutions = false;
-        MessageRequester.Send(new OrxGetOrderBookMessage(DefaultAccount,
+        ClientRequester.Send(new OrxGetOrderBookMessage(DefaultAccount,
             (TimeContext.UtcNow - from).TotalSeconds > 5));
-        MessageRequester.Send(new OrxGetTradeBookMessage(DefaultAccount));
+        ClientRequester.Send(new OrxGetTradeBookMessage(DefaultAccount));
     }
 
     public event Action<IOrderUpdate>? OnPastOrder;
     public event Action<IExecutionUpdate>? OnPastExecution;
 
-    private void HandleReplayMessage(OrxReplayMessage update, object? context, IConversation? cx)
+    private void HandleReplayMessage(OrxReplayMessage update, MessageHeader messageHeader, IConversation cx)
     {
         if (update.ReplayMessageType == ReplayMessageType.PastOrder)
-            HandleOrderReplay(update.PastOrder!, context, cx);
+            HandleOrderReplay(update.PastOrder!, messageHeader, cx);
         else if (update.ReplayMessageType == ReplayMessageType.PastOrder)
-            HandleExecutionReplay(update.PastExecutionUpdate!, context, cx);
+            HandleExecutionReplay(update.PastExecutionUpdate!, messageHeader, cx);
 
         OnReplayMessage(update);
     }
 
-    private void HandleOrderReplay(OrxOrderUpdate update, object? context, IConversation? cx)
+    private void HandleOrderReplay(OrxOrderUpdate update, MessageHeader messageHeader, IConversation cx)
     {
         var order = new Order(update.Order!);
 
@@ -78,7 +92,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         }
     }
 
-    private void HandleOrderReplayFinished(OrxOrdersReceivedComplete orxOrder, object? context, IConversation? cx)
+    private void HandleOrderReplayFinished(OrxOrdersReceivedComplete orxOrder, MessageHeader messageHeader, IConversation cx)
     {
         HaveReceivedAllOrders = true;
         PublishPastOrdersAndExecutions(HaveReceivedAllExecutions);
@@ -118,7 +132,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         }
     }
 
-    private void HandleExecutionReplay(OrxExecutionUpdate update, object? context, IConversation? cx)
+    private void HandleExecutionReplay(OrxExecutionUpdate update, MessageHeader messageHeader, IConversation cx)
     {
         lock (PastExecutions)
         {
@@ -136,7 +150,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         }
     }
 
-    private void HandleExecutionReplayFinished(OrxOrdersReceivedComplete orxOrder, object? context, IConversation? cx)
+    private void HandleExecutionReplayFinished(OrxOrdersReceivedComplete orxOrder, MessageHeader messageHeader, IConversation cx)
     {
         HaveReceivedAllExecutions = true;
         PublishPastOrdersAndExecutions(HaveReceivedAllOrders);

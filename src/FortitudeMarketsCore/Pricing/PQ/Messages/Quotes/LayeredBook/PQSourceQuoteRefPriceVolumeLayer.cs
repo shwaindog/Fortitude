@@ -77,11 +77,11 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         return 0;
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
-        foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, updateStyle,
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsSourceQuoteReferenceUpdated)

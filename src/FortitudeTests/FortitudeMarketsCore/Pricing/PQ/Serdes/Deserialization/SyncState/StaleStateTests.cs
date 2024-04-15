@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 using Moq;
@@ -23,7 +22,7 @@ public class StaleStateTests : InSyncStateTests
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, uint.MaxValue);
+            PQMessageFlags.Update, uint.MaxValue);
         var sockBuffContext = deserializeInputList.First();
 
         SetupQuoteStreamDeserializerExpectations();

@@ -128,11 +128,11 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (updateStyle & UpdateStyle.Updates) > 0;
-        foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, updateStyle,
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
         if (!updatedOnly || IsTraderNameUpdated)
@@ -154,11 +154,11 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
     }
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        UpdateStyle updatedStyle)
+        PQMessageFlags messageFlags)
     {
         if (TraderNameIdLookup is IPQNameIdLookupGenerator pqNameIdLookupGenerator)
             foreach (var stringUpdate in pqNameIdLookupGenerator.GetStringUpdates(snapShotTime,
-                         updatedStyle))
+                         messageFlags))
                 yield return stringUpdate;
     }
 

@@ -1,6 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarketsApi.Trading;
 using FortitudeMarketsApi.Trading.Executions;
 using FortitudeMarketsApi.Trading.Orders;
@@ -19,9 +21,19 @@ namespace FortitudeMarketsCore.Trading;
 
 public class TradingFeedHandle : ITradingFeed
 {
+    // ReSharper disable once UnusedMember.Local
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingFeedHandle));
+
+    private IRecycler? recycler;
     public IOrder? LastReceivedOrder { get; private set; }
 
     public string? User { get; set; }
+
+    public IRecycler Recycler
+    {
+        get => recycler ?? new Recycler();
+        set => recycler = value;
+    }
 
     public void Dispose()
     {
@@ -30,19 +42,22 @@ public class TradingFeedHandle : ITradingFeed
 
     public void CancelOrder(IOrder order)
     {
-        var updatedOrder = new Order(order) { Status = OrderStatus.Cancelling };
+        var updatedOrder = Recycler.Borrow<Order>().CopyFrom(order);
+        updatedOrder.Status = OrderStatus.Dead;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderCancelled, TimeContext.UtcNow));
     }
 
     public void SuspendOrder(IOrder order)
     {
-        var updatedOrder = new Order(order) { Status = OrderStatus.Frozen };
+        var updatedOrder = Recycler.Borrow<Order>().CopyFrom(order);
+        updatedOrder.Status = OrderStatus.Frozen;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderPaused, TimeContext.UtcNow));
     }
 
     public void ResumeOrder(IOrder order)
     {
-        var updatedOrder = new Order(order) { Status = OrderStatus.Active };
+        var updatedOrder = Recycler.Borrow<Order>().CopyFrom(order);
+        updatedOrder.Status = OrderStatus.Active;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderResumed, TimeContext.UtcNow));
     }
 
@@ -60,7 +75,7 @@ public class TradingFeedHandle : ITradingFeed
     public void SubmitOrderRequest(IOrderSubmitRequest submitRequest)
     {
         submitRequest.OrderDetails!.Status = OrderStatus.Active;
-        var orderUpdate = submitRequest.Recycler!.Borrow<OrderUpdate>();
+        var orderUpdate = Recycler.Borrow<OrderUpdate>();
         orderUpdate.Order = submitRequest.OrderDetails;
         orderUpdate.OrderUpdateType = OrderUpdateEventType.OrderAcknowledged;
         orderUpdate.AdapterUpdateTime = TimeContext.UtcNow;
@@ -72,7 +87,7 @@ public class TradingFeedHandle : ITradingFeed
     public void AmendOrderRequest(IOrder order, IOrderAmend amendOrderRequest)
     {
         order.Product!.ApplyAmendment(amendOrderRequest);
-        var amendResponse = order.Recycler!.Borrow<OrxOrderAmendResponse>();
+        var amendResponse = Recycler.Borrow<OrxOrderAmendResponse>();
         amendResponse.Order = (OrxOrder)order;
         amendResponse.OrderUpdateType = OrderUpdateEventType.OrderAmended;
         amendResponse.AdapterUpdateTime = TimeContext.UtcNow;
@@ -82,24 +97,24 @@ public class TradingFeedHandle : ITradingFeed
         LastReceivedOrder = order.Clone();
     }
 
-    public virtual void OnVenueOrder(IVenueOrderUpdate obj)
+    public virtual void OnVenueOrder(IVenueOrderUpdate venueOrderUpdate)
     {
-        VenueOrderUpdated?.Invoke(obj);
+        VenueOrderUpdated?.Invoke(venueOrderUpdate);
     }
 
-    public virtual void OnExecution(IExecutionUpdate obj)
+    public virtual void OnExecution(IExecutionUpdate executionUpdate)
     {
-        Execution?.Invoke(obj);
+        Execution?.Invoke(executionUpdate);
     }
 
-    public virtual void OnOrderAmendResponse(IOrderAmendResponse obj)
+    public virtual void OnOrderAmendResponse(IOrderAmendResponse orderAmendResponse)
     {
-        OrderAmendResponse?.Invoke(obj);
+        OrderAmendResponse?.Invoke(orderAmendResponse);
     }
 
-    public virtual void OnOrderUpdate(IOrderUpdate obj)
+    public virtual void OnOrderUpdate(IOrderUpdate orderUpdate)
     {
-        OrderUpdate?.Invoke(obj);
+        OrderUpdate?.Invoke(orderUpdate);
     }
 
     public virtual void OnStatusUpdate(string arg1, bool arg2)

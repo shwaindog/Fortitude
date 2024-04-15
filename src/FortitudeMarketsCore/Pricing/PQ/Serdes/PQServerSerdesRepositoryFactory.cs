@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
@@ -9,7 +10,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes;
 
-public class PQServerSerdesRepositoryFactory(PQFeedType feedType, IRecycler? serializationRecycler = null,
+public class PQServerSerdesRepositoryFactory(PQMessageFlags feedType, IRecycler? serializationRecycler = null,
         IRecycler? deserializationRecycler = null, IMessageSerializationRepository? coalescingFallbackPQQuoteSerializerRepository = null,
         IPQClientQuoteDeserializerRepository? coalescingFallbackPQQuoteDeserializerRepository = null)
     : IMessageSerdesRepositoryFactory

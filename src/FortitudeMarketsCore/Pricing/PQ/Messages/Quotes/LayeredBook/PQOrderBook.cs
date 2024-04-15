@@ -144,13 +144,13 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         base.StateReset();
     }
 
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, UpdateStyle updateStyle,
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         for (var i = 0; i < AllLayers.Count; i++)
             if (this[i] is { } currentLayer)
                 foreach (var layerFields in currentLayer.GetDeltaUpdateFields(snapShotTime,
-                             updateStyle, quotePublicationPrecisionSetting))
+                             messageFlags, quotePublicationPrecisionSetting))
                 {
                     var positionUpdate = new PQFieldUpdate((ushort)(layerFields.Id + i), layerFields.Value
                         , layerFields.Flag);
@@ -181,12 +181,12 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     }
 
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, UpdateStyle updatedStyle)
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         if (AllLayers.Count <= 0) yield break;
         // All layers share same dictionary or should do anyway
         if (!(this[0] is IPQSupportsStringUpdates<IPriceVolumeLayer> stringUpdateable)) yield break;
-        foreach (var stringUpdate in stringUpdateable.GetStringUpdates(snapShotTime, updatedStyle))
+        foreach (var stringUpdate in stringUpdateable.GetStringUpdates(snapShotTime, messageFlags))
             yield return stringUpdate;
     }
 

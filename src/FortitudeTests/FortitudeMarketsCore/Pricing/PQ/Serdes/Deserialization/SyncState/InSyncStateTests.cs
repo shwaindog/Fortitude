@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsCore.Pricing.PQ;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 using Moq;
@@ -24,9 +23,9 @@ public class InSyncStateTests : SyncStateBaseTests
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
         //can received the same update twice.
-        SendUpdateSequenceId(0, PQFeedType.Update);
-        SendUpdateSequenceId(1, PQFeedType.Update);
-        SendUpdateSequenceId(1, PQFeedType.Update);
+        SendUpdateSequenceId(0, PQMessageFlags.Update);
+        SendUpdateSequenceId(1, PQMessageFlags.Update);
+        SendUpdateSequenceId(1, PQMessageFlags.Update);
 
         InSyncUpdate_ProcessUnsyncedUpdateMessageInPast_LogsAnomaly();
     }
@@ -35,13 +34,13 @@ public class InSyncStateTests : SyncStateBaseTests
     public override void NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 2);
+            PQMessageFlags.Update, 2);
         var sockBuffContext = deserializeInputList.First();
 
         DesersializerPqLevel0Quote.PQSequenceId = 4;
 
         var sockBuffContextDeserializerTimestamp = new DateTime(2017, 09, 23, 19, 47, 32);
-        sockBuffContext.DeserializerTimestamp = sockBuffContextDeserializerTimestamp;
+        sockBuffContext.DeserializerTime = sockBuffContextDeserializerTimestamp;
 
         MoqFlogger.Setup(fl => fl.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, " +
                                        "RecvSeqID={3}, WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
@@ -108,7 +107,7 @@ public class InSyncStateTests : SyncStateBaseTests
         MoqFlogger.Verify();
     }
 
-    private void SendUpdateSequenceId(uint sequenceId, PQFeedType feedType)
+    private void SendUpdateSequenceId(uint sequenceId, PQMessageFlags feedType)
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
             feedType, sequenceId);
@@ -122,13 +121,13 @@ public class InSyncStateTests : SyncStateBaseTests
     private void InSyncUpdate_ProcessUnsyncedUpdateMessageInPast_LogsAnomaly()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Snapshot, 8);
+            PQMessageFlags.Snapshot, 8);
         var sockBuffContext = deserializeInputList.First();
         syncState.ProcessInState(sockBuffContext);
 
         SendPqLevel0Quote.HasUpdates = true;
         deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQFeedType.Update, 4);
+            PQMessageFlags.Update, 4);
         sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info("Sequence anomaly ignored on stream {0}, PrevSeqID={1}, RecvSeqID={2}",

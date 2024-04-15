@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -12,6 +13,7 @@ using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
@@ -63,7 +65,7 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
 
         var socFactories = SocketFactories;
 
-        var serdesFactory = new PQServerSerdesRepositoryFactory(PQFeedType.Snapshot);
+        var serdesFactory = new PQServerSerdesRepositoryFactory(PQMessageFlags.Snapshot);
 
         var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
             networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory
@@ -81,17 +83,23 @@ public sealed class PQSnapshotServer : ConversationResponder, IPQSnapshotServer
     {
         var clientSocketReceiver = (ISocketReceiver)newClient.StreamListener!;
         var clientDecoder = (IPQServerMessageStreamDecoder)clientSocketReceiver.Decoder!;
-        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>(OnSnapshotIdsRequest);
-        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoRequest>(OnSourceTickerInfoRequest);
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>()
+            .AddDeserializedNotifier(
+                new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>($"{nameof(PQSnapshotServer)}.{nameof(OnSnapshotIdsRequest)}"
+                    , OnSnapshotIdsRequest));
+        clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoRequest>()
+            .AddDeserializedNotifier(
+                new PassThroughDeserializedNotifier<PQSourceTickerInfoRequest>($"{nameof(PQSnapshotServer)}.{nameof(OnSourceTickerInfoRequest)}"
+                    , OnSourceTickerInfoRequest));
         logger.Info($"New PQSnapshot Client Request {newClient}");
     }
 
-    private void OnSnapshotIdsRequest(PQSnapshotIdsRequest snapshotIdsRequest, object? header, IConversation? cx)
+    private void OnSnapshotIdsRequest(PQSnapshotIdsRequest snapshotIdsRequest, MessageHeader messageHeader, IConversation cx)
     {
         OnSnapshotRequest?.Invoke((cx as IConversationRequester)!, snapshotIdsRequest);
     }
 
-    private void OnSourceTickerInfoRequest(PQSourceTickerInfoRequest snapshotIdsRequest, object? header, IConversation? cx)
+    private void OnSourceTickerInfoRequest(PQSourceTickerInfoRequest snapshotIdsRequest, MessageHeader messageHeader, IConversation cx)
     {
         logger.Info("PQSnapshot Server received request for SourceTickerQuotInfo");
         ReceivedSourceTickerInfoRequest?.Invoke((cx as IConversationRequester)!);

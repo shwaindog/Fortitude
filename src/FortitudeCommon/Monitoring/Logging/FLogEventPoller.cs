@@ -32,7 +32,7 @@ internal class FLogEventPoller : IEnumerableBatchPollSink<FLogEvent>, IRingPolle
 
     public void Dispose()
     {
-        ringPoller.Dispose();
+        ringPoller.ForceStop();
     }
 
     public void Stop()
