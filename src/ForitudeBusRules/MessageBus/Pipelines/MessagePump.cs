@@ -2,10 +2,12 @@
 
 using FortitudeBusRules.MessageBus.Messages;
 using FortitudeBusRules.MessageBus.Messages.ListeningSubscriptions;
+using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -18,6 +20,9 @@ public interface IMessagePump
 {
     bool IsListeningOn(string address);
     IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address);
+
+    event Action<QueueEventTime> MessageStartProcessingTime;
+    event Action<QueueEventTime> MessageFinishProcessingTime;
 }
 
 public class MessagePump : IMessagePump
@@ -45,6 +50,18 @@ public class MessagePump : IMessagePump
     public bool IsRunning => ringPoller.IsRunning;
 
     public int UsageCount => ringPoller.UsageCount;
+
+    public event Action<QueueEventTime>? MessageStartProcessingTime
+    {
+        add => ringPoller.QueueEntryStart += value;
+        remove => ringPoller.QueueEntryStart -= value;
+    }
+
+    public event Action<QueueEventTime>? MessageFinishProcessingTime
+    {
+        add => ringPoller.QueueEntryStart += value;
+        remove => ringPoller.QueueEntryStart -= value;
+    }
 
     public bool IsListeningOn(string address) => listenerRegistry.IsListeningOn(address);
 
@@ -87,6 +104,12 @@ public class MessagePump : IMessagePump
                 {
                     var actionBody = ((PayLoad<Action>)data.PayLoad!).Body!;
                     actionBody();
+                    break;
+                }
+                case MessageType.QueueParamsExecutionPayload:
+                {
+                    var actionBody = (IInvokeablePayload)data.PayLoad!.BodyObj!;
+                    actionBody?.Invoke();
                     break;
                 }
                 case MessageType.TimerPayload:

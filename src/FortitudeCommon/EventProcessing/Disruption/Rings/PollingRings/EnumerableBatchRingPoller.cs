@@ -26,7 +26,6 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
     private readonly int timeoutMs;
     private volatile bool isRunning;
     private IRecycler? recycler;
-    private IOSThread? ringPollingThread;
     private Action? threadStartInitialization;
 
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -55,6 +54,11 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
         get => recycler ??= new Recycler();
         set => recycler = value;
     }
+
+    public IOSThread? ExecutingThread { get; private set; }
+
+    public event Action<QueueEventTime>? QueueEntryStart;
+    public event Action<QueueEventTime>? QueueEntryComplete;
 
     public void Dispose()
     {
@@ -86,10 +90,10 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
             {
                 threadStartInitialization = threadStartInitialize ?? threadStartInitialization;
                 isRunning = true;
-                ringPollingThread = osParallelController.CreateNewOSThread(ThreadStart);
-                ringPollingThread.IsBackground = true;
-                ringPollingThread.Name = Name;
-                ringPollingThread.Start();
+                ExecutingThread = osParallelController.CreateNewOSThread(ThreadStart);
+                ExecutingThread.IsBackground = true;
+                ExecutingThread.Name = Name;
+                ExecutingThread.Start();
             }
         }
     }
@@ -100,12 +104,14 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
         {
             isRunning = false;
             are.Set();
-            ringPollingThread?.Join();
+            ExecutingThread?.Join();
             foreach (var data in Ring)
                 try
                 {
+                    QueueEntryStart?.Invoke(new QueueEventTime(Ring.CurrentSequence, DateTime.UtcNow));
                     Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch
                         , Ring.EndOfBatch);
+                    QueueEntryComplete?.Invoke(new QueueEventTime(Ring.CurrentSequence, DateTime.UtcNow));
                 }
                 catch (Exception ex)
                 {

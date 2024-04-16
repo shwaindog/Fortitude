@@ -38,7 +38,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ReusableValueTaskSource<T>));
 
-    public static int AfterGetResultRecycleInstanceMs = 10_000;
+    public static int AfterGetResultRecycleInstanceMs = 60_000;
     private static readonly Action<IAsyncResponseSource?> DecrementUsageAction = DecrementUsage;
     private static readonly Action<Task<T>, object?> CheckTaskComplete = CheckAsTaskComplete;
     private static readonly Action<ReusableValueTaskSource<T>?> CheckTaskCompleteAgain = CheckAsTaskCompleteAgain;
@@ -142,7 +142,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
                 SetException(e);
             }
         else
-            awaitingValueTask.AsTask().ContinueWith((task, result) =>
+            awaitingValueTask.ToTask().ContinueWith((task, result) =>
             {
                 try
                 {

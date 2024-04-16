@@ -43,7 +43,14 @@ public abstract class SocketStreamControls : IStreamControls
         if (alternativeExecutionContext == null)
             return ImmediateConnectAsync(timeoutTimeSpan);
         else
-            return alternativeExecutionContext.Execute(ImmediateConnectAsync, timeoutTimeSpan);
+            try
+            {
+                return alternativeExecutionContext.Execute(ImmediateConnectAsync, timeoutTimeSpan);
+            }
+            finally
+            {
+                alternativeExecutionContext.DecrementRefCount();
+            }
     }
 
     public virtual ValueTask<bool>

@@ -70,7 +70,7 @@ public class TargetSpecificSelectionStrategyTests
         secondResultSet.Add(secondRouteSelectionResult);
         targetSpecificSelectionStrategy = new TargetSpecificSelectionStrategy(new Recycler());
 
-        allQueues = new EventQueueGroupContainer(new Mock<IEventBus>().Object, new[]
+        allQueues = new EventQueueGroupContainer(new Mock<IConfigureEventBus>().Object, new[]
         {
             moqFirstEventQueue.Object, moqSecondEventQueue.Object
         });

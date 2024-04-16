@@ -15,6 +15,9 @@ public interface IAsyncValueTaskPollingRing<T> : ITaskCallbackPollingRing<T> whe
     Func<T, bool> InterceptHandler { get; set; }
     ValueTaskProcessEvent<T> ProcessEvent { get; set; }
     ValueTask<long> Poll();
+
+    event Action<QueueEventTime> QueueEntryStart;
+    event Action<QueueEventTime> QueueEntryComplete;
 }
 
 public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> where T : class, ICanCarryTaskCallbackPayload
@@ -64,6 +67,9 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
 
     public Func<T, bool> InterceptHandler { get; set; }
 
+    public event Action<QueueEventTime>? QueueEntryStart;
+    public event Action<QueueEventTime>? QueueEntryComplete;
+
     public long Claim()
     {
         var sequence = claimStrategy.Claim();
@@ -87,25 +93,30 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
             readAheadCursor = currentSequence;
             try
             {
+                QueueEntryStart?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
                 if (datum.IsTaskCallbackItem)
                 {
                     datum.InvokeTaskCallback();
+                    QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
                     CheckConsumerShouldMoveForward(currentSequence);
                     return currentSequence;
                 }
 
                 if (InterceptHandler(datum))
                 {
+                    QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
                     CheckConsumerShouldMoveForward(currentSequence);
                     return currentSequence;
                 }
 
                 var completedSequenceId = await ProcessEvent(currentSequence, datum);
+                QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
                 CheckConsumerShouldMoveForward(completedSequenceId);
                 return completedSequenceId;
             }
             catch (Exception ex)
             {
+                QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
                 Logger.Error("Unhandled exception will attempt to recover. Got {0}", ex);
                 CheckConsumerShouldMoveForward(currentSequence);
             }
