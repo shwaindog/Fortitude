@@ -5,7 +5,6 @@ using FortitudeBusRules.MessageBus.Pipelines;
 using FortitudeBusRules.MessageBus.Pipelines.Timers;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
-using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -26,7 +25,7 @@ public class EventContext : IEventContext
         RegisteredOn = registeredOn;
         EventBus = eventBus;
         PooledRecycler = pooledRecycler ?? new Recycler();
-        Timer = new QueueTimer(new Timer(), this);
+        Timer = new QueueTimer(new UpdateableTimer(), this);
     }
 
     public IEventQueue RegisteredOn { get; }

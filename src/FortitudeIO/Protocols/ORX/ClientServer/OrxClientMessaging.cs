@@ -23,8 +23,8 @@ public class OrxClientMessaging : ConversationRequester, IOrxClientRequester
 
     private IOrxResponderStreamDecoder? messageStreamDecoder;
 
-    protected OrxClientMessaging(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
-        : base(socketSessionContext, initiateControls)
+    protected OrxClientMessaging(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
+        : base(socketSessionContext, streamControls)
     {
         var orxSerdesRepoFactory = (IOrxSerdesRepositoryFactory)socketSessionContext.SerdesFactory;
 
@@ -63,9 +63,8 @@ public class OrxClientMessaging : ConversationRequester, IOrxClientRequester
             , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 
-        var initControls
-            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
+        var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new OrxClientMessaging(socketSessionContext, initControls);
+        return new OrxClientMessaging(socketSessionContext, streamControls);
     }
 }

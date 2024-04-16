@@ -53,8 +53,8 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
     private ISourceTickerQuoteInfoRepo? sourceTickerQuoteInfoRepo;
     private ITimerCallbackSubscription? timerSubscription;
 
-    public PQSnapshotClient(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
-        : base(socketSessionContext, initiateControls)
+    public PQSnapshotClient(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
+        : base(socketSessionContext, streamControls)
     {
         logger = FLoggerFactory.Instance.GetLogger(typeof(PQSnapshotClient));
         parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
@@ -149,10 +149,11 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
         }
     }
 
-    public override void Connect()
+    public override bool Connect()
     {
-        base.Connect();
+        var result = base.Connect();
         EnableTimeout();
+        return result;
     }
 
     private void ReceivedSourceTickerInfoResponse(PQSourceTickerInfoResponse sourceTickerInfoResponse, MessageHeader messageHeader
@@ -183,10 +184,9 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
             , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 
-        var initControls
-            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
+        var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new PQSnapshotClient(socketSessionContext, initControls);
+        return new PQSnapshotClient(socketSessionContext, streamControls);
     }
 
     private void SendQueuedRequests()
@@ -230,7 +230,7 @@ public sealed class PQSnapshotClient : ConversationRequester, IPQSnapshotClient
 
     private void TimeoutConnection(object state, bool timedOut)
     {
-        if (timedOut) ((IInitiateControls?)SocketSessionContext.StreamControls)?.Disconnect();
+        if (timedOut) SocketSessionContext.StreamControls?.Disconnect();
     }
 
     private void OnReceivedMessage()

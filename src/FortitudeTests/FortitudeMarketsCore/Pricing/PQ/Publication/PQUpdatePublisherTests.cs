@@ -22,7 +22,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 [TestClass]
 public class PQUpdatePublisherTests
 {
-    private Mock<IInitiateControls> moqInitiatorControls = null!;
     private Mock<IMessageSerializationRepository> moqMessageSerializationRepo = null!;
     private Mock<ISocketSessionContext> moqNewClientContext = null!;
     private Mock<IOSNetworkingController> moqNeworkingController = null!;
@@ -36,6 +35,7 @@ public class PQUpdatePublisherTests
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
+    private Mock<IStreamControls> moqStreamControls = null!;
     private PQUpdatePublisher pqUpdatePublisher = null!;
 
     [TestInitialize]
@@ -52,7 +52,7 @@ public class PQUpdatePublisherTests
         moqSocketDispatcher = new Mock<ISocketDispatcher>();
         moqSocket = new Mock<IOSSocket>();
         moqSocketDispatcherListener = new Mock<ISocketDispatcherListener>();
-        moqInitiatorControls = new Mock<IInitiateControls>();
+        moqStreamControls = new Mock<IStreamControls>();
         moqNewClientContext = new Mock<ISocketSessionContext>();
         moqSocketConnection = new Mock<ISocketConnection>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
@@ -88,7 +88,7 @@ public class PQUpdatePublisherTests
             , SocketConversationProtocol.TcpAcceptor, "PQUpdatePublisherTests", socketConConfig
             , moqSocketFactories.Object, moqSerdesFactory.Object);
 
-        pqUpdatePublisher = new PQUpdatePublisher(socketSessionContext, moqInitiatorControls.Object);
+        pqUpdatePublisher = new PQUpdatePublisher(socketSessionContext, moqStreamControls.Object);
     }
 
     [TestCleanup]

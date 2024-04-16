@@ -29,7 +29,7 @@ public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo
     public int MaxNumberOfCalls { get; set; }
     public bool IsPaused { get; set; }
     public bool IsFinished => CurrentNumberOfCalls >= MaxNumberOfCalls;
-    public System.Threading.Timer RegisteredTimer { get; set; } = null!;
+    public Timer RegisteredTimer { get; set; } = null!;
 
     public int CompareTo(TimerCallBackRunInfo? other)
     {
@@ -76,7 +76,7 @@ public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo
         LastRunTime = DateTime.MaxValue;
         LastRunTime = DateTime.MaxValue;
         NextScheduleTime = DateTime.MaxValue;
-        IntervalPeriodTimeSpan = Timer.MaxTimerSpan;
+        IntervalPeriodTimeSpan = UpdateableTimer.MaxTimerSpan;
         base.StateReset();
     }
 

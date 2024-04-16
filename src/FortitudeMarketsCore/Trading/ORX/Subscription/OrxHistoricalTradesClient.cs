@@ -30,8 +30,6 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
     protected bool HaveReceivedAllExecutions;
     protected bool HaveReceivedAllOrders;
 
-    private IMessageStreamDecoder? messageStreamDecoder;
-
     public OrxHistoricalTradesClient(IOrxClientRequester clientRequester, string serverName,
         ILoginCredentials loginCredentials, string defaultAccount)
         : base(clientRequester, serverName, loginCredentials, defaultAccount)

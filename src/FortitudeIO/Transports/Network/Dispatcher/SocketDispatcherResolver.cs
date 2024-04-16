@@ -4,7 +4,6 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Receiving;
-using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -21,7 +20,7 @@ public class SimpleSocketDispatcherResolver : ISocketDispatcherResolver
     private ISocketDispatcher dispatcher;
 
     public SimpleSocketDispatcherResolver(ISocketDispatcher dispatcher) => this.dispatcher = dispatcher;
-    public IUpdateableTimer RealTimer { get; set; } = new Timer("SimpleSocketDispatcher");
+    public IUpdateableTimer RealTimer { get; set; } = new UpdateableTimer("SimpleSocketDispatcher");
 
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) => dispatcher;
 }
@@ -44,7 +43,7 @@ public class PoolSocketDispatcherResolver : ISocketDispatcherResolver
         this.senderSelector = senderSelector;
     }
 
-    public IUpdateableTimer RealTimer { get; set; } = new Timer("PoolSocketDispatcher");
+    public IUpdateableTimer RealTimer { get; set; } = new UpdateableTimer("PoolSocketDispatcher");
 
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) =>
         new SocketDispatcher(listenerSelector(pooledListeners),
@@ -94,7 +93,7 @@ public class SingletonSocketDispatcherResolver : ISocketDispatcherResolver
         }
     }
 
-    public IUpdateableTimer RealTimer { get; set; } = new Timer("SingletonSocketDispatcher");
+    public IUpdateableTimer RealTimer { get; set; } = new UpdateableTimer("SingletonSocketDispatcher");
 
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) =>
         singletonDispatcher ??= new SocketDispatcher(

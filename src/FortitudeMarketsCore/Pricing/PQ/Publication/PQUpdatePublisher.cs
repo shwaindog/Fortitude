@@ -20,8 +20,8 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
 {
     private static ISocketFactoryResolver? socketFactories;
 
-    public PQUpdatePublisher(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls) : base(socketSessionContext
-        , initiateControls) { }
+    public PQUpdatePublisher(ISocketSessionContext socketSessionContext, IStreamControls streamControls) : base(socketSessionContext
+        , streamControls) { }
 
     public static ISocketFactoryResolver SocketFactories
     {
@@ -46,8 +46,8 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
             , socketDispatcherResolver);
         socketSessionContext.Name += "Publisher";
 
-        var initiateControls = new InitiateControls(socketSessionContext);
+        var streamControls = new InitiateControls(socketSessionContext);
 
-        return new PQUpdatePublisher(socketSessionContext, initiateControls);
+        return new PQUpdatePublisher(socketSessionContext, streamControls);
     }
 }

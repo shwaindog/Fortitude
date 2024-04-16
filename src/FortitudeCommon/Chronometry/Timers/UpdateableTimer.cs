@@ -9,7 +9,7 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-public class Timer : IUpdateableTimer
+public class UpdateableTimer : IUpdateableTimer
 {
     public const uint MaxTimerMs = uint.MaxValue - 1;
     private static int totalTimers;
@@ -21,19 +21,19 @@ public class Timer : IUpdateableTimer
     private readonly string name;
     private readonly List<TimerCallBackRunInfo> oneOffCallbacks = new();
     private readonly ISyncLock oneOffSpinLock = new SpinLockLight();
-    private readonly System.Threading.Timer oneOffTimer;
+    private readonly Timer oneOffTimer;
     private readonly IRecycler recycler;
     private int instanceNum;
     private bool isDead;
     private DateTime nextOneOffTimerTickDateTime = DateTime.MinValue;
     private volatile bool pauseAll;
 
-    public Timer(string? name = "Unnamed-Timer")
+    public UpdateableTimer(string? name = "Unnamed-Timer")
     {
         instanceNum = Interlocked.Increment(ref totalTimers);
         this.name = name + "-" + instanceNum;
         recycler = new Recycler();
-        oneOffTimer = new System.Threading.Timer(OneOffTimerTicker, this, Timeout.Infinite, Timeout.Infinite);
+        oneOffTimer = new Timer(OneOffTimerTicker, this, Timeout.Infinite, Timeout.Infinite);
     }
 
     public static ITimer Instance
@@ -43,7 +43,7 @@ public class Timer : IUpdateableTimer
             if (instance == null)
                 lock (SyncLock)
                 {
-                    instance ??= new Timer();
+                    instance ??= new UpdateableTimer();
                 }
 
             return instance;
@@ -67,8 +67,7 @@ public class Timer : IUpdateableTimer
         }
     }
 
-    private DateTime NextScheduledOneOffTimerTick =>
-        NextScheduledOneOffTimerCallBackRunInfo?.NextScheduleTime ?? DateTime.MaxValue;
+    private DateTime NextScheduledOneOffTimerTick => NextScheduledOneOffTimerCallBackRunInfo?.NextScheduleTime ?? DateTime.MaxValue;
 
     private TimerCallBackRunInfo? FirstOneOffTimerCallBackRunInfo
     {
@@ -160,14 +159,11 @@ public class Timer : IUpdateableTimer
     public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class =>
         RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
 
-    public ITimerUpdate RunIn(int waitMs, object? state, WaitCallback callback) =>
-        RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
+    public ITimerUpdate RunIn(int waitMs, object? state, WaitCallback callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
 
-    public ITimerUpdate RunEvery(int intervalMs, WaitCallback callback) =>
-        RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+    public ITimerUpdate RunEvery(int intervalMs, WaitCallback callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
 
-    public ITimerUpdate RunEvery(int intervalMs, Action callback) =>
-        RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+    public ITimerUpdate RunEvery(int intervalMs, Action callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
 
     public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class =>
         RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
@@ -175,8 +171,7 @@ public class Timer : IUpdateableTimer
     public ITimerUpdate RunEvery(int intervalMs, object? state, WaitCallback callback) =>
         RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
 
-    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, WaitCallback callback) =>
-        RunEvery(periodTimeSpan, null, callback);
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, WaitCallback callback) => RunEvery(periodTimeSpan, null, callback);
 
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback)
     {
@@ -184,7 +179,7 @@ public class Timer : IUpdateableTimer
         var timerCallBack
             = GetActionIntervalTimerRunInfo(periodTimeSpan, callback);
         var intervalTimer
-            = new System.Threading.Timer(IntervalTimerTicker, timerCallBack, periodTimeSpan, periodTimeSpan);
+            = new Timer(IntervalTimerTicker, timerCallBack, periodTimeSpan, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
         var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
@@ -200,7 +195,7 @@ public class Timer : IUpdateableTimer
         var timerCallBack
             = GetActionStateIntervalTimerRunInfo(periodTimeSpan, callback, state);
         var intervalTimer
-            = new System.Threading.Timer(IntervalTimerTicker, timerCallBack, periodTimeSpan, periodTimeSpan);
+            = new Timer(IntervalTimerTicker, timerCallBack, periodTimeSpan, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
         var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
@@ -216,7 +211,7 @@ public class Timer : IUpdateableTimer
         var timerCallBack
             = GetWaitCallbackIntervalTimerRunInfo(periodTimeSpan, callback, state);
         var intervalTimer
-            = new System.Threading.Timer(IntervalTimerTicker, timerCallBack, periodTimeSpan, periodTimeSpan);
+            = new Timer(IntervalTimerTicker, timerCallBack, periodTimeSpan, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
         var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();

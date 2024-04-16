@@ -22,7 +22,6 @@ public class PQUpdateClientTests
     private Mock<IPQClientMessageStreamDecoder> moqClientMessageStreamDecoder = null!;
     private Mock<IPQClientQuoteDeserializerRepository> moqDeserializationRepo = null!;
     private Mock<IFLogger> moqFlogger = null!;
-    private Mock<IInitiateControls> moqInitiateControls = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
@@ -31,6 +30,7 @@ public class PQUpdateClientTests
     private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
+    private Mock<IStreamControls> moqStreamControls = null!;
 
     private PQUpdateClient pqUpdateClient = null!;
     private string testHostName = null!;
@@ -40,7 +40,7 @@ public class PQUpdateClientTests
     public void SetUp()
     {
         moqFlogger = new Mock<IFLogger>();
-        moqInitiateControls = new Mock<IInitiateControls>();
+        moqStreamControls = new Mock<IStreamControls>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
         moqParallelController = new Mock<IOSParallelController>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
@@ -76,7 +76,7 @@ public class PQUpdateClientTests
         moqSerdesFactory.SetupGet(sf => sf.MessageDeserializationRepository).Returns(moqDeserializationRepo.Object);
         moqSerdesFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(moqSerializationRepo.Object);
 
-        pqUpdateClient = new PQUpdateClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
+        pqUpdateClient = new PQUpdateClient(moqSocketSessionContext.Object, moqStreamControls.Object);
     }
 
     [TestCleanup]

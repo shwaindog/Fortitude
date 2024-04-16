@@ -1,8 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
-using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -56,7 +56,7 @@ public class ReusableValueTaskSourceTests
         decimalReusableValueTaskSource.AutoRecycleAtRefCountZero = true;
         decimalReusableValueTaskSource.Recycler = recycler;
         Assert.AreEqual(1, decimalReusableValueTaskSource.RefCount);
-        var threadPoolTimer = new Timer();
+        var threadPoolTimer = new UpdateableTimer();
         decimalReusableValueTaskSource.ResponseTimeoutAndRecycleTimer = threadPoolTimer;
         ReusableValueTaskSource<decimal>.AfterGetResultRecycleInstanceMs = 10;
 
@@ -81,7 +81,7 @@ public class ReusableValueTaskSourceTests
         objectReusableValueTaskSource.AutoRecycleAtRefCountZero = true;
         objectReusableValueTaskSource.Recycler = recycler;
         Assert.AreEqual(1, objectReusableValueTaskSource.RefCount);
-        var threadPoolTimer = new Timer();
+        var threadPoolTimer = new UpdateableTimer();
         objectReusableValueTaskSource.ResponseTimeoutAndRecycleTimer = threadPoolTimer;
         ReusableValueTaskSource<object>.AfterGetResultRecycleInstanceMs = 10;
 

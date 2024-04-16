@@ -42,6 +42,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     private static readonly Action<IAsyncResponseSource?> DecrementUsageAction = DecrementUsage;
     private static readonly Action<Task<T>, object?> CheckTaskComplete = CheckAsTaskComplete;
     private static readonly Action<ReusableValueTaskSource<T>?> CheckTaskCompleteAgain = CheckAsTaskCompleteAgain;
+    private static readonly Action<ReusableValueTaskSource<T>?> ResponseTimedOut = SetResponseTimedOut;
     private static readonly Action<IAsyncResponseSource?> RecycleReusableValueTaskSource = RecycleCompleted;
 
     private static readonly Action<Task<T>> ResetTaskAction;
@@ -86,7 +87,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
 
     public IActionTimer? ResponseTimeoutAndRecycleTimer { get; set; }
 
-    public TimeSpan ResponseTimeout { get; set; }
+    public TimeSpan? ResponseTimeout { get; set; }
 
     private bool ShouldPerformRecycle => Interlocked.CompareExchange(ref shouldRecycle, 1, 0) == 0;
 
@@ -112,7 +113,17 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
                 SetException(e);
             }
         else
-            throw new ArgumentException("Expected awaitingTask to be completed");
+            awaitingTask.ContinueWith((task, result) =>
+            {
+                try
+                {
+                    TrySetResult(task.Result);
+                }
+                catch (Exception e)
+                {
+                    SetException(e);
+                }
+            }, null);
     }
 
     public void TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask)
@@ -131,7 +142,17 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
                 SetException(e);
             }
         else
-            throw new ArgumentException("Expected awaitingValueTask to be completed");
+            awaitingValueTask.AsTask().ContinueWith((task, result) =>
+            {
+                try
+                {
+                    TrySetResult(task.Result);
+                }
+                catch (Exception e)
+                {
+                    SetException(e);
+                }
+            }, null);
     }
 
     public Task<T> AsTask
@@ -218,7 +239,16 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         , ValueTaskSourceOnCompletedFlags flags) =>
         Core.OnCompleted(continuation, state, token, flags);
 
-    public event Action<IReusableAsyncResponseSource<T>> ResponseTimeOut;
+    public void SetResponseTimeout(TimeSpan responseTimeout, IActionTimer? actionTimer)
+    {
+        var resolvedActionTimer = ResponseTimeoutAndRecycleTimer ?? actionTimer;
+        if (resolvedActionTimer != null) resolvedActionTimer.RunIn(responseTimeout, this, ResponseTimedOut);
+    }
+
+    private static void SetResponseTimedOut(ReusableValueTaskSource<T>? taskTimeOut)
+    {
+        taskTimeOut?.SetException(new ValueTaskTimeoutException("Timeout exceeded!"));
+    }
 
     private static void RecycleCompleted(IAsyncResponseSource? toRecycle)
     {

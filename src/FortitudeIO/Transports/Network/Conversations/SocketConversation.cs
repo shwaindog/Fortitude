@@ -113,7 +113,7 @@ public class SocketConversation : ISocketConversation
         SocketSessionContext.StreamControls?.Stop();
     }
 
-    public virtual void Connect() => SocketSessionContext.StreamControls?.Connect();
+    public virtual bool Connect() => SocketSessionContext.StreamControls?.Connect() ?? false;
 
     public void Disconnect() => SocketSessionContext.StreamControls?.Disconnect();
 
