@@ -132,10 +132,13 @@ public class SpecificEventQueueGroup : IEventQueueGroup
     public bool Contains(IEventQueue item) => eventQueues.Contains(item);
 }
 
-class SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
-    , IQueuesConfig queuesConfig) : SpecificEventQueueGroup(owningEventBus, groupType, recycler, queuesConfig)
+class SocketEventQueueListenerGroup : SpecificEventQueueGroup
 {
-    public static IUpdateableTimer timer = new FortitudeCommon.Chronometry.Timers.Timer("Fortitude.BusRules.SocketEventQueueListenerGroup.ThreadPoolTimer");
+    public static IUpdateableTimer timer = new UpdateableTimer("Fortitude.BusRules.SocketEventQueueListenerGroup.ThreadPoolTimer");
+    public SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+        , IQueuesConfig queuesConfig) : base(owningEventBus, groupType, recycler, queuesConfig)
+    {
+    }
 
     public override IAsyncValueTaskRingPoller<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)
     {
@@ -144,7 +147,7 @@ class SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType gro
             size,
             () => new Message(),
             ClaimStrategyType.MultiProducers, null, null, false);
-        return new SocketAsyncValueTaskEventQueueListener(ring, noDataPauseTimeoutMs, new SocketSelector(queuesConfig.SelectorPollIntervalMs), timer);
+        return new SocketAsyncValueTaskEventQueueListener(ring, noDataPauseTimeoutMs, new SocketSelector(QueuesConfig.SelectorPollIntervalMs), timer);
     }
 }
 

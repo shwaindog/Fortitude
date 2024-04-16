@@ -26,7 +26,6 @@ public interface IAcceptorControls : IStreamControls
 
 public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 {
-    private readonly ISocketSessionContext acceptorSocketSessionContext;
     private readonly ISyncLock clientsSync = new YieldLockLight();
     private readonly ISyncLock connSync = new YieldLockLight();
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TcpAcceptorControls));
@@ -35,11 +34,8 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
     // ReSharper disable once FieldCanBeMadeReadOnly.Local
     private Dictionary<int, IConversationRequester> clients = new();
 
-    public TcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext) : base(acceptorSocketSessionContext)
-    {
-        this.acceptorSocketSessionContext = acceptorSocketSessionContext;
+    public TcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext) : base(acceptorSocketSessionContext) =>
         socketFactory = acceptorSocketSessionContext.SocketFactoryResolver.SocketFactory!;
-    }
 
     public event Action<IConversationRequester>? NewClient;
 
@@ -50,58 +46,19 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         get { return clients.ToDictionary(kvp => kvp.Key, kvp => kvp.Value); }
     }
 
-    public override void Connect()
+    public override bool Connect()
     {
-        connSync.Acquire();
-        try
-        {
-            if (acceptorSocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
-                acceptorSocketSessionContext.SocketSessionState == SocketSessionState.Connecting) return;
-            acceptorSocketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
-            var connConfig = acceptorSocketSessionContext.NetworkTopicConnectionConfig;
-            foreach (var socketConConfig in connConfig)
-                try
-                {
-                    logger.Info("Starting publisher {0} @{1}",
-                        acceptorSocketSessionContext.Name, socketConConfig.Port);
+        if (ConnectAttemptSucceeded()) return true;
 
-                    var listeningSocket = socketFactory.Create(acceptorSocketSessionContext.NetworkTopicConnectionConfig
-                        , socketConConfig);
-
-                    var localEndPointIp = listeningSocket.RemoteOrLocalIPEndPoint()!;
-                    acceptorSocketSessionContext.OnConnected(new SocketConnection(connConfig.TopicName
-                        , acceptorSocketSessionContext.ConversationType,
-                        listeningSocket, localEndPointIp.Address, socketConConfig.Port));
-                    acceptorSocketSessionContext.SocketReceiver!.ZeroBytesReadIsDisconnection = false;
-
-                    logger.Info("Publisher {0} {1}@{2} started",
-                        acceptorSocketSessionContext.Name, localEndPointIp.Address, socketConConfig.Port);
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    logger.Error("Failed to open socket for {0}. Got {1}", connConfig, ex);
-                }
-
-            if (acceptorSocketSessionContext.SocketConnection?.IsConnected ?? false)
-            {
-                acceptorSocketSessionContext.SocketReceiver!.Accept += OnCxAccept;
-                StartMessaging();
-            }
-            else
-            {
-                OnSessionFailure("Could not connect to configured IP or port.  Is another process already connected?");
-            }
-        }
-        finally
-        {
-            connSync.Release();
-        }
+        OnSessionFailure(
+            $"'Could not connect to configured IP or port.  Is another process already connected?. " +
+            $"Topic.Name: '{SocketSessionContext.NetworkTopicConnectionConfig.TopicName}'");
+        return false;
     }
 
     public override void OnSessionFailure(string reason)
     {
-        var connConfig = acceptorSocketSessionContext.NetworkTopicConnectionConfig;
+        var connConfig = SocketSessionContext.NetworkTopicConnectionConfig;
         logger.Error("Failed to communicate TCP Acceptor socket for Topic.Name: {0}. " +
                      "Will not attempt reconnect.  Reason {1}", connConfig.TopicName, reason);
     }
@@ -111,13 +68,13 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         connSync.Acquire();
         try
         {
-            if (acceptorSocketSessionContext.SocketSessionState != SocketSessionState.Connected ||
-                !(acceptorSocketSessionContext.SocketReceiver?.IsAcceptor ?? false)) return;
+            if (SocketSessionContext.SocketSessionState != SocketSessionState.Connected ||
+                !(SocketSessionContext.SocketReceiver?.IsAcceptor ?? false)) return;
 
-            acceptorSocketSessionContext.OnDisconnecting();
+            SocketSessionContext.OnDisconnecting();
             StopMessaging();
-            logger.Info("Stopping publisher {0} @{1}", acceptorSocketSessionContext.Name,
-                acceptorSocketSessionContext.SocketConnection!.ConnectedPort);
+            logger.Info("Stopping publisher {0} @{1}", SocketSessionContext.Name,
+                SocketSessionContext.SocketConnection!.ConnectedPort);
             clientsSync.Acquire();
             try
             {
@@ -139,14 +96,14 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 clientsSync.Release();
             }
 
-            acceptorSocketSessionContext.SocketReceiver.Accept -= OnCxAccept;
-            Unregister(acceptorSocketSessionContext);
-            acceptorSocketSessionContext.SocketConnection.OSSocket.Close();
+            SocketSessionContext.SocketReceiver.Accept -= OnCxAccept;
+            Unregister(SocketSessionContext);
+            SocketSessionContext.SocketConnection.OSSocket.Close();
 
-            logger.Info("Publisher {0} @{0} stopped", acceptorSocketSessionContext.Name,
-                acceptorSocketSessionContext.SocketConnection.ConnectedPort);
+            logger.Info("Publisher {0} @{1} stopped", SocketSessionContext.Name,
+                SocketSessionContext.SocketConnection.ConnectedPort);
 
-            acceptorSocketSessionContext.OnDisconnected();
+            SocketSessionContext.OnDisconnected();
         }
         finally
         {
@@ -156,7 +113,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 
     public void RemoveClient(IConversationRequester clientRequester)
     {
-        if (acceptorSocketSessionContext.SocketSessionState != SocketSessionState.Disconnecting)
+        if (SocketSessionContext.SocketSessionState != SocketSessionState.Disconnecting)
         {
             Unregister(clientRequester);
             try
@@ -212,18 +169,66 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         }
     }
 
+    protected override bool ConnectAttemptSucceeded()
+    {
+        connSync.Acquire();
+        try
+        {
+            if (SocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
+                SocketSessionContext.SocketSessionState == SocketSessionState.Connecting) return true;
+            SocketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
+            var connConfig = SocketSessionContext.NetworkTopicConnectionConfig;
+            foreach (var socketConConfig in connConfig)
+                try
+                {
+                    logger.Info("Starting publisher {0} @{1}",
+                        SocketSessionContext.Name, socketConConfig.Port);
+
+                    var listeningSocket = socketFactory.Create(SocketSessionContext.NetworkTopicConnectionConfig
+                        , socketConConfig);
+
+                    var localEndPointIp = listeningSocket.RemoteOrLocalIPEndPoint()!;
+                    SocketSessionContext.OnConnected(new SocketConnection(connConfig.TopicName
+                        , SocketSessionContext.ConversationType,
+                        listeningSocket, localEndPointIp.Address, socketConConfig.Port));
+                    SocketSessionContext.SocketReceiver!.ZeroBytesReadIsDisconnection = false;
+
+                    logger.Info("Publisher {0} {1}@{2} started",
+                        SocketSessionContext.Name, localEndPointIp.Address, socketConConfig.Port);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Failed to open socket for {0}. Got {1}", connConfig, ex);
+                }
+
+            if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
+            {
+                SocketSessionContext.SocketReceiver!.Accept += OnCxAccept;
+                StartMessaging();
+                return true;
+            }
+        }
+        finally
+        {
+            connSync.Release();
+        }
+
+        return false;
+    }
+
     private void OnCxAccept()
     {
         try
         {
-            if (acceptorSocketSessionContext.SocketSessionState != SocketSessionState.Disconnecting)
+            if (SocketSessionContext.SocketSessionState != SocketSessionState.Disconnecting)
             {
-                var client = RegisterSocketAsTcpRequesterConversation(acceptorSocketSessionContext.SocketReceiver!
+                var client = RegisterSocketAsTcpRequesterConversation(SocketSessionContext.SocketReceiver!
                     .AcceptClientSocketRequest());
                 var clientIpEndPoint = client.SocketConnection!.OSSocket.RemoteOrLocalIPEndPoint();
                 logger.Info("Client {0} ({1}) connected to server {2} @{3}",
-                    client.Id, clientIpEndPoint, acceptorSocketSessionContext.Name,
-                    acceptorSocketSessionContext.SocketConnection!.ConnectedPort);
+                    client.Id, clientIpEndPoint, SocketSessionContext.Name,
+                    SocketSessionContext.SocketConnection!.ConnectedPort);
                 var clientStreamInitiator = new TcpAcceptedClientControls(client);
                 var clientRequester = new ConversationRequester(client, clientStreamInitiator);
                 clientRequester.Disconnected += () => RemoveClient(clientRequester);
@@ -248,36 +253,36 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         catch (Exception ex)
         {
             logger.Error("Error while connecting client from server {0} @{1}: {2}"
-                , acceptorSocketSessionContext.Name,
-                acceptorSocketSessionContext.SocketConnection!.ConnectedPort, ex);
+                , SocketSessionContext.Name,
+                SocketSessionContext.SocketConnection!.ConnectedPort, ex);
         }
     }
 
     private void Unregister(ISocketSessionContext clientSocketSessionContext)
     {
-        acceptorSocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(clientSocketSessionContext
+        SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(clientSocketSessionContext
             .SocketReceiver!);
     }
 
     private void Unregister(IConversationRequester clientRequester)
     {
-        acceptorSocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(clientRequester
+        SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(clientRequester
             .StreamListener!);
     }
 
     private ISocketSessionContext RegisterSocketAsTcpRequesterConversation(IOSSocket socket)
     {
-        var clientNetworkTopicConnectionConfig = acceptorSocketSessionContext.NetworkTopicConnectionConfig.ToggleProtocolDirection();
+        var clientNetworkTopicConnectionConfig = SocketSessionContext.NetworkTopicConnectionConfig.ToggleProtocolDirection();
         socket.SendBufferSize = clientNetworkTopicConnectionConfig.SendBufferSize;
         socket.ReceiveBufferSize = clientNetworkTopicConnectionConfig.ReceiveBufferSize;
 
         var socketSessionConnection = new SocketSessionContext(ConversationType.Requester,
-            SocketConversationProtocol.TcpClient, acceptorSocketSessionContext.Name,
+            SocketConversationProtocol.TcpClient, SocketSessionContext.Name,
             clientNetworkTopicConnectionConfig,
-            acceptorSocketSessionContext.SocketFactoryResolver, acceptorSocketSessionContext.SerdesFactory);
+            SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory);
         var ipEndPoint = socket.RemoteOrLocalIPEndPoint()!;
         socketSessionConnection.OnConnected(new SocketConnection(
-            acceptorSocketSessionContext.SocketConnection!.InstanceName,
+            SocketSessionContext.SocketConnection!.InstanceName,
             socketSessionConnection.ConversationType,
             socket, ipEndPoint.Address, (ushort)ipEndPoint.Port));
         return socketSessionConnection;

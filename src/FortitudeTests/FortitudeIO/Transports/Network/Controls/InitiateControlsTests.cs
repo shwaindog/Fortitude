@@ -179,19 +179,51 @@ public class InitiateControlsTests
     public void Unconnected_CallsStartAsync_DispatchesConnectOnBackgroundThreadImmediately()
     {
         ConnectMoqSetup();
+        moqSocketReconnectConfig.Reset();
+        SetupConnectionExceptionDisconnect();
         moqParallelControler.Setup(pc => pc.CallFromThreadPool(It.IsAny<WaitCallback>()))
-            .Callback<WaitCallback>(waitCallback => waitCallback(new object())).Verifiable();
-        moqSocketSessionContext.SetupSequence(ssc => ssc.SocketSessionState)
-            .Returns(SocketSessionState.New)
-            .Returns(SocketSessionState.New)
-            .Returns(SocketSessionState.New)
-            .Returns(SocketSessionState.Connecting);
-        moqSocketSessionContext.SetupSequence(ssc => ssc.SocketConnection)
-            .Returns(null as ISocketConnection)
-            .Returns(null as ISocketConnection)
-            .Returns(moqSocketConnection.Object);
+            .Callback<WaitCallback>(waitCallback =>
+            {
+                moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
+                waitCallback(new object());
+            }).Verifiable();
 
-        initiateControls.StartAsync();
+        moqParallelControler
+            .Setup(pc =>
+                pc.ScheduleWithEarlyTrigger(It.IsAny<WaitOrTimerCallback>(), It.IsAny<uint>(), It.IsAny<bool>()))
+            .Callback<WaitOrTimerCallback, uint, bool>((waitCallback, waitTime, _) =>
+            {
+                moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(false);
+                waitCallback(new object(), false);
+            })
+            .Returns(moqIntraOsThreadSignal.Object).Verifiable();
+        moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true).Verifiable();
+        moqSocketFactory.SetupSequence(sf => sf.Create(It.IsAny<INetworkTopicConnectionConfig>(),
+                It.IsAny<IEndpointConfig>()))
+            .Returns(() => throw new Exception("Connection failure"))
+            .Returns(() => throw new Exception("Connection failure"))
+            .Returns(moqOsSocket.Object);
+        moqSocketSessionContext.SetupSequence(ssc => ssc.SocketSessionState)
+            .Returns(SocketSessionState.New) // connect check is connected
+            .Returns(SocketSessionState.New) // schedule reconnect check
+            .Returns(SocketSessionState.Reconnecting) // connect check is connected
+            .Returns(SocketSessionState.Reconnecting) // schedule reconnect check
+            .Returns(SocketSessionState.Reconnecting) // connect check is connected
+            .Returns(SocketSessionState.Connected);
+        moqSocketSessionContext.SetupSequence(ssc => ssc.SocketConnection)
+            .Returns(null as ISocketConnection) // connect check is connected
+            .Returns(null as ISocketConnection) // post connect check
+            .Returns(null as ISocketConnection) // disconnect
+            .Returns(null as ISocketConnection) // schedule reconnect
+            .Returns(null as ISocketConnection) // connect check is connected
+            .Returns(null as ISocketConnection) // post connect check
+            .Returns(null as ISocketConnection) // disconnect
+            .Returns(null as ISocketConnection) // schedule reconnect
+            .Returns(null as ISocketConnection) // connect check is connected
+            .Returns(moqSocketConnection.Object);
+        moqSocketReconnectConfig.SetupSequence(src => src.NextReconnectIntervalMs).Returns(0).Returns(1);
+
+        initiateControls.Connect();
 
         moqParallelControler.Verify();
         moqSocketSessionContext.Verify();
@@ -215,7 +247,7 @@ public class InitiateControlsTests
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true).Verifiable();
         moqSocketReconnectConfig.SetupSet(src => src.NextReconnectIntervalMs = It.IsAny<uint>()).Verifiable();
 
-        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2} accepted", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2}:{3} accepted", It.IsAny<object[]>())).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.OnConnected(It.IsAny<SocketConnection>())).Verifiable();
         moqDispatcher.Setup(sd => sd.Start(It.IsAny<Action>())).Verifiable();
     }

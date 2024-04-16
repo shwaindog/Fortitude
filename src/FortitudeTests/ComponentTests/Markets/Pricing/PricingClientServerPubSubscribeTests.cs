@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
@@ -23,7 +24,6 @@ using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
-using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
@@ -38,7 +38,7 @@ public class PricingClientServerPubSubscribeTests
     private const string TestTicker = "EUR/USD";
     private const ushort TickerId = 1;
 
-    private static readonly IFLogger logger =
+    private static readonly IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(typeof(PricingClientServerPubSubscribeTests));
 
     private ISocketDispatcherResolver clientDispatcherResolver = null!;
@@ -85,7 +85,7 @@ public class PricingClientServerPubSubscribeTests
             new MarketConnectionConfigRepository(marketConnectionConfig);
         networkingController = new OSNetworkingController();
         hbSender = new PQServerHeartBeatSender();
-        var threadPoolTimer = new Timer("Test");
+        var threadPoolTimer = new UpdateableTimer("Test");
         serverDispatcherResolver = new SimpleSocketDispatcherResolver(new SocketDispatcher(
             new SimpleSocketAsyncValueTaskRingPollerListener("PQServer", 1
                 , new SocketSelector(1, networkingController), threadPoolTimer),
@@ -112,7 +112,7 @@ public class PricingClientServerPubSubscribeTests
     [TestMethod]
     public void Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields()
     {
-        logger.Info("Starting Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
+        Logger.Info("Starting Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
         var autoResetEvent = new AutoResetEvent(false);
         var pqServer = new PQServer<PQLevel2Quote>(marketConnectionConfig, hbSender, serverDispatcherResolver
@@ -122,7 +122,7 @@ public class PricingClientServerPubSubscribeTests
         pqPublisher.RegisterTickersWithServer(marketConnectionConfig);
         var sourcePriceQuote = GenerateL2QuoteWithSourceNameLayer();
 
-        logger.Info("Started PQServer");
+        Logger.Info("Started PQServer");
         // logger.Info("About to publish first quote {0}" sourcePriceQuote);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 
@@ -133,7 +133,7 @@ public class PricingClientServerPubSubscribeTests
         var availableSourceTickers = pqClient.RequestSourceTickerForSource(ExchangeName);
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
-            logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
+            Logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
             if (infos.Any(stqi => stqi.Source == sourceTickerQuoteInfo.Source &&
                                   stqi.Ticker == sourceTickerQuoteInfo.Ticker)) autoResetEvent.Set();
         };
@@ -142,26 +142,26 @@ public class PricingClientServerPubSubscribeTests
         streamSubscription!.Subscribe(
             pQuote =>
             {
-                logger.Info("Client Received pQuote {0}", pQuote);
+                Logger.Info("Client Received pQuote {0}", pQuote);
                 alwaysUpdatedQuote = ConvertPQToLevel2QuoteWithSourceNameLayer(pQuote);
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });
-        logger.Info("Started PQClient and subscribed");
+        Logger.Info("Started PQClient and subscribed");
 
         var count = 0;
         while ((alwaysUpdatedQuote == null || alwaysUpdatedQuote.SinglePrice == 0m) &&
                count++ < 10) // depending on pub subscribe first quote may be empty
         {
-            logger.Info("Awaiting first non-empty quote as alwaysUpdateQuote is {0}.", alwaysUpdatedQuote);
+            Logger.Info("Awaiting first non-empty quote as alwaysUpdateQuote is {0}.", alwaysUpdatedQuote);
             autoResetEvent.WaitOne(3_000);
         }
 
         Assert.IsNotNull(alwaysUpdatedQuote);
-        logger.Info("Received first update {0}", alwaysUpdatedQuote);
+        Logger.Info("Received first update {0}", alwaysUpdatedQuote);
         var destinationSnapshot = alwaysUpdatedQuote!.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
-        logger.Info("First diff.");
-        logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
+        Logger.Info("First diff.");
+        Logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
 
         ResetL2QuoteLayers(sourcePriceQuote);
@@ -169,19 +169,19 @@ public class PricingClientServerPubSubscribeTests
         NonPublicInvocator.SetAutoPropertyInstanceField(sourcePriceQuote,
             (Level2PriceQuote pq) => pq.AdapterSentTime, new DateTime(2015, 08, 15, 11, 36, 13));
         // adapter becomes sourceTime on Send
-        logger.Info("About to publish second empty quote. {0}", sourcePriceQuote);
+        Logger.Info("About to publish second empty quote. {0}", sourcePriceQuote);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
         autoResetEvent.WaitOne(3_000); // 20 ms seems to work expand wait time if errors
-        logger.Info("Received second update {0}", alwaysUpdatedQuote);
+        Logger.Info("Received second update {0}", alwaysUpdatedQuote);
         pqClient.Dispose();
         pqPublisher.Dispose();
         destinationSnapshot = alwaysUpdatedQuote.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
-        logger.Info("Second diff.");
-        logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
+        Logger.Info("Second diff.");
+        Logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
         autoResetEvent.WaitOne(3_000);
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
-        logger.Info("Finished Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
+        Logger.Info("Finished Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
         //FLoggerFactory.GracefullyTerminateProcessLogging();
         pqServer.Dispose();
         pqClient.Dispose();
@@ -225,7 +225,7 @@ public class PricingClientServerPubSubscribeTests
         var availableSourceTickers = pqClient.RequestSourceTickerForSource(ExchangeName);
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
-            logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
+            Logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
             if (infos.Any(stqi => stqi.Source == sourceTickerQuoteInfo.Source &&
                                   stqi.Ticker == sourceTickerQuoteInfo.Ticker)) autoResetEvent.Set();
         };

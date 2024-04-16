@@ -2,21 +2,20 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
-using Timer = FortitudeCommon.Chronometry.Timers.Timer;
 
 #endregion
 
 namespace FortitudeTests.FortitudeCommon.Chronometry.Timers;
 
 [TestClass]
-public class TimerTests
+public class UpdateableTimerTests
 {
     private Action actionCallback = null!;
     private volatile int actionCallbackCounter;
     private AutoResetEvent actionCallbackResetEvent = null!;
     private volatile int nonNullStateWaitCallbackCounter;
     private volatile int nullStateWaitCallbackCounter;
-    private Timer timer = null!;
+    private UpdateableTimer updateableTimer = null!;
     private WaitCallback waitCallback = null!;
     private AutoResetEvent waitCallbackResetEvent = null!;
 
@@ -41,34 +40,34 @@ public class TimerTests
             Interlocked.Increment(ref actionCallbackCounter);
             actionCallbackResetEvent.Set();
         };
-        timer = new Timer();
+        updateableTimer = new UpdateableTimer();
     }
 
     [TestCleanup]
     public void TearDown()
     {
-        timer.StopAllTimers();
+        updateableTimer.StopAllTimers();
     }
 
     [TestMethod]
     public void RunInExecutesExpectedNumberOfCallbacks()
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
-        var statelessWaitUpdate = timer.RunIn(20, waitCallback);
+        var statelessWaitUpdate = updateableTimer.RunIn(20, waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
         Assert.AreEqual(1, statelessWaitUpdate.RefCount);
         Assert.AreEqual(true, statelessWaitUpdate.IsFinished);
 
         Assert.AreEqual(0, actionCallbackCounter);
-        var actionCallbackUpdate = timer.RunIn(20, actionCallback);
+        var actionCallbackUpdate = updateableTimer.RunIn(20, actionCallback);
         actionCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(1, actionCallbackCounter);
         Assert.AreEqual(1, actionCallbackUpdate.RefCount);
         Assert.AreEqual(true, actionCallbackUpdate.IsFinished);
 
         Assert.AreEqual(0, nonNullStateWaitCallbackCounter);
-        var stateWaitUpdate = timer.RunIn(20, new object(), waitCallback);
+        var stateWaitUpdate = updateableTimer.RunIn(20, new object(), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(1, nonNullStateWaitCallbackCounter);
         Assert.AreEqual(1, stateWaitUpdate.RefCount);
@@ -76,7 +75,7 @@ public class TimerTests
 
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, statelessWaitUpdate.DecrementRefCount());
-        statelessWaitUpdate = timer.RunIn(TimeSpan.FromMilliseconds(20), waitCallback);
+        statelessWaitUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, nullStateWaitCallbackCounter);
         Assert.AreEqual(1, statelessWaitUpdate.RefCount);
@@ -85,7 +84,7 @@ public class TimerTests
 
         Assert.AreEqual(1, actionCallbackCounter);
         Assert.AreEqual(0, actionCallbackUpdate.DecrementRefCount());
-        actionCallbackUpdate = timer.RunIn(TimeSpan.FromMilliseconds(20), actionCallback);
+        actionCallbackUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), actionCallback);
         actionCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, actionCallbackCounter);
         Assert.AreEqual(1, actionCallbackUpdate.RefCount);
@@ -94,7 +93,7 @@ public class TimerTests
 
         Assert.AreEqual(1, nonNullStateWaitCallbackCounter);
         Assert.AreEqual(0, stateWaitUpdate.DecrementRefCount());
-        stateWaitUpdate = timer.RunIn(TimeSpan.FromMilliseconds(20), new object(), waitCallback);
+        stateWaitUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), new object(), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, nonNullStateWaitCallbackCounter);
         Assert.AreEqual(1, stateWaitUpdate.RefCount);
@@ -108,7 +107,7 @@ public class TimerTests
     {
         var intervalMs = 20;
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
-        var statelessWaitUpdate = timer.RunEvery(intervalMs, waitCallback);
+        var statelessWaitUpdate = updateableTimer.RunEvery(intervalMs, waitCallback);
         Assert.AreEqual(1, statelessWaitUpdate.RefCount);
         var firstScheduledTime = statelessWaitUpdate.NextScheduleDateTime;
         waitCallbackResetEvent.WaitOne(1_000);
@@ -161,7 +160,7 @@ public class TimerTests
     {
         var intervalMs = 20;
         Assert.AreEqual(0, actionCallbackCounter);
-        var actionUpdate = timer.RunEvery(intervalMs, actionCallback);
+        var actionUpdate = updateableTimer.RunEvery(intervalMs, actionCallback);
         var firstScheduledTime = actionUpdate.NextScheduleDateTime;
         Assert.AreEqual(1, actionUpdate.RefCount);
         actionCallbackResetEvent.WaitOne(1_000);
@@ -214,7 +213,7 @@ public class TimerTests
     {
         var intervalMs = 20;
         Assert.AreEqual(0, nonNullStateWaitCallbackCounter);
-        var statefulTimerUpdate = timer.RunEvery(intervalMs, new object(), waitCallback);
+        var statefulTimerUpdate = updateableTimer.RunEvery(intervalMs, new object(), waitCallback);
         Assert.AreEqual(1, statefulTimerUpdate.RefCount);
         var firstScheduledTime = statefulTimerUpdate.NextScheduleDateTime;
         waitCallbackResetEvent.WaitOne(1_000);
@@ -268,19 +267,19 @@ public class TimerTests
     {
         var soon = TimeSpan.FromMilliseconds(20);
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
-        var statelessWaitUpdate = timer.RunAt(TimeContext.UtcNow + soon, waitCallback);
+        var statelessWaitUpdate = updateableTimer.RunAt(TimeContext.UtcNow + soon, waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
         Assert.AreEqual(true, statelessWaitUpdate.IsFinished);
 
         Assert.AreEqual(0, actionCallbackCounter);
-        var actionCallbackUpdate = timer.RunAt(TimeContext.UtcNow + soon, actionCallback);
+        var actionCallbackUpdate = updateableTimer.RunAt(TimeContext.UtcNow + soon, actionCallback);
         actionCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(1, actionCallbackCounter);
         Assert.AreEqual(true, actionCallbackUpdate.IsFinished);
 
         Assert.AreEqual(0, nonNullStateWaitCallbackCounter);
-        var stateWaitUpdate = timer.RunAt(TimeContext.UtcNow + soon, new object(), waitCallback);
+        var stateWaitUpdate = updateableTimer.RunAt(TimeContext.UtcNow + soon, new object(), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(1, nonNullStateWaitCallbackCounter);
         Assert.AreEqual(true, stateWaitUpdate.IsFinished);
@@ -291,10 +290,10 @@ public class TimerTests
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, actionCallbackCounter);
-        var statelessWaitUpdate = timer.RunIn(20, waitCallback);
-        var actionIntvlCallbackUpdate = timer.RunEvery(2_000, actionCallback);
+        var statelessWaitUpdate = updateableTimer.RunIn(20, waitCallback);
+        var actionIntvlCallbackUpdate = updateableTimer.RunEvery(2_000, actionCallback);
         Thread.Sleep(40);
-        timer.PauseAllTimers();
+        updateableTimer.PauseAllTimers();
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, actionCallbackCounter);
         Assert.AreEqual(true, statelessWaitUpdate.IsFinished);
@@ -302,13 +301,13 @@ public class TimerTests
         Assert.AreEqual(true, actionIntvlCallbackUpdate.IsPaused);
 
         Assert.AreEqual(0, nonNullStateWaitCallbackCounter);
-        var statefulTimerUpdate = timer.RunIn(20, new object(), waitCallback);
+        var statefulTimerUpdate = updateableTimer.RunIn(20, new object(), waitCallback);
         Thread.Sleep(40);
         Assert.AreEqual(0, nonNullStateWaitCallbackCounter);
         Assert.AreEqual(false, statefulTimerUpdate.IsFinished);
         Assert.AreEqual(true, statefulTimerUpdate.IsPaused);
 
-        timer.ResumeAllTimers();
+        updateableTimer.ResumeAllTimers();
         actionCallbackResetEvent.WaitOne(2_200);
         Assert.IsTrue(actionCallbackCounter >= 1);
         Assert.IsTrue(nonNullStateWaitCallbackCounter >= 1);
@@ -320,8 +319,8 @@ public class TimerTests
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, actionCallbackCounter);
-        var statelessWaitUpdate = timer.RunIn(200, waitCallback);
-        var actionIntvlCallbackUpdate = timer.RunEvery(200, actionCallback);
+        var statelessWaitUpdate = updateableTimer.RunIn(200, waitCallback);
+        var actionIntvlCallbackUpdate = updateableTimer.RunEvery(200, actionCallback);
         statelessWaitUpdate.Pause();
         actionCallbackResetEvent.WaitOne(400);
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
@@ -345,8 +344,8 @@ public class TimerTests
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, actionCallbackCounter);
-        var statelessWaitUpdate = timer.RunEvery(200, waitCallback);
-        var actionIntvlCallbackUpdate = timer.RunEvery(200, actionCallback);
+        var statelessWaitUpdate = updateableTimer.RunEvery(200, waitCallback);
+        var actionIntvlCallbackUpdate = updateableTimer.RunEvery(200, actionCallback);
         statelessWaitUpdate.Pause();
         actionCallbackResetEvent.WaitOne(400);
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
@@ -370,7 +369,7 @@ public class TimerTests
     public void OnOneOffTimerRunNextScheduledOneOffCallbackNowOnThisThread()
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
-        var statelessWaitUpdate = timer.RunIn(1_000, waitCallback);
+        var statelessWaitUpdate = updateableTimer.RunIn(1_000, waitCallback);
         statelessWaitUpdate.Pause();
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(false, statelessWaitUpdate.IsFinished);
@@ -384,7 +383,7 @@ public class TimerTests
     public void OnIntervalTimerRunNextScheduledOneOffCallbackNowOnThisThread()
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
-        var statelessWaitUpdate = timer.RunEvery(1_000, waitCallback);
+        var statelessWaitUpdate = updateableTimer.RunEvery(1_000, waitCallback);
         statelessWaitUpdate.Pause();
         var nextScheduledRunTime = statelessWaitUpdate.NextScheduleDateTime;
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
@@ -404,7 +403,7 @@ public class TimerTests
     public void OnOneOffTimerRunNextScheduledOneOffCallbackNowOnThreadPool()
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
-        var statelessWaitUpdate = timer.RunIn(1_000, waitCallback);
+        var statelessWaitUpdate = updateableTimer.RunIn(1_000, waitCallback);
         statelessWaitUpdate.Pause();
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(false, statelessWaitUpdate.IsFinished);
@@ -419,7 +418,7 @@ public class TimerTests
     public void OnIntervalTimerRunNextScheduledOneOffCallbackNowOnThreadPool()
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
-        var statelessWaitUpdate = timer.RunEvery(1_000, waitCallback);
+        var statelessWaitUpdate = updateableTimer.RunEvery(1_000, waitCallback);
         statelessWaitUpdate.Pause();
         var nextScheduledRunTime = statelessWaitUpdate.NextScheduleDateTime;
         Assert.AreEqual(0, nullStateWaitCallbackCounter);

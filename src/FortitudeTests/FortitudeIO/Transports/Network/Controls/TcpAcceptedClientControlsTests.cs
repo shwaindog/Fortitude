@@ -112,7 +112,7 @@ public class TcpAcceptedClientControlsTests
         moqFlogger.Setup(fl => fl.Warn("Can NOT connect to client accepted session {0} will not attempt connect.", It.IsAny<object[]>()))
             .Verifiable();
 
-        tcpAcceptedClientControls.StartAsync();
+        tcpAcceptedClientControls.StartAsync(5000);
 
         moqFlogger.Verify();
     }

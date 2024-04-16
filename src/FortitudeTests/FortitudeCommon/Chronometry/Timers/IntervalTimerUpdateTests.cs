@@ -3,8 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using Moq;
-using static FortitudeCommon.Chronometry.Timers.Timer;
-using Timer = System.Threading.Timer;
+using static FortitudeCommon.Chronometry.Timers.UpdateableTimer;
 
 #endregion
 

@@ -129,7 +129,7 @@ public class MessagePump : IMessagePump
             for (var i = 0; i < livingRules.Count; i++)
             {
                 var checkRule = livingRules[i];
-                if (checkRule.ShouldBeStopped()) checkRule.StopAsync();
+                if (checkRule.ShouldBeStopped()) await checkRule.StopAsync();
                 livingRules.RemoveAt(i--);
             }
 

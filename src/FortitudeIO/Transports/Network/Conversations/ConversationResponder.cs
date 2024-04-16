@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Controls;
@@ -35,4 +36,11 @@ public class ConversationResponder : SocketConversation, IAcceptorControls, ICon
     public void RemoveClient(IConversationRequester clientSocketSessionContext) => acceptorControls.RemoveClient(clientSocketSessionContext);
 
     public void Broadcast(IVersionedMessage message) => acceptorControls.Broadcast(message);
+
+    public ValueTask<bool> StartAsync(TimeSpan timeoutTimeSpan
+        , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
+        SocketSessionContext.StreamControls!.StartAsync(timeoutTimeSpan, alternativeExecutionContext);
+
+    public ValueTask<bool> StartAsync(int timeoutMs, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
+        SocketSessionContext.StreamControls!.StartAsync(timeoutMs, alternativeExecutionContext);
 }

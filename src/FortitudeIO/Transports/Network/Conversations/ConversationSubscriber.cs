@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeIO.Conversations;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.State;
@@ -8,10 +9,15 @@ using FortitudeIO.Transports.Network.State;
 
 namespace FortitudeIO.Transports.Network.Conversations;
 
-public class ConversationSubscriber : SocketConversation, IInitiateControls, IConversationSubscriber
+public class ConversationSubscriber : SocketConversation, IStreamControls, IConversationSubscriber
 {
-    public ConversationSubscriber(ISocketSessionContext socketSessionContext,
-        IInitiateControls initiateControls) : base(socketSessionContext, initiateControls) { }
+    public ConversationSubscriber(ISocketSessionContext socketSessionContext, IStreamControls streamControls) : base(socketSessionContext
+        , streamControls) { }
 
-    public void StartAsync() => ((IInitiateControls?)SocketSessionContext.StreamControls)?.StartAsync();
+    public ValueTask<bool> StartAsync(TimeSpan timeoutTimeSpan
+        , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
+        SocketSessionContext.StreamControls!.StartAsync(timeoutTimeSpan, alternativeExecutionContext);
+
+    public ValueTask<bool> StartAsync(int timeoutMs, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
+        SocketSessionContext.StreamControls!.StartAsync(timeoutMs, alternativeExecutionContext);
 }

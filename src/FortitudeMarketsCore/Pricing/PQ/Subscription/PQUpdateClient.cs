@@ -23,9 +23,8 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 {
     private static ISocketFactoryResolver? socketFactories;
 
-    public PQUpdateClient(ISocketSessionContext socketSessionContext,
-        IInitiateControls initiateControls)
-        : base(socketSessionContext, initiateControls) =>
+    public PQUpdateClient(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
+        : base(socketSessionContext, streamControls) =>
         DeserializerRepository = (IPQClientQuoteDeserializerRepository)socketSessionContext.SerdesFactory.MessageDeserializationRepository;
 
     public static ISocketFactoryResolver SocketFactories
@@ -51,9 +50,8 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
             , serdesFactory, socketDispatcherResolver);
         socketSessionContext.Name += "Subscriber";
 
-        var initControls
-            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
+        var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new PQUpdateClient(socketSessionContext, initControls);
+        return new PQUpdateClient(socketSessionContext, streamControls);
     }
 }

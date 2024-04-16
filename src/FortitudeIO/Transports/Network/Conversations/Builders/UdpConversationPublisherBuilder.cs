@@ -4,7 +4,6 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
-using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.State;
 
 #endregion
@@ -34,9 +33,8 @@ public class UdpConversationPublisherBuilder
             , serdesFactory);
         socketSessionContext.Name += "Publisher";
 
-        var initiateControls
-            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
+        var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new ConversationPublisher(socketSessionContext, initiateControls);
+        return new ConversationPublisher(socketSessionContext, streamControls);
     }
 }

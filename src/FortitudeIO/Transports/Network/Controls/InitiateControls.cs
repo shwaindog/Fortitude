@@ -3,7 +3,6 @@
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
-using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 
@@ -11,86 +10,33 @@ using FortitudeIO.Transports.Network.State;
 
 namespace FortitudeIO.Transports.Network.Controls;
 
-public interface IInitiateControls : IStreamControls
-{
-    void StartAsync();
-}
-
-public class InitiateControls : SocketStreamControls, IInitiateControls
+public class InitiateControls : SocketStreamControls
 {
     private readonly object connSync = new();
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(InitiateControls));
     private readonly IOSParallelController parallelController;
-    private readonly ISocketReconnectConfig reconnectConfig;
-    private readonly ISocketSessionContext socketSessionContext;
     private IIntraOSThreadSignal? triggerConnectNowSignal;
 
-    public InitiateControls(ISocketSessionContext socketSessionContext) : base(socketSessionContext)
-    {
+    public InitiateControls(ISocketSessionContext socketSessionContext) : base(socketSessionContext) =>
         parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
-        reconnectConfig = socketSessionContext.NetworkTopicConnectionConfig.ReconnectConfig;
-        this.socketSessionContext = socketSessionContext;
-    }
 
-    public virtual void StartAsync()
+    public override bool Connect()
     {
-        ScheduleConnect(0);
-    }
+        if (ConnectAttemptSucceeded()) return true;
 
-    public override void Connect()
-    {
-        lock (connSync)
-        {
-            triggerConnectNowSignal = null;
-            if (socketSessionContext.SocketConnection is { IsConnected: true } ||
-                socketSessionContext.SocketSessionState == SocketSessionState.Connecting ||
-                socketSessionContext.SocketSessionState == SocketSessionState.Disconnecting) return;
-            socketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
-            var connConfig = socketSessionContext.NetworkTopicConnectionConfig;
-            var socketFactory = socketSessionContext.SocketFactoryResolver.SocketFactory!;
-            foreach (var socketConConfig in socketSessionContext.NetworkTopicConnectionConfig)
-            {
-                try
-                {
-                    var subscriberSocket = socketFactory.Create(connConfig, socketConConfig);
-
-                    var ipEndPoint = subscriberSocket.RemoteOrLocalIPEndPoint()!;
-
-                    // will create socketSessionContext.SocketReceive and register listener with dispatcher
-                    socketSessionContext.OnConnected(new SocketConnection(connConfig.TopicName
-                        , socketSessionContext.ConversationType,
-                        subscriberSocket, ipEndPoint.Address, (ushort)ipEndPoint.Port));
-                }
-                catch (Exception ex)
-                {
-                    logger.Info("Connection to {0} {1}:{2} rejected: {3}",
-                        socketSessionContext.Name, socketConConfig.Hostname, socketConConfig.Port, ex);
-                }
-
-                if (socketSessionContext.SocketConnection?.IsConnected ?? false)
-                {
-                    reconnectConfig.NextReconnectIntervalMs = reconnectConfig.StartReconnectIntervalMs;
-                    logger.Info("Connection to id:{0} {1}:{2} accepted",
-                        socketSessionContext.Name, socketSessionContext.Id,
-                        socketConConfig.Hostname, socketConConfig.Port);
-                    StartMessaging();
-                    break;
-                }
-            }
-
-            if (socketSessionContext.SocketConnection?.IsConnected ?? false) return;
-            OnSessionFailure($"'Connect' failed to successfully open connection to Topic.Name: '{connConfig.TopicName}'");
-        }
+        OnSessionFailure(
+            $"'Connect' failed to successfully open connection to Topic.Name: '{SocketSessionContext.NetworkTopicConnectionConfig.TopicName}'");
+        return false;
     }
 
     public override void OnSessionFailure(string reason)
     {
         Disconnect(true);
-        var scheduleConnectWaitMs = reconnectConfig.NextReconnectIntervalMs;
+        var scheduleConnectWaitMs = ReconnectConfig.NextReconnectIntervalMs;
         logger.Info("Will attempt reconnecting to {0} {1} id {2} reason {3} in {4}ms",
             SocketSessionContext.Name, SocketSessionContext.Id,
             SocketSessionContext.NetworkTopicConnectionConfig, reason, scheduleConnectWaitMs);
-        socketSessionContext.OnReconnecting();
+        SocketSessionContext.OnReconnecting();
         ScheduleConnect(scheduleConnectWaitMs);
     }
 
@@ -99,12 +45,59 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
         Disconnect(false);
     }
 
+
+    protected override bool ConnectAttemptSucceeded()
+    {
+        lock (connSync)
+        {
+            triggerConnectNowSignal = null;
+            if (SocketSessionContext.SocketConnection is { IsConnected: true } ||
+                SocketSessionContext.SocketSessionState == SocketSessionState.Connecting ||
+                SocketSessionContext.SocketSessionState == SocketSessionState.Disconnecting) return true;
+            SocketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
+            var connConfig = SocketSessionContext.NetworkTopicConnectionConfig;
+            var socketFactory = SocketSessionContext.SocketFactoryResolver.SocketFactory!;
+            foreach (var socketConConfig in SocketSessionContext.NetworkTopicConnectionConfig)
+            {
+                try
+                {
+                    var subscriberSocket = socketFactory.Create(connConfig, socketConConfig);
+
+                    var ipEndPoint = subscriberSocket.RemoteOrLocalIPEndPoint()!;
+
+                    // will create socketSessionContext.SocketReceive and register listener with dispatcher
+                    SocketSessionContext.OnConnected(new SocketConnection(connConfig.TopicName
+                        , SocketSessionContext.ConversationType,
+                        subscriberSocket, ipEndPoint.Address, (ushort)ipEndPoint.Port));
+                }
+                catch (Exception ex)
+                {
+                    logger.Info("Connection to {0} {1}:{2} rejected: {3}",
+                        SocketSessionContext.Name, socketConConfig.Hostname, socketConConfig.Port, ex);
+                }
+
+                if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
+                {
+                    ReconnectConfig.NextReconnectIntervalMs = ReconnectConfig.StartReconnectIntervalMs;
+                    logger.Info("Connection to id:{0} {1}:{2}:{3} accepted",
+                        SocketSessionContext.Name, SocketSessionContext.Id,
+                        socketConConfig.Hostname, socketConConfig.Port);
+                    StartMessaging();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+
     private void ScheduleConnect(uint spanMs)
     {
         lock (connSync)
         {
-            if (socketSessionContext.SocketConnection is { IsConnected: true } ||
-                socketSessionContext.SocketSessionState == SocketSessionState.Connecting ||
+            if (SocketSessionContext.SocketConnection is { IsConnected: true } ||
+                SocketSessionContext.SocketSessionState == SocketSessionState.Connecting ||
                 triggerConnectNowSignal != null) return;
             if (spanMs > 0)
                 triggerConnectNowSignal = parallelController.ScheduleWithEarlyTrigger(
@@ -119,21 +112,21 @@ public class InitiateControls : SocketStreamControls, IInitiateControls
             SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(SocketSessionContext.SocketReceiver);
         lock (connSync)
         {
-            if (!inError || socketSessionContext.SocketSessionState == SocketSessionState.Connected ||
-                socketSessionContext.SocketSessionState == SocketSessionState.Connecting)
-                socketSessionContext.OnDisconnecting();
-            if (socketSessionContext.SocketConnection?.IsConnected ?? false)
+            if (!inError || SocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
+                SocketSessionContext.SocketSessionState == SocketSessionState.Connecting)
+                SocketSessionContext.OnDisconnecting();
+            if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
             {
                 triggerConnectNowSignal?.Set();
                 StopMessaging();
                 logger.Info("Connection to {0} {1} id {2}:{3} closed.",
-                    socketSessionContext.Name, socketSessionContext.Id,
-                    string.Join(", ", socketSessionContext.NetworkTopicConnectionConfig.AvailableConnections),
-                    socketSessionContext.SocketConnection.ConnectedPort);
-                socketSessionContext.SocketConnection.OSSocket?.Close();
+                    SocketSessionContext.Name, SocketSessionContext.Id,
+                    string.Join(", ", SocketSessionContext.NetworkTopicConnectionConfig.AvailableConnections),
+                    SocketSessionContext.SocketConnection.ConnectedPort);
+                SocketSessionContext.SocketConnection.OSSocket?.Close();
             }
 
-            socketSessionContext.OnDisconnected();
+            SocketSessionContext.OnDisconnected();
         }
     }
 }

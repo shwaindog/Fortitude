@@ -18,8 +18,8 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
 {
     private int nextSequence;
 
-    public OrxTradingClientMessaging(ISocketSessionContext socketSessionContext, IInitiateControls initiateControls)
-        : base(socketSessionContext, initiateControls)
+    public OrxTradingClientMessaging(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
+        : base(socketSessionContext, streamControls)
     {
         socketSessionContext.Disconnected += () => nextSequence = 0;
     }
@@ -39,10 +39,9 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
             , socketDispatcherResolver);
         socketSessionContext.Name += "Requester";
 
-        var initControls
-            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
+        var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new OrxTradingClientMessaging(socketSessionContext, initControls);
+        return new OrxTradingClientMessaging(socketSessionContext, streamControls);
     }
 
     public override void Send(IVersionedMessage versionedMessage)

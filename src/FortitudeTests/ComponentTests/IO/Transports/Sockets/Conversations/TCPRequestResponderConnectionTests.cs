@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
@@ -19,6 +21,11 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 [NoMatchingProductionClass]
 public class TcpRequestResponderConnectionTests
 {
+    private readonly AutoResetEvent autoResetEvent = new(false);
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TcpRequestResponderConnectionTests));
+
+    private readonly IRecycler recycler = new Recycler();
+
     private readonly NetworkTopicConnectionConfig responderTopicConConfig = new("TestResponderName"
         , SocketConversationProtocol.TcpAcceptor,
         new List<IEndpointConfig>
@@ -33,9 +40,6 @@ public class TcpRequestResponderConnectionTests
     {
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
-
-    private AutoResetEvent autoResetEvent = new(false);
-    private IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TcpRequestResponderConnectionTests));
 
     private Dictionary<uint, IMessageDeserializer> requesterDeserializers = null!;
     private SimpleVersionedMessage requesterReceivedResponseMessage = null!;
@@ -93,12 +97,17 @@ public class TcpRequestResponderConnectionTests
     }
 
     [TestMethod]
-    public void ClientSendMessageDecodesCorrectlyOnServer()
+    [Timeout(30_000)]
+    public async Task ClientSendMessageDecodesCorrectlyOnServer()
     {
+        var threadPoolExecutionContext = recycler.Borrow<ThreadPoolExecutionContextResult<bool, TimeSpan>>();
         // client connects
-        tcpResponder.Start();
-        Thread.Sleep(20);
-        tcpRequester.Start();
+        var started = await tcpResponder.StartAsync(10_000, threadPoolExecutionContext);
+        Assert.IsTrue(started);
+        await Task.Delay(20);
+        threadPoolExecutionContext = recycler.Borrow<ThreadPoolExecutionContextResult<bool, TimeSpan>>();
+        started = await tcpRequester.StartAsync(10_000, threadPoolExecutionContext);
+        Assert.IsTrue(started);
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (var deserializersValue in

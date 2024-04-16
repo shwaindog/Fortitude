@@ -21,7 +21,7 @@ public class IntervalTimerUpdate : OneOffTimerUpdate
     public override bool Pause()
     {
         CallBackRunInfo!.IsPaused = true;
-        return CallBackRunInfo.RegisteredTimer.Change(Timer.MaxTimerMs, Timer.MaxTimerMs) &&
+        return CallBackRunInfo.RegisteredTimer.Change(Timers.UpdateableTimer.MaxTimerMs, Timers.UpdateableTimer.MaxTimerMs) &&
                !CallBackRunInfo.IsFinished;
     }
 

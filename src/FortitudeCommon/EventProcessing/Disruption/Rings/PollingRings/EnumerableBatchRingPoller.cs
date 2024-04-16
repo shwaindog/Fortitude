@@ -25,6 +25,7 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
     private readonly IOSParallelController osParallelController;
     private readonly int timeoutMs;
     private volatile bool isRunning;
+    private IRecycler? recycler;
     private IOSThread? ringPollingThread;
     private Action? threadStartInitialization;
 
@@ -48,7 +49,12 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
     public virtual int UsageCount { get; private set; }
 
     public bool IsRunning => isRunning;
-    public IRecycler Recycler { get; set; } = new Recycler();
+
+    public IRecycler Recycler
+    {
+        get => recycler ??= new Recycler();
+        set => recycler = value;
+    }
 
     public void Dispose()
     {
@@ -145,7 +151,6 @@ public interface IEnumerableBatchPollSink<in T> where T : class
 public interface IEnumerableBatchRingPollerSink<T> : IEnumerableBatchRingPoller<T> where T : class
 {
     IEnumerableBatchPollSink<T>? PollSink { get; set; }
-    IRecycler Recycler { get; set; }
 }
 
 public class EnumerableBatchRingPollerSink<T>(IEnumerableBatchPollingRing<T> ring, uint timeoutMs, IEnumerableBatchPollSink<T>? pollSink = null
@@ -154,14 +159,7 @@ public class EnumerableBatchRingPollerSink<T>(IEnumerableBatchPollingRing<T> rin
     : EnumerableBatchRingPoller<T>(ring, timeoutMs, threadStartInitialization, parallelController), IEnumerableBatchRingPollerSink<T>
     where T : class
 {
-    private IRecycler? recycler;
     public IEnumerableBatchPollSink<T>? PollSink { get; set; } = pollSink;
-
-    public IRecycler Recycler
-    {
-        get => recycler ??= new Recycler();
-        set => recycler = value;
-    }
 
     protected override void Processor(long ringCurrentSequence, long ringCurrentBatchSize, T data, bool ringStartOfBatch
         , bool ringEndOfBatch)

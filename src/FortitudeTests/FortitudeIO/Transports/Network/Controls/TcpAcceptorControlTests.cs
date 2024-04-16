@@ -194,7 +194,7 @@ public class TcpAcceptorControlsTests
         moqSocketDispatchListener.Setup(sdl => sdl.UnregisterForListen(It.IsAny<IStreamListener>())).Verifiable();
         moqSocketConnection.SetupGet(sr => sr.OSSocket).Returns(moqAcceptorOsSocket.Object).Verifiable();
         moqAcceptorOsSocket.Setup(sdl => sdl.Close()).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Publisher {0} @{0} stopped", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Publisher {0} @{1} stopped", It.IsAny<object[]>())).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected()).Verifiable();
 
         tcpAcceptorControls.Disconnect();

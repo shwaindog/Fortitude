@@ -16,7 +16,6 @@ public interface IOrxResponderStreamDecoder : IMessageStreamDecoder
 
 public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
 {
-    private IOrxDeserializationRepository messageDeserializationRepository;
     private ushort messageId;
 
     private State state = State.Header;

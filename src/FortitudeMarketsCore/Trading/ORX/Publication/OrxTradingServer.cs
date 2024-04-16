@@ -55,7 +55,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         feed.VenueOrderUpdated += OnVenueOrder;
     }
 
-    protected void OnNewTradingClientConversation(IConversationRequester cx)
+    private void OnNewTradingClientConversation(IConversationRequester cx)
     {
         var clientDecoder = (IOrxResponderStreamDecoder)cx.StreamListener!.Decoder!;
         clientDecoder.MessageDeserializationRepository.RegisterDeserializer<OrxOrderSubmitRequest>()

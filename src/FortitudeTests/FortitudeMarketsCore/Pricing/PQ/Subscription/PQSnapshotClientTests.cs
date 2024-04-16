@@ -45,7 +45,6 @@ public class PQSnapshotClientTests
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IFLoggerFactory> moqFloggerFactory = null!;
     private Mock<IIntraOSThreadSignal> moqIIntraOSThreadSignal = null!;
-    private Mock<IInitiateControls> moqInitiateControls = null!;
     private Mock<IIntraOSThreadSignal> moqIntraOsThreadSignal = null!;
     private Mock<IOSNetworkingController> moqNetworkingController = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
@@ -62,6 +61,7 @@ public class PQSnapshotClientTests
     private Mock<ISocketSender> moqSocketSender = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
+    private Mock<IStreamControls> moqStreamControls = null!;
     private Mock<ITimerCallbackSubscription> moqTimerCallbackSubscription = null!;
     private PQSnapshotClient pqSnapshotClient = null!;
 
@@ -74,7 +74,7 @@ public class PQSnapshotClientTests
     {
         moqDispatcher = new Mock<ISocketDispatcher>();
         moqDispatcherResolver = new Mock<ISocketDispatcherResolver>();
-        moqInitiateControls = new Mock<IInitiateControls>();
+        moqStreamControls = new Mock<IStreamControls>();
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
@@ -161,7 +161,7 @@ public class PQSnapshotClientTests
         moqPQQuoteDeserializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
-        pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
+        pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqStreamControls.Object);
 
         moqFlogger.Setup(fl => fl.Info("Attempting TCP connection to {0} on {1}:{2}",
             sessionDescription, expectedHost, expectedPort)).Verifiable();
@@ -263,7 +263,7 @@ public class PQSnapshotClientTests
             .Returns(decoder);
         moqPQQuoteDeserializationRepo.Setup(qdr => qdr.RegisterDeserializer<PQSourceTickerInfoResponse>())
             .Returns(moqSourceTickerResponseDeserializer.Object);
-        pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqInitiateControls.Object);
+        pqSnapshotClient = new PQSnapshotClient(moqSocketSessionContext.Object, moqStreamControls.Object);
         pqSnapshotClient.Connect();
         moqSocketSessionContext.Raise(ssc => ssc.SocketReceiverUpdated += null);
 
@@ -321,6 +321,6 @@ public class PQSnapshotClientTests
 
     private void DisconnectMoqSetup()
     {
-        moqInitiateControls.Setup(tcs => tcs.Disconnect()).Verifiable();
+        moqStreamControls.Setup(tcs => tcs.Disconnect()).Verifiable();
     }
 }

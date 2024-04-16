@@ -4,7 +4,6 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
-using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.State;
 
 #endregion
@@ -33,9 +32,8 @@ public class TcpConversationRequesterBuilder
             networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory);
         socketSessionContext.Name += "Requester";
 
-        var initiateControls
-            = (IInitiateControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
+        var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new ConversationRequester(socketSessionContext, initiateControls);
+        return new ConversationRequester(socketSessionContext, streamControls);
     }
 }
