@@ -60,7 +60,7 @@ public class SelectionStrategiesAggregatorTests
         ruleContext.SetupGet(ec => ec.RegisteredOn).Returns(eventQueue.Object);
         rule.Context = ruleContext.Object;
 
-        allQueues = new EventQueueGroupContainer(new Mock<IEventBus>().Object, new[]
+        allQueues = new EventQueueGroupContainer(new Mock<IConfigureEventBus>().Object, new[]
         {
             ioOutboundQueue.Object, ioInboundQueue.Object, eventQueue.Object, workerQueue.Object, customQueue.Object
         });

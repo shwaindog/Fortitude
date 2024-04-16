@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 
@@ -29,6 +30,20 @@ internal class FLogEventPoller : IEnumerableBatchPollSink<FLogEvent>, IRingPolle
     }
 
     public int UsageCount => ringPoller.UsageCount;
+
+    public IOSThread? ExecutingThread => ringPoller.ExecutingThread;
+
+    event Action<QueueEventTime>? IRingPoller.QueueEntryStart
+    {
+        add => ringPoller.QueueEntryStart += value;
+        remove => ringPoller.QueueEntryStart -= value;
+    }
+
+    event Action<QueueEventTime>? IRingPoller.QueueEntryComplete
+    {
+        add => ringPoller.QueueEntryComplete += value;
+        remove => ringPoller.QueueEntryComplete -= value;
+    }
 
     public void Dispose()
     {

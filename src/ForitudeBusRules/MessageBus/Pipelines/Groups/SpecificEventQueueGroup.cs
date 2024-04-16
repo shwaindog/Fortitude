@@ -33,9 +33,9 @@ public class SpecificEventQueueGroup : IEventQueueGroup
     private readonly List<IEventQueue?> eventQueues = [];
     
     protected readonly IQueuesConfig QueuesConfig;
-    private readonly IEventBus owningEventBus;
+    private readonly IConfigureEventBus owningEventBus;
     private readonly EventQueueType groupType;
-    public SpecificEventQueueGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+    public SpecificEventQueueGroup(IConfigureEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
         , IQueuesConfig queuesConfig)
     {
         this.owningEventBus = owningEventBus;
@@ -135,7 +135,7 @@ public class SpecificEventQueueGroup : IEventQueueGroup
 class SocketEventQueueListenerGroup : SpecificEventQueueGroup
 {
     public static IUpdateableTimer timer = new UpdateableTimer("Fortitude.BusRules.SocketEventQueueListenerGroup.ThreadPoolTimer");
-    public SocketEventQueueListenerGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+    public SocketEventQueueListenerGroup(IConfigureEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
         , IQueuesConfig queuesConfig) : base(owningEventBus, groupType, recycler, queuesConfig)
     {
     }
@@ -151,7 +151,7 @@ class SocketEventQueueListenerGroup : SpecificEventQueueGroup
     }
 }
 
-public class SocketEventQueueSenderGroup(IEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
+public class SocketEventQueueSenderGroup(IConfigureEventBus owningEventBus, EventQueueType groupType, IRecycler recycler
     , IQueuesConfig queuesConfig) : SpecificEventQueueGroup(owningEventBus, groupType, recycler, queuesConfig)
 {
     public override IAsyncValueTaskRingPoller<Message> CreateMessageRingPoller(string name, int id, int size, uint noDataPauseTimeoutMs)

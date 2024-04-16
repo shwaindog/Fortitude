@@ -1,10 +1,8 @@
 ﻿#region
 
-using System.Threading.Tasks.Sources;
 using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
-using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -19,7 +17,7 @@ public interface IMessageListenerSubscription : IDisposable
     IListeningRule SubscriberRule { get; }
     string PublishAddress { get; }
     IAddressMatcher? Matcher { get; }
-    Action<Message> Handler { get; }
+    Func<Message, ValueTask> Handler { get; }
 
     event Action<IListeningRule, string>? Unsubscribed;
 }
@@ -29,15 +27,9 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     private static readonly IFLogger Logger
         = FLoggerFactory.Instance.GetLogger(typeof(MessageListenerSubscription<TPayLoad, TResponse>));
 
-    private readonly Action<Task<TResponse>, object?> onDependentTaskCompleted;
-    private readonly Action<object?> onDependentValueTaskCompleted;
     private string publishAddress = null!;
 
-    public MessageListenerSubscription()
-    {
-        onDependentTaskCompleted = CallbackTaskCompleted;
-        onDependentValueTaskCompleted = CallbackValueTaskCompleted;
-    }
+    public MessageListenerSubscription() { }
 
     public MessageListenerSubscription(IListeningRule subscriberRule, string publishAddress, string subscriberId) :
         this()
@@ -62,7 +54,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     }
 
     public IAddressMatcher? Matcher { get; set; }
-    public Action<Message> Handler { get; private set; } = null!;
+    public Func<Message, ValueTask> Handler { get; private set; } = null!;
 
     public void Dispose()
     {
@@ -71,252 +63,200 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
 
     public event Action<IListeningRule, string>? Unsubscribed;
 
-    private void CallbackTaskCompleted(Task<TResponse> completed, object? state)
-    {
-        if (state is not IMessage<TPayLoad> msgState) return;
-        if (msgState.Type is MessageType.Publish)
-        {
-            if (completed is { Result: IRecyclableObject recyclableObject }) recyclableObject.DecrementRefCount();
-        }
-        else if (msgState.Type is MessageType.RequestResponse)
-        {
-            var typeResponse = (IResponseValueTaskSource<TResponse>)msgState.Response;
-            try
-            {
-                typeResponse.TrySetResultFromAwaitingTask(completed);
-            }
-            catch (Exception e)
-            {
-                Logger.Warn("Error expected completed to be completed when this is called. Got {0}", e);
-            }
-        }
-
-        msgState.ProcessorRegistry?.RegisterFinish(SubscriberRule);
-        msgState.DecrementRefCount();
-    }
-
-    private void CallbackValueTaskCompleted(object? state)
-    {
-        if (state is not IMessage<TPayLoad> msgState) return;
-        if (msgState.Type is MessageType.Publish)
-        {
-            var typeResponse = msgState.Response as ReusableValueTaskSource<TResponse>;
-            var awaitingTask = typeResponse?.AwaitingValueTask;
-            if (awaitingTask is { Result: IRecyclableObject recyclableObject })
-                recyclableObject.DecrementRefCount();
-        }
-        else if (msgState.Type is MessageType.RequestResponse)
-        {
-            var typeResponse = (IResponseValueTaskSource<TResponse>)msgState.Response;
-            try
-            {
-                typeResponse.TrySetResultFromAwaitingTask(typeResponse.AwaitingValueTask!.Value);
-            }
-            catch (Exception e)
-            {
-                Logger.Warn("Error expected completed to be completed when this is called. Got {0}", e);
-            }
-        }
-
-        msgState.ProcessorRegistry?.RegisterFinish(SubscriberRule);
-        msgState.DecrementRefCount();
-    }
-
     public void SetHandlerFromSpecificMessageHandler(
         Func<IRespondingMessage<TPayLoad, TResponse>, ValueTask<TResponse>> wrapHandler)
     {
-        Handler = message =>
+        async ValueTask HandlerWrapper(Message message)
         {
             if (!message.RuleFilter(SubscriberRule)) return;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IRespondingMessage<TPayLoad, TResponse> typeMessage
-                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
-                var response = wrapHandler(typeMessage);
-                if (!response.IsCompleted)
+                IRespondingMessage<TPayLoad, TResponse> typeMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+
+                try
                 {
+                    var response = await wrapHandler(typeMessage);
                     message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
-                    var responseAsReusable = response.ToReusableValueTaskSource();
-                    if (responseAsReusable != null)
-                    {
-                        responseAsReusable.AwaitingValueTask = response;
-                        responseAsReusable.OnCompleted(onDependentValueTaskCompleted, typeMessage
-                            , responseAsReusable.Version, ValueTaskSourceOnCompletedFlags.None);
-                    }
-                    else
-                    {
-                        var responseAsTask = response.ToTask();
-                        responseAsTask.ContinueWith(onDependentTaskCompleted, typeMessage);
-                    }
+                    if (response is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
                 }
-                else if (response.IsCompletedSuccessfully || response.IsFaulted)
+                catch (Exception ex)
                 {
-                    if (response is { Result: IRecyclableObject recyclableObject })
-                        recyclableObject.DecrementRefCount();
-                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) MessageType.Publish on Rule {2} caught exception {3}"
+                        ,
+                        typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                }
+                finally
+                {
                     typeMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
                 }
             }
             else if (message.Type is MessageType.RequestResponse)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IRespondingMessage<TPayLoad, TResponse> typeMessage
-                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
-                var response = wrapHandler(typeMessage);
+                IRespondingMessage<TPayLoad, TResponse> typeMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
                 if (message.Response is not IResponseValueTaskSource<TResponse> typeResponse) return;
-                if (!response.IsCompleted)
+                try
                 {
+                    var response = await wrapHandler(typeMessage);
                     message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
-                    var responseAsReusable = response.ToReusableValueTaskSource();
-                    if (responseAsReusable != null)
-                    {
-                        responseAsReusable.AwaitingValueTask = response;
-                        responseAsReusable.OnCompleted(onDependentValueTaskCompleted, typeMessage
-                            , responseAsReusable.Version, ValueTaskSourceOnCompletedFlags.None);
-                    }
-                    else
-                    {
-                        var responseAsTask = response.ToTask();
-                        responseAsTask.ContinueWith(onDependentTaskCompleted, typeMessage);
-                    }
+                    typeResponse.TrySetResult(response);
                 }
-                else if (response.IsCompletedSuccessfully || response.IsFaulted)
+                catch (Exception ex)
                 {
-                    typeResponse.TrySetResultFromAwaitingTask(response);
-                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) MessageType.RequestResponse on Rule {2} caught exception {3}"
+                        ,
+                        typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                    typeResponse.SetException(ex);
+                }
+                finally
+                {
                     typeMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
                 }
             }
             else
             {
                 Logger.Warn($"Unexpected call to MessageListenerSubscription with message: {message}");
             }
-        };
+        }
+
+        Handler = HandlerWrapper;
     }
 
     public void SetHandlerFromSpecificMessageHandler(
         Func<IRespondingMessage<TPayLoad, TResponse>, Task<TResponse>> wrapHandler)
     {
-        Handler = message =>
+        async ValueTask HandlerWrapper(Message message)
         {
             if (!message.RuleFilter(SubscriberRule)) return;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IRespondingMessage<TPayLoad, TResponse> typeMessage
-                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
-                var response = wrapHandler(typeMessage);
-                if (!response.IsCompleted)
+                IRespondingMessage<TPayLoad, TResponse> typeMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                try
                 {
+                    var response = await wrapHandler(typeMessage);
                     message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
-                    response.ContinueWith(onDependentTaskCompleted, typeMessage);
+                    if (response is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
                 }
-                else if (response.IsCompletedSuccessfully || response.IsFaulted)
+                catch (Exception ex)
                 {
-                    if (response is { Result: IRecyclableObject recyclableObject })
-                        recyclableObject.DecrementRefCount();
-
-                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) MessageType.Publish on Rule {2} caught exception {3}"
+                        ,
+                        typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                }
+                finally
+                {
                     typeMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
                 }
             }
             else if (message.Type is MessageType.RequestResponse)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IRespondingMessage<TPayLoad, TResponse> typeMessage
-                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
-                var response = wrapHandler(typeMessage);
-                if (message.Response is IResponseValueTaskSource<TResponse> typeResponse)
+                IRespondingMessage<TPayLoad, TResponse> typeMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                if (message.Response is not IResponseValueTaskSource<TResponse> typeResponse) return;
+                try
                 {
-                    if (!response.IsCompleted)
-                    {
-                        message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
-                        response.ContinueWith(onDependentTaskCompleted, typeMessage);
-                    }
-                    else if (response.IsCompletedSuccessfully || response.IsFaulted)
-                    {
-                        typeResponse.TrySetResultFromAwaitingTask(response);
-                        message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
-                        typeMessage.DecrementRefCount();
-                    }
+                    var response = await wrapHandler(typeMessage);
+                    message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
+                    typeResponse.TrySetResult(response);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) MessageType.RequestResponse on Rule {2} caught exception {3}"
+                        ,
+                        typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                    typeResponse.SetException(ex);
+                }
+                finally
+                {
+                    typeMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
                 }
             }
             else
             {
                 Logger.Warn($"Unexpected call to MessageListenerSubscription with message: {message}");
             }
-        };
+        }
+
+        Handler = HandlerWrapper;
     }
 
     public void SetHandlerFromSpecificMessageHandler(
         Func<IRespondingMessage<TPayLoad, TResponse>, TResponse> wrapHandler)
     {
-        Handler = message =>
+        ValueTask HandlerWrapper(Message message)
         {
-            if (!message.RuleFilter(SubscriberRule)) return;
+            if (!message.RuleFilter(SubscriberRule)) return ValueTask.CompletedTask;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IRespondingMessage<TPayLoad, TResponse> typeMessage
-                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IRespondingMessage<TPayLoad, TResponse> typeMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
                 try
                 {
-                    try
-                    {
-                        var response = wrapHandler(typeMessage);
-                        if (response is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Warn($"Unexpected call to MessageListenerSubscription with message: {message}. Got {e}");
-                    }
-                    finally
-                    {
-                        message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
-                    }
+                    var response = wrapHandler(typeMessage);
+                    message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
+                    if (response is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler) MessageType.Publish on Rule {2} caught exception {3}"
+                        ,
+                        typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                 }
                 finally
                 {
                     typeMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
                 }
             }
             else if (message.Type is MessageType.RequestResponse)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IRespondingMessage<TPayLoad, TResponse> typeMessage
-                    = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IRespondingMessage<TPayLoad, TResponse> typeMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                if (message.Response is not IResponseValueTaskSource<TResponse> requestResponse) return ValueTask.CompletedTask;
                 try
                 {
-                    if (message.Response is IResponseValueTaskSource<TResponse> requestResponse)
-                        try
-                        {
-                            var response = wrapHandler(typeMessage);
-                            requestResponse.TrySetResult(response);
-                        }
-                        catch (Exception e)
-                        {
-                            requestResponse.SetException(e);
-                        }
-                        finally
-                        {
-                            message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
-                        }
+                    var response = wrapHandler(typeMessage);
+                    message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
+                    requestResponse.TrySetResult(response);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler) MessageType.RequestResponse on Rule {2} caught exception {3}"
+                        ,
+                        typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                    requestResponse.SetException(ex);
                 }
                 finally
                 {
                     typeMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
                 }
             }
-        };
+
+            return ValueTask.CompletedTask;
+        }
+
+        Handler = HandlerWrapper;
     }
 
     public void SetHandlerFromSpecificMessageHandler(
         Action<IMessage<TPayLoad>> wrapHandler)
     {
-        Handler = message =>
+        ValueTask HandlerWrapper(Message message)
         {
-            if (!message.RuleFilter(SubscriberRule)) return;
+            if (!message.RuleFilter(SubscriberRule)) return ValueTask.CompletedTask;
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
@@ -324,18 +264,25 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                 try
                 {
                     wrapHandler(typeMessage);
-                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Logger.Warn("Uncaught Exception in {0} for SubscriptionId: {1}. Got {2}", SubscriberRule
-                        , SubscriberId, e);
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Action<IMessage<{0}>> wrapHandler) MessageType.RequestResponse on Rule {1} caught exception {2}"
+                        ,
+                        typeof(TPayLoad).Name, SubscriberRule.FriendlyName, ex);
                 }
                 finally
                 {
                     typeMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
                 }
             }
-        };
+
+            return ValueTask.CompletedTask;
+        }
+
+        Handler = HandlerWrapper;
     }
 }

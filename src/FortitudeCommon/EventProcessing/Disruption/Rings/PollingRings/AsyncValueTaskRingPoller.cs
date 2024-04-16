@@ -27,7 +27,6 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
     private readonly int timeoutMs;
     private volatile bool isRunning;
     private IRecycler? recycler;
-    private IOSThread? ringPollingThread;
     private Action? threadStartInitialization;
 
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -50,6 +49,8 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
 
     public bool IsRunning => isRunning;
 
+    public IOSThread? ExecutingThread { get; private set; }
+
     public ValueTaskProcessEvent<T> ProcessEvent
     {
         get => Ring.ProcessEvent;
@@ -66,6 +67,18 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
     {
         get => recycler ?? new Recycler();
         set => recycler = value;
+    }
+
+    public event Action<QueueEventTime>? QueueEntryStart
+    {
+        add => Ring.QueueEntryStart += value;
+        remove => Ring.QueueEntryStart -= value;
+    }
+
+    public event Action<QueueEventTime>? QueueEntryComplete
+    {
+        add => Ring.QueueEntryComplete += value;
+        remove => Ring.QueueEntryComplete -= value;
     }
 
     public void Dispose()
@@ -98,10 +111,10 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
             {
                 threadStartInitialization = threadStartInitialize ?? threadStartInitialization;
                 isRunning = true;
-                ringPollingThread = osParallelController.CreateNewOSThread(ThreadStart);
-                ringPollingThread.IsBackground = true;
-                ringPollingThread.Name = Name;
-                ringPollingThread.Start();
+                ExecutingThread = osParallelController.CreateNewOSThread(ThreadStart);
+                ExecutingThread.IsBackground = true;
+                ExecutingThread.Name = Name;
+                ExecutingThread.Start();
             }
         }
     }
@@ -112,7 +125,7 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
         {
             isRunning = false;
             spinPauseSignal.Set();
-            ringPollingThread?.Join();
+            ExecutingThread?.Join();
             Poll();
         }
         catch (Exception ex)

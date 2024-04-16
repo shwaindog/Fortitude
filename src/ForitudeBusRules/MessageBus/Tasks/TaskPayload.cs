@@ -7,12 +7,7 @@ using FortitudeCommon.Types;
 
 namespace FortitudeBusRules.MessageBus.Tasks;
 
-public interface ITaskPayload : IReusableObject<ITaskPayload>
-{
-    void Invoke();
-}
-
-public class TaskPayload : ReusableObject<ITaskPayload>, ITaskPayload
+public class TaskPayload : ReusableObject<IInvokeablePayload>, IInvokeablePayload
 {
     public TaskPayload() { }
 
@@ -37,7 +32,7 @@ public class TaskPayload : ReusableObject<ITaskPayload>, ITaskPayload
         base.StateReset();
     }
 
-    public override ITaskPayload CopyFrom(ITaskPayload source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IInvokeablePayload CopyFrom(IInvokeablePayload source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is TaskPayload taskPayloadSource)
         {
@@ -48,5 +43,5 @@ public class TaskPayload : ReusableObject<ITaskPayload>, ITaskPayload
         return this;
     }
 
-    public override ITaskPayload Clone() => Recycler?.Borrow<TaskPayload>().CopyFrom(this) ?? new TaskPayload(this);
+    public override IInvokeablePayload Clone() => Recycler?.Borrow<TaskPayload>().CopyFrom(this) ?? new TaskPayload(this);
 }

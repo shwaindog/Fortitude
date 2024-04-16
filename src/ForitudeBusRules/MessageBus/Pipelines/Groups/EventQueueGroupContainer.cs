@@ -26,7 +26,7 @@ public interface IEventQueueGroupContainer : IEnumerable<IEventQueue>
     IEventQueueGroup CustomGroup { get; }
     IEventQueueGroupContainer Add(IEventQueue eventQueue);
     IEventQueueGroupContainer AddRange(IEnumerable<IEventQueue> eventQueue);
-    IReusableList<IEventQueue> SelectEventQueues(EventQueueType selector);
+    IEventQueueList SelectEventQueues(EventQueueType selector);
     IEventQueueGroup SelectEventQueueGroup(IEventQueue childOfGroup);
     IEventQueueGroup SelectEventQueueGroup(EventQueueType selector);
     bool Remove(IEventQueue toRemove);
@@ -51,11 +51,11 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
     public const int MinimumWorkerQueues = 1; // at least one
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(EventQueueGroupContainer));
 
-    private readonly IEventBus owningEventBus;
+    private readonly IConfigureEventBus owningEventBus;
     private readonly Recycler recycler;
     private readonly DeployDispatchStrategySelector strategySelector;
 
-    public EventQueueGroupContainer(IEventBus owningEventBus, BusRulesConfig config)
+    public EventQueueGroupContainer(IConfigureEventBus owningEventBus, BusRulesConfig config)
     {
         this.owningEventBus = owningEventBus;
         recycler = new Recycler();
@@ -82,7 +82,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         CustomGroup = new SpecificEventQueueGroup(owningEventBus, Custom, recycler, config.QueuesConfig);
     }
 
-    internal EventQueueGroupContainer(IEventBus owningEventBus
+    internal EventQueueGroupContainer(IConfigureEventBus owningEventBus
         , Func<IEventBus, IEventQueueGroup>? createEventQueueGroup = null
         , Func<IEventBus, IEventQueueGroup>? createWorkerGroup = null
         , Func<IEventBus, IEventQueueGroup>? createIoInboundGroup = null
@@ -103,7 +103,7 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         CustomGroup = createCustomGroup?.Invoke(owningEventBus) ?? new SpecificEventQueueGroup(owningEventBus, Custom, recycler, defaultQueuesConfig);
     }
 
-    internal EventQueueGroupContainer(IEventBus owningEventBus, IEnumerable<IEventQueue> queuesToAdd)
+    internal EventQueueGroupContainer(IConfigureEventBus owningEventBus, IEnumerable<IEventQueue> queuesToAdd)
     {
         recycler = new Recycler();
         var defaultQueuesConfig = new QueuesConfig();
@@ -315,9 +315,9 @@ public class EventQueueGroupContainer : IEventQueueGroupContainer
         };
     }
 
-    public IReusableList<IEventQueue> SelectEventQueues(EventQueueType selector)
+    public IEventQueueList SelectEventQueues(EventQueueType selector)
     {
-        var result = recycler.Borrow<ReusableList<IEventQueue>>();
+        var result = recycler.Borrow<EventQueueList>();
         if (selector.IsIOOutbound()) result.AddRange(IOOutboundGroup);
         if (selector.IsIOInbound()) result.AddRange(IOInboundGroup);
         if (selector.IsEvent()) result.AddRange(EventGroup);

@@ -111,7 +111,7 @@ public class RotateEvenlySelectionStrategyTests
         sendingRule.Context = ruleContext.Object;
 
 
-        allQueues = new EventQueueGroupContainer(new Mock<IEventBus>().Object, new[]
+        allQueues = new EventQueueGroupContainer(new Mock<IConfigureEventBus>().Object, new[]
         {
             firstIoOutboundQueue.Object, secondIoOutboundQueue.Object, thirdIoOutboundQueue.Object
             , firstIoInboundQueue.Object, secondIoInboundQueue.Object, thirdIoInboundQueue.Object

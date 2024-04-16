@@ -15,12 +15,16 @@ public abstract class ThreadPoolExecutionContext : RecyclableObject
     protected readonly WaitCallback ImmediateCallback;
     protected readonly WaitCallback ImmediateCancellableCallback;
 
-
     protected ThreadPoolExecutionContext()
     {
         ImmediateCallback = RunImmediateCallback;
         AsyncCallback = RunAsyncCallback;
         ImmediateCancellableCallback = RunImmediateCancellableCallback;
+    }
+
+    protected void EnsureRefCountIsAtLeastTwo() // callers should decrement call this after dispatching
+    {
+        while (RefCount < 2) IncrementRefCount();
     }
 
     protected abstract void RunImmediateCallback(object? state);
@@ -60,6 +64,7 @@ public class ThreadPoolExecutionContextResult<TR> : ThreadPoolExecutionContextRe
 
     public ValueTask<TR> Execute(Func<TR> methodToExecute)
     {
+        EnsureRefCountIsAtLeastTwo();
         nonAsyncMethodToExecute = methodToExecute;
         ThreadPool.QueueUserWorkItem(ImmediateCallback, null);
         return new ValueTask<TR>(ReusableValueTaskSource, ReusableValueTaskSource.Version);
@@ -67,15 +72,17 @@ public class ThreadPoolExecutionContextResult<TR> : ThreadPoolExecutionContextRe
 
     public ValueTask<TR> Execute(Func<ValueTask<TR>> methodToExecute)
     {
+        EnsureRefCountIsAtLeastTwo();
         asyncMethodToExecute = methodToExecute;
         ThreadPool.QueueUserWorkItem(AsyncCallback, null);
         return new ValueTask<TR>(ReusableValueTaskSource, ReusableValueTaskSource.Version);
     }
 
-    public ValueTask<TR> Execute(Func<BasicCancellationToken?, TR> methodToExecute, BasicCancellationToken? secondParameter)
+    public ValueTask<TR> Execute(Func<BasicCancellationToken?, TR> methodToExecute, BasicCancellationToken? firstParam)
     {
+        EnsureRefCountIsAtLeastTwo();
         cancellableMethodToExecute = methodToExecute;
-        BasicCancellationToken = secondParameter;
+        BasicCancellationToken = firstParam;
         ThreadPool.QueueUserWorkItem(ImmediateCancellableCallback, null);
         return new ValueTask<TR>(ReusableValueTaskSource, ReusableValueTaskSource.Version);
     }
@@ -157,6 +164,7 @@ public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionConte
 
     public ValueTask<TR> Execute(Func<TP, TR> methodToExecute, TP firstParameter)
     {
+        EnsureRefCountIsAtLeastTwo();
         nonAsyncMethodToExecute = methodToExecute;
         firstParam = firstParameter;
         ThreadPool.QueueUserWorkItem(ImmediateCallback, null);
@@ -165,6 +173,7 @@ public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionConte
 
     public ValueTask<TR> Execute(Func<TP, ValueTask<TR>> methodToExecute, TP firstParameter)
     {
+        EnsureRefCountIsAtLeastTwo();
         asyncMethodToExecute = methodToExecute;
         firstParam = firstParameter;
         ThreadPool.QueueUserWorkItem(AsyncCallback, null);
@@ -173,6 +182,7 @@ public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionConte
 
     public ValueTask<TR> Execute(Func<TP, BasicCancellationToken?, TR> methodToExecute, TP firstParameter, BasicCancellationToken? secondParameter)
     {
+        EnsureRefCountIsAtLeastTwo();
         cancellableMethodToExecute = methodToExecute;
         firstParam = firstParameter;
         BasicCancellationToken = secondParameter;

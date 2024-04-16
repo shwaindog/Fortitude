@@ -84,7 +84,7 @@ public class LeastBusySelectionStrategyTests
         sendingRule.Context = ruleContext.Object;
 
 
-        allQueues = new EventQueueGroupContainer(new Mock<IEventBus>().Object, new[]
+        allQueues = new EventQueueGroupContainer(new Mock<IConfigureEventBus>().Object, new[]
         {
             firstIoOutboundQueue.Object, secondIoOutboundQueue.Object, firstIoInboundQueue.Object
             , secondIoInboundQueue.Object, firstEventQueue.Object, secondEventQueue.Object, firstWorkerQueue.Object

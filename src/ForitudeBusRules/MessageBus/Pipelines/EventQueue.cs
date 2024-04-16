@@ -1,10 +1,13 @@
 ﻿#region
 
 using FortitudeBusRules.MessageBus.Messages;
+using FortitudeBusRules.MessageBus.Pipelines.Execution;
 using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
 using FortitudeBusRules.MessageBus.Tasks;
 using FortitudeBusRules.Messaging;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
@@ -22,6 +25,11 @@ public interface IEventQueue : IComparable<IEventQueue>
     bool IsRunning { get; }
 
     uint RecentlyReceivedMessagesCount { get; }
+
+    QueueEventTime LatestMessageStartProcessing { get; }
+    QueueEventTime LatestMessageFinishedProcessing { get; }
+
+    IEventContext Context { get; }
     void Start();
     void EnqueueMessage(Message msg);
 
@@ -43,6 +51,10 @@ public interface IEventQueue : IComparable<IEventQueue>
     bool IsListeningToAddress(string destinationAddress);
     int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress);
 
+    IAlternativeExecutionContextAction<TP> GetExecutionContextAction<TP>(IRule sender);
+    IAlternativeExecutionContextResult<TR> GetExecutionContextResult<TR>(IRule sender);
+    IAlternativeExecutionContextResult<TR, TP> GetExecutionContextResult<TR, TP>(IRule sender);
+
     void RunOn(IRule sender, Action action);
 
     void Shutdown();
@@ -61,7 +73,7 @@ public class EventQueue : IEventQueue
 
     private DateTime lastUpDateTime = DateTime.Now;
 
-    public EventQueue(IEventBus eventBus, EventQueueType queueType, int id, IAsyncValueTaskRingPoller<Message> ringPoller)
+    public EventQueue(IConfigureEventBus eventBus, EventQueueType queueType, int id, IAsyncValueTaskRingPoller<Message> ringPoller)
     {
         QueueType = queueType;
         Id = id;
@@ -69,7 +81,11 @@ public class EventQueue : IEventQueue
         ring = ringPoller.Ring;
         eventContext = new EventContext(this, eventBus);
         ringPoller.Recycler = eventContext.PooledRecycler;
+        LatestMessageStartProcessing = new QueueEventTime(-1, DateTime.UtcNow);
+        LatestMessageFinishedProcessing = new QueueEventTime(-1, DateTime.UtcNow);
         MessagePump = new MessagePump(ringPoller, eventContext);
+        MessagePump.MessageStartProcessingTime += SetLatestStarted;
+        MessagePump.MessageFinishProcessingTime += SetLatestFinished;
     }
 
     public MessagePump MessagePump { get; set; }
@@ -78,9 +94,14 @@ public class EventQueue : IEventQueue
 
     public EventQueueType QueueType { get; }
 
+    public IEventContext Context => eventContext;
+
     public int Id { get; }
 
     public bool IsRunning => MessagePump.IsRunning;
+
+    public QueueEventTime LatestMessageStartProcessing { get; private set; }
+    public QueueEventTime LatestMessageFinishedProcessing { get; private set; }
 
     public void EnqueueMessage(Message msg)
     {
@@ -267,6 +288,27 @@ public class EventQueue : IEventQueue
         return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.LoadRule);
     }
 
+    public IAlternativeExecutionContextAction<TP> GetExecutionContextAction<TP>(IRule sender)
+    {
+        var executionContext = Context.PooledRecycler.Borrow<EventQueueExecutionContextAction<TP>>();
+        executionContext.Configure(this, sender);
+        return executionContext;
+    }
+
+    public IAlternativeExecutionContextResult<TR> GetExecutionContextResult<TR>(IRule sender)
+    {
+        var executionContext = Context.PooledRecycler.Borrow<EventQueueExecutionContextResult<TR>>();
+        executionContext.Configure(this, sender);
+        return executionContext;
+    }
+
+    public IAlternativeExecutionContextResult<TR, TP> GetExecutionContextResult<TR, TP>(IRule sender)
+    {
+        var executionContext = Context.PooledRecycler.Borrow<EventQueueExecutionContextResult<TR, TP>>();
+        executionContext.Configure(this, sender);
+        return executionContext;
+    }
+
     private void IncrementRecentMessageReceived()
     {
         var currentTimeToSecond = DateTime.Now.TruncToSecond();
@@ -288,6 +330,16 @@ public class EventQueue : IEventQueue
         }
 
         recentMessageCountReceived[currentTimeToSecond.Second] += 1;
+    }
+
+    private void SetLatestStarted(QueueEventTime queueEventTime)
+    {
+        LatestMessageStartProcessing = queueEventTime;
+    }
+
+    private void SetLatestFinished(QueueEventTime queueEventTime)
+    {
+        LatestMessageFinishedProcessing = queueEventTime;
     }
 
     public override string ToString() => $"{GetType().Name}({nameof(name)}: \"{name}\")";

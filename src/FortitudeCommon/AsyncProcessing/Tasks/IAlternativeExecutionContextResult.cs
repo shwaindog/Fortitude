@@ -21,17 +21,17 @@ public class BasicCancellationToken : RecyclableObject
     }
 }
 
-public interface IAlternativeExecutionContextAction<out TP>
+public interface IAlternativeExecutionContextAction<TP>
 {
-    ValueTask Execute(Action<TP> methodToExecute);
-    ValueTask Execute(Action<TP, BasicCancellationToken> methodToExecute);
+    ValueTask Execute(Action<TP> methodToExecute, TP firstParam);
+    ValueTask Execute(Action<TP, BasicCancellationToken?> methodToExecute, TP firstParam, BasicCancellationToken? secondParam);
 }
 
 public interface IAlternativeExecutionContextResult<TR> : IRecyclableObject
 {
     ValueTask<TR> Execute(Func<TR> methodToExecute);
     ValueTask<TR> Execute(Func<ValueTask<TR>> methodToExecute);
-    ValueTask<TR> Execute(Func<BasicCancellationToken?, TR> methodToExecute, BasicCancellationToken? secondParameter);
+    ValueTask<TR> Execute(Func<BasicCancellationToken?, TR> methodToExecute, BasicCancellationToken? firstParam);
 }
 
 public interface IAlternativeExecutionContextResult<TR, TP> : IRecyclableObject

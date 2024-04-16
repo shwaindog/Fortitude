@@ -42,6 +42,7 @@ public interface IEventBus
 
 public interface IConfigureEventBus : IEventBus
 {
+    IEventQueueGroupContainer AllEventQueues { get; }
     void Start();
     void Stop();
     void StartNewEventQueue(IEventQueue freshEventQueue);
@@ -49,34 +50,34 @@ public interface IConfigureEventBus : IEventBus
 
 public class EventBus : IConfigureEventBus
 {
-    private readonly IEventQueueGroupContainer allEventQueues;
-
     public EventBus(BusRulesConfig config)
     {
         DependencyResolver = config.Resolver ?? new BasicDependencyResolver();
-        allEventQueues = new EventQueueGroupContainer(this, config);
+        AllEventQueues = new EventQueueGroupContainer(this, config);
     }
 
-    internal EventBus(Func<IEventBus, IEventQueueGroupContainer> createGroupContainerFunc
+    internal EventBus(Func<IConfigureEventBus, IEventQueueGroupContainer> createGroupContainerFunc
         , IDependencyResolver? dependencyResolver = null)
     {
         DependencyResolver = dependencyResolver ?? new BasicDependencyResolver();
-        allEventQueues = createGroupContainerFunc(this);
+        AllEventQueues = createGroupContainerFunc(this);
     }
+
+    public IEventQueueGroupContainer AllEventQueues { get; }
 
     public void Start()
     {
-        allEventQueues.Start();
+        AllEventQueues.Start();
     }
 
     public void Stop()
     {
-        allEventQueues.Stop();
+        AllEventQueues.Stop();
     }
 
     public void StartNewEventQueue(IEventQueue freshEventQueue)
     {
-        allEventQueues.Add(freshEventQueue);
+        AllEventQueues.Add(freshEventQueue);
         if (!freshEventQueue.IsRunning) freshEventQueue.Start();
     }
 
@@ -89,13 +90,13 @@ public class EventBus : IConfigureEventBus
     }
 
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
-        allEventQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
+        AllEventQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
     public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options) =>
-        allEventQueues.LaunchRule(sender, toDeployRule, options);
+        AllEventQueues.LaunchRule(sender, toDeployRule, options);
 
     public ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
-        allEventQueues.RequestAsync<T, U>(sender, publishAddress, msg, dispatchOptions);
+        AllEventQueues.RequestAsync<T, U>(sender, publishAddress, msg, dispatchOptions);
 
     public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
         , Action<IMessage<TPayload>> handler)
