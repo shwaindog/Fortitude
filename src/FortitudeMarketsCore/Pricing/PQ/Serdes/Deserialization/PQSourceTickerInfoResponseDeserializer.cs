@@ -20,6 +20,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
 
     public PQSourceTickerInfoResponseDeserializer(IRecycler recycler) => this.recycler = recycler;
 
+    public PQSourceTickerInfoResponseDeserializer(PQSourceTickerInfoResponseDeserializer toClone) : base(toClone) => recycler = toClone.recycler;
 
     public override unsafe PQSourceTickerInfoResponse? Deserialize(ISerdeContext readContext)
     {
@@ -34,6 +35,8 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
             {
                 var end = fptr + messageBufferContext.EncodedBuffer.RemainingStorage;
                 var ptr = fptr + messageBufferContext.EncodedBuffer.ReadCursor;
+                deserializedSourceTickerInfoResponse.RequestId = StreamByteOps.ToInt(ref ptr);
+                deserializedSourceTickerInfoResponse.ResponseId = StreamByteOps.ToInt(ref ptr);
                 var requestsCount = StreamByteOps.ToUShort(ref ptr);
                 for (var i = 0; i < requestsCount; i++)
                 {
@@ -73,4 +76,6 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
 
         return deserializedSourceTickerQuoteInfo;
     }
+
+    public override IMessageDeserializer Clone() => new PQSourceTickerInfoResponseDeserializer(this);
 }

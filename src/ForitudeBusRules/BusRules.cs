@@ -1,7 +1,7 @@
 ﻿#region
 
+using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.Config;
-using FortitudeBusRules.MessageBus;
 using FortitudeBusRules.Rules;
 
 #endregion
@@ -10,11 +10,11 @@ namespace FortitudeBusRules;
 
 public class BusRules
 {
-    public IConfigureEventBus? EventBus;
+    public IConfigureMessageBus? EventBus;
 
-    public IEventBus Start(BusRulesConfig busRulesConfig, IRule bootstrapRule)
+    public IMessageBus Start(BusRulesConfig busRulesConfig, IRule bootstrapRule)
     {
-        EventBus = new EventBus(busRulesConfig);
+        EventBus = new MessageBus(busRulesConfig);
         EventBus.Start();
         EventBus.DeployRuleAsync(bootstrapRule, bootstrapRule, new DeploymentOptions());
         return EventBus;

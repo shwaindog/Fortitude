@@ -14,7 +14,6 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using Moq;
@@ -122,7 +121,7 @@ public class PQQuoteSerializerTests
         var pricingServerConfig = new PricingServerConfig(NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig
             , NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig, syncRetryIntervalMs: retryWaitMs, allowUpdatesCatchup: allowCatchup);
 
-        deserializerRepository = new PQClientQuoteDeserializerRepository(new Recycler());
+        deserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest1", new Recycler());
         deserializerRepository.RegisterDeserializer(level0QuoteInfo.Id
             , new PQQuoteDeserializer<PQLevel0Quote>(new TickerPricingSubscriptionConfig(level0QuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer(level1QuoteInfo.Id

@@ -1,10 +1,9 @@
 ﻿#region
 
-using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
-using FortitudeBusRules.Messaging;
+using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
+using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using static FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.PricingSubscriptionConstants;
 
 #endregion
 
@@ -24,12 +23,10 @@ public struct SourceTickerSubscriptionResponse
 
 public class PQClientSourceFeedRule : Rule
 {
-    public const string SourceFeedUpdatesAddress = $"{PricingSubscriptionBasePath}.Feed.";
-    public const string TickerSubAddressPostFix = $".Ticker.*";
+    private readonly string defaultAllTickerSubAddress;
 
     private readonly string feedAddress;
     private readonly string feedName;
-    private readonly string tickerSubAddress;
     private IMarketConnectionConfig marketConnectionConfig;
     private SourceFeedStatus snapshotFeedStatus;
 
@@ -40,20 +37,20 @@ public class PQClientSourceFeedRule : Rule
     {
         this.marketConnectionConfig = marketConnectionConfig;
         feedName = marketConnectionConfig.Name;
-        feedAddress = SourceFeedUpdatesAddress + feedName;
-        tickerSubAddress = feedAddress + TickerSubAddressPostFix;
+        feedAddress = feedName.FeedAddress();
+        defaultAllTickerSubAddress = feedName.DefaultAllTickersPublishAddress();
     }
 
     public override ValueTask StartAsync()
     {
-        Context.EventBus.RegisterRequestListener<SourceTickerSubscriptionRequest, SourceTickerSubscriptionResponse>(this, tickerSubAddress
+        Context.MessageBus.RegisterRequestListener<SourceTickerSubscriptionRequest, SourceTickerSubscriptionResponse>(this, defaultAllTickerSubAddress
             , ReceivedTickerSubscriptionRequest);
-        Context.EventBus.PublishAsync(this, feedAddress, new SourceFeedUpdate(SourceFeedStatus.Starting, feedName, feedAddress)
+        Context.MessageBus.PublishAsync(this, feedAddress, new SourceFeedUpdate(SourceFeedStatus.Starting, feedName, feedAddress)
             , new DispatchOptions(RoutingFlags.DefaultPublish));
         return base.StartAsync();
     }
 
     public SourceTickerSubscriptionResponse ReceivedTickerSubscriptionRequest(
-        IRespondingMessage<SourceTickerSubscriptionRequest, SourceTickerSubscriptionResponse> messageRequest) =>
+        IBusRespondingMessage<SourceTickerSubscriptionRequest, SourceTickerSubscriptionResponse> busRequestMessage) =>
         new();
 }

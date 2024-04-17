@@ -1,6 +1,12 @@
+#region
+
+using FortitudeCommon.Types;
+
+#endregion
+
 namespace FortitudeCommon.DataStructures.Maps;
 
-public interface IMap<TK, TV> : IEnumerable<KeyValuePair<TK, TV>> where TK : notnull
+public interface IMap<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>, ICloneable<IMap<TK, TV>> where TK : notnull
 {
     IEnumerable<TK> Keys { get; }
     IEnumerable<TV> Values { get; }

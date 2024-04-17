@@ -7,7 +7,7 @@ using FortitudeIO.Protocols;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages;
 
-public class PQSourceTickerInfoRequest : VersionedMessage
+public class PQSourceTickerInfoRequest : RequestMessage
 {
     public PQSourceTickerInfoRequest() => Version = 1;
 

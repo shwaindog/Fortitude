@@ -29,10 +29,8 @@ public class TcpConversationResponderBuilder
 
         var sockFactories = SocketFactories;
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory);
-        socketSessionContext.Name += "Responder";
-
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Responder", conversationType, conversationProtocol,
+            networkConnectionConfig, sockFactories, serdesFactory);
 
         var acceptorControls
             = (IAcceptorControls)sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);

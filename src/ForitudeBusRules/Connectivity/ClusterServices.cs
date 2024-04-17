@@ -1,7 +1,7 @@
 ﻿#region
 
+using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.Config;
-using FortitudeBusRules.MessageBus;
 
 #endregion
 
@@ -10,12 +10,12 @@ namespace FortitudeBusRules.Connectivity;
 public class ClusterServices
 {
     private readonly IClusterConfig clusterConfig;
-    private readonly IEventBus eventBus;
+    private readonly IMessageBus messageBus;
 
-    public ClusterServices(IClusterConfig clusterConfig, IEventBus eventBus)
+    public ClusterServices(IClusterConfig clusterConfig, IMessageBus messageBus)
     {
         this.clusterConfig = clusterConfig;
-        this.eventBus = eventBus;
+        this.messageBus = messageBus;
     }
 
     public void Start()

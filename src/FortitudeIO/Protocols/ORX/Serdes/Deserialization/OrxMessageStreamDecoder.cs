@@ -11,7 +11,7 @@ namespace FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 
 public interface IOrxResponderStreamDecoder : IMessageStreamDecoder
 {
-    new IOrxDeserializationRepository MessageDeserializationRepository { get; }
+    new IConversationDeserializationRepository MessageDeserializationRepository { get; }
 }
 
 public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
@@ -20,11 +20,11 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
 
     private State state = State.Header;
 
-    public OrxMessageStreamDecoder(IOrxDeserializationRepository deserializersRepo) => MessageDeserializationRepository = deserializersRepo;
+    public OrxMessageStreamDecoder(IConversationDeserializationRepository deserializersRepo) => MessageDeserializationRepository = deserializersRepo;
 
     public int ExpectedSize { get; private set; } = OrxMessageHeader.HeaderSize;
 
-    public IOrxDeserializationRepository MessageDeserializationRepository { get; }
+    public IConversationDeserializationRepository MessageDeserializationRepository { get; }
 
     IMessageDeserializationRepository IMessageStreamDecoder.MessageDeserializationRepository => MessageDeserializationRepository;
 

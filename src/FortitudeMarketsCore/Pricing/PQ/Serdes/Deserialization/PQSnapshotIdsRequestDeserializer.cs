@@ -16,6 +16,7 @@ public class PQSnapshotIdsRequestDeserializer : MessageDeserializer<PQSnapshotId
 
     public PQSnapshotIdsRequestDeserializer(IRecycler recycler) => this.recycler = recycler;
 
+    public PQSnapshotIdsRequestDeserializer(PQSnapshotIdsRequestDeserializer toClone) : base(toClone) => recycler = toClone.recycler;
 
     public override unsafe PQSnapshotIdsRequest? Deserialize(ISerdeContext readContext)
     {
@@ -41,4 +42,6 @@ public class PQSnapshotIdsRequestDeserializer : MessageDeserializer<PQSnapshotId
 
         throw new ArgumentException("Expected readContext to be of type IMessageBufferContext");
     }
+
+    public override IMessageDeserializer Clone() => new PQSnapshotIdsRequestDeserializer(this);
 }

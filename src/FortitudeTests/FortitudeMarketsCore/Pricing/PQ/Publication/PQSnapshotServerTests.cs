@@ -77,8 +77,8 @@ public class PQSnapshotServerTests
                 new EndpointConfig("testHostName", 3333)
             });
 
-        var socketSessionContext = new SocketSessionContext(ConversationType.Responder
-            , SocketConversationProtocol.TcpAcceptor, "PQSnapshotServerTests", socketConConfig
+        var socketSessionContext = new SocketSessionContext("PQSnapshotServerTests", ConversationType.Responder
+            , SocketConversationProtocol.TcpAcceptor, socketConConfig
             , moqSocketFactories.Object, moqSerdesFactory.Object);
         pqSnapshotServer = new PQSnapshotServer(socketSessionContext, moqAcceptorControls.Object);
 

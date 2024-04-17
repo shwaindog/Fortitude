@@ -225,7 +225,7 @@ public class PQNameIdLookupGeneratorTests
 
         var empty = new PQNameIdLookupGenerator(1, 1);
 
-        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.CopyUpdated);
+        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.JustDifferences);
 
         Assert.AreEqual(1, empty.Count);
 
@@ -246,7 +246,7 @@ public class PQNameIdLookupGeneratorTests
 
         var empty = new PQNameIdLookupGenerator(1, 1);
 
-        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.CopyNonUpdated);
+        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.FullReplace);
 
         Assert.AreEqual(4, empty.Count);
     }
@@ -261,7 +261,7 @@ public class PQNameIdLookupGeneratorTests
 
         Assert.AreEqual(3, firstGeneratorSubKey2.Count);
 
-        firstGeneratorSubKey2.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.NoAppendLookupValues);
+        firstGeneratorSubKey2.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.AppendMissing);
 
         Assert.AreEqual(1, firstGeneratorSubKey2.Count);
     }
@@ -277,12 +277,12 @@ public class PQNameIdLookupGeneratorTests
         var originalUpdate = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
 
         var empty = new PQNameIdLookupGenerator(1, 1);
-        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.NoAppendLookupValues);
+        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.AppendMissing);
         var copyUpdate = empty.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
 
         empty = new PQNameIdLookupGenerator(1, 1);
-        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.CopyNonUpdated);
+        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.FullReplace);
         copyUpdate = empty.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
 
@@ -321,7 +321,7 @@ public class PQNameIdLookupGeneratorTests
         Assert.AreEqual("SecondItem", secondGeneratorSubKey1.GetName(2));
         Assert.AreEqual("ThirdItem", secondGeneratorSubKey1.GetName(3));
 
-        secondGeneratorSubKey1.CopyFrom(populatedIdLookupGenerator, CopyMergeFlags.NoAppendLookupValues);
+        secondGeneratorSubKey1.CopyFrom(populatedIdLookupGenerator, CopyMergeFlags.AppendMissing);
 
         Assert.AreEqual(2, secondGeneratorSubKey1.Count);
         Assert.IsNull(secondGeneratorSubKey1.GetName(1));

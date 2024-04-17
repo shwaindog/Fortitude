@@ -4,6 +4,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -33,6 +34,21 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
         syncRing = new StaticRing<T>(MaxBufferedUpdates, () =>
         {
             var newQuote = QuoteFactory(tickerPricingSubscriptionConfig.SourceTickerQuoteInfo);
+            newQuote.EnsureRelatedItemsAreConfigured(PublishedQuote);
+            return newQuote;
+        }, true);
+    }
+
+
+    public PQQuoteDeserializer(PQQuoteDeserializer<T> toClone) : base(toClone)
+    {
+        SyncRetryMs = toClone.SyncRetryMs;
+        currentSyncState = new InitializationState<T>(this);
+        stateTransitionFactory = new DeserializeStateTransitionFactory<T>();
+        AllowUpdatesCatchup = toClone.AllowUpdatesCatchup;
+        syncRing = new StaticRing<T>(MaxBufferedUpdates, () =>
+        {
+            var newQuote = QuoteFactory(toClone.Identifier);
             newQuote.EnsureRelatedItemsAreConfigured(PublishedQuote);
             return newQuote;
         }, true);
@@ -102,4 +118,6 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
     public override bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => currentSyncState.HasJustGoneStale(utcNow);
 
     public override bool CheckResync(DateTime utcNow) => currentSyncState.EligibleForResync(utcNow);
+
+    public override IMessageDeserializer Clone() => new PQQuoteDeserializer<T>(this);
 }

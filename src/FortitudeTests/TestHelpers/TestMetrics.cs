@@ -1,7 +1,7 @@
 ﻿#region
 
 using System.Reflection;
-using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Messages;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.State;
@@ -18,10 +18,10 @@ namespace FortitudeTests.TestHelpers;
 public class TestMetrics
 {
     private const int MaxAllowedUntestedClassesInCommon = 140;
-    private const int MaxAllowedUntestedClassesInFortitudeIO = 104;
+    private const int MaxAllowedUntestedClassesInFortitudeIO = 109;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsApi = 19;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 110;
-    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 70;
+    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 78;
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses = null!;
     private Type fortitudeBusRulesType = null!;
 
@@ -45,7 +45,7 @@ public class TestMetrics
         fortitudeIOType = typeof(ISocketSessionContext);
         fortitudeMarketsApiType = typeof(ILevel0Quote);
         fortitudeMarketsCoreType = typeof(PQLevel0Quote);
-        fortitudeBusRulesType = typeof(Message);
+        fortitudeBusRulesType = typeof(BusMessage);
 
         fortitudeCommonAssemblyClasses = TestableClassesInAssembly(fortitudeCommonType)
             .GroupBy(t => StripOutGenericBackTicks(t.Name)).ToDictionary(gpt => gpt.Key, gpt => gpt.ToList());

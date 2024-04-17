@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 
 #endregion
 
@@ -11,19 +12,20 @@ public interface IMessageSerdesRepositoryFactory
 {
     IMessageSerializationRepository MessageSerializationRepository { get; }
 
-    IMessageStreamDecoderFactory MessageStreamDecoderFactory { get; }
+    IMessageStreamDecoderFactory MessageStreamDecoderFactory(string name);
 
-    IMessageDeserializationRepository MessageDeserializationRepository { get; }
+    IMessageDeserializationRepository MessageDeserializationRepository(string name);
 }
 
-public interface IMessageSerdesRepository
+public interface IMessageSerdesRepository : IStoreState<IMessageSerdesRepository>
 {
     IEnumerable<uint> RegisteredMessageIds { get; }
     bool IsRegistered(uint msgId);
 }
 
-public interface IMessageSerializationRepository : IMessageSerdesRepository
+public interface IMessageSerializationRepository : IMessageSerdesRepository, IStoreState<IMessageSerializationRepository>
 {
+    IEnumerable<KeyValuePair<uint, IMessageSerializer>> AllRegisteredSerializers { get; }
     bool RegisterSerializer<TM>(IMessageSerializer<TM>? messageSerializer = null) where TM : class, IVersionedMessage, new();
     bool RegisterSerializer(uint msgId, IMessageSerializer messageSerializer);
     bool UnregisterSerializer(uint msgId);
@@ -40,6 +42,8 @@ public abstract class FactorySerializationRepository(IRecycler recycler
     private readonly IMap<uint, IMessageSerializer> registeredSerializers = new ConcurrentMap<uint, IMessageSerializer>();
 
     public IEnumerable<uint> RegisteredMessageIds => registeredSerializers.Keys;
+
+    public IEnumerable<KeyValuePair<uint, IMessageSerializer>> AllRegisteredSerializers => registeredSerializers;
     public bool IsRegistered(uint msgId) => registeredSerializers.ContainsKey(msgId);
 
     public bool UnregisterSerializer(uint msgId) => registeredSerializers.Remove(msgId);
@@ -105,6 +109,28 @@ public abstract class FactorySerializationRepository(IRecycler recycler
         registeredSerializers.TryGetValue(msgId, out var msgSerializer) ?
             msgSerializer is TS :
             cascadingFallbackMsgSerializationRepo?.IsRegisteredWithType<TS, TM>(msgId) ?? false;
+
+    public IMessageSerializationRepository CopyFrom(IMessageSerializationRepository source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if ((copyMergeFlags & CopyMergeFlags.RemoveUnmatched) > 0) registeredSerializers.Clear();
+        foreach (var kvpMessageDeserializerEntry in source.AllRegisteredSerializers)
+            if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
+            {
+                if (!TryGetSerializer(kvpMessageDeserializerEntry.Key, out var preExisting))
+                    registeredSerializers.Add(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value);
+            }
+            else
+            {
+                registeredSerializers.AddOrUpdate(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value);
+            }
+
+        return this;
+    }
+
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => throw new NotImplementedException();
+
+    public IMessageSerdesRepository CopyFrom(IMessageSerdesRepository source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        throw new NotImplementedException();
 
     protected abstract IMessageSerializer? SourceMessageSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
 }

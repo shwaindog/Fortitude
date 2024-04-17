@@ -21,10 +21,11 @@ public class ConversationRequester : SocketConversation, IStreamControls, IConve
         SocketSessionContext.SocketSender!.Send(versionedMessage);
     }
 
-    public ValueTask<bool> StartAsync(TimeSpan timeoutTimeSpan
+    public virtual ValueTask<bool> StartAsync(TimeSpan timeoutTimeSpan
         , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
         SocketSessionContext.StreamControls!.StartAsync(timeoutTimeSpan, alternativeExecutionContext);
 
-    public ValueTask<bool> StartAsync(int timeoutMs, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
+    public virtual ValueTask<bool>
+        StartAsync(int timeoutMs, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
         SocketSessionContext.StreamControls!.StartAsync(timeoutMs, alternativeExecutionContext);
 }

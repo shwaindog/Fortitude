@@ -20,7 +20,7 @@ public class PQClient : IDisposable
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQClient));
 
     private readonly IPQClientQuoteDeserializerRepository deserializationRepository
-        = new PQClientQuoteDeserializerRepository(new Recycler());
+        = new PQClientQuoteDeserializerRepository("PQClient", new Recycler());
 
     private readonly IMarketConnectionConfigRepository marketConnectionConfigRepository;
 

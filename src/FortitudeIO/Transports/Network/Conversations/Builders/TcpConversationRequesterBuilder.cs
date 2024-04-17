@@ -28,9 +28,8 @@ public class TcpConversationRequesterBuilder
 
         var sockFactories = SocketFactories;
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory);
-        socketSessionContext.Name += "Requester";
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Requester", conversationType, conversationProtocol,
+            networkConnectionConfig, sockFactories, serdesFactory);
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 

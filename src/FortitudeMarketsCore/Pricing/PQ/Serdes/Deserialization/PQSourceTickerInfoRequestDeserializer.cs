@@ -16,8 +16,10 @@ public class PQSourceTickerInfoRequestDeserializer : MessageDeserializer<PQSourc
 
     public PQSourceTickerInfoRequestDeserializer(IRecycler recycler) => this.recycler = recycler;
 
+    public PQSourceTickerInfoRequestDeserializer(PQSourceTickerInfoRequestDeserializer toClone) : base(toClone) => recycler = toClone.recycler;
 
-    public override PQSourceTickerInfoRequest? Deserialize(ISerdeContext readContext)
+
+    public override unsafe PQSourceTickerInfoRequest? Deserialize(ISerdeContext readContext)
     {
         if ((readContext.Direction & ContextDirection.Read) == 0)
             throw new ArgumentException("Expected readContext to allow reading");
@@ -26,6 +28,12 @@ public class PQSourceTickerInfoRequestDeserializer : MessageDeserializer<PQSourc
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedSnapshotIdsRequest = recycler.Borrow<PQSourceTickerInfoRequest>();
+            fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
+            {
+                var ptr = fptr + messageBufferContext.EncodedBuffer.ReadCursor;
+                deserializedSnapshotIdsRequest.RequestId = StreamByteOps.ToInt(ref ptr);
+            }
+
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             OnNotify(deserializedSnapshotIdsRequest, messageBufferContext);
             return deserializedSnapshotIdsRequest;
@@ -33,4 +41,6 @@ public class PQSourceTickerInfoRequestDeserializer : MessageDeserializer<PQSourc
 
         throw new ArgumentException("Expected readContext to be of type IMessageBufferContext");
     }
+
+    public override IMessageDeserializer Clone() => new PQSourceTickerInfoRequestDeserializer(this);
 }

@@ -8,16 +8,18 @@ using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQServerDeserializationRepository : IConversationDeserializationRepository, IMessageStreamDecoderFactory { }
-
-public sealed class PQServerDeserializationRepository : ConversationDeserializationRepository, IPQServerDeserializationRepository
+public sealed class PQServerRepository : ConversationRepository, IConversationDeserializationRepository
 {
-    public PQServerDeserializationRepository(IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
-        base(recycler, cascadingFallbackDeserializationRepo) { }
+    public PQServerRepository(string name, IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
+        base(name, recycler, cascadingFallbackDeserializationRepo) { }
 
-    public override IPQServerMessageStreamDecoder Supply() => new PQServerMessageStreamDecoder(new PQServerDeserializationRepository(Recycler, this));
+    public override IMessageDeserializer<TM>? SourceTypedMessageDeserializerFromMessageId<TM>(uint msgId) =>
+        SourceDeserializerFromMessageId(msgId, typeof(TM)) as IMessageDeserializer<TM>;
 
-    protected override IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId)
+    public override INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId) =>
+        SourceDeserializerFromMessageId(msgId, typeof(TM)) as INotifyingMessageDeserializer<TM>;
+
+    public override IMessageDeserializer? SourceDeserializerFromMessageId(uint msgId, Type messageType)
     {
         switch (msgId)
         {
@@ -25,6 +27,17 @@ public sealed class PQServerDeserializationRepository : ConversationDeserializat
             case (uint)PQMessageIds.SourceTickerInfoRequest: return new PQSourceTickerInfoRequestDeserializer(Recycler);
         }
 
-        return null;
+        return CascadingFallbackDeserializationFactoryRepo?.SourceDeserializerFromMessageId(msgId, messageType);
     }
+
+    public override uint? ResolveExpectedMessageIdForMessageType(Type messageType)
+    {
+        if (messageType == typeof(PQSnapshotIdsRequest)) return (uint)PQMessageIds.SnapshotIdsRequest;
+        if (messageType == typeof(PQSourceTickerInfoRequest)) return (uint)PQMessageIds.SourceTickerInfoRequest;
+
+        return CascadingFallbackDeserializationFactoryRepo?.ResolveExpectedMessageIdForMessageType(messageType);
+    }
+
+    public override IPQServerMessageStreamDecoder Supply(string name) =>
+        new PQServerMessageStreamDecoder(new PQServerRepository(name, Recycler, this));
 }

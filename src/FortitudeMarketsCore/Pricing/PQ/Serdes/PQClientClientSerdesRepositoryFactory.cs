@@ -11,7 +11,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes;
 
 public interface IPQClientSerdesRepositoryFactory : IMessageSerdesRepositoryFactory
 {
-    new IPQClientQuoteDeserializerRepository MessageDeserializationRepository { get; }
+    new IPQClientQuoteDeserializerRepository MessageDeserializationRepository(string name);
 }
 
 public class PQClientClientSerdesRepositoryFactory(IRecycler? serializationRecycler = null,
@@ -29,13 +29,14 @@ public class PQClientClientSerdesRepositoryFactory(IRecycler? serializationRecyc
         singleInstanceSerializationRepo ??=
             new PQClientQuoteSerializerRepository(serializationRecycler, coalescingFallbackPQQuoteSerializerRepository);
 
-    public IMessageStreamDecoderFactory MessageStreamDecoderFactory =>
+    public IMessageStreamDecoderFactory MessageStreamDecoderFactory(string name) =>
         singleInstanceDeserializationRepo ??=
-            new PQClientQuoteDeserializerRepository(deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
+            new PQClientQuoteDeserializerRepository(name, deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
 
-    IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository => MessageDeserializationRepository;
+    IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository(string name) =>
+        MessageDeserializationRepository(name);
 
-    public IPQClientQuoteDeserializerRepository MessageDeserializationRepository =>
+    public IPQClientQuoteDeserializerRepository MessageDeserializationRepository(string name) =>
         singleInstanceDeserializationRepo ??=
-            new PQClientQuoteDeserializerRepository(deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
+            new PQClientQuoteDeserializerRepository(name, deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
 }

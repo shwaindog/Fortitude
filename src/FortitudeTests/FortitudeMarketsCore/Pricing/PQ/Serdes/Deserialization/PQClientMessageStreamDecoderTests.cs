@@ -237,7 +237,7 @@ public class PQClientMessageStreamDecoderTests
     public void TwoSourceTickerInfoRequest_ProcessTwice_DecodesStreamAndCompletes()
     {
         pqClientMessageStreamDecoder
-            = new PQClientMessageStreamDecoder(new PQClientQuoteDeserializerRepository(new Recycler()));
+            = new PQClientMessageStreamDecoder(new PQClientQuoteDeserializerRepository("PQClientTest", new Recycler()));
         pqClientMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoResponse>()
             .AddDeserializedNotifier(new PassThroughDeserializedNotifier<PQSourceTickerInfoResponse>(
                 $"{nameof(PQClientMessageStreamDecoderTests)}.{nameof(sourceTickerInfoResponseCallBack)}", sourceTickerInfoResponseCallBack));

@@ -2,54 +2,82 @@
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeIO.Protocols.Serdes.Binary;
 
-public interface IMessageDeserializationRepository : IMessageSerdesRepository
+public interface IMessageDeserializationRepository : IMessageSerdesRepository, IStoreState<IMessageDeserializationRepository>
 {
-    INotifyingMessageDeserializer<TM>? RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
+    string Name { get; }
+    IEnumerable<KeyValuePair<uint, IMessageDeserializer>> AllRegisteredDeserializers { get; }
+
+    IMessageDeserializationRepository? CascadingFallbackDeserializationRepo { get; set; }
+
+    INotifyingMessageDeserializer<TM>? RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null
+        , bool forceOverride = false)
         where TM : class, IVersionedMessage, new();
 
-    IMessageDeserializer RegisterDeserializer(uint msgId, IMessageDeserializer messageDeserializer);
+    IMessageDeserializer RegisterDeserializer(uint msgId, IMessageDeserializer messageDeserializer, bool forceOverride = false);
     bool UnregisterDeserializer(uint msgId);
+
+    IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializersOfType(Type messageType);
 
     bool TryGetDeserializer(uint msgId, out IMessageDeserializer? messageDeserializer);
     IMessageDeserializer? GetDeserializer(uint msgId);
+    IEnumerable<uint> GetRegisteredMessageIds(IMessageDeserializer messageDeserializer);
     INotifyingMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
     bool IsRegisteredWithType<TS, TM>(uint msgId) where TS : INotifyingMessageDeserializer<TM> where TM : class, IVersionedMessage, new();
 }
 
 public class MessageDeserializationRepository : IMessageDeserializationRepository
 {
-    protected readonly IMessageDeserializationRepository? CascadingFallbackDeserializationRepo;
     protected readonly IRecycler Recycler;
     protected readonly IMap<uint, IMessageDeserializer> RegisteredDeserializers = new ConcurrentMap<uint, IMessageDeserializer>();
 
-    protected MessageDeserializationRepository(IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null)
+    public MessageDeserializationRepository(string name, IRecycler recycler
+        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null)
     {
         Recycler = recycler;
+        Name = name;
         CascadingFallbackDeserializationRepo = cascadingFallbackDeserializationRepo;
     }
+
+    public IMessageDeserializationRepository? CascadingFallbackDeserializationRepo { get; set; }
 
     public IEnumerable<uint> RegisteredMessageIds => RegisteredDeserializers.Keys;
     public bool IsRegistered(uint msgId) => RegisteredDeserializers.ContainsKey(msgId);
 
-    public virtual INotifyingMessageDeserializer<TM>? RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
+    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializersOfType(Type messageType) =>
+        AllRegisteredDeserializers.Where(kvp => kvp.Value.MessageType == messageType);
+
+    public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> AllRegisteredDeserializers =>
+        RegisteredDeserializers
+            .Concat(CascadingFallbackDeserializationRepo?.AllRegisteredDeserializers
+                        .Where(kvp => !RegisteredDeserializers.ContainsKey(kvp.Key)) ??
+                    Enumerable.Empty<KeyValuePair<uint, IMessageDeserializer>>());
+
+    public IEnumerable<uint> GetRegisteredMessageIds(IMessageDeserializer messageDeserializer) =>
+        AllRegisteredDeserializers.Where(kvp => kvp.Value == messageDeserializer).Select(kvp => kvp.Key);
+
+    public string Name { get; }
+
+    public virtual INotifyingMessageDeserializer<TM>? RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null
+        , bool forceOverride = false)
         where TM : class, IVersionedMessage, new()
     {
         var instanceOfTypeToSerialize = Recycler.Borrow<TM>();
         var msgId = instanceOfTypeToSerialize.MessageId;
         instanceOfTypeToSerialize.DecrementRefCount();
-        return RegisterDeserializer(msgId, messageDeserializer!) as INotifyingMessageDeserializer<TM>;
+        return RegisterDeserializer(msgId, messageDeserializer!, forceOverride) as INotifyingMessageDeserializer<TM>;
     }
 
-    public IMessageDeserializer RegisterDeserializer(uint msgId, IMessageDeserializer messageDeserializer)
+    public IMessageDeserializer RegisterDeserializer(uint msgId, IMessageDeserializer messageDeserializer, bool forceOverride = false)
     {
         if (!RegisteredDeserializers.TryGetValue(msgId, out var existingMessageDeserializer))
         {
-            if (CascadingFallbackDeserializationRepo == null ||
+            if (forceOverride || CascadingFallbackDeserializationRepo == null ||
                 !CascadingFallbackDeserializationRepo.IsRegistered(msgId))
             {
                 RegisteredDeserializers.Add(msgId, messageDeserializer);
@@ -59,9 +87,16 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
             return messageDeserializer;
         }
 
-        RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
-        return messageDeserializer;
+        if (forceOverride)
+        {
+            RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
+            return messageDeserializer;
+        }
+
+        if (RegisteredDeserializers.Add(msgId, messageDeserializer)) return messageDeserializer;
+        return RegisteredDeserializers.GetValue(msgId)!;
     }
+
 
     public bool UnregisterDeserializer(uint msgId) => RegisteredDeserializers.Remove(msgId);
 
@@ -77,6 +112,39 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
     public INotifyingMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new() =>
         GetDeserializer(msgId) as INotifyingMessageDeserializer<TM>;
 
+    public IMessageDeserializationRepository CopyFrom(IMessageDeserializationRepository source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if ((copyMergeFlags & CopyMergeFlags.RemoveUnmatched) > 0) RegisteredDeserializers.Clear();
+        foreach (var kvpMessageDeserializerEntry in source.AllRegisteredDeserializers)
+            if ((copyMergeFlags & CopyMergeFlags.FullReplace) == 0)
+            {
+                if ((copyMergeFlags & CopyMergeFlags.JustDifferences) > 0)
+                {
+                    if (!TryGetDeserializer(kvpMessageDeserializerEntry.Key, out var preExisting))
+                        RegisteredDeserializers.Add(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value.Clone());
+                    else
+                        preExisting!.CopyFrom(kvpMessageDeserializerEntry.Value);
+                }
+
+                if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
+                    if (!TryGetDeserializer(kvpMessageDeserializerEntry.Key, out var preExisting))
+                        RegisteredDeserializers.Add(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value.Clone());
+            }
+            else
+            {
+                RegisteredDeserializers.AddOrUpdate(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value.Clone());
+            }
+
+        return this;
+    }
+
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IMessageDeserializationRepository)source, copyMergeFlags);
+
+    public IMessageSerdesRepository CopyFrom(IMessageSerdesRepository source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((IMessageDeserializationRepository)source, copyMergeFlags);
+
     public bool IsRegisteredWithType<TS, TM>(uint msgId) where TS : INotifyingMessageDeserializer<TM> where TM : class, IVersionedMessage, new() =>
         RegisteredDeserializers.TryGetValue(msgId, out var msgSerializer) ?
             msgSerializer is TS :
@@ -85,27 +153,40 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
 
 public interface IMessageStreamDecoderFactory
 {
-    IMessageStreamDecoder Supply();
+    IMessageStreamDecoder Supply(string name);
 }
 
-public abstract class FactoryDeserializationRepository : MessageDeserializationRepository, IMessageStreamDecoderFactory
+public interface IMessageDeserializerFactoryRepository : IMessageDeserializationRepository, IMessageStreamDecoderFactory
 {
-    protected FactoryDeserializationRepository(IRecycler recycler
-        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) : base(recycler, cascadingFallbackDeserializationRepo) { }
+    INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId) where TM : class, IVersionedMessage, new();
+    IMessageDeserializer<TM>? SourceTypedMessageDeserializerFromMessageId<TM>(uint msgId) where TM : class, IVersionedMessage, new();
+    IMessageDeserializer? SourceDeserializerFromMessageId(uint msgId, Type messageType);
+    uint? ResolveExpectedMessageIdForMessageType(Type messageType);
+}
 
-    public abstract IMessageStreamDecoder Supply();
+public abstract class MessageDeserializationFactoryRepository : MessageDeserializationRepository, IMessageDeserializerFactoryRepository
+{
+    protected MessageDeserializationFactoryRepository(string name, IRecycler recycler
+        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
+        base(name, recycler, cascadingFallbackDeserializationRepo) { }
 
-    public override INotifyingMessageDeserializer<TM>? RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null)
+    protected IMessageDeserializerFactoryRepository? CascadingFallbackDeserializationFactoryRepo =>
+        CascadingFallbackDeserializationRepo as IMessageDeserializerFactoryRepository;
+
+    public abstract IMessageStreamDecoder Supply(string name);
+
+    public override INotifyingMessageDeserializer<TM>? RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null
+        , bool forceOverride = false)
     {
         var instanceOfTypeToSerialize = Recycler.Borrow<TM>();
         var msgId = instanceOfTypeToSerialize.MessageId;
         instanceOfTypeToSerialize.DecrementRefCount();
         if (!RegisteredDeserializers.TryGetValue(msgId, out var existingMessageDeserializer))
         {
-            if (CascadingFallbackDeserializationRepo == null ||
+            if (forceOverride || CascadingFallbackDeserializationRepo == null ||
                 !CascadingFallbackDeserializationRepo.IsRegisteredWithType<INotifyingMessageDeserializer<TM>, TM>(msgId))
             {
-                var sourcedMsgDeserializer = messageDeserializer ?? SourceMessageDeserializer<TM>(msgId);
+                var sourcedMsgDeserializer = messageDeserializer ?? SourceTypedMessageDeserializerFromMessageId<TM>(msgId);
                 if (sourcedMsgDeserializer == null) return null;
                 RegisteredDeserializers.Add(msgId, sourcedMsgDeserializer);
                 return sourcedMsgDeserializer as INotifyingMessageDeserializer<TM>;
@@ -118,46 +199,60 @@ public abstract class FactoryDeserializationRepository : MessageDeserializationR
             throw new Exception("Two different message types cannot be registered to the same Id");
         if (messageDeserializer != null)
         {
-            RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
-            return messageDeserializer;
+            if (forceOverride)
+            {
+                RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
+                return messageDeserializer;
+            }
+
+            if (RegisteredDeserializers.Add(msgId, messageDeserializer)) return messageDeserializer;
+            return (INotifyingMessageDeserializer<TM>)RegisteredDeserializers.GetValue(msgId)!;
         }
 
         return null;
     }
 
-    protected abstract IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
+    public abstract INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId)
+        where TM : class, IVersionedMessage, new();
+
+    public abstract IMessageDeserializer<TM>? SourceTypedMessageDeserializerFromMessageId<TM>(uint msgId) where TM : class, IVersionedMessage, new();
+
+    public abstract IMessageDeserializer? SourceDeserializerFromMessageId(uint msgId, Type messageType);
+
+    public virtual uint? ResolveExpectedMessageIdForMessageType(Type messageType) =>
+        CascadingFallbackDeserializationFactoryRepo?.ResolveExpectedMessageIdForMessageType(messageType);
 }
 
-public interface IConversationDeserializationRepository : IMessageDeserializationRepository
+public interface IConversationDeserializationRepository : IMessageDeserializerFactoryRepository
 {
-    INotifyingMessageDeserializer<TM> RegisterDeserializer<TM>()
+    INotifyingMessageDeserializer<TM> RegisterDeserializer<TM>(bool forceOverride = false)
         where TM : class, IVersionedMessage, new();
 }
 
-public abstract class ConversationDeserializationRepository : FactoryDeserializationRepository, IConversationDeserializationRepository
+public abstract class ConversationRepository : MessageDeserializationFactoryRepository, IConversationDeserializationRepository
 {
-    public ConversationDeserializationRepository(IRecycler recycler
+    public ConversationRepository(string name, IRecycler recycler
         , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
-        base(recycler, cascadingFallbackDeserializationRepo) { }
+        base(name, recycler, cascadingFallbackDeserializationRepo) { }
 
-    public INotifyingMessageDeserializer<TM> RegisterDeserializer<TM>() where TM : class, IVersionedMessage, new()
+    public INotifyingMessageDeserializer<TM> RegisterDeserializer<TM>(bool forceOverride = false) where TM : class, IVersionedMessage, new()
     {
         var instanceOfTypeToDeserialize = Recycler.Borrow<TM>();
         var msgId = instanceOfTypeToDeserialize.MessageId;
         instanceOfTypeToDeserialize.DecrementRefCount();
-        return RegisterDeserializer<TM>(msgId);
+        return RegisterDeserializer<TM>(msgId, forceOverride);
     }
 
-    public INotifyingMessageDeserializer<TM> RegisterDeserializer<TM>(uint msgId)
+    public INotifyingMessageDeserializer<TM> RegisterDeserializer<TM>(uint msgId, bool forceOverride = false)
         where TM : class, IVersionedMessage, new()
     {
         if (!RegisteredDeserializers.TryGetValue(msgId, out var existingMessageDeserializer))
         {
             var sourceNewMessageDeserializer
-                = existingMessageDeserializer as INotifyingMessageDeserializer<TM> ?? SourceMessageDeserializer<TM>(msgId);
+                = existingMessageDeserializer as INotifyingMessageDeserializer<TM> ?? SourceTypedMessageDeserializerFromMessageId<TM>(msgId);
             if (sourceNewMessageDeserializer != null)
             {
-                RegisterDeserializer(msgId, sourceNewMessageDeserializer);
+                RegisterDeserializer(msgId, sourceNewMessageDeserializer, forceOverride);
                 existingMessageDeserializer = sourceNewMessageDeserializer;
             }
             else

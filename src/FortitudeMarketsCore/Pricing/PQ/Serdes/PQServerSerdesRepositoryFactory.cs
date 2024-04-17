@@ -18,21 +18,22 @@ public class PQServerSerdesRepositoryFactory(PQMessageFlags feedType, IRecycler?
     private readonly IRecycler deserializationRecycler = deserializationRecycler ?? new Recycler();
     private readonly IRecycler serializationRecycler = serializationRecycler ?? new Recycler();
 
-    private IPQServerDeserializationRepository? singleInstanceDeserializationRepo;
+    private IConversationDeserializationRepository? singleInstanceDeserializationRepo;
 
     private IMessageSerializationRepository? singleInstanceSerializationRepo;
 
-    public IPQServerDeserializationRepository MessageDeserializationRepository =>
+    public IMessageStreamDecoderFactory MessageStreamDecoderFactory(string name) =>
         singleInstanceDeserializationRepo ??=
-            new PQServerDeserializationRepository(deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
-
-    public IMessageStreamDecoderFactory MessageStreamDecoderFactory =>
-        singleInstanceDeserializationRepo ??=
-            new PQServerDeserializationRepository(deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
+            new PQServerRepository(name, deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
 
     public IMessageSerializationRepository MessageSerializationRepository =>
         singleInstanceSerializationRepo ??=
             new PQServerSerializationRepository(feedType, serializationRecycler, coalescingFallbackPQQuoteSerializerRepository);
 
-    IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository => MessageDeserializationRepository;
+    IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository(string name) =>
+        MessageDeserializationRepository(name);
+
+    public IConversationDeserializationRepository MessageDeserializationRepository(string name) =>
+        singleInstanceDeserializationRepo ??=
+            new PQServerRepository(name, deserializationRecycler, coalescingFallbackPQQuoteDeserializerRepository);
 }

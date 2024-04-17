@@ -6,6 +6,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -631,5 +632,7 @@ public class PQDeserializerBaseTests
         {
             PushQuoteToSubscribers(syncStatus, detectionToPublishLatencyTraceLogger);
         }
+
+        public override IMessageDeserializer Clone() => this;
     }
 }

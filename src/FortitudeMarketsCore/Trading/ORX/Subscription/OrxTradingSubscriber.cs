@@ -34,10 +34,9 @@ public sealed class OrxTradingClientMessaging : OrxClientMessaging
 
         var serdesFactory = new OrxSerdesRepositoryFactory();
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories, serdesFactory
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Requester", conversationType, conversationProtocol,
+            networkConnectionConfig, sockFactories, serdesFactory
             , socketDispatcherResolver);
-        socketSessionContext.Name += "Requester";
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 

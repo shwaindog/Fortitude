@@ -70,7 +70,7 @@ public abstract class SocketStreamControls : IStreamControls
     public virtual void StartMessaging()
     {
         if (SocketSessionContext.SocketReceiver != null)
-            SocketSessionContext.SocketDispatcher.Listener.RegisterForListen(SocketSessionContext.SocketReceiver);
+            SocketSessionContext.SocketDispatcher.Listener?.RegisterForListen(SocketSessionContext.SocketReceiver);
         SocketSessionContext.SocketDispatcher.Start();
         SocketSessionContext.OnStarted();
     }

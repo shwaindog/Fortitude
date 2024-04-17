@@ -7,13 +7,13 @@ using FortitudeIO.Transports.Network.Dispatcher;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
-public class PQSnapshotClientRepository : PQConversationRepositoryBase<PQSnapshotClient>
+public class PQSnapshotClientRepository : PQConversationRepositoryBase<PQStandaloneSnapshotClient>
 {
     private readonly ISocketDispatcherResolver socketDispatcherResolver;
 
     public PQSnapshotClientRepository(ISocketDispatcherResolver dispatcherResolver) => socketDispatcherResolver = dispatcherResolver;
 
-    protected override PQSnapshotClient
+    protected override PQStandaloneSnapshotClient
         CreateNewSocketSubscriptionType(INetworkTopicConnectionConfig networkConnectionConfig) =>
-        PQSnapshotClient.BuildTcpRequester(networkConnectionConfig, socketDispatcherResolver);
+        PQStandaloneSnapshotClient.BuildTcpRequester(networkConnectionConfig, socketDispatcherResolver);
 }

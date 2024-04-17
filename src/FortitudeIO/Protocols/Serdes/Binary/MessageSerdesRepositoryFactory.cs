@@ -2,15 +2,18 @@
 
 public class MessageSerdesRepositoryFactory : IMessageSerdesRepositoryFactory
 {
+    private readonly IMessageDeserializationRepository messageDeserializationRepository;
+    private readonly IMessageStreamDecoderFactory messageStreamDecoderFactory;
+
     public MessageSerdesRepositoryFactory(IMessageSerializationRepository messageSerializationRepository
         , IMessageDeserializationRepository messageDeserializationRepository, IMessageStreamDecoderFactory messageStreamDecoderFactory)
     {
+        this.messageDeserializationRepository = messageDeserializationRepository;
+        this.messageStreamDecoderFactory = messageStreamDecoderFactory;
         MessageSerializationRepository = messageSerializationRepository;
-        MessageDeserializationRepository = messageDeserializationRepository;
-        MessageStreamDecoderFactory = messageStreamDecoderFactory;
     }
 
-    public IMessageStreamDecoderFactory MessageStreamDecoderFactory { get; }
+    public IMessageStreamDecoderFactory MessageStreamDecoderFactory(string _) => messageStreamDecoderFactory;
     public IMessageSerializationRepository MessageSerializationRepository { get; }
-    public IMessageDeserializationRepository MessageDeserializationRepository { get; }
+    public IMessageDeserializationRepository MessageDeserializationRepository(string _) => messageDeserializationRepository;
 }

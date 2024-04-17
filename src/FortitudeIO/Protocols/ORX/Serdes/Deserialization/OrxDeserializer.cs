@@ -16,6 +16,8 @@ public sealed class OrxDeserializer<Tm> : MessageDeserializer<Tm> where Tm : cla
     public OrxDeserializer(IRecycler recyclingFactory, uint msgId) =>
         orxByteDeserializer = new OrxByteDeserializer<Tm>(new OrxDeserializerLookup(recyclingFactory));
 
+    public OrxDeserializer(OrxDeserializer<Tm> toClone) : base(toClone) => orxByteDeserializer = toClone.orxByteDeserializer;
+
     public override Tm Deserialize(ISerdeContext readContext)
     {
         if ((readContext.Direction & ContextDirection.Read) == 0)
@@ -30,4 +32,6 @@ public sealed class OrxDeserializer<Tm> : MessageDeserializer<Tm> where Tm : cla
 
         return versionedMessage;
     }
+
+    public override IMessageDeserializer Clone() => new OrxDeserializer<Tm>(this);
 }

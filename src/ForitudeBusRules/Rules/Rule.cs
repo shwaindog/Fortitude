@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Messages;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
@@ -21,7 +21,7 @@ public delegate void LifeCycleChangeHandler(IRule sender, RuleLifeCycle oldState
 public interface IRule
 {
     IRule ParentRule { get; }
-    IEventContext Context { get; set; }
+    IQueueContext Context { get; set; }
     string FriendlyName { get; }
     string? Id { get; set; }
     RuleLifeCycle LifeCycleState { get; set; }
@@ -106,7 +106,7 @@ public class Rule : IListeningRule
     }
 
     public IEnumerable<IRule> ChildRules => children;
-    public IEventContext Context { get; set; } = null!;
+    public IQueueContext Context { get; set; } = null!;
 
     public string FriendlyName { get; set; } = "Friendly Name Not Set";
     public string? Id { get; set; }

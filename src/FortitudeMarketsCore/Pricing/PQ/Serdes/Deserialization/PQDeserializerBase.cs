@@ -18,11 +18,21 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public abstract class PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig) : MessageDeserializer<PQLevel0Quote>
+public abstract class PQDeserializerBase : MessageDeserializer<PQLevel0Quote>
     , IPQDeserializer
 {
+    protected PQDeserializerBase(PQDeserializerBase toClone) : base(toClone)
+    {
+        Identifier = toClone.Identifier;
+        ReceivedUpdate = toClone.ReceivedUpdate;
+        SyncOk = toClone.SyncOk;
+        OutOfSync = toClone.OutOfSync;
+    }
+
+    protected PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig) => Identifier = tickerPricingSubscriptionConfig;
+
     public static IPQImplementationFactory ConcreteFinder { get; set; } = new PQImplementationFactory();
-    public ISourceTickerQuoteInfo Identifier { get; } = tickerPricingSubscriptionConfig;
+    public ISourceTickerQuoteInfo Identifier { get; }
     public IPQDeserializer? Previous { get; set; }
     public IPQDeserializer? Next { get; set; }
 
@@ -73,6 +83,13 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
     {
         QuoteFactory = sqi => ConcreteFinder.GetConcreteMapping<T>(sqi);
         PublishedQuote = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
+    }
+
+
+    protected PQDeserializerBase(PQDeserializerBase<T> toClone) : base(toClone)
+    {
+        QuoteFactory = toClone.QuoteFactory;
+        PublishedQuote = (T)toClone.PublishedQuote.Clone();
     }
 
     protected virtual bool ShouldPublish => PublishedQuote.HasUpdates;

@@ -3,6 +3,7 @@
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -10,8 +11,10 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 namespace FortitudeIO.Protocols.Serdes.Binary;
 
-public interface IMessageDeserializer
+public interface IMessageDeserializer : IStoreState<IMessageDeserializer>, ICloneable<IMessageDeserializer>
 {
+    Type MessageType { get; }
+    IMessageDeserializationRepository? RegisteredRepository { get; set; }
     object? Deserialize(IBufferContext socketBufferReadContext);
 }
 
@@ -27,19 +30,23 @@ public delegate void ConversationMessageReceivedHandler<in TM>(TM deserializedMe
 public delegate void MessageDeserializedHandler<in TM>(TM deserializedMessage, IBufferContext bufferContext)
     where TM : class, IVersionedMessage, new();
 
-public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>
-    where TM : class, IVersionedMessage, new()
+public interface INotifyingMessageDeserializer : IMessageDeserializer
 {
     IEnumerable<IDeserializedNotifier> AllDeserializedNotifiers { get; }
+    IDeserializedNotifier? this[string name] { get; set; }
+    bool RemoveOnZeroNotifiers { get; set; }
+    void OnNotifierSubscribeCountChanged(IDeserializedNotifier changeDeserializedNotifier, int count);
+}
+
+public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>, INotifyingMessageDeserializer
+    , IStoreState<INotifyingMessageDeserializer<TM>>
+    where TM : class, IVersionedMessage, new()
+{
     event ConversationMessageReceivedHandler<TM>? ConversationMessageDeserialized;
     event MessageDeserializedHandler<TM>? MessageDeserialized;
-
     bool IsRegistered(Action<TM, IBufferContext> deserializedHandler);
     bool IsRegistered(ConversationMessageReceivedHandler<TM> deserializedHandler);
-    IDeserializedNotifier? FindDeserializedNotifier(string id);
     IDeserializedNotifier<TM, TR>? AddDeserializedNotifier<TR>(IDeserializedNotifier<TM, TR> deserializedNotifier);
-    int DecrementDeserializedNotifierUsage(string id);
-    int IncrementDeserializedNotifierUsage(string id);
 }
 
 public abstract class MessageDeserializer<TM> : INotifyingMessageDeserializer<TM>
@@ -47,11 +54,21 @@ public abstract class MessageDeserializer<TM> : INotifyingMessageDeserializer<TM
 {
     private readonly IMap<string, IDeserializedNotifier> registeredNotifiers = new ConcurrentMap<string, IDeserializedNotifier>();
 
+    protected MessageDeserializer() { }
+
+    protected MessageDeserializer(MessageDeserializer<TM> toClone)
+    {
+        foreach (var cloneRegisteredNotifier in toClone.registeredNotifiers)
+            registeredNotifiers.Add(cloneRegisteredNotifier.Key, cloneRegisteredNotifier.Value.Clone());
+    }
 
     object? IMessageDeserializer.Deserialize(IBufferContext bufferContext) => Deserialize(bufferContext);
-
     public MarshalType MarshalType => MarshalType.Binary;
     public abstract TM? Deserialize(ISerdeContext readContext);
+    public Type MessageType => typeof(TM);
+
+    public IMessageDeserializationRepository? RegisteredRepository { get; set; }
+    public bool RemoveOnZeroNotifiers { get; set; }
 
     public IEnumerable<IDeserializedNotifier> AllDeserializedNotifiers => registeredNotifiers.Values;
 
@@ -73,54 +90,80 @@ public abstract class MessageDeserializer<TM> : INotifyingMessageDeserializer<TM
 
     public event MessageDeserializedHandler<TM>? MessageDeserialized;
 
-    public IDeserializedNotifier? FindDeserializedNotifier(string id) =>
-        registeredNotifiers.TryGetValue(id, out var deserializedNotifier) ? deserializedNotifier : null;
+    public IDeserializedNotifier? this[string name]
+    {
+        get => registeredNotifiers.TryGetValue(name, out var deserializedNotifier) ? deserializedNotifier : null;
+        set
+        {
+            if (registeredNotifiers.TryGetValue(name, out var preexistingNotifier))
+            {
+                if (value == preexistingNotifier) return;
+                preexistingNotifier?.Unsubscribe?.Invoke();
+            }
+
+            registeredNotifiers.AddOrUpdate(name, value!);
+            value?.RegisterMessageDeserializer(this);
+        }
+    }
 
     public IDeserializedNotifier<TM, TR>? AddDeserializedNotifier<TR>(IDeserializedNotifier<TM, TR> deserializedNotifier)
     {
-        registeredNotifiers.Add(deserializedNotifier.Id, deserializedNotifier);
-        if (deserializedNotifier.AttachToDeserializerConversationHandler != null)
-        {
-            ConversationMessageDeserialized += deserializedNotifier.AttachToDeserializerConversationHandler;
-            deserializedNotifier.Unsubscribe += () =>
-            {
-                ConversationMessageDeserialized -= deserializedNotifier.AttachToDeserializerConversationHandler;
-            };
-        }
-
-        if (deserializedNotifier.AttachToDeserializerMessageHandler != null)
-        {
-            MessageDeserialized += deserializedNotifier.AttachToDeserializerMessageHandler;
-            deserializedNotifier.Unsubscribe += () =>
-            {
-                ConversationMessageDeserialized -= deserializedNotifier.AttachToDeserializerConversationHandler;
-            };
-        }
-
+        registeredNotifiers.Add(deserializedNotifier.Name, deserializedNotifier);
+        deserializedNotifier.RegisterMessageDeserializer(this);
         return deserializedNotifier;
     }
 
-    public int DecrementDeserializedNotifierUsage(string id)
+    public void OnNotifierSubscribeCountChanged(IDeserializedNotifier changeDeserializedNotifier, int count)
     {
-        if (registeredNotifiers.TryGetValue(id, out var deserializedNotifier))
-        {
-            if (--deserializedNotifier!.SubscriberCount <= 0)
+        if (count > 0 || !changeDeserializedNotifier.RemoveOnZeroSubscribers) return;
+        changeDeserializedNotifier.Unsubscribe?.Invoke();
+        registeredNotifiers.Remove(changeDeserializedNotifier.Name);
+        if (!RemoveOnZeroNotifiers || RegisteredRepository == null || AllDeserializedNotifiers.Any()) return;
+        foreach (var msgId in RegisteredRepository.GetRegisteredMessageIds(this)) RegisteredRepository.UnregisterDeserializer(msgId);
+    }
+
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((INotifyingMessageDeserializer<TM>)source, copyMergeFlags);
+
+    public IMessageDeserializer CopyFrom(IMessageDeserializer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((INotifyingMessageDeserializer<TM>)source, copyMergeFlags);
+
+    public INotifyingMessageDeserializer<TM> CopyFrom(INotifyingMessageDeserializer<TM> source
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if ((copyMergeFlags & CopyMergeFlags.RemoveUnmatched) > 0) registeredNotifiers.Clear();
+
+        foreach (var sourceAllDeserializedNotifier in source.AllDeserializedNotifiers)
+            if ((copyMergeFlags & CopyMergeFlags.FullReplace) == 0)
             {
-                deserializedNotifier.Unsubscribe?.Invoke();
-                registeredNotifiers.Remove(deserializedNotifier.Id);
+                IDeserializedNotifier? preExisting = null;
+                if ((copyMergeFlags & CopyMergeFlags.JustDifferences) > 0)
+                {
+                    preExisting = this[sourceAllDeserializedNotifier.Name];
+                    if (preExisting == null)
+                        this[sourceAllDeserializedNotifier.Name] = sourceAllDeserializedNotifier.Clone();
+                    else
+                        preExisting.CopyFrom(sourceAllDeserializedNotifier);
+                }
+
+                if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
+                {
+                    preExisting = this[sourceAllDeserializedNotifier.Name];
+                    if (preExisting == null)
+                        this[sourceAllDeserializedNotifier.Name] = sourceAllDeserializedNotifier.Clone();
+                }
+            }
+            else
+            {
+                registeredNotifiers.AddOrUpdate(sourceAllDeserializedNotifier.Name, sourceAllDeserializedNotifier.Clone());
             }
 
-            return deserializedNotifier.SubscriberCount;
-        }
-
-        return -1;
+        return this;
     }
 
-    public int IncrementDeserializedNotifierUsage(string id)
-    {
-        if (registeredNotifiers.TryGetValue(id, out var deserializedNotifier)) return ++deserializedNotifier!.SubscriberCount;
-        return -1;
-    }
+    object ICloneable.Clone() => Clone();
+
+    public abstract IMessageDeserializer Clone();
 
     protected void OnNotify(TM data, IBufferContext bufferContext)
     {

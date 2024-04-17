@@ -558,7 +558,7 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
     public ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (source is PQSourceTickerQuoteInfo pqSrcTkrQtInfo && copyMergeFlags == CopyMergeFlags.CopyUpdated)
+        if (source is PQSourceTickerQuoteInfo pqSrcTkrQtInfo && copyMergeFlags == CopyMergeFlags.JustDifferences)
         {
             if (pqSrcTkrQtInfo.IsSourceUpdated) Source = pqSrcTkrQtInfo.Source;
             if (pqSrcTkrQtInfo.IsSourceUpdated) Ticker = pqSrcTkrQtInfo.Ticker;

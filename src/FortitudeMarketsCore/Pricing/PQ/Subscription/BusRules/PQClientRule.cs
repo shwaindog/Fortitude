@@ -1,7 +1,7 @@
 ﻿#region
 
-using FortitudeBusRules.MessageBus.Routing.SelectionStrategies;
-using FortitudeBusRules.Messaging;
+using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
+using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using static FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.PricingSubscriptionConstants;
@@ -49,8 +49,6 @@ public readonly struct SourceFeedUpdate(SourceFeedStatus sourceFeedStatus, strin
 
 public class PQClientRule : Rule
 {
-    public const string PQClientUpdateAddress = $"{PricingSubscriptionBasePath}.ClientUpdate";
-
     private IMarketConnectionConfigRepository marketConnectionConfigRepository;
     private IPQPriceConnectionRuleFactory priceConnectionRuleFactory;
 
@@ -63,19 +61,19 @@ public class PQClientRule : Rule
 
     public override async ValueTask StartAsync()
     {
-        Context.EventBus.RegisterListener<SourceFeedUpdate>(this, PQClientSourceFeedRule.SourceFeedUpdatesAddress + "*", ReceivedFeedUpdate);
+        Context.MessageBus.RegisterListener<SourceFeedUpdate>(this, ClientMultiFeedStatusUpdates + "*", ReceivedFeedUpdate);
         foreach (var marketConnConfig in marketConnectionConfigRepository.AllMarketConnectionConfigs)
-            await Context.EventBus.DeployRuleAsync(this, new PQClientSourceFeedRule(marketConnConfig)
+            await Context.MessageBus.DeployRuleAsync(this, new PQClientSourceFeedRule(marketConnConfig)
                 , new DeploymentOptions(RoutingFlags.DefaultDeploy));
     }
 
-    public void ReceivedFeedUpdate(IMessage<SourceFeedUpdate> feedUpdateMessage)
+    public void ReceivedFeedUpdate(IBusMessage<SourceFeedUpdate> busFeedUpdateMessage)
     {
-        var feedStatus = feedUpdateMessage.PayLoad.Body.SourceFeedStatus;
+        var feedStatus = busFeedUpdateMessage.PayLoad.Body.SourceFeedStatus;
         if (feedStatus is SourceFeedStatus.Connected or SourceFeedStatus.Disconnected or SourceFeedStatus.Streaming)
         {
-            var feedName = feedUpdateMessage.PayLoad.Body.FeedName;
-            Context.EventBus.PublishAsync(this, PQClientUpdateAddress, new PQClientUpdate(feedStatus, feedName)
+            var feedName = busFeedUpdateMessage.PayLoad.Body.FeedName;
+            Context.MessageBus.PublishAsync(this, ClientMultiFeedStatusUpdates, new PQClientUpdate(feedStatus, feedName)
                 , new DispatchOptions(RoutingFlags.DefaultPublish));
         }
     }

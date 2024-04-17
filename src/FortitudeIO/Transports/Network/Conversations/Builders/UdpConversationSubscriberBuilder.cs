@@ -28,10 +28,9 @@ public class UdpConversationSubscriberBuilder
 
         var sockFactories = SocketFactories;
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Subscriber", conversationType, conversationProtocol,
+            networkConnectionConfig, sockFactories
             , serdesFactory);
-        socketSessionContext.Name += "Subscriber";
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 

@@ -41,19 +41,21 @@ public class PQSourceTickerInfoRequestSerializer : IMessageSerializer<PQSourceTi
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(byte[] buffer, int writeOffset, PQSourceTickerInfoRequest sourceTickerInfoRequest)
     {
         fixed (byte* bufStrt = buffer)
         {
             var writeStart = bufStrt + writeOffset;
             var currPtr = writeStart;
-            *currPtr++ = message.Version;
+            *currPtr++ = sourceTickerInfoRequest.Version;
             *currPtr++ = (byte)PQMessageFlags.None;
-            ; // header flags
-            StreamByteOps.ToBytes(ref currPtr, message.MessageId);
-            var amtWritten = currPtr - writeStart + OrxConstants.UInt32Sz;
-            StreamByteOps.ToBytes(ref currPtr, (uint)amtWritten);
-            message.DecrementRefCount();
+            StreamByteOps.ToBytes(ref currPtr, sourceTickerInfoRequest.MessageId);
+            var messageSize = currPtr;
+            currPtr += OrxConstants.UInt32Sz;
+            StreamByteOps.ToBytes(ref currPtr, sourceTickerInfoRequest.RequestId);
+            var amtWritten = currPtr - writeStart;
+            StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+            sourceTickerInfoRequest.DecrementRefCount();
             return (int)amtWritten;
         }
     }

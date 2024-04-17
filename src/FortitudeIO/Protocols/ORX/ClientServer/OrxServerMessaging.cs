@@ -40,7 +40,7 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
         set => socketFactories = value;
     }
 
-    public IOrxDeserializationRepository DeserializationRepository => messageStreamDecoder!.MessageDeserializationRepository;
+    public IConversationDeserializationRepository DeserializationRepository => messageStreamDecoder!.MessageDeserializationRepository;
 
     public IMessageSerializationRepository SerializationRepository { get; }
 
@@ -53,9 +53,8 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
 
         var serdesFactory = new OrxSerdesRepositoryFactory();
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory);
-        socketSessionContext.Name += "Responder";
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Responder", conversationType, conversationProtocol,
+            networkConnectionConfig, socFactories, serdesFactory);
 
         var acceptorControls
             = (IAcceptorControls)socFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);

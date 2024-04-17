@@ -48,17 +48,23 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
         return amountRead;
     }
 
-    public class SimpleDeserializerFactory : FactoryDeserializationRepository
+    public class SimpleDeserializerMessageDeserializationFactory : MessageDeserializationFactoryRepository
     {
-        public SimpleDeserializerFactory(IDictionary<uint, IMessageDeserializer> deserializers) : base(new Recycler())
+        public SimpleDeserializerMessageDeserializationFactory(IDictionary<uint, IMessageDeserializer> deserializers) : base(
+            "SimpleDeserializerMessageDeserializationFactory", new Recycler())
         {
             foreach (var msgDesKvp in deserializers) RegisterDeserializer(msgDesKvp.Key, msgDesKvp.Value);
         }
 
-        public override IMessageStreamDecoder Supply() => new SimpleMessageStreamDecoder(this);
+        public override IMessageStreamDecoder Supply(string name) => new SimpleMessageStreamDecoder(this);
 
-        protected override IMessageDeserializer? SourceMessageDeserializer<TM>(uint msgId) =>
+        public override IMessageDeserializer<TM>? SourceTypedMessageDeserializerFromMessageId<TM>(uint msgId) =>
             throw new NotImplementedException("Creates no new Deserializers");
+
+        public override INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId) =>
+            throw new NotImplementedException();
+
+        public override IMessageDeserializer? SourceDeserializerFromMessageId(uint msgId, Type messageType) => throw new NotImplementedException();
     }
 
     public class SimpleSerializerFactory : FactorySerializationRepository

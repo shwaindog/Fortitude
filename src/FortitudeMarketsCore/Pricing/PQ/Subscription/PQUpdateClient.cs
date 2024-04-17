@@ -22,10 +22,18 @@ public interface IPQUpdateClient : IConversationSubscriber
 public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 {
     private static ISocketFactoryResolver? socketFactories;
+    private IPQClientQuoteDeserializerRepository? deserializerRepository;
 
     public PQUpdateClient(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
-        : base(socketSessionContext, streamControls) =>
-        DeserializerRepository = (IPQClientQuoteDeserializerRepository)socketSessionContext.SerdesFactory.MessageDeserializationRepository;
+        : base(socketSessionContext, streamControls)
+    {
+        socketSessionContext.SocketReceiverUpdated += () =>
+        {
+            DeserializerRepository
+                = (IPQClientQuoteDeserializerRepository)socketSessionContext.SerdesFactory
+                    .MessageDeserializationRepository(socketSessionContext.Name);
+        };
+    }
 
     public static ISocketFactoryResolver SocketFactories
     {
@@ -33,7 +41,11 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
         set => socketFactories = value;
     }
 
-    public IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
+    public IPQClientQuoteDeserializerRepository DeserializerRepository
+    {
+        get => deserializerRepository ?? throw new Exception("Can not access DeserializerRepository until session has connected");
+        private set => deserializerRepository = value;
+    }
 
     public static PQUpdateClient BuildUdpSubscriber(INetworkTopicConnectionConfig networkConnectionConfig
         , ISocketDispatcherResolver? socketDispatcherResolver = null)
@@ -45,10 +57,9 @@ public sealed class PQUpdateClient : ConversationSubscriber, IPQUpdateClient
 
         var serdesFactory = new PQClientClientSerdesRepositoryFactory();
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Subscriber", conversationType, conversationProtocol,
+            networkConnectionConfig, sockFactories
             , serdesFactory, socketDispatcherResolver);
-        socketSessionContext.Name += "Subscriber";
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
