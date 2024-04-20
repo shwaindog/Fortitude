@@ -14,7 +14,8 @@ public interface IStoreState<T> : IStoreState where T : class
 public enum CopyMergeFlags : byte
 {
     Default = 0x00
-    , CopyNonUpdated = 0x01
-    , CopyUpdated = 0x02
-    , NoAppendLookupValues = 0x04
+    , FullReplace = 0x01
+    , JustDifferences = 0x02
+    , AppendMissing = 0x04
+    , RemoveUnmatched = 0x08
 }

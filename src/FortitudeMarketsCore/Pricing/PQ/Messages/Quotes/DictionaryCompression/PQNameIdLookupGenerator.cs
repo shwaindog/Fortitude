@@ -69,7 +69,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
     public override INameIdLookup CopyFrom(INameIdLookup source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (ReferenceEquals(this, source)) return this;
-        if ((copyMergeFlags & CopyMergeFlags.NoAppendLookupValues) != 0)
+        if ((copyMergeFlags & CopyMergeFlags.AppendMissing) != 0)
         {
             Cache.Clear();
             ReverseLookup.Clear();
@@ -77,7 +77,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 
         if (source is PQNameIdLookupGenerator pqNameIdLookupGenerator)
         {
-            var shouldCopyNonUpdate = (copyMergeFlags & CopyMergeFlags.CopyNonUpdated) != 0;
+            var shouldCopyNonUpdate = (copyMergeFlags & CopyMergeFlags.FullReplace) != 0;
 
             if (!shouldCopyNonUpdate)
             {

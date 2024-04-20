@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 
 #endregion
 
@@ -21,11 +21,6 @@ public interface ISerdes<in TIn, out TOut>
     MarshalType MarshalType { get; }
     ISerializer<TIn>? Serializer { get; }
     IDeserializer<TOut>? Deserializer { get; }
-}
-
-public interface IConverter<in TIn, out TOut>
-{
-    TOut Convert(TIn original, IRecycler? recycler = null);
 }
 
 public interface IConvertingSerdes<in TIn, out TOut> : IConverter<TIn, TOut>, ISerdes<TIn, TOut>

@@ -23,7 +23,7 @@ public class TcpAcceptedClientControls : SocketStreamControls
     public override void Disconnect()
     {
         if (SocketSessionContext.SocketReceiver != null)
-            SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(SocketSessionContext.SocketReceiver);
+            SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(SocketSessionContext.SocketReceiver);
         if (SocketSessionContext.SocketSessionState == SocketSessionState.Connected)
             SocketSessionContext.OnDisconnecting();
         if (SocketSessionContext.SocketConnection?.IsConnected ?? false)

@@ -51,7 +51,7 @@ public class UdpPubSubConnectionTests
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var streamDecoderFactory = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(deserializers);
+        var streamDecoderFactory = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(deserializers);
         var streamEncoderFactory = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
         var serdesFactory = new MessageSerdesRepositoryFactory(streamEncoderFactory, streamDecoderFactory, streamDecoderFactory);
         // create server

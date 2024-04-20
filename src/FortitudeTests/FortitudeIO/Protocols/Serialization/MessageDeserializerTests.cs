@@ -78,5 +78,7 @@ public class MessageDeserializerTests
         {
             OnNotify(data, bufferContext);
         }
+
+        public override IMessageDeserializer Clone() => this;
     }
 }

@@ -68,7 +68,7 @@ public class PQUpdatePublisherTests
             .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupGet(sd => sd.Listener).Returns(moqSocketDispatcherListener.Object);
 
-        moqSerdesFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(moqMessageSerializationRepo.Object);
+        moqSerdesFactory.Setup(sf => sf.MessageSerializationRepository).Returns(moqMessageSerializationRepo.Object);
         moqMessageSerializationRepo.SetupGet(sf => sf.RegisteredMessageIds).Returns(new uint[] { 0, 1 });
 
         var moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
@@ -84,9 +84,8 @@ public class PQUpdatePublisherTests
             {
                 new EndpointConfig("testHostName", 3333, "127.0.0.1")
             }, connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast);
-        var socketSessionContext = new SocketSessionContext(ConversationType.Responder
-            , SocketConversationProtocol.TcpAcceptor, "PQUpdatePublisherTests", socketConConfig
-            , moqSocketFactories.Object, moqSerdesFactory.Object);
+        var socketSessionContext = new SocketSessionContext("PQUpdatePublisherTests", ConversationType.Responder
+            , SocketConversationProtocol.TcpAcceptor, socketConConfig, moqSocketFactories.Object, moqSerdesFactory.Object);
 
         pqUpdatePublisher = new PQUpdatePublisher(socketSessionContext, moqStreamControls.Object);
     }
@@ -105,7 +104,6 @@ public class PQUpdatePublisherTests
 
         Assert.IsTrue(registeredSerializers.MessageSerializationRepository != null);
         Assert.AreEqual(2, registeredSerializers.MessageSerializationRepository.RegisteredMessageIds.Count());
-        Assert.IsTrue(registeredSerializers.MessageDeserializationRepository == null);
     }
 
     [TestMethod]

@@ -8,7 +8,6 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
 
@@ -74,7 +73,7 @@ public class PQSnapshotClientRepositoryTests
         var socketClient = pqSnapshotClientRegRepo.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
         Assert.IsNotNull(socketClient);
-        Assert.IsInstanceOfType(socketClient, typeof(PQSnapshotClient));
+        Assert.IsInstanceOfType(socketClient, typeof(PQStandaloneSnapshotClient));
 
         var foundSubscription = pqSnapshotClientRegRepo.RetrieveConversation(moqSocketTopicConnectionConfig.Object);
         Assert.AreSame(socketClient, foundSubscription);

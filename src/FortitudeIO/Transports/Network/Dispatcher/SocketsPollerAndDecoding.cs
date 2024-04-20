@@ -78,9 +78,9 @@ public class SocketsPollerAndDecoding
                     ProcessSocketEvent(sockRecr, detectionToPublishLatencyTraceLogger);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+                Logger.Warn("SocketsPollerAndDecoding Caught exception {0}", ex);
             }
             finally
             {

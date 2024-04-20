@@ -109,7 +109,7 @@ public class InitiateControls : SocketStreamControls
     protected void Disconnect(bool inError)
     {
         if (SocketSessionContext.SocketReceiver != null)
-            SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(SocketSessionContext.SocketReceiver);
+            SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(SocketSessionContext.SocketReceiver);
         lock (connSync)
         {
             if (!inError || SocketSessionContext.SocketSessionState == SocketSessionState.Connected ||

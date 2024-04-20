@@ -11,7 +11,7 @@ namespace FortitudeIO.Protocols.ORX.Serdes;
 
 public interface IOrxSerdesRepositoryFactory : IMessageSerdesRepositoryFactory
 {
-    new IOrxDeserializationRepository MessageDeserializationRepository { get; }
+    new IConversationDeserializationRepository MessageDeserializationRepository(string name);
 }
 
 public sealed class OrxSerdesRepositoryFactory : IOrxSerdesRepositoryFactory
@@ -19,7 +19,7 @@ public sealed class OrxSerdesRepositoryFactory : IOrxSerdesRepositoryFactory
     private readonly IRecycler deserializationRecycler;
     private readonly IMessageSerdesRepositoryFactory? fallbackMessageSerdesRepositoryFactory;
     private readonly IRecycler serializationRecycler;
-    private IOrxDeserializationRepository? messageDeserializationRepository;
+    private IConversationDeserializationRepository? messageDeserializationRepository;
     private IMessageSerializationRepository? messageSerializationRepository;
 
     public OrxSerdesRepositoryFactory(IRecycler? serializationRecycler = null, IRecycler? deserializationRecycler = null,
@@ -30,19 +30,20 @@ public sealed class OrxSerdesRepositoryFactory : IOrxSerdesRepositoryFactory
         this.fallbackMessageSerdesRepositoryFactory = fallbackMessageSerdesRepositoryFactory;
     }
 
-    public IOrxDeserializationRepository MessageDeserializationRepository =>
+    public IConversationDeserializationRepository MessageDeserializationRepository(string name) =>
         messageDeserializationRepository
-            ??= new OrxMessageDeserializationRepository(deserializationRecycler
-                , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository);
+            ??= new OrxMessageRepository(name, deserializationRecycler
+                , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository(name));
 
-    public IMessageStreamDecoderFactory MessageStreamDecoderFactory =>
+    public IMessageStreamDecoderFactory MessageStreamDecoderFactory(string name) =>
         messageDeserializationRepository
-            ??= new OrxMessageDeserializationRepository(deserializationRecycler
-                , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository);
+            ??= new OrxMessageRepository(name, deserializationRecycler
+                , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository(name));
 
     public IMessageSerializationRepository MessageSerializationRepository =>
         messageSerializationRepository
             ??= new OrxMessageSerializationRepository(serializationRecycler, fallbackMessageSerdesRepositoryFactory?.MessageSerializationRepository);
 
-    IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository => MessageDeserializationRepository;
+    IMessageDeserializationRepository IMessageSerdesRepositoryFactory.MessageDeserializationRepository(string name) =>
+        MessageDeserializationRepository(name);
 }

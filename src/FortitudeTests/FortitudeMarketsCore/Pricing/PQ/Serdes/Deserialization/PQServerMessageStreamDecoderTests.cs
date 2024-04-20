@@ -72,7 +72,7 @@ public class PQServerMessageStreamDecoderTests
         pqSnapshotIdsRequestSerializer = new PQSnapshotIdsRequestSerializer();
         pqSourceTickerInfoRequestSerializer = new PQSourceTickerInfoRequestSerializer();
 
-        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(new PQServerDeserializationRepository(new Recycler()));
+        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(new PQServerRepository("PQServerTest", new Recycler()));
         pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>()
             .AddDeserializedNotifier(new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>(
                 $"{nameof(PQServerMessageStreamDecoderTests)}.{nameof(snapshotIdsResponseCallBack)}", snapshotIdsResponseCallBack));
@@ -119,6 +119,7 @@ public class PQServerMessageStreamDecoderTests
     {
         lastReceivedSourceTickerInfoRequest = null;
         var sourceTickerInfoRequest = new PQSourceTickerInfoRequest();
+        sourceTickerInfoRequest.RequestId = int.MaxValue;
         pqSourceTickerInfoRequestSerializer.Serialize(sourceTickerInfoRequest, (ISerdeContext)socketBufferReadContext);
         var amtWritten = socketBufferReadContext.LastWriteLength;
 

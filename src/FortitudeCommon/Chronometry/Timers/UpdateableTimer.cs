@@ -67,7 +67,7 @@ public class UpdateableTimer : IUpdateableTimer
         }
     }
 
-    private DateTime NextScheduledOneOffTimerTick => NextScheduledOneOffTimerCallBackRunInfo?.NextScheduleTime ?? DateTime.MaxValue;
+    private DateTime NextScheduledOneOffTimerTick => NextScheduledOneOffTimerCallBackRunInfo?.NextScheduleTime ?? DateTime.UtcNow + MaxTimerSpan;
 
     private TimerCallBackRunInfo? FirstOneOffTimerCallBackRunInfo
     {

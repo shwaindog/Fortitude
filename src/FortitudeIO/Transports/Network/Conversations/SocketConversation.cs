@@ -22,7 +22,6 @@ public interface ISocketConversation : IConversation
 public class SocketConversation : ISocketConversation
 {
     private static int nextSessionId;
-    protected readonly ISocketSessionContext SocketSessionContext;
 
     public SocketConversation(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
     {
@@ -36,6 +35,7 @@ public class SocketConversation : ISocketConversation
     public IStreamListener? StreamListener => SocketSessionContext.SocketReceiver;
 
     public IStreamPublisher? StreamPublisher => SocketSessionContext.SocketSender;
+    public ISocketSessionContext SocketSessionContext { get; }
 
     public bool IsStarted => SocketSessionContext.SocketConnection?.IsConnected ?? false;
 

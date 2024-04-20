@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -26,6 +27,8 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
         if (!string.IsNullOrEmpty(identifier.Ticker))
             throw new ArgumentException("Expected no ticker to be specified.");
     }
+
+    public PQQuoteFeedDeserializer(PQQuoteFeedDeserializer<T> toClone) : base(toClone) { }
 
     protected override bool ShouldPublish => true;
 
@@ -68,4 +71,6 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
         PushQuoteToSubscribers(PQSyncStatus.Stale);
         return true;
     }
+
+    public override IMessageDeserializer Clone() => new PQQuoteFeedDeserializer<T>(this);
 }

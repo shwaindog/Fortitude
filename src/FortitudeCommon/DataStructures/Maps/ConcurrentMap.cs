@@ -15,6 +15,9 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
     private readonly IRecycler personalRecycler = new Recycler();
     private readonly object sync = new();
 
+    public ConcurrentMap() { }
+
+    public ConcurrentMap(IMap<TK, TV> toClone) => concurrentDictionary = new ConcurrentDictionary<TK, TV>(toClone);
 
     public TV? this[TK key]
     {
@@ -108,6 +111,10 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    object ICloneable.Clone() => Clone();
+
+    public IMap<TK, TV> Clone() => new ConcurrentMap<TK, TV>(this);
 
     public event Action<IEnumerable<KeyValuePair<TK, TV>>>? OnUpdate;
 }

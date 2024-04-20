@@ -28,10 +28,8 @@ public class UdpConversationPublisherBuilder
 
         var sockFactories = SocketFactories;
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, sockFactories
-            , serdesFactory);
-        socketSessionContext.Name += "Publisher";
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Publisher", conversationType, conversationProtocol,
+            networkConnectionConfig, sockFactories, serdesFactory);
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 

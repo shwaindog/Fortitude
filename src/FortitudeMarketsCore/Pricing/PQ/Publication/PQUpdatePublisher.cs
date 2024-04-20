@@ -41,10 +41,9 @@ public sealed class PQUpdatePublisher : ConversationPublisher, IPQUpdateServer
 
         var serdesFactory = new PQServerSerdesRepositoryFactory(PQMessageFlags.Update);
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkConnectionConfig.TopicName, networkConnectionConfig, socFactories, serdesFactory
+        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Publisher", conversationType, conversationProtocol,
+            networkConnectionConfig, socFactories, serdesFactory
             , socketDispatcherResolver);
-        socketSessionContext.Name += "Publisher";
 
         var streamControls = new InitiateControls(socketSessionContext);
 

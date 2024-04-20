@@ -75,7 +75,7 @@ public sealed class SocketSender : ISocketSender
             if (!SendActive)
             {
                 SendActive = true;
-                socketSocketSessionContext.SocketDispatcher.Sender.EnqueueSocketSender(this);
+                socketSocketSessionContext.SocketDispatcher.Sender!.EnqueueSocketSender(this);
             }
         }
         finally

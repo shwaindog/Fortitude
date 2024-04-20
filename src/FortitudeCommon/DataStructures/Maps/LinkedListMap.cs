@@ -14,6 +14,13 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
     protected DoublyLinkedList<
         DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>> Chain = new();
 
+    public LinkedListMap() { }
+
+    public LinkedListMap(IMap<TK, TV> toClone)
+    {
+        foreach (var keyValuePair in toClone) Add(keyValuePair.Key, keyValuePair.Value);
+    }
+
     public TV? this[TK key]
     {
         get
@@ -191,6 +198,10 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
     }
 
     public event Action<IEnumerable<KeyValuePair<TK, TV>>>? OnUpdate;
+
+    object ICloneable.Clone() => Clone();
+
+    public IMap<TK, TV> Clone() => new LinkedListMap<TK, TV>(this);
 
     public virtual IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
     {

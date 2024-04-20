@@ -13,6 +13,7 @@ public interface IRequestMessage : IVersionedMessage
 
 public abstract class RequestMessage : VersionedMessage, IRequestMessage
 {
+    private static int lastRequestId;
     protected RequestMessage() { }
 
     protected RequestMessage(IRequestMessage toClone) : base(toClone) => RequestId = toClone.RequestId;
@@ -29,4 +30,9 @@ public abstract class RequestMessage : VersionedMessage, IRequestMessage
     }
 
     public int RequestId { get; set; }
+
+    public int NewRequestId()
+    {
+        return RequestId = Interlocked.Increment(ref lastRequestId);
+    }
 }

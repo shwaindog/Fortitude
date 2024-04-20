@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -145,13 +145,13 @@ public class ListeningRule : Rule
         return Task.CompletedTask;
     }
 
-    public void ReceivePublishIntMessage(IMessage<int> currentMessage)
+    public void ReceivePublishIntMessage(IBusMessage<int> currentBusMessage)
     {
         try
         {
-            logger.Info($"ListeningRule instance {Id} received {currentMessage}");
+            logger.Info($"ListeningRule instance {Id} received {currentBusMessage}");
             ReceiveCount++;
-            LastReceivedPublishNumber = currentMessage.PayLoad.Body;
+            LastReceivedPublishNumber = currentBusMessage.PayLoad.Body;
         }
         catch (Exception ex)
         {
@@ -210,12 +210,12 @@ public class RespondingRule : Rule
         return new ValueTask();
     }
 
-    public int ReceivePublishIntMessage(IRespondingMessage<int, int> requestMessage)
+    public int ReceivePublishIntMessage(IBusRespondingMessage<int, int> busRequestMessage)
     {
-        logger.Info("RespondingRule instance {0} received {1}", Id, requestMessage.ToString());
+        logger.Info("RespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
-        LastReceivedRequestNumber = requestMessage.PayLoad.Body;
-        return requestMessage.PayLoad.Body + modifier;
+        LastReceivedRequestNumber = busRequestMessage.PayLoad.Body;
+        return busRequestMessage.PayLoad.Body + modifier;
     }
 
     public override void Stop()
@@ -322,11 +322,11 @@ public class AsyncValueTaskRespondingRule : Rule
         return Task.CompletedTask;
     }
 
-    public async ValueTask<int> ReceivePublishIntMessage(IRespondingMessage<int, int> requestMessage)
+    public async ValueTask<int> ReceivePublishIntMessage(IBusRespondingMessage<int, int> busRequestMessage)
     {
-        logger.Info("AsyncValueTaskRespondingRule instance {0} received {1}", Id, requestMessage.ToString());
+        logger.Info("AsyncValueTaskRespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
-        LastReceivedRequestNumber = requestMessage.PayLoad.Body;
+        LastReceivedRequestNumber = busRequestMessage.PayLoad.Body;
         var calculatedResult = await this.RequestAsync<int, int>(RequestAddress
             , LastReceivedRequestNumber
             , new DispatchOptions());
@@ -385,11 +385,11 @@ public class AsyncTaskRespondingRule : Rule
         return Task.CompletedTask;
     }
 
-    public async Task<int> ReceivePublishIntMessage(IRespondingMessage<int, int> requestMessage)
+    public async Task<int> ReceivePublishIntMessage(IBusRespondingMessage<int, int> busRequestMessage)
     {
-        logger.Info("AsyncTaskRespondingRule instance {0} received {1}", Id, requestMessage.ToString());
+        logger.Info("AsyncTaskRespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
-        LastReceivedRequestNumber = requestMessage.PayLoad.Body;
+        LastReceivedRequestNumber = busRequestMessage.PayLoad.Body;
         var calculatedResult = await this.RequestAsync<int, int>(RequestAddress, LastReceivedRequestNumber
             , new DispatchOptions());
         LastReceivedResponseNumber = calculatedResult.Response;

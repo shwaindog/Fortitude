@@ -68,12 +68,13 @@ public class PQUpdateClientTests
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
         testHostPort = 1979;
         moqServerConnectionConfig.SetupGet(scc => scc.Port).Returns(testHostPort);
+        moqSocketSessionContext.SetupAdd(ssc => ssc.SocketReceiverUpdated += null);
         moqSocketSessionContext.SetupGet(ssc => ssc.SerdesFactory).Returns(moqSerdesFactory.Object);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>()));
         moqOsSocket.SetupAllProperties();
-        moqDeserializationRepo.Setup(mdr => mdr.Supply()).Returns(moqClientMessageStreamDecoder.Object);
-        moqSerdesFactory.SetupGet(sf => sf.MessageDeserializationRepository).Returns(moqDeserializationRepo.Object);
+        moqDeserializationRepo.Setup(mdr => mdr.Supply(It.IsAny<string>())).Returns(moqClientMessageStreamDecoder.Object);
+        moqSerdesFactory.Setup(sf => sf.MessageDeserializationRepository(It.IsAny<string>())).Returns(moqDeserializationRepo.Object);
         moqSerdesFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(moqSerializationRepo.Object);
 
         pqUpdateClient = new PQUpdateClient(moqSocketSessionContext.Object, moqStreamControls.Object);
@@ -88,6 +89,8 @@ public class PQUpdateClientTests
     [TestMethod]
     public void UpdateClient_GetDecoder_ReturnsPQClientDecoder()
     {
+        moqSocketSessionContext.Raise(ssc => ssc.SocketReceiverUpdated += null);
+
         var deserializerRepository = pqUpdateClient.DeserializerRepository;
 
         Assert.IsNotNull(deserializerRepository);

@@ -12,7 +12,7 @@ public interface IPQSnapshotIdsRequest : IVersionedMessage
     List<uint> RequestSourceTickerIds { get; }
 }
 
-public class PQSnapshotIdsRequest : VersionedMessage, IPQSnapshotIdsRequest
+public class PQSnapshotIdsRequest : VersionedMessage, IPQSnapshotIdsRequest // doesn't need to be a RequestMessage as the response is QuoteSnapshots
 {
     public PQSnapshotIdsRequest() => Version = 1;
 

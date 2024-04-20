@@ -58,6 +58,10 @@ public class TopicTransportMap<T> : IMap<ITopicEndpointInfo, T> where T : ITrans
         backingMap.Clear();
     }
 
+    object ICloneable.Clone() => Clone();
+
+    public IMap<ITopicEndpointInfo, T> Clone() => throw new NotImplementedException();
+
     public bool ContainsKey(ITopicEndpointInfo key) => backingMap.ContainsKey(key);
 
     public event Action<IEnumerable<KeyValuePair<ITopicEndpointInfo, T>>> OnUpdate

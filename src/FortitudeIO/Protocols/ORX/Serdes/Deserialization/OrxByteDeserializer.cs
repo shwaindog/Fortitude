@@ -19,8 +19,8 @@ namespace FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 
 public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 {
-    private readonly IDeserializer[] mandatory;
-    private readonly Dictionary<ushort, IDeserializer> optional = new();
+    private IDeserializer[] mandatory;
+    private Dictionary<ushort, IDeserializer> optional = new();
     private byte thisVersion;
 
     public OrxByteDeserializer(IOrxDeserializerLookup orxDeserializerLookup, byte version = 0)
@@ -52,9 +52,32 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         }
     }
 
+    public OrxByteDeserializer(OrxByteDeserializer<Tm> toClone)
+    {
+        mandatory = [..toClone.mandatory];
+        optional = new Dictionary<ushort, IDeserializer>(toClone.optional);
+        thisVersion = toClone.thisVersion;
+        MessageId = toClone.MessageId;
+        OrxDeserializerLookup = toClone.OrxDeserializerLookup;
+    }
+
     public uint MessageId { get; private set; }
 
     public IOrxDeserializerLookup OrxDeserializerLookup { get; set; }
+
+    public IMessageDeserializationRepository? RegisteredRepository { get; set; }
+
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => throw new NotImplementedException();
+
+    public IMessageDeserializer CopyFrom(IMessageDeserializer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is not OrxByteDeserializer<Tm> orxByteDeserializer) return this;
+        mandatory = [..orxByteDeserializer.mandatory];
+        optional = new Dictionary<ushort, IDeserializer>(orxByteDeserializer.optional);
+        return this;
+    }
+
+    public Type MessageType => typeof(Tm);
 
     public unsafe object Deserialize(byte* ptr, int length, byte messageVersion)
     {
@@ -449,6 +472,10 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
         public abstract unsafe void Deserialize(Tm message, ref byte* buffer);
     }
+
+    object ICloneable.Clone() => Clone();
+
+    public IMessageDeserializer Clone() => new OrxByteDeserializer<Tm>(this);
 
     private sealed class MandatoryObjectDeserializer<TD, TP> : Deserializer<TP> where TD : class, new() where TP : class
     {

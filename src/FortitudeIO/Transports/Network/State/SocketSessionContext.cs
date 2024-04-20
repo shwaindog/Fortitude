@@ -48,12 +48,12 @@ public class SocketSessionContext : ISocketSessionContext
     private ISocketReceiver? socketReceiver;
     private ISocketSender? socketSender;
 
-    public SocketSessionContext(ConversationType conversationType,
-        SocketConversationProtocol socketConversationProtocol,
-        string sessionDescription, INetworkTopicConnectionConfig networkConnectionConfig,
+    public SocketSessionContext(string name, ConversationType conversationType,
+        SocketConversationProtocol socketConversationProtocol, INetworkTopicConnectionConfig networkConnectionConfig,
         ISocketFactoryResolver socketFactoryResolver, IMessageSerdesRepositoryFactory serdesFactory,
         ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
+        Name = name;
         SocketFactoryResolver = socketFactoryResolver;
         SocketDispatcher
             = socketDispatcherResolver?.Resolve(networkConnectionConfig) ??
@@ -62,7 +62,6 @@ public class SocketSessionContext : ISocketSessionContext
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
         NetworkTopicConnectionConfig = networkConnectionConfig;
-        Name = sessionDescription;
         StateChanged = socketFactoryResolver.ConnectionChangedHandlerResolver!(this)
             .GetOnConnectionChangedHandler();
         Id = Interlocked.Increment(ref idGen);

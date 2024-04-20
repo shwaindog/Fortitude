@@ -8,7 +8,7 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages;
 
-public class PQSourceTickerInfoResponse : VersionedMessage
+public class PQSourceTickerInfoResponse : ResponseMessage
 {
     public PQSourceTickerInfoResponse() => Version = 1;
 

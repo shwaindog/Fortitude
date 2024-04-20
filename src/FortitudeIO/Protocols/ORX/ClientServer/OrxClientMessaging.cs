@@ -43,7 +43,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxClientRequester
     }
 
 
-    public IOrxDeserializationRepository DeserializationRepository => messageStreamDecoder?.MessageDeserializationRepository!;
+    public IConversationDeserializationRepository DeserializationRepository => messageStreamDecoder?.MessageDeserializationRepository!;
 
     public IMessageSerializationRepository SerializationRepository { get; }
 
@@ -58,10 +58,10 @@ public class OrxClientMessaging : ConversationRequester, IOrxClientRequester
 
         var serdesFactory = new OrxSerdesRepositoryFactory();
 
-        var socketSessionContext = new SocketSessionContext(conversationType, conversationProtocol,
-            networkTopicConnectionConfig.TopicName, networkTopicConnectionConfig, sockFactories, serdesFactory
+        var socketSessionContext = new SocketSessionContext(networkTopicConnectionConfig.TopicName + "Requester", conversationType
+            , conversationProtocol,
+            networkTopicConnectionConfig, sockFactories, serdesFactory
             , socketDispatcherResolver);
-        socketSessionContext.Name += "Requester";
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 

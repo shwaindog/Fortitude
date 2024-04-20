@@ -79,6 +79,8 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
 
             throw new ArgumentException("Expected readContext to be of type IBufferContext");
         }
+
+        public override IMessageDeserializer Clone() => this;
     }
 
     public class SimpleSerializer : IMessageSerializer<SimpleVersionedMessage>

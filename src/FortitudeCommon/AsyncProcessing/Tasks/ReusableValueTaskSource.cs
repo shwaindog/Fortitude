@@ -14,6 +14,7 @@ namespace FortitudeCommon.AsyncProcessing.Tasks;
 public interface IAsyncResponseSource : IValueTaskSource, IRecyclableObject
 {
     bool IsCompleted { get; }
+    Type ResponseType { get; }
     void SetException(Exception error);
 }
 
@@ -92,6 +93,8 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     private bool ShouldPerformRecycle => Interlocked.CompareExchange(ref shouldRecycle, 1, 0) == 0;
 
     private bool ShouldStartDecrementCounter => Interlocked.CompareExchange(ref decrementCountDownTimerSet, 1, 0) == 0;
+
+    public Type ResponseType => typeof(T);
 
     public short Version => Core.Version;
 

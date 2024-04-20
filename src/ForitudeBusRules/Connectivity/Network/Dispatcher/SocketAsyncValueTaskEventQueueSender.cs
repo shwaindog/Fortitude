@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeBusRules.Messaging;
+using FortitudeBusRules.Messages;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
@@ -12,27 +12,36 @@ using FortitudeIO.Transports.Network.Publishing;
 
 namespace FortitudeBusRules.Connectivity.Network.Dispatcher;
 
-public class SocketAsyncValueTaskEventQueueSender : SocketAsyncValueTaskRingPollerSender<Message>
+public interface ISocketSenderMessageQueueRingPoller : IAsyncValueTaskRingPoller<BusMessage>, ISocketDispatcherSender
 {
-    public SocketAsyncValueTaskEventQueueSender(IAsyncValueTaskPollingRing<Message> ring, uint noDataPauseTimeoutMs, IRecycler? recycler = null
-        , IEnumerableBatchPollSink<Message>? pollSink = null,
+    new int UsageCount { get; }
+    new string Name { get; set; }
+    new void Start(Action? threadInitializer = null);
+    new void Stop();
+}
+
+public class SocketAsyncValueTaskEventQueueSender : SocketAsyncValueTaskRingPollerSender<BusMessage>, ISocketSenderMessageQueueRingPoller
+{
+    public SocketAsyncValueTaskEventQueueSender(IAsyncValueTaskPollingRing<BusMessage> ring, uint noDataPauseTimeoutMs, IRecycler? recycler = null
+        , IEnumerableBatchPollSink<BusMessage>? pollSink = null,
         Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
         : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController) =>
         PollSink = pollSink;
 
     public SocketAsyncValueTaskEventQueueSender(string name, int size, uint noDataPauseTimeoutMs, IRecycler? recycler = null
-        , IEnumerableBatchPollSink<Message>? pollSink = null,
+        , IEnumerableBatchPollSink<BusMessage>? pollSink = null,
         Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
-        : this(new AsyncValueValueTaskPollingRing<Message>(name, size, () => new Message(),
+        : this(new AsyncValueValueTaskPollingRing<BusMessage>(name, size, () => new BusMessage(),
             ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, recycler, pollSink, threadStartInitialization, parallelController) { }
 
-    public IEnumerableBatchPollSink<Message>? PollSink { get; set; }
+    public IEnumerableBatchPollSink<BusMessage>? PollSink { get; set; }
 
     public override void EnqueueSocketSender(ISocketSender socketSender)
     {
         var seqId = Ring.Claim();
         var evt = Ring[seqId];
         evt.SetAsSocketSenderItem(socketSender);
+        Ring.Publish(seqId);
         WakeIfAsleep();
         if (!IsRunning) Start();
     }

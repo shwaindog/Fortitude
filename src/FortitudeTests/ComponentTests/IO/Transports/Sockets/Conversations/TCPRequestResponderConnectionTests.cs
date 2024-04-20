@@ -62,7 +62,7 @@ public class TcpRequestResponderConnectionTests
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
         var responderStreamDeserializerRepo
-            = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(responderDeserializers);
+            = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(responderDeserializers);
         var streamSerializerRepo = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
         var responderSerdesFactory
             = new MessageSerdesRepositoryFactory(streamSerializerRepo, responderStreamDeserializerRepo, responderStreamDeserializerRepo);
@@ -76,7 +76,7 @@ public class TcpRequestResponderConnectionTests
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
         var requesterStreamDeserializerRepo
-            = new SimpleMessageStreamDecoder.SimpleDeserializerFactory(requesterDeserializers);
+            = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(requesterDeserializers);
         var requesterSerdesFactory
             = new MessageSerdesRepositoryFactory(streamSerializerRepo, requesterStreamDeserializerRepo, requesterStreamDeserializerRepo);
         // create client

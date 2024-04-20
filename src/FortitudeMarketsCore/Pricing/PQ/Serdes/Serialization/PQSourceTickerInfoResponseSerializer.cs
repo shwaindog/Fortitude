@@ -42,9 +42,9 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(byte[] buffer, int writeOffset, PQSourceTickerInfoResponse message)
     {
-        var quoteInfos = ((PQSourceTickerInfoResponse)message).SourceTickerQuoteInfos;
+        var quoteInfos = message.SourceTickerQuoteInfos;
         var remainingBytes = buffer.Length - writeOffset;
         if (quoteInfos != null && FixedSize + quoteInfos.Count * sizeof(uint) <= buffer.Length - writeOffset)
             fixed (byte* bufStrt = buffer)
@@ -57,8 +57,10 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
                 var messageSize = currPtr;
                 currPtr += OrxConstants.UInt32Sz;
                 remainingBytes -= FixedSize;
+                StreamByteOps.ToBytes(ref currPtr, message.RequestId);
+                StreamByteOps.ToBytes(ref currPtr, message.ResponseId);
                 StreamByteOps.ToBytes(ref currPtr, (ushort)quoteInfos.Count);
-                remainingBytes -= 2;
+                remainingBytes -= 10;
                 for (var i = 0; i < quoteInfos.Count; i++)
                 {
                     var toSerialize = quoteInfos[i];

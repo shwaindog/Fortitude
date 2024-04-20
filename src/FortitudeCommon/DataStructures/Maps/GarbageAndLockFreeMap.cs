@@ -36,6 +36,12 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     public GarbageAndLockFreeMap(Func<TK, TK, bool> keyComparison) => this.keyComparison = keyComparison;
 
+    public GarbageAndLockFreeMap(GarbageAndLockFreeMap<TK, TV> toClone)
+    {
+        keyComparison = toClone.keyComparison;
+        foreach (var keyValuePair in toClone) Add(keyValuePair.Key, keyValuePair.Value);
+    }
+
     public TV? this[TK key]
     {
         get
@@ -205,6 +211,10 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator() => enumeratorPool.Borrow().SourceEnumerator(queueWithElements.GetEnumerator());
+
+    object ICloneable.Clone() => Clone();
+
+    public IMap<TK, TV> Clone() => new GarbageAndLockFreeMap<TK, TV>(this);
 
     private class KvpEnumerator : IEnumerator<KeyValuePair<TK, TV>>,
         IDisposableEnumerable<KeyValuePair<TK, TV>>

@@ -101,12 +101,13 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
             if (socketSessionContext.SocketReceiver == null)
             {
                 var socketReceiver = socketReceiverFactory.GetConversationListener(socketSessionContext);
-                socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.MessageStreamDecoderFactory?.Supply();
+                socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.MessageStreamDecoderFactory(socketSessionContext.Name)
+                    ?.Supply(socketSessionContext.Name);
                 socketSessionContext.SocketReceiver = socketReceiver;
             }
             else
             {
-                socketSessionContext.SocketDispatcher.Listener.UnregisterForListen(socketSessionContext.SocketReceiver);
+                socketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(socketSessionContext.SocketReceiver);
                 socketSessionContext.SocketReceiver.Socket = socketCon.OSSocket;
             }
         }

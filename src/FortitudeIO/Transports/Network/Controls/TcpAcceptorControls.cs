@@ -260,13 +260,13 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 
     private void Unregister(ISocketSessionContext clientSocketSessionContext)
     {
-        SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(clientSocketSessionContext
+        SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(clientSocketSessionContext
             .SocketReceiver!);
     }
 
     private void Unregister(IConversationRequester clientRequester)
     {
-        SocketSessionContext.SocketDispatcher.Listener.UnregisterForListen(clientRequester
+        SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(clientRequester
             .StreamListener!);
     }
 
@@ -276,9 +276,9 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         socket.SendBufferSize = clientNetworkTopicConnectionConfig.SendBufferSize;
         socket.ReceiveBufferSize = clientNetworkTopicConnectionConfig.ReceiveBufferSize;
 
-        var socketSessionConnection = new SocketSessionContext(ConversationType.Requester,
-            SocketConversationProtocol.TcpClient, SocketSessionContext.Name,
-            clientNetworkTopicConnectionConfig,
+        var socketSessionConnection = new SocketSessionContext(clientNetworkTopicConnectionConfig.TopicName + "AcceptedClient"
+            , ConversationType.Requester,
+            SocketConversationProtocol.TcpClient, clientNetworkTopicConnectionConfig,
             SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory);
         var ipEndPoint = socket.RemoteOrLocalIPEndPoint()!;
         socketSessionConnection.OnConnected(new SocketConnection(
