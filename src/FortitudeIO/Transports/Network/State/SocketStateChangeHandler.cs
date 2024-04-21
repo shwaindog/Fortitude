@@ -104,6 +104,7 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
                 socketReceiver.Decoder ??= socketSessionContext.SerdesFactory.MessageStreamDecoderFactory(socketSessionContext.Name)
                     ?.Supply(socketSessionContext.Name);
                 socketSessionContext.SocketReceiver = socketReceiver;
+                socketReceiverFactory.RunRegisteredSocketReceiverConfiguration(socketReceiver);
             }
             else
             {

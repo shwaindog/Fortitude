@@ -44,6 +44,7 @@ public interface IMessageQueue : IComparable<IMessageQueue>
         ProcessorRegistry processorRegistry, string? destinationAddress = null
         , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null);
 
+    void LaunchRule(IRule sender, IRule rule);
     ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult);
 
     ValueTask<IDispatchResult> StopRuleAsync(IRule sender, IRule rule);
@@ -274,6 +275,13 @@ public class MessageQueue : IMessageQueue
     public void Shutdown()
     {
         MessagePump.Dispose();
+    }
+
+    public void LaunchRule(IRule sender, IRule rule)
+    {
+        rule.LifeCycleState = RuleLifeCycle.Starting;
+        rule.Context = queueContext;
+        EnqueuePayload(rule, sender, null, MessageType.LoadRule);
     }
 
     public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult)

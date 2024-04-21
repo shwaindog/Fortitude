@@ -3,6 +3,7 @@
 using System.Collections;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
@@ -155,6 +156,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     , IStoreState<PassThroughDeserializedNotifier<TM>>
     where TM : class, IVersionedMessage, new()
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PassThroughDeserializedNotifier<TM>));
     private readonly IMap<string, IReceiverListenContext<TM>> registeredReceiverContexts = new ConcurrentMap<string, IReceiverListenContext<TM>>();
     private ConversationMessageReceivedHandler<TM>? receiverConversationMessageReceivedHandler;
     private MessageDeserializedHandler<TM>? receiverMessageDeserializedHandler;
@@ -269,15 +271,20 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     {
         if (DeserializedIsResponseMessage && message is IResponseMessage responseMessage)
             if (ExpectedRequestResponses.TryGetValue(responseMessage.RequestId, out var taskSource))
-            {
-                if (taskSource is IReusableAsyncResponseSource<TM> typedAsyncResponseSource)
-                    typedAsyncResponseSource!.SetResult(message);
-                ExpectedRequestResponses.Remove(responseMessage.RequestId);
+                try
+                {
+                    if (taskSource is IReusableAsyncResponseSource<TM> typedAsyncResponseSource)
+                        typedAsyncResponseSource!.SetResult(message);
+                    ExpectedRequestResponses.Remove(responseMessage.RequestId);
 
-                SubscriberCount--;
-                // TODO add taskSource decrement timer
-                return;
-            }
+                    SubscriberCount--;
+                    // TODO add taskSource decrement timer
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Caught exception attempt to set response callback to for message {0}. Got {1}", responseMessage, ex);
+                }
 
         if (registeredReceiverContexts.Any())
             foreach (var receiverListenContext in registeredReceiverContexts.Values)
@@ -307,6 +314,8 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     , IStoreState<ConvertingDeserializedNotifier<TM, TR>>
     where TM : class, IVersionedMessage, new()
 {
+    private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(ConvertingDeserializedNotifier<TM, TR>));
+
     private readonly bool convertedIsResponseMessage;
     private readonly IMap<string, IReceiverListenContext<TR>> registeredReceiverContexts = new ConcurrentMap<string, IReceiverListenContext<TR>>();
 
@@ -407,7 +416,6 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     public override IDeserializedNotifier CopyFrom(IDeserializedNotifier source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((ConvertingDeserializedNotifier<TM, TR>)source, copyMergeFlags);
 
-
     public ConvertingDeserializedNotifier<TM, TR> CopyFrom(ConvertingDeserializedNotifier<TM, TR> source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -424,7 +432,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
                     if (!registeredReceiverContexts.TryGetValue(kvpReceiverContexts.Key, out preExisting))
                         registeredReceiverContexts.Add(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
                     else
-                        preExisting.CopyFrom(kvpReceiverContexts.Value);
+                        preExisting!.CopyFrom(kvpReceiverContexts.Value);
                 }
 
                 if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
@@ -445,13 +453,18 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
         if (DeserializedIsResponseMessage && message is IResponseMessage deserializedResponseMessage)
             if (ExpectedRequestResponses.TryGetValue(deserializedResponseMessage.RequestId, out var taskSource))
                 if (taskSource is IReusableAsyncResponseSource<TR> typedAsyncResponseSource)
-                {
-                    typedAsyncResponseSource!.SetResult(convertedMessage);
-                    ExpectedRequestResponses.Remove(deserializedResponseMessage.RequestId);
-                    SubscriberCount--;
-                    // TODO add taskSource decrement timer
-                    return;
-                }
+                    try
+                    {
+                        typedAsyncResponseSource!.SetResult(convertedMessage);
+                        ExpectedRequestResponses.Remove(deserializedResponseMessage.RequestId);
+                        SubscriberCount--;
+                        // TODO add taskSource decrement timer
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn("Caught exception attempt to set response callback to for message {0}. Got {1}", deserializedResponseMessage, ex);
+                    }
 
         if (convertedIsResponseMessage && convertedMessage is IResponseMessage convertedResponseMessage)
             if (ExpectedRequestResponses.TryGetValue(convertedResponseMessage.RequestId, out var taskSource))

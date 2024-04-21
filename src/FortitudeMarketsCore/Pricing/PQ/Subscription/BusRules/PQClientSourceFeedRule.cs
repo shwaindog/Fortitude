@@ -1,8 +1,11 @@
 ﻿#region
 
+using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
+using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 
 #endregion
@@ -28,10 +31,14 @@ public class PQClientSourceFeedRule : Rule
     private readonly string feedAddress;
     private readonly string feedName;
     private IMarketConnectionConfig marketConnectionConfig;
+
+    private PQClientSnapshotRequesterRule? pqClientSnapshotRequesterRule;
+    private PQClientUpdateSubscriberRule? pqClientUpdateSubscriberRule;
+    private MessageDeserializationRepository sharedSnapshotAndUpdateDeserializationRepository;
     private SourceFeedStatus snapshotFeedStatus;
+    private ISocketDispatcherResolver socketDispatcherResolver;
 
     private SourceFeedStatus updateFeedStatus;
-
 
     public PQClientSourceFeedRule(IMarketConnectionConfig marketConnectionConfig) : base("PQClientSourceFeedRule" + marketConnectionConfig.Name)
     {
@@ -41,13 +48,24 @@ public class PQClientSourceFeedRule : Rule
         defaultAllTickerSubAddress = feedName.DefaultAllTickersPublishAddress();
     }
 
-    public override ValueTask StartAsync()
+    public override async ValueTask StartAsync()
     {
-        Context.MessageBus.RegisterRequestListener<SourceTickerSubscriptionRequest, SourceTickerSubscriptionResponse>(this, defaultAllTickerSubAddress
+        await Context.MessageBus.RegisterRequestListenerAsync<SourceTickerSubscriptionRequest, SourceTickerSubscriptionResponse>(this
+            , defaultAllTickerSubAddress
             , ReceivedTickerSubscriptionRequest);
-        Context.MessageBus.PublishAsync(this, feedAddress, new SourceFeedUpdate(SourceFeedStatus.Starting, feedName, feedAddress)
+        Context.MessageBus.Publish(this, feedAddress, new SourceFeedUpdate(SourceFeedStatus.Starting, feedName, feedAddress)
             , new DispatchOptions(RoutingFlags.DefaultPublish));
-        return base.StartAsync();
+        socketDispatcherResolver = Context.MessageBus.BusIOResolver.GetDispatcherResolver(QueueSelectionStrategy.FirstInSet);
+        sharedSnapshotAndUpdateDeserializationRepository
+            = new MessageDeserializationRepository($"{feedName}SharedSnapshotAndUpdateRepo", Context.PooledRecycler);
+        pqClientSnapshotRequesterRule = new PQClientSnapshotRequesterRule(feedName, marketConnectionConfig
+            , sharedSnapshotAndUpdateDeserializationRepository, socketDispatcherResolver);
+        pqClientUpdateSubscriberRule = new PQClientUpdateSubscriberRule(feedName, marketConnectionConfig
+            , sharedSnapshotAndUpdateDeserializationRepository, socketDispatcherResolver);
+        var launchSnapshotClient = Context.MessageBus.DeployRuleAsync(this, pqClientSnapshotRequesterRule, new DeploymentOptions());
+        var launchUpdateClient = Context.MessageBus.DeployRuleAsync(this, pqClientUpdateSubscriberRule, new DeploymentOptions());
+        await launchSnapshotClient;
+        await launchUpdateClient;
     }
 
     public SourceTickerSubscriptionResponse ReceivedTickerSubscriptionRequest(

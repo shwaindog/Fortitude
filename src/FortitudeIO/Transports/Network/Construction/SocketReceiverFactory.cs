@@ -11,7 +11,10 @@ namespace FortitudeIO.Transports.Network.Construction;
 public interface ISocketReceiverFactory
 {
     bool HasConversationListener(ConversationType conversationType);
-    SocketReceiver GetConversationListener(ISocketSessionContext transportConversation);
+    ISocketReceiver GetConversationListener(ISocketSessionContext transportConversation);
+
+    event Action<ISocketReceiver> ConfigureNewSocketReceiver;
+    void RunRegisteredSocketReceiverConfiguration(ISocketReceiver newReceiverSession);
 }
 
 public class SocketReceiverFactory : ISocketReceiverFactory
@@ -21,5 +24,16 @@ public class SocketReceiverFactory : ISocketReceiverFactory
         || conversationType == ConversationType.Requester
         || conversationType == ConversationType.Responder;
 
-    public SocketReceiver GetConversationListener(ISocketSessionContext transportConversation) => new(transportConversation);
+    public ISocketReceiver GetConversationListener(ISocketSessionContext transportConversation)
+    {
+        var newReceiverSession = new SocketReceiver(transportConversation);
+        return newReceiverSession;
+    }
+
+    public event Action<ISocketReceiver>? ConfigureNewSocketReceiver;
+
+    public void RunRegisteredSocketReceiverConfiguration(ISocketReceiver newReceiverSession)
+    {
+        ConfigureNewSocketReceiver?.Invoke(newReceiverSession);
+    }
 }

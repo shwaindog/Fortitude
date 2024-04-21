@@ -32,7 +32,7 @@ public class PQUpdateClientTests
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<IStreamControls> moqStreamControls = null!;
 
-    private PQUpdateClient pqUpdateClient = null!;
+    private PQUpdateClient pqBusRulesUpdateClient = null!;
     private string testHostName = null!;
     private ushort testHostPort;
 
@@ -77,7 +77,7 @@ public class PQUpdateClientTests
         moqSerdesFactory.Setup(sf => sf.MessageDeserializationRepository(It.IsAny<string>())).Returns(moqDeserializationRepo.Object);
         moqSerdesFactory.SetupGet(sf => sf.MessageSerializationRepository).Returns(moqSerializationRepo.Object);
 
-        pqUpdateClient = new PQUpdateClient(moqSocketSessionContext.Object, moqStreamControls.Object);
+        pqBusRulesUpdateClient = new PQUpdateClient(moqSocketSessionContext.Object, moqStreamControls.Object);
     }
 
     [TestCleanup]
@@ -91,7 +91,7 @@ public class PQUpdateClientTests
     {
         moqSocketSessionContext.Raise(ssc => ssc.SocketReceiverUpdated += null);
 
-        var deserializerRepository = pqUpdateClient.DeserializerRepository;
+        var deserializerRepository = pqBusRulesUpdateClient.DeserializerRepository;
 
         Assert.IsNotNull(deserializerRepository);
     }

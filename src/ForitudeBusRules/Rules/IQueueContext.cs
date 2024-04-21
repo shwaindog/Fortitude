@@ -23,6 +23,8 @@ public interface IQueueContext
 
 public class QueueContext : IQueueContext
 {
+    [ThreadStatic] public static QueueContext? CurrentThreadQueueContext;
+
     private readonly IConfigureMessageBus configureMessageBus;
 
     public QueueContext(MessageQueue registeredOn, IConfigureMessageBus configureMessageBus, IRecycler? pooledRecycler = null)

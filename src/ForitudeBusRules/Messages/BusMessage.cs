@@ -92,6 +92,7 @@ public enum MessageType
     , ListenerSubscribe
     , ListenerUnsubscribe
     , QueueParamsExecutionPayload
+    , ValueTaskCallback
     , SendToRemote
     , AddWatchSocket
     , RemoveWatchSocket
@@ -168,7 +169,7 @@ public class BusMessage : IBusMessage
         return this;
     }
 
-    public bool IsTaskCallbackItem => Type == MessageType.QueueParamsExecutionPayload;
+    public bool IsTaskCallbackItem => Type == MessageType.ValueTaskCallback;
 
     public void SetAsTaskCallbackItem(SendOrPostCallback callback, object? state)
     {
@@ -177,7 +178,7 @@ public class BusMessage : IBusMessage
         taskPayLoad.Callback = callback;
         taskPayLoad.State = state;
         payLoad.Body = taskPayLoad;
-        Type = MessageType.QueueParamsExecutionPayload;
+        Type = MessageType.ValueTaskCallback;
         PayLoad = payLoad;
         Sender = Rule.NoKnownSender;
         DestinationAddress = "NotUsed";

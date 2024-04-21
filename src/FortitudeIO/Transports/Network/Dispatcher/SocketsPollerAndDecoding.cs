@@ -95,7 +95,11 @@ public class SocketsPollerAndDecoding
         }
 
         actionListTimer.GetTimerActionsToExecute(timerActionsToExecute);
-        foreach (var timerCallbackPayload in timerActionsToExecute) timerCallbackPayload.Invoke();
+        foreach (var timerCallbackPayload in timerActionsToExecute)
+            if (timerCallbackPayload.IsAsyncInvoke())
+                timerCallbackPayload.InvokeAsync();
+            else
+                timerCallbackPayload.Invoke();
     }
 
     private void ProcessSocketEvent(ISocketReceiver sockRecr, IPerfLogger detectionToPublishLatencyTraceLogger)

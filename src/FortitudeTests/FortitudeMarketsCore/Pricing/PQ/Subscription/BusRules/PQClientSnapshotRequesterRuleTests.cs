@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -15,9 +14,9 @@ using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
 [TestClass]
-public class PQClientSnapshotRuleTests : OneOfEachMessageQueueTypeTestSetup
+public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
-    private PQClientSnapshotRule pqClientSnapshotRule = null!;
+    private PQClientSourceFeedRule pqClientSourceFeedRule = null!;
     private PQPublisher<PQLevel3Quote> pqPublisher = null!;
     private LocalHostPQServerLevel3QuoteTestSetup pqServerL3QuoteServerSetup = null!;
     private IRecycler recycler = null!;
@@ -30,9 +29,9 @@ public class PQClientSnapshotRuleTests : OneOfEachMessageQueueTypeTestSetup
         sharedDeserializationRepo = new MessageDeserializationRepository("SharedSnapshotUpdateRepository", recycler);
         pqServerL3QuoteServerSetup = new LocalHostPQServerLevel3QuoteTestSetup();
         pqPublisher = pqServerL3QuoteServerSetup.CreatePQPublisher();
-        pqClientSnapshotRule = new PQClientSnapshotRule("PQClientSnapshotRuleTests"
-            , pqServerL3QuoteServerSetup.MarketConnectionConfig.ToggleProtocolDirection()
-            , sharedDeserializationRepo, MessageBus.BusIOResolver.GetDispatcherResolver(QueueSelectionStrategy.FirstInSet));
+        var clientMarketConfig = pqServerL3QuoteServerSetup.MarketConnectionConfig.ToggleProtocolDirection();
+        clientMarketConfig.Name = "PQClientSourceFeedRuleTests";
+        pqClientSourceFeedRule = new PQClientSourceFeedRule(clientMarketConfig);
     }
 
     [TestCleanup]
@@ -44,9 +43,9 @@ public class PQClientSnapshotRuleTests : OneOfEachMessageQueueTypeTestSetup
     }
 
     [TestMethod]
-    [Timeout(30_000)]
-    public async Task StartedPQServer_DeployPQClientSnapshotClient_ReceivesSourceTickerInfo()
+    [Timeout(10_000)]
+    public async Task StartedPQServer_DeployPQClientSourceFeedRule_StartSnapshotAndUpdateRuleAndRequestSourceTickerInfo()
     {
-        var results = await EventQueue.LaunchRuleAsync(pqClientSnapshotRule, pqClientSnapshotRule, EventQueueSelectionResult);
+        var results = await EventQueue.LaunchRuleAsync(pqClientSourceFeedRule, pqClientSourceFeedRule, EventQueueSelectionResult);
     }
 }
