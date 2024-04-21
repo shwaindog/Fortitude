@@ -34,11 +34,13 @@ public interface IMessageQueueGroupContainer : IEnumerable<IMessageQueue>
     bool Contains(IMessageQueue messageQueue);
     void Start();
     void Stop();
-    ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, DeploymentOptions deployment);
+    void LaunchRule(IRule sender, IRule rule, DeploymentOptions deployment);
+    ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions deployment);
 
     ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+    void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 }
 
 public class MessageQueueGroupContainer : IMessageQueueGroupContainer
@@ -148,7 +150,24 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         return eventQueueEnumerator;
     }
 
-    public ValueTask<IDispatchResult> LaunchRule(IRule sender, IRule rule, DeploymentOptions options)
+    public void LaunchRule(IRule sender, IRule rule, DeploymentOptions options)
+    {
+        var selectionStrategy = strategySelector.SelectDeployStrategy(sender, rule, options);
+        var selectionResult = selectionStrategy.Select(this, sender, rule, options);
+        if (selectionResult != null)
+        {
+            var routeSelectionResult = selectionResult.Value;
+            var destinationEventQueue = routeSelectionResult.MessageQueue;
+            destinationEventQueue.LaunchRule(sender, rule);
+            return;
+        }
+
+        var message = $"Could not find the required group to deploy rule {rule} to event Queue type {options.MessageGroupType}";
+        Logger.Warn(message);
+        throw new ArgumentException(message);
+    }
+
+    public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions options)
     {
         var selectionStrategy = strategySelector.SelectDeployStrategy(sender, rule, options);
         var selectionResult = selectionStrategy.Select(this, sender, rule, options);
@@ -186,6 +205,26 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
 
         selectionResult?.DecrementRefCount();
         throw new KeyNotFoundException($"No target rule was selected possibly the destination can not  ");
+    }
+
+    public void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions)
+    {
+        var selectionStrategy = strategySelector.SelectDispatchStrategy(sender, dispatchOptions, publishAddress);
+        var selectionResult = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
+        if (selectionResult is { HasItems: true })
+        {
+            foreach (var routeResult in selectionResult)
+            {
+                var destinationEventQueue = routeResult.MessageQueue;
+                var destinationRule = routeResult.Rule;
+                destinationEventQueue.EnqueuePayload(msg, sender, publishAddress, ruleFilter: destinationRule?.AppliesToThisRule);
+            }
+
+            return;
+        }
+
+        selectionResult?.DecrementRefCount();
+        throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
     }
 
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg

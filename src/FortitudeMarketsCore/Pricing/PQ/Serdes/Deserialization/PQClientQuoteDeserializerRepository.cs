@@ -22,6 +22,8 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
     IPQDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
         where T : PQLevel0Quote, new();
 
+    IPQDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType);
+
     IPQDeserializer? GetDeserializer(ISourceTickerQuoteInfo identifier);
 
     bool UnregisterDeserializer(ISourceTickerQuoteInfo identifier);
@@ -29,9 +31,12 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
 
 public sealed class PQClientQuoteDeserializerRepository : ConversationRepository, IPQClientQuoteDeserializerRepository
 {
+    public PQSourceTickerInfoResponseDeserializer statelessPQSourceTickerInfoResponseDeserializer;
+
     public PQClientQuoteDeserializerRepository(string name, IRecycler recycler
         , IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(name,
-        recycler, fallbackCoalasingDeserializer) { }
+        recycler, fallbackCoalasingDeserializer) =>
+        statelessPQSourceTickerInfoResponseDeserializer = new PQSourceTickerInfoResponseDeserializer(recycler);
 
     public override IPQClientMessageStreamDecoder Supply(string name) =>
         new PQClientMessageStreamDecoder(new PQClientQuoteDeserializerRepository(name, Recycler, this));
@@ -52,6 +57,17 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationRepository
         return quoteDeserializer;
     }
 
+    public IPQDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType)
+    {
+        return pqLevelQuoteMessageType switch
+        {
+            Type when pqLevelQuoteMessageType == typeof(PQLevel0Quote) => CreateQuoteDeserializer<PQLevel0Quote>(streamPubConfig)
+            , Type when pqLevelQuoteMessageType == typeof(PQLevel1Quote) => CreateQuoteDeserializer<PQLevel1Quote>(streamPubConfig)
+            , Type when pqLevelQuoteMessageType == typeof(PQLevel2Quote) => CreateQuoteDeserializer<PQLevel2Quote>(streamPubConfig)
+            , Type when pqLevelQuoteMessageType == typeof(PQLevel3Quote) => CreateQuoteDeserializer<PQLevel3Quote>(streamPubConfig), _ => null
+        };
+    }
+
     public override INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId) =>
         SourceDeserializerFromMessageId(msgId, typeof(TM)) as INotifyingMessageDeserializer<TM>;
 
@@ -62,7 +78,7 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationRepository
     {
         return msgId switch
         {
-            (uint)PQMessageIds.SourceTickerInfoResponse => new PQSourceTickerInfoResponseDeserializer(Recycler)
+            (uint)PQMessageIds.SourceTickerInfoResponse => statelessPQSourceTickerInfoResponseDeserializer
             , _ => CascadingFallbackDeserializationFactoryRepo?.SourceDeserializerFromMessageId(msgId, messageType)
         };
     }

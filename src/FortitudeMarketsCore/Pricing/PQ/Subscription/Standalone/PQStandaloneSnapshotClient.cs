@@ -1,13 +1,8 @@
 ﻿#region
 
-using FortitudeBusRules.BusMessaging;
-using FortitudeBusRules.BusMessaging.Pipelines;
-using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
-using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
-using FortitudeBusRules.Messages;
-using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
@@ -29,11 +24,9 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
-public interface IPQSnapshotClient : IConversationRequester
+public interface IPQSnapshotClient : IConversationRequester, IPQSnapshotClientCommon
 {
     IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
-
-    IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; }
 
     ISourceTickerQuoteInfoRepo SourceTickerQuoteInfoRepo { get; set; }
 
@@ -46,6 +39,7 @@ public interface IPQSnapshotClient : IConversationRequester
 
 public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnapshotClient
 {
+    private static IUpdateableTimer timer = new UpdateableTimer();
     private static ISocketFactoryResolver? socketFactories;
     private readonly uint cxTimeoutMs;
     private readonly IIntraOSThreadSignal intraOSThreadSignal;
@@ -102,8 +96,6 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         set => socketFactories = value;
     }
 
-    public IMessageBus MessageBus { get; set; }
-
     public ISourceTickerQuoteInfoRepo SourceTickerQuoteInfoRepo
     {
         get => sourceTickerQuoteInfoRepo ??= new SourceTickerQuoteInfoRepo(Name);
@@ -148,6 +140,22 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         }
     }
 
+    public async ValueTask<bool> RequestSnapshots(IList<ISourceTickerQuoteInfo> sourceTickerIds, int timeout = 10_000
+        , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
+    {
+        var started = await StartAsync(timeout, alternativeExecutionContext);
+        if (started)
+        {
+            logger.Info("Sending snapshot request for streams {0}",
+                string.Join(",", sourceTickerIds.Select(sti => sti.Id)));
+            var allStreams = sourceTickerIds.Select(x => x.Id).ToArray();
+            Send(new PQSnapshotIdsRequest(allStreams));
+            return true;
+        }
+
+        return false;
+    }
+
     public void RequestSourceTickerQuoteInfoList()
     {
         Connect();
@@ -172,40 +180,8 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
             var pqSourceTickerInfoRequest = new PQSourceTickerInfoRequest();
             var requestId = pqSourceTickerInfoRequest.NewRequestId();
             var reusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<PQSourceTickerInfoResponse>>();
+            reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = timer;
             sourceTickerInfoResponseNotifier!.AddRequestExpected(requestId, reusableValueTaskSource);
-            var responseValueTask = new ValueTask<PQSourceTickerInfoResponse>(reusableValueTaskSource, reusableValueTaskSource.Version);
-            logger.Info("Sending SourceTickerInfoRequest for source {0}", Name);
-            Send(pqSourceTickerInfoRequest);
-            pqSourceTickerInfoRequest.DecrementRefCount();
-            return await responseValueTask;
-        }
-
-        return null;
-    }
-
-
-    public async ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerQuoteInfoListAsync(IRule sendingRule, IRule listenAmender
-        , string requestIdResponseRegistrationHandlerAddress,
-        int timeout = 10_000
-        , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
-    {
-        var started = await StartAsync(timeout, alternativeExecutionContext);
-        if (started)
-        {
-            var pqSourceTickerInfoRequest = new PQSourceTickerInfoRequest();
-            var requestId = pqSourceTickerInfoRequest.NewRequestId();
-            var reusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<PQSourceTickerInfoResponse>>();
-            var registerRequest = recycler.Borrow<RemoteRequestIdResponseRegistration>();
-            registerRequest.RequestId = requestId;
-            registerRequest.ResponseSource = reusableValueTaskSource;
-
-
-            var response = await MessageBus.RequestAsync<RemoteRequestIdResponseRegistration, RemoteRegistrationResponse>(sendingRule
-                , requestIdResponseRegistrationHandlerAddress,
-                registerRequest, new DispatchOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, listenAmender));
-
-            logger.Info("Response to registration is {0}", response.Response);
-
             var responseValueTask = new ValueTask<PQSourceTickerInfoResponse>(reusableValueTaskSource, reusableValueTaskSource.Version);
             logger.Info("Sending SourceTickerInfoRequest for source {0}", Name);
             Send(pqSourceTickerInfoRequest);

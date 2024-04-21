@@ -166,9 +166,9 @@ public class TargetedRuleReceiverListenContext<T> : ReceiverListenContext<T>
 {
     private string publishAddress;
     private IRecycler? recycler;
-    private IListeningRule rule;
+    private IRule rule;
 
-    public TargetedRuleReceiverListenContext(string name, IListeningRule specificRule, string publishAddress) : base(name)
+    public TargetedRuleReceiverListenContext(string name, IRule specificRule, string publishAddress) : base(name)
     {
         rule = specificRule;
         this.publishAddress = publishAddress;
@@ -182,7 +182,7 @@ public class TargetedRuleReceiverListenContext<T> : ReceiverListenContext<T>
     }
 
     public static IReceiverListenContext DynamicBuildTypedTargetedRuleReceiverListenContext(Type messageType, string name
-        , IListeningRule specificRule, string publishAddress)
+        , IRule specificRule, string publishAddress)
     {
         
         var typeInfo = typeof(TargetedRuleReceiverListenContext<>).MakeGenericType(messageType);

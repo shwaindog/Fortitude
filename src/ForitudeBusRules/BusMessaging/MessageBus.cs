@@ -20,12 +20,15 @@ public interface IMessageBus
 
     IBusIOResolver BusIOResolver { get; }
 
+    void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions);
 
-    ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
+    ValueTask<RequestResponse<TU>> RequestAsync<T, TU>(IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions);
 
+    void DeployRule(IRule sender, IRule toDeployRule, DeploymentOptions options);
     ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options);
     ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, Type toDeployRuleType, DeploymentOptions options);
 
@@ -33,6 +36,9 @@ public interface IMessageBus
 
     ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
         , Action<IBusMessage<TPayload>> handler);
+
+    ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
+        , Func<IBusMessage<TPayload>, ValueTask> handler);
 
     ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
         , Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler);
@@ -45,6 +51,9 @@ public interface IMessageBus
 
     ValueTask<ISubscription> RegisterListenerAsync<TPayload>(IListeningRule rule, string publishAddress
         , Action<IBusMessage<TPayload>> handler);
+
+    ValueTask<ISubscription> RegisterListenerAsync<TPayload>(IListeningRule rule, string publishAddress
+        , Func<IBusMessage<TPayload>, ValueTask> handler);
 
     ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>(IListeningRule rule, string publishAddress
         , Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler);
@@ -109,17 +118,37 @@ public class MessageBus : IConfigureMessageBus
         return DeployRuleAsync(sender, resolvedRuled, options);
     }
 
+    public void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
+        AllMessageQueues.Publish(sender, publishAddress, msg, dispatchOptions);
+
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         AllMessageQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
-    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options) =>
+    public void DeployRule(IRule sender, IRule toDeployRule, DeploymentOptions options)
+    {
         AllMessageQueues.LaunchRule(sender, toDeployRule, options);
+    }
 
-    public ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
-        AllMessageQueues.RequestAsync<T, U>(sender, publishAddress, msg, dispatchOptions);
+    public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options) =>
+        AllMessageQueues.LaunchRuleAsync(sender, toDeployRule, options);
+
+    public ValueTask<RequestResponse<TU>> RequestAsync<T, TU>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
+        AllMessageQueues.RequestAsync<T, TU>(sender, publishAddress, msg, dispatchOptions);
 
     public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
         , Action<IBusMessage<TPayload>> handler)
+    {
+        var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
+        var msgListener
+            = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
+        rule.IncrementLifeTimeCount();
+        msgListener.SetHandlerFromSpecificMessageHandler(handler);
+        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+    }
+
+    public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
+        , Func<IBusMessage<TPayload>, ValueTask> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
@@ -168,6 +197,25 @@ public class MessageBus : IConfigureMessageBus
 
     public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>(IListeningRule rule, string publishAddress
         , Action<IBusMessage<TPayload>> handler)
+    {
+        var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
+        var msgListener
+            = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
+        rule.IncrementLifeTimeCount();
+        msgListener.SetHandlerFromSpecificMessageHandler(handler);
+        var processorRegistry = rule.Context.PooledRecycler.Borrow<ProcessorRegistry>();
+        processorRegistry.DispatchResult = rule.Context.PooledRecycler.Borrow<DispatchResult>();
+        processorRegistry.IncrementRefCount();
+        processorRegistry.DispatchResult.SentTime = DateTime.Now;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
+        var dispatchResult
+            = await rule.Context.RegisteredOn.EnqueuePayloadWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
+                , MessageType.ListenerSubscribe);
+        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
+    }
+
+    public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>(IListeningRule rule, string publishAddress
+        , Func<IBusMessage<TPayload>, ValueTask> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener

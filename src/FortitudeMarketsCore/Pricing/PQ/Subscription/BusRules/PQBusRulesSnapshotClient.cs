@@ -3,6 +3,7 @@
 using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
+using FortitudeBusRules.Connectivity.Network;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization.Rules;
 using FortitudeBusRules.Messages;
@@ -19,6 +20,7 @@ using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
@@ -37,6 +39,7 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
     private readonly string feedName;
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQBusRulesSnapshotClient));
     private readonly IMessageBus messageBus;
+    private readonly IPricingServerConfig pricingServerConfig;
 
     private readonly IRecycler recycler;
     private readonly string requestResponseHandlerRegistrationAddress;
@@ -47,10 +50,11 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
     private ITimerUpdate? timeoutTimerUpdate;
 
     public PQBusRulesSnapshotClient(ISocketSessionContext socketSessionContext, IStreamControls streamControls, string feedName, IRule creatingRule
-        , IMessageDeserializationRepository sharedDeserializationRepo)
+        , IMessageDeserializationRepository sharedDeserializationRepo, IPricingServerConfig pricingServerConfig)
         : base(socketSessionContext, streamControls)
     {
         this.feedName = feedName;
+        this.pricingServerConfig = pricingServerConfig;
         this.creatingRule = creatingRule;
         this.sharedDeserializationRepo = sharedDeserializationRepo;
         recycler = creatingRule.Context.PooledRecycler;
@@ -61,6 +65,12 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
         busPublicationSubscriptionAmenderAddress = feedName.AmendTickerSubscribeAndPublishAddress();
         Connected += RestartTimeoutTimer;
         Disconnected += DisableTimeout;
+        socketSessionContext.SocketFactoryResolver.SocketReceiverFactory.ConfigureNewSocketReceiver += socketReceiver =>
+        {
+            var currentDeserializerRepo = socketReceiver!.Decoder!.MessageDeserializationRepository;
+            currentDeserializerRepo.AttachToEndOfConnectedFallbackRepos(sharedDeserializationRepo);
+        };
+
         socketSessionContext.SocketReceiverUpdated += () =>
         {
             if (socketSessionContext.SocketReceiver != null)
@@ -108,6 +118,7 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
             var requestId = pqSourceTickerInfoRequest.NewRequestId();
             var reusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<PQSourceTickerInfoResponse>>();
             var registerRequest = recycler.Borrow<RemoteRequestIdResponseRegistration>();
+            reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = creatingRule.Context.Timer;
             registerRequest.RequestId = requestId;
             registerRequest.ResponseSource = reusableValueTaskSource;
 
@@ -151,9 +162,8 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
         {
             var deployedSocketListenerQueue
                 = messageBus.BusIOResolver.GetInboundQueueOnSocketListener(SocketSessionContext.SocketDispatcher.Listener!);
-            receiverQueuePublishAmender = new TopicDeserializationRepositoryAmendingRule(SocketSessionContext
-                , busPublicationSubscriptionAmenderAddress,
-                requestResponseHandlerRegistrationAddress, null, sharedDeserializationRepo.Name);
+            receiverQueuePublishAmender = new PQClientSubscriptionsAmenderRule(SocketSessionContext
+                , feedName, pricingServerConfig, null, sharedDeserializationRepo.Name);
             var dispatchResult = await messageBus.DeployRuleAsync(creatingRule, receiverQueuePublishAmender
                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
 
@@ -162,10 +172,11 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
         }
     }
 
-    public static PQBusRulesSnapshotClient BuildTcpRequester(INetworkTopicConnectionConfig networkConnectionConfig
+    public static PQBusRulesSnapshotClient BuildTcpRequester(IMarketConnectionConfig marketConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver, string feedName, IRule creatingRule
         , IMessageDeserializationRepository sharedDeserializationRepository)
     {
+        var networkConnectionConfig = marketConnectionConfig.PricingServerConfig!.SnapshotConnectionConfig;
         var conversationType = ConversationType.Requester;
         var conversationProtocol = SocketConversationProtocol.TcpClient;
 
@@ -173,12 +184,14 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
 
         var serdesFactory = new PQClientClientSerdesRepositoryFactory();
 
-        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Requester", conversationType, conversationProtocol,
+        var socketSessionContext = new BusSocketSessionContext(networkConnectionConfig.TopicName + "Requester", conversationType, conversationProtocol
+            ,
             networkConnectionConfig, sockFactories, serdesFactory, socketDispatcherResolver);
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new PQBusRulesSnapshotClient(socketSessionContext, streamControls, feedName, creatingRule, sharedDeserializationRepository);
+        return new PQBusRulesSnapshotClient(socketSessionContext, streamControls, feedName, creatingRule, sharedDeserializationRepository
+            , marketConnectionConfig.PricingServerConfig);
     }
 
     private void EnableTimeout()

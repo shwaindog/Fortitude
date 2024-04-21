@@ -31,6 +31,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     private readonly Sequence[] conCursors;
 
     private readonly Sequence pubCursor = new(Sequence.InitialValue);
+    private readonly int readAheadRingMask;
     private readonly int ringMask;
     private long completedReadAheadConsumerCursor;
     private long completedReadAheadPublishCursor;
@@ -40,6 +41,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
         , ClaimStrategyType claimStrategyType, ValueTaskProcessEvent<T>? processAsyncTask = null, int? completeAheadQueueSize = null
         , bool logErrors = true)
     {
+        completeAheadQueueSize ??= size;
         ProcessEvent = processAsyncTask ?? ((currentSequence, _) =>
         {
             Logger.Warn("Poll Sink not set on AsyncTaskPollingRing.  Will do nothing");
@@ -48,9 +50,11 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
         InterceptHandler = _ => false;
         Name = name;
         var ringSize = MemoryUtils.CeilingNextPowerOfTwo(size);
+        var readAheadRingSize = MemoryUtils.CeilingNextPowerOfTwo(completeAheadQueueSize.Value);
         ringMask = ringSize - 1;
+        readAheadRingMask = readAheadRingSize - 1;
         cells = new T[ringSize];
-        completeAhead = new TaskCompleteSequenceContainer[completeAheadQueueSize ?? size];
+        completeAhead = new TaskCompleteSequenceContainer[readAheadRingSize];
         conCursors = new[] { conCursor };
 
         claimStrategy = claimStrategyType.GetInstance(name, ringSize, logErrors);
@@ -130,7 +134,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     public void EnqueueCallback(SendOrPostCallback d, object? state)
     {
         var seqId = Claim();
-        var entry = this[seqId];
+        var entry = this[seqId & ringMask];
         entry.SetAsTaskCallbackItem(d, state);
         Publish(seqId);
     }
@@ -138,7 +142,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     private void EnqueueCompleteAhead(long completed)
     {
         var seqId = completedReadAheadPublishCursor++;
-        var evt = completeAhead[seqId];
+        var evt = completeAhead[seqId & readAheadRingMask];
         evt.Value = completed;
     }
 
@@ -159,7 +163,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     {
         for (var currLookAheadConCur = lookAheadStart; currLookAheadConCur < lookAheadMax; currLookAheadConCur++)
         {
-            var checkLookAhead = completeAhead[currLookAheadConCur].Value;
+            var checkLookAhead = completeAhead[currLookAheadConCur & readAheadRingMask].Value;
             if (conCursor.Value == checkLookAhead - 1)
             {
                 conCursor.Value = checkLookAhead;
@@ -178,7 +182,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
         var updatedConCursor = false;
         for (var currLookAheadConCur = lookAheadStart; currLookAheadConCur < lookAheadMax; currLookAheadConCur++)
         {
-            var checkLookAhead = completeAhead[currLookAheadConCur].Value;
+            var checkLookAhead = completeAhead[currLookAheadConCur & readAheadRingMask].Value;
             if (conCursor.Value == checkLookAhead - 1)
             {
                 updatedConCursor = true;
