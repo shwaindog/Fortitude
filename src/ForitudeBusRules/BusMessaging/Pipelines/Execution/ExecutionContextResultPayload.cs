@@ -10,7 +10,9 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.Execution;
 public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
     private TP firstParameter = default!;
+    private ReusableValueTaskSource<int> responseSource = new();
     private Action<TP>? toInvoke;
+
 
     public virtual void Invoke()
     {

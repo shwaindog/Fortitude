@@ -19,7 +19,7 @@ public interface IMessageListenerSubscription : IDisposable
     IAddressMatcher? Matcher { get; }
     Func<BusMessage, ValueTask> Handler { get; }
 
-    event Action<IListeningRule, string>? Unsubscribed;
+    event Action<IRule, string>? Unsubscribed;
 }
 
 public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListenerSubscription
@@ -61,7 +61,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
         Unsubscribed?.Invoke(SubscriberRule, PublishAddress);
     }
 
-    public event Action<IListeningRule, string>? Unsubscribed;
+    public event Action<IRule, string>? Unsubscribed;
 
     public void SetHandlerFromSpecificMessageHandler(
         Func<IBusRespondingMessage<TPayLoad, TResponse>, ValueTask<TResponse>> wrapHandler)
@@ -121,6 +121,39 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             else
             {
                 Logger.Warn($"Unexpected call to MessageListenerSubscription with message: {message}");
+            }
+        }
+
+        Handler = HandlerWrapper;
+    }
+
+    public void SetHandlerFromSpecificMessageHandler(
+        Func<IBusMessage<TPayLoad>, ValueTask> wrapHandler)
+    {
+        async ValueTask HandlerWrapper(BusMessage message)
+        {
+            if (!message.RuleFilter(SubscriberRule)) return;
+            if (message.Type is MessageType.Publish)
+            {
+                message.ProcessorRegistry?.RegisterStart(SubscriberRule);
+                IBusMessage<TPayLoad> typeBusMessage = message.BorrowCopy<TPayLoad>(RegisteredContext);
+                try
+                {
+                    await wrapHandler(typeBusMessage);
+                    message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn(
+                        "SetHandlerFromSpecificMessageHandler(Func<IBusMessage<{0}>, ValueTask> wrapHandler) " +
+                        "MessageType.Publish on Rule {1} caught exception {2}"
+                        , typeof(TPayLoad).Name, SubscriberRule.FriendlyName, ex);
+                }
+                finally
+                {
+                    typeBusMessage.DecrementRefCount();
+                    message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                }
             }
         }
 

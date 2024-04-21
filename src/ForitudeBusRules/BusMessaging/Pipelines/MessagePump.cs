@@ -37,7 +37,7 @@ public class MessagePump : IMessagePump
     private readonly List<IListeningRule> livingRules = new();
     private readonly IAsyncValueTaskRingPoller<BusMessage> ringPoller;
 
-    public MessagePump(IAsyncValueTaskRingPoller<BusMessage> ringPoller, QueueContext? eventContext = null)
+    public MessagePump(IAsyncValueTaskRingPoller<BusMessage> ringPoller, QueueContext eventContext)
     {
         this.ringPoller = ringPoller;
         this.ringPoller.ProcessEvent = Processor;
@@ -45,7 +45,7 @@ public class MessagePump : IMessagePump
     }
 
     public SyncContextTaskScheduler RingPollerScheduler { get; private set; } = null!;
-    public QueueContext? EventContext { get; set; }
+    public QueueContext EventContext { get; set; }
 
     public bool IsRunning => ringPoller.IsRunning;
 
@@ -133,7 +133,11 @@ public class MessagePump : IMessagePump
                     try
                     {
                         var timerCallbackPayload = (ITimerCallbackPayload)data.PayLoad!.BodyObj!;
-                        timerCallbackPayload.Invoke();
+                        if (timerCallbackPayload.IsAsyncInvoke())
+                            await timerCallbackPayload.InvokeAsync();
+                        else
+                            // ReSharper disable once MethodHasAsyncOverload
+                            timerCallbackPayload.Invoke();
                     }
                     catch (Exception ex)
                     {
@@ -179,7 +183,16 @@ public class MessagePump : IMessagePump
             for (var i = 0; i < livingRules.Count; i++)
             {
                 var checkRule = livingRules[i];
-                if (checkRule.ShouldBeStopped()) await checkRule.StopAsync();
+                if (checkRule.ShouldBeStopped())
+                    try
+                    {
+                        await checkRule.StopAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn("Caught exception stopping rule {0}, Got {1}", checkRule.FriendlyName, ex);
+                    }
+
                 livingRules.RemoveAt(i--);
             }
 
@@ -211,6 +224,7 @@ public class MessagePump : IMessagePump
 
     public void InitializeInPollingThread()
     {
+        QueueContext.CurrentThreadQueueContext = EventContext;
         RingPollerScheduler = new SyncContextTaskScheduler();
     }
 

@@ -2,6 +2,16 @@
 
 public interface IActionTimer
 {
+    ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback);
+    ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<T?, ValueTask> callback) where T : class;
+    ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback);
+    ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class;
+    ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback);
+    ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class;
+    ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<ValueTask> callback);
+    ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<T?, ValueTask> callback) where T : class;
+    ITimerUpdate RunAt(DateTime futureDateTime, Func<ValueTask> callback);
+    ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<T?, ValueTask> callback) where T : class;
     ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action callback);
     ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class;
     ITimerUpdate RunIn(int waitMs, Action callback);

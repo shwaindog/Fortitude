@@ -30,7 +30,7 @@ public class RemoteMessageBusPublishRegistration : RemoteNotificationRegistratio
     public AddRemoveCommand AddRemoveRegistration { get; set; }
     public Type PublishType { get; set; } = null!;
     public IQueueContext? QueueContext { get; set; }
-    public IListeningRule? Rule { get; set; }
+    public IRule? Rule { get; set; }
 
     protected override string StateToString =>
         $"{base.StateToString}, {nameof(PublishAddress)}: {PublishAddress}, {nameof(AddRemoveRegistration)}: {AddRemoveRegistration}, " +

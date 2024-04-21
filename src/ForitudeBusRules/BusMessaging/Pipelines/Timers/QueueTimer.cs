@@ -23,6 +23,30 @@ public class QueueTimer : Rule, IActionTimer
         ParentRule = this;
     }
 
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback) => backingTimer.RunIn(waitTimeSpan, callback);
+
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
+        backingTimer.RunIn(waitTimeSpan, state, callback);
+
+    public ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback) => backingTimer.RunIn(waitMs, callback);
+
+    public ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class => backingTimer.RunIn(waitMs, state, callback);
+
+    public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback) => backingTimer.RunEvery(intervalMs, callback);
+
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class =>
+        backingTimer.RunEvery(intervalMs, state, callback);
+
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<ValueTask> callback) => backingTimer.RunEvery(periodTimeSpan, callback);
+
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
+        backingTimer.RunEvery(periodTimeSpan, state, callback);
+
+    public ITimerUpdate RunAt(DateTime futureDateTime, Func<ValueTask> callback) => backingTimer.RunAt(futureDateTime, callback);
+
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<T?, ValueTask> callback) where T : class =>
+        backingTimer.RunAt(futureDateTime, state, callback);
+
     public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action callback) => backingTimer.RunIn(waitTimeSpan, callback);
 
     public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class =>
@@ -32,14 +56,15 @@ public class QueueTimer : Rule, IActionTimer
 
     public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class => backingTimer.RunIn(waitMs, state, callback);
 
-    public ITimerUpdate RunEvery(int intervalMs, Action callback) => backingTimer.RunIn(intervalMs, callback);
+    public ITimerUpdate RunEvery(int intervalMs, Action callback) => backingTimer.RunEvery(intervalMs, callback);
 
-    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class => backingTimer.RunIn(intervalMs, state, callback);
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class =>
+        backingTimer.RunEvery(intervalMs, state, callback);
 
-    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback) => backingTimer.RunIn(periodTimeSpan, callback);
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback) => backingTimer.RunEvery(periodTimeSpan, callback);
 
     public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class =>
-        backingTimer.RunIn(periodTimeSpan, state, callback);
+        backingTimer.RunEvery(periodTimeSpan, state, callback);
 
     public ITimerUpdate RunAt(DateTime futureDateTime, Action callback) => backingTimer.RunAt(futureDateTime, callback);
 
