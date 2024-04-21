@@ -100,20 +100,13 @@ public class ActionTimer : IActionTimer
     public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback)
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
         actionPayload.ValueTaskAction = callback;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
 
     public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<T?, ValueTask> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
         actionPayload.ValueTaskActionState = callback;
         actionPayload.State = state;
         return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
@@ -122,20 +115,13 @@ public class ActionTimer : IActionTimer
     public ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback)
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
         actionPayload.ValueTaskAction = callback;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
     }
 
     public ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
         actionPayload.ValueTaskActionState = callback;
         actionPayload.State = state;
         return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
@@ -144,20 +130,13 @@ public class ActionTimer : IActionTimer
     public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback)
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
         actionPayload.ValueTaskAction = callback;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(intervalMs, actionPayload, IntervalWaitCallback);
     }
 
     public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
         actionPayload.ValueTaskActionState = callback;
         actionPayload.State = state;
         return backingTimer.RunIn(intervalMs, actionPayload, IntervalWaitCallback);
@@ -166,20 +145,13 @@ public class ActionTimer : IActionTimer
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<ValueTask> callback)
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
         actionPayload.ValueTaskAction = callback;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(periodTimeSpan, actionPayload, IntervalWaitCallback);
     }
 
     public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<T?, ValueTask> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
         actionPayload.ValueTaskActionState = callback;
         actionPayload.State = state;
         return backingTimer.RunIn(periodTimeSpan, actionPayload, IntervalWaitCallback);
@@ -188,20 +160,13 @@ public class ActionTimer : IActionTimer
     public ITimerUpdate RunAt(DateTime futureDateTime, Func<ValueTask> callback)
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
         actionPayload.ValueTaskAction = callback;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
     }
 
     public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<T?, ValueTask> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
         actionPayload.ValueTaskActionState = callback;
         actionPayload.State = state;
         return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
@@ -211,20 +176,13 @@ public class ActionTimer : IActionTimer
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
         actionPayload.Action = callback;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
 
     public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
         actionPayload.ActionState = callback;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
         actionPayload.State = state;
         return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
@@ -233,20 +191,13 @@ public class ActionTimer : IActionTimer
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
         actionPayload.Action = callback;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
     }
 
     public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
         actionPayload.ActionState = callback;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
         actionPayload.State = state;
         return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
     }
@@ -255,20 +206,13 @@ public class ActionTimer : IActionTimer
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
         actionPayload.Action = callback;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(intervalMs, actionPayload, IntervalWaitCallback);
     }
 
     public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
         actionPayload.ActionState = callback;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
         actionPayload.State = state;
         return backingTimer.RunIn(intervalMs, actionPayload, IntervalWaitCallback);
     }
@@ -277,20 +221,13 @@ public class ActionTimer : IActionTimer
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
         actionPayload.Action = callback;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunIn(periodTimeSpan, actionPayload, IntervalWaitCallback);
     }
 
     public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
         actionPayload.ActionState = callback;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
         actionPayload.State = state;
         return backingTimer.RunIn(periodTimeSpan, actionPayload, IntervalWaitCallback);
     }
@@ -299,20 +236,13 @@ public class ActionTimer : IActionTimer
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
         actionPayload.Action = callback;
-        actionPayload.ActionState = null;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
-        actionPayload.State = null;
         return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
     }
 
     public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<T?> callback) where T : class
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
-        actionPayload.Action = null;
         actionPayload.ActionState = callback;
-        actionPayload.ValueTaskAction = null;
-        actionPayload.ValueTaskActionState = null;
         actionPayload.State = state;
         return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
     }
