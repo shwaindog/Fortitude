@@ -4,6 +4,7 @@ using System.Reflection;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -69,7 +70,10 @@ internal sealed class PQClientMessageStreamDecoder : IPQClientMessageStreamDecod
                     if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var bu))
                     {
                         socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor + PQQuoteMessageHeader.HeaderSize;
-                        bu!.Deserialize(socketBufferReadContext);
+                        var message = bu!.Deserialize(socketBufferReadContext);
+                        if (message is ExpectSessionCloseMessage expectSessionCloseMessage)
+                            socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
+
                         ReceivedMessage?.Invoke();
                     }
                     else

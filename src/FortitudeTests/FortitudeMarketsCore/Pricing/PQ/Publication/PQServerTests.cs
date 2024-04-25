@@ -596,13 +596,13 @@ public class PQServerTests
         pqServer.StartServices();
         Assert.IsTrue(pqServer.IsStarted);
 
-        moqUpdateService.Verify(us => us.Stop(), Times.Never);
-        moqSnapshotService.Verify(ss => ss.Stop(), Times.Never);
+        moqUpdateService.Verify(us => us.Stop(It.IsAny<CloseReason>(), It.IsAny<string?>()), Times.Never);
+        moqSnapshotService.Verify(ss => ss.Stop(It.IsAny<CloseReason>(), It.IsAny<string?>()), Times.Never);
 
         pqServer.Dispose();
 
-        moqUpdateService.Verify(us => us.Stop(), Times.Once);
-        moqSnapshotService.Verify(ss => ss.Stop(), Times.Once);
+        moqUpdateService.Verify(us => us.Stop(It.IsAny<CloseReason>(), It.IsAny<string?>()), Times.Once);
+        moqSnapshotService.Verify(ss => ss.Stop(It.IsAny<CloseReason>(), It.IsAny<string?>()), Times.Once);
         var currentUpdateServerInstance =
             NonPublicInvocator.GetInstanceField<IPQUpdateServer>(pqServer, "updateServer");
         var currentSnapshotServerInstance =

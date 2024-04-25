@@ -37,9 +37,8 @@ public class PQClientSubscriptionsAmenderRule : TopicDeserializationRepositoryAm
 
     public override async ValueTask StartAsync()
     {
-        logger.Info(
-            "PQClientSubscriptionsAmenderRule for feedName {0} deployed on {1} and awaiting SourceTickerInfos before enabling subscription.  Listening to {2}"
-            , feedName, Context.RegisteredOn.Name, RegisterRequestIdResponseListenAddress);
+        logger.Info("PQClientSubscriptionsAmenderRule for feedName {0} deployed on {1} and awaiting SourceTickerInfos " +
+                    "before enabling subscription.  Listening to {2}", feedName, Context.RegisteredOn.Name, RegisterRequestIdResponseListenAddress);
         await LauncherRequestIdResponseListener();
         await FeedSourceTickerInfoListener();
     }
@@ -87,6 +86,7 @@ public class PQClientSubscriptionsAmenderRule : TopicDeserializationRepositoryAm
             messageDeserializerResolveRun.MessageDeserializer
                 = pqClientQuoteDeserializerRepository.SourceNotifyingMessageDeserializerFromMessageId<PQSourceTickerInfoResponse>(
                     pqSourceTickerInfoResponseMessageId);
+            return;
         }
 
         var foundTicker = feedSourceTickerQuoteInfos.FirstOrDefault(stqi => messageDeserializerResolveRun.SubscribePostFix.Contains(stqi.Ticker));

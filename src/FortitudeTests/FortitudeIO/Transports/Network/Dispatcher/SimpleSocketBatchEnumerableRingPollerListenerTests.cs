@@ -207,7 +207,7 @@ public class SimpleSocketBatchEnumerableRingPollerListenerTests
             .Verifiable();
         moqPerfLogger.Reset();
         moqPerfLogger.Setup(ltcsl => ltcsl.Indent()).Verifiable();
-        moqPerfLogger.Setup(ltcsl => ltcsl.Add(It.IsRegex("Connection lost on SocketRingPoller .+")))
+        moqPerfLogger.Setup(ltcsl => ltcsl.Add("Connection lost on SocketRingPoller."))
             .Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.Dedent()).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.AddContextMeasurement(1)).Verifiable();
@@ -231,18 +231,19 @@ public class SimpleSocketBatchEnumerableRingPollerListenerTests
 
         var moqSocketReceiverThrowsException = new Mock<ISocketReceiver>();
         moqSocketReceiverThrowsException.SetupGet(ssc => ssc.IsAcceptor).Returns(false).Verifiable();
-        moqSocketReceiverThrowsException.Setup(ssc =>
-                ssc.Poll(socketBufferReadContext))
+        moqSocketReceiverThrowsException.Setup(sr =>
+                sr.Poll(socketBufferReadContext))
             .Throws(new SocketBufferTooFullException("Test Socket Buffer full")).Verifiable();
         moqSocketReceiverThrowsException.Setup(scc =>
-            scc.HandleReceiveError(It.IsRegex("Read error:.+"), It.IsAny<Exception>())).Verifiable();
+            scc.HandleReceiveError(It.IsRegex("Connection lost on SocketRingPoller .+"), It.IsAny<Exception>())).Verifiable();
         var twoSocketsWithUpdate = new List<ISocketReceiver> { moqSocketReceiverThrowsException.Object, moqSocketReceiver.Object };
         moqSocketSelector.Setup(ss => ss.WatchSocketsForRecv(moqPerfLogger.Object))
             .Returns(twoSocketsWithUpdate).Verifiable();
 
         moqPerfLogger.Reset();
         moqPerfLogger.Setup(ltcsl => ltcsl.Indent()).Verifiable();
-        moqPerfLogger.Setup(ltcsl => ltcsl.Add("Read error: ", It.IsAny<Exception>())).Verifiable();
+        moqPerfLogger.Setup(ltcsl => ltcsl.Add(
+            It.Is<string>(check => check.Contains("Connection lost on SocketRingPoller.")))).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.Dedent()).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.AddContextMeasurement(2)).Verifiable();
         moqPerfLogger.Setup(ltcsl => ltcsl.Add("End Processing Socket Data")).Verifiable();

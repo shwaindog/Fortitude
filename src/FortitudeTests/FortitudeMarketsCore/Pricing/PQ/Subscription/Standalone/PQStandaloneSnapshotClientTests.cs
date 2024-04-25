@@ -8,6 +8,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Config;
@@ -58,6 +59,7 @@ public class PQStandaloneSnapshotClientTests
     private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
+    private Mock<ISocketReceiverFactory> moqSocketReceiverFactory = null!;
     private Mock<ISocketSender> moqSocketSender = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
@@ -78,6 +80,7 @@ public class PQStandaloneSnapshotClientTests
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
+        moqSocketReceiverFactory = new Mock<ISocketReceiverFactory>();
         moqParallelController = new Mock<IOSParallelController>();
         moqIntraOsThreadSignal = new Mock<IIntraOSThreadSignal>();
         moqSocketSender = new Mock<ISocketSender>();
@@ -138,6 +141,8 @@ public class PQStandaloneSnapshotClientTests
         moqSocketFactories.SetupGet(pcf => pcf.ConnectionChangedHandlerResolver).Returns(moqCallback);
         moqSocketFactories.SetupGet(pcf => pcf.SocketDispatcherResolver).Returns(moqDispatcherResolver.Object);
         moqSocketFactories.SetupGet(pcf => pcf.ParallelController).Returns(moqParallelController.Object);
+        moqSocketFactories.SetupGet(pcf => pcf.SocketReceiverFactory).Returns(moqSocketReceiverFactory.Object);
+        moqSocketReceiverFactory.SetupAdd(srf => srf.ConfigureNewSocketReceiver += null);
         moqPQQuoteDeserializationRepo.Setup(qdr => qdr.Supply(It.IsAny<string>())).Returns(moqClientMessageStreamDecoder.Object);
         moqPqClientSerdesRepoFactory.Setup(sf => sf.MessageDeserializationRepository(It.IsAny<string>()))
             .Returns(moqPQQuoteDeserializationRepo.Object);
@@ -322,6 +327,6 @@ public class PQStandaloneSnapshotClientTests
 
     private void DisconnectMoqSetup()
     {
-        moqStreamControls.Setup(tcs => tcs.Disconnect()).Verifiable();
+        moqStreamControls.Setup(tcs => tcs.Disconnect(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
     }
 }

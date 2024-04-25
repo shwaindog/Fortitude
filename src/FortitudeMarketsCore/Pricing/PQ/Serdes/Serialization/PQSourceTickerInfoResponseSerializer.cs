@@ -16,8 +16,6 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourceTickerInfoResponse>
 {
-    private const int FixedSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(uint);
-
     public MarshalType MarshalType => MarshalType.Binary;
 
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
@@ -46,7 +44,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
     {
         var quoteInfos = message.SourceTickerQuoteInfos;
         var remainingBytes = buffer.Length - writeOffset;
-        if (quoteInfos != null && FixedSize + quoteInfos.Count * sizeof(uint) <= buffer.Length - writeOffset)
+        if (MessageHeader.SerializationSize + quoteInfos.Count * sizeof(uint) <= buffer.Length - writeOffset)
             fixed (byte* bufStrt = buffer)
             {
                 var writeStart = bufStrt + writeOffset;
@@ -56,7 +54,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
                 StreamByteOps.ToBytes(ref currPtr, message.MessageId);
                 var messageSize = currPtr;
                 currPtr += OrxConstants.UInt32Sz;
-                remainingBytes -= FixedSize;
+                remainingBytes -= MessageHeader.SerializationSize;
                 StreamByteOps.ToBytes(ref currPtr, message.RequestId);
                 StreamByteOps.ToBytes(ref currPtr, message.ResponseId);
                 StreamByteOps.ToBytes(ref currPtr, (ushort)quoteInfos.Count);

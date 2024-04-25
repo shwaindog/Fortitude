@@ -6,6 +6,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
@@ -166,13 +167,13 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
             serverHeartBeatSender.StopAndWaitUntilFinished();
         if (updateServer != null)
         {
-            updateServer.Stop();
+            updateServer.Stop(CloseReason.Completed, "PQServer is closing");
             updateServer = null;
         }
 
         if (snapshotServer != null)
         {
-            snapshotServer.Stop();
+            snapshotServer.Stop(CloseReason.Completed, "PQServer is closing");
             snapshotServer = null;
         }
 

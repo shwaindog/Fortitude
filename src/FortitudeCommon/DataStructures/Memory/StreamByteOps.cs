@@ -188,7 +188,7 @@ public static unsafe class StreamByteOps
     {
         var stringSize = ptr;
         ptr += 2;
-        var strSize = (ushort)ToBytes(ref ptr, value, ushort.MaxValue);
+        var strSize = (ushort)ToBytes(ref ptr, value, Math.Min(availableBytes, ushort.MaxValue));
         ToBytes(ref stringSize, strSize);
         return strSize + 2;
     }

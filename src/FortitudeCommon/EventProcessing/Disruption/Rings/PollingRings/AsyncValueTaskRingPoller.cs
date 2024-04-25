@@ -92,7 +92,10 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
         lock (initLock)
         {
             --UsageCount;
-            if (UsageCount != 0 || !isRunning) return;
+            if (UsageCount != 0 || !isRunning)
+                // Logger.Debug("Ring {0} has {1} registered usages", Ring.Name, UsageCount);
+                return;
+
             ForceStop();
         }
     }
@@ -123,15 +126,22 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
     {
         try
         {
+            UsageCount = 0;
             isRunning = false;
-            spinPauseSignal.Set();
-            ExecutingThread?.Join();
-            Poll();
+            if (ExecutingThread?.IsAlive == true)
+            {
+                spinPauseSignal.Set();
+                ExecutingThread?.Join();
+            }
+
+            Poll(Ring.Size);
         }
         catch (Exception ex)
         {
             Logger.Warn($"RingPoller '{Ring.Name}' caught exception when trying to stop.  {ex}");
         }
+
+        // Logger.Debug("Ring {0} has stopped", Ring.Name);
     }
 
     protected void ThreadStart()
@@ -139,20 +149,24 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
         threadStartInitialization?.Invoke();
         var syncContext = new TaskCallbackPollingRingSyncContext(Ring);
         SynchronizationContext.SetSynchronizationContext(syncContext);
-        while (isRunning) Poll();
+        while (isRunning)
+        {
+            spinPauseSignal.WaitOne(timeoutMs);
+            Poll(Ring.Size);
+        }
     }
 
-    private void Poll()
+    private void Poll(int maxMessagesPerPoll)
     {
-        spinPauseSignal.WaitOne(timeoutMs);
         try
         {
             var keepPolling = true;
+            var countMessages = 0;
             BeforeProcessingEvents();
             while (keepPolling)
             {
                 var seqValueTask = Ring.Poll();
-                keepPolling = !seqValueTask.IsCompleted || seqValueTask.Result > 0;
+                keepPolling = (!seqValueTask.IsCompleted || seqValueTask.Result > 0) && countMessages++ < maxMessagesPerPoll;
             }
         }
         catch (Exception ex)

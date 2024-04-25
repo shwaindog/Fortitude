@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -13,6 +14,7 @@ namespace FortitudeMarketsCore.Pricing.Quotes;
 
 public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quote
 {
+    protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Level0PriceQuote));
     public Level0PriceQuote() { }
 
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]

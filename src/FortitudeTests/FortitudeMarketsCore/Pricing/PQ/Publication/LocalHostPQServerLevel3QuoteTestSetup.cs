@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.Conflation;
@@ -32,18 +33,28 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
     public void TearDown()
     {
         PqServer?.Dispose();
+        Logger.Info("LocalHostPQServerLevel3QuoteTestSetup PqServer closed");
     }
 
-    public PQPublisher<PQLevel3Quote> CreatePQPublisher()
+    public void InitializeLevel3QuoteConfig()
     {
         LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize;
         LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
                           LastTradedFlags.LastTradedTime;
         InitializeServerPrereqs();
-        PqServer = new PQServer<PQLevel3Quote>(MarketConnectionConfig, HeartBeatSender, ServerDispatcherResolver,
+    }
+
+    public PQPublisher<PQLevel3Quote> CreatePQPublisher(IMarketConnectionConfig? overrideMarketConnectionConfig = null)
+    {
+        LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize;
+        LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
+                          LastTradedFlags.LastTradedTime;
+        InitializeServerPrereqs();
+        var useConnectionConfig = overrideMarketConnectionConfig ?? DefaultServerMarketConnectionConfig;
+        PqServer = new PQServer<PQLevel3Quote>(useConnectionConfig, HeartBeatSender, ServerDispatcherResolver,
             PqSnapshotFactory, PqUpdateFactory);
         PqPublisher = new PQPublisher<PQLevel3Quote>(PqServer);
-        PqPublisher.RegisterTickersWithServer(MarketConnectionConfig);
+        PqPublisher.RegisterTickersWithServer(useConnectionConfig);
         Logger.Info("Started PQServer");
         Level3PriceQuote = GenerateL3QuoteWithTraderLayerAndLastTrade();
         return PqPublisher;

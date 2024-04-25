@@ -82,9 +82,14 @@ public abstract class SocketAsyncValueTaskRingPollerListener<T> : AsyncValueTask
             if (socketReceiver != null)
             {
                 if (data.IsSocketAdd)
+                {
                     socketsPollerAndDecoding.AddForListen(socketReceiver);
+                }
                 else
+                {
                     socketsPollerAndDecoding.RemoveFromListen(socketReceiver);
+                    socketReceiver.UnregisteredHandler();
+                }
             }
         }
         catch (Exception ex)
@@ -97,7 +102,14 @@ public abstract class SocketAsyncValueTaskRingPollerListener<T> : AsyncValueTask
 
     protected override void BeforeProcessingEvents()
     {
-        socketsPollerAndDecoding.PollSocketsAndDecodeData();
+        try
+        {
+            socketsPollerAndDecoding.PollSocketsAndDecodeData();
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Caught exception polling sockets on {0}. Got {1}", Ring.Name, ex);
+        }
     }
 }
 

@@ -30,33 +30,32 @@ public class ActionWrapper : RecyclableObject
         CapturedQueueContext.RegisteredOn.EnqueuePayload(OriginalRegisteredAction, Rule.NoKnownSender, null, MessageType.RunActionPayload);
     }
 
-    public void Invoke()
+    public ActionWrapper? InvokeReturnNext()
     {
         WrappedAction();
-        Next?.Invoke();
+        return Next;
     }
+
+    public void Invoke()
+    {
+        var currentNext = this;
+        while (currentNext != null) currentNext = currentNext.InvokeReturnNext();
+    }
+
 
     public static ActionWrapper? operator +(ActionWrapper? lhs, Action? rhs)
     {
         if (rhs == null) return lhs;
         var callbackQueueContext = QueueContext.CurrentThreadQueueContext;
-        if (callbackQueueContext == null)
-        {
-            var noContextWrapper = FactoryRecycler.Borrow<ActionWrapper>();
-            noContextWrapper.CapturedQueueContext = null;
-            noContextWrapper.OriginalRegisteredAction = rhs;
-            return noContextWrapper;
-        }
-
-        var wrappedContextWrapper = callbackQueueContext.PooledRecycler.Borrow<ActionWrapper>();
-        wrappedContextWrapper.OriginalRegisteredAction = rhs;
-        wrappedContextWrapper.CapturedQueueContext = callbackQueueContext;
-        if (lhs == null) return wrappedContextWrapper;
+        var toAttach = FactoryRecycler.Borrow<ActionWrapper>();
+        toAttach.CapturedQueueContext = callbackQueueContext;
+        toAttach.OriginalRegisteredAction = rhs;
+        if (lhs == null) return toAttach;
         SyncLock.Acquire();
         try
         {
             var endActionWrapper = LastActionWrapperInChain(lhs);
-            endActionWrapper!.Next = wrappedContextWrapper;
+            endActionWrapper.Next = toAttach;
             return lhs;
         }
         finally
@@ -68,6 +67,7 @@ public class ActionWrapper : RecyclableObject
     public static ActionWrapper? operator -(ActionWrapper? lhs, Action? rhs)
     {
         if (lhs == null) return null;
+        if (rhs == null) return lhs;
         SyncLock.Acquire();
         try
         {
@@ -83,11 +83,11 @@ public class ActionWrapper : RecyclableObject
                     return lhs;
                 }
 
-                currentActionWrapper = currentActionWrapper.Next;
                 previousActionWrapper = currentActionWrapper;
+                currentActionWrapper = currentActionWrapper.Next;
             }
 
-            return previousActionWrapper;
+            return lhs;
         }
         finally
         {
@@ -95,7 +95,7 @@ public class ActionWrapper : RecyclableObject
         }
     }
 
-    public static ActionWrapper? LastActionWrapperInChain(ActionWrapper? rootActionWrapper)
+    public static ActionWrapper LastActionWrapperInChain(ActionWrapper rootActionWrapper)
     {
         var currentActionWrapper = rootActionWrapper;
         var lastNonNullActionWrapper = rootActionWrapper;
@@ -106,5 +106,13 @@ public class ActionWrapper : RecyclableObject
         }
 
         return lastNonNullActionWrapper;
+    }
+
+    public override void StateReset()
+    {
+        OriginalRegisteredAction = null!;
+        CapturedQueueContext = null!;
+        Next = null!;
+        base.StateReset();
     }
 }

@@ -31,12 +31,15 @@ public abstract class SocketAsyncValueTaskRingPollerSender<T> : AsyncValueTaskRi
     protected override bool RingPollerHandledMessage(T data)
     {
         if (!data.IsSocketSenderItem) return false;
+        if (UsageCount <= 0) return true;
 
         var ss = data.SocketSender!;
         try
         {
             var sent = ss.SendQueued();
-            if (!sent) EnqueueSocketSender(ss);
+            if (ss.AttemptCloseOnSendComplete)
+                ss.SendExpectSessionCloseMessageAndClose();
+            else if (!sent) EnqueueSocketSender(ss);
         }
         catch (SocketSendException se)
         {

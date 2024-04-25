@@ -59,7 +59,7 @@ public class OrxAuthenticationServer
 
     protected void OnNewAuthClientConversation(IConversationRequester cx)
     {
-        var clientDecoder = (IOrxResponderStreamDecoder)cx.StreamListener!.Decoder!;
+        var clientDecoder = (IOrxStreamDecoder)cx.StreamListener!.Decoder!;
         clientDecoder.MessageDeserializationRepository.RegisterDeserializer<OrxLogonRequest>()
             .AddDeserializedNotifier(
                 new PassThroughDeserializedNotifier<OrxLogonRequest>($"{nameof(OrxAuthenticationServer)}.{nameof(OnLogonRequest)}", OnLogonRequest));
@@ -100,7 +100,8 @@ public class OrxAuthenticationServer
                     var loggedOutMessage = Recycler.Borrow<OrxLoggedOutMessage>();
                     loggedOutMessage.Configure(currentVersion, "Authentication timeout");
                     cx.Send(loggedOutMessage);
-                    AcceptorSession.RemoveClient(cx);
+                    AcceptorSession.RemoveClient(cx, CloseReason.RemoteDisconnecting
+                        , "Failed to send valid authorization details within the required time limit.");
                 }
 
                 ThreadPool.RegisterWaitForSingleObject(paAre, (s, t) => CheckAuthsTimeout(), null, 1000, true);

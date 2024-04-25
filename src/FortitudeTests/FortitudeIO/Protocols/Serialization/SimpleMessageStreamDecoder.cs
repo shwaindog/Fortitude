@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -21,22 +22,25 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
     {
         var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         var originalRead = read;
-        ushort messageId;
+        uint messageId;
         while (read < socketBufferReadContext.EncodedBuffer.WriteCursor)
         {
             fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
             {
                 var ptr = fptr + read;
                 var version = *ptr++;
-                messageId = StreamByteOps.ToUShort(ref ptr);
-                var messageSize = StreamByteOps.ToUShort(ref ptr);
+                var flags = *ptr++;
+                messageId = StreamByteOps.ToUInt(ref ptr);
+                var messageSize = StreamByteOps.ToUInt(ref ptr);
                 socketBufferReadContext.MessageHeader = new MessageHeader(version, 0, messageId, messageSize, socketBufferReadContext);
             }
 
             if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var u))
             {
-                socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-                u?.Deserialize(socketBufferReadContext);
+                socketBufferReadContext.EncodedBuffer.ReadCursor = read + MessageHeader.SerializationSize;
+                var message = u?.Deserialize(socketBufferReadContext);
+                if (message is ExpectSessionCloseMessage expectSessionCloseMessage)
+                    socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
             }
 
             read += (int)socketBufferReadContext.MessageHeader.MessageSize;

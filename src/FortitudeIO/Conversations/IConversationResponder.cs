@@ -12,6 +12,6 @@ public interface IConversationResponder : IConversation
     IStreamListener? StreamListener { get; }
     event Action<IConversationRequester>? NewClient;
     event Action<IConversationRequester>? ClientRemoved;
-    void RemoveClient(IConversationRequester clientSocketSessionContext);
+    void RemoveClient(IConversationRequester clientSocketSessionContext, CloseReason closeReason, string? reason = null);
     void Broadcast(IVersionedMessage message);
 }

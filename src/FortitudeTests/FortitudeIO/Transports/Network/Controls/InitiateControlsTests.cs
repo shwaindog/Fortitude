@@ -4,6 +4,7 @@ using System.Net;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
@@ -132,13 +133,10 @@ public class InitiateControlsTests
         moqSocketSessionContext.Setup(ssc => ssc.OnDisconnecting()).Verifiable();
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object).Verifiable();
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true).Verifiable();
-        moqDispatcher.Setup(sd => sd.Stop()).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1} id {2}:{3} closed.", It.IsAny<object[]>())).Verifiable();
-        moqSocketConnection.Setup(sf => sf.OSSocket).Returns(moqOsSocket.Object).Verifiable();
-        moqOsSocket.Setup(sf => sf.Close()).Verifiable();
-        moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected()).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection to {0} closed. {1}", It.IsAny<object[]>())).Verifiable();
+        moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
 
-        initiateControls.Disconnect();
+        initiateControls.Disconnect(CloseReason.Completed);
 
         moqSocketSessionContext.Verify();
         moqSocketConnection.Verify();
@@ -163,7 +161,7 @@ public class InitiateControlsTests
             .Returns(moqOsSocket.Object);
         moqEndpointEnumerator.SetupSequence(stcc => stcc.MoveNext()).Returns(true).Returns(true)
             .Returns(false);
-        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1}:{2} rejected: {3}", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection attempt to {0} to host {1}:{2} was rejected: {3}", It.IsAny<object[]>())).Verifiable();
 
 
         initiateControls.Connect();
@@ -247,9 +245,8 @@ public class InitiateControlsTests
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true).Verifiable();
         moqSocketReconnectConfig.SetupSet(src => src.NextReconnectIntervalMs = It.IsAny<uint>()).Verifiable();
 
-        moqFlogger.Setup(fl => fl.Info("Connection to id:{0} {1}:{2}:{3} accepted", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection {0} was accepted by host {1}:{2}", It.IsAny<object[]>())).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.OnConnected(It.IsAny<SocketConnection>())).Verifiable();
-        moqDispatcher.Setup(sd => sd.Start(It.IsAny<Action>())).Verifiable();
     }
 
     private void SetupConnectionExceptionDisconnect()
@@ -260,7 +257,7 @@ public class InitiateControlsTests
         moqSocketFactory.Setup(sf => sf.Create(It.IsAny<INetworkTopicConnectionConfig>(),
                 It.IsAny<IEndpointConfig>())).Throws(new Exception("Connection failure"))
             .Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Connection to {0} {1}:{2} rejected: {3}", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection attempt to {0} to host {1}:{2} was rejected: {3}", It.IsAny<object[]>())).Verifiable();
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(false).Verifiable();
         moqParallelControler
             .Setup(pc =>

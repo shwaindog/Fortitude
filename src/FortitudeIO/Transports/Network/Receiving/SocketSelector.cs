@@ -11,6 +11,7 @@ namespace FortitudeIO.Transports.Network.Receiving;
 
 public interface ISocketSelector
 {
+    IEnumerable<ISocketReceiver> AllRegisteredReceivers { get; }
     int CountRegisteredReceivers { get; }
     DateTime WakeTs { get; }
     void Register(ISocketReceiver receiver);
@@ -39,6 +40,8 @@ public sealed class SocketSelector : ISocketSelector
     }
 
     public DateTime WakeTs { get; private set; }
+
+    public IEnumerable<ISocketReceiver> AllRegisteredReceivers => allRegisteredSocketsDict.Values;
 
     public int CountRegisteredReceivers => allRegisteredSocketsDict.Count;
 

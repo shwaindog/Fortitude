@@ -53,6 +53,7 @@ public class AsyncValueTaskRingPollerTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
         moqOsThread = new Mock<IOSThread>();
+        moqOsThread.SetupGet(ost => ost.IsAlive).Returns(true);
         moqParallelController.Setup(pc => pc.CreateNewOSThread(It.IsAny<ThreadStart>()))
             .Callback<ThreadStart>(workerMethod => { workerThreadMethod = workerMethod; })
             .Returns(moqOsThread.Object).Verifiable();

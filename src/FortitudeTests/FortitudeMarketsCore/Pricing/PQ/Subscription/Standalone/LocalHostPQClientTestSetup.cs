@@ -14,8 +14,8 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone
 [NoMatchingProductionClass]
 public class LocalHostPQClientTestSetup : LocalHostPQTestSetupCommon
 {
-    public IMarketConnectionConfigRepository ClientConnectionsConfigRepository = null!;
     public ISocketDispatcherResolver ClientDispatcherResolver = null!;
+    public IMarketsConfig DefaultClientMarketsConfig = null!;
     public PQClient PqClient = null!;
     public IPQConversationRepository<IPQSnapshotClient> SnapshotClientFactory = null!;
     public IPQConversationRepository<IPQUpdateClient> UpdateClientFactory = null!;
@@ -29,13 +29,12 @@ public class LocalHostPQClientTestSetup : LocalHostPQTestSetupCommon
             new SimpleAsyncValueTaskSocketRingPollerSender("PQClient", 1)));
         SnapshotClientFactory = new PQSnapshotClientRepository(ClientDispatcherResolver);
         UpdateClientFactory = new PQUpdateClientRepository(ClientDispatcherResolver);
-        ClientConnectionsConfigRepository =
-            new MarketConnectionConfigRepository(MarketConnectionConfig).ToggleProtocolDirection();
+        DefaultClientMarketsConfig = DefaultServerMarketsConfig.ToggleProtocolDirection("LocalHostPQClientTestSetup");
     }
 
-    public PQClient CreatePQClient()
+    public PQClient CreatePQClient(IMarketsConfig? overrideMarketsConfig = null)
     {
-        PqClient = new PQClient(ClientConnectionsConfigRepository
+        PqClient = new PQClient(overrideMarketsConfig ?? DefaultClientMarketsConfig
             , SingletonSocketDispatcherResolver.Instance, UpdateClientFactory, SnapshotClientFactory);
         return PqClient;
     }

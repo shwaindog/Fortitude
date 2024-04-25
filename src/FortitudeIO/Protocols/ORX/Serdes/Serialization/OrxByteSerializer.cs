@@ -51,25 +51,24 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
     {
         fixed (byte* fptr = buffer)
         {
-            var pureDataSize = Serialize(message, fptr + msgOffset + headerOffset, fptr + msgOffset
-                , fptr + buffer.Length);
+            var noHeaderSize = Serialize(message, fptr + msgOffset + headerOffset, fptr + buffer.Length);
             if (headerOffset == OrxMessageHeader.HeaderSize)
             {
-                var msgSize = (ushort)(pureDataSize + headerOffset);
+                var msgSize = (uint)(noHeaderSize + headerOffset);
                 var msgSizePtr = fptr + msgOffset + OrxMessageHeader.MessageSizeOffset;
                 StreamByteOps.ToBytes(ref msgSizePtr, msgSize);
             }
 
-            return pureDataSize;
+            return noHeaderSize;
         }
     }
 
-    public unsafe int Serialize(object message, byte* ptr, byte* msgStart, byte* endPtr)
+    public unsafe int Serialize(object message, byte* ptr, byte* endPtr)
     {
         var msg = (Tm)message;
         var dataStart = ptr;
         for (var i = 0; i < serializers.Length; i++)
-            if (!serializers[i].Serialize(msg, ref ptr, msgStart, endPtr))
+            if (!serializers[i].Serialize(msg, ref ptr, endPtr))
                 return 0;
         return (int)(ptr - dataStart);
     }
@@ -78,7 +77,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
 
     private interface ITypeSerializer : ISerializer
     {
-        unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr);
+        unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr);
     }
 
     private string PropertyInfoFullPath(PropertyInfo pi) => $"{pi.DeclaringType!.FullName}.{pi.Name}";
@@ -416,7 +415,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
 
         public Type SerializesType => typeof(TP);
 
-        public abstract unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr);
+        public abstract unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr);
     }
 
     private class ObjectSerializer<TO> : Serializer<object> where TO : class, new()
@@ -453,7 +452,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
                 }
         }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var obj = Get(message);
             if (obj == null && IsOptional) return true;
@@ -474,9 +473,9 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
                 if (subClassKey == 0) return false;
                 StreamByteOps.ToBytes(ref ptr, subClassKey);
                 var mappedSerializer = serializerLookup[obj.GetType()];
-                if ((size = mappedSerializer.Serialize(obj, ptr, msgStart, endPtr)) == 0) return false;
+                if ((size = mappedSerializer.Serialize(obj, ptr, endPtr)) == 0) return false;
             }
-            else if ((size = ItemSerializer.Serialize(obj, ptr, msgStart, endPtr)) == 0)
+            else if ((size = ItemSerializer.Serialize(obj, ptr, endPtr)) == 0)
             {
                 return false;
             }
@@ -506,7 +505,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public BoolArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -538,7 +537,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public BoolListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -570,7 +569,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ByteArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -602,7 +601,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ByteListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -634,7 +633,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ShortArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -661,7 +660,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ShortListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -688,7 +687,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public UShortArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -715,7 +714,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public UShortListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -742,7 +741,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public IntArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -769,7 +768,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public IntListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -796,7 +795,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public UIntArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -823,7 +822,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public UIntListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -850,7 +849,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public LongArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -877,7 +876,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public LongListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -904,7 +903,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public DecimalArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -939,7 +938,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public DecimalListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             if (Id != ushort.MaxValue)
@@ -975,7 +974,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public StringArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             var sizeOfArray = ptr;
@@ -1009,7 +1008,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public StringListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             var sizeOfArray = ptr;
@@ -1043,7 +1042,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public MutableStringArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             var sizeOfArray = ptr;
@@ -1077,7 +1076,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public MutableStringListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             var sizeOfArray = ptr;
@@ -1111,7 +1110,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public MapSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var dictionary = Get(message);
             var dic = dictionary;
@@ -1154,7 +1153,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ObjectArraySerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var array = Get(message);
             var wasNull = array == null;
@@ -1172,7 +1171,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
             for (var i = 0; i < array.Length; i++)
             {
                 int size;
-                if ((size = itemSerializer.Serialize(array[i], ptr + OrxConstants.UInt16Sz, msgStart, endPtr)) == 0)
+                if ((size = itemSerializer.Serialize(array[i], ptr + OrxConstants.UInt16Sz, endPtr)) == 0)
                     return false;
                 StreamByteOps.ToBytes(ref ptr, (ushort)size);
                 ptr += size;
@@ -1191,7 +1190,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ObjectListSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var list = Get(message);
             var wasNull = list == null;
@@ -1208,7 +1207,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
             for (var i = 0; i < list.Count; i++)
             {
                 int size;
-                if ((size = itemSerializer.Serialize(list[i], ptr + OrxConstants.UInt16Sz, msgStart, endPtr)) == 0)
+                if ((size = itemSerializer.Serialize(list[i], ptr + OrxConstants.UInt16Sz, endPtr)) == 0)
                     return false;
                 StreamByteOps.ToBytes(ref ptr, (ushort)size);
                 ptr += size;
@@ -1229,7 +1228,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public BoolSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1253,7 +1252,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ByteSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1277,7 +1276,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public UShortSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1301,7 +1300,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public ShortSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1325,7 +1324,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public UIntSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1349,7 +1348,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public IntSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1373,7 +1372,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public StringSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var str = Get(message);
             if (str == null) return true;
@@ -1403,7 +1402,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public MutableStringSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var str = Get(message);
             if (str == null) return true;
@@ -1433,7 +1432,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public DecimalSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1460,7 +1459,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public LongSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             if (Id != ushort.MaxValue)
             {
@@ -1484,7 +1483,7 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         public DateTimeSerializer(PropertyInfo property, ushort id)
             : base(property, id) { }
 
-        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* msgStart, byte* endPtr)
+        public override unsafe bool Serialize(Tm message, ref byte* ptr, byte* endPtr)
         {
             var dateTime = Get(message);
             if (dateTime == DateTimeConstants.UnixEpoch && IsOptional) return true;

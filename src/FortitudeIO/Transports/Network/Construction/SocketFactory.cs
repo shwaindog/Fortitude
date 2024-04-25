@@ -44,6 +44,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
         logger.Info("Attempting TCP connection on {0}:{1}", host, port);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.NoDelay = (connectionAttrbs & SocketConnectionAttributes.Fast) > 0;
+        socket.LingerState = new LingerOption(true, 1);
 
         if ((networkTopicConnectionConfig.ConnectionAttributes & SocketConnectionAttributes.KeepAlive) > 0)
         {
@@ -72,6 +73,8 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
         var port = endpointConfig.Port;
         var connectionAttrbs = networkTopicConnectionConfig.ConnectionAttributes;
         var listeningSocket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        listeningSocket.LingerState = new LingerOption(false, 0);
+        listeningSocket.ExclusiveAddressUse = true;
         listeningSocket.SendBufferSize = networkTopicConnectionConfig.SendBufferSize;
         listeningSocket.ReceiveBufferSize = networkTopicConnectionConfig.ReceiveBufferSize;
         logger.Info("Acceptor attempting TCP bind on {0}:{1}", IPAddress.Any, port);
@@ -88,8 +91,8 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
         var ipAddress = networkingController.GetIpAddress(endpointConfig.Hostname);
         var port = endpointConfig.Port;
         var subnetMaskIpAddress = endpointConfig.SubnetMaskIpAddress!;
-        logger.Info("Attempting UDP-sub connection on {0}:{1}={2}:{3}",
-            subnetMaskIpAddress, host, ipAddress, port);
+        logger.Info("Attempting UDP-sub connection for config (hostname:{0}, subnet:{1}, port:{2}) which resolved to ip-address {3}",
+            host, subnetMaskIpAddress, port, ipAddress);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.ExclusiveAddressUse = false;
         socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
@@ -118,7 +121,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
 
         if (selectedAdapter == null || adapterAddress == null)
             throw new MatchingNicNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
-        logger.Info("Subscribe will bind on network adapter {0}-{1} on {2}:{3}",
+        logger.Info("Subscribe will bind on network adapter {0} with description '{1}', which resolved to {2}:{3}",
             selectedAdapter.Name, selectedAdapter.Description, ipAddress, port);
         socket.Bind(new IPEndPoint(adapterAddress, port));
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
@@ -132,8 +135,8 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
     {
         var ipAddress = networkingController.GetIpAddress(endpointConfig.Hostname);
         var port = endpointConfig.Port;
-        logger.Info("Attempting UDP-pub connection on {0} {1}:{2}={3}:{4}",
-            endpointConfig.InstanceName, endpointConfig.SubnetMask, endpointConfig.Hostname, ipAddress, port);
+        logger.Info("Attempting UDP-pub connection on (hostname:{0}, subnet:{1}, port:{2}) which resolved to ip-address:{3}",
+            endpointConfig.Hostname, endpointConfig.SubnetMask, port, ipAddress);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.ExclusiveAddressUse = false;
         socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
@@ -160,7 +163,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
 
         if (selectedAdapter == null || adapterIp4Properties == null)
             throw new MatchingNicNotFoundException($"No multicast enabled NIC Found with IP {ipAddress}");
-        logger.Info("Publish will occur from network adapter {0}-{1} on {2}:{3}",
+        logger.Info("Publish will occur from network adapter {0} with description '{1}' on {2}:{3}",
             selectedAdapter.Name, selectedAdapter.Description, ipAddress, port);
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface,
             IPAddress.HostToNetworkOrder(adapterIp4Properties.Index));

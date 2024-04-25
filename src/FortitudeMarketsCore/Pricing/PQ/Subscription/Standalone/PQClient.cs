@@ -22,7 +22,7 @@ public class PQClient : IDisposable
     private readonly IPQClientQuoteDeserializerRepository deserializationRepository
         = new PQClientQuoteDeserializerRepository("PQClient", new Recycler());
 
-    private readonly IMarketConnectionConfigRepository marketConnectionConfigRepository;
+    private readonly IMarketsConfig marketsConfig;
 
     private readonly IOSParallelController osParallelController;
     private readonly IPQClientSyncMonitoring pqClientSyncMonitoring;
@@ -39,7 +39,7 @@ public class PQClient : IDisposable
 
     private int missingRefs;
 
-    public PQClient(IMarketConnectionConfigRepository marketConnectionConfigRepository,
+    public PQClient(IMarketsConfig marketsConfig,
         ISocketDispatcherResolver socketDispatcherResolver,
         IPQConversationRepository<IPQUpdateClient>? updateClientFactory = null,
         IPQConversationRepository<IPQSnapshotClient>? snapshotClientFactory = null)
@@ -48,10 +48,10 @@ public class PQClient : IDisposable
         shutDownSignal = osParallelController.SingleOSThreadActivateSignal(false);
         pqClientSyncMonitoring = new PQClientSyncMonitoring(GetSourceServerConfig, RequestSnapshots);
         sourceTickerQuoteInfoRepo = new SourceTickerQuoteInfoRepo("PQClient",
-            marketConnectionConfigRepository
-                .AllMarketConnectionConfigs
+            marketsConfig
+                .Markets
                 .SelectMany(mcc => mcc.AllSourceTickerInfos));
-        this.marketConnectionConfigRepository = marketConnectionConfigRepository;
+        this.marketsConfig = marketsConfig;
         this.snapshotClientFactory = snapshotClientFactory ?? new PQSnapshotClientRepository(socketDispatcherResolver);
         this.updateClientFactory = updateClientFactory ?? new PQUpdateClientRepository(socketDispatcherResolver);
     }
@@ -104,7 +104,7 @@ public class PQClient : IDisposable
 
     public ISourceTickerQuoteInfoRepo RequestSourceTickerForAllSources()
     {
-        foreach (var marketConnectionConfig in marketConnectionConfigRepository.AllMarketConnectionConfigs)
+        foreach (var marketConnectionConfig in marketsConfig.Markets)
             RequestSourceTickerForSource(marketConnectionConfig.Name);
         return sourceTickerQuoteInfoRepo;
     }
@@ -235,7 +235,7 @@ public class PQClient : IDisposable
 
     private IMarketConnectionConfig? GetFeedReferential(string feedName)
     {
-        var feedRef = marketConnectionConfigRepository.Find(feedName);
+        var feedRef = marketsConfig.Find(feedName);
         if (feedRef != null) return feedRef;
         if (++missingRefs == 1)
             osParallelController.ScheduleWithEarlyTrigger(shutDownSignal, GetMissingMarketConnectionConfig!, 60000);
@@ -250,7 +250,7 @@ public class PQClient : IDisposable
             foreach (var feed in sourceSubscriptions)
                 if (feed.Value.MarketConnectionConfig == null)
                 {
-                    feed.Value.MarketConnectionConfig = marketConnectionConfigRepository.Find(feed.Key);
+                    feed.Value.MarketConnectionConfig = marketsConfig.Find(feed.Key);
                     if (feed.Value.MarketConnectionConfig != null)
                         missingRefs--;
                 }

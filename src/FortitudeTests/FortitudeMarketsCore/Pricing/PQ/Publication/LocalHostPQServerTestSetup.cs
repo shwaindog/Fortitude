@@ -21,13 +21,13 @@ public class LocalHostPQServerTestSetupBase : LocalHostPQTestSetupCommon
     public void InitializeServerPrereqs()
     {
         InitializeCommonConfig();
-        ServerDispatcherResolver = new SimpleSocketDispatcherResolver(new SocketDispatcher(
-            new SimpleSocketAsyncValueTaskRingPollerListener("PQServer", 1
+        ServerDispatcherResolver ??= new SimpleSocketDispatcherResolver(new SocketDispatcher(
+            new SimpleSocketAsyncValueTaskRingPollerListener("PQServerListener", 1
                 , new SocketSelector(1, NetworkingController), ThreadPoolTimer),
-            new SimpleAsyncValueTaskSocketRingPollerSender("PQServer", 1)));
-        NameIdLookupGenerator = new NameIdLookupGenerator();
-        PqSnapshotFactory = PQSnapshotServer.BuildTcpResponder;
-        PqUpdateFactory = PQUpdatePublisher.BuildUdpMulticastPublisher;
-        HeartBeatSender = new PQServerHeartBeatSender();
+            new SimpleAsyncValueTaskSocketRingPollerSender("PQServerSender", 1)));
+        NameIdLookupGenerator ??= new NameIdLookupGenerator();
+        PqSnapshotFactory ??= PQSnapshotServer.BuildTcpResponder;
+        PqUpdateFactory ??= PQUpdatePublisher.BuildUdpMulticastPublisher;
+        HeartBeatSender ??= new PQServerHeartBeatSender();
     }
 }

@@ -1,7 +1,9 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -17,6 +19,7 @@ public interface IPQServerMessageStreamDecoder : IMessageStreamDecoder
 public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 {
     private const int HeaderSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(uint);
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServerMessageStreamDecoder));
     private MessageSection messageSection;
 
     public PQServerMessageStreamDecoder(IConversationDeserializationRepository messageDeserializationRepository)
@@ -67,10 +70,16 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
                     break;
                 case MessageSection.Data:
 
-                    if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var u))
+                    if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var messageDeserializer))
                     {
                         socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
-                        u!.Deserialize(socketBufferReadContext);
+                        var message = messageDeserializer!.Deserialize(socketBufferReadContext);
+                        if (message is ExpectSessionCloseMessage expectSessionCloseMessage)
+                            socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
+                    }
+                    else
+                    {
+                        Logger.Warn("Received a message with an unregistered serializer so was ignored {0}", socketBufferReadContext.MessageHeader);
                     }
 
                     readCursor += socketBufferReadContext.LastReadLength - HeaderSize;

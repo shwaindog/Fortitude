@@ -11,12 +11,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
 
-public interface ITradingServerConfig : IInterfacesComparable<ITradingServerConfig>
+public interface ITradingServerConfig : IInterfacesComparable<ITradingServerConfig>, IConnection
 {
     INetworkTopicConnectionConfig TradingServerConnectionConfig { get; set; }
     OrderType SupportedOrderTypes { get; set; }
     TimeInForce SupportedTimeInForce { get; set; }
     VenueFeatures SupportedVenueFeatures { get; set; }
+    ITradingServerConfig ShiftPortsBy(ushort deltaPorts);
     ITradingServerConfig ToggleProtocolDirection();
 }
 
@@ -40,12 +41,23 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
     public TradingServerConfig(ITradingServerConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         TradingServerConnectionConfig = toClone.TradingServerConnectionConfig.Clone();
+        ConnectionName = toClone.ConnectionName;
         SupportedOrderTypes = toClone.SupportedOrderTypes;
         SupportedTimeInForce = toClone.SupportedTimeInForce;
         SupportedVenueFeatures = toClone.SupportedVenueFeatures;
     }
 
     public TradingServerConfig(ITradingServerConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+
+    public string? ConnectionName
+    {
+        get => this[nameof(ConnectionName)];
+        set
+        {
+            this[nameof(ConnectionName)] = value;
+            TradingServerConnectionConfig.ConnectionName = value;
+        }
+    }
 
     public INetworkTopicConnectionConfig TradingServerConnectionConfig
     {
@@ -56,7 +68,11 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
                     ??= new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(TradingServerConnectionConfig));
             throw new Exception("Expected Trading Server Network config to be set");
         }
-        set => lastTradingConnectionConfig = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(TradingServerConnectionConfig));
+        set =>
+            lastTradingConnectionConfig = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(TradingServerConnectionConfig))
+            {
+                ConnectionName = ConnectionName
+            };
     }
 
     public OrderType SupportedOrderTypes
@@ -89,6 +105,15 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         set => this[nameof(SupportedVenueFeatures)] = value.ToString();
     }
 
+    public ITradingServerConfig ShiftPortsBy(ushort deltaPorts)
+    {
+        var shiftedTradingServerConfig = new TradingServerConfig(this)
+        {
+            TradingServerConnectionConfig = TradingServerConnectionConfig.ShiftPortsBy(deltaPorts)
+        };
+        return shiftedTradingServerConfig;
+    }
+
     public ITradingServerConfig ToggleProtocolDirection() =>
         new TradingServerConfig(this)
         {
@@ -98,12 +123,13 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
     public bool AreEquivalent(ITradingServerConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
+        var connectionNameSame = ConnectionName == other.ConnectionName;
         var tradingConnSame = Equals(TradingServerConnectionConfig, other.TradingServerConnectionConfig);
         var supportedOrderTypesSame = SupportedOrderTypes == other.SupportedOrderTypes;
         var supportedTimeInForceSame = SupportedTimeInForce == other.SupportedTimeInForce;
         var supportedVenueFeaturesSame = SupportedVenueFeatures == other.SupportedVenueFeatures;
 
-        return tradingConnSame && supportedOrderTypesSame && supportedTimeInForceSame && supportedVenueFeaturesSame;
+        return connectionNameSame && tradingConnSame && supportedOrderTypesSame && supportedTimeInForceSame && supportedVenueFeaturesSame;
     }
 
     public ITradingServerConfig Clone() => new TradingServerConfig(this);
@@ -121,6 +147,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
     public override int GetHashCode()
     {
         var hashCode = new HashCode();
+        hashCode.Add(ConnectionName);
         hashCode.Add(TradingServerConnectionConfig);
         hashCode.Add(SupportedOrderTypes);
         hashCode.Add(SupportedTimeInForce);

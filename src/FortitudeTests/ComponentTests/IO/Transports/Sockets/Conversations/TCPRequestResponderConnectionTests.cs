@@ -24,9 +24,7 @@ public class TcpRequestResponderConnectionTests
     private readonly AutoResetEvent autoResetEvent = new(false);
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TcpRequestResponderConnectionTests));
 
-    private readonly IRecycler recycler = new Recycler();
-
-    private readonly NetworkTopicConnectionConfig responderTopicConConfig = new("TestResponderName"
+    private readonly NetworkTopicConnectionConfig originalResponderTopicConConfig = new("ResponderConName", "TestResponderName"
         , SocketConversationProtocol.TcpAcceptor,
         new List<IEndpointConfig>
         {
@@ -36,6 +34,8 @@ public class TcpRequestResponderConnectionTests
         SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat
     );
 
+    private readonly IRecycler recycler = new Recycler();
+
     private readonly Dictionary<uint, IMessageSerializer> serializers = new()
     {
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
@@ -43,9 +43,14 @@ public class TcpRequestResponderConnectionTests
 
     private Dictionary<uint, IMessageDeserializer> requesterDeserializers = null!;
     private SimpleVersionedMessage requesterReceivedResponseMessage = null!;
+    private MessageSerdesRepositoryFactory requesterSerdesFactory = null!;
+    private SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory requesterStreamDeserializerRepo = null!;
     private Dictionary<uint, IMessageDeserializer> responderDeserializers = null!;
 
     private SimpleVersionedMessage responderReceivedMessage = null!;
+    private MessageSerdesRepositoryFactory responderSerdesFactory = null!;
+    private SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory responderStreamDeserializerRepo = null!;
+    private SimpleMessageStreamDecoder.SimpleSerializerFactory streamSerializerRepo = null!;
 
     private ConversationRequester tcpRequester = null!;
 
@@ -61,31 +66,35 @@ public class TcpRequestResponderConnectionTests
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var responderStreamDeserializerRepo
-            = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(responderDeserializers);
-        var streamSerializerRepo = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
-        var responderSerdesFactory
+        responderStreamDeserializerRepo = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(responderDeserializers);
+        streamSerializerRepo = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
+        responderSerdesFactory
             = new MessageSerdesRepositoryFactory(streamSerializerRepo, responderStreamDeserializerRepo, responderStreamDeserializerRepo);
-        // create server
-        var tcpResponderBuilder = new TcpConversationResponderBuilder();
-        tcpResponder = tcpResponderBuilder.Build(responderTopicConConfig, responderSerdesFactory);
 
         requesterDeserializers = new Dictionary<uint, IMessageDeserializer>
         {
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
             , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
-        var requesterStreamDeserializerRepo
-            = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(requesterDeserializers);
-        var requesterSerdesFactory
+        requesterStreamDeserializerRepo = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(requesterDeserializers);
+        requesterSerdesFactory
             = new MessageSerdesRepositoryFactory(streamSerializerRepo, requesterStreamDeserializerRepo, requesterStreamDeserializerRepo);
-        // create client
-        var tcpRequesterBuilder = new TcpConversationRequesterBuilder();
-        var requesterTopicConConfig = responderTopicConConfig.Clone();
-        requesterTopicConConfig.ConversationProtocol = SocketConversationProtocol.TcpClient;
-        tcpRequester = tcpRequesterBuilder.Build(requesterTopicConConfig, requesterSerdesFactory);
 
         v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 234567.0, MessageId = 2345 };
+    }
+
+    public ConversationRequester BuildConversationRequester(INetworkTopicConnectionConfig requesterTopicConConfig)
+    {
+        var tcpRequesterBuilder = new TcpConversationRequesterBuilder();
+        requesterTopicConConfig.ConversationProtocol = SocketConversationProtocol.TcpClient;
+        requesterTopicConConfig.ConnectionName = "RequesterConName";
+        return tcpRequesterBuilder.Build(requesterTopicConConfig, requesterSerdesFactory);
+    }
+
+    public ConversationResponder BuildConversationResponder(INetworkTopicConnectionConfig responderTopicConConfig)
+    {
+        var tcpResponderBuilder = new TcpConversationResponderBuilder();
+        return tcpResponderBuilder.Build(responderTopicConConfig, responderSerdesFactory);
     }
 
     [TestCleanup]
@@ -100,6 +109,9 @@ public class TcpRequestResponderConnectionTests
     [Timeout(30_000)]
     public async Task ClientSendMessageDecodesCorrectlyOnServer()
     {
+        tcpResponder = BuildConversationResponder(originalResponderTopicConConfig.ShiftPortsBy(10));
+        tcpRequester = BuildConversationRequester(originalResponderTopicConConfig.ToggleProtocolDirection().ShiftPortsBy(10));
+
         var threadPoolExecutionContext = recycler.Borrow<ThreadPoolExecutionContextResult<bool, TimeSpan>>();
         // client connects
         var started = await tcpResponder.StartAsync(10_000, threadPoolExecutionContext);
@@ -118,7 +130,7 @@ public class TcpRequestResponderConnectionTests
         // send message
         tcpRequester.StreamPublisher!.Send(v1Message);
         logger.Info("Sent Message to responder");
-        Thread.Sleep(100);
+        autoResetEvent.WaitOne(500);
         // assert server receives properly
         Assert.AreEqual(v1Message.PayLoad, responderReceivedMessage.PayLoad);
         Assert.AreEqual(v1Message.MessageId, responderReceivedMessage.MessageId);
@@ -128,6 +140,8 @@ public class TcpRequestResponderConnectionTests
     [TestMethod]
     public void ClientSendMessageServerRespondsDecodesCorrectlyOnClient()
     {
+        tcpResponder = BuildConversationResponder(originalResponderTopicConConfig.ShiftPortsBy(20));
+        tcpRequester = BuildConversationRequester(originalResponderTopicConConfig.ToggleProtocolDirection().ShiftPortsBy(20));
         // client connects
         tcpResponder.Start();
         Thread.Sleep(20);
@@ -148,7 +162,7 @@ public class TcpRequestResponderConnectionTests
         tcpRequester.StreamPublisher!.Send(v1Message);
 
         logger.Info("Sent Message to responder");
-        autoResetEvent.WaitOne(100);
+        autoResetEvent.WaitOne(500);
         // assert server receives properly
         Assert.AreEqual(v2Message.PayLoad2, requesterReceivedResponseMessage.PayLoad2);
         Assert.AreEqual(v2Message.MessageId, requesterReceivedResponseMessage.MessageId);
@@ -165,11 +179,13 @@ public class TcpRequestResponderConnectionTests
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, MessageHeader header, IConversation client)
     {
         responderReceivedMessage = msg;
+        autoResetEvent.Set();
     }
 
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, MessageHeader msgHeader)
     {
         responderReceivedMessage = msg;
+        autoResetEvent.Set();
     }
 
     private void ReceivedFromResponderDeserializerCallback(SimpleVersionedMessage msg, MessageHeader messageHeader, IConversation client)

@@ -9,6 +9,7 @@ using FortitudeBusRules.Messages;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeTests.FortitudeCommon.Types;
 
 #endregion
@@ -18,6 +19,8 @@ namespace FortitudeTests.FortitudeBusRules.BusMessaging;
 [NoMatchingProductionClass]
 public class SingleEventQueueTestSetup
 {
+    public const int AsyncRingPollerSize = 32;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SingleEventQueueTestSetup));
     protected MessageQueue EventQueue = null!;
     protected RouteSelectionResult EventQueueSelectionResult;
     protected MessageBus MessageBus = null!;
@@ -26,14 +29,11 @@ public class SingleEventQueueTestSetup
     public void SetupEventQueue()
     {
         var defaultQueuesConfig = new QueuesConfig();
-        defaultQueuesConfig.DefaultQueueSize = 12;
-        defaultQueuesConfig.EventQueueSize = 12;
+        defaultQueuesConfig.DefaultQueueSize = AsyncRingPollerSize;
+        defaultQueuesConfig.EventQueueSize = AsyncRingPollerSize;
 
-        var ring = new AsyncValueValueTaskPollingRing<BusMessage>(
-            $"EventQueueTests",
-            12,
-            () => new BusMessage(),
-            ClaimStrategyType.MultiProducers, null, null, false);
+        var ring = new AsyncValueValueTaskPollingRing<BusMessage>($"EventQueueTests", AsyncRingPollerSize, () => new BusMessage()
+            , ClaimStrategyType.MultiProducers);
         var ringPoller = new AsyncValueTaskRingPoller<BusMessage>(ring, 1);
         MessageBus = new MessageBus(evtBus =>
         {
@@ -45,5 +45,12 @@ public class SingleEventQueueTestSetup
         });
         EventQueueSelectionResult = new RouteSelectionResult(EventQueue, "SingleEventQueueTestSetup", RoutingFlags.DefaultDeploy);
         MessageBus.Start();
+    }
+
+    [TestCleanup]
+    public void TearDownMessageBus()
+    {
+        MessageBus.Stop();
+        Logger.Info("SingleEventQueueTestSetup MessageBus stopped");
     }
 }

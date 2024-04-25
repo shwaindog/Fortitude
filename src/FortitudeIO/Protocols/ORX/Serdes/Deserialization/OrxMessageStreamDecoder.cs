@@ -9,20 +9,20 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 namespace FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 
-public interface IOrxResponderStreamDecoder : IMessageStreamDecoder
+public interface IOrxStreamDecoder : IMessageStreamDecoder
 {
     new IConversationDeserializationRepository MessageDeserializationRepository { get; }
 }
 
-public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
+public sealed class OrxMessageStreamDecoder : IOrxStreamDecoder
 {
-    private ushort messageId;
+    private uint messageId;
 
     private State state = State.Header;
 
     public OrxMessageStreamDecoder(IConversationDeserializationRepository deserializersRepo) => MessageDeserializationRepository = deserializersRepo;
 
-    public int ExpectedSize { get; private set; } = OrxMessageHeader.HeaderSize;
+    public uint ExpectedSize { get; private set; } = OrxMessageHeader.HeaderSize;
 
     public IConversationDeserializationRepository MessageDeserializationRepository { get; }
 
@@ -41,9 +41,11 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
                 {
                     var ptr = fptr + readCursor;
                     var version = *ptr++;
-                    messageId = StreamByteOps.ToUShort(ref ptr);
-                    ExpectedSize = StreamByteOps.ToUShort(ref ptr);
-                    socketBufferReadContext.MessageHeader = new MessageHeader(version, 0, messageId, (uint)ExpectedSize, socketBufferReadContext);
+                    var flags = *ptr++;
+                    messageId = StreamByteOps.ToUInt(ref ptr);
+                    ExpectedSize = StreamByteOps.ToUInt(ref ptr) - MessageHeader.SerializationSize;
+                    socketBufferReadContext.MessageHeader = new MessageHeader(version, flags, messageId, ExpectedSize, socketBufferReadContext);
+                    readCursor += MessageHeader.SerializationSize;
                 }
 
                 state = State.Data;
@@ -52,13 +54,15 @@ public sealed class OrxMessageStreamDecoder : IOrxResponderStreamDecoder
             {
                 var recycleable = lastDecodedObj as IRecyclableObject;
                 recycleable?.DecrementRefCount();
-                if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var u))
+                if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var messageDeserializer))
                 {
                     socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
-                    lastDecodedObj = u!.Deserialize(socketBufferReadContext);
+                    lastDecodedObj = messageDeserializer!.Deserialize(socketBufferReadContext);
+                    if (lastDecodedObj is ExpectSessionCloseMessage expectSessionCloseMessage)
+                        socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
                 }
 
-                readCursor += ExpectedSize + OrxMessageHeader.HeaderSize;
+                readCursor += (int)ExpectedSize;
                 state = State.Header;
                 ExpectedSize = OrxMessageHeader.HeaderSize;
             }

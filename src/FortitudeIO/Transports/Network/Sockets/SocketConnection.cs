@@ -4,7 +4,6 @@ using System.Net;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
 using FortitudeIO.Topics.Config.ConnectionConfig;
-using TransportType = FortitudeIO.Topics.Config.ConnectionConfig.TransportType;
 
 #endregion
 

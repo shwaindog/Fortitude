@@ -15,7 +15,7 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
 {
     protected const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.ffffff";
 
-    protected static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializer<T>));
+    protected static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SyncStateBase<>));
     protected int LogCounter;
 
     internal SyncStateBase(IPQQuoteDeserializer<T> linkedDeserializer, QuoteSyncState state)

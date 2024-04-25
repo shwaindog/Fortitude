@@ -92,6 +92,7 @@ public class MessagePump : IMessagePump
     {
         try
         {
+            // Logger.Debug("Received bus message {0} on {1}", data, ringPoller.Ring.Name);
             switch (data.Type)
             {
                 case MessageType.LoadRule:

@@ -3,6 +3,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
@@ -55,9 +56,14 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         feed.VenueOrderUpdated += OnVenueOrder;
     }
 
+    public void Shutdown()
+    {
+        AcceptorSession.Stop(CloseReason.Completed, "OrxTradingServer is closing");
+    }
+
     private void OnNewTradingClientConversation(IConversationRequester cx)
     {
-        var clientDecoder = (IOrxResponderStreamDecoder)cx.StreamListener!.Decoder!;
+        var clientDecoder = (IOrxStreamDecoder)cx.StreamListener!.Decoder!;
         clientDecoder.MessageDeserializationRepository.RegisterDeserializer<OrxOrderSubmitRequest>()
             .AddDeserializedNotifier(
                 new PassThroughDeserializedNotifier<OrxOrderSubmitRequest>($"{nameof(OrxTradingServer)}.{nameof(OnSubmit)}", OnSubmit));

@@ -16,6 +16,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 [TestClass]
 public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQClientSourceFeedRuleTests));
     private PQClientSourceFeedRule pqClientSourceFeedRule = null!;
     private PQPublisher<PQLevel3Quote> pqPublisher = null!;
     private LocalHostPQServerLevel3QuoteTestSetup pqServerL3QuoteServerSetup = null!;
@@ -29,7 +30,8 @@ public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         sharedDeserializationRepo = new MessageDeserializationRepository("SharedSnapshotUpdateRepository", recycler);
         pqServerL3QuoteServerSetup = new LocalHostPQServerLevel3QuoteTestSetup();
         pqPublisher = pqServerL3QuoteServerSetup.CreatePQPublisher();
-        var clientMarketConfig = pqServerL3QuoteServerSetup.MarketConnectionConfig.ToggleProtocolDirection();
+        var clientMarketConfig
+            = pqServerL3QuoteServerSetup.DefaultServerMarketConnectionConfig.ToggleProtocolDirection("PQClientSourceFeedRuleTestsClient");
         clientMarketConfig.Name = "PQClientSourceFeedRuleTests";
         pqClientSourceFeedRule = new PQClientSourceFeedRule(clientMarketConfig);
     }
@@ -37,7 +39,9 @@ public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     [TestCleanup]
     public void TearDown()
     {
+        logger.Info("Test complete starting services shutdown");
         pqServerL3QuoteServerSetup.TearDown();
+        TearDownMessageBus();
         FLoggerFactory.GracefullyTerminateProcessLogging();
         SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
@@ -46,6 +50,7 @@ public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     [Timeout(10_000)]
     public async Task StartedPQServer_DeployPQClientSourceFeedRule_StartSnapshotAndUpdateRuleAndRequestSourceTickerInfo()
     {
-        var results = await EventQueue.LaunchRuleAsync(pqClientSourceFeedRule, pqClientSourceFeedRule, EventQueueSelectionResult);
+        var results = await EventQueue1.LaunchRuleAsync(pqClientSourceFeedRule, pqClientSourceFeedRule, EventQueue1SelectionResult);
+        logger.Info("StartedPQServer_DeployPQClientSourceFeedRule_StartSnapshotAndUpdateRuleAndRequestSourceTickerInfo Completed");
     }
 }

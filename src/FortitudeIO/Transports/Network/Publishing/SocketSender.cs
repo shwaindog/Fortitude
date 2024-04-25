@@ -20,11 +20,13 @@ namespace FortitudeIO.Transports.Network.Publishing;
 public interface ISocketSender : IStreamPublisher
 {
     int Id { get; }
-    bool SendActive { get; }
+    string Name { get; }
+    bool CanSend { get; }
     IMessageSerializationRepository MessageSerializationRepository { get; }
-
+    bool AttemptCloseOnSendComplete { get; set; }
     IOSSocket Socket { get; set; }
-    void HandleSendError(string message, Exception exception);
+    void SetCloseReason(CloseReason closeReason, string? reasonText);
+    void SendExpectSessionCloseMessageAndClose();
 }
 
 public sealed class SocketSender : ISocketSender
@@ -38,27 +40,26 @@ public sealed class SocketSender : ISocketSender
 
     private readonly ISyncLock sendLock = new SpinLockLight();
 
-    private readonly ISocketSessionContext socketSocketSessionContext;
+    private readonly ISocketSessionContext socketSessionContext;
 
     private readonly BufferContext writeBufferContext;
+
+    private CloseReason closeReason;
+    private string? closeReasonText;
+    private bool haveClosedSocket;
+    private bool haveSentExpectSessionCloseMessage;
     private volatile bool sendActive;
 
-    public SocketSender(ISocketSessionContext socketSocketSessionContext, IMessageSerializationRepository messageSerializationRepository)
+    public SocketSender(ISocketSessionContext socketSessionContext, IMessageSerializationRepository messageSerializationRepository)
     {
-        Socket = socketSocketSessionContext.SocketConnection!.OSSocket;
-        this.socketSocketSessionContext = socketSocketSessionContext;
+        Socket = socketSessionContext.SocketConnection!.OSSocket;
+        this.socketSessionContext = socketSessionContext;
         MessageSerializationRepository = messageSerializationRepository;
-        directOSNetworkingApi = socketSocketSessionContext.SocketFactoryResolver.NetworkingController!
+        directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!
             .DirectOSNetworkingApi;
         writeBufferContext = new BufferContext(new ReadWriteBuffer(new byte[Socket.SendBufferSize]))
             { Direction = ContextDirection.Write };
     }
-
-    public IOSSocket Socket { get; set; }
-
-    public int Id => socketSocketSessionContext.Id;
-
-    public IMessageSerializationRepository MessageSerializationRepository { get; }
 
     public bool SendActive
     {
@@ -66,16 +67,57 @@ public sealed class SocketSender : ISocketSender
         private set => sendActive = value;
     }
 
+    public IOSSocket Socket { get; set; }
+
+    public int Id => socketSessionContext.Id;
+
+    public string Name => socketSessionContext.Name;
+
+    public IMessageSerializationRepository MessageSerializationRepository { get; }
+
+    public bool AttemptCloseOnSendComplete { get; set; }
+
+    public bool CanSend => socketSessionContext.SocketConnection?.IsConnected == true;
+
+    public void SetCloseReason(CloseReason closeReason, string? reasonText)
+    {
+        this.closeReason = closeReason;
+        closeReasonText = reasonText;
+    }
+
+    public void SendExpectSessionCloseMessageAndClose()
+    {
+        var canSendExpectClose = closeReason != CloseReason.RemoteDisconnecting && CanSend;
+        if (canSendExpectClose && !haveSentExpectSessionCloseMessage)
+        {
+            AttemptCloseOnSendComplete = true;
+            haveSentExpectSessionCloseMessage = true;
+            Send(new ExpectSessionCloseMessage(closeReason, closeReasonText));
+        }
+        else if (!haveClosedSocket)
+        {
+            haveClosedSocket = true;
+            socketSessionContext.SocketConnection?.OSSocket?.Close();
+            socketSessionContext.SetDisconnected();
+        }
+    }
+
     public void Send(IVersionedMessage message)
     {
         Enqueue(message);
         sendLock.Acquire();
+        if (!CanSend)
+        {
+            logger.Warn("Can not send message on {0} as the session is not currently connected. {1}", socketSessionContext, message);
+            return;
+        }
+
         try
         {
             if (!SendActive)
             {
                 SendActive = true;
-                socketSocketSessionContext.SocketDispatcher.Sender!.EnqueueSocketSender(this);
+                socketSessionContext.SocketDispatcher.Sender!.EnqueueSocketSender(this);
             }
         }
         finally
@@ -105,39 +147,61 @@ public sealed class SocketSender : ISocketSender
 
     public bool SendQueued()
     {
-        while (encoders.Count > 0 || !writeBufferContext.EncodedBuffer!.AllRead)
+        var foundExpectSessionClose = false;
+        if (!CanSend)
         {
-            while (encoders.Count > 0)
+            logger.Warn("Can not send message on {0} as the session is not currently connected.", socketSessionContext);
+            return true;
+        }
+
+        try
+        {
+            while (encoders.Count > 0 || !writeBufferContext.EncodedBuffer!.AllRead)
             {
-                SocketEncoder encoder;
-                sendLock.Acquire();
-                try
+                while (encoders.Count > 0)
                 {
-                    encoder = encoders.Peek();
+                    SocketEncoder encoder;
+                    sendLock.Acquire();
+                    try
+                    {
+                        encoder = encoders.Peek();
+                    }
+                    finally
+                    {
+                        sendLock.Release();
+                    }
+
+                    var message = encoder.Message;
+                    foundExpectSessionClose |= message is ExpectSessionCloseMessage;
+                    encoder.Serializer!.Serialize(encoder.Message, writeBufferContext);
+                    var writtenSize = writeBufferContext.LastWriteLength;
+
+                    if (writtenSize <= 0)
+                    {
+                        if (writeBufferContext.EncodedBuffer!.AllRead || encoder.AttemptCount > 100)
+                            throw new SocketSendException("Message could not be serialized or was too big for the buffer"
+                                , socketSessionContext);
+                        encoder.AttemptCount++;
+                        break;
+                    }
+
+                    if (message is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
+
+                    MoveNextEncoder(encoder);
                 }
-                finally
-                {
-                    sendLock.Release();
-                }
 
-                var message = encoder.Message;
-                encoder.Serializer!.Serialize(encoder.Message, writeBufferContext);
-                var writtenSize = writeBufferContext.LastWriteLength;
-
-                if (writtenSize <= 0)
-                {
-                    if (writeBufferContext.EncodedBuffer!.AllRead || encoder.AttemptCount > 100)
-                        throw new SocketSendException("Message could not be serialized or was too big for the buffer", socketSocketSessionContext);
-                    encoder.AttemptCount++;
-                    break;
-                }
-
-                if (message is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();
-
-                MoveNextEncoder(encoder);
+                if (!WriteToSocketSucceeded()) return false;
+            }
+        }
+        catch (SocketSendException sse)
+        {
+            if (!foundExpectSessionClose)
+            {
+                logger.Warn("Caught exception attempting to send messages to {0}. Got {1}", this, sse);
+                throw;
             }
 
-            if (!WriteToSocketSucceeded()) return false;
+            return foundExpectSessionClose;
         }
 
         return true;
@@ -146,7 +210,7 @@ public sealed class SocketSender : ISocketSender
     public void HandleSendError(string message, Exception exception)
     {
         logger.Warn(
-            $"Error trying to send for {socketSocketSessionContext.Name} got {message} and {exception}");
+            $"Error trying to send for {socketSessionContext.Name} got {message} and {exception}");
     }
 
     private void MoveNextEncoder(SocketEncoder encoder)
@@ -178,7 +242,7 @@ public sealed class SocketSender : ISocketSender
 
         if (sentSize < 0)
             throw new SocketSendException("Win32 error " +
-                                          directOSNetworkingApi.GetLastCallError() + " on send call", socketSocketSessionContext);
+                                          directOSNetworkingApi.GetLastCallError() + " on send call", socketSessionContext);
         writeBufferContext.EncodedBuffer!.ReadCursor += sentSize;
         if (writeBufferContext.EncodedBuffer!.AllRead) writeBufferContext.EncodedBuffer.Reset();
         if (!writeBufferContext.EncodedBuffer.HasStorageForBytes(400)) writeBufferContext.EncodedBuffer.MoveUnreadToBufferStart();
@@ -187,7 +251,7 @@ public sealed class SocketSender : ISocketSender
     }
 
     public override string ToString() =>
-        $"SocketSender({nameof(socketSocketSessionContext)}: {socketSocketSessionContext}, " +
+        $"SocketSender({nameof(socketSessionContext)}: {socketSessionContext}, " +
         $"{nameof(SendActive)}: {SendActive}, {nameof(Id)}: {Id})";
 
     internal sealed class SocketEncoder

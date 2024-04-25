@@ -45,34 +45,29 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
     {
         public override unsafe SimpleVersionedMessage Deserialize(ISerdeContext readContext)
         {
-            if (readContext is IBufferContext bufferContext)
+            if (readContext is IMessageBufferContext messageBufferContext)
             {
                 var simpleMessage = new SimpleVersionedMessage();
-                var readOffset = bufferContext.EncodedBuffer!.ReadCursor;
-                var version = bufferContext.EncodedBuffer!.Buffer[bufferContext.EncodedBuffer.ReadCursor];
-                var messageId = StreamByteOps.ToUShort(bufferContext.EncodedBuffer.Buffer
-                    , bufferContext.EncodedBuffer.ReadCursor + 1);
-                var messageSize = StreamByteOps.ToUShort(bufferContext.EncodedBuffer.Buffer
-                    , bufferContext.EncodedBuffer.ReadCursor + 3);
+                var readOffset = messageBufferContext.EncodedBuffer!.ReadCursor;
+                var version = messageBufferContext.MessageHeader.Version;
+                var messageSize = messageBufferContext.MessageHeader.MessageSize;
 
-                if (version == 1 && messageSize == 9)
-                    fixed (byte* ptr = bufferContext.EncodedBuffer!.Buffer)
+                simpleMessage.MessageId = messageBufferContext.MessageHeader.MessageId;
+                simpleMessage.Version = messageBufferContext.MessageHeader.Version;
+                if (version == 1 || messageSize == 14)
+                    fixed (byte* ptr = messageBufferContext.EncodedBuffer!.Buffer)
                     {
-                        simpleMessage.Version = version;
-                        simpleMessage.MessageId = messageId;
-                        var currPtr = ptr + readOffset + 5;
+                        var currPtr = ptr + readOffset;
                         simpleMessage.PayLoad = StreamByteOps.ToInt(ref currPtr);
                     }
                 else
-                    fixed (byte* ptr = bufferContext.EncodedBuffer!.Buffer)
+                    fixed (byte* ptr = messageBufferContext.EncodedBuffer!.Buffer)
                     {
-                        simpleMessage.Version = version;
-                        simpleMessage.MessageId = messageId;
-                        var currPtr = ptr + readOffset + 5;
+                        var currPtr = ptr + readOffset;
                         simpleMessage.PayLoad2 = StreamByteOps.ToDouble(ref currPtr);
                     }
 
-                OnNotify(simpleMessage, bufferContext);
+                OnNotify(simpleMessage, messageBufferContext);
 
                 return simpleMessage;
             }
@@ -113,13 +108,14 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
         public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
         {
             var simpleVersionedMsg = (SimpleVersionedMessage)message;
-            ushort bytesSerialized;
+            uint bytesSerialized;
             fixed (byte* fptr = buffer)
             {
                 var currPtr = fptr;
                 *currPtr++ = message.Version;
-                StreamByteOps.ToBytes(ref currPtr, (ushort)message.MessageId);
-                bytesSerialized = (ushort)(message.Version > 1 ? 13 : 9);
+                *currPtr++ = 0;
+                StreamByteOps.ToBytes(ref currPtr, message.MessageId);
+                bytesSerialized = (uint)(message.Version > 1 ? 18 : 14);
                 StreamByteOps.ToBytes(ref currPtr, bytesSerialized);
                 if (message.Version == 1)
                     StreamByteOps.ToBytes(ref currPtr, simpleVersionedMsg.PayLoad);
@@ -129,7 +125,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
 
             message?.DecrementRefCount();
 
-            return bytesSerialized;
+            return (int)bytesSerialized;
         }
     }
 }

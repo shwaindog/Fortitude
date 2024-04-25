@@ -7,6 +7,7 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
@@ -18,15 +19,19 @@ namespace FortitudeIO.Transports.Network.Receiving;
 
 public interface ISocketReceiver : IStreamListener
 {
+    string Name { get; }
     bool IsAcceptor { get; }
     bool ListenActive { get; set; }
     IntPtr SocketHandle { get; }
     bool ZeroBytesReadIsDisconnection { get; set; }
+    bool AttemptCloseSocketOnListenerRemoval { get; set; }
     IOSSocket Socket { get; set; }
-
+    ExpectSessionCloseMessage? ExpectSessionCloseMessage { get; set; }
     IActionTimer? ResponseTimer { get; set; }
+    void UnregisteredHandler();
     bool Poll(SocketBufferReadContext socketBufferReadContext);
     event Action? Accept;
+    void HandleRemoteDisconnecting(ExpectSessionCloseMessage expectSessionCloseMessage);
     void HandleReceiveError(string message, Exception exception);
     IOSSocket AcceptClientSocketRequest();
     void NewClientSocketRequest();
@@ -74,7 +79,11 @@ public sealed class SocketReceiver : ISocketReceiver
         ZeroBytesReadIsDisconnection = true;
     }
 
+    public string Name => socketSessionContext.Name;
+
     public IOSSocket Socket { get; set; }
+
+    public bool AttemptCloseSocketOnListenerRemoval { get; set; }
 
     public bool ListenActive { get; set; }
     public IntPtr SocketHandle => Socket.Handle;
@@ -83,9 +92,29 @@ public sealed class SocketReceiver : ISocketReceiver
     public event Action? Accept;
     public bool IsAcceptor => Accept != null;
 
+    public ExpectSessionCloseMessage? ExpectSessionCloseMessage { get; set; }
+
     public IMessageStreamDecoder? Decoder { get; set; }
 
     public IActionTimer? ResponseTimer { get; set; }
+
+    public void UnregisteredHandler()
+    {
+        if (AttemptCloseSocketOnListenerRemoval)
+        {
+            AttemptCloseSocketOnListenerRemoval = false;
+            var socketSender = socketSessionContext.SocketSender;
+            if (socketSender is { CanSend: true })
+            {
+                socketSender.SendExpectSessionCloseMessageAndClose();
+            }
+            else
+            {
+                socketSessionContext.SocketConnection?.OSSocket?.Close();
+                socketSessionContext.SetDisconnected();
+            }
+        }
+    }
 
     public bool Poll(SocketBufferReadContext socketBufferReadContext)
     {
@@ -127,10 +156,18 @@ public sealed class SocketReceiver : ISocketReceiver
         Accept?.Invoke();
     }
 
+    public void HandleRemoteDisconnecting(ExpectSessionCloseMessage expectSessionCloseMessage)
+    {
+        logger.Info("{0} received expect session close message. closeReason:{1}, reason:{2}",
+            socketSessionContext.Name, expectSessionCloseMessage.CloseReason, expectSessionCloseMessage.ReasonText);
+        socketSessionContext.StreamControls?.Disconnect(CloseReason.RemoteDisconnecting, expectSessionCloseMessage.ReasonText);
+    }
+
     public void HandleReceiveError(string message, Exception exception)
     {
         logger.Warn("Receive Error - {0} got on {1}", message, this);
-        socketSessionContext.StreamControls?.OnSessionFailure($"{message}");
+        if (ExpectSessionCloseMessage?.CloseReason is not CloseReason.Completed)
+            socketSessionContext.StreamControls?.OnSessionFailure($"{message}");
     }
 
     private int PrepareBufferAndReceiveData(IPerfLogger? detectionToPublishLatencyTraceLogger)

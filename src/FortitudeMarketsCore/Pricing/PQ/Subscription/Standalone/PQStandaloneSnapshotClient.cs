@@ -8,6 +8,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -271,7 +272,11 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
 
     private void TimeoutConnection(object state, bool timedOut)
     {
-        if (timedOut) SocketSessionContext.StreamControls?.Disconnect();
+        if (timedOut)
+        {
+            logger.Warn("Closing PQSnapshotClient for {0} as no data timeout has been reach", SocketSessionContext.Name);
+            SocketSessionContext.StreamControls?.Disconnect(CloseReason.Completed, "Timeout after a lack of activity.");
+        }
     }
 
     private void OnReceivedMessage()

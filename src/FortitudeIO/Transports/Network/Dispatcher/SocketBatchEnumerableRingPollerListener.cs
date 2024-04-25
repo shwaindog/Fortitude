@@ -96,9 +96,14 @@ public abstract class SocketBatchEnumerableRingPollerListener<T> : EnumerableBat
                     if (socketReceiver != null)
                     {
                         if (data.IsSocketAdd)
+                        {
                             socketsPollerAndDecoding.AddForListen(socketReceiver);
+                        }
                         else
+                        {
                             socketsPollerAndDecoding.RemoveFromListen(socketReceiver);
+                            socketReceiver.UnregisteredHandler();
+                        }
                     }
                 }
                 else
