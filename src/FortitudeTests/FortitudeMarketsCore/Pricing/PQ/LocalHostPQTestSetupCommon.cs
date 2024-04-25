@@ -24,9 +24,11 @@ public class LocalHostPQTestSetupCommon
     protected static readonly IFLogger Logger =
         FLoggerFactory.Instance.GetLogger(typeof(LocalHostPQTestSetupCommon));
 
+    public IMarketConnectionConfig DefaultServerMarketConnectionConfig = null!;
+    public IMarketsConfig DefaultServerMarketsConfig = null!;
+
     public LastTradedFlags LastTradedFlags = LastTradedFlags.None;
     public LayerFlags LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
-    public IMarketConnectionConfig MarketConnectionConfig = null!;
     public OSNetworkingController NetworkingController = null!;
     public IPricingServerConfig PricingServerConfig = null!;
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo = null!;
@@ -35,13 +37,13 @@ public class LocalHostPQTestSetupCommon
 
     public void InitializeCommonConfig()
     {
-        NetworkingController = new OSNetworkingController();
-        ThreadPoolTimer = new UpdateableTimer("LocalHostPQTestSetupCommon");
-        SourceTickersConfig =
+        NetworkingController ??= new OSNetworkingController();
+        ThreadPoolTimer ??= new UpdateableTimer("LocalHostPQTestSetupCommon");
+        SourceTickersConfig ??=
             new SourceTickersConfig(new TickerConfig(TickerId, TestTicker, TickerAvailability.AllEnabled, 0.00001m, 0.1m, 100, 0.1m, 250, LayerDetails
                 , 20, LastTradedFlags));
-        SourceTickerQuoteInfo = SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
-        PricingServerConfig = new PricingServerConfig(
+        SourceTickerQuoteInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
+        PricingServerConfig ??= new PricingServerConfig(
             new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
                 new List<IEndpointConfig>
                 {
@@ -55,7 +57,8 @@ public class LocalHostPQTestSetupCommon
                         , TestMachineConfig.ServerUpdatePort, subnetMask: TestMachineConfig.NetworkSubAddress)
                 }, "TestUpdateServerDescription"
                 , connectionAttributes: SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast));
-        MarketConnectionConfig = new MarketConnectionConfig(1, ExchangeName, MarketConnectionType.Pricing
+        DefaultServerMarketConnectionConfig ??= new MarketConnectionConfig(1, ExchangeName, MarketConnectionType.Pricing
             , SourceTickersConfig, PricingServerConfig);
+        DefaultServerMarketsConfig ??= new MarketsConfig("LocalHostPQTestSetupServer", DefaultServerMarketConnectionConfig);
     }
 }

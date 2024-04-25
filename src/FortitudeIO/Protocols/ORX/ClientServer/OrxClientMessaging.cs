@@ -21,7 +21,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxClientRequester
 
     protected readonly object SyncLock = new();
 
-    private IOrxResponderStreamDecoder? messageStreamDecoder;
+    private IOrxStreamDecoder? messageStreamDecoder;
 
     protected OrxClientMessaging(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
         : base(socketSessionContext, streamControls)
@@ -32,7 +32,7 @@ public class OrxClientMessaging : ConversationRequester, IOrxClientRequester
 
         socketSessionContext.SocketReceiverUpdated += () =>
         {
-            messageStreamDecoder = (IOrxResponderStreamDecoder)socketSessionContext.SocketReceiver?.Decoder!;
+            messageStreamDecoder = (IOrxStreamDecoder)socketSessionContext.SocketReceiver?.Decoder!;
         };
     }
 

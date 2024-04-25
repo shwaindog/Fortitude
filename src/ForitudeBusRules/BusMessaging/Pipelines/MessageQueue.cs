@@ -106,6 +106,7 @@ public class MessageQueue : IMessageQueue
 
     public void EnqueueMessage(BusMessage msg)
     {
+        // Logger.Debug("Sending {0} on {1}", msg, Name);
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
@@ -139,6 +140,7 @@ public class MessageQueue : IMessageQueue
         // logger.Debug("EnqueuePayloadWithStats processorRegistry: {0}", processorRegistry.ToString());
         evt.ProcessorRegistry = processorRegistry;
         evt.RuleFilter = ruleFilter ?? BusMessage.AppliesToAll;
+        // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
         return processorRegistry.GenerateValueTask();
@@ -167,6 +169,7 @@ public class MessageQueue : IMessageQueue
         evt.SentTime = DateTime.Now;
         evt.ProcessorRegistry = processorRegistry;
         evt.RuleFilter = ruleFilter ?? BusMessage.AppliesToAll;
+        // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
         return reusableValueTaskSource.GenerateValueTask();
@@ -213,6 +216,7 @@ public class MessageQueue : IMessageQueue
         evt.Response = BusMessage.NoOpCompletionSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
+        // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
     }
@@ -233,6 +237,7 @@ public class MessageQueue : IMessageQueue
         evt.SentTime = DateTime.Now;
         evt.ProcessorRegistry = null;
         evt.RuleFilter = ruleFilter ?? BusMessage.AppliesToAll;
+        // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
     }

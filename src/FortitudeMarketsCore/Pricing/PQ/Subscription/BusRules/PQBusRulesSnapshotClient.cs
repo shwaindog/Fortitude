@@ -13,6 +13,7 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -184,9 +185,8 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
 
         var serdesFactory = new PQClientClientSerdesRepositoryFactory();
 
-        var socketSessionContext = new BusSocketSessionContext(networkConnectionConfig.TopicName + "Requester", conversationType, conversationProtocol
-            ,
-            networkConnectionConfig, sockFactories, serdesFactory, socketDispatcherResolver);
+        var socketSessionContext = new BusSocketSessionContext(networkConnectionConfig.TopicName + "Requester",
+            conversationType, conversationProtocol, networkConnectionConfig, sockFactories, serdesFactory, socketDispatcherResolver);
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
@@ -208,7 +208,8 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
 
     private void TimeoutConnection()
     {
-        SocketSessionContext.StreamControls?.Disconnect();
+        logger.Warn("Closing PQSnapshotClient for {0} as no data timeout has been reach", feedName);
+        SocketSessionContext.StreamControls?.Disconnect(CloseReason.Completed, "Timeout after a lack of activity.");
     }
 
     private void RestartTimeoutTimer()

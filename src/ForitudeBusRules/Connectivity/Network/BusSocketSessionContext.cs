@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -19,6 +20,7 @@ namespace FortitudeBusRules.Connectivity.Network;
 public class BusSocketSessionContext : ISocketSessionContext
 {
     private static int idGen;
+    private readonly ISocketConnectivityChanged socketConnectivityChanged;
 
     private ActionWrapper? connectedActionWrapper;
     private ActionWrapper? disconnectedActionWrapper;
@@ -29,12 +31,13 @@ public class BusSocketSessionContext : ISocketSessionContext
     private ActionWrapper? startedActionWrapper;
     private ActionWrapper? stoppedActionWrapper;
 
-    public BusSocketSessionContext(string name, ConversationType conversationType,
+    public BusSocketSessionContext(string preIdName, ConversationType conversationType,
         SocketConversationProtocol socketConversationProtocol, INetworkTopicConnectionConfig networkConnectionConfig,
         ISocketFactoryResolver socketFactoryResolver, IMessageSerdesRepositoryFactory serdesFactory,
         ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
-        Name = name;
+        Id = Interlocked.Increment(ref idGen);
+        Name = IdInjectedName(preIdName, Id);
         SocketFactoryResolver = socketFactoryResolver;
         SocketDispatcher
             = socketDispatcherResolver?.Resolve(networkConnectionConfig) ??
@@ -43,9 +46,8 @@ public class BusSocketSessionContext : ISocketSessionContext
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
         NetworkTopicConnectionConfig = networkConnectionConfig;
-        StateChanged = socketFactoryResolver.ConnectionChangedHandlerResolver!(this)
-            .GetOnConnectionChangedHandler();
-        Id = Interlocked.Increment(ref idGen);
+        socketConnectivityChanged = socketFactoryResolver.ConnectionChangedHandlerResolver!(this);
+        StateChanged = socketConnectivityChanged.GetOnConnectionChangedHandler();
     }
 
     public int Id { get; }
@@ -151,9 +153,9 @@ public class BusSocketSessionContext : ISocketSessionContext
         StreamControls?.Start();
     }
 
-    public void Stop()
+    public void Stop(CloseReason closeReason = CloseReason.Completed, string? reason = null)
     {
-        StreamControls?.Stop();
+        StreamControls?.Stop(closeReason, reason);
         OnStopped();
     }
 
@@ -173,18 +175,19 @@ public class BusSocketSessionContext : ISocketSessionContext
         OnSocketStateChanged(SocketSessionState.Connected);
         SocketConnected?.Invoke(socketConnection);
         connectedActionWrapper?.Invoke();
-        OnStarted();
     }
 
-    public void OnDisconnected()
+    public void SetDisconnected()
     {
-        if (SocketSessionState != SocketSessionState.Disconnected)
-        {
-            OnSocketStateChanged(SocketSessionState.Disconnected);
-            disconnectingActionWrapper?.Invoke();
-        }
+        SocketConnection = null;
+    }
 
-        OnStopped();
+    public void OnDisconnected(CloseReason closeReason, string? reason = null)
+    {
+        socketConnectivityChanged.CloseReason = closeReason;
+        socketConnectivityChanged.ReasonText = reason;
+        OnSocketStateChanged(SocketSessionState.Disconnected);
+        disconnectingActionWrapper?.Invoke();
     }
 
     public void OnReconnecting()
@@ -219,4 +222,15 @@ public class BusSocketSessionContext : ISocketSessionContext
         $"{nameof(SocketDispatcher)}: {SocketDispatcher}, {nameof(SocketConnection)}: {SocketConnection}, " +
         $"{nameof(SocketSessionState)}: {SocketSessionState}, " +
         $"{nameof(IsStarted)}: {IsStarted})";
+
+    private string IdInjectedName(string preIdName, int id)
+    {
+        var splitOnUnderscores = preIdName.Split('_').ToList();
+        var idAndValue = $"ID-{id}";
+        if (splitOnUnderscores.Count > 1)
+            splitOnUnderscores.Insert(1, idAndValue);
+        else
+            splitOnUnderscores.Add(idAndValue);
+        return string.Join("_", splitOnUnderscores);
+    }
 }

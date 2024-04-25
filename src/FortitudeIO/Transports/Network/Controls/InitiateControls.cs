@@ -3,6 +3,7 @@
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 
@@ -31,18 +32,14 @@ public class InitiateControls : SocketStreamControls
 
     public override void OnSessionFailure(string reason)
     {
-        Disconnect(true);
+        Disconnect(CloseReason.Error, reason);
+        if (SocketSessionContext.SocketReceiver?.ExpectSessionCloseMessage is { CloseReason: CloseReason.Completed }) return;
         var scheduleConnectWaitMs = ReconnectConfig.NextReconnectIntervalMs;
         logger.Info("Will attempt reconnecting to {0} {1} id {2} reason {3} in {4}ms",
             SocketSessionContext.Name, SocketSessionContext.Id,
             SocketSessionContext.NetworkTopicConnectionConfig, reason, scheduleConnectWaitMs);
         SocketSessionContext.OnReconnecting();
         ScheduleConnect(scheduleConnectWaitMs);
-    }
-
-    public override void Disconnect()
-    {
-        Disconnect(false);
     }
 
 
@@ -72,16 +69,15 @@ public class InitiateControls : SocketStreamControls
                 }
                 catch (Exception ex)
                 {
-                    logger.Info("Connection to {0} {1}:{2} rejected: {3}",
+                    logger.Info("Connection attempt to {0} to host {1}:{2} was rejected: {3}",
                         SocketSessionContext.Name, socketConConfig.Hostname, socketConConfig.Port, ex);
                 }
 
                 if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
                 {
                     ReconnectConfig.NextReconnectIntervalMs = ReconnectConfig.StartReconnectIntervalMs;
-                    logger.Info("Connection to id:{0} {1}:{2}:{3} accepted",
-                        SocketSessionContext.Name, SocketSessionContext.Id,
-                        socketConConfig.Hostname, socketConConfig.Port);
+                    logger.Info("Connection {0} was accepted by host {1}:{2}",
+                        SocketSessionContext.Name, socketConConfig.Hostname, socketConConfig.Port);
                     StartMessaging();
                     return true;
                 }
@@ -106,27 +102,23 @@ public class InitiateControls : SocketStreamControls
         }
     }
 
-    protected void Disconnect(bool inError)
+    public override void Disconnect(CloseReason closeReason, string? reason = null)
     {
         if (SocketSessionContext.SocketReceiver != null)
             SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(SocketSessionContext.SocketReceiver);
         lock (connSync)
         {
-            if (!inError || SocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
+            if (reason != null || SocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
                 SocketSessionContext.SocketSessionState == SocketSessionState.Connecting)
                 SocketSessionContext.OnDisconnecting();
             if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
             {
+                SocketSessionContext.OnDisconnected(closeReason, reason);
+
                 triggerConnectNowSignal?.Set();
                 StopMessaging();
-                logger.Info("Connection to {0} {1} id {2}:{3} closed.",
-                    SocketSessionContext.Name, SocketSessionContext.Id,
-                    string.Join(", ", SocketSessionContext.NetworkTopicConnectionConfig.AvailableConnections),
-                    SocketSessionContext.SocketConnection.ConnectedPort);
-                SocketSessionContext.SocketConnection.OSSocket?.Close();
+                logger.Info("Connection to {0} closed. {1}", SocketSessionContext.Name, reason);
             }
-
-            SocketSessionContext.OnDisconnected();
         }
     }
 }

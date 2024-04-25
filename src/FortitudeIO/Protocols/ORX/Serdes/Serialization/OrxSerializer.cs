@@ -3,7 +3,6 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.Serdes.Binary;
 
 #endregion
@@ -13,9 +12,9 @@ namespace FortitudeIO.Protocols.ORX.Serdes.Serialization;
 public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerializer<Tm>
     where Tm : class, IVersionedMessage, new()
 {
-    public readonly ushort Id;
+    public readonly uint Id;
 
-    public OrxSerializer(ushort id) => Id = id;
+    public OrxSerializer(uint id) => Id = id;
 
     public MarshalType MarshalType => MarshalType.Binary;
 
@@ -46,19 +45,20 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
         // We want to make sure that at least the header will fit
         if (OrxMessageHeader.HeaderSize <= buffer.Length - writeOffset)
         {
-            var size = (ushort)Serialize(msg, buffer, writeOffset, OrxMessageHeader.HeaderSize);
-            if (size > 0 || msg is OrxLogonResponse)
+            var size = Serialize(msg, buffer, writeOffset, OrxMessageHeader.HeaderSize) + OrxMessageHeader.HeaderSize;
+            if (size >= OrxMessageHeader.HeaderSize)
             {
                 fixed (byte* fptr = buffer)
                 {
                     var ptr = fptr + writeOffset;
                     *ptr++ = msg.Version;
+                    *ptr++ = 0;
                     StreamByteOps.ToBytes(ref ptr, Id);
-                    StreamByteOps.ToBytes(ref ptr, size);
+                    StreamByteOps.ToBytes(ref ptr, (uint)size);
                 }
 
                 msg.DecrementRefCount();
-                return size + OrxMessageHeader.HeaderSize;
+                return (int)size;
             }
         }
 

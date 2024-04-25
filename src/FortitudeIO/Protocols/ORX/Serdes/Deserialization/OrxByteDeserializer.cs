@@ -79,7 +79,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
     public Type MessageType => typeof(Tm);
 
-    public unsafe object Deserialize(byte* ptr, int length, byte messageVersion)
+    public unsafe object Deserialize(byte* ptr, uint length, byte messageVersion)
     {
         if (messageVersion >= thisVersion) return DeserializeCurrentType(ptr, length);
 
@@ -98,14 +98,12 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
     {
         var sockBuffContext = readContext as SocketBufferReadContext;
         sockBuffContext?.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
-        if (readContext is IBufferContext bufferContext)
-            fixed (byte* fptr = bufferContext.EncodedBuffer!.Buffer)
+        if (readContext is IMessageBufferContext messageBufferContext)
+            fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer)
             {
-                var messageVersion = bufferContext.ReadCurrentMessageVersion();
-                var messageSize = bufferContext.ReadCurrentMessageSize();
-                return (Tm)Deserialize(
-                    fptr + bufferContext.EncodedBuffer.ReadCursor + OrxMessageHeader.HeaderSize,
-                    messageSize, messageVersion);
+                var messageVersion = messageBufferContext.MessageHeader.Version;
+                var messageSize = messageBufferContext.MessageHeader.MessageSize;
+                return (Tm)Deserialize(fptr + messageBufferContext.EncodedBuffer.ReadCursor, messageSize - MessageHeader.SerializationSize, messageVersion);
             }
 
         throw new ArgumentException("Expected readContext to be of type IBufferContext");
@@ -152,7 +150,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         }
     }
 
-    private unsafe Tm DeserializeCurrentType(byte* ptr, int length)
+    private unsafe Tm DeserializeCurrentType(byte* ptr, uint length)
     {
         var messagePart = OrxDeserializerLookup!.Recycler.Borrow<Tm>();
         var end = ptr + length;
@@ -511,7 +509,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         {
             // ReSharper disable once UnusedVariable
             int ignoredId = StreamByteOps.ToUShort(ref ptr);
-            int size = StreamByteOps.ToUShort(ref ptr);
+            uint size = StreamByteOps.ToUShort(ref ptr);
             if (size == 0)
             {
                 Set(message, null);
@@ -567,7 +565,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         public override unsafe void Deserialize(Tm message, ref byte* ptr)
         {
             ptr -= OrxConstants.UInt16Sz;
-            int size = StreamByteOps.ToUShort(ref ptr);
+            uint size = StreamByteOps.ToUShort(ref ptr);
             if (size == 0)
             {
                 // TODO recycle previous instance
@@ -993,7 +991,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
                 var array = get(arraySize);
                 for (var i = 0; i < array.Length; i++)
                 {
-                    int size = StreamByteOps.ToUShort(ref ptr);
+                    uint size = StreamByteOps.ToUShort(ref ptr);
                     array[i] = (To)itemDeserializer.Deserialize(ptr, size, version);
                     ptr += size;
                 }
@@ -1032,7 +1030,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
                 objectList.Clear();
                 for (var i = 0; i < arraySize; i++)
                 {
-                    int size = StreamByteOps.ToUShort(ref ptr);
+                    uint size = StreamByteOps.ToUShort(ref ptr);
                     objectList.Add((To)itemDeserializer.Deserialize(ptr, size, version));
                     ptr += size;
                 }

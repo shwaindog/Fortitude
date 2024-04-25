@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConfig>
+public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConfig>, IConnection
 {
     INetworkTopicConnectionConfig SnapshotConnectionConfig { get; }
     INetworkTopicConnectionConfig UpdateConnectionConfig { get; }
@@ -18,6 +18,7 @@ public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConf
     uint SyncRetryIntervalMs { get; set; }
     bool AllowUpdatesCatchup { get; set; }
     IPricingServerConfig ToggleProtocolDirection();
+    IPricingServerConfig ShiftPortsBy(ushort deltaPorts);
 }
 
 public class PricingServerConfig : ConfigSection, IPricingServerConfig
@@ -40,10 +41,11 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
 
     public PricingServerConfig(IPricingServerConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        IsLastLook = toClone.IsLastLook;
-        SupportsIceBergs = toClone.SupportsIceBergs;
         SnapshotConnectionConfig = toClone.SnapshotConnectionConfig.Clone();
         UpdateConnectionConfig = toClone.UpdateConnectionConfig.Clone();
+        ConnectionName = toClone.ConnectionName;
+        IsLastLook = toClone.IsLastLook;
+        SupportsIceBergs = toClone.SupportsIceBergs;
         SyncRetryIntervalMs = toClone.SyncRetryIntervalMs;
         AllowUpdatesCatchup = toClone.AllowUpdatesCatchup;
     }
@@ -53,13 +55,33 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
     public INetworkTopicConnectionConfig SnapshotConnectionConfig
     {
         get => new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(SnapshotConnectionConfig));
-        set => ignoreSuppressWarnings = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(SnapshotConnectionConfig));
+        set =>
+            ignoreSuppressWarnings = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(SnapshotConnectionConfig))
+            {
+                ConnectionName = ConnectionName
+            };
     }
 
     public INetworkTopicConnectionConfig UpdateConnectionConfig
     {
         get => new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(UpdateConnectionConfig));
-        set => ignoreSuppressWarnings = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(UpdateConnectionConfig));
+        set =>
+            ignoreSuppressWarnings = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(UpdateConnectionConfig))
+            {
+                ConnectionName = ConnectionName
+            };
+    }
+
+    public string? ConnectionName
+    {
+        get => this[nameof(ConnectionName)];
+        set
+        {
+            if (value == ConnectionName) return;
+            this[nameof(ConnectionName)] = value;
+            SnapshotConnectionConfig.ConnectionName = value + "Snapshot";
+            UpdateConnectionConfig.ConnectionName = value + "Updates";
+        }
     }
 
     public bool IsLastLook
@@ -102,6 +124,16 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         set => this[nameof(AllowUpdatesCatchup)] = value.ToString();
     }
 
+    public IPricingServerConfig ShiftPortsBy(ushort deltaPorts)
+    {
+        var shiftedPricingServerConfig = new PricingServerConfig(this)
+        {
+            SnapshotConnectionConfig = SnapshotConnectionConfig.ShiftPortsBy(deltaPorts)
+            , UpdateConnectionConfig = UpdateConnectionConfig.ShiftPortsBy(deltaPorts)
+        };
+        return shiftedPricingServerConfig;
+    }
+
     public IPricingServerConfig ToggleProtocolDirection() =>
         new PricingServerConfig(this)
         {
@@ -115,6 +147,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
+        var connectionNameSame = ConnectionName == other.ConnectionName;
         var snapshotServerConConfigSame = Equals(SnapshotConnectionConfig, other.SnapshotConnectionConfig);
         var updateServerConConfigSame = Equals(UpdateConnectionConfig, other.UpdateConnectionConfig);
         var isLastLookSame = IsLastLook == other.IsLastLook;
@@ -122,8 +155,8 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         var syncRetryIntervalSame = SyncRetryIntervalMs == other.SyncRetryIntervalMs;
         var syncAllowUpdatesCatchupSame = AllowUpdatesCatchup == other.AllowUpdatesCatchup;
 
-        return snapshotServerConConfigSame && updateServerConConfigSame && isLastLookSame && supportsIceBergsSame && syncRetryIntervalSame &&
-               syncAllowUpdatesCatchupSame;
+        return connectionNameSame && snapshotServerConConfigSame && updateServerConConfigSame && isLastLookSame && supportsIceBergsSame &&
+               syncRetryIntervalSame && syncAllowUpdatesCatchupSame;
     }
 
     public IPricingServerConfig Clone() => new PricingServerConfig(this);
@@ -136,6 +169,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         {
             var hashCode = SnapshotConnectionConfig.GetHashCode();
             hashCode = (hashCode * 397) ^ UpdateConnectionConfig.GetHashCode();
+            hashCode = (hashCode * 397) ^ ConnectionName?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ IsLastLook.GetHashCode();
             hashCode = (hashCode * 397) ^ SupportsIceBergs.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)SyncRetryIntervalMs;
@@ -145,7 +179,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
     }
 
     public override string ToString() =>
-        $"{nameof(PricingServerConfig)}({nameof(SnapshotConnectionConfig)}: {SnapshotConnectionConfig}, " +
+        $"{nameof(PricingServerConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(SnapshotConnectionConfig)}: {SnapshotConnectionConfig}, " +
         $"{nameof(UpdateConnectionConfig)}: {UpdateConnectionConfig}, {nameof(IsLastLook)}: {IsLastLook}, " +
         $"{nameof(SupportsIceBergs)}: {SupportsIceBergs}, {nameof(SyncRetryIntervalMs)}: {SyncRetryIntervalMs}, " +
         $"{nameof(AllowUpdatesCatchup)}: {AllowUpdatesCatchup}, {nameof(Path)}: {Path}";

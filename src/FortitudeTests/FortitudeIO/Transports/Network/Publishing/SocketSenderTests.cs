@@ -82,7 +82,8 @@ public class SocketSenderTests
         directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
 
         moqSocketConnection.SetupGet(sc => sc.OSSocket).Returns(moqOsSocket.Object);
-        moqOsSocket.SetupGet(sc => sc.SendBufferSize).Returns(SocketSendBufferSize);
+        moqSocketConnection.SetupGet(os => os.IsConnected).Returns(true);
+        moqOsSocket.SetupGet(os => os.SendBufferSize).Returns(SocketSendBufferSize);
         moqSocketFactoryResolver.SetupGet(sfr => sfr.NetworkingController).Returns(moqNetworkingController.Object);
         moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
 

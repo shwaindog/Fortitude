@@ -16,7 +16,7 @@ public interface ISocketFactoryResolver
     ISocketFactory SocketFactory { get; }
     ISocketReceiverFactory SocketReceiverFactory { get; }
     ISocketSenderFactory SocketSenderFactory { get; }
-    ISocketDispatcherResolver SocketDispatcherResolver { get; }
+    ISocketDispatcherResolver SocketDispatcherResolver { get; set; }
     Func<ISocketSessionContext, ISocketConnectivityChanged> ConnectionChangedHandlerResolver { get; }
     IOSParallelController ParallelController { get; }
     IStreamControlsFactory StreamControlsFactory { get; }
@@ -35,7 +35,7 @@ public class SocketFactoryResolver : ISocketFactoryResolver
     public ISocketSenderFactory SocketSenderFactory { get; set; }
     public IOSNetworkingController NetworkingController { get; set; } = new OSNetworkingController();
     public ISocketDispatcherResolver SocketDispatcherResolver { get; set; } = new SingletonSocketDispatcherResolver();
-    public Func<ISocketSessionContext, ISocketConnectivityChanged> ConnectionChangedHandlerResolver { get; set; }
+    public Func<ISocketSessionContext, ISocketConnectivityChanged> ConnectionChangedHandlerResolver { get; set; } = null!;
     public IOSParallelController ParallelController { get; set; } = new OSParallelController();
     public IStreamControlsFactory StreamControlsFactory { get; set; } = new StreamControlsFactory();
 

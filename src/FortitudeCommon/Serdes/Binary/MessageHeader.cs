@@ -26,6 +26,8 @@ public struct MessageHeader
     public uint MessageId { get; set; }
     public uint MessageSize { get; set; }
     public ISerdeContext? DeserializationContext { get; set; }
+
+    public const int SerializationSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(uint);
 }
 
 public static class MessageHeaderExtensions

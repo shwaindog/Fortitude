@@ -3,6 +3,7 @@
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary.Deserialization;
 
 #endregion
 
@@ -168,7 +169,11 @@ public abstract class MessageDeserializationFactoryRepository : MessageDeseriali
 {
     protected MessageDeserializationFactoryRepository(string name, IRecycler recycler
         , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
-        base(name, recycler, cascadingFallbackDeserializationRepo) { }
+        base(name, recycler, cascadingFallbackDeserializationRepo)
+    {
+        RegisterDeserializer(RequesterNameMessage.RequesterNameMessageId, new RequesterNameMessageDeserializer(recycler));
+        RegisterDeserializer(ExpectSessionCloseMessage.ExpectSessionCloseMessageId, new ExpectSessionCloseMessageDeserializer(recycler));
+    }
 
     protected IMessageDeserializerFactoryRepository? CascadingFallbackDeserializationFactoryRepo =>
         CascadingFallbackDeserializationRepo as IMessageDeserializerFactoryRepository;
@@ -209,7 +214,7 @@ public abstract class MessageDeserializationFactoryRepository : MessageDeseriali
             return (INotifyingMessageDeserializer<TM>)RegisteredDeserializers.GetValue(msgId)!;
         }
 
-        return null;
+        return (INotifyingMessageDeserializer<TM>)existingMessageDeserializer;
     }
 
     public abstract INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId)

@@ -54,7 +54,9 @@ public class OrxOrderTests
 
         var messageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
             byteBuffer, 0, OrxMessageHeader.HeaderSize);
-        socketBufferReadContext.MessageHeader = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, (uint)messageSize);
+        socketBufferReadContext.MessageHeader
+            = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
+        socketBufferReadContext.EncodedBuffer!.ReadCursor = MessageHeader.SerializationSize;
 
         var ordersDeserializer = new OrxByteDeserializer<Orders>(new OrxDeserializerLookup(
             new Recycler()));

@@ -4,6 +4,7 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Logging;
@@ -80,7 +81,8 @@ public class SocketsPollerAndDecoding
             }
             catch (Exception ex)
             {
-                Logger.Warn("SocketsPollerAndDecoding Caught exception {0}", ex);
+                Logger.Warn("SocketsPollerAndDecoding Caught exception {0} with the following registered SocketReceivers [{1}]", ex,
+                    string.Join(", ", selector.AllRegisteredReceivers));
             }
             finally
             {
@@ -96,10 +98,13 @@ public class SocketsPollerAndDecoding
 
         actionListTimer.GetTimerActionsToExecute(timerActionsToExecute);
         foreach (var timerCallbackPayload in timerActionsToExecute)
+        {
             if (timerCallbackPayload.IsAsyncInvoke())
                 timerCallbackPayload.InvokeAsync();
             else
                 timerCallbackPayload.Invoke();
+            timerCallbackPayload?.DecrementRefCount();
+        }
     }
 
     private void ProcessSocketEvent(ISocketReceiver sockRecr, IPerfLogger detectionToPublishLatencyTraceLogger)
@@ -111,27 +116,33 @@ public class SocketsPollerAndDecoding
         else
         {
             bool connected;
+            string? exceptionMessage = null;
             try
             {
                 socketBufferReadContext.DetectTimestamp = selector.WakeTs;
+                socketBufferReadContext.SocketReceiver = sockRecr;
                 connected = sockRecr.Poll(socketBufferReadContext);
             }
             catch (Exception ex)
             {
-                Logger.Warn($"Caught exception attempting to read {sockRecr}. Got {ex}");
-                detectionToPublishLatencyTraceLogger.Indent();
-                detectionToPublishLatencyTraceLogger.Add("Read error: ", ex);
-                detectionToPublishLatencyTraceLogger.Dedent();
-                sockRecr.HandleReceiveError("Read error: ", ex);
-                return;
+                connected = false;
+                exceptionMessage = ex.Message;
             }
 
-            if (connected) return;
-            detectionToPublishLatencyTraceLogger.Indent();
-            detectionToPublishLatencyTraceLogger.Add("Connection lost on SocketRingPoller " + name);
-            detectionToPublishLatencyTraceLogger.Dedent();
-            sockRecr.HandleReceiveError("Connection lost on SocketRingPoller " + name + $" with socketReceiver {sockRecr}"
-                , new Exception("Connection Lost on SocketRingPoller " + name + $" with SocketReceiver {sockRecr}"));
+            if (connected && sockRecr.ExpectSessionCloseMessage == null) return;
+            var closeReason = sockRecr.Name + " had " + (sockRecr.ExpectSessionCloseMessage?.ReasonText ?? exceptionMessage ?? "");
+            if (sockRecr.ExpectSessionCloseMessage?.CloseReason is not CloseReason.Completed)
+            {
+                detectionToPublishLatencyTraceLogger.Indent();
+                detectionToPublishLatencyTraceLogger.Add("Connection lost on SocketRingPoller.");
+                detectionToPublishLatencyTraceLogger.Dedent();
+                sockRecr.HandleReceiveError("Connection lost on SocketRingPoller " + name + $" with socketReceiver {sockRecr.Name}. {closeReason}"
+                    , new Exception("Connection lost on SocketRingPoller " + name + $" with SocketReceiver {sockRecr.Name}"));
+            }
+            else
+            {
+                sockRecr.HandleRemoteDisconnecting(sockRecr.ExpectSessionCloseMessage!);
+            }
         }
     }
 }

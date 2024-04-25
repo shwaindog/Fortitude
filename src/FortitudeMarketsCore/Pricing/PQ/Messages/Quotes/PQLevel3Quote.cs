@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -14,6 +15,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));
     private uint batchId;
 
     private IPQRecentlyTraded? recentlyTraded;
@@ -170,6 +172,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
                          messageFlags, quotePublicationPrecisionSetting))
                 yield return recentlyTradedFields;
         if (!updatedOnly || IsBatchIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.BatchId, BatchId);
+
         if (!updatedOnly || IsSourceQuoteReferenceUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.SourceQuoteReference, SourceQuoteReference);
         if (!updatedOnly || IsValueDateUpdated)

@@ -3,6 +3,7 @@
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols.Serdes.Binary.Serialization;
 
 #endregion
 
@@ -35,11 +36,20 @@ public interface IMessageSerializationRepository : IMessageSerdesRepository, ISt
     bool IsRegisteredWithType<TS, TM>(uint msgId) where TS : IMessageSerializer<TM> where TM : class, IVersionedMessage, new();
 }
 
-public abstract class FactorySerializationRepository(IRecycler recycler
-        , IMessageSerializationRepository? cascadingFallbackMsgSerializationRepo = null)
-    : IMessageSerializationRepository
+public abstract class FactorySerializationRepository : IMessageSerializationRepository
 {
+    private readonly IMessageSerializationRepository? cascadingFallbackMsgSerializationRepo1;
+    private readonly IRecycler recycler;
     private readonly IMap<uint, IMessageSerializer> registeredSerializers = new ConcurrentMap<uint, IMessageSerializer>();
+
+    protected FactorySerializationRepository(IRecycler recycler
+        , IMessageSerializationRepository? cascadingFallbackMsgSerializationRepo = null)
+    {
+        this.recycler = recycler;
+        cascadingFallbackMsgSerializationRepo1 = cascadingFallbackMsgSerializationRepo;
+        RegisterSerializer(RequesterNameMessage.RequesterNameMessageId, new RequesterNameMessageSerializer());
+        RegisterSerializer(ExpectSessionCloseMessage.ExpectSessionCloseMessageId, new ExpectSessionCloseSerializer());
+    }
 
     public IEnumerable<uint> RegisteredMessageIds => registeredSerializers.Keys;
 
@@ -54,8 +64,8 @@ public abstract class FactorySerializationRepository(IRecycler recycler
         var msgId = instanceOfTypeToSerialize.MessageId;
         if (!registeredSerializers.TryGetValue(msgId, out var existingMessageSerializer))
         {
-            if (cascadingFallbackMsgSerializationRepo == null ||
-                !cascadingFallbackMsgSerializationRepo.IsRegisteredWithType<IMessageSerializer<TM>, TM>(msgId))
+            if (cascadingFallbackMsgSerializationRepo1 == null ||
+                !cascadingFallbackMsgSerializationRepo1.IsRegisteredWithType<IMessageSerializer<TM>, TM>(msgId))
             {
                 var sourcedMessageSerializer = messageSerializer ?? SourceMessageSerializer<TM>(msgId);
                 if (sourcedMessageSerializer == null) return false;
@@ -63,7 +73,7 @@ public abstract class FactorySerializationRepository(IRecycler recycler
                 return true;
             }
 
-            return cascadingFallbackMsgSerializationRepo.IsRegistered(msgId);
+            return cascadingFallbackMsgSerializationRepo1.IsRegistered(msgId);
         }
 
         if (existingMessageSerializer is not IMessageSerializer<TM>)
@@ -81,14 +91,14 @@ public abstract class FactorySerializationRepository(IRecycler recycler
     {
         if (!registeredSerializers.TryGetValue(msgId, out _))
         {
-            if (cascadingFallbackMsgSerializationRepo == null ||
-                !cascadingFallbackMsgSerializationRepo.IsRegistered(msgId))
+            if (cascadingFallbackMsgSerializationRepo1 == null ||
+                !cascadingFallbackMsgSerializationRepo1.IsRegistered(msgId))
             {
                 registeredSerializers.Add(msgId, messageSerializer);
                 return true;
             }
 
-            return cascadingFallbackMsgSerializationRepo.IsRegistered(msgId);
+            return cascadingFallbackMsgSerializationRepo1.IsRegistered(msgId);
         }
 
         registeredSerializers.AddOrUpdate(msgId, messageSerializer);
@@ -97,10 +107,12 @@ public abstract class FactorySerializationRepository(IRecycler recycler
 
     public bool TryGetSerializer(uint msgId, out IMessageSerializer? messageSerializer) =>
         registeredSerializers.TryGetValue(msgId, out messageSerializer) ||
-        (cascadingFallbackMsgSerializationRepo?.TryGetSerializer(msgId, out messageSerializer) ?? false);
+        (cascadingFallbackMsgSerializationRepo1?.TryGetSerializer(msgId, out messageSerializer) ?? false);
 
     public IMessageSerializer? GetSerializer(uint msgId) =>
-        registeredSerializers.TryGetValue(msgId, out var msgSerializer) ? msgSerializer : cascadingFallbackMsgSerializationRepo?.GetSerializer(msgId);
+        registeredSerializers.TryGetValue(msgId, out var msgSerializer) ?
+            msgSerializer :
+            cascadingFallbackMsgSerializationRepo1?.GetSerializer(msgId);
 
     public IMessageSerializer<TM>? GetSerializer<TM>(uint msgId) where TM : class, IVersionedMessage, new() =>
         GetSerializer(msgId) as IMessageSerializer<TM>;
@@ -108,7 +120,7 @@ public abstract class FactorySerializationRepository(IRecycler recycler
     public bool IsRegisteredWithType<TS, TM>(uint msgId) where TS : IMessageSerializer<TM> where TM : class, IVersionedMessage, new() =>
         registeredSerializers.TryGetValue(msgId, out var msgSerializer) ?
             msgSerializer is TS :
-            cascadingFallbackMsgSerializationRepo?.IsRegisteredWithType<TS, TM>(msgId) ?? false;
+            cascadingFallbackMsgSerializationRepo1?.IsRegisteredWithType<TS, TM>(msgId) ?? false;
 
     public IMessageSerializationRepository CopyFrom(IMessageSerializationRepository source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

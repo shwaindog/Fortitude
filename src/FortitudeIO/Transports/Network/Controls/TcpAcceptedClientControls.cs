@@ -2,6 +2,7 @@
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.State;
 
 #endregion
@@ -20,7 +21,7 @@ public class TcpAcceptedClientControls : SocketStreamControls
         return false;
     }
 
-    public override void Disconnect()
+    public override void Disconnect(CloseReason closeReason, string? reason = null)
     {
         if (SocketSessionContext.SocketReceiver != null)
             SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(SocketSessionContext.SocketReceiver);
@@ -28,21 +29,17 @@ public class TcpAcceptedClientControls : SocketStreamControls
             SocketSessionContext.OnDisconnecting();
         if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
         {
-            logger.Info("Connection client accepted session to {0} {1} id {2}:{3} closed",
-                SocketSessionContext.Name, SocketSessionContext.Id,
-                SocketSessionContext.NetworkTopicConnectionConfig,
-                SocketSessionContext.SocketConnection.ConnectedPort);
-            SocketSessionContext.SocketConnection.OSSocket?.Close();
+            logger.Info("Connection client session {0} closed. {1}", SocketSessionContext.Name, reason);
+
+            SocketSessionContext.OnDisconnected(closeReason, reason);
             StopMessaging();
         }
-
-        SocketSessionContext.OnDisconnected();
     }
 
     public override void OnSessionFailure(string reason)
     {
         logger.Warn("Problem communicating with client session {0} will not attempt reconnect. Reason {1}", SocketSessionContext, reason);
-        Disconnect();
+        Disconnect(CloseReason.Error, reason);
     }
 
     protected override bool ConnectAttemptSucceeded() => false;

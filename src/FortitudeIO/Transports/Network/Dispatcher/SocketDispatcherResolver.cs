@@ -97,7 +97,7 @@ public class SingletonSocketDispatcherResolver : ISocketDispatcherResolver
 
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext) =>
         singletonDispatcher ??= new SocketDispatcher(
-            new SimpleSocketAsyncValueTaskRingPollerListener($"Singleton", 1
+            new SimpleSocketAsyncValueTaskRingPollerListener($"SingletonListener", 1
                 , new SocketSelector(1, new OSNetworkingController()), RealTimer),
-            new SimpleAsyncValueTaskSocketRingPollerSender("Singleton", 1));
+            new SimpleAsyncValueTaskSocketRingPollerSender("SingletonSender", 1));
 }

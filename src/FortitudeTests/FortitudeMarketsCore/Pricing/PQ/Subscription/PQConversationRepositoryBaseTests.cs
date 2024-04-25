@@ -6,6 +6,7 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -175,7 +176,7 @@ public class PQConversationRepositoryBaseTests
 
         public void Start() { }
 
-        public void Stop() { }
+        public void Stop(CloseReason closeReason = CloseReason.Completed, string? reason = null) { }
 
         public void OnSessionFailure(string reason) { }
 

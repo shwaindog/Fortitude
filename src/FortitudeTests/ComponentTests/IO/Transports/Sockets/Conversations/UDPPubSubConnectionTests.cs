@@ -3,6 +3,7 @@
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Conversations;
@@ -68,8 +69,8 @@ public class UdpPubSubConnectionTests
     [TestCleanup]
     public void TearDown()
     {
-        conversationSubscriber.Disconnect();
-        conversationPublisher.Disconnect();
+        conversationSubscriber.Stop(CloseReason.Completed, "Test closing down");
+        conversationPublisher.Stop(CloseReason.Completed, "Test closing down");
         FLoggerFactory.GracefullyTerminateProcessLogging();
     }
 

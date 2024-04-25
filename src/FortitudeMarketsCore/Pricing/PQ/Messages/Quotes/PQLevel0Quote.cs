@@ -3,6 +3,7 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -16,6 +17,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel0Quote));
     protected readonly ISyncLock SyncLock = new SpinLockLight();
     protected byte BooleanFields;
     private DateTime clientReceivedTime;
@@ -283,6 +285,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                 PQSourceTickerQuoteInfo?.PriceScalingPrecision ?? 1);
         if (!updatedOnly || IsSourceTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.SourceSentDateTime, sourceTime.GetHoursFromUnixEpoch());
+
         if (!updatedOnly || IsSourceTimeSubHourUpdated)
         {
             var fifthByte = sourceTime.GetSubHourComponent().BreakLongToByteAndUint(out var lower4Bytes);
@@ -373,10 +376,10 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             else
                 SourceTickerQuoteInfo = ipq0.SourceTickerQuoteInfo;
             // only copy if changed
-            if (ipq0.IsSourceTimeDateUpdated)
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceTime, ipq0.SourceTime.GetHoursFromUnixEpoch());
-            if (ipq0.IsSourceTimeSubHourUpdated)
-                PQFieldConverters.UpdateSubHourComponent(ref sourceTime, ipq0.SourceTime.GetSubHourComponent());
+            if (ipq0.IsSourceTimeDateUpdated) PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceTime, ipq0.SourceTime.GetHoursFromUnixEpoch());
+
+            if (ipq0.IsSourceTimeSubHourUpdated) PQFieldConverters.UpdateSubHourComponent(ref sourceTime, ipq0.SourceTime.GetSubHourComponent());
+
             if (ipq0.IsReplayUpdated) IsReplay = ipq0.IsReplay;
             if (ipq0.IsSinglePriceUpdated) SinglePrice = ipq0.SinglePrice;
             if (ipq0.IsSyncStatusUpdated) PQSyncStatus = ipq0.PQSyncStatus;

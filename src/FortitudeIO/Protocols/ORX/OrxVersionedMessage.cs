@@ -2,7 +2,6 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.Protocols.ORX.Serdes;
 
 #endregion
 
@@ -18,7 +17,7 @@ public abstract class OrxVersionedMessage : ReusableObject<IVersionedMessage>, I
 
     public abstract uint MessageId { get; }
 
-    [OrxMandatoryField(0)] public byte Version { get; set; }
+    public byte Version { get; set; }
 
     public override void StateReset()
     {

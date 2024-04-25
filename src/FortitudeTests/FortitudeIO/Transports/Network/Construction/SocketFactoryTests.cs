@@ -216,11 +216,15 @@ public class SocketFactoryTests
         moqNetworkTopicConnectionConfig.SetupGet(ntcc => ntcc.ConversationProtocol)
             .Returns(SocketConversationProtocol.UdpSubscriber);
         moqNetworkingController.Setup(nc => nc.GetIpAddress(It.IsAny<string>())).Returns(expectedIpAddress).Verifiable();
-        moqFLogger.Setup(fl => fl.Info("Attempting UDP-sub connection on {0}:{1}={2}:{3}", It.IsAny<object[]>())).Verifiable();
+        moqFLogger.Setup(fl =>
+            fl.Info("Attempting UDP-sub connection for config (hostname:{0}, subnet:{1}, port:{2}) which resolved to ip-address {3}"
+                , It.IsAny<object[]>())).Verifiable();
         moqOsSocket.SetupSet(os => os.ExclusiveAddressUse = false).Verifiable();
         moqOsSocket.Setup(os => os.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true)).Verifiable();
         moqNetworkingController.Setup(nc => nc.GetAllNetworkInterfaces()).Returns(candidateInterfaces).Verifiable();
-        moqFLogger.Setup(fl => fl.Info("Subscribe will bind on network adapter {0}-{1} on {2}:{3}", It.IsAny<object[]>())).Verifiable();
+        moqFLogger.Setup(fl =>
+                fl.Info("Subscribe will bind on network adapter {0} with description '{1}', which resolved to {2}:{3}", It.IsAny<object[]>()))
+            .Verifiable();
         moqOsSocket.Setup(os => os.Bind(It.IsAny<IPEndPoint>())).Verifiable();
         moqOsSocket.Setup(os => os.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, It.IsAny<MulticastOption>())).Verifiable();
         moqOsSocket.SetupSet(os => os.ReceiveBufferSize = recvBufferSize).Verifiable();
@@ -260,11 +264,13 @@ public class SocketFactoryTests
         moqNetworkTopicConnectionConfig.SetupGet(ntcc => ntcc.ConversationProtocol)
             .Returns(SocketConversationProtocol.UdpPublisher);
         moqNetworkingController.Setup(nc => nc.GetIpAddress(It.IsAny<string>())).Returns(expectedIpAddress).Verifiable();
-        moqFLogger.Setup(fl => fl.Info("Attempting UDP-pub connection on {0} {1}:{2}={3}:{4}", It.IsAny<object[]>())).Verifiable();
+        moqFLogger.Setup(fl => fl.Info("Attempting UDP-pub connection on (hostname:{0}, subnet:{1}, port:{2}) which resolved to ip-address:{3}"
+            , It.IsAny<object[]>())).Verifiable();
         moqOsSocket.SetupSet(os => os.ExclusiveAddressUse = false).Verifiable();
         moqOsSocket.Setup(os => os.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true)).Verifiable();
         moqNetworkingController.Setup(nc => nc.GetAllNetworkInterfaces()).Returns(candidateInterfaces).Verifiable();
-        moqFLogger.Setup(fl => fl.Info("Publish will occur from network adapter {0}-{1} on {2}:{3}", It.IsAny<object[]>())).Verifiable();
+        moqFLogger.Setup(fl => fl.Info("Publish will occur from network adapter {0} with description '{1}' on {2}:{3}", It.IsAny<object[]>()))
+            .Verifiable();
         moqOsSocket.Setup(os => os.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, It.IsAny<int>())).Verifiable();
         moqOsSocket.SetupSet(os => os.Ttl = 200).Verifiable();
         moqOsSocket.Setup(os => os.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, It.IsAny<int>())).Verifiable();

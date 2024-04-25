@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Sockets;
@@ -108,14 +109,15 @@ public class SocketConversation : ISocketConversation
         SocketSessionContext.StreamControls?.Start();
     }
 
-    public void Stop()
+    public void Stop(CloseReason closeReason = CloseReason.Completed, string? reason = null)
     {
-        SocketSessionContext.StreamControls?.Stop();
+        SocketSessionContext.StreamControls?.Stop(closeReason, reason);
     }
 
     public virtual bool Connect() => SocketSessionContext.StreamControls?.Connect() ?? false;
 
-    public void Disconnect() => SocketSessionContext.StreamControls?.Disconnect();
+    public void Disconnect(CloseReason closeReason, string? errorReason = null) =>
+        SocketSessionContext.StreamControls?.Disconnect(closeReason, errorReason);
 
     public void StartMessaging() => SocketSessionContext.StreamControls?.StartMessaging();
 

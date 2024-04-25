@@ -40,7 +40,7 @@ public class PQClientTests
     private Mock<IPricingServerConfig> moqFirstPricingServerConfig = null!;
     private Mock<ISocketDispatcher> moqFirstSocketDispatcher = null!;
     private Mock<ISourceTickerQuoteInfo> moqFirstTestSourceTickerQuoteInfo = null!;
-    private Mock<IMarketConnectionConfigRepository> moqMarketConnectionConfigRepo = null!;
+    private Mock<IMarketsConfig> moqMarketsConfig = null!;
     private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQClientSyncMonitoring> moqPQClientSyncMonitoring = null!;
@@ -75,7 +75,7 @@ public class PQClientTests
         PrepareQuoteLevelMocks();
 
         PrepareGetQuoteStreamMocks();
-        pqClient = new PQClient(moqMarketConnectionConfigRepo.Object, moqSocketDispatcherResolver.Object,
+        pqClient = new PQClient(moqMarketsConfig.Object, moqSocketDispatcherResolver.Object,
             moqUpdateClientFactory.Object, moqSnapshotClientFactory.Object);
 
         NonPublicInvocator.SetInstanceField(pqClient, "pqClientSyncMonitoring", moqPQClientSyncMonitoring.Object);
@@ -143,16 +143,16 @@ public class PQClientTests
         moqSnapshotClientFactory.Setup(scf => scf.RetrieveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqSnapshotClient.Object);
 
-        moqMarketConnectionConfigRepo = new Mock<IMarketConnectionConfigRepository>();
-        moqMarketConnectionConfigRepo.Setup(mccr => mccr.Find(firstTestSourceName))
+        moqMarketsConfig = new Mock<IMarketsConfig>();
+        moqMarketsConfig.Setup(mccr => mccr.Find(firstTestSourceName))
             .Returns(moqFirstMarketConnectionConfig.Object);
-        moqMarketConnectionConfigRepo.Setup(mccr => mccr.Find(secondTestSourceName))
+        moqMarketsConfig.Setup(mccr => mccr.Find(secondTestSourceName))
             .Returns(moqSecondMarketConnectionConfig.Object);
         var serverTickerConfigs = new List<IMarketConnectionConfig>
         {
             moqFirstMarketConnectionConfig.Object, moqSecondMarketConnectionConfig.Object
         };
-        moqMarketConnectionConfigRepo.SetupGet(mccr => mccr.AllMarketConnectionConfigs)
+        moqMarketsConfig.SetupGet(mccr => mccr.Markets)
             .Returns(serverTickerConfigs);
 
         moqUpdateClientFactory = new Mock<IPQConversationRepository<IPQUpdateClient>>();
@@ -274,7 +274,7 @@ public class PQClientTests
 
         Assert.IsNotNull(result);
         sourceTickerQuoteInfo.Verify();
-        moqMarketConnectionConfigRepo.Verify();
+        moqMarketsConfig.Verify();
         moqPQQuoteDeserializerRepo.Verify();
         moqPQClientSyncMonitoring.Verify();
         moqFirstSocketDispatcher.Verify();
@@ -446,7 +446,7 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfo_ReturnsNullQueuesInfoRequestAttempt()
     {
-        moqMarketConnectionConfigRepo.Reset();
+        moqMarketsConfig.Reset();
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
             It.IsAny<WaitOrTimerCallback>(), 60000, true)).Verifiable();
         var subQuoteStream
@@ -460,7 +460,7 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfo_ReattemptFindsInfoNoMoreAttemptsAreQueued()
     {
-        moqMarketConnectionConfigRepo.Reset();
+        moqMarketsConfig.Reset();
         moqFirstPricingServerConfig.Reset();
         WaitOrTimerCallback? queuedReattemptHandler = null;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
@@ -475,11 +475,11 @@ public class PQClientTests
         moqParallelController.Verify();
 
         moqParallelController.Reset();
-        moqMarketConnectionConfigRepo.Setup(mccr => mccr.Find(It.IsAny<string>()))
+        moqMarketsConfig.Setup(mccr => mccr.Find(It.IsAny<string>()))
             .Returns(moqFirstMarketConnectionConfig.Object);
         Assert.IsNotNull(queuedReattemptHandler);
         queuedReattemptHandler(null, true);
-        moqMarketConnectionConfigRepo.Verify();
+        moqMarketsConfig.Verify();
 
         moqParallelController.Verify(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
             It.IsAny<WaitOrTimerCallback>(), 60000, true), Times.Never);
@@ -488,7 +488,7 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfo_ReattemptStillDoesNotFindInfoMoreAttemptsAreQueued()
     {
-        moqMarketConnectionConfigRepo.Reset();
+        moqMarketsConfig.Reset();
         WaitOrTimerCallback? queuedReattemptHandler = null;
         var scheduleCounter = 0;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
@@ -518,7 +518,7 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_GetQuoteStreamNoMultiCastNoFeedInfoThenDispose_UnsubscribeOnReattemptNoInfosRequired()
     {
-        moqMarketConnectionConfigRepo.Reset();
+        moqMarketsConfig.Reset();
         WaitOrTimerCallback? queuedReattemptHandler = null;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
                 It.IsAny<WaitOrTimerCallback>(), 60000, true))
@@ -538,7 +538,7 @@ public class PQClientTests
         moqSingleOsThreadSignal.Verify();
         Assert.IsNotNull(queuedReattemptHandler);
         queuedReattemptHandler(null, true);
-        moqMarketConnectionConfigRepo.Verify();
+        moqMarketsConfig.Verify();
 
         moqParallelController.Verify(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
             It.IsAny<WaitOrTimerCallback>(), 60000, true), Times.Never);
@@ -547,7 +547,7 @@ public class PQClientTests
     [TestMethod]
     public void NewPQClient_MultipleGetQuoteStreamNoQuoteInfos_OnlyOneReattemptIsQueued()
     {
-        moqMarketConnectionConfigRepo.Reset();
+        moqMarketsConfig.Reset();
         var scheduleCounter = 0;
         moqParallelController.Setup(pc => pc.ScheduleWithEarlyTrigger(moqSingleOsThreadSignal.Object,
                 It.IsAny<WaitOrTimerCallback>(), 60000, true))

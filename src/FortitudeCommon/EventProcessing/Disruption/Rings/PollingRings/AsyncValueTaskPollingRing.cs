@@ -14,6 +14,8 @@ public interface IAsyncValueTaskPollingRing<T> : ITaskCallbackPollingRing<T> whe
 {
     Func<T, bool> InterceptHandler { get; set; }
     ValueTaskProcessEvent<T> ProcessEvent { get; set; }
+
+    int Size { get; }
     ValueTask<long> Poll();
 
     event Action<QueueEventTime> QueueEntryStart;
@@ -38,10 +40,8 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     private long readAheadCursor = -1;
 
     public AsyncValueValueTaskPollingRing(string name, int size, Func<T> dataFactory
-        , ClaimStrategyType claimStrategyType, ValueTaskProcessEvent<T>? processAsyncTask = null, int? completeAheadQueueSize = null
-        , bool logErrors = true)
+        , ClaimStrategyType claimStrategyType, ValueTaskProcessEvent<T>? processAsyncTask = null, bool logErrors = true)
     {
-        completeAheadQueueSize ??= size;
         ProcessEvent = processAsyncTask ?? ((currentSequence, _) =>
         {
             Logger.Warn("Poll Sink not set on AsyncTaskPollingRing.  Will do nothing");
@@ -49,8 +49,9 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
         });
         InterceptHandler = _ => false;
         Name = name;
+        Size = size;
         var ringSize = MemoryUtils.CeilingNextPowerOfTwo(size);
-        var readAheadRingSize = MemoryUtils.CeilingNextPowerOfTwo(completeAheadQueueSize.Value);
+        var readAheadRingSize = MemoryUtils.CeilingNextPowerOfTwo(size);
         ringMask = ringSize - 1;
         readAheadRingMask = readAheadRingSize - 1;
         cells = new T[ringSize];
@@ -64,6 +65,8 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     }
 
     public T this[long sequence] => cells[(int)sequence & ringMask];
+
+    public int Size { get; }
 
     public string Name { get; }
 
@@ -150,11 +153,13 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     {
         if (conCursor.Value == completedSequenceId - 1)
         {
+            // Logger.Debug("NAME: {0} In order - ring[{1}]={2}", Name, completedSequenceId, this[completedSequenceId & ringMask]);
             conCursor.Value = completedSequenceId;
             UpdateConCursorWithCompleteReadAheadItems(completedReadAheadConsumerCursor, completedReadAheadPublishCursor);
         }
         else
         {
+            // Logger.Debug("NAME: {0} out of order - ring[{1}]={2}", Name, completedSequenceId, this[completedSequenceId & ringMask]);
             EnqueueCompleteAhead(completedSequenceId);
         }
     }
@@ -166,11 +171,13 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
             var checkLookAhead = completeAhead[currLookAheadConCur & readAheadRingMask].Value;
             if (conCursor.Value == checkLookAhead - 1)
             {
+                // Logger.Debug("NAME: {0} play forward - ring[{1}]={2}", Name, checkLookAhead, this[checkLookAhead & ringMask]);
                 conCursor.Value = checkLookAhead;
                 completedReadAheadConsumerCursor = currLookAheadConCur;
             }
             else if (checkLookAhead > conCursor.Value)
             {
+                // Logger.Debug("NAME: {0} not next completed - ring[{1}]={2}", Name, checkLookAhead, this[checkLookAhead & ringMask]);
                 if (!CheckFurtherBackCompleteReadAheadCompleteFound(currLookAheadConCur + 1, lookAheadMax)) break;
                 currLookAheadConCur--;
             }
@@ -179,19 +186,18 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
 
     public bool CheckFurtherBackCompleteReadAheadCompleteFound(long lookAheadStart, long lookAheadMax)
     {
-        var updatedConCursor = false;
         for (var currLookAheadConCur = lookAheadStart; currLookAheadConCur < lookAheadMax; currLookAheadConCur++)
         {
             var checkLookAhead = completeAhead[currLookAheadConCur & readAheadRingMask].Value;
             if (conCursor.Value == checkLookAhead - 1)
             {
-                updatedConCursor = true;
+                // Logger.Debug("NAME: {0} found further done completed - ring[{1}]={2}", Name, checkLookAhead, this[checkLookAhead & ringMask]);
                 conCursor.Value = checkLookAhead;
-                break;
+                return true;
             }
         }
 
-        return updatedConCursor;
+        return false;
     }
 
     private class TaskCompleteSequenceContainer

@@ -31,7 +31,7 @@ public class PQClientUpdateSubscriberRule(string feedName, IMarketConnectionConf
 
     private async ValueTask LaunchUpdateClient()
     {
-        snapshotClient = PQBusRulesUpdateClient.BuildUdpSubscriber(updateClientTopicConnectionConfig, dispatcherResolver
+        snapshotClient ??= PQBusRulesUpdateClient.BuildUdpSubscriber(updateClientTopicConnectionConfig, dispatcherResolver
             , sharedUpdateAndSnapshotDeserializationRepo);
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
             .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);

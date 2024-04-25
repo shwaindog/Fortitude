@@ -52,7 +52,7 @@ public class PQClientSnapshotRequesterRule(string feedName, IMarketConnectionCon
                 , sharedUpdateAndSnapshotDeserializationRepo);
             var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
                 .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
-            var connected = await snapshotClient.StartAsync(10_000, workerQueueConnect);
+            var connected = await snapshotClient.StartAsync((int)snapshotClientTopicConnectionConfig.ConnectionTimeoutMs, workerQueueConnect);
             if (connected)
             {
                 var checkSourceTickerQuoteInfos = await RequestFeedServerSourceTickerQuoteInfos();

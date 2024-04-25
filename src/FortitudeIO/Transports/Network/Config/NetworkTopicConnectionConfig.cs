@@ -11,13 +11,18 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeIO.Transports.Network.Config;
 
+public interface IConnection
+{
+    string? ConnectionName { get; set; }
+}
+
 public enum ConnectionSelectionOrder
 {
     ListedOrder
     , Random
 }
 
-public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IEnumerable<IEndpointConfig>
+public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IConnection, IEnumerable<IEndpointConfig>
     , ICloneable<INetworkTopicConnectionConfig>
 {
     SocketConversationProtocol ConversationProtocol { get; set; }
@@ -30,6 +35,7 @@ public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IEnumer
     uint ConnectionTimeoutMs { get; set; }
     uint ResponseTimeoutMs { get; set; }
     ISocketReconnectConfig ReconnectConfig { get; set; }
+    INetworkTopicConnectionConfig ShiftPortsBy(ushort deltaPorts);
     INetworkTopicConnectionConfig ToggleProtocolDirection();
 }
 
@@ -50,13 +56,25 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         foreach (var checkDefault in Defaults) this[checkDefault.Key] ??= checkDefault.Value;
     }
 
+    public NetworkTopicConnectionConfig(string connectionName, string topicName, SocketConversationProtocol conversationProtocol
+        , IEnumerable<IEndpointConfig> availableConnections,
+        string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 2, int sendBufferSize = 1024 * 1024 * 2,
+        int numberOfReceivesPerPoll = 50
+        , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
+        ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,
+        uint connectionTimeoutMs = 10_000, uint responseTimeoutMs = 10_000
+        , ISocketReconnectConfig? reconnectConfig = null)
+        : this(topicName, conversationProtocol, availableConnections, topicDescription, receiveBufferSize, sendBufferSize, numberOfReceivesPerPoll,
+            connectionAttributes, connectionSelectionOrder, connectionTimeoutMs, responseTimeoutMs, reconnectConfig) =>
+        ConnectionName = connectionName;
+
     public NetworkTopicConnectionConfig(string topicName, SocketConversationProtocol conversationProtocol
         , IEnumerable<IEndpointConfig> availableConnections,
         string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 2, int sendBufferSize = 1024 * 1024 * 2,
         int numberOfReceivesPerPoll = 50
         , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
         ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,
-        uint connectionTimeoutMs = 2_000, uint responseTimeoutMs = 10_000
+        uint connectionTimeoutMs = 10_000, uint responseTimeoutMs = 10_000
         , ISocketReconnectConfig? reconnectConfig = null)
     {
         TopicName = topicName;
@@ -91,6 +109,19 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     }
 
     public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+
+    public INetworkTopicConnectionConfig ShiftPortsBy(ushort deltaPorts)
+    {
+        var shiftedPorts = new NetworkTopicConnectionConfig(this);
+        foreach (var availableConnection in shiftedPorts.AvailableConnections) availableConnection.Port += deltaPorts;
+        return shiftedPorts;
+    }
+
+    public string? ConnectionName
+    {
+        get => this[nameof(ConnectionName)];
+        set => this[nameof(ConnectionName)] = value;
+    }
 
     public string TopicName
     {
@@ -220,6 +251,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
+        root[path + ":" + nameof(ConnectionName)] = null;
         root[path + ":" + nameof(TopicName)] = null;
         root[path + ":" + nameof(ConversationProtocol)] = null;
         root[path + ":" + nameof(AvailableConnections)] = null;
@@ -235,6 +267,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     protected bool Equals(INetworkTopicConnectionConfig other)
     {
+        var connectionNameSame = ConnectionName == other.ConnectionName;
         var topicNameSame = TopicName == other.TopicName;
         var conversationProtocolSame = ConversationProtocol == other.ConversationProtocol;
         var availableConnectionsSame = AvailableConnections.SequenceEqual(other.AvailableConnections);
@@ -248,11 +281,10 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         var responseTimeoutMsSame = ResponseTimeoutMs == other.ResponseTimeoutMs;
         var reconnectConfigSame = ReconnectConfig.Equals(other.ReconnectConfig);
 
-        return topicNameSame && conversationProtocolSame && availableConnectionsSame && topicDescriptionSame &&
-               receivedBufferSizeSame
-               && sendBufferSizeSame && numReceivesPerPollSame && connectionAttsSame && connectionSelectOrderSame &&
-               connTimeoutMsSame &&
-               responseTimeoutMsSame && reconnectConfigSame;
+        return connectionNameSame && topicNameSame && conversationProtocolSame && availableConnectionsSame
+               && topicDescriptionSame && receivedBufferSizeSame
+               && sendBufferSizeSame && numReceivesPerPollSame && connectionAttsSame && connectionSelectOrderSame
+               && connTimeoutMsSame && responseTimeoutMsSame && reconnectConfigSame;
     }
 
     public override bool Equals(object? obj)
@@ -271,10 +303,10 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     }
 
     public override string ToString() =>
-        $"SocketTopicConnectionConfig({nameof(TopicName)}: {TopicName}, {nameof(ConversationProtocol)}: {ConversationProtocol}, " +
-        $"{nameof(AvailableConnections)}: {AvailableConnections}, {nameof(TopicDescription)}: {TopicDescription}, {nameof(ReceiveBufferSize)}: " +
-        $"{ReceiveBufferSize}, {nameof(SendBufferSize)}: {SendBufferSize}, {nameof(NumberOfReceivesPerPoll)}: {NumberOfReceivesPerPoll}, " +
-        $"{nameof(ConnectionAttributes)}: {ConnectionAttributes}, {nameof(ConnectionSelectionOrder)}: {ConnectionSelectionOrder}, " +
-        $"{nameof(ConnectionTimeoutMs)}: {ConnectionTimeoutMs}, {nameof(ResponseTimeoutMs)}: {ResponseTimeoutMs}, {nameof(ReconnectConfig)}: " +
-        $"{ReconnectConfig})";
+        $"SocketTopicConnectionConfig({nameof(ConnectionName)}: {ConnectionName}, {nameof(TopicName)}: {TopicName}, " +
+        $"{nameof(ConversationProtocol)}: {ConversationProtocol}, {nameof(AvailableConnections)}: {AvailableConnections}, " +
+        $"{nameof(TopicDescription)}: {TopicDescription}, {nameof(ReceiveBufferSize)}: {ReceiveBufferSize}, {nameof(SendBufferSize)}: {SendBufferSize}, " +
+        $"{nameof(NumberOfReceivesPerPoll)}: {NumberOfReceivesPerPoll}, {nameof(ConnectionAttributes)}: {ConnectionAttributes}, " +
+        $"{nameof(ConnectionSelectionOrder)}: {ConnectionSelectionOrder}, {nameof(ConnectionTimeoutMs)}: {ConnectionTimeoutMs}, " +
+        $"{nameof(ResponseTimeoutMs)}: {ResponseTimeoutMs}, {nameof(ReconnectConfig)}: {ReconnectConfig})";
 }

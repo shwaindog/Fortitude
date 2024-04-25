@@ -13,7 +13,7 @@ public interface IConversationState
 {
     ConversationType ConversationType { get; }
     ConversationState ConversationState { get; }
-    string Name { get; }
+    string Name { get; set; }
     event Action<string, int>? Error;
     event Action? Started;
     event Action? Stopped;

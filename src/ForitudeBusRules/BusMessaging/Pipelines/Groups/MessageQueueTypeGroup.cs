@@ -140,11 +140,7 @@ public class MessageQueueTypeGroup : MessageQueueTypeGroup<IMessageQueue>, IMess
     public MessageQueueTypeGroup(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler, IQueuesConfig queuesConfig) : base(owningMessageBus, groupType, recycler, queuesConfig) { }
     public override IMessageQueue CreateMessageQueue(IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueValueTaskPollingRing<BusMessage>(
-            $"MessageQueue-{name}",
-            queueSize,
-            () => new BusMessage(),
-            ClaimStrategyType.MultiProducers, null, null, false);
+        var ring = new AsyncValueValueTaskPollingRing<BusMessage>( $"MessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
         var ringPoller = new AsyncValueTaskRingPoller<BusMessage>(ring, noDataPauseTimeoutMs);
         return new MessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
     }
@@ -172,11 +168,7 @@ class SocketListenerMessageQueueGroup : MessageQueueTypeGroup<IIOInboundMessageQ
     }
     public override IIOInboundMessageQueue CreateMessageQueue(IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueValueTaskPollingRing<BusMessage>(
-            $"IOInboundMessageQueue-{name}",
-            queueSize,
-            () => new BusMessage(),
-            ClaimStrategyType.MultiProducers, null, null, false);
+        var ring = new AsyncValueValueTaskPollingRing<BusMessage>( $"IOInboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
         var ringPoller = new SocketAsyncValueTaskEventQueueListener(ring, noDataPauseTimeoutMs, new SocketSelector(QueuesConfig.SelectorPollIntervalMs), timer);
         return new IOInboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
     }
@@ -240,11 +232,7 @@ public class SocketSenderMessageQueueGroup(IConfigureMessageBus owningMessageBus
 {
     public override IIOOutboundMessageQueue CreateMessageQueue(IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueValueTaskPollingRing<BusMessage>(
-            $"IOOutboundMessageQueue-{name}",
-            queueSize,
-            () => new BusMessage(),
-            ClaimStrategyType.MultiProducers, null, null, false);
+        var ring = new AsyncValueValueTaskPollingRing<BusMessage>( $"IOOutboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
         var ringPoller = new SocketAsyncValueTaskEventQueueSender(ring, noDataPauseTimeoutMs);
         return new IOOutboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
     }

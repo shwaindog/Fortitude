@@ -49,20 +49,20 @@ public readonly struct SourceFeedUpdate(SourceFeedStatus sourceFeedStatus, strin
 
 public class PQClientRule : Rule
 {
-    private IMarketConnectionConfigRepository marketConnectionConfigRepository;
+    private IMarketsConfig marketsConfig;
     private IPQPriceConnectionRuleFactory priceConnectionRuleFactory;
 
-    public PQClientRule(IMarketConnectionConfigRepository marketConnectionConfigRepository,
+    public PQClientRule(IMarketsConfig marketsConfig,
         IPQPriceConnectionRuleFactory priceConnectionRuleFactory) : base("PQClientRule")
     {
-        this.marketConnectionConfigRepository = marketConnectionConfigRepository;
+        this.marketsConfig = marketsConfig;
         this.priceConnectionRuleFactory = priceConnectionRuleFactory;
     }
 
     public override async ValueTask StartAsync()
     {
         Context.MessageBus.RegisterListener<SourceFeedUpdate>(this, ClientMultiFeedStatusUpdates + "*", ReceivedFeedUpdate);
-        foreach (var marketConnConfig in marketConnectionConfigRepository.AllMarketConnectionConfigs)
+        foreach (var marketConnConfig in marketsConfig.Markets)
             await Context.MessageBus.DeployRuleAsync(this, new PQClientSourceFeedRule(marketConnConfig)
                 , new DeploymentOptions(RoutingFlags.DefaultDeploy));
     }

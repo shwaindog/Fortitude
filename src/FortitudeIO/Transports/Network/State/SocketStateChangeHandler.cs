@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Publishing;
 
@@ -9,11 +11,14 @@ namespace FortitudeIO.Transports.Network.State;
 
 public interface ISocketConnectivityChanged
 {
+    CloseReason CloseReason { get; set; }
+    string? ReasonText { get; set; }
     Action<SocketSessionState> GetOnConnectionChangedHandler();
 }
 
 public class SocketStateChangeHandler : ISocketConnectivityChanged
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketStateChangeHandler));
     private readonly ISocketReceiverFactory? socketReceiverFactory;
     private readonly ISocketSenderFactory? socketSenderFactory;
     private readonly ISocketSessionContext socketSessionContext;
@@ -26,6 +31,9 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
     }
 
     public Action<SocketSessionState> GetOnConnectionChangedHandler() => OnConnectionChanged;
+
+    public CloseReason CloseReason { get; set; }
+    public string? ReasonText { get; set; }
 
     protected virtual void OnConnectionChanged(SocketSessionState oldSessionState)
     {
@@ -73,7 +81,35 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
         Disconnected();
     }
 
-    private void Disconnected() { }
+    private void Disconnected()
+    {
+        var socketSender = socketSessionContext.SocketSender;
+        var socketReceiver = socketSessionContext.SocketReceiver;
+        var canSendExpectClose = CloseReason != CloseReason.RemoteDisconnecting && socketSender is { CanSend: true };
+
+        if (socketReceiver == null && !canSendExpectClose)
+        {
+            socketSessionContext.SocketConnection?.OSSocket?.Close();
+            Logger.Info("Socket.Close has been called on {0}", socketSessionContext.Name);
+            socketSessionContext.SetDisconnected();
+            return;
+        }
+
+        socketSender?.SetCloseReason(CloseReason, ReasonText);
+
+        if (socketReceiver != null)
+        {
+            socketReceiver.AttemptCloseSocketOnListenerRemoval = true;
+            socketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(socketReceiver);
+            socketReceiver.ExpectSessionCloseMessage = null;
+            socketSessionContext.SocketReceiver = null;
+            // will call socketSender in SendExpectSessionCloseMessageAndClose in socketReceiver.UnregisterHandler
+        }
+        else if (socketSender != null)
+        {
+            socketSender!.SendExpectSessionCloseMessageAndClose();
+        }
+    }
 
     private void Reconnected()
     {

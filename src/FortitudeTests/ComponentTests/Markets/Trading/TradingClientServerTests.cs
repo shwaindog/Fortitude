@@ -38,6 +38,8 @@ namespace FortitudeTests.ComponentTests.Markets.Trading;
 public class TradingClientServerTests
 {
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
+    private OrxTradingClient orxClient;
+    private OrxTradingServer? orxTradingServer;
     private TradingServerConfig tradingServerConfig = null!;
 
     [TestInitialize]
@@ -58,6 +60,8 @@ public class TradingClientServerTests
     [TestCleanup]
     public void TearDown()
     {
+        orxClient.Dispose();
+        orxTradingServer?.Shutdown();
         FLoggerFactory.GracefullyTerminateProcessLogging();
     }
 
@@ -73,7 +77,7 @@ public class TradingClientServerTests
         {
             IsAvailable = true
         };
-        var orxTradingServer = new OrxTradingServer(orxServer, serverResponseTradingHandler, true);
+        orxTradingServer = new OrxTradingServer(orxServer, serverResponseTradingHandler, true);
         orxTradingServer.OnAuthenticate += OrxTradingServer_OnAuthenticate;
 
         orxServer.Connect();
@@ -81,7 +85,7 @@ public class TradingClientServerTests
         var orderStatus = OrderStatus.New;
         IOrder? clientLastOrderReceived = null;
 
-        var orxClient = new OrxTradingClient(tradingServerConfig.ToggleProtocolDirection()
+        orxClient = new OrxTradingClient(tradingServerConfig.ToggleProtocolDirection()
             , SingletonSocketDispatcherResolver.Instance
             , "TradingClientServerTest",
             new LoginCredentials("testLoginId", "testPassword"), "testAccount", true, new TradingFeedWatchdog(),
@@ -95,7 +99,7 @@ public class TradingClientServerTests
             clientAutoResetEvent.Set();
         };
 
-        Thread.Sleep(200);
+        Thread.Sleep(500);
         Assert.IsTrue(orxClient.IsAvailable);
         var orderId = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
         var timeInForce = TimeInForce.GoodTillCancelled;

@@ -33,7 +33,8 @@ public class ConversationResponder : SocketConversation, IAcceptorControls, ICon
 
     public IReadOnlyDictionary<int, IConversationRequester> Clients => acceptorControls.Clients;
 
-    public void RemoveClient(IConversationRequester clientSocketSessionContext) => acceptorControls.RemoveClient(clientSocketSessionContext);
+    public void RemoveClient(IConversationRequester clientSocketSessionContext, CloseReason closeReason, string? reason = null) =>
+        acceptorControls.RemoveClient(clientSocketSessionContext, closeReason, reason);
 
     public void Broadcast(IVersionedMessage message) => acceptorControls.Broadcast(message);
 

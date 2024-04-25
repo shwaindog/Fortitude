@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Conversations;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -31,12 +32,14 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
     ISocketFactoryResolver SocketFactoryResolver { get; }
     IMessageSerdesRepositoryFactory SerdesFactory { get; set; }
     void OnSocketStateChanged(SocketSessionState newSessionState);
-    void OnDisconnected();
+    void OnDisconnected(CloseReason closeReason, string? reason = null);
     void OnReconnecting();
     void OnDisconnecting();
     void OnConnected(ISocketConnection socketConnection);
     void OnStarted();
     void OnStopped();
+
+    void SetDisconnected();
 
     event Action? SocketReceiverUpdated;
     event Action? SocketSenderUpdated;
@@ -45,16 +48,20 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
 public class SocketSessionContext : ISocketSessionContext
 {
     private static int idGen;
+    private readonly ISocketConnectivityChanged socketConnectivityChanged;
     private ISocketReceiver? socketReceiver;
     private ISocketSender? socketSender;
 
-    public SocketSessionContext(string name, ConversationType conversationType,
+
+    public SocketSessionContext(string preIdName, ConversationType conversationType,
         SocketConversationProtocol socketConversationProtocol, INetworkTopicConnectionConfig networkConnectionConfig,
         ISocketFactoryResolver socketFactoryResolver, IMessageSerdesRepositoryFactory serdesFactory,
         ISocketDispatcherResolver? socketDispatcherResolver = null)
     {
-        Name = name;
+        Id = Interlocked.Increment(ref idGen);
+        Name = IdInjectedName(preIdName, Id);
         SocketFactoryResolver = socketFactoryResolver;
+        socketFactoryResolver.SocketDispatcherResolver = socketDispatcherResolver ?? socketFactoryResolver.SocketDispatcherResolver;
         SocketDispatcher
             = socketDispatcherResolver?.Resolve(networkConnectionConfig) ??
               socketFactoryResolver.SocketDispatcherResolver!.Resolve(networkConnectionConfig);
@@ -62,9 +69,8 @@ public class SocketSessionContext : ISocketSessionContext
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
         NetworkTopicConnectionConfig = networkConnectionConfig;
-        StateChanged = socketFactoryResolver.ConnectionChangedHandlerResolver!(this)
-            .GetOnConnectionChangedHandler();
-        Id = Interlocked.Increment(ref idGen);
+        socketConnectivityChanged = socketFactoryResolver.ConnectionChangedHandlerResolver!(this);
+        StateChanged = socketConnectivityChanged.GetOnConnectionChangedHandler();
     }
 
     public int Id { get; }
@@ -139,9 +145,9 @@ public class SocketSessionContext : ISocketSessionContext
         StreamControls?.Start();
     }
 
-    public void Stop()
+    public void Stop(CloseReason closeReason = CloseReason.Completed, string? reason = null)
     {
-        StreamControls?.Stop();
+        StreamControls?.Stop(closeReason, reason);
         OnStopped();
     }
 
@@ -161,18 +167,19 @@ public class SocketSessionContext : ISocketSessionContext
         OnSocketStateChanged(SocketSessionState.Connected);
         SocketConnected?.Invoke(socketConnection);
         Connected?.Invoke();
-        OnStarted();
     }
 
-    public void OnDisconnected()
+    public void SetDisconnected()
     {
-        if (SocketSessionState != SocketSessionState.Disconnected)
-        {
-            OnSocketStateChanged(SocketSessionState.Disconnected);
-            Disconnected?.Invoke();
-        }
+        SocketConnection = null;
+    }
 
-        OnStopped();
+    public void OnDisconnected(CloseReason closeReason, string? reason = null)
+    {
+        socketConnectivityChanged.CloseReason = closeReason;
+        socketConnectivityChanged.ReasonText = reason;
+        OnSocketStateChanged(SocketSessionState.Disconnected);
+        Disconnected?.Invoke();
     }
 
     public void OnReconnecting()
@@ -200,6 +207,17 @@ public class SocketSessionContext : ISocketSessionContext
     public void OnStopped()
     {
         Stopped?.Invoke();
+    }
+
+    private string IdInjectedName(string preIdName, int id)
+    {
+        var splitOnUnderscores = preIdName.Split('_').ToList();
+        var idAndValue = $"ID-{id}";
+        if (splitOnUnderscores.Count > 1)
+            splitOnUnderscores.Insert(1, idAndValue);
+        else
+            splitOnUnderscores.Add(idAndValue);
+        return string.Join("_", splitOnUnderscores);
     }
 
     public override string ToString() =>

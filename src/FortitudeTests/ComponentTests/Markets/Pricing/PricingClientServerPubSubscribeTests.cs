@@ -85,7 +85,7 @@ public class PricingClientServerPubSubscribeTests
                count++ < 10) // depending on pub subscribe first quote may be empty
         {
             Logger.Info("Awaiting first non-empty quote as alwaysUpdateQuote is {0}.", alwaysUpdatedQuote);
-            autoResetEvent.WaitOne(3_000);
+            autoResetEvent.WaitOne(1_000);
         }
 
         Assert.IsNotNull(alwaysUpdatedQuote);
@@ -103,10 +103,10 @@ public class PricingClientServerPubSubscribeTests
         // adapter becomes sourceTime on Send
         Logger.Info("About to publish second empty quote. {0}", sourcePriceQuote);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
+        alwaysUpdatedQuote = null;
         autoResetEvent.WaitOne(3_000); // 20 ms seems to work expand wait time if errors
+        Assert.IsNotNull(alwaysUpdatedQuote);
         Logger.Info("Received second update {0}", alwaysUpdatedQuote);
-        pqClient.Dispose();
-        pqPublisher.Dispose();
         destinationSnapshot = alwaysUpdatedQuote.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
         Logger.Info("Second diff.");
@@ -114,7 +114,7 @@ public class PricingClientServerPubSubscribeTests
         autoResetEvent.WaitOne(3_000);
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
         Logger.Info("Finished Level2QuoteFullDepth_ConnectsViaSnapshotUpdateAndResets_SyncsAndPublishesAllFields");
-        //FLoggerFactory.GracefullyTerminateProcessLogging();
+        Logger.Info("Test complete start shutdown");
         pqServerL2QuoteServerSetup.TearDown();
     }
 
@@ -139,16 +139,19 @@ public class PricingClientServerPubSubscribeTests
             LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
             LastTradedFlags.LastTradedTime);
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.
+        var pqServerL3QuoteServerSetup = new LocalHostPQServerLevel3QuoteTestSetup();
+        pqServerL3QuoteServerSetup.InitializeLevel3QuoteConfig();
+        var marketsServerConfig = pqServerL3QuoteServerSetup.DefaultServerMarketsConfig.ShiftPortsBy(2);
+        var marketsClinetConfig = marketsServerConfig.ToggleProtocolDirection("PQClient_Level3");
         var autoResetEvent = new AutoResetEvent(false);
         ILevel3Quote? alwaysUpdatedQuote = null;
-        var clientConnectionConfig = pqClientSetup.ClientConnectionsConfigRepository.Find(LocalHostPQTestSetupCommon.ExchangeName);
+        var clientConnectionConfig = marketsClinetConfig.Find(LocalHostPQTestSetupCommon.ExchangeName);
         clientConnectionConfig!.SourceTickerConfig = null;
 
-        var pqClient = pqClientSetup.CreatePQClient();
+        var pqClient = pqClientSetup.CreatePQClient(marketsClinetConfig);
 
-        var pqServerL3QuoteServerSetup = new LocalHostPQServerLevel3QuoteTestSetup();
 
-        var pqPublisher = pqServerL3QuoteServerSetup.CreatePQPublisher();
+        var pqPublisher = pqServerL3QuoteServerSetup.CreatePQPublisher(marketsServerConfig.Find(LocalHostPQTestSetupCommon.ExchangeName));
         var availableSourceTickers = pqClient.RequestSourceTickerForSource(LocalHostPQTestSetupCommon.ExchangeName);
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
@@ -163,30 +166,35 @@ public class PricingClientServerPubSubscribeTests
             pQuote =>
             {
                 alwaysUpdatedQuote = pqServerL3QuoteServerSetup.ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(pQuote);
+                Logger.Info("alwaysUpdatedQuote BatchId={0}", alwaysUpdatedQuote.BatchId);
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });
         var sourcePriceQuote = pqServerL3QuoteServerSetup.GenerateL3QuoteWithTraderLayerAndLastTrade();
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 
-        autoResetEvent.WaitOne(2_000); // 30 ms seems to work expand wait time if errors 
+        autoResetEvent.WaitOne(5_000); // 30 ms seems to work expand wait time if errors 
         var destinationSnapshot = alwaysUpdatedQuote!.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
-        Console.Out.WriteLine(sourcePriceQuote.DiffQuotes(destinationSnapshot));
+        Logger.Info("First diff");
+        Logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
 
         ResetL2QuoteLayers(sourcePriceQuote);
 
         SetExpectedDiffFieldsToSame(sourcePriceQuote, destinationSnapshot);
+        alwaysUpdatedQuote = null;
         // adapter becomes sourceTime on Send
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
-        autoResetEvent.WaitOne(2_000); // 20 ms seems to work expand wait time if errors
-        pqClient.Dispose();
-        pqPublisher.Dispose();
+        autoResetEvent.WaitOne(3_000); // 20 ms seems to work expand wait time if errors
+        Assert.IsNotNull(alwaysUpdatedQuote);
         destinationSnapshot = alwaysUpdatedQuote.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
-        Console.Out.WriteLine(sourcePriceQuote.DiffQuotes(destinationSnapshot));
+
+        Logger.Info("Second diff");
+        Logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
-        //FLoggerFactory.GracefullyTerminateProcessLogging();
+
+        Logger.Info("Test complete start shutdown");
         pqServerL3QuoteServerSetup.TearDown();
     }
 

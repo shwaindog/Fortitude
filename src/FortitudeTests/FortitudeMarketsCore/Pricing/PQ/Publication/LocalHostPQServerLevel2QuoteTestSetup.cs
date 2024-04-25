@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -27,13 +28,14 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
         GenerateL2QuoteWithSourceNameLayer();
     }
 
-    public PQPublisher<PQLevel2Quote> CreatePQPublisher()
+    public PQPublisher<PQLevel2Quote> CreatePQPublisher(IMarketConnectionConfig? overrideMarketConnectionConfig = null)
     {
         InitializeServerPrereqs();
-        PqServer = new PQServer<PQLevel2Quote>(MarketConnectionConfig, HeartBeatSender, ServerDispatcherResolver,
+        var useMarketConnectionConfig = overrideMarketConnectionConfig ?? DefaultServerMarketConnectionConfig;
+        PqServer = new PQServer<PQLevel2Quote>(useMarketConnectionConfig, HeartBeatSender, ServerDispatcherResolver,
             PqSnapshotFactory, PqUpdateFactory);
         PqPublisher = new PQPublisher<PQLevel2Quote>(PqServer);
-        PqPublisher.RegisterTickersWithServer(MarketConnectionConfig);
+        PqPublisher.RegisterTickersWithServer(useMarketConnectionConfig);
         Logger.Info("Started PQServer");
         Level2PriceQuote = GenerateL2QuoteWithSourceNameLayer();
         return PqPublisher;

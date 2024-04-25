@@ -3,6 +3,7 @@
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
@@ -122,7 +123,7 @@ public class TcpAcceptedClientControlsTests
     {
         DisconnectMoqSetup();
 
-        tcpAcceptedClientControls.Disconnect();
+        tcpAcceptedClientControls.Disconnect(CloseReason.Completed);
 
         moqSocketSessionContext.Verify();
         moqSocketConnection.Verify();
@@ -156,9 +157,8 @@ public class TcpAcceptedClientControlsTests
             .Returns(SocketSessionState.Disconnected);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object).Verifiable();
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(false).Verifiable();
-        moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected()).Verifiable();
 
-        tcpAcceptedClientControls.Disconnect();
+        tcpAcceptedClientControls.Disconnect(CloseReason.Completed);
 
         moqSocketSessionContext.Verify();
         moqFlogger.Verify();
@@ -173,10 +173,7 @@ public class TcpAcceptedClientControlsTests
         moqSocketSessionContext.Setup(ssc => ssc.OnDisconnecting()).Verifiable();
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object).Verifiable();
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true).Verifiable();
-        moqDispatcher.Setup(sd => sd.Stop()).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Connection client accepted session to {0} {1} id {2}:{3} closed", It.IsAny<object[]>())).Verifiable();
-        moqSocketConnection.Setup(sf => sf.OSSocket).Returns(moqOsSocket.Object).Verifiable();
-        moqOsSocket.Setup(sf => sf.Close()).Verifiable();
-        moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected()).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Connection client session {0} closed. {1}", It.IsAny<object[]>())).Verifiable();
+        moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
     }
 }

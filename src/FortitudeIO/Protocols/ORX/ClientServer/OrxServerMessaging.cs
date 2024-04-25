@@ -19,7 +19,7 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
 {
     private static ISocketFactoryResolver? socketFactories;
 
-    private IOrxResponderStreamDecoder? messageStreamDecoder;
+    private IOrxStreamDecoder? messageStreamDecoder;
 
     public OrxServerMessaging(ISocketSessionContext socketSessionContext, IAcceptorControls acceptorControls)
         : base(socketSessionContext, acceptorControls)
@@ -28,9 +28,9 @@ public sealed class OrxServerMessaging : ConversationResponder, IOrxMessageRespo
 
         SerializationRepository = orxSerdesRepoFactory.MessageSerializationRepository;
 
-        socketSessionContext.SocketReceiverUpdated += () =>
+        socketSessionContext.SocketFactoryResolver.SocketReceiverFactory.ConfigureNewSocketReceiver += socketReceiver =>
         {
-            messageStreamDecoder = (IOrxResponderStreamDecoder)socketSessionContext.SocketReceiver!.Decoder!;
+            messageStreamDecoder = (IOrxStreamDecoder)socketReceiver.Decoder!;
         };
     }
 

@@ -47,6 +47,7 @@ public class TcpAcceptorControlsTests
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
     private Mock<ISocketReceiver> moqSocketReceiver = null!;
+    private Mock<ISocketReceiverFactory> moqSocketReceiverFactory = null!;
     private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<IVersionedMessage> moqVersionedMessage = null!;
@@ -77,6 +78,7 @@ public class TcpAcceptorControlsTests
         moqSocketSessionContext = new Mock<ISocketSessionContext>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
         moqSocketFactory = new Mock<ISocketFactory>();
+        moqSocketReceiverFactory = new Mock<ISocketReceiverFactory>();
         moqSerdesFactory = new Mock<IMessageSerdesRepositoryFactory>();
         connectedIpEndPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), testHostPort);
         moqSocketConnection = new Mock<ISocketConnection>();
@@ -170,34 +172,23 @@ public class TcpAcceptorControlsTests
         moqSocketReceiver.SetupGet(ssc => ssc.IsAcceptor).Returns(true).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.OnDisconnecting()).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object).Verifiable();
-        moqDispatcher.Setup(ssc => ssc.Stop()).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Stopping publisher {0} @{1}", It.IsAny<object[]>())).Verifiable();
+        moqFlogger.Setup(fl => fl.Info("Publisher {0} on  {1}:{2} stopped. {3}", It.IsAny<object[]>())).Verifiable();
 
-        var moqFirstClientListener = new Mock<IStreamListener>();
         var moqFirstClient = new Mock<IConversationRequester>();
-        moqFirstClient.Setup(cr => cr.StreamListener).Returns(moqFirstClientListener.Object).Verifiable();
         moqFirstClient.SetupGet(cr => cr.Id).Returns(1).Verifiable();
-        moqFirstClient.Setup(cr => cr.Stop()).Verifiable();
-        var moqSecondClientListener = new Mock<IStreamListener>();
+        moqFirstClient.Setup(cr => cr.Stop(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
         var moqSecondClient = new Mock<IConversationRequester>();
-        moqSecondClient.Setup(cr => cr.StreamListener).Returns(moqSecondClientListener.Object).Verifiable();
         moqSecondClient.Setup(cr => cr.Id).Returns(2).Verifiable();
-        moqSecondClient.Setup(cr => cr.Stop()).Verifiable();
+        moqSecondClient.Setup(cr => cr.Stop(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
         var clientMap = new Dictionary<int, IConversationRequester>
         {
             { moqFirstClient.Object.Id, moqFirstClient.Object }, { moqSecondClient.Object.Id, moqSecondClient.Object }
         };
         NonPublicInvocator.SetInstanceField(tcpAcceptorControls, "clients", clientMap);
         moqSocketReceiver.SetupRemove(sr => sr.Accept -= It.IsAny<Action>()).Verifiable();
-        moqSocketSessionContext.Setup(sdl => sdl.SocketDispatcher).Returns(moqDispatcher.Object).Verifiable();
-        moqDispatcher.Setup(sdl => sdl.Listener).Returns(moqSocketDispatchListener.Object).Verifiable();
-        moqSocketDispatchListener.Setup(sdl => sdl.UnregisterForListen(It.IsAny<IStreamListener>())).Verifiable();
-        moqSocketConnection.SetupGet(sr => sr.OSSocket).Returns(moqAcceptorOsSocket.Object).Verifiable();
-        moqAcceptorOsSocket.Setup(sdl => sdl.Close()).Verifiable();
-        moqFlogger.Setup(fl => fl.Info("Publisher {0} @{1} stopped", It.IsAny<object[]>())).Verifiable();
-        moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected()).Verifiable();
+        moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
 
-        tcpAcceptorControls.Disconnect();
+        tcpAcceptorControls.Disconnect(CloseReason.Completed);
 
         moqSocketSessionContext.Verify();
         moqDispatcher.Verify();
@@ -279,12 +270,14 @@ public class TcpAcceptorControlsTests
         moqClientNetworkTopicConnectionConfig.SetupGet(sr => sr.ReceiveBufferSize).Returns(2000).Verifiable();
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object).Verifiable();
         moqSocketFactories.SetupGet(ssc => ssc.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object).Verifiable();
+        moqSocketFactories.SetupGet(ssc => ssc.SocketReceiverFactory).Returns(moqSocketReceiverFactory.Object).Verifiable();
+        moqSocketReceiverFactory.SetupAdd(ssc => ssc.ConfigureNewSocketReceiver += null);
         moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<INetworkTopicConnectionConfig>()))
             .Returns(moqDispatcher.Object);
         moqClientOsSocket.SetupGet(os => os.Connected).Returns(true).Verifiable();
         moqClientOsSocket.Setup(os => os.RemoteEndPoint).Returns(connectedIpEndPoint).Verifiable();
         moqCapturedClientSessionStateChanged.Setup(os => os.Invoke(SocketSessionState.New)).Verifiable();
-        moqFlogger.Setup(os => os.Info("Client {0} ({1}) connected to server {2} @{3}", It.IsAny<object[]>()))
+        moqFlogger.Setup(os => os.Info("Client {0} connected to server {1}", It.IsAny<object[]>()))
             .Verifiable();
 
         var moqNewClientCallback = new Mock<Action<IConversationRequester>>();
@@ -312,7 +305,7 @@ public class TcpAcceptorControlsTests
         // Setup client disconnect checks
         moqDispatcher.Setup(sdl => sdl.Listener).Returns(moqSocketDispatchListener.Object).Verifiable();
         moqSocketDispatchListener.Setup(sdl => sdl.UnregisterForListen(It.IsAny<IStreamListener>())).Verifiable();
-        moqFlogger.Setup(os => os.Info("Client {0} ({1}) connected to server {2} @{3}", It.IsAny<object[]>()))
+        moqFlogger.Setup(os => os.Info("Client {0} connected to server {1}", It.IsAny<object[]>()))
             .Verifiable();
         lastCapturedClientConversation.Stop();
         moqRemovedClientCallback.Verify();
@@ -327,7 +320,7 @@ public class TcpAcceptorControlsTests
         moqSocketReceiver.Setup(sr => sr.AcceptClientSocketRequest()).Throws(new Exception("Client Accept Error"))
             .Verifiable();
         moqFlogger.Setup(
-                os => os.Error("Error while connecting client from server {0} @{1}: {2}", It.IsAny<object[]>()))
+                os => os.Error("Error while connecting client from server {0} remote {1}.  Got {2}", It.IsAny<object[]>()))
             .Verifiable();
 
 
