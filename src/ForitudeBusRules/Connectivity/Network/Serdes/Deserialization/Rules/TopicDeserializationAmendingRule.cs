@@ -122,7 +122,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
     protected virtual RemoteRegistrationResponse RegisterRequestIdResponseSource(
         IBusRespondingMessage<RemoteRequestIdResponseRegistration, RemoteRegistrationResponse> requestMessage)
     {
-        var remoteRequestIdResponseRegistration = requestMessage.PayLoad.Body!;
+        var remoteRequestIdResponseRegistration = requestMessage.Payload.Body()!;
         var resolverRun = NewMessageDeserializerResolveRun;
         try
         {
@@ -180,7 +180,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
     protected virtual RemoteMessageBusPublishRegistrationResponse UpdatePublishRegistrationRequestReceived(
         IBusRespondingMessage<RemoteMessageBusPublishRegistration, RemoteMessageBusPublishRegistrationResponse> contextPublishRegistrationMsg)
     {
-        var remoteMessageBusPublishRegistration = contextPublishRegistrationMsg.PayLoad.Body!;
+        var remoteMessageBusPublishRegistration = contextPublishRegistrationMsg.Payload.Body()!;
         var addressPostfix = ExtractSubscriptionPostfix(contextPublishRegistrationMsg.DestinationAddress!);
         var resolverRun = NewMessageDeserializerResolveRun;
         try

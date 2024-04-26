@@ -15,6 +15,11 @@ public interface IRecycler
     void Recycle(object trash);
 }
 
+public class SingletonRecycler
+{
+    public static IRecycler Instance { get; set; } = new Recycler();
+}
+
 public class Recycler : IRecycler
 {
     private readonly bool acceptNonCreatedObjects;

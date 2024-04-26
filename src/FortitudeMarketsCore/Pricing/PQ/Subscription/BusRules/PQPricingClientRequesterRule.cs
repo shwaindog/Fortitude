@@ -17,42 +17,64 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
-public class PQClientSnapshotRequesterRule(string feedName, IMarketConnectionConfig marketConnectionConfig,
-        IMessageDeserializationRepository sharedUpdateAndSnapshotDeserializationRepo, ISocketDispatcherResolver dispatcherResolver)
+public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConfig marketConnectionConfig,
+        IMessageDeserializationRepository sharedFeedDeserializationRepo, ISocketDispatcherResolver dispatcherResolver)
     : Rule("PQClient_" + feedName + "_PQClientSnapshotRule")
 {
     private readonly string feedAvailableTickersUpdateAddress = feedName.FeedAvailableTickersUpdateAddress();
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQClientSnapshotRequesterRule));
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientRequesterRule));
 
     private readonly INetworkTopicConnectionConfig snapshotClientTopicConnectionConfig
         = marketConnectionConfig.PricingServerConfig!.SnapshotConnectionConfig;
 
+    private int connectionTimeout;
+
     private List<ISourceTickerQuoteInfo> lastReceivedSourceTickerQuoteInfos = new();
     private ISubscription? listenForRequestFeedAvailableTickersRefreshAddress;
+    private ISubscription? listenForRequestSnapshotIdsAddress;
 
-    private PQBusRulesSnapshotClient? snapshotClient;
+    private PQPricingClientSnapshotConversationRequester? snapshotClient;
 
     public override async ValueTask StartAsync()
     {
+        connectionTimeout = (int)snapshotClientTopicConnectionConfig.ConnectionTimeoutMs;
         await LaunchSnapshotClient();
     }
 
     private async ValueTask LaunchSnapshotClient()
     {
         listenForRequestFeedAvailableTickersRefreshAddress = await Context.MessageBus.RegisterListenerAsync<string>(this
-            , feedName.RequestToPublishRefreshedFeedAvailableTickersAddress(), CheckAndPublishChangedFeedTickersTemplateListener);
+            , feedName.FeedAvailableTickersRequestAddress(), CheckAndPublishChangedFeedTickersHandler);
+        listenForRequestSnapshotIdsAddress = await Context.MessageBus.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(this
+            , feedName.FeedTickersSnapshotRequestAddress(), SnapshotIdsRequestHandler);
         await AttemptSnapshotClientConnect();
+    }
+
+    private async ValueTask SnapshotIdsRequestHandler(IBusMessage<FeedSourceTickerInfoUpdate> snapshotIdsMessage)
+    {
+        var sourceTickerQuoteInfos = snapshotIdsMessage.Payload.Body()!.SourceTickerQuoteInfos;
+        var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
+            .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
+        var succeeded = await (snapshotClient?.RequestSnapshots(sourceTickerQuoteInfos, connectionTimeout, workerQueueConnect)
+                               ?? new ValueTask<bool>(false));
+        if (!succeeded)
+            logger.Warn("{0} did not successfully request snapshots for [{1}]", feedName,
+                string.Join(", ", sourceTickerQuoteInfos.Select(stqi => stqi.Ticker)));
+        else
+            logger.Info("{0} requested snapshots for [{1}]", feedName,
+                string.Join(", ", sourceTickerQuoteInfos.Select(stqi => stqi.Ticker)));
     }
 
     private async ValueTask AttemptSnapshotClientConnect()
     {
         try
         {
-            snapshotClient ??= PQBusRulesSnapshotClient.BuildTcpRequester(marketConnectionConfig, dispatcherResolver, feedName, this
-                , sharedUpdateAndSnapshotDeserializationRepo);
+            snapshotClient ??= PQPricingClientSnapshotConversationRequester.BuildTcpRequester(marketConnectionConfig, dispatcherResolver, feedName
+                , this
+                , sharedFeedDeserializationRepo);
             var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
                 .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
-            var connected = await snapshotClient.StartAsync((int)snapshotClientTopicConnectionConfig.ConnectionTimeoutMs, workerQueueConnect);
+            var connected = await snapshotClient.StartAsync(connectionTimeout, workerQueueConnect);
             if (connected)
             {
                 var checkSourceTickerQuoteInfos = await RequestFeedServerSourceTickerQuoteInfos();
@@ -76,7 +98,7 @@ public class PQClientSnapshotRequesterRule(string feedName, IMarketConnectionCon
         }
     }
 
-    private async ValueTask CheckAndPublishChangedFeedTickersTemplateListener(IBusMessage<string> feedTickersMessage)
+    private async ValueTask CheckAndPublishChangedFeedTickersHandler(IBusMessage<string> feedTickersMessage)
     {
         var sourceTickerQuoteInfos = await RequestFeedServerSourceTickerQuoteInfos();
         await PublishUpdatedSourceTickerQuotInfos(sourceTickerQuoteInfos);
@@ -85,10 +107,12 @@ public class PQClientSnapshotRequesterRule(string feedName, IMarketConnectionCon
     private async ValueTask PublishUpdatedSourceTickerQuotInfos(List<ISourceTickerQuoteInfo> toPublish)
     {
         if (!toPublish.Any() || toPublish.SequenceEqual(lastReceivedSourceTickerQuoteInfos)) return;
-        lastReceivedSourceTickerQuoteInfos = toPublish;
+        lastReceivedSourceTickerQuoteInfos = toPublish.ToList();
+        logger.Info("Received Source ticker quote infos from server");
+        foreach (var sourceTickerQuoteInfo in toPublish) logger.Info("{0}", sourceTickerQuoteInfo);
         var publishSourceTickerInfos = Context.PooledRecycler.Borrow<FeedSourceTickerInfoUpdate>();
         publishSourceTickerInfos.FeedName = feedName;
-        publishSourceTickerInfos.FeedSourceTickerQuoteInfos = toPublish;
+        publishSourceTickerInfos.SourceTickerQuoteInfos.AddRange(lastReceivedSourceTickerQuoteInfos);
         await Context.MessageBus.PublishAsync(this, feedAvailableTickersUpdateAddress, publishSourceTickerInfos, new DispatchOptions());
     }
 

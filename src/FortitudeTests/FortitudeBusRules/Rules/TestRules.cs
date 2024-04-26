@@ -151,7 +151,7 @@ public class ListeningRule : Rule
         {
             logger.Info($"ListeningRule instance {Id} received {currentBusMessage}");
             ReceiveCount++;
-            LastReceivedPublishNumber = currentBusMessage.PayLoad.Body;
+            LastReceivedPublishNumber = currentBusMessage.Payload.Body();
         }
         catch (Exception ex)
         {
@@ -214,8 +214,9 @@ public class RespondingRule : Rule
     {
         logger.Info("RespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
-        LastReceivedRequestNumber = busRequestMessage.PayLoad.Body;
-        return busRequestMessage.PayLoad.Body + modifier;
+        var lastReceivedRequestNumber = busRequestMessage.Payload.Body();
+        LastReceivedRequestNumber = lastReceivedRequestNumber;
+        return lastReceivedRequestNumber + modifier;
     }
 
     public override void Stop()
@@ -326,7 +327,7 @@ public class AsyncValueTaskRespondingRule : Rule
     {
         logger.Info("AsyncValueTaskRespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
-        LastReceivedRequestNumber = busRequestMessage.PayLoad.Body;
+        LastReceivedRequestNumber = busRequestMessage.Payload.Body();
         var calculatedResult = await this.RequestAsync<int, int>(RequestAddress
             , LastReceivedRequestNumber
             , new DispatchOptions());
@@ -389,7 +390,7 @@ public class AsyncTaskRespondingRule : Rule
     {
         logger.Info("AsyncTaskRespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
-        LastReceivedRequestNumber = busRequestMessage.PayLoad.Body;
+        LastReceivedRequestNumber = busRequestMessage.Payload.Body();
         var calculatedResult = await this.RequestAsync<int, int>(RequestAddress, LastReceivedRequestNumber
             , new DispatchOptions());
         LastReceivedResponseNumber = calculatedResult.Response;

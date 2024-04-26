@@ -22,10 +22,10 @@ public interface IMessageListenerSubscription : IDisposable
     event Action<IRule, string>? Unsubscribed;
 }
 
-public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListenerSubscription
+public class MessageListenerSubscription<TPayload, TResponse> : IMessageListenerSubscription
 {
     private static readonly IFLogger Logger
-        = FLoggerFactory.Instance.GetLogger(typeof(MessageListenerSubscription<TPayLoad, TResponse>));
+        = FLoggerFactory.Instance.GetLogger(typeof(MessageListenerSubscription<TPayload, TResponse>));
 
     private string publishAddress = null!;
 
@@ -64,7 +64,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     public event Action<IRule, string>? Unsubscribed;
 
     public void SetHandlerFromSpecificMessageHandler(
-        Func<IBusRespondingMessage<TPayLoad, TResponse>, ValueTask<TResponse>> wrapHandler)
+        Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
         {
@@ -72,7 +72,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusRespondingMessage<TPayLoad, TResponse> typeBusMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IBusRespondingMessage<TPayload, TResponse> typeBusMessage = message.BorrowCopy<TPayload, TResponse>(RegisteredContext);
 
                 try
                 {
@@ -85,7 +85,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) " +
                         "MessageType.Publish on Rule {2} caught exception {3}",
-                        typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                        typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                 }
                 finally
                 {
@@ -96,7 +96,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             else if (message.Type is MessageType.RequestResponse)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusRespondingMessage<TPayLoad, TResponse> typeBusMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IBusRespondingMessage<TPayload, TResponse> typeBusMessage = message.BorrowCopy<TPayload, TResponse>(RegisteredContext);
                 if (message.Response is not IResponseValueTaskSource<TResponse> typeResponse) return;
                 try
                 {
@@ -109,7 +109,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) " +
                         "MessageType.RequestResponse on Rule {2} caught exception {3}"
-                        , typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                        , typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                     typeResponse.SetException(ex);
                 }
                 finally
@@ -128,7 +128,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     }
 
     public void SetHandlerFromSpecificMessageHandler(
-        Func<IBusMessage<TPayLoad>, ValueTask> wrapHandler)
+        Func<IBusMessage<TPayload>, ValueTask> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
         {
@@ -136,7 +136,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusMessage<TPayLoad> typeBusMessage = message.BorrowCopy<TPayLoad>(RegisteredContext);
+                IBusMessage<TPayload> typeBusMessage = message.BorrowCopy<TPayload>(RegisteredContext);
                 try
                 {
                     await wrapHandler(typeBusMessage);
@@ -147,7 +147,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Func<IBusMessage<{0}>, ValueTask> wrapHandler) " +
                         "MessageType.Publish on Rule {1} caught exception {2}"
-                        , typeof(TPayLoad).Name, SubscriberRule.FriendlyName, ex);
+                        , typeof(TPayload).Name, SubscriberRule.FriendlyName, ex);
                 }
                 finally
                 {
@@ -161,7 +161,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     }
 
     public void SetHandlerFromSpecificMessageHandler(
-        Func<IBusRespondingMessage<TPayLoad, TResponse>, Task<TResponse>> wrapHandler)
+        Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
         {
@@ -169,7 +169,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusRespondingMessage<TPayLoad, TResponse> typeBusMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IBusRespondingMessage<TPayload, TResponse> typeBusMessage = message.BorrowCopy<TPayload, TResponse>(RegisteredContext);
                 try
                 {
                     var response = await wrapHandler(typeBusMessage);
@@ -181,7 +181,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) " +
                         "MessageType.Publish on Rule {2} caught exception {3}"
-                        , typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                        , typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                 }
                 finally
                 {
@@ -192,7 +192,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             else if (message.Type is MessageType.RequestResponse)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusRespondingMessage<TPayLoad, TResponse> typeBusMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IBusRespondingMessage<TPayload, TResponse> typeBusMessage = message.BorrowCopy<TPayload, TResponse>(RegisteredContext);
                 if (message.Response is not IResponseValueTaskSource<TResponse> typeResponse) return;
                 try
                 {
@@ -205,7 +205,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) " +
                         "MessageType.RequestResponse on Rule {2} caught exception {3}"
-                        , typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                        , typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                     typeResponse.SetException(ex);
                 }
                 finally
@@ -224,7 +224,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     }
 
     public void SetHandlerFromSpecificMessageHandler(
-        Func<IBusRespondingMessage<TPayLoad, TResponse>, TResponse> wrapHandler)
+        Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> wrapHandler)
     {
         ValueTask HandlerWrapper(BusMessage message)
         {
@@ -232,7 +232,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusRespondingMessage<TPayLoad, TResponse> typeBusMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IBusRespondingMessage<TPayload, TResponse> typeBusMessage = message.BorrowCopy<TPayload, TResponse>(RegisteredContext);
                 try
                 {
                     var response = wrapHandler(typeBusMessage);
@@ -244,7 +244,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler) " +
                         "MessageType.Publish on Rule {2} caught exception {3}"
-                        , typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                        , typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                 }
                 finally
                 {
@@ -255,7 +255,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             else if (message.Type is MessageType.RequestResponse)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusRespondingMessage<TPayLoad, TResponse> typeBusMessage = message.BorrowCopy<TPayLoad, TResponse>(RegisteredContext);
+                IBusRespondingMessage<TPayload, TResponse> typeBusMessage = message.BorrowCopy<TPayload, TResponse>(RegisteredContext);
                 if (message.Response is not IResponseValueTaskSource<TResponse> requestResponse) return ValueTask.CompletedTask;
                 try
                 {
@@ -268,7 +268,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler)" +
                         " MessageType.RequestResponse on Rule {2} caught exception {3}"
-                        , typeof(TPayLoad).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                        , typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                     requestResponse.SetException(ex);
                 }
                 finally
@@ -285,7 +285,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
     }
 
     public void SetHandlerFromSpecificMessageHandler(
-        Action<IBusMessage<TPayLoad>> wrapHandler)
+        Action<IBusMessage<TPayload>> wrapHandler)
     {
         ValueTask HandlerWrapper(BusMessage message)
         {
@@ -293,7 +293,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
             if (message.Type is MessageType.Publish)
             {
                 message.ProcessorRegistry?.RegisterStart(SubscriberRule);
-                IBusMessage<TPayLoad> typeBusMessage = message.BorrowCopy<TPayLoad>(RegisteredContext);
+                IBusMessage<TPayload> typeBusMessage = message.BorrowCopy<TPayload>(RegisteredContext);
                 try
                 {
                     wrapHandler(typeBusMessage);
@@ -304,7 +304,7 @@ public class MessageListenerSubscription<TPayLoad, TResponse> : IMessageListener
                     Logger.Warn(
                         "SetHandlerFromSpecificMessageHandler(Action<IMessage<{0}>> wrapHandler) " +
                         "MessageType.RequestResponse on Rule {1} caught exception {2}",
-                        typeof(TPayLoad).Name, SubscriberRule.FriendlyName, ex);
+                        typeof(TPayload).Name, SubscriberRule.FriendlyName, ex);
                 }
                 finally
                 {

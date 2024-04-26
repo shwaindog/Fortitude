@@ -31,14 +31,14 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
-public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapshotClientCommon
+public sealed class PQPricingClientSnapshotConversationRequester : ConversationRequester, IPQSnapshotClientCommon
 {
     private static ISocketFactoryResolver? socketFactories;
     private readonly string busPublicationSubscriptionAmenderAddress;
     private readonly IRule creatingRule;
     private readonly uint cxTimeoutMs;
     private readonly string feedName;
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQBusRulesSnapshotClient));
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientSnapshotConversationRequester));
     private readonly IMessageBus messageBus;
     private readonly IPricingServerConfig pricingServerConfig;
 
@@ -50,7 +50,8 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
     private TopicDeserializationRepositoryAmendingRule? receiverQueuePublishAmender;
     private ITimerUpdate? timeoutTimerUpdate;
 
-    public PQBusRulesSnapshotClient(ISocketSessionContext socketSessionContext, IStreamControls streamControls, string feedName, IRule creatingRule
+    public PQPricingClientSnapshotConversationRequester(ISocketSessionContext socketSessionContext, IStreamControls streamControls, string feedName
+        , IRule creatingRule
         , IMessageDeserializationRepository sharedDeserializationRepo, IPricingServerConfig pricingServerConfig)
         : base(socketSessionContext, streamControls)
     {
@@ -62,8 +63,8 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
         timer = creatingRule.Context.Timer;
         messageBus = creatingRule.Context.MessageBus;
         cxTimeoutMs = socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
-        requestResponseHandlerRegistrationAddress = feedName.RegisterRequestIdResponseSourceAddress();
-        busPublicationSubscriptionAmenderAddress = feedName.AmendTickerSubscribeAndPublishAddress();
+        requestResponseHandlerRegistrationAddress = feedName.FeedRequestResponseRegistrationAddress();
+        busPublicationSubscriptionAmenderAddress = feedName.FeedAmendTickerPublicationAddress();
         Connected += RestartTimeoutTimer;
         Disconnected += DisableTimeout;
         socketSessionContext.SocketFactoryResolver.SocketReceiverFactory.ConfigureNewSocketReceiver += socketReceiver =>
@@ -163,7 +164,7 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
         {
             var deployedSocketListenerQueue
                 = messageBus.BusIOResolver.GetInboundQueueOnSocketListener(SocketSessionContext.SocketDispatcher.Listener!);
-            receiverQueuePublishAmender = new PQClientSubscriptionsAmenderRule(SocketSessionContext
+            receiverQueuePublishAmender = new PQPricingClientBusSubscriptionsAmenderRule(SocketSessionContext
                 , feedName, pricingServerConfig, null, sharedDeserializationRepo.Name);
             var dispatchResult = await messageBus.DeployRuleAsync(creatingRule, receiverQueuePublishAmender
                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
@@ -173,7 +174,7 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
         }
     }
 
-    public static PQBusRulesSnapshotClient BuildTcpRequester(IMarketConnectionConfig marketConnectionConfig
+    public static PQPricingClientSnapshotConversationRequester BuildTcpRequester(IMarketConnectionConfig marketConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver, string feedName, IRule creatingRule
         , IMessageDeserializationRepository sharedDeserializationRepository)
     {
@@ -190,7 +191,8 @@ public sealed class PQBusRulesSnapshotClient : ConversationRequester, IPQSnapsho
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new PQBusRulesSnapshotClient(socketSessionContext, streamControls, feedName, creatingRule, sharedDeserializationRepository
+        return new PQPricingClientSnapshotConversationRequester(socketSessionContext, streamControls, feedName, creatingRule
+            , sharedDeserializationRepository
             , marketConnectionConfig.PricingServerConfig);
     }
 

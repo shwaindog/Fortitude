@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeBusRules.BusMessaging.Pipelines.Execution;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -25,7 +26,7 @@ public class BusSocketSessionContext : ISocketSessionContext
     private ActionWrapper? connectedActionWrapper;
     private ActionWrapper? disconnectedActionWrapper;
     private ActionWrapper? disconnectingActionWrapper;
-    private ErrorActionWrapper? errorActionWrapper;
+    private TwoParamActionWrapper<string, int>? errorActionWrapper;
     private ISocketReceiver? socketReceiver;
     private ISocketSender? socketSender;
     private ActionWrapper? startedActionWrapper;

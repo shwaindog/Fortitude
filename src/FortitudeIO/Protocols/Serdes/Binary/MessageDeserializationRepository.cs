@@ -30,6 +30,9 @@ public interface IMessageDeserializationRepository : IMessageSerdesRepository, I
     IEnumerable<uint> GetRegisteredMessageIds(IMessageDeserializer messageDeserializer);
     INotifyingMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
     bool IsRegisteredWithType<TS, TM>(uint msgId) where TS : INotifyingMessageDeserializer<TM> where TM : class, IVersionedMessage, new();
+
+    event Action<IMessageDeserializer> MessageDeserializerRegistered;
+    event Action<IMessageDeserializer> MessageDeserializerUnregistered;
 }
 
 public class MessageDeserializationRepository : IMessageDeserializationRepository
@@ -82,6 +85,7 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
                 !CascadingFallbackDeserializationRepo.IsRegistered(msgId))
             {
                 RegisteredDeserializers.Add(msgId, messageDeserializer);
+                MessageDeserializerRegistered?.Invoke(messageDeserializer);
                 return messageDeserializer;
             }
 
@@ -90,16 +94,33 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
 
         if (forceOverride)
         {
+            if (existingMessageDeserializer != null) MessageDeserializerUnregistered?.Invoke(existingMessageDeserializer);
             RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
+            MessageDeserializerRegistered?.Invoke(messageDeserializer);
             return messageDeserializer;
         }
 
-        if (RegisteredDeserializers.Add(msgId, messageDeserializer)) return messageDeserializer;
+        if (RegisteredDeserializers.Add(msgId, messageDeserializer))
+        {
+            MessageDeserializerRegistered?.Invoke(messageDeserializer);
+            return messageDeserializer;
+        }
+
         return RegisteredDeserializers.GetValue(msgId)!;
     }
 
 
-    public bool UnregisterDeserializer(uint msgId) => RegisteredDeserializers.Remove(msgId);
+    public bool UnregisterDeserializer(uint msgId)
+    {
+        if (RegisteredDeserializers.TryGetValue(msgId, out var existing))
+        {
+            RegisteredDeserializers.Remove(msgId);
+            MessageDeserializerUnregistered?.Invoke(existing!);
+            return true;
+        }
+
+        return false;
+    }
 
     public bool TryGetDeserializer(uint msgId, out IMessageDeserializer? messageDeserializer) =>
         RegisteredDeserializers.TryGetValue(msgId, out messageDeserializer) ||
@@ -123,18 +144,28 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
                 if ((copyMergeFlags & CopyMergeFlags.JustDifferences) > 0)
                 {
                     if (!TryGetDeserializer(kvpMessageDeserializerEntry.Key, out var preExisting))
-                        RegisteredDeserializers.Add(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value.Clone());
+                    {
+                        var messageDeserializer = kvpMessageDeserializerEntry.Value.Clone();
+                        RegisterDeserializer(kvpMessageDeserializerEntry.Key, messageDeserializer);
+                    }
                     else
+                    {
                         preExisting!.CopyFrom(kvpMessageDeserializerEntry.Value);
+                    }
                 }
 
                 if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
                     if (!TryGetDeserializer(kvpMessageDeserializerEntry.Key, out var preExisting))
-                        RegisteredDeserializers.Add(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value.Clone());
+                    {
+                        var messageDeserializer = kvpMessageDeserializerEntry.Value.Clone();
+                        RegisterDeserializer(kvpMessageDeserializerEntry.Key, messageDeserializer);
+                        MessageDeserializerRegistered?.Invoke(messageDeserializer);
+                    }
             }
             else
             {
-                RegisteredDeserializers.AddOrUpdate(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value.Clone());
+                var messageDeserializer = kvpMessageDeserializerEntry.Value.Clone();
+                RegisterDeserializer(kvpMessageDeserializerEntry.Key, messageDeserializer);
             }
 
         return this;
@@ -150,6 +181,14 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
         RegisteredDeserializers.TryGetValue(msgId, out var msgSerializer) ?
             msgSerializer is TS :
             CascadingFallbackDeserializationRepo?.IsRegisteredWithType<TS, TM>(msgId) ?? false;
+
+    public event Action<IMessageDeserializer> MessageDeserializerRegistered;
+    public event Action<IMessageDeserializer> MessageDeserializerUnregistered;
+
+    protected void OnMessageDeserializerRegistered(IMessageDeserializer messageDeserializer)
+    {
+        MessageDeserializerRegistered?.Invoke(messageDeserializer);
+    }
 }
 
 public interface IMessageStreamDecoderFactory
@@ -193,7 +232,7 @@ public abstract class MessageDeserializationFactoryRepository : MessageDeseriali
             {
                 var sourcedMsgDeserializer = messageDeserializer ?? SourceTypedMessageDeserializerFromMessageId<TM>(msgId);
                 if (sourcedMsgDeserializer == null) return null;
-                RegisteredDeserializers.Add(msgId, sourcedMsgDeserializer);
+                RegisterDeserializer(msgId, sourcedMsgDeserializer);
                 return sourcedMsgDeserializer as INotifyingMessageDeserializer<TM>;
             }
 
@@ -202,19 +241,9 @@ public abstract class MessageDeserializationFactoryRepository : MessageDeseriali
 
         if (existingMessageDeserializer as INotifyingMessageDeserializer<TM> == null)
             throw new Exception("Two different message types cannot be registered to the same Id");
-        if (messageDeserializer != null)
-        {
-            if (forceOverride)
-            {
-                RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
-                return messageDeserializer;
-            }
-
-            if (RegisteredDeserializers.Add(msgId, messageDeserializer)) return messageDeserializer;
-            return (INotifyingMessageDeserializer<TM>)RegisteredDeserializers.GetValue(msgId)!;
-        }
-
-        return (INotifyingMessageDeserializer<TM>)existingMessageDeserializer;
+        if (messageDeserializer == null) return (INotifyingMessageDeserializer<TM>)existingMessageDeserializer;
+        RegisterDeserializer(msgId, messageDeserializer, forceOverride);
+        return GetDeserializer<TM>(msgId)!;
     }
 
     public abstract INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId)

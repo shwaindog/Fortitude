@@ -143,7 +143,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -155,7 +155,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -167,7 +167,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -179,7 +179,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -191,7 +191,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayload(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -209,7 +209,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
                 , MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
@@ -228,7 +228,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
                 , MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
@@ -247,7 +247,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
                 , MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
@@ -266,7 +266,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
                 , MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
@@ -285,7 +285,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
                 , MessageType.ListenerSubscribe);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }

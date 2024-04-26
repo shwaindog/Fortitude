@@ -10,15 +10,15 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 public class FeedSourceTickerInfoUpdate : RecyclableObject
 {
     public string FeedName { get; set; } = null!;
-    public IList<ISourceTickerQuoteInfo> FeedSourceTickerQuoteInfos { get; set; } = null!;
+    public List<ISourceTickerQuoteInfo> SourceTickerQuoteInfos { get; set; } = new();
 
     public override void StateReset()
     {
-        FeedSourceTickerQuoteInfos = null!;
+        SourceTickerQuoteInfos.Clear();
         FeedName = null!;
         base.StateReset();
     }
 
     public override string ToString() =>
-        $"{GetType().Name}({nameof(FeedName)}: {FeedName}, {nameof(FeedSourceTickerQuoteInfos)}: {FeedSourceTickerQuoteInfos})";
+        $"{GetType().Name}({nameof(FeedName)}: {FeedName}, {nameof(SourceTickerQuoteInfos)}: \n{string.Join("\n", SourceTickerQuoteInfos)})";
 }

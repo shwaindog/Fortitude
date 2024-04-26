@@ -213,18 +213,25 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var selectionResult = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
         if (selectionResult is { HasItems: true })
         {
+            var payLoadMarshaller = dispatchOptions.PayloadMarshalOptions.ResolvePayloadMarshaller(msg, sender.Context.PooledRecycler);
+            var payload = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
+            payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is enqueued
             foreach (var routeResult in selectionResult)
             {
                 var destinationEventQueue = routeResult.MessageQueue;
                 var destinationRule = routeResult.Rule;
-                destinationEventQueue.EnqueuePayload(msg, sender, publishAddress, ruleFilter: destinationRule?.AppliesToThisRule);
+                destinationEventQueue.EnqueuePayloadBody(payload, sender, publishAddress, ruleFilter: destinationRule?.AppliesToThisRule
+                    , payloadMarshaller: payLoadMarshaller);
             }
+
+            payLoadMarshaller?.DecrementRefCount();
 
             return;
         }
 
         selectionResult?.DecrementRefCount();
-        throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
+        if ((dispatchOptions.RoutingFlags & RoutingFlags.SendToAll) != RoutingFlags.SendToAll)
+            throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
     }
 
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
@@ -240,21 +247,29 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
             processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+            var payLoadMarshaller = dispatchOptions.PayloadMarshalOptions.ResolvePayloadMarshaller(msg, sender.Context.PooledRecycler);
+            var payload = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
+            payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is enqueued
 
             foreach (var routeResult in selectionResult)
             {
                 var destinationEventQueue = routeResult.MessageQueue;
                 var destinationRule = routeResult.Rule;
-                var _ = destinationEventQueue.EnqueuePayloadWithStatsAsync(msg, sender, processorRegistry
+                var _ = destinationEventQueue.EnqueuePayloadBodyWithStatsAsync(payload, sender, processorRegistry
                     , publishAddress
-                    , ruleFilter: destinationRule?.AppliesToThisRule);
+                    , ruleFilter: destinationRule?.AppliesToThisRule, payloadMarshaller: payLoadMarshaller);
             }
+
+            payLoadMarshaller?.DecrementRefCount();
 
             return processorRegistry.GenerateValueTask();
         }
 
         selectionResult?.DecrementRefCount();
-        throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
+        if ((dispatchOptions.RoutingFlags & RoutingFlags.SendToAll) != RoutingFlags.SendToAll)
+            throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
+        var emptyDispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
+        return new ValueTask<IDispatchResult>(emptyDispatchResult);
     }
 
     public IMessageQueueGroupContainer Add(IMessageQueue item)

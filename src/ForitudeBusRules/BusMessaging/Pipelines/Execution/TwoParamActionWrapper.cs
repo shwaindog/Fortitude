@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeBusRules.BusMessaging.Pipelines.Execution;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing;
@@ -8,61 +7,56 @@ using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
-namespace FortitudeBusRules.Connectivity.Network;
+namespace FortitudeBusRules.BusMessaging.Pipelines.Execution;
 
-public class ErrorActionWrapper : RecyclableObject
+public class TwoParamActionWrapper<T, TU> : RecyclableObject
 {
     private static readonly IRecycler FactoryRecycler = new Recycler();
     private static readonly ISyncLock SyncLock = new SpinLockLight();
 
     public IQueueContext? CapturedQueueContext { get; private set; }
+    public Action<T, TU> OriginalRegisteredAction { get; private set; } = null!;
+    public TwoParamActionWrapper<T, TU>? Next { get; set; }
 
-    public Action<string, int> OriginalRegisteredAction { get; private set; } = null!;
-
-    public ErrorActionWrapper? Next { get; set; }
-
-    private void WrappedAction(string message, int errorCode)
+    private void WrappedAction(T firstParam, TU secondParam)
     {
         var checkSameContext = QueueContext.CurrentThreadQueueContext;
         if (CapturedQueueContext == null || checkSameContext == CapturedQueueContext)
         {
-            OriginalRegisteredAction.Invoke(message, errorCode);
+            OriginalRegisteredAction.Invoke(firstParam, secondParam);
             return;
         }
 
-        var oneParamActionPayload = CapturedQueueContext.PooledRecycler.Borrow<TwoParamSyncActionPayload<string, int>>();
-        oneParamActionPayload.Configure(OriginalRegisteredAction, message, errorCode);
-        CapturedQueueContext.RegisteredOn.EnqueuePayload(OriginalRegisteredAction, Rule.NoKnownSender, null, MessageType.QueueParamsExecutionPayload);
+        var singleParamPayload = FactoryRecycler.Borrow<TwoParamSyncActionPayload<T, TU>>();
+        singleParamPayload.Configure(OriginalRegisteredAction, firstParam, secondParam);
+        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(singleParamPayload, Rule.NoKnownSender, null, MessageType.QueueParamsExecutionPayload);
     }
 
-    public void Invoke(string message, int errorCode)
+    public TwoParamActionWrapper<T, TU>? InvokeReturnNext(T firstParam, TU secondParam)
     {
-        WrappedAction(message, errorCode);
-        Next?.Invoke(message, errorCode);
+        WrappedAction(firstParam, secondParam);
+        return Next;
     }
 
-    public static ErrorActionWrapper? operator +(ErrorActionWrapper? lhs, Action<string, int>? rhs)
+    public void Invoke(T firstParam, TU secondParam)
+    {
+        var currentNext = this;
+        while (currentNext != null) currentNext = currentNext.InvokeReturnNext(firstParam, secondParam);
+    }
+
+    public static TwoParamActionWrapper<T, TU>? operator +(TwoParamActionWrapper<T, TU>? lhs, Action<T, TU>? rhs)
     {
         if (rhs == null) return lhs;
         var callbackQueueContext = QueueContext.CurrentThreadQueueContext;
-        if (callbackQueueContext == null)
-        {
-            var noContextWrapper = FactoryRecycler.Borrow<ErrorActionWrapper>();
-            noContextWrapper.CapturedQueueContext = null;
-            noContextWrapper.OriginalRegisteredAction = rhs;
-            return noContextWrapper;
-        }
-
-        var wrappedContextWrapper = callbackQueueContext.PooledRecycler.Borrow<ErrorActionWrapper>();
-        wrappedContextWrapper.OriginalRegisteredAction = rhs;
-        wrappedContextWrapper.CapturedQueueContext = callbackQueueContext;
-
-        if (lhs == null) return wrappedContextWrapper;
+        var toAttach = FactoryRecycler.Borrow<TwoParamActionWrapper<T, TU>>();
+        toAttach.CapturedQueueContext = callbackQueueContext;
+        toAttach.OriginalRegisteredAction = rhs;
+        if (lhs == null) return toAttach;
         SyncLock.Acquire();
         try
         {
             var endActionWrapper = LastActionWrapperInChain(lhs);
-            endActionWrapper!.Next = wrappedContextWrapper;
+            endActionWrapper.Next = toAttach;
             return lhs;
         }
         finally
@@ -71,7 +65,7 @@ public class ErrorActionWrapper : RecyclableObject
         }
     }
 
-    public static ErrorActionWrapper? operator -(ErrorActionWrapper? lhs, Action<string, int>? rhs)
+    public static TwoParamActionWrapper<T, TU>? operator -(TwoParamActionWrapper<T, TU>? lhs, Action<T, TU>? rhs)
     {
         if (lhs == null) return null;
         if (rhs == null) return lhs;
@@ -79,7 +73,7 @@ public class ErrorActionWrapper : RecyclableObject
         try
         {
             var currentActionWrapper = lhs;
-            ErrorActionWrapper? previousActionWrapper = null;
+            TwoParamActionWrapper<T, TU>? previousActionWrapper = null;
             while (currentActionWrapper != null)
             {
                 if (currentActionWrapper.OriginalRegisteredAction == rhs)
@@ -90,11 +84,11 @@ public class ErrorActionWrapper : RecyclableObject
                     return lhs;
                 }
 
-                currentActionWrapper = currentActionWrapper.Next;
                 previousActionWrapper = currentActionWrapper;
+                currentActionWrapper = currentActionWrapper.Next;
             }
 
-            return previousActionWrapper;
+            return lhs;
         }
         finally
         {
@@ -102,8 +96,7 @@ public class ErrorActionWrapper : RecyclableObject
         }
     }
 
-
-    public static ErrorActionWrapper? LastActionWrapperInChain(ErrorActionWrapper? rootActionWrapper)
+    public static TwoParamActionWrapper<T, TU> LastActionWrapperInChain(TwoParamActionWrapper<T, TU> rootActionWrapper)
     {
         var currentActionWrapper = rootActionWrapper;
         var lastNonNullActionWrapper = rootActionWrapper;
@@ -114,5 +107,13 @@ public class ErrorActionWrapper : RecyclableObject
         }
 
         return lastNonNullActionWrapper;
+    }
+
+    public override void StateReset()
+    {
+        OriginalRegisteredAction = null!;
+        CapturedQueueContext = null!;
+        Next = null!;
+        base.StateReset();
     }
 }

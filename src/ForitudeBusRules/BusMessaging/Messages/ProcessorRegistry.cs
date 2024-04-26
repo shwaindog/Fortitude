@@ -12,7 +12,7 @@ public interface IProcessorRegistry : IReusableAsyncResponseSource<IDispatchResu
 {
     DispatchResult? DispatchResult { get; set; }
 
-    IRule? RulePayLoad { get; set; }
+    IRule? RulePayload { get; set; }
 
     void ProcessingComplete();
     void RegisterStart(IRule processor);
@@ -39,7 +39,7 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
         set => dispatchResult = value;
     }
 
-    public IRule? RulePayLoad { get; set; }
+    public IRule? RulePayload { get; set; }
 
     public void ProcessingComplete()
     {
@@ -139,7 +139,7 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
     public override string ToString() =>
         $"{GetType().Name}({nameof(InstanceNumber)}: {InstanceNumber}, {nameof(Version)}: {Version}, {nameof(RefCount)}: {RefCount}, " +
         $"{nameof(IsInRecycler)}: {IsInRecycler}, {nameof(IsCompleted)}: {IsCompleted}, {nameof(dispatchResult)}: {dispatchResult}, " +
-        $"{nameof(havePublishedResults)}: {havePublishedResults}, {nameof(RulePayLoad)}: {RulePayLoad})";
+        $"{nameof(havePublishedResults)}: {havePublishedResults}, {nameof(RulePayload)}: {RulePayload})";
 
 
     private struct RuleTime

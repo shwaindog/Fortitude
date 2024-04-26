@@ -14,10 +14,10 @@ using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
 [TestClass]
-public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
+public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQClientSourceFeedRuleTests));
-    private PQClientSourceFeedRule pqClientSourceFeedRule = null!;
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientFeedRuleTests));
+    private PQPricingClientFeedRule pqPricingClientFeedRule = null!;
     private PQPublisher<PQLevel3Quote> pqPublisher = null!;
     private LocalHostPQServerLevel3QuoteTestSetup pqServerL3QuoteServerSetup = null!;
     private IRecycler recycler = null!;
@@ -33,7 +33,7 @@ public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         var clientMarketConfig
             = pqServerL3QuoteServerSetup.DefaultServerMarketConnectionConfig.ToggleProtocolDirection("PQClientSourceFeedRuleTestsClient");
         clientMarketConfig.Name = "PQClientSourceFeedRuleTests";
-        pqClientSourceFeedRule = new PQClientSourceFeedRule(clientMarketConfig);
+        pqPricingClientFeedRule = new PQPricingClientFeedRule(clientMarketConfig);
     }
 
     [TestCleanup]
@@ -50,7 +50,8 @@ public class PQClientSourceFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     [Timeout(10_000)]
     public async Task StartedPQServer_DeployPQClientSourceFeedRule_StartSnapshotAndUpdateRuleAndRequestSourceTickerInfo()
     {
-        var results = await EventQueue1.LaunchRuleAsync(pqClientSourceFeedRule, pqClientSourceFeedRule, EventQueue1SelectionResult);
+        var results = await EventQueue1.LaunchRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule, EventQueue1SelectionResult);
         logger.Info("StartedPQServer_DeployPQClientSourceFeedRule_StartSnapshotAndUpdateRuleAndRequestSourceTickerInfo Completed");
+        await Task.Delay(2000);
     }
 }

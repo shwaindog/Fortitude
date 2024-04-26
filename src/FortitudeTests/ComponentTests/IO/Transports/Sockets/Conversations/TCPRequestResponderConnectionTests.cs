@@ -80,7 +80,7 @@ public class TcpRequestResponderConnectionTests
         requesterSerdesFactory
             = new MessageSerdesRepositoryFactory(streamSerializerRepo, requesterStreamDeserializerRepo, requesterStreamDeserializerRepo);
 
-        v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 234567.0, MessageId = 2345 };
+        v2Message = new SimpleVersionedMessage { Version = 2, Payload2 = 234567.0, MessageId = 2345 };
     }
 
     public ConversationRequester BuildConversationRequester(INetworkTopicConnectionConfig requesterTopicConConfig)
@@ -126,13 +126,13 @@ public class TcpRequestResponderConnectionTests
                  responderDeserializers.Values.Cast<INotifyingMessageDeserializer<SimpleVersionedMessage>>())
             deserializersValue.ConversationMessageDeserialized += ReceivedFromClientDeserializerCallback;
 
-        var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
+        var v1Message = new SimpleVersionedMessage { Version = 1, Payload = 765432, MessageId = 159 };
         // send message
         tcpRequester.StreamPublisher!.Send(v1Message);
         logger.Info("Sent Message to responder");
         autoResetEvent.WaitOne(500);
         // assert server receives properly
-        Assert.AreEqual(v1Message.PayLoad, responderReceivedMessage.PayLoad);
+        Assert.AreEqual(v1Message.Payload, responderReceivedMessage.Payload);
         Assert.AreEqual(v1Message.MessageId, responderReceivedMessage.MessageId);
         Assert.AreEqual(v1Message.Version, responderReceivedMessage.Version);
     }
@@ -157,14 +157,14 @@ public class TcpRequestResponderConnectionTests
                  requesterDeserializers.Values.Cast<INotifyingMessageDeserializer<SimpleVersionedMessage>>())
             deserializersValue.ConversationMessageDeserialized += ReceivedFromResponderDeserializerCallback;
 
-        var v1Message = new SimpleVersionedMessage { Version = 1, PayLoad = 765432, MessageId = 159 };
+        var v1Message = new SimpleVersionedMessage { Version = 1, Payload = 765432, MessageId = 159 };
         // send message
         tcpRequester.StreamPublisher!.Send(v1Message);
 
         logger.Info("Sent Message to responder");
         autoResetEvent.WaitOne(500);
         // assert server receives properly
-        Assert.AreEqual(v2Message.PayLoad2, requesterReceivedResponseMessage.PayLoad2);
+        Assert.AreEqual(v2Message.Payload2, requesterReceivedResponseMessage.Payload2);
         Assert.AreEqual(v2Message.MessageId, requesterReceivedResponseMessage.MessageId);
         Assert.AreEqual(v2Message.Version, requesterReceivedResponseMessage.Version);
     }

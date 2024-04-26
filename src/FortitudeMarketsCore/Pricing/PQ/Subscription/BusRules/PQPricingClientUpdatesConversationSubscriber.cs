@@ -15,11 +15,11 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
-public sealed class PQBusRulesUpdateClient : ConversationSubscriber
+public sealed class PQPricingClientUpdatesConversationSubscriber : ConversationSubscriber
 {
     private static ISocketFactoryResolver? socketFactories;
 
-    public PQBusRulesUpdateClient(ISocketSessionContext socketSessionContext, IStreamControls streamControls
+    public PQPricingClientUpdatesConversationSubscriber(ISocketSessionContext socketSessionContext, IStreamControls streamControls
         , IMessageDeserializationRepository sharedDeserializationRepo)
         : base(socketSessionContext, streamControls)
     {
@@ -36,7 +36,7 @@ public sealed class PQBusRulesUpdateClient : ConversationSubscriber
         set => socketFactories = value;
     }
 
-    public static PQBusRulesUpdateClient BuildUdpSubscriber(INetworkTopicConnectionConfig networkConnectionConfig
+    public static PQPricingClientUpdatesConversationSubscriber BuildUdpSubscriber(INetworkTopicConnectionConfig networkConnectionConfig
         , ISocketDispatcherResolver socketDispatcherResolver, IMessageDeserializationRepository sharedDeserializationRepo)
     {
         var conversationType = ConversationType.Subscriber;
@@ -52,6 +52,6 @@ public sealed class PQBusRulesUpdateClient : ConversationSubscriber
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new PQBusRulesUpdateClient(socketSessionContext, streamControls, sharedDeserializationRepo);
+        return new PQPricingClientUpdatesConversationSubscriber(socketSessionContext, streamControls, sharedDeserializationRepo);
     }
 }

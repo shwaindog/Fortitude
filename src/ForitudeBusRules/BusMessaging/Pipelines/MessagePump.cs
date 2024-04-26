@@ -105,7 +105,7 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var actionBody = ((PayLoad<Action>)data.PayLoad!).Body!;
+                        var actionBody = ((Payload<Action>)data.Payload!).Body(PayloadRequestType.QueueReceive)!;
                         actionBody();
                     }
                     catch (Exception ex)
@@ -119,7 +119,7 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var actionBody = (IInvokeablePayload)data.PayLoad!.BodyObj!;
+                        var actionBody = (IInvokeablePayload)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
                         actionBody?.Invoke();
                     }
                     catch (Exception ex)
@@ -133,7 +133,7 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var timerCallbackPayload = (ITimerCallbackPayload)data.PayLoad!.BodyObj!;
+                        var timerCallbackPayload = (ITimerCallbackPayload)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
                         if (timerCallbackPayload.IsAsyncInvoke())
                             await timerCallbackPayload.InvokeAsync();
                         else
@@ -149,29 +149,29 @@ public class MessagePump : IMessagePump
                 }
                 case MessageType.ListenerSubscribe:
                 {
-                    var subscribePayLoad = (IMessageListenerSubscription)data.PayLoad!.BodyObj!;
+                    var subscribePayload = (IMessageListenerSubscription)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
                     var processorRegistry = data.ProcessorRegistry;
-                    processorRegistry?.RegisterStart(subscribePayLoad.SubscriberRule);
-                    listenerRegistry.AddListenerToWatchList(subscribePayLoad);
-                    processorRegistry?.RegisterFinish(subscribePayLoad.SubscriberRule);
+                    processorRegistry?.RegisterStart(subscribePayload.SubscriberRule);
+                    listenerRegistry.AddListenerToWatchList(subscribePayload);
+                    processorRegistry?.RegisterFinish(subscribePayload.SubscriberRule);
                     break;
                 }
                 case MessageType.ListenerUnsubscribe:
                 {
-                    var unsubscribePayLoad = ((PayLoad<MessageListenerUnsubscribe>)data.PayLoad!).Body!;
-                    listenerRegistry.RemoveListenerFromWatchList(unsubscribePayLoad);
+                    var unsubscribePayload = ((Payload<MessageListenerUnsubscribe>)data.Payload!).Body(PayloadRequestType.QueueReceive);
+                    listenerRegistry.RemoveListenerFromWatchList(unsubscribePayload);
                     break;
                 }
                 case MessageType.AddListenSubscribeInterceptor:
                 {
-                    var subscribePayLoad = (IListenSubscribeInterceptor)data.PayLoad!.BodyObj!;
-                    listenerRegistry.AddSubscribeInterceptor(subscribePayLoad);
+                    var subscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    listenerRegistry.AddSubscribeInterceptor(subscribePayload);
                     break;
                 }
                 case MessageType.RemoveListenSubscribeInterceptor:
                 {
-                    var unsubscribePayLoad = (IListenSubscribeInterceptor)data.PayLoad!.BodyObj!;
-                    listenerRegistry.RemoveSubscribeInterceptor(unsubscribePayLoad);
+                    var unsubscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    listenerRegistry.RemoveSubscribeInterceptor(unsubscribePayload);
                     break;
                 }
                 default:
@@ -233,10 +233,10 @@ public class MessagePump : IMessagePump
     {
         if (state is IProcessorRegistry processorRegistry)
         {
-            processorRegistry.RulePayLoad!.LifeCycleState = launchTask.IsCompletedSuccessfully ?
+            processorRegistry.RulePayload!.LifeCycleState = launchTask.IsCompletedSuccessfully ?
                 RuleLifeCycle.Started :
                 RuleLifeCycle.ShuttingDown;
-            processorRegistry.RegisterFinish(processorRegistry.RulePayLoad);
+            processorRegistry.RegisterFinish(processorRegistry.RulePayload);
             processorRegistry.ProcessingComplete();
         }
     }
@@ -245,15 +245,15 @@ public class MessagePump : IMessagePump
     {
         if (state is IProcessorRegistry processorRegistry)
         {
-            processorRegistry.RulePayLoad!.LifeCycleState = RuleLifeCycle.Stopped;
-            processorRegistry.RegisterFinish(processorRegistry.RulePayLoad);
+            processorRegistry.RulePayload!.LifeCycleState = RuleLifeCycle.Stopped;
+            processorRegistry.RegisterFinish(processorRegistry.RulePayload);
             processorRegistry.ProcessingComplete();
         }
     }
 
     private async ValueTask UnloadExistingRule(BusMessage data)
     {
-        var toShutdown = (IListeningRule)data.PayLoad!.BodyObj!;
+        var toShutdown = (IListeningRule)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
         try
         {
             if (livingRules.Contains(toShutdown) && toShutdown.LifeCycleState == RuleLifeCycle.Started)
@@ -303,7 +303,7 @@ public class MessagePump : IMessagePump
 
     private async ValueTask LoadNewRule(BusMessage data)
     {
-        var newRule = (IListeningRule)data.PayLoad!.BodyObj!;
+        var newRule = (IListeningRule)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
         var processorRegistry = data.ProcessorRegistry!;
         processorRegistry.RegisterStart(newRule);
         try

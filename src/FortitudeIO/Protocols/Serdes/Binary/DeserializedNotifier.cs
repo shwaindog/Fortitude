@@ -95,7 +95,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
     }
 
     public Action? Unsubscribe { get; set; }
-    public bool RemoveOnZeroSubscribers { get; set; }
+    public bool RemoveOnZeroSubscribers { get; set; } = true;
 
     public void AddRequestExpected(int requestId, IAsyncResponseSource responseValueSource)
     {

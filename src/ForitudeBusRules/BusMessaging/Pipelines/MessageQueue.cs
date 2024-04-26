@@ -33,12 +33,13 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     void Start();
     void EnqueueMessage(BusMessage msg);
 
-    ValueTask<IDispatchResult> EnqueuePayloadWithStatsAsync<TPayload>(TPayload payload, IRule sender,
+    ValueTask<IDispatchResult> EnqueuePayloadBodyWithStatsAsync<TPayload>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null);
+        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null, IPayloadMarshaller<TPayload>? payloadMarshaller = null);
 
-    void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
-        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null);
+    void EnqueuePayloadBody<TPayload>(TPayload payload, IRule sender,
+        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null
+        , IPayloadMarshaller<TPayload>? payloadMarshaller = null);
 
     ValueTask<RequestResponse<TResponse>> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
@@ -111,7 +112,7 @@ public class MessageQueue : IMessageQueue
         var seqId = ring.Claim();
         var evt = ring[seqId];
         evt.Type = msg.Type;
-        evt.PayLoad = msg.PayLoad;
+        evt.Payload = msg.Payload;
         evt.DestinationAddress = msg.DestinationAddress;
         evt.Response = msg.Response;
         evt.Sender = msg.Sender;
@@ -122,17 +123,20 @@ public class MessageQueue : IMessageQueue
         MessagePump.WakeIfAsleep();
     }
 
-    public ValueTask<IDispatchResult> EnqueuePayloadWithStatsAsync<TPayload>(TPayload payload, IRule sender,
+    public ValueTask<IDispatchResult> EnqueuePayloadBodyWithStatsAsync<TPayload>(TPayload payload, IRule sender,
         ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null)
+        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null, IPayloadMarshaller<TPayload>? payloadMarshaller = null)
     {
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
-        var payLoadContainer = queueContext.PooledRecycler.Borrow<PayLoad<TPayload>>();
-        payLoadContainer.Body = payload;
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<Payload<TPayload>>();
+        payLoadContainer.PayloadMarshaller = payloadMarshaller?.QueueMarshaller(this);
+        payLoadContainer.SetBody = payLoadContainer.PayloadMarshaller != null ?
+            payLoadContainer.PayloadMarshaller.GetMarshalled(payload, PayloadRequestType.QueueSend) :
+            payload;
         evt.Type = msgType;
-        evt.PayLoad = payLoadContainer;
+        evt.Payload = payLoadContainer;
         evt.DestinationAddress = destinationAddress;
         evt.Response = BusMessage.NoOpCompletionSource;
         evt.Sender = sender;
@@ -154,10 +158,10 @@ public class MessageQueue : IMessageQueue
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
-        var payLoadContainer = queueContext.PooledRecycler.Borrow<PayLoad<TPayload>>();
-        payLoadContainer.Body = payload;
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<Payload<TPayload>>();
+        payLoadContainer.SetBody = payload;
         evt.Type = msgType;
-        evt.PayLoad = payLoadContainer;
+        evt.Payload = payLoadContainer;
         evt.DestinationAddress = destinationAddress;
         var reusableValueTaskSource
             = queueContext.PooledRecycler.Borrow<ReusableResponseValueTaskSource<TResponse>>();
@@ -183,7 +187,7 @@ public class MessageQueue : IMessageQueue
         processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
         processorRegistry.DispatchResult = queueContext.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.ResponseTimeoutAndRecycleTimer = queueContext.Timer;
-        return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.UnloadRule);
+        return EnqueuePayloadBodyWithStatsAsync(rule, sender, processorRegistry, null, MessageType.UnloadRule);
     }
 
     public bool IsListeningToAddress(string destinationAddress) => MessagePump.IsListeningOn(destinationAddress);
@@ -208,10 +212,10 @@ public class MessageQueue : IMessageQueue
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
-        var payLoadContainer = queueContext.PooledRecycler.Borrow<PayLoad<Action>>();
-        payLoadContainer.Body = action;
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<Payload<Action>>();
+        payLoadContainer.SetBody = action;
         evt.Type = MessageType.RunActionPayload;
-        evt.PayLoad = payLoadContainer;
+        evt.Payload = payLoadContainer;
         evt.DestinationAddress = null;
         evt.Response = BusMessage.NoOpCompletionSource;
         evt.Sender = sender;
@@ -221,16 +225,20 @@ public class MessageQueue : IMessageQueue
         MessagePump.WakeIfAsleep();
     }
 
-    public void EnqueuePayload<TPayload>(TPayload payload, IRule sender,
-        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null)
+    public void EnqueuePayloadBody<TPayload>(TPayload payload, IRule sender,
+        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null
+        , IPayloadMarshaller<TPayload>? payloadMarshaller = null)
     {
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
-        var payLoadContainer = queueContext.PooledRecycler.Borrow<PayLoad<TPayload>>();
-        payLoadContainer.Body = payload;
-        evt.PayLoad = payLoadContainer;
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<Payload<TPayload>>();
+        payLoadContainer.PayloadMarshaller = payloadMarshaller?.QueueMarshaller(this);
+        payLoadContainer.SetBody = payLoadContainer.PayloadMarshaller != null ?
+            payLoadContainer.PayloadMarshaller.GetMarshalled(payload, PayloadRequestType.QueueSend) :
+            payload;
         evt.Type = msgType;
+        evt.Payload = payLoadContainer;
         evt.DestinationAddress = destinationAddress;
         evt.Response = BusMessage.NoOpCompletionSource;
         evt.Sender = sender;
@@ -286,7 +294,7 @@ public class MessageQueue : IMessageQueue
     {
         rule.LifeCycleState = RuleLifeCycle.Starting;
         rule.Context = queueContext;
-        EnqueuePayload(rule, sender, null, MessageType.LoadRule);
+        EnqueuePayloadBody(rule, sender, null, MessageType.LoadRule);
     }
 
     public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult)
@@ -298,7 +306,7 @@ public class MessageQueue : IMessageQueue
         processorRegistry.DispatchResult.DeploymentSelectionResult = selectionResult;
         processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
         processorRegistry.ResponseTimeoutAndRecycleTimer = queueContext.Timer;
-        return EnqueuePayloadWithStatsAsync(rule, sender, processorRegistry, null, MessageType.LoadRule);
+        return EnqueuePayloadBodyWithStatsAsync(rule, sender, processorRegistry, null, MessageType.LoadRule);
     }
 
     public IAlternativeExecutionContextAction<TP> GetExecutionContextAction<TP>(IRule sender)

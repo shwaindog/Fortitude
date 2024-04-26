@@ -7,7 +7,7 @@ using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
-namespace FortitudeBusRules.Connectivity.Network;
+namespace FortitudeBusRules.BusMessaging.Pipelines.Execution;
 
 public class ActionWrapper : RecyclableObject
 {
@@ -27,7 +27,7 @@ public class ActionWrapper : RecyclableObject
             return;
         }
 
-        CapturedQueueContext.RegisteredOn.EnqueuePayload(OriginalRegisteredAction, Rule.NoKnownSender, null, MessageType.RunActionPayload);
+        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(OriginalRegisteredAction, Rule.NoKnownSender, null, MessageType.RunActionPayload);
     }
 
     public ActionWrapper? InvokeReturnNext()
@@ -36,12 +36,20 @@ public class ActionWrapper : RecyclableObject
         return Next;
     }
 
+    public static Action WrapAndAttach(Action calledAction)
+    {
+        var callbackQueueContext = QueueContext.CurrentThreadQueueContext;
+        var toAttach = FactoryRecycler.Borrow<ActionWrapper>();
+        toAttach.CapturedQueueContext = callbackQueueContext;
+        toAttach.OriginalRegisteredAction = calledAction;
+        return toAttach.Invoke;
+    }
+
     public void Invoke()
     {
         var currentNext = this;
         while (currentNext != null) currentNext = currentNext.InvokeReturnNext();
     }
-
 
     public static ActionWrapper? operator +(ActionWrapper? lhs, Action? rhs)
     {

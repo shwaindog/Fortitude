@@ -86,13 +86,13 @@ public class UdpPubSubConnectionTests
                  deserializers.Values)
             deserializersValue.ConversationMessageDeserialized += ReceivedFromClientDeserializerCallback;
 
-        var v2Message = new SimpleVersionedMessage { Version = 2, PayLoad2 = 345678.0, MessageId = 2345 };
+        var v2Message = new SimpleVersionedMessage { Version = 2, Payload2 = 345678.0, MessageId = 2345 };
         // send message
         conversationPublisher.StreamPublisher!.Send(v2Message);
 
         autoReset.WaitOne(50);
         // assert server receives properly
-        Assert.AreEqual(v2Message.PayLoad2, receivedSimpleVersionedMessage.PayLoad2);
+        Assert.AreEqual(v2Message.Payload2, receivedSimpleVersionedMessage.Payload2);
         Assert.AreEqual(v2Message.MessageId, receivedSimpleVersionedMessage.MessageId);
         Assert.AreEqual(v2Message.Version, receivedSimpleVersionedMessage.Version);
     }
