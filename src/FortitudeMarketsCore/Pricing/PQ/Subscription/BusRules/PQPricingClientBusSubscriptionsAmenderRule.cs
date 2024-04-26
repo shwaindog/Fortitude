@@ -15,21 +15,21 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
-public class PQClientSubscriptionsAmenderRule : TopicDeserializationRepositoryAmendingRule
+public class PQPricingClientBusSubscriptionsAmenderRule : TopicDeserializationRepositoryAmendingRule
 {
+    private const uint PQSourceTickerInfoResponseMessageId = (uint)PQMessageIds.SourceTickerInfoResponse;
     private readonly string feedName;
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQClientSubscriptionsAmenderRule));
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientBusSubscriptionsAmenderRule));
     private readonly IPricingServerConfig pricingServerConfig;
     private IList<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos = new List<ISourceTickerQuoteInfo>();
 
     private ISubscription? listenForFeedSourceTickerInfosSubscription;
-    private uint pqSourceTickerInfoResponseMessageId = (uint)PQMessageIds.SourceTickerInfoResponse;
 
-    public PQClientSubscriptionsAmenderRule(ISocketSessionContext socketSessionContext, string feedName, IPricingServerConfig pricingServerConfig
+    public PQPricingClientBusSubscriptionsAmenderRule(ISocketSessionContext socketSessionContext, string feedName
+        , IPricingServerConfig pricingServerConfig
         , IConverterRepository? converterRepository = null, string? registrationRepoName = null)
-        : base(socketSessionContext, feedName.AmendTickerSubscribeAndPublishAddress(), feedName.RegisterRequestIdResponseSourceAddress()
-            , converterRepository
-            , registrationRepoName)
+        : base(socketSessionContext, feedName.FeedAmendTickerPublicationAddress(),
+            feedName.FeedRequestResponseRegistrationAddress(), converterRepository, registrationRepoName)
     {
         this.feedName = feedName;
         this.pricingServerConfig = pricingServerConfig;
@@ -46,15 +46,15 @@ public class PQClientSubscriptionsAmenderRule : TopicDeserializationRepositoryAm
     protected async ValueTask FeedSourceTickerInfoListener()
     {
         listenForFeedSourceTickerInfosSubscription = await Context.MessageBus.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(this
-            , feedName.FeedAvailableTickersUpdateAddress(), ReceivedSourceTickerInfos);
+            , feedName.FeedAvailableTickersUpdateAddress(), ReceivedFeedAvailableTickersUpdate);
     }
 
-    private async ValueTask ReceivedSourceTickerInfos(IBusMessage<FeedSourceTickerInfoUpdate> feedTickersMessage)
+    private async ValueTask ReceivedFeedAvailableTickersUpdate(IBusMessage<FeedSourceTickerInfoUpdate> feedTickersMessage)
     {
-        var feedSourceTickerInfosUpdate = feedTickersMessage.PayLoad.Body!;
-        if (ListenForPublishSubscriptions == null && feedSourceTickerInfosUpdate.FeedSourceTickerQuoteInfos.Any())
+        var feedSourceTickerInfosUpdate = feedTickersMessage.Payload.Body();
+        if (ListenForPublishSubscriptions == null && feedSourceTickerInfosUpdate?.SourceTickerQuoteInfos.Any() == true)
         {
-            feedSourceTickerQuoteInfos = feedSourceTickerInfosUpdate.FeedSourceTickerQuoteInfos;
+            feedSourceTickerQuoteInfos = feedSourceTickerInfosUpdate.SourceTickerQuoteInfos;
             logger.Info("Received source tickers [{0}] will start listening to ticker subscriptions on {1}"
                 , string.Join(", ", feedSourceTickerQuoteInfos), RemotePublishRegistrationListenAddress);
 
@@ -64,7 +64,7 @@ public class PQClientSubscriptionsAmenderRule : TopicDeserializationRepositoryAm
 
     protected override string ExtractSubscriptionPostfix(string fullMessageAddressDestination)
     {
-        fullMessageAddressDestination.ExtractTickerFromDefaultPublishAddress(feedName);
+        fullMessageAddressDestination.ExtractTickerFromDefaultTickerPublishAddress(feedName);
         return base.ExtractSubscriptionPostfix(fullMessageAddressDestination);
     }
 
@@ -82,10 +82,11 @@ public class PQClientSubscriptionsAmenderRule : TopicDeserializationRepositoryAm
 
         if (messageDeserializerResolveRun.DeserializedType == typeof(PQSourceTickerInfoResponse))
         {
-            messageDeserializerResolveRun.MessageId = pqSourceTickerInfoResponseMessageId;
-            messageDeserializerResolveRun.MessageDeserializer
-                = pqClientQuoteDeserializerRepository.SourceNotifyingMessageDeserializerFromMessageId<PQSourceTickerInfoResponse>(
-                    pqSourceTickerInfoResponseMessageId);
+            messageDeserializerResolveRun.MessageId = PQSourceTickerInfoResponseMessageId;
+            var pqSourceTickerInfoResponseDeserializer = pqClientQuoteDeserializerRepository
+                .SourceNotifyingMessageDeserializerFromMessageId<PQSourceTickerInfoResponse>(PQSourceTickerInfoResponseMessageId);
+            pqSourceTickerInfoResponseDeserializer!.RemoveOnZeroNotifiers = false;
+            messageDeserializerResolveRun.MessageDeserializer = pqSourceTickerInfoResponseDeserializer;
             return;
         }
 
@@ -100,8 +101,9 @@ public class PQClientSubscriptionsAmenderRule : TopicDeserializationRepositoryAm
 
         var tickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig(foundTicker, pricingServerConfig);
 
-        messageDeserializerResolveRun.MessageDeserializer = pqClientQuoteDeserializerRepository.CreateQuoteDeserializer(
-            tickerPricingSubscriptionConfig
+        var pqQuoteDeserializer = pqClientQuoteDeserializerRepository.CreateQuoteDeserializer(tickerPricingSubscriptionConfig
             , messageDeserializerResolveRun.DeserializedType ?? messageDeserializerResolveRun.PublishType);
+        pqQuoteDeserializer!.RemoveOnZeroNotifiers = true;
+        messageDeserializerResolveRun.MessageDeserializer = pqQuoteDeserializer;
     }
 }

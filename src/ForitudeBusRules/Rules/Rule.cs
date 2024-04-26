@@ -206,7 +206,7 @@ public class Rule : IListeningRule
         {
             Logger.Debug("Parent rule: '{0}' shuttingDown on sending Stop to rule: '{1}'", sender.FriendlyName
                 , FriendlyName);
-            Context.RegisteredOn.EnqueuePayload(Stop, sender, null, MessageType.RunActionPayload);
+            Context.RegisteredOn.EnqueuePayloadBody(Stop, sender, null, MessageType.RunActionPayload);
         }
     }
 

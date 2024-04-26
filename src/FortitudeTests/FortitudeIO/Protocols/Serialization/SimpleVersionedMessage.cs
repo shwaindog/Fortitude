@@ -21,8 +21,8 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
         CopyFrom(toClone);
     }
 
-    public int PayLoad { get; set; }
-    public double PayLoad2 { get; set; }
+    public int Payload { get; set; }
+    public double Payload2 { get; set; }
     public uint MessageId { get; set; } = 2345;
     public byte Version { get; set; } = 2;
 
@@ -31,8 +31,8 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
     {
         if (source is SimpleVersionedMessage simpleVersionedMessage)
         {
-            PayLoad = simpleVersionedMessage.PayLoad;
-            PayLoad2 = simpleVersionedMessage.PayLoad2;
+            Payload = simpleVersionedMessage.Payload;
+            Payload2 = simpleVersionedMessage.Payload2;
         }
 
         return this;
@@ -58,13 +58,13 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
                     fixed (byte* ptr = messageBufferContext.EncodedBuffer!.Buffer)
                     {
                         var currPtr = ptr + readOffset;
-                        simpleMessage.PayLoad = StreamByteOps.ToInt(ref currPtr);
+                        simpleMessage.Payload = StreamByteOps.ToInt(ref currPtr);
                     }
                 else
                     fixed (byte* ptr = messageBufferContext.EncodedBuffer!.Buffer)
                     {
                         var currPtr = ptr + readOffset;
-                        simpleMessage.PayLoad2 = StreamByteOps.ToDouble(ref currPtr);
+                        simpleMessage.Payload2 = StreamByteOps.ToDouble(ref currPtr);
                     }
 
                 OnNotify(simpleMessage, messageBufferContext);
@@ -118,9 +118,9 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
                 bytesSerialized = (uint)(message.Version > 1 ? 18 : 14);
                 StreamByteOps.ToBytes(ref currPtr, bytesSerialized);
                 if (message.Version == 1)
-                    StreamByteOps.ToBytes(ref currPtr, simpleVersionedMsg.PayLoad);
+                    StreamByteOps.ToBytes(ref currPtr, simpleVersionedMsg.Payload);
                 else
-                    StreamByteOps.ToBytes(ref currPtr, simpleVersionedMsg.PayLoad2);
+                    StreamByteOps.ToBytes(ref currPtr, simpleVersionedMsg.Payload2);
             }
 
             message?.DecrementRefCount();

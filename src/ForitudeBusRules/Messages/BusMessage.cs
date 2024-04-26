@@ -15,49 +15,91 @@ using FortitudeIO.Transports.Network.Receiving;
 
 namespace FortitudeBusRules.Messages;
 
-public interface IPayLoad : IRecyclableObject
+public interface IPayload : IRecyclableObject
 {
     Type BodyType { get; }
 
-    object? BodyObj { get; }
+    object? BodyObj(PayloadRequestType requestType);
 }
 
-public interface IPayLoad<T> : IPayLoad
+public interface IPayload<out T> : IPayload
 {
-    T? Body { get; }
+    T? Body(PayloadRequestType requestType = PayloadRequestType.CalleeRetrieve);
 }
 
-public class PayLoad<T> : RecyclableObject, IPayLoad<T>
+public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 {
-    public PayLoad() { }
-    public PayLoad(T? body) => Body = body;
+    private T? body;
+    public Payload() { }
+    public Payload(T? body) => this.body = body;
 
-    public PayLoad(PayLoad<T> toClone)
+    public Payload(Payload<T> toClone)
     {
-        BodyType = toClone.BodyType;
-        Body = toClone.Body;
+        body = toClone.body;
+        PayloadMarshaller = toClone.PayloadMarshaller;
+    }
+
+    public IPayloadMarshaller<T>? PayloadMarshaller { get; set; }
+
+    public T SetBody
+    {
+        set => body = value;
     }
 
     public Type BodyType { get; } = typeof(T);
-    public T? Body { get; set; }
-    public object? BodyObj => Body;
+
+    public T? Body(PayloadRequestType requestType = PayloadRequestType.CalleeRetrieve)
+    {
+        if (PayloadMarshaller == null) return body;
+        return body != null ? body = PayloadMarshaller.GetMarshalled(body, requestType) : body;
+    }
+
+    public object? BodyObj(PayloadRequestType requestType) => Body(requestType);
 
     public override int DecrementRefCount()
     {
-        if (Body is IRecyclableObject recyclableBody) recyclableBody.DecrementRefCount();
+        if (PayloadMarshaller != null)
+        {
+            PayloadMarshaller.PayloadRefCountDecrement(body);
+            PayloadMarshaller.DecrementRefCount();
+        }
+        else if (body is IRecyclableObject recyclableBody)
+        {
+            recyclableBody.DecrementRefCount();
+        }
+
         return base.DecrementRefCount();
     }
 
     public override int IncrementRefCount()
     {
-        if (Body is IRecyclableObject recyclableBody) recyclableBody.IncrementRefCount();
+        if (PayloadMarshaller != null)
+        {
+            PayloadMarshaller.IncrementRefCount();
+            PayloadMarshaller.PayloadRefCountIncrement(body);
+        }
+        else if (body is IRecyclableObject recyclableBody)
+        {
+            recyclableBody.IncrementRefCount();
+        }
+
         return base.IncrementRefCount();
     }
 
     public override void StateReset()
     {
-        Body = default;
+        body = default;
+        PayloadMarshaller = null;
     }
+
+    public override Payload<T> CopyFrom(Payload<T> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        body = source.body;
+        PayloadMarshaller = source.PayloadMarshaller;
+        return this;
+    }
+
+    public override Payload<T> Clone() => Recycler?.Borrow<Payload<T>>().CopyFrom(this) ?? new Payload<T>(this);
 
     public override string ToString() => $"{GetType().Name}[{typeof(T).Name}]({nameof(Body)}: {Body})";
 }
@@ -70,14 +112,14 @@ public interface IBusMessage : IStoreState<IBusMessage>, ICanCarrySocketSenderPa
     IRule? Sender { get; }
     string? DestinationAddress { get; }
     DateTime? SentTime { get; }
-    IPayLoad? PayLoad { get; }
+    IPayload? Payload { get; }
     IAsyncResponseSource Response { get; }
     IProcessorRegistry? ProcessorRegistry { get; }
     RuleFilter RuleFilter { get; }
     void IncrementCargoRefCounts();
     void DecrementCargoRefCounts();
-    IBusMessage<TAsPayLoad> BorrowCopy<TAsPayLoad>(IQueueContext messageContext);
-    IBusRespondingMessage<TAsPayLoad, TAsResponse> BorrowCopy<TAsPayLoad, TAsResponse>(IQueueContext messageContext);
+    IBusMessage<TAsPayload> BorrowCopy<TAsPayload>(IQueueContext messageContext);
+    IBusRespondingMessage<TAsPayload, TAsResponse> BorrowCopy<TAsPayload, TAsResponse>(IQueueContext messageContext);
 }
 
 public enum MessageType
@@ -100,12 +142,12 @@ public enum MessageType
     , RemoveListenSubscribeInterceptor
 }
 
-public interface IBusMessage<TPayLoad> : IBusMessage, IRecyclableObject
+public interface IBusMessage<TPayload> : IBusMessage, IRecyclableObject
 {
-    new PayLoad<TPayLoad> PayLoad { get; }
+    new Payload<TPayload> Payload { get; }
 }
 
-public interface IBusRespondingMessage<TPayLoad, TResponse> : IBusMessage<TPayLoad>
+public interface IBusRespondingMessage<TPayload, TResponse> : IBusMessage<TPayload>
 {
     new IResponseValueTaskSource<TResponse> Response { get; }
 }
@@ -120,7 +162,7 @@ public class BusMessage : IBusMessage
     public IRule? Sender { get; set; }
     public string? DestinationAddress { get; set; }
     public DateTime? SentTime { get; set; }
-    public IPayLoad? PayLoad { get; set; }
+    public IPayload? Payload { get; set; }
     public IAsyncResponseSource Response { get; set; } = NoOpCompletionSource;
     public IProcessorRegistry? ProcessorRegistry { get; set; }
 
@@ -128,27 +170,27 @@ public class BusMessage : IBusMessage
 
     public void IncrementCargoRefCounts()
     {
-        PayLoad?.IncrementRefCount();
+        Payload?.IncrementRefCount();
         ProcessorRegistry?.IncrementRefCount();
         Response?.IncrementRefCount();
     }
 
     public void DecrementCargoRefCounts()
     {
-        PayLoad?.DecrementRefCount();
+        Payload?.DecrementRefCount();
         ProcessorRegistry?.DecrementRefCount();
         Response?.DecrementRefCount();
     }
 
-    public IBusRespondingMessage<TPayLoad, TResponse> BorrowCopy<TPayLoad, TResponse>(IQueueContext messageContext)
+    public IBusRespondingMessage<TPayload, TResponse> BorrowCopy<TPayload, TResponse>(IQueueContext messageContext)
     {
-        var castClone = messageContext.PooledRecycler.Borrow<BusMessage<TPayLoad, TResponse>>();
+        var castClone = messageContext.PooledRecycler.Borrow<BusMessage<TPayload, TResponse>>();
         castClone.CopyFrom(this);
         castClone.IncrementCargoRefCounts();
         return castClone;
     }
 
-    public IBusMessage<TPayLoad> BorrowCopy<TPayLoad>(IQueueContext messageContext) => BorrowCopy<TPayLoad, object>(messageContext);
+    public IBusMessage<TPayload> BorrowCopy<TPayload>(IQueueContext messageContext) => BorrowCopy<TPayload, object>(messageContext);
 
     public IBusMessage CopyFrom(IBusMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -156,7 +198,7 @@ public class BusMessage : IBusMessage
         Sender = source.Sender;
         DestinationAddress = source.DestinationAddress;
         SentTime = source.SentTime;
-        PayLoad = source.PayLoad;
+        Payload = source.Payload;
         Response = source.Response;
         ProcessorRegistry = source.ProcessorRegistry;
         RuleFilter = source.RuleFilter;
@@ -173,13 +215,13 @@ public class BusMessage : IBusMessage
 
     public void SetAsTaskCallbackItem(SendOrPostCallback callback, object? state)
     {
-        var payLoad = Recycler.Borrow<PayLoad<TaskPayload>>();
-        var taskPayLoad = Recycler.Borrow<TaskPayload>();
-        taskPayLoad.Callback = callback;
-        taskPayLoad.State = state;
-        payLoad.Body = taskPayLoad;
+        var payLoad = Recycler.Borrow<Payload<TaskPayload>>();
+        var taskPayload = Recycler.Borrow<TaskPayload>();
+        taskPayload.Callback = callback;
+        taskPayload.State = state;
+        payLoad.SetBody = taskPayload;
         Type = MessageType.ValueTaskCallback;
-        PayLoad = payLoad;
+        Payload = payLoad;
         Sender = Rule.NoKnownSender;
         DestinationAddress = "NotUsed";
         SentTime = DateTime.UtcNow;
@@ -190,18 +232,18 @@ public class BusMessage : IBusMessage
 
     public void InvokeTaskCallback()
     {
-        if (PayLoad!.BodyObj is TaskPayload taskPayload) taskPayload.Invoke();
+        if (Payload!.BodyObj(PayloadRequestType.QueueReceive) is TaskPayload taskPayload) taskPayload.Invoke();
     }
 
     public bool IsSocketSenderItem => Type == MessageType.SendToRemote;
-    public ISocketSender? SocketSender => PayLoad!.BodyObj as ISocketSender;
+    public ISocketSender? SocketSender => Payload!.BodyObj(PayloadRequestType.QueueReceive) as ISocketSender;
 
     public void SetAsSocketSenderItem(ISocketSender socketSender)
     {
-        var payLoad = Recycler.Borrow<PayLoad<ISocketSender>>();
-        payLoad.Body = socketSender;
+        var payLoad = Recycler.Borrow<Payload<ISocketSender>>();
+        payLoad.SetBody = socketSender;
         Type = MessageType.SendToRemote;
-        PayLoad = payLoad;
+        Payload = payLoad;
         Sender = Rule.NoKnownSender;
         DestinationAddress = "NotUsed";
         SentTime = DateTime.UtcNow;
@@ -212,14 +254,14 @@ public class BusMessage : IBusMessage
 
     public bool IsSocketReceiverItem => Type == MessageType.AddWatchSocket || Type == MessageType.RemoveWatchSocket;
     public bool IsSocketAdd => Type == MessageType.AddWatchSocket;
-    public ISocketReceiver? SocketReceiver => PayLoad!.BodyObj as ISocketReceiver;
+    public ISocketReceiver? SocketReceiver => Payload!.BodyObj(PayloadRequestType.QueueReceive) as ISocketReceiver;
 
     public void SetAsSocketReceiverItem(ISocketReceiver socketReceiver, bool isAdd)
     {
-        var payLoad = Recycler.Borrow<PayLoad<ISocketReceiver>>();
-        payLoad.Body = socketReceiver;
+        var payLoad = Recycler.Borrow<Payload<ISocketReceiver>>();
+        payLoad.SetBody = socketReceiver;
         Type = isAdd ? MessageType.AddWatchSocket : MessageType.RemoveWatchSocket;
-        PayLoad = payLoad;
+        Payload = payLoad;
         Sender = Rule.NoKnownSender;
         DestinationAddress = "NotUsed";
         SentTime = DateTime.UtcNow;
@@ -233,21 +275,21 @@ public class BusMessage : IBusMessage
         $"{nameof(Sender)}: {Sender}, " +
         $"{nameof(DestinationAddress)}: {DestinationAddress}, " +
         $"{nameof(SentTime)}: {SentTime}, " +
-        $"{nameof(PayLoad)}: {PayLoad}, " +
+        $"{nameof(Payload)}: {Payload}, " +
         $"{nameof(Response)}: {Response}}}";
 }
 
-public class BusMessage<TPayLoad, TResponse> : BusMessage, IBusRespondingMessage<TPayLoad, TResponse>
+public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage<TPayload, TResponse>
 {
     public static readonly NoMessageResponseSource<TResponse> NoTypedOpCompletionSource = new();
 
     private int isInRecycler;
     private int refCount;
 
-    public new PayLoad<TPayLoad> PayLoad
+    public new Payload<TPayload> Payload
     {
-        get => (PayLoad<TPayLoad>)((BusMessage)this).PayLoad!;
-        set => ((BusMessage)this).PayLoad = value;
+        get => (Payload<TPayload>)((BusMessage)this).Payload!;
+        set => ((BusMessage)this).Payload = value;
     }
 
     public new IResponseValueTaskSource<TResponse> Response
@@ -301,17 +343,17 @@ public class BusMessage<TPayLoad, TResponse> : BusMessage, IBusRespondingMessage
         Sender = null;
         DestinationAddress = null;
         SentTime = DateTimeConstants.UnixEpoch;
-        base.PayLoad = null;
+        base.Payload = null;
         base.Response = NoOpCompletionSource;
         refCount = 0;
     }
 
     public override string ToString() =>
-        $"{GetType().Name}[{typeof(TPayLoad).Name}, {typeof(TResponse).Name}]({nameof(Type)}: {Type}, " +
+        $"{GetType().Name}[{typeof(TPayload).Name}, {typeof(TResponse).Name}]({nameof(Type)}: {Type}, " +
         $"{nameof(Sender)}: {Sender}, " +
         $"{nameof(DestinationAddress)}: {DestinationAddress}, " +
         $"{nameof(SentTime)}: {SentTime}, " +
-        $"{nameof(PayLoad)}: {PayLoad}, " +
+        $"{nameof(Payload)}: {Payload}, " +
         $"{nameof(Response)}: {Response}, " +
         $"{nameof(refCount)}: {refCount}, " +
         $"{nameof(IsInRecycler)}: {IsInRecycler})";

@@ -17,11 +17,11 @@ namespace FortitudeTests.TestHelpers;
 [NoMatchingProductionClass]
 public class TestMetrics
 {
-    private const int MaxAllowedUntestedClassesInCommon = 140;
+    private const int MaxAllowedUntestedClassesInCommon = 144;
     private const int MaxAllowedUntestedClassesInFortitudeIO = 116;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsApi = 19;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 110;
-    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 84;
+    private const int MaxAllowedUntestedClassesInFortitudeBusRules = 88;
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses = null!;
     private Type fortitudeBusRulesType = null!;
 

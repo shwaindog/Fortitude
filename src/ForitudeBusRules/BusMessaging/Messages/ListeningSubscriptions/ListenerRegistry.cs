@@ -34,9 +34,9 @@ public class ListenerRegistry
         return false;
     }
 
-    public void RemoveListenerFromWatchList(MessageListenerUnsubscribe unsubscribePayLoad)
+    public void RemoveListenerFromWatchList(MessageListenerUnsubscribe unsubscribePayload)
     {
-        var listeningAddress = unsubscribePayLoad.PublishAddress;
+        var listeningAddress = unsubscribePayload.PublishAddress;
         if (AddressMatcher.IsMatcherPattern(listeningAddress))
         {
             var foundMatcher = matcherListenerSubscriptions.FirstOrDefault(ls => ls.PublishAddress == listeningAddress);
@@ -53,7 +53,7 @@ public class ListenerRegistry
                 for (var i = 0; i < ruleListeners!.Count; i++)
                 {
                     var ruleListener = ruleListeners[i];
-                    if (ruleListener.SubscriberId == unsubscribePayLoad.SubscriberId)
+                    if (ruleListener.SubscriberId == unsubscribePayload.SubscriberId)
                     {
                         ruleListener.Dispose();
                         ruleListeners.RemoveAt(i);
@@ -64,7 +64,7 @@ public class ListenerRegistry
             }
         }
 
-        unsubscribePayLoad.SubscriberRule.DecrementLifeTimeCount();
+        unsubscribePayload.SubscriberRule.DecrementLifeTimeCount();
     }
 
     public void AddSubscribeInterceptor(IListenSubscribeInterceptor interceptor)
@@ -77,27 +77,27 @@ public class ListenerRegistry
         subscribeInterceptors.Remove(interceptor);
     }
 
-    public void AddListenerToWatchList(IMessageListenerSubscription subscribePayLoad)
+    public void AddListenerToWatchList(IMessageListenerSubscription subscribePayload)
     {
-        subscribePayLoad.SubscriberRule.IncrementLifeTimeCount();
+        subscribePayload.SubscriberRule.IncrementLifeTimeCount();
         foreach (var listenSubscribeInterceptor in subscribeInterceptors)
         {
-            listenSubscribeInterceptor.Intercept(subscribePayLoad);
+            listenSubscribeInterceptor.Intercept(subscribePayload);
         }
-        if (subscribePayLoad.Matcher != null)
+        if (subscribePayload.Matcher != null)
         {
-            matcherListenerSubscriptions.Add(subscribePayLoad);
+            matcherListenerSubscriptions.Add(subscribePayload);
         }
         else
         {
-            var listeningAddress = subscribePayLoad.PublishAddress;
+            var listeningAddress = subscribePayload.PublishAddress;
             if (!Listeners.TryGetValue(listeningAddress, out var ruleListeners))
             {
                 ruleListeners = [];
                 Listeners.Add(listeningAddress, ruleListeners);
             }
 
-            ruleListeners!.Add(subscribePayLoad);
+            ruleListeners!.Add(subscribePayload);
         }
     }
 
