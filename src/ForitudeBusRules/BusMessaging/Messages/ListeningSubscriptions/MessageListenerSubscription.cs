@@ -5,21 +5,26 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 
-public interface IMessageListenerSubscription : IDisposable
+public interface IMessageListenerSubscription : IAsyncValueTaskDisposable
 {
     string SubscriberId { get; }
+    IEnumerable<IListenSubscribeInterceptor> ActiveListenSubscribeInterceptors { get; }
     IQueueContext RegisteredContext { get; }
     IListeningRule SubscriberRule { get; }
     string PublishAddress { get; }
     IAddressMatcher? Matcher { get; }
     Func<BusMessage, ValueTask> Handler { get; }
+    Type PayloadType { get; }
+    void AddRunListenSubscriptionInterceptor(IListenSubscribeInterceptor interceptor);
+    void RemoveListenSubscriptionInterceptor(string name);
 
-    event Action<IRule, string>? Unsubscribed;
+    event Func<IRule, IMessageListenerSubscription, string, ValueTask>? Unsubscribed;
 }
 
 public class MessageListenerSubscription<TPayload, TResponse> : IMessageListenerSubscription
@@ -28,6 +33,9 @@ public class MessageListenerSubscription<TPayload, TResponse> : IMessageListener
         = FLoggerFactory.Instance.GetLogger(typeof(MessageListenerSubscription<TPayload, TResponse>));
 
     private string publishAddress = null!;
+
+    private IList<IListenSubscribeInterceptor> subscribeInterceptors = new List<IListenSubscribeInterceptor>();
+
 
     public MessageListenerSubscription() { }
 
@@ -43,6 +51,8 @@ public class MessageListenerSubscription<TPayload, TResponse> : IMessageListener
     public IQueueContext RegisteredContext => SubscriberRule.Context;
     public IListeningRule SubscriberRule { get; set; } = null!;
 
+    public Type PayloadType => typeof(TPayload);
+
     public string PublishAddress
     {
         get => publishAddress;
@@ -53,15 +63,30 @@ public class MessageListenerSubscription<TPayload, TResponse> : IMessageListener
         }
     }
 
+    public IEnumerable<IListenSubscribeInterceptor> ActiveListenSubscribeInterceptors => subscribeInterceptors;
+
+    public void AddRunListenSubscriptionInterceptor(IListenSubscribeInterceptor interceptor)
+    {
+        subscribeInterceptors.Add(interceptor);
+    }
+
+    public void RemoveListenSubscriptionInterceptor(string name)
+    {
+        var foundExisting = subscribeInterceptors.FirstOrDefault(lsi => lsi.Name == name);
+        if (foundExisting != null) subscribeInterceptors.Remove(foundExisting);
+    }
+
     public IAddressMatcher? Matcher { get; set; }
     public Func<BusMessage, ValueTask> Handler { get; private set; } = null!;
 
-    public void Dispose()
+    public ValueTask DisposeResult { get; set; }
+
+    public async ValueTask Dispose()
     {
-        Unsubscribed?.Invoke(SubscriberRule, PublishAddress);
+        if (Unsubscribed != null) await Unsubscribed.Invoke(SubscriberRule, this, PublishAddress);
     }
 
-    public event Action<IRule, string>? Unsubscribed;
+    public event Func<IRule, IMessageListenerSubscription, string, ValueTask>? Unsubscribed;
 
     public void SetHandlerFromSpecificMessageHandler(
         Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> wrapHandler)

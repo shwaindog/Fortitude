@@ -27,9 +27,10 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
     protected ISubscription? ListenForRequestIdResponseRegistration;
     protected IMessageDeserializationRepository? RegisterOnRepository;
 
-    public TopicDeserializationRepositoryAmendingRule(ISocketSessionContext socketSessionContext, string remotePublishRegistrationListenAddress
+    public TopicDeserializationRepositoryAmendingRule(string ruleName, ISocketSessionContext socketSessionContext
+        , string remotePublishRegistrationListenAddress
         , string registerRequestIdResponseListenAddress, IConverterRepository? converterRepository = null, string? registrationRepoName = null)
-        : base(remotePublishRegistrationListenAddress)
+        : base(ruleName)
     {
         this.socketSessionContext = socketSessionContext;
         this.converterRepository = converterRepository;
@@ -90,7 +91,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
         await LaunchTopicPublicationAmenderListener();
     }
 
-    protected async ValueTask LaunchTopicPublicationAmenderListener()
+    protected virtual async ValueTask LaunchTopicPublicationAmenderListener()
     {
         ListenForPublishSubscriptions
             = await Context.MessageBus.RegisterRequestListenerAsync<RemoteMessageBusPublishRegistration,
@@ -98,7 +99,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
                 RemotePublishRegistrationListenAddress + "*", UpdatePublishRegistrationRequestReceived);
     }
 
-    protected async ValueTask LauncherRequestIdResponseListener()
+    protected virtual async ValueTask LauncherRequestIdResponseListener()
     {
         ListenForRequestIdResponseRegistration
             = await Context.MessageBus

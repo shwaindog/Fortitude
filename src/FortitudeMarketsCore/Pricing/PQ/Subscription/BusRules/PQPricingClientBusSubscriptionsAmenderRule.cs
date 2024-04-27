@@ -1,6 +1,8 @@
 ﻿#region
 
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
+using FortitudeBusRules.BusMessaging.Pipelines;
+using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization.Rules;
 using FortitudeBusRules.Messages;
 using FortitudeCommon.Monitoring.Logging;
@@ -25,10 +27,11 @@ public class PQPricingClientBusSubscriptionsAmenderRule : TopicDeserializationRe
 
     private ISubscription? listenForFeedSourceTickerInfosSubscription;
 
-    public PQPricingClientBusSubscriptionsAmenderRule(ISocketSessionContext socketSessionContext, string feedName
+    public PQPricingClientBusSubscriptionsAmenderRule(string feedName
+        , ISocketSessionContext socketSessionContext
         , IPricingServerConfig pricingServerConfig
         , IConverterRepository? converterRepository = null, string? registrationRepoName = null)
-        : base(socketSessionContext, feedName.FeedAmendTickerPublicationAddress(),
+        : base(feedName.FeedAmendTickerPublicationRuleName(), socketSessionContext, feedName.FeedAmendTickerPublicationAddress(),
             feedName.FeedRequestResponseRegistrationAddress(), converterRepository, registrationRepoName)
     {
         this.feedName = feedName;
@@ -62,11 +65,20 @@ public class PQPricingClientBusSubscriptionsAmenderRule : TopicDeserializationRe
         }
     }
 
-    protected override string ExtractSubscriptionPostfix(string fullMessageAddressDestination)
+    protected override async ValueTask LaunchTopicPublicationAmenderListener()
     {
-        fullMessageAddressDestination.ExtractTickerFromDefaultTickerPublishAddress(feedName);
-        return base.ExtractSubscriptionPostfix(fullMessageAddressDestination);
+        await base.LaunchTopicPublicationAmenderListener();
+
+        var addressPublicationAmenderInterceptor = new PQPricingClientTickerPublishAmenderInterceptor(feedName,
+            new AddressMatcher(feedName.FeedDefaultAllTickersPublishInterceptPattern() + ".*"), (IIOInboundMessageQueue)Context.RegisteredOn);
+
+        await Context.MessageBus.AddListenSubscribeInterceptor(this, addressPublicationAmenderInterceptor, MessageQueueType.AllNonIO);
+
+        logger.Info("Have deployed listener interceptors to all non IO queues for {0}", feedName);
     }
+
+    protected override string ExtractSubscriptionPostfix(string fullMessageAddressDestination) =>
+        fullMessageAddressDestination.ExtractTickerFromAmendPubliicationAddress(feedName);
 
     protected override void RuleOverrideDeserializerResolverNoMessageId(MessageDeserializerResolveRun messageDeserializerResolveRun)
     {

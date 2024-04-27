@@ -8,7 +8,7 @@ namespace FortitudeCommon.AsyncProcessing.Tasks;
 
 public class TaskCallbackPollingRingSyncContext(ITaskCallbackPollingRing asyncEnabledPollingRing) : SynchronizationContext
 {
-    public override SynchronizationContext CreateCopy() => this;
+    public override SynchronizationContext CreateCopy() => new TaskCallbackPollingRingSyncContext(asyncEnabledPollingRing);
 
     public override void Post(SendOrPostCallback d, object? state)
     {

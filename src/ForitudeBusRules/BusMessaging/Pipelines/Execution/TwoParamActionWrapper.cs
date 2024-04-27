@@ -29,7 +29,7 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
 
         var singleParamPayload = FactoryRecycler.Borrow<TwoParamSyncActionPayload<T, TU>>();
         singleParamPayload.Configure(OriginalRegisteredAction, firstParam, secondParam);
-        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(singleParamPayload, Rule.NoKnownSender, null, MessageType.QueueParamsExecutionPayload);
+        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(singleParamPayload, Rule.NoKnownSender, MessageType.QueueParamsExecutionPayload, null);
     }
 
     public TwoParamActionWrapper<T, TU>? InvokeReturnNext(T firstParam, TU secondParam)

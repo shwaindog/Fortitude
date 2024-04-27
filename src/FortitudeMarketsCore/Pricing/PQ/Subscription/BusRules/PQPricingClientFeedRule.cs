@@ -17,12 +17,11 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
 public class PQPricingClientFeedRule : Rule
 {
-    private readonly string defaultAllTickerSubAddress;
-
     private readonly string feedAddress;
     private readonly string feedAvailableTickersUpdateAddress;
-    private readonly string feedFeedStatusUpdateAddress;
+    private readonly string feedFeedStatusUpdatePublishAddress;
     private readonly string feedName;
+    private readonly string feedStatusRequestAddress;
     private readonly string feedTickersHealthRequestAddress;
     private readonly IMarketConnectionConfig marketConnectionConfig;
     private DateTime feedStartTime;
@@ -43,10 +42,10 @@ public class PQPricingClientFeedRule : Rule
         this.marketConnectionConfig = marketConnectionConfig;
         feedName = marketConnectionConfig.Name;
         feedAddress = feedName.FeedAddress();
-        defaultAllTickerSubAddress = feedName.FeedDefaultAllTickersPublishAddress();
+        feedStatusRequestAddress = feedName.FeedStatusRequestAddress();
         feedTickersHealthRequestAddress = feedName.FeedTickerHealthRequestAddress();
         feedAvailableTickersUpdateAddress = feedName.FeedAvailableTickersUpdateAddress();
-        feedFeedStatusUpdateAddress = feedName.FeedStatusUpdateAddress();
+        feedFeedStatusUpdatePublishAddress = feedName.FeedStatusUpdateAddress();
     }
 
     public PricingFeedStatus PricingFeedStatus
@@ -56,7 +55,7 @@ public class PQPricingClientFeedRule : Rule
         {
             if (pricingFeedStatus == value) return;
             pricingFeedStatus = value;
-            Context.MessageBus.Publish(this, feedFeedStatusUpdateAddress,
+            Context.MessageBus.Publish(this, feedFeedStatusUpdatePublishAddress,
                 new SourceFeedUpdate(pricingFeedStatus, feedName, feedAddress), new DispatchOptions(RoutingFlags.DefaultPublish));
         }
     }
@@ -67,7 +66,7 @@ public class PQPricingClientFeedRule : Rule
         PricingFeedStatus = PricingFeedStatus.Starting;
         feedStatusRequestListenerSubscription
             = await Context.MessageBus.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse>
-                (this, defaultAllTickerSubAddress, ReceivedFeedStatusRequest);
+                (this, feedStatusRequestAddress, ReceivedFeedStatusRequestHandler);
         feedTickersListenerSubscription = await Context.MessageBus.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(
             this, feedAvailableTickersUpdateAddress, ReceivedFeedAvailableTickersUpdate);
         Context.MessageBus.Publish(this, feedAddress,
@@ -103,7 +102,7 @@ public class PQPricingClientFeedRule : Rule
         latestReceivedSourceTickerQuoteInfos = tickersUpdate!.SourceTickerQuoteInfos.ToList();
     }
 
-    private async ValueTask<PricingFeedStatusResponse> ReceivedFeedStatusRequest(
+    private async ValueTask<PricingFeedStatusResponse> ReceivedFeedStatusRequestHandler(
         IBusRespondingMessage<PricingFeedStatusRequest, PricingFeedStatusResponse> busRequestMessage)
     {
         PricingFeedStatusResponse? pricingFeedStatusResponse;

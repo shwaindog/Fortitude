@@ -2,19 +2,35 @@
 
 public interface IListenSubscribeInterceptor
 {
-    void Intercept(IMessageListenerSubscription messageListenerSubscription);
+    string Name { get; }
+    ValueTask Intercept(IMessageListenerSubscription messageListenerSubscription);
+    bool ShouldRunIntercept(IMessageListenerSubscription messageListenerSubscription);
 }
 
 public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterceptor
 {
-    private readonly IAddressMatcher addressMatcher;
-
-    protected AddressListenSubscribeInterceptor(IAddressMatcher addressMatcher) => this.addressMatcher = addressMatcher;
-
-    public void Intercept(IMessageListenerSubscription messageListenerSubscription)
+    protected AddressListenSubscribeInterceptor(string name, IAddressMatcher addressMatcher)
     {
-        if (addressMatcher.IsMatch(messageListenerSubscription.PublishAddress)) RunInterceptorAction(messageListenerSubscription);
+        Name = name;
+        AddressMatcher = addressMatcher;
     }
 
-    public abstract void RunInterceptorAction(IMessageListenerSubscription messageListenerSubscription);
+    public IAddressMatcher AddressMatcher { get; }
+
+    public string Name { get; }
+
+    public async ValueTask Intercept(IMessageListenerSubscription messageListenerSubscription)
+    {
+        if (ShouldRunIntercept(messageListenerSubscription))
+        {
+            await RunInterceptorAction(messageListenerSubscription);
+            messageListenerSubscription.AddRunListenSubscriptionInterceptor(this);
+        }
+    }
+
+    public bool ShouldRunIntercept(IMessageListenerSubscription messageListenerSubscription) =>
+        AddressMatcher.IsMatch(messageListenerSubscription.PublishAddress)
+        && messageListenerSubscription.ActiveListenSubscribeInterceptors.Any(lsi => lsi.Name == Name);
+
+    public abstract ValueTask RunInterceptorAction(IMessageListenerSubscription messageListenerSubscription);
 }

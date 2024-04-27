@@ -1,12 +1,14 @@
 ﻿#region
 
 using FortitudeBusRules.BusMessaging.Messages;
+using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines.Execution;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.BusMessaging.Tasks;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Extensions;
@@ -34,21 +36,30 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     void EnqueueMessage(BusMessage msg);
 
     ValueTask<IDispatchResult> EnqueuePayloadBodyWithStatsAsync<TPayload>(TPayload payload, IRule sender,
-        ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null, IPayloadMarshaller<TPayload>? payloadMarshaller = null);
+        MessageType msgType = MessageType.Publish, string? destinationAddress = null
+        ,
+        ProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null, IPayloadMarshaller<TPayload>? payloadMarshaller = null);
 
     void EnqueuePayloadBody<TPayload>(TPayload payload, IRule sender,
-        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null
+        MessageType msgType = MessageType.Publish,
+        string? destinationAddress = null, RuleFilter? ruleFilter = null
         , IPayloadMarshaller<TPayload>? payloadMarshaller = null);
 
     ValueTask<RequestResponse<TResponse>> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload, IRule sender,
-        ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null);
+        string? destinationAddress = null,
+        MessageType msgType = MessageType.RequestResponse,
+        ProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null);
 
     void LaunchRule(IRule sender, IRule rule);
     ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult);
 
     ValueTask<IDispatchResult> StopRuleAsync(IRule sender, IRule rule);
+
+    ValueTask<IDispatchResult> AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , ProcessorRegistry? processorRegistry = null);
+
+    ValueTask<IDispatchResult> RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , ProcessorRegistry? processorRegistry = null);
 
     bool IsListeningToAddress(string destinationAddress);
     int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress);
@@ -58,6 +69,8 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     IAlternativeExecutionContextResult<TR, TP> GetExecutionContextResult<TR, TP>(IRule sender);
 
     void RunOn(IRule sender, Action action);
+
+    IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate);
 
     void Shutdown();
 }
@@ -124,9 +137,19 @@ public class MessageQueue : IMessageQueue
     }
 
     public ValueTask<IDispatchResult> EnqueuePayloadBodyWithStatsAsync<TPayload>(TPayload payload, IRule sender,
-        ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null, IPayloadMarshaller<TPayload>? payloadMarshaller = null)
+        MessageType msgType = MessageType.Publish, string? destinationAddress = null
+        ,
+        ProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null, IPayloadMarshaller<TPayload>? payloadMarshaller = null)
     {
+        if (processorRegistry == null)
+        {
+            processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
+            processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
+            processorRegistry.IncrementRefCount();
+            processorRegistry.DispatchResult.SentTime = DateTime.Now;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+        }
+
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
@@ -152,9 +175,20 @@ public class MessageQueue : IMessageQueue
 
     public ValueTask<RequestResponse<TResponse>> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload
         , IRule sender,
-        ProcessorRegistry processorRegistry, string? destinationAddress = null
-        , MessageType msgType = MessageType.RequestResponse, RuleFilter? ruleFilter = null)
+        string? destinationAddress = null
+        ,
+        MessageType msgType = MessageType.RequestResponse,
+        ProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null)
     {
+        if (processorRegistry == null)
+        {
+            processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
+            processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
+            processorRegistry.IncrementRefCount();
+            processorRegistry.DispatchResult.SentTime = DateTime.Now;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+        }
+
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt = ring[seqId];
@@ -183,14 +217,18 @@ public class MessageQueue : IMessageQueue
     {
         rule.LifeCycleState = RuleLifeCycle.ShuttingDown;
         rule.Context = queueContext;
-        var processorRegistry = queueContext.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
-        processorRegistry.DispatchResult = queueContext.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.ResponseTimeoutAndRecycleTimer = queueContext.Timer;
-        return EnqueuePayloadBodyWithStatsAsync(rule, sender, processorRegistry, null, MessageType.UnloadRule);
+        return EnqueuePayloadBodyWithStatsAsync(rule, sender, MessageType.UnloadRule, null, null);
     }
 
     public bool IsListeningToAddress(string destinationAddress) => MessagePump.IsListeningOn(destinationAddress);
+
+    public async ValueTask<IDispatchResult> AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , ProcessorRegistry? processorRegistry = null) =>
+        await EnqueuePayloadBodyWithStatsAsync(interceptor, sender, MessageType.AddListenSubscribeInterceptor, null, processorRegistry);
+
+    public async ValueTask<IDispatchResult> RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , ProcessorRegistry? processorRegistry = null) =>
+        await EnqueuePayloadBodyWithStatsAsync(interceptor, sender, MessageType.RemoveListenSubscribeInterceptor, null, processorRegistry);
 
     public int RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress)
     {
@@ -226,7 +264,8 @@ public class MessageQueue : IMessageQueue
     }
 
     public void EnqueuePayloadBody<TPayload>(TPayload payload, IRule sender,
-        string? destinationAddress = null, MessageType msgType = MessageType.Publish, RuleFilter? ruleFilter = null
+        MessageType msgType = MessageType.Publish,
+        string? destinationAddress = null, RuleFilter? ruleFilter = null
         , IPayloadMarshaller<TPayload>? payloadMarshaller = null)
     {
         IncrementRecentMessageReceived();
@@ -294,19 +333,14 @@ public class MessageQueue : IMessageQueue
     {
         rule.LifeCycleState = RuleLifeCycle.Starting;
         rule.Context = queueContext;
-        EnqueuePayloadBody(rule, sender, null, MessageType.LoadRule);
+        EnqueuePayloadBody(rule, sender, MessageType.LoadRule, null);
     }
 
     public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult)
     {
         rule.LifeCycleState = RuleLifeCycle.Starting;
         rule.Context = queueContext;
-        var processorRegistry = queueContext.PooledRecycler.Borrow<ProcessorRegistry>();
-        processorRegistry.DispatchResult = queueContext.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.DispatchResult.DeploymentSelectionResult = selectionResult;
-        processorRegistry.IncrementRefCount(); // decremented when value is read for valueTask;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = queueContext.Timer;
-        return EnqueuePayloadBodyWithStatsAsync(rule, sender, processorRegistry, null, MessageType.LoadRule);
+        return EnqueuePayloadBodyWithStatsAsync(rule, sender, MessageType.LoadRule, null, null);
     }
 
     public IAlternativeExecutionContextAction<TP> GetExecutionContextAction<TP>(IRule sender)
@@ -328,6 +362,13 @@ public class MessageQueue : IMessageQueue
         var executionContext = Context.PooledRecycler.Borrow<MessageQueueExecutionContextResult<TR, TP>>();
         executionContext.Configure(this, sender);
         return executionContext;
+    }
+
+    public IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate)
+    {
+        var livingRules = Context.PooledRecycler.Borrow<AutoRecycledEnumerable<IRule>>();
+        var countLivingRules = MessagePump.CopyLivingRulesTo(livingRules);
+        return livingRules.Where(predicate);
     }
 
     private void IncrementRecentMessageReceived()

@@ -34,8 +34,7 @@ public class MessageListenerUnsubscribe : RecyclableObject, ISubscription
     public IDispatchResult? DispatchResult { get; set; }
 
     public void Unsubscribe() =>
-        SubscriberRule.Context.RegisteredOn.EnqueuePayloadBody(this, SubscriberRule, PublishAddress
-            , MessageType.ListenerUnsubscribe);
+        SubscriberRule.Context.RegisteredOn.EnqueuePayloadBody(this, SubscriberRule, MessageType.ListenerUnsubscribe, PublishAddress);
 
     public async ValueTask UnsubscribeAsync()
     {
@@ -44,7 +43,7 @@ public class MessageListenerUnsubscribe : RecyclableObject, ISubscription
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = SubscriberRule.Context.Timer;
-        await SubscriberRule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(this, SubscriberRule, processorRegistry, PublishAddress
-            , MessageType.ListenerUnsubscribe);
+        await SubscriberRule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(this, SubscriberRule, MessageType.ListenerUnsubscribe
+            , PublishAddress, processorRegistry);
     }
 }

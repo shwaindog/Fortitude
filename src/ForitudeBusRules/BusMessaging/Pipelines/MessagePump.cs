@@ -7,6 +7,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Monitoring.Logging;
@@ -19,6 +20,8 @@ namespace FortitudeBusRules.BusMessaging.Pipelines;
 public interface IMessagePump
 {
     bool IsListeningOn(string address);
+
+    int CopyLivingRulesTo(IAutoRecycleEnumerable<IRule> toCopyTo);
     IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address);
 
     event Action<QueueEventTime> MessageStartProcessingTime;
@@ -64,6 +67,21 @@ public class MessagePump : IMessagePump
     }
 
     public bool IsListeningOn(string address) => listenerRegistry.IsListeningOn(address);
+
+    public int CopyLivingRulesTo(IAutoRecycleEnumerable<IRule> toCopyTo)
+    {
+        var i = 0;
+        try
+        {
+            for (; i < livingRules.Count; i++) toCopyTo.Add(livingRules[i]);
+        }
+        catch (IndexOutOfRangeException ioe)
+        {
+            // swallow
+        }
+
+        return i;
+    }
 
     public IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address) => listenerRegistry.MatchingSubscriptions(address);
 
@@ -152,26 +170,26 @@ public class MessagePump : IMessagePump
                     var subscribePayload = (IMessageListenerSubscription)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
                     var processorRegistry = data.ProcessorRegistry;
                     processorRegistry?.RegisterStart(subscribePayload.SubscriberRule);
-                    listenerRegistry.AddListenerToWatchList(subscribePayload);
+                    await listenerRegistry.AddListenerToWatchList(subscribePayload);
                     processorRegistry?.RegisterFinish(subscribePayload.SubscriberRule);
                     break;
                 }
                 case MessageType.ListenerUnsubscribe:
                 {
                     var unsubscribePayload = ((Payload<MessageListenerUnsubscribe>)data.Payload!).Body(PayloadRequestType.QueueReceive);
-                    listenerRegistry.RemoveListenerFromWatchList(unsubscribePayload);
+                    await listenerRegistry.RemoveListenerFromWatchList(unsubscribePayload);
                     break;
                 }
                 case MessageType.AddListenSubscribeInterceptor:
                 {
                     var subscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
-                    listenerRegistry.AddSubscribeInterceptor(subscribePayload);
+                    await listenerRegistry.AddSubscribeInterceptor(subscribePayload);
                     break;
                 }
                 case MessageType.RemoveListenSubscribeInterceptor:
                 {
                     var unsubscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
-                    listenerRegistry.RemoveSubscribeInterceptor(unsubscribePayload);
+                    await listenerRegistry.RemoveSubscribeInterceptor(unsubscribePayload);
                     break;
                 }
                 default:
@@ -188,13 +206,12 @@ public class MessagePump : IMessagePump
                     try
                     {
                         await checkRule.StopAsync();
+                        livingRules.RemoveAt(i--);
                     }
                     catch (Exception ex)
                     {
                         Logger.Warn("Caught exception stopping rule {0}, Got {1}", checkRule.FriendlyName, ex);
                     }
-
-                livingRules.RemoveAt(i--);
             }
 
             data.DecrementCargoRefCounts();

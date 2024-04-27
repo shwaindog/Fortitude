@@ -27,7 +27,7 @@ public class ActionWrapper : RecyclableObject
             return;
         }
 
-        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(OriginalRegisteredAction, Rule.NoKnownSender, null, MessageType.RunActionPayload);
+        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(OriginalRegisteredAction, Rule.NoKnownSender, MessageType.RunActionPayload, null);
     }
 
     public ActionWrapper? InvokeReturnNext()

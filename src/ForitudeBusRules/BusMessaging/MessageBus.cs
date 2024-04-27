@@ -63,6 +63,11 @@ public interface IMessageBus
 
     ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>(IListeningRule rule, string publishAddress
         , Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler);
+
+
+    ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
+    ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
+    IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate);
 }
 
 public interface IConfigureMessageBus : IMessageBus
@@ -129,6 +134,8 @@ public class MessageBus : IConfigureMessageBus
         AllMessageQueues.LaunchRule(sender, toDeployRule, options);
     }
 
+    public IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate) => AllMessageQueues.RulesMatching(predicate);
+
     public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options) =>
         AllMessageQueues.LaunchRuleAsync(sender, toDeployRule, options);
 
@@ -143,7 +150,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -155,7 +162,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -167,7 +174,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -179,7 +186,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -191,7 +198,7 @@ public class MessageBus : IConfigureMessageBus
             = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
-        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, publishAddress, MessageType.ListenerSubscribe);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
     }
 
@@ -209,8 +216,8 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
-                , MessageType.ListenerSubscribe);
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
+                , processorRegistry);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
 
@@ -228,8 +235,8 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
-                , MessageType.ListenerSubscribe);
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
+                , processorRegistry);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
 
@@ -247,8 +254,8 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
-                , MessageType.ListenerSubscribe);
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
+                , processorRegistry);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
 
@@ -266,8 +273,8 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
-                , MessageType.ListenerSubscribe);
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
+                , processorRegistry);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
 
@@ -285,10 +292,18 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
         var dispatchResult
-            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, processorRegistry, publishAddress
-                , MessageType.ListenerSubscribe);
+            = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
+                , processorRegistry);
         return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
     }
+
+    public ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , MessageQueueType onQueueTypes) =>
+        AllMessageQueues.AddListenSubscribeInterceptor(sender, interceptor, onQueueTypes);
+
+    public ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , MessageQueueType onQueueTypes) =>
+        AllMessageQueues.RemoveListenSubscribeInterceptor(sender, interceptor, onQueueTypes);
 
     public ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule toUndeployRule) =>
         toUndeployRule.Context.RegisteredOn.StopRuleAsync(sender, toUndeployRule);

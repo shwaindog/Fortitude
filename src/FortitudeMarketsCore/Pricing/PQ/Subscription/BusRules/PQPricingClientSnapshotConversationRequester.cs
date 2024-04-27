@@ -5,7 +5,6 @@ using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Connectivity.Network;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
-using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization.Rules;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
@@ -34,7 +33,6 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 public sealed class PQPricingClientSnapshotConversationRequester : ConversationRequester, IPQSnapshotClientCommon
 {
     private static ISocketFactoryResolver? socketFactories;
-    private readonly string busPublicationSubscriptionAmenderAddress;
     private readonly IRule creatingRule;
     private readonly uint cxTimeoutMs;
     private readonly string feedName;
@@ -47,7 +45,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
     private readonly IMessageDeserializationRepository sharedDeserializationRepo;
     private readonly IActionTimer timer;
 
-    private TopicDeserializationRepositoryAmendingRule? receiverQueuePublishAmender;
+    private IRule? receiverQueuePublishAmender;
     private ITimerUpdate? timeoutTimerUpdate;
 
     public PQPricingClientSnapshotConversationRequester(ISocketSessionContext socketSessionContext, IStreamControls streamControls, string feedName
@@ -64,7 +62,6 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         messageBus = creatingRule.Context.MessageBus;
         cxTimeoutMs = socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
         requestResponseHandlerRegistrationAddress = feedName.FeedRequestResponseRegistrationAddress();
-        busPublicationSubscriptionAmenderAddress = feedName.FeedAmendTickerPublicationAddress();
         Connected += RestartTimeoutTimer;
         Disconnected += DisableTimeout;
         socketSessionContext.SocketFactoryResolver.SocketReceiverFactory.ConfigureNewSocketReceiver += socketReceiver =>
@@ -160,12 +157,13 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
 
     private async ValueTask CheckAndLaunchTopicDeserializationRepositoryAmendingRuleStarted()
     {
+        receiverQueuePublishAmender = messageBus.RulesMatching(r => r.FriendlyName == feedName.FeedAmendTickerPublicationRuleName()).FirstOrDefault();
         if (receiverQueuePublishAmender == null || receiverQueuePublishAmender.LifeCycleState is RuleLifeCycle.NotStarted or RuleLifeCycle.Stopped)
         {
             var deployedSocketListenerQueue
                 = messageBus.BusIOResolver.GetInboundQueueOnSocketListener(SocketSessionContext.SocketDispatcher.Listener!);
-            receiverQueuePublishAmender = new PQPricingClientBusSubscriptionsAmenderRule(SocketSessionContext
-                , feedName, pricingServerConfig, null, sharedDeserializationRepo.Name);
+            receiverQueuePublishAmender = new PQPricingClientBusSubscriptionsAmenderRule(feedName, SocketSessionContext, pricingServerConfig, null
+                , sharedDeserializationRepo.Name);
             var dispatchResult = await messageBus.DeployRuleAsync(creatingRule, receiverQueuePublishAmender
                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
 

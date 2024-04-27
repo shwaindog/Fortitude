@@ -29,7 +29,7 @@ public class SingleParamActionWrapper<T> : RecyclableObject
 
         var singleParamPayload = FactoryRecycler.Borrow<OneParamSyncActionPayload<T>>();
         singleParamPayload.Configure(OriginalRegisteredAction, firstParam);
-        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(singleParamPayload, Rule.NoKnownSender, null, MessageType.QueueParamsExecutionPayload);
+        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(singleParamPayload, Rule.NoKnownSender, MessageType.QueueParamsExecutionPayload, null);
     }
 
     public SingleParamActionWrapper<T>? InvokeReturnNext(T firstParam)
