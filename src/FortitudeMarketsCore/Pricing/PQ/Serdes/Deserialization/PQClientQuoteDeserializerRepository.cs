@@ -52,7 +52,7 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationRepository
 
     public IPQDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : PQLevel0Quote, new()
     {
-        PQDeserializerBase quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
+        IPQDeserializer quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
         RegisteredDeserializers.Add(streamPubConfig.SourceTickerQuoteInfo.Id, quoteDeserializer);
         return quoteDeserializer;
     }

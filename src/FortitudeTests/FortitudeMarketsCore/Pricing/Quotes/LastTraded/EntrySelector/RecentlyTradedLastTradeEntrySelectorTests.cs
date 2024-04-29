@@ -2,6 +2,8 @@
 
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
@@ -25,6 +27,7 @@ public class RecentlyTradedLastTradeEntrySelectorTests
 
     private LastTrade lastTrade = null!;
     private LastTraderPaidGivenTrade lastTraderPaidGivenTrade = null!;
+    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
     private PQLastPaidGivenTrade pqLastPaidGivenTrade = null!;
 
     private PQLastTrade pqLastTrade = null!;
@@ -34,6 +37,7 @@ public class RecentlyTradedLastTradeEntrySelectorTests
     [TestInitialize]
     public void SetUp()
     {
+        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
         expectedTraderName = "TraderName-Helen";
         expectedTradeTime = new DateTime(2018, 03, 2, 14, 40, 30);
 
@@ -46,7 +50,7 @@ public class RecentlyTradedLastTradeEntrySelectorTests
         pqLastTrade = new PQLastTrade(ExpectedTradePrice, expectedTradeTime);
         pqLastPaidGivenTrade = new PQLastPaidGivenTrade(ExpectedTradePrice, expectedTradeTime, ExpectedTradeVolume,
             expectedWasPaid, expectedWasGiven);
-        pqLastTraderPaidGivenTrade = new PQLastTraderPaidGivenTrade(ExpectedTradePrice, expectedTradeTime,
+        pqLastTraderPaidGivenTrade = new PQLastTraderPaidGivenTrade(nameIdLookupGenerator.Clone(), ExpectedTradePrice, expectedTradeTime,
             ExpectedTradeVolume, expectedWasPaid, expectedWasGiven)
         {
             TraderName = expectedTraderName

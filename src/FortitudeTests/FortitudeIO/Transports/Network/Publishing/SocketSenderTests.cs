@@ -209,28 +209,9 @@ public class SocketSenderTests
         Assert.AreEqual(3, calledApiSendCount);
     }
 
-    [TestMethod]
-    [ExpectedException(typeof(SocketSendException))]
-    public void SocketSender_CanNotSerializeASingleMessage_ThrowsSocketSendException()
-    {
-        calledApiSendCount = 0;
-        moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
-        moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
-        moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
-        moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
-        moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
-            .Callback<IVersionedMessage, IBufferContext>(
-                (_, bc) => { bc.LastWriteLength = 0; }
-            );
-
-        socketSender.Send(moqVersionedMessage.Object);
-
-        socketSender.SendQueued();
-    }
 
     [TestMethod]
-    [ExpectedException(typeof(SocketSendException))]
-    public void SocketSender_CanNotSerializeAMessageAfter100Attempts_ThrowsSocketSendException()
+    public void SocketSender_CanNotSerializeAMessageAfter100Attempts_LogsSocketSendError()
     {
         calledApiSendCount = 0;
         moqVersionedMessage.Setup(sc => sc.IncrementRefCount()).Returns(1).Verifiable();
@@ -252,10 +233,17 @@ public class SocketSenderTests
         moqNetworkingController.SetupGet(nc => nc.DirectOSNetworkingApi).Returns(directOsNetworkingStub);
         socketSender = new SocketSender(moqSocketSessionContext.Object, moqMessageSerializationRepo.Object);
         socketSender.MessageSerializationRepository.RegisterSerializer(MessageId, moqMessageSerializer.Object);
+        moqFlogger.Setup(fl =>
+                fl.Error("Message could not be serialized or was too big for the buffer or there was no bytes to serialize. Message {0}"
+                    , It.IsAny<object[]>()))
+            .Verifiable();
 
         socketSender.Send(moqVersionedMessage.Object);
 
+
         for (var i = 0; i < 101; i++) socketSender.SendQueued();
+
+        moqFlogger.Verify();
     }
 
     [TestMethod]

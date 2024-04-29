@@ -23,13 +23,15 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
     private readonly string? registrationRepoName;
 
     private readonly ISocketSessionContext socketSessionContext;
+    protected DeserializeNotifyTypeFlags DefaultNotifyTypeFlags = DeserializeNotifyTypeFlags.MessageAndConversation;
     protected ISubscription? ListenForPublishSubscriptions;
     protected ISubscription? ListenForRequestIdResponseRegistration;
     protected IMessageDeserializationRepository? RegisterOnRepository;
 
-    public TopicDeserializationRepositoryAmendingRule(ISocketSessionContext socketSessionContext, string remotePublishRegistrationListenAddress
+    public TopicDeserializationRepositoryAmendingRule(string ruleName, ISocketSessionContext socketSessionContext
+        , string remotePublishRegistrationListenAddress
         , string registerRequestIdResponseListenAddress, IConverterRepository? converterRepository = null, string? registrationRepoName = null)
-        : base(remotePublishRegistrationListenAddress)
+        : base(ruleName)
     {
         this.socketSessionContext = socketSessionContext;
         this.converterRepository = converterRepository;
@@ -56,12 +58,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
         var rootReceiverRepo = SocketReceiver?.Decoder?.MessageDeserializationRepository!;
         var foundRepository = rootReceiverRepo.FindConnectedFallbackWithName(registrationRepoName);
 
-        if (foundRepository != null && RegisterOnRepository == null)
-        {
-            logger.Info("Found registration repository with name {0}.  Will set as deepest MessageDeserializationRepository for Topics under {1}",
-                registrationRepoName, RemotePublishRegistrationListenAddress);
-            RegisterOnRepository = foundRepository;
-        }
+        if (foundRepository != null && RegisterOnRepository == null) RegisterOnRepository = foundRepository;
 
         if (foundRepository == null && RegisterOnRepository != null)
         {
@@ -90,7 +87,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
         await LaunchTopicPublicationAmenderListener();
     }
 
-    protected async ValueTask LaunchTopicPublicationAmenderListener()
+    protected virtual async ValueTask LaunchTopicPublicationAmenderListener()
     {
         ListenForPublishSubscriptions
             = await Context.MessageBus.RegisterRequestListenerAsync<RemoteMessageBusPublishRegistration,
@@ -98,7 +95,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
                 RemotePublishRegistrationListenAddress + "*", UpdatePublishRegistrationRequestReceived);
     }
 
-    protected async ValueTask LauncherRequestIdResponseListener()
+    protected virtual async ValueTask LauncherRequestIdResponseListener()
     {
         ListenForRequestIdResponseRegistration
             = await Context.MessageBus
@@ -511,7 +508,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
 
         if (typeof(TM) == typeof(TR))
         {
-            var newPassThroughNotifier = new PassThroughDeserializedNotifier<TM>(notifierName, DeserializeTypeFlags.DeserializeConversation)
+            var newPassThroughNotifier = new PassThroughDeserializedNotifier<TM>(notifierName, DeserializeNotifyTypeFlags.MessageAndConversation)
             {
                 RemoveOnZeroSubscribers = false
             };
@@ -527,7 +524,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
         if (resolvedConverter != null)
         {
             var convertingNotifier
-                = new ConvertingDeserializedNotifier<TM, TR>(notifierName, resolvedConverter, DeserializeTypeFlags.DeserializeConversation)
+                = new ConvertingDeserializedNotifier<TM, TR>(notifierName, resolvedConverter, DeserializeNotifyTypeFlags.MessageAndConversation)
                 {
                     RemoveOnZeroSubscribers = false
                 };
@@ -548,20 +545,18 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
 
     protected virtual IDeserializedNotifier? AddOrCreateDeserializedNotifier<TM, TR>(INotifyingMessageDeserializer<TM> messageDeserializer
         , string postfixSubscription,
-        RemoteRequestIdResponseRegistration remoteRequestIdResponseRegistration) where TM : class, IVersionedMessage, new()
+        RemoteMessageBusPublishRegistration remoteRequestIdResponseRegistration) where TM : class, IVersionedMessage, new()
     {
         var notifierName = BuildNotifierNameFrom(postfixSubscription, typeof(TR));
         var checkExisting = messageDeserializer[notifierName];
         if (checkExisting is IDeserializedNotifier<TM, TR> deserializedNotifier) return deserializedNotifier;
         if (typeof(TM) == typeof(TR))
         {
-            var newPassThroughNotifier = new PassThroughDeserializedNotifier<TM>(notifierName, DeserializeTypeFlags.DeserializeConversation)
+            var newPassThroughNotifier = new PassThroughDeserializedNotifier<TM>(notifierName, DefaultNotifyTypeFlags)
             {
                 RemoveOnZeroSubscribers = false
             };
-            newPassThroughNotifier.RegisterMessageDeserializer(messageDeserializer);
-            newPassThroughNotifier.AddRequestExpected(remoteRequestIdResponseRegistration.RequestId
-                , remoteRequestIdResponseRegistration.ResponseSource);
+            messageDeserializer[newPassThroughNotifier.Name] = newPassThroughNotifier;
             return newPassThroughNotifier as IDeserializedNotifier<TM, TR>;
         }
 
@@ -569,12 +564,11 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
         if (resolvedConverter != null)
         {
             var convertingNotifier
-                = new ConvertingDeserializedNotifier<TM, TR>(notifierName, resolvedConverter, DeserializeTypeFlags.DeserializeConversation)
+                = new ConvertingDeserializedNotifier<TM, TR>(notifierName, resolvedConverter, DefaultNotifyTypeFlags)
                 {
                     RemoveOnZeroSubscribers = false
                 };
-            convertingNotifier.RegisterMessageDeserializer(messageDeserializer);
-            convertingNotifier.AddRequestExpected(remoteRequestIdResponseRegistration.RequestId, remoteRequestIdResponseRegistration.ResponseSource);
+            messageDeserializer[convertingNotifier.Name] = convertingNotifier;
             return convertingNotifier;
         }
 
@@ -589,6 +583,7 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
         if (messageDeserializerResolveRun.MessageId != null) AttemptResolveDeserializerWithMessageId(messageDeserializerResolveRun);
         if (!messageDeserializerResolveRun.ContinueSearching) return;
         AttemptRuleSpecificOverrideNoKnownMessageId(messageDeserializerResolveRun);
+        if (!messageDeserializerResolveRun.ContinueSearching) return;
         if (messageDeserializerResolveRun is { ContinueSearching: false, RootMessageDeserializationRepositoryIsFactoryRepository: false }) return;
         AttemptResolveMessageDeserializerFromTypesAddPublishTypeAsDeserializedType(messageDeserializerResolveRun);
         if (!messageDeserializerResolveRun.ContinueSearching) return;
@@ -600,15 +595,13 @@ public class TopicDeserializationRepositoryAmendingRule : Rule
         RuleOverrideDeserializerResolverNoMessageId(messageDeserializerResolveRun);
         if (messageDeserializerResolveRun.HaveBothMessageDeserializerAndMessageId)
         {
-            var checkExisting
-                = messageDeserializerResolveRun.RootMessageDeserializationRepository.GetDeserializer(messageDeserializerResolveRun.MessageId!.Value);
+            var checkExisting = RegisterOnRepository!.GetDeserializer(messageDeserializerResolveRun.MessageId!.Value);
             if (checkExisting is INotifyingMessageDeserializer existingNotifyingMessageDeserializer)
             {
                 messageDeserializerResolveRun.MessageDeserializer = existingNotifyingMessageDeserializer;
                 return;
             }
 
-            ;
             RegisterOnRepository!.RegisterDeserializer(messageDeserializerResolveRun.MessageId.Value
                 , messageDeserializerResolveRun.MessageDeserializer!);
         }

@@ -12,6 +12,8 @@ namespace FortitudeCommon.DataStructures.Maps.IdMap;
 /// </summary>
 public class IdLookup<T> : IIdLookup<T> where T : notnull
 {
+    private static int lastInstanceNum;
+
     protected readonly IDictionary<int, T> Cache = new Dictionary<int, T>();
     protected readonly IDictionary<T, int> ReverseLookup = new Dictionary<T, int>();
 
@@ -26,13 +28,15 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
 
     public IdLookup(IIdLookup<T> toClone) : this((toClone as IdLookup<T>)?.Cache) { }
 
+    public int InstanceNum { get; } = Interlocked.Increment(ref lastInstanceNum);
+
     public virtual T? this[int id] => Cache.TryGetValue(id, out var name) ? name : default;
 
     public virtual int this[T? name]
     {
         get
         {
-            if (name == null) return -1;
+            if (name == null) return 0;
             return ReverseLookup.TryGetValue(name, out var value) ? value : -1;
         }
     }
@@ -63,7 +67,7 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<System.Collections.Generic.KeyValuePair<int, T>> GetEnumerator() => Cache.GetEnumerator();
+    public IEnumerator<KeyValuePair<int, T>> GetEnumerator() => Cache.GetEnumerator();
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IIdLookup<T>, true);
 

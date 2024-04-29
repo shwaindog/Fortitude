@@ -2,6 +2,7 @@
 
 using System.Collections;
 using FortitudeBusRules.BusMessaging.Messages;
+using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Config;
@@ -40,7 +41,11 @@ public interface IMessageQueueGroupContainer : IEnumerable<IMessageQueue>
     ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+    ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
+    ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
     void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+
+    IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate);
 }
 
 public class MessageQueueGroupContainer : IMessageQueueGroupContainer
@@ -150,6 +155,13 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         return eventQueueEnumerator;
     }
 
+    public IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate)
+    {
+        var eventQueueEnumerator = recycler.Borrow<AutoRecycledEnumerable<IRule>>();
+        foreach (var messageQueue in this) eventQueueEnumerator.AddRange(messageQueue.RulesMatching(predicate));
+        return eventQueueEnumerator;
+    }
+
     public void LaunchRule(IRule sender, IRule rule, DeploymentOptions options)
     {
         var selectionStrategy = strategySelector.SelectDeployStrategy(sender, rule, options);
@@ -199,7 +211,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             var requestResponseSelectionResult = selectionResult.First();
             var destinationEventQueue = requestResponseSelectionResult.MessageQueue;
             var destinationRule = requestResponseSelectionResult.Rule;
-            return destinationEventQueue.RequestFromPayloadAsync<T, U>(msg, sender, processorRegistry, publishAddress
+            return destinationEventQueue.RequestFromPayloadAsync<T, U>(msg, sender, publishAddress, processorRegistry: processorRegistry
                 , ruleFilter: destinationRule?.AppliesToThisRule);
         }
 
@@ -220,8 +232,8 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             {
                 var destinationEventQueue = routeResult.MessageQueue;
                 var destinationRule = routeResult.Rule;
-                destinationEventQueue.EnqueuePayloadBody(payload, sender, publishAddress, ruleFilter: destinationRule?.AppliesToThisRule
-                    , payloadMarshaller: payLoadMarshaller);
+                destinationEventQueue.EnqueuePayloadBody(payload, sender, MessageType.Publish, publishAddress, destinationRule?.AppliesToThisRule
+                    , payLoadMarshaller);
             }
 
             payLoadMarshaller?.DecrementRefCount();
@@ -255,9 +267,8 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             {
                 var destinationEventQueue = routeResult.MessageQueue;
                 var destinationRule = routeResult.Rule;
-                var _ = destinationEventQueue.EnqueuePayloadBodyWithStatsAsync(payload, sender, processorRegistry
-                    , publishAddress
-                    , ruleFilter: destinationRule?.AppliesToThisRule, payloadMarshaller: payLoadMarshaller);
+                var _ = destinationEventQueue.EnqueuePayloadBodyWithStatsAsync(payload, sender, MessageType.Publish, publishAddress
+                    , processorRegistry, destinationRule?.AppliesToThisRule, payLoadMarshaller);
             }
 
             payLoadMarshaller?.DecrementRefCount();
@@ -385,5 +396,25 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         if (selector.IsCustom()) result.AddRange(CustomMessageQueueGroup);
 
         return result;
+    }
+
+    public async ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , MessageQueueType onQueueTypes)
+    {
+        var asyncDispatchResults = sender.Context.PooledRecycler.Borrow<ReusableList<ValueTask<IDispatchResult>>>();
+        foreach (var messageQueue in SelectEventQueues(onQueueTypes))
+            asyncDispatchResults.Add(messageQueue.AddListenSubscribeInterceptor(sender, interceptor));
+
+        foreach (var asyncDispatchResult in asyncDispatchResults) await asyncDispatchResult;
+    }
+
+    public async ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , MessageQueueType onQueueTypes)
+    {
+        var asyncDispatchResults = sender.Context.PooledRecycler.Borrow<ReusableList<ValueTask<IDispatchResult>>>();
+        foreach (var messageQueue in SelectEventQueues(onQueueTypes))
+            asyncDispatchResults.Add(messageQueue.RemoveListenSubscribeInterceptor(sender, interceptor));
+
+        foreach (var asyncDispatchResult in asyncDispatchResults) await asyncDispatchResult;
     }
 }

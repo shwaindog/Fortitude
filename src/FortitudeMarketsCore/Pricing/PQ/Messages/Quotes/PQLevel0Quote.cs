@@ -44,6 +44,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         SourceTickerQuoteInfo = new PQSourceTickerQuoteInfo(toClone.SourceTickerQuoteInfo!);
         if (toClone is IPQLevel0Quote pqLevel0Quote)
         {
+            OverrideSerializationFlags = pqLevel0Quote.OverrideSerializationFlags;
             SourceTickerQuoteInfo = pqLevel0Quote.SourceTickerQuoteInfo;
             PQSequenceId = pqLevel0Quote.PQSequenceId;
             PQSyncStatus = pqLevel0Quote.PQSyncStatus;
@@ -66,6 +67,8 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         $"{nameof(IsSyncStatusUpdated)}: {IsSyncStatusUpdated}, {nameof(SinglePrice)}: {SinglePrice}, " +
         $"{nameof(IsSinglePriceUpdated)}: {IsSinglePriceUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
         $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
+
+    public PQMessageFlags? OverrideSerializationFlags { get; set; }
 
     public uint MessageId => (uint)PQMessageIds.Quote;
 
@@ -238,6 +241,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public virtual void ResetFields()
     {
+        OverrideSerializationFlags = null;
         PQSequenceId = 0;
         singlePrice = 0;
         sourceTime = DateTimeConstants.UnixEpoch;
@@ -364,8 +368,8 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                 yield return field;
     }
 
-    public virtual bool UpdateFieldString(PQFieldStringUpdate updates) =>
-        PQSourceTickerQuoteInfo != null && PQSourceTickerQuoteInfo.UpdateFieldString(updates);
+    public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate) =>
+        PQSourceTickerQuoteInfo != null && PQSourceTickerQuoteInfo.UpdateFieldString(stringUpdate);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -385,6 +389,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             if (ipq0.IsSyncStatusUpdated) PQSyncStatus = ipq0.PQSyncStatus;
             //PQ tracks its own changes only copy explicit changes
 
+            OverrideSerializationFlags = ipq0.OverrideSerializationFlags;
             PQSequenceId = ipq0.PQSequenceId;
             SocketReceivingTime = ipq0.SocketReceivingTime;
             DispatchedTime = ipq0.DispatchedTime;

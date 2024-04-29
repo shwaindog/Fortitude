@@ -7,8 +7,7 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 
 namespace FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
 
-public class
-    RecentlyTradedLastTradeEntrySelector : LastTradeEntryFlagsSelector<IMutableLastTrade, ISourceTickerQuoteInfo>
+public class RecentlyTradedLastTradeEntrySelector : LastTradeEntryFlagsSelector<IMutableLastTrade, ISourceTickerQuoteInfo>
 {
     protected override IMutableLastTrade SelectSimpleLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new LastTrade();
 

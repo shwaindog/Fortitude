@@ -7,6 +7,12 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 
 namespace FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 
+public interface ILayerFlagsSelector<T, Tu> where T : class where Tu : ISourceTickerQuoteInfo
+{
+    T FindForLayerFlags(Tu sourceTickerQuoteInfo);
+    IPriceVolumeLayer? ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false);
+}
+
 public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
     where T : class
     where Tu : ISourceTickerQuoteInfo
@@ -43,8 +49,7 @@ public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
         return SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerQuoteInfo);
     }
 
-    public abstract IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer,
-        bool clone = false);
+    public abstract IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false);
 
     protected abstract T SelectSimplePriceVolumeLayer(Tu sourceTickerQuoteInfo);
     protected abstract T SelectValueDatePriceVolumeLayer(Tu sourceTickerQuoteInfo);

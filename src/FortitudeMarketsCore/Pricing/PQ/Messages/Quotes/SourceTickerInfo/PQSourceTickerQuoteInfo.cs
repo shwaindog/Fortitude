@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Globalization;
+using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -13,6 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 
 public interface IPQSourceTickerQuoteInfo : ISourceTickerQuoteInfo, IPQQuotePublicationPrecisionSettings, ICloneable<IPQSourceTickerQuoteInfo>
+    , IHasNameIdLookup
 {
     bool IsIdUpdated { get; set; }
     bool IsSourceUpdated { get; set; }
@@ -25,9 +27,10 @@ public interface IPQSourceTickerQuoteInfo : ISourceTickerQuoteInfo, IPQQuotePubl
     bool IsLayerFlagsUpdated { get; set; }
     bool IsMaximumPublishedLayersUpdated { get; set; }
     bool IsLastTradedFlagsUpdated { get; set; }
-    IPQNameIdLookupGenerator? SourceNameIdLookup { get; set; }
-    IPQNameIdLookupGenerator? TraderNameIdLookup { get; set; }
-    IPQNameIdLookupGenerator? LastTraderNameLookup { get; set; }
+
+    new IPQNameIdLookupGenerator NameIdLookup { get; set; }
+
+    new IPQSourceTickerQuoteInfo Clone();
 }
 
 public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
@@ -88,9 +91,7 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
             IsIdUpdated = pubToClone.IsIdUpdated;
             IsSourceUpdated = pubToClone.IsSourceUpdated;
             IsTickerUpdated = pubToClone.IsTickerUpdated;
-            SourceNameIdLookup = pubToClone.SourceNameIdLookup;
-            TraderNameIdLookup = pubToClone.TraderNameIdLookup;
-            LastTraderNameLookup = pubToClone.LastTraderNameLookup;
+            NameIdLookup = pubToClone.NameIdLookup.Clone();
             IsIncrementSizeUpdated = pubToClone.IsIncrementSizeUpdated;
             IsLastTradedFlagsUpdated = pubToClone.IsLastTradedFlagsUpdated;
             IsMaxSubmitSizeUpdated = pubToClone.IsMaxSubmitSizeUpdated;
@@ -387,9 +388,9 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
         }
     }
 
-    public IPQNameIdLookupGenerator? SourceNameIdLookup { get; set; }
-    public IPQNameIdLookupGenerator? TraderNameIdLookup { get; set; }
-    public IPQNameIdLookupGenerator? LastTraderNameLookup { get; set; }
+    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFieldKeys.SourceTickerNames);
 
 
     public bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
@@ -477,19 +478,19 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
         if (!isUpdateOnly || IsSourceUpdated)
             yield return new PQFieldStringUpdate
             {
-                Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpdate), StringUpdate
+                Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpsert), StringUpdate
                     = new PQStringUpdate
                     {
-                        DictionaryId = 0, Value = Source, Command = CrudCommand.Update
+                        DictionaryId = 0, Value = Source, Command = CrudCommand.Upsert
                     }
             };
         if (!isUpdateOnly || IsTickerUpdated)
             yield return new PQFieldStringUpdate
             {
-                Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpdate), StringUpdate
+                Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpsert), StringUpdate
                     = new PQStringUpdate
                     {
-                        DictionaryId = 1, Value = Ticker, Command = CrudCommand.Update
+                        DictionaryId = 1, Value = Ticker, Command = CrudCommand.Upsert
                     }
             };
     }
@@ -499,7 +500,7 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
         if (updates.Field.Id == PQFieldKeys.SourceTickerNames)
         {
             var stringUpdt = updates.StringUpdate;
-            var upsert = stringUpdt.Command == CrudCommand.Update || stringUpdt.Command == CrudCommand.Insert;
+            var upsert = stringUpdt.Command == CrudCommand.Upsert;
             if (stringUpdt.DictionaryId == 0 && upsert) Source = updates.StringUpdate.Value;
             if (stringUpdt.DictionaryId == 1 && upsert) Ticker = updates.StringUpdate.Value;
             return true;

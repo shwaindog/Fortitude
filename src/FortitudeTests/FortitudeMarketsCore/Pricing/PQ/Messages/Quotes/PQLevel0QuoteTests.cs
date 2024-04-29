@@ -528,6 +528,8 @@ public class PQLevel0QuoteTests
         public IPQLevel0Quote? Previous { get; set; }
         public IPQLevel0Quote? Next { get; set; }
 
+        public PQMessageFlags? OverrideSerializationFlags { get; set; }
+
         IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
 
         ILevel0Quote ICloneable<ILevel0Quote>.Clone() => Clone();
@@ -552,7 +554,7 @@ public class PQLevel0QuoteTests
         DateTime IMutableLevel0Quote.ClientReceivedTime { get; set; }
         decimal IMutableLevel0Quote.SinglePrice { get; set; }
         public int UpdateField(PQFieldUpdate updates) => -1;
-        public bool UpdateFieldString(PQFieldStringUpdate updates) => false;
+        public bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => false;
 
         public override ILevel0Quote CopyFrom(ILevel0Quote source
             , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>

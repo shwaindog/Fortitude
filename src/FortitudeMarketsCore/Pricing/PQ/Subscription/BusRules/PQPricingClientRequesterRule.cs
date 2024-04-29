@@ -108,8 +108,6 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
     {
         if (!toPublish.Any() || toPublish.SequenceEqual(lastReceivedSourceTickerQuoteInfos)) return;
         lastReceivedSourceTickerQuoteInfos = toPublish.ToList();
-        logger.Info("Received Source ticker quote infos from server");
-        foreach (var sourceTickerQuoteInfo in toPublish) logger.Info("{0}", sourceTickerQuoteInfo);
         var publishSourceTickerInfos = Context.PooledRecycler.Borrow<FeedSourceTickerInfoUpdate>();
         publishSourceTickerInfos.FeedName = feedName;
         publishSourceTickerInfos.SourceTickerQuoteInfos.AddRange(lastReceivedSourceTickerQuoteInfos);

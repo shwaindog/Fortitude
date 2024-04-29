@@ -34,7 +34,7 @@ public class ListenerRegistry
         return false;
     }
 
-    public void RemoveListenerFromWatchList(MessageListenerUnsubscribe unsubscribePayload)
+    public ValueTask RemoveListenerFromWatchList(MessageListenerUnsubscribe unsubscribePayload)
     {
         var listeningAddress = unsubscribePayload.PublishAddress;
         if (AddressMatcher.IsMatcherPattern(listeningAddress))
@@ -65,24 +65,42 @@ public class ListenerRegistry
         }
 
         unsubscribePayload.SubscriberRule.DecrementLifeTimeCount();
+        return ValueTask.CompletedTask;
     }
 
-    public void AddSubscribeInterceptor(IListenSubscribeInterceptor interceptor)
+    private IEnumerable<IMessageListenerSubscription> AllRegiListenerSubscriptions => Listeners.SelectMany(kvp => kvp.Value);
+
+    public async ValueTask AddSubscribeInterceptor(IListenSubscribeInterceptor interceptor)
     {
         subscribeInterceptors.Add(interceptor);
+        foreach (var messageListenerSubscription in AllRegiListenerSubscriptions)
+        {
+            if (interceptor.ShouldRunIntercept(messageListenerSubscription))
+            {
+                await interceptor.Intercept(messageListenerSubscription);
+            }
+        }
     }
 
-    public void RemoveSubscribeInterceptor(IListenSubscribeInterceptor interceptor)
+    public ValueTask RemoveSubscribeInterceptor(IListenSubscribeInterceptor interceptor)
     {
         subscribeInterceptors.Remove(interceptor);
+        foreach (var messageListenerSubscription in AllRegiListenerSubscriptions)
+        {
+            if (messageListenerSubscription.ActiveListenSubscribeInterceptors.Any( lsi => lsi.Name == interceptor.Name))
+            {
+                messageListenerSubscription.RemoveListenSubscriptionInterceptor(interceptor.Name);
+            }
+        }
+        return ValueTask.CompletedTask;
     }
 
-    public void AddListenerToWatchList(IMessageListenerSubscription subscribePayload)
+    public async ValueTask AddListenerToWatchList(IMessageListenerSubscription subscribePayload)
     {
         subscribePayload.SubscriberRule.IncrementLifeTimeCount();
         foreach (var listenSubscribeInterceptor in subscribeInterceptors)
         {
-            listenSubscribeInterceptor.Intercept(subscribePayload);
+            await listenSubscribeInterceptor.Intercept(subscribePayload);
         }
         if (subscribePayload.Matcher != null)
         {
@@ -102,7 +120,7 @@ public class ListenerRegistry
     }
 
 
-    public void UnsubscribeAllListenersForRule(IRule removeListeners)
+    public ValueTask UnsubscribeAllListenersForRule(IRule removeListeners)
     {
         destinationAddresses.Clear();
         for (var i = 0; i < matcherListenerSubscriptions.Count; i++)
@@ -134,6 +152,7 @@ public class ListenerRegistry
             var emptyDestinationAddress = destinationAddresses[i];
             Listeners.Remove(emptyDestinationAddress);
         }
+        return ValueTask.CompletedTask;
     }
 
     public IEnumerable<IMessageListenerSubscription> MatchingSubscriptions(string address)

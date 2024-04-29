@@ -659,11 +659,10 @@ public class PQLevel3QuoteTests
                 var expectedStringUpdates = new PQFieldStringUpdate
                 {
                     Field = new PQFieldUpdate(
-                        PQFieldKeys.LastTraderDictionaryUpsertCommand, 0u,
-                        PQFieldFlags.TraderNameIdLookupSubDictionaryKey | PQFieldFlags.IsUpdate)
+                        PQFieldKeys.LastTraderDictionaryUpsertCommand, 0u, PQFieldFlags.IsUpsert)
                     , StringUpdate = new PQStringUpdate
                     {
-                        Command = CrudCommand.Update, DictionaryId = lastTrade.TraderNameIdLookup[lastTrade.TraderName]
+                        Command = CrudCommand.Upsert, DictionaryId = lastTrade.NameIdLookup[lastTrade.TraderName]
                         , Value = lastTrade.TraderName
                     }
                 };
@@ -671,7 +670,7 @@ public class PQLevel3QuoteTests
 
                 lastTrade.IsTraderNameUpdated = false;
                 Assert.IsTrue(lastTrade.HasUpdates);
-                lastTrade.TraderNameIdLookup.HasUpdates = false;
+                lastTrade.NameIdLookup.HasUpdates = false;
                 Assert.IsFalse(lastTrade.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated = false;
@@ -782,9 +781,8 @@ public class PQLevel3QuoteTests
             var emptyQuoteSourceTickerQuoteInfo
                 = new PQSourceTickerQuoteInfo(populatedL3Quote.SourceTickerQuoteInfo!)
                 {
-                    LastTraderNameLookup = new PQNameIdLookupGenerator(
-                        PQFieldKeys.LayerNameDictionaryUpsertCommand,
-                        PQFieldFlags.TraderNameIdLookupSubDictionaryKey)
+                    NameIdLookup = new PQNameIdLookupGenerator(
+                        PQFieldKeys.LayerNameDictionaryUpsertCommand)
                 };
             var newEmpty = new PQLevel3Quote(emptyQuoteSourceTickerQuoteInfo);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);

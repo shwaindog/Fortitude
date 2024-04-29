@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
@@ -13,20 +14,24 @@ namespace FortitudeIO.Protocols.Serdes.Binary;
 
 public interface IMessageDeserializer : IStoreState<IMessageDeserializer>, ICloneable<IMessageDeserializer>
 {
+    int InstanceNumber { get; }
     Type MessageType { get; }
     IMessageDeserializationRepository? RegisteredRepository { get; set; }
     object? Deserialize(IBufferContext socketBufferReadContext);
 }
 
 public interface IMessageDeserializer<out TM> : IMessageDeserializer, IDeserializer<TM>
-    where TM : class, IVersionedMessage, new()
+    where TM : class, IVersionedMessage
 {
     new TM? Deserialize(IBufferContext bufferContext);
 }
 
 public abstract class BinaryMessageDeserializer<TM> : IMessageDeserializer<TM>
-    where TM : class, IVersionedMessage, new()
+    where TM : class, IVersionedMessage
 {
+    private static int lastInstanceNumber;
+
+    public int InstanceNumber { get; } = Interlocked.Increment(ref lastInstanceNumber);
     public virtual IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => this;
     public MarshalType MarshalType => MarshalType.Binary;
     public virtual IMessageDeserializer CopyFrom(IMessageDeserializer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
@@ -42,10 +47,10 @@ public abstract class BinaryMessageDeserializer<TM> : IMessageDeserializer<TM>
 }
 
 public delegate void ConversationMessageReceivedHandler<in TM>(TM deserializedMessage, MessageHeader header, IConversation conversation)
-    where TM : class, IVersionedMessage, new();
+    where TM : class, IVersionedMessage;
 
-public delegate void MessageDeserializedHandler<in TM>(TM deserializedMessage, IBufferContext bufferContext)
-    where TM : class, IVersionedMessage, new();
+public delegate void MessageDeserializedHandler<in TM>(TM deserializedMessage)
+    where TM : class, IVersionedMessage;
 
 public interface INotifyingMessageDeserializer : IMessageDeserializer
 {
@@ -57,7 +62,7 @@ public interface INotifyingMessageDeserializer : IMessageDeserializer
 
 public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>, INotifyingMessageDeserializer
     , IStoreState<INotifyingMessageDeserializer<TM>>
-    where TM : class, IVersionedMessage, new()
+    where TM : class, IVersionedMessage
 {
     event ConversationMessageReceivedHandler<TM>? ConversationMessageDeserialized;
     event MessageDeserializedHandler<TM>? MessageDeserialized;
@@ -67,8 +72,9 @@ public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>, I
 }
 
 public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, INotifyingMessageDeserializer<TM>
-    where TM : class, IVersionedMessage, new()
+    where TM : class, IVersionedMessage
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessageDeserializer<TM>));
     private readonly IMap<string, IDeserializedNotifier> registeredNotifiers = new ConcurrentMap<string, IDeserializedNotifier>();
 
     protected MessageDeserializer() { }
@@ -171,10 +177,15 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
         return this;
     }
 
-    protected void OnNotify(TM data, IBufferContext bufferContext)
+    protected void OnNotify(TM message)
     {
-        MessageDeserialized?.Invoke(data, bufferContext);
+        MessageDeserialized?.Invoke(message);
+    }
+
+    protected void OnNotify(TM message, IBufferContext bufferContext)
+    {
+        MessageDeserialized?.Invoke(message);
         if (bufferContext is ISocketBufferReadContext socketBufferReadContext)
-            ConversationMessageDeserialized?.Invoke(data, socketBufferReadContext.MessageHeader, socketBufferReadContext.Conversation!);
+            ConversationMessageDeserialized?.Invoke(message, socketBufferReadContext.MessageHeader, socketBufferReadContext.Conversation!);
     }
 }

@@ -33,7 +33,7 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
     protected override bool ShouldPublish => true;
 
 
-    public override PQLevel0Quote? Deserialize(ISerdeContext readContext)
+    public override T? Deserialize(ISerdeContext readContext)
     {
         if ((readContext.Direction & ContextDirection.Read) == 0)
             throw new ArgumentException("Expected readContext to allow reading");
@@ -53,7 +53,7 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
             else
                 OnReceivedUpdate(this);
             feedIsStopped = false;
-            return PublishedQuote as PQLevel0Quote;
+            return PublishedQuote;
         }
 
         throw new ArgumentException("Expected readContext to be of type IBufferContext");

@@ -316,10 +316,9 @@ public class PQQuoteSerializerTests
                 var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
                 Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
 
-                var command = (flag & PQFieldFlags.IsUpdate) == PQFieldFlags.IsUpdate ? CrudCommand.Update
-                    : (flag & PQFieldFlags.IsDelete) == PQFieldFlags.IsDelete ? CrudCommand.None
-                    : CrudCommand.Insert;
-                Assert.AreEqual(stringUpdate.StringUpdate.Command, command);
+                var command = (flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
+                Assert.AreEqual(stringUpdate.StringUpdate.Command, command
+                    , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
             }
 
             Assert.AreEqual(amtWritten, currPtr - startWritten);

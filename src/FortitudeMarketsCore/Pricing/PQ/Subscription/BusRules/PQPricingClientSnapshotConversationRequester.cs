@@ -5,7 +5,6 @@ using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Connectivity.Network;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
-using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization.Rules;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
@@ -23,6 +22,7 @@ using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -34,7 +34,6 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 public sealed class PQPricingClientSnapshotConversationRequester : ConversationRequester, IPQSnapshotClientCommon
 {
     private static ISocketFactoryResolver? socketFactories;
-    private readonly string busPublicationSubscriptionAmenderAddress;
     private readonly IRule creatingRule;
     private readonly uint cxTimeoutMs;
     private readonly string feedName;
@@ -46,8 +45,9 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
     private readonly string requestResponseHandlerRegistrationAddress;
     private readonly IMessageDeserializationRepository sharedDeserializationRepo;
     private readonly IActionTimer timer;
+    private bool hasHadSuccessfullSourceTickerResponse;
 
-    private TopicDeserializationRepositoryAmendingRule? receiverQueuePublishAmender;
+    private IRule? receiverQueuePublishAmender;
     private ITimerUpdate? timeoutTimerUpdate;
 
     public PQPricingClientSnapshotConversationRequester(ISocketSessionContext socketSessionContext, IStreamControls streamControls, string feedName
@@ -64,7 +64,6 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         messageBus = creatingRule.Context.MessageBus;
         cxTimeoutMs = socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
         requestResponseHandlerRegistrationAddress = feedName.FeedRequestResponseRegistrationAddress();
-        busPublicationSubscriptionAmenderAddress = feedName.FeedAmendTickerPublicationAddress();
         Connected += RestartTimeoutTimer;
         Disconnected += DisableTimeout;
         socketSessionContext.SocketFactoryResolver.SocketReceiverFactory.ConfigureNewSocketReceiver += socketReceiver =>
@@ -128,13 +127,21 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
                 , requestResponseHandlerRegistrationAddress, registerRequest
                 , new DispatchOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, receiverQueuePublishAmender));
 
-            logger.Info("Response to registration is {0}", registrationResponse.Response);
+            if (!registrationResponse.Response?.Succeeded ?? false)
+            {
+                logger.Info("Failed registration source ticker id response got {0}, for {1}", registrationResponse.Response, feedName);
+                return null;
+            }
 
             var responseValueTask = new ValueTask<PQSourceTickerInfoResponse>(reusableValueTaskSource, reusableValueTaskSource.Version);
-            logger.Info("Sending SourceTickerInfoRequest for source {0}", Name);
+            if (!hasHadSuccessfullSourceTickerResponse) logger.Info("Sending SourceTickerInfoRequest for source {0}", Name);
             Send(pqSourceTickerInfoRequest);
             pqSourceTickerInfoRequest.DecrementRefCount();
             var sourceTickerInfosResponse = await responseValueTask;
+            if (!sourceTickerInfosResponse.SourceTickerQuoteInfos.Any())
+                logger.Info("Request for source ticker info return no tickers for {0}. Got {1}", feedName, sourceTickerInfosResponse);
+            else
+                hasHadSuccessfullSourceTickerResponse = true;
             LastPublishedSourceTickerQuoteInfos = sourceTickerInfosResponse.SourceTickerQuoteInfos;
             return sourceTickerInfosResponse;
         }
@@ -160,12 +167,13 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
 
     private async ValueTask CheckAndLaunchTopicDeserializationRepositoryAmendingRuleStarted()
     {
+        receiverQueuePublishAmender = messageBus.RulesMatching(r => r.FriendlyName == feedName.FeedAmendTickerPublicationRuleName()).FirstOrDefault();
         if (receiverQueuePublishAmender == null || receiverQueuePublishAmender.LifeCycleState is RuleLifeCycle.NotStarted or RuleLifeCycle.Stopped)
         {
             var deployedSocketListenerQueue
                 = messageBus.BusIOResolver.GetInboundQueueOnSocketListener(SocketSessionContext.SocketDispatcher.Listener!);
-            receiverQueuePublishAmender = new PQPricingClientBusSubscriptionsAmenderRule(SocketSessionContext
-                , feedName, pricingServerConfig, null, sharedDeserializationRepo.Name);
+            receiverQueuePublishAmender = new PQPricingClientBusSubscriptionsAmenderRule(feedName, SocketSessionContext, pricingServerConfig,
+                new PQtoPQPriceConverterRepository(), sharedDeserializationRepo.Name);
             var dispatchResult = await messageBus.DeployRuleAsync(creatingRule, receiverQueuePublishAmender
                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
 

@@ -25,10 +25,8 @@ public class PQTraderLayerInfoTests
     [TestInitialize]
     public void SetUp()
     {
-        emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-            PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
-        nameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-            PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+        emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        nameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
         emptyTli = new PQTraderLayerInfo(emptyNameIdLookup.Clone());
         populatedTli = new PQTraderLayerInfo(nameIdLookup, TraderName, 42_111_222m);
     }
@@ -40,14 +38,14 @@ public class PQTraderLayerInfoTests
         var newTli = new PQTraderLayerInfo(nameIdLookup, newExpectedTraderName, 2_333_444m);
         Assert.AreEqual(newExpectedTraderName, newTli.TraderName);
         Assert.AreEqual(2_333_444m, newTli.TraderVolume);
-        Assert.IsNotNull(newTli.TraderNameIdLookup);
+        Assert.IsNotNull(newTli.NameIdLookup);
         Assert.IsTrue(newTli.IsTraderNameUpdated);
         Assert.IsTrue(newTli.IsTraderVolumeUpdated);
         Assert.IsTrue(newTli.HasUpdates);
 
         Assert.IsNull(emptyTli.TraderName);
         Assert.AreEqual(0m, emptyTli.TraderVolume);
-        Assert.IsNotNull(emptyTli.TraderNameIdLookup);
+        Assert.IsNotNull(emptyTli.NameIdLookup);
         Assert.IsFalse(emptyTli.IsTraderNameUpdated);
         Assert.IsFalse(emptyTli.IsTraderVolumeUpdated);
         Assert.IsFalse(emptyTli.HasUpdates);
@@ -56,7 +54,7 @@ public class PQTraderLayerInfoTests
     [TestMethod]
     public void NewTli_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var fromPQInstance = new PQTraderLayerInfo(populatedTli);
+        var fromPQInstance = new PQTraderLayerInfo(populatedTli, populatedTli.NameIdLookup!);
         Assert.AreEqual(populatedTli.TraderName, fromPQInstance.TraderName);
         Assert.AreEqual(populatedTli.TraderVolume, fromPQInstance.TraderVolume);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
@@ -64,13 +62,13 @@ public class PQTraderLayerInfoTests
 
         var newExpectedTraderName = "NonPQTraderName";
         var nonPQTli = new TraderLayerInfo(newExpectedTraderName, 222_444);
-        var fromNonPqInstance = new PQTraderLayerInfo(nonPQTli);
+        var fromNonPqInstance = new PQTraderLayerInfo(nonPQTli, emptyNameIdLookup.Clone());
         Assert.AreEqual(newExpectedTraderName, fromNonPqInstance.TraderName);
         Assert.AreEqual(222_444, fromNonPqInstance.TraderVolume);
         Assert.IsTrue(fromNonPqInstance.IsTraderNameUpdated);
         Assert.IsTrue(fromNonPqInstance.IsTraderVolumeUpdated);
 
-        var newEmptyTli = new PQTraderLayerInfo(emptyTli);
+        var newEmptyTli = new PQTraderLayerInfo(emptyTli, emptyNameIdLookup);
         Assert.IsNull(newEmptyTli.TraderName);
         Assert.AreEqual(0, newEmptyTli.TraderVolume);
         Assert.IsFalse(newEmptyTli.IsTraderNameUpdated);
@@ -84,7 +82,7 @@ public class PQTraderLayerInfoTests
         {
             IsTraderNameUpdated = false
         };
-        var fromPQInstance = new PQTraderLayerInfo(newPopulatedPvl);
+        var fromPQInstance = new PQTraderLayerInfo(newPopulatedPvl, newPopulatedPvl.NameIdLookup);
         Assert.AreEqual(newPopulatedPvl.TraderName, fromPQInstance.TraderName);
         Assert.AreEqual(newPopulatedPvl.TraderVolume, fromPQInstance.TraderVolume);
         Assert.IsFalse(fromPQInstance.IsTraderNameUpdated);
@@ -94,7 +92,7 @@ public class PQTraderLayerInfoTests
         {
             IsTraderVolumeUpdated = false
         };
-        fromPQInstance = new PQTraderLayerInfo(newPopulatedPvl);
+        fromPQInstance = new PQTraderLayerInfo(newPopulatedPvl, newPopulatedPvl.NameIdLookup);
         Assert.AreEqual(newPopulatedPvl.TraderName, fromPQInstance.TraderName);
         Assert.AreEqual(newPopulatedPvl.TraderVolume, fromPQInstance.TraderVolume);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
@@ -107,14 +105,14 @@ public class PQTraderLayerInfoTests
         Assert.IsNull(emptyTli.TraderName);
         Assert.AreEqual(0, emptyTli.TraderNameId);
         Assert.IsFalse(emptyTli.IsTraderNameUpdated);
-        Assert.AreEqual(0, emptyTli.TraderNameIdLookup.Count);
+        Assert.AreEqual(0, emptyTli.NameIdLookup!.Count);
         Assert.IsTrue(emptyTli.IsEmpty);
         Assert.IsFalse(emptyTli.HasUpdates);
         var newEmptyTli = new PQTraderLayerInfo(emptyNameIdLookup.Clone());
         Assert.IsNull(newEmptyTli.TraderName);
         Assert.AreEqual(0, newEmptyTli.TraderNameId);
         Assert.IsFalse(newEmptyTli.IsTraderNameUpdated);
-        Assert.AreEqual(0, newEmptyTli.TraderNameIdLookup.Count);
+        Assert.AreEqual(0, newEmptyTli.NameIdLookup.Count);
         Assert.IsTrue(newEmptyTli.IsEmpty);
         Assert.IsFalse(newEmptyTli.HasUpdates);
 
@@ -126,7 +124,7 @@ public class PQTraderLayerInfoTests
         Assert.AreEqual(expectedTraderName, emptyTli.TraderName);
         Assert.AreEqual(1, emptyTli.TraderNameId);
         Assert.IsTrue(emptyTli.IsTraderNameUpdated);
-        Assert.AreEqual(1, emptyTli.TraderNameIdLookup.Count);
+        Assert.AreEqual(1, emptyTli.NameIdLookup.Count);
         Assert.IsFalse(emptyTli.IsEmpty);
         Assert.IsTrue(emptyTli.HasUpdates);
 
@@ -137,7 +135,7 @@ public class PQTraderLayerInfoTests
         Assert.AreEqual(expectedTraderName, newEmptyTli.TraderName);
         Assert.AreEqual(1, newEmptyTli.TraderNameId);
         Assert.IsTrue(newEmptyTli.IsTraderNameUpdated);
-        Assert.AreEqual(1, newEmptyTli.TraderNameIdLookup.Count);
+        Assert.AreEqual(1, newEmptyTli.NameIdLookup.Count);
         Assert.IsFalse(newEmptyTli.IsEmpty);
         Assert.IsTrue(newEmptyTli.HasUpdates);
 

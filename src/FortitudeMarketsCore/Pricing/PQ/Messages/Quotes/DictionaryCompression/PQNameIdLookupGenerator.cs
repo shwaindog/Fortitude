@@ -13,20 +13,14 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
     private const uint ReservedForStringSerializedSize = 0;
     private readonly byte dictionaryFieldKey;
     protected readonly List<int> IdsUpdated = new();
-    private readonly byte subDictionaryId;
 
-    public PQNameIdLookupGenerator(byte dictionaryFieldKey, byte subDictionaryId = 0)
-    {
-        this.dictionaryFieldKey = dictionaryFieldKey;
-        this.subDictionaryId = subDictionaryId;
-    }
+    public PQNameIdLookupGenerator(byte dictionaryFieldKey) => this.dictionaryFieldKey = dictionaryFieldKey;
 
-    public PQNameIdLookupGenerator(INameIdLookup toClone) : base(toClone)
+    public PQNameIdLookupGenerator(INameIdLookup toClone, byte? dictionaryFieldKey = null) : base(toClone)
     {
         if (toClone is PQNameIdLookupGenerator pqToClone)
         {
-            dictionaryFieldKey = pqToClone.dictionaryFieldKey;
-            subDictionaryId = pqToClone.subDictionaryId;
+            this.dictionaryFieldKey = dictionaryFieldKey ?? pqToClone.dictionaryFieldKey;
             IdsUpdated = new List<int>(pqToClone.IdsUpdated);
         }
     }
@@ -47,21 +41,20 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         select new PQFieldStringUpdate
         {
             Field = new PQFieldUpdate(dictionaryFieldKey, ReservedForStringSerializedSize,
-                (byte)(subDictionaryId | PQFieldFlags.IsUpdate))
+                PQFieldFlags.IsUpsert)
             , StringUpdate = new PQStringUpdate
             {
-                DictionaryId = kvp.Key, Value = kvp.Value, Command = CrudCommand.Update
+                DictionaryId = kvp.Key, Value = kvp.Value, Command = CrudCommand.Upsert
             }
         };
 
-    public bool UpdateFieldString(PQFieldStringUpdate updates)
+    public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        if (updates.Field.Id != dictionaryFieldKey
-            || (updates.Field.Flag & 0x0F) != subDictionaryId) return false;
-        var id = updates.StringUpdate.DictionaryId;
-        var stringUpdateCommand = updates.StringUpdate.Command;
-        var stringValue = updates.StringUpdate.Value;
-        if (stringUpdateCommand != CrudCommand.Insert && stringUpdateCommand != CrudCommand.Update) return false;
+        if (stringUpdate.Field.Id != dictionaryFieldKey) return false;
+        var id = stringUpdate.StringUpdate.DictionaryId;
+        var stringUpdateCommand = stringUpdate.StringUpdate.Command;
+        var stringValue = stringUpdate.StringUpdate.Value;
+        if (stringUpdateCommand != CrudCommand.Upsert) return false;
         SetIdToName(id, stringValue);
         return true;
     }
@@ -137,7 +130,6 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
             var pqNameIdLookupGen = other as PQNameIdLookupGenerator;
 
             dictionaryIdSame = dictionaryFieldKey == pqNameIdLookupGen?.dictionaryFieldKey;
-            subDictionaryIdSame = subDictionaryId == pqNameIdLookupGen?.subDictionaryId;
         }
 
         return baseSame && dictionaryIdSame && subDictionaryIdSame;
@@ -153,5 +145,5 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 
     public override string ToString() =>
         $"PQNameIdLookupGenerator {{ {nameof(dictionaryFieldKey)}: {dictionaryFieldKey}, " +
-        $"{nameof(subDictionaryId)}: {subDictionaryId}, {nameof(Cache)}: {Cache.ListDictionaryContents()}";
+        $"{nameof(Cache)}: {Cache.ListDictionaryContents()}";
 }

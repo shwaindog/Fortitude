@@ -7,7 +7,6 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded.LastTradeEntrySelector;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
@@ -37,8 +36,7 @@ public class PQRecentlyTradedTests
     [TestInitialize]
     public void SetUp()
     {
-        traderNameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand,
-            PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+        traderNameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
 
         simpleEntries = new List<IPQLastTrade>(MaxNumberOfEntries);
         lastPaidGivenEntries = new List<IPQLastPaidGivenTrade>(MaxNumberOfEntries);
@@ -55,8 +53,8 @@ public class PQRecentlyTradedTests
             simpleEntries.Add(new PQLastTrade(1.234567m, new DateTime(2018, 1, 2, 22, 52, 59)));
             lastPaidGivenEntries.Add(new PQLastPaidGivenTrade(1.234567m, new DateTime(2018, 1, 2, 22, 52, 59),
                 40_111_222m, true, true));
-            lastTraderPaidGivenEntries.Add(new PQLastTraderPaidGivenTrade(1.234567m,
-                new DateTime(2018, 1, 2, 22, 52, 59), 40_111_222m, true, true, traderNameIdLookupGenerator)
+            lastTraderPaidGivenEntries.Add(new PQLastTraderPaidGivenTrade(traderNameIdLookupGenerator, 1.234567m,
+                new DateTime(2018, 1, 2, 22, 52, 59), 40_111_222m, true, true)
             {
                 TraderName = "TestTraderName"
             });
@@ -83,7 +81,7 @@ public class PQRecentlyTradedTests
             for (var j = 0; j < MaxNumberOfEntries; j++)
             {
                 Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
-                Assert.AreSame(populatedEntries[j], populatedRecentlyTraded[j]);
+                Assert.AreNotSame(populatedEntries[j], populatedRecentlyTraded[j]);
             }
         }
     }
@@ -205,18 +203,12 @@ public class PQRecentlyTradedTests
                     Assert.IsTrue(populatedRecentlyTraded.HasUpdates);
                     Assert.IsTrue(traderPaidGivenTrader.HasUpdates);
                     traderPaidGivenTrader.IsTraderNameUpdated = false;
-                    traderPaidGivenTrader.TraderNameIdLookup.HasUpdates = false;
+                    traderPaidGivenTrader.NameIdLookup.HasUpdates = false;
                     Assert.IsFalse(populatedRecentlyTraded.HasUpdates);
                     Assert.IsFalse(traderPaidGivenTrader.HasUpdates);
                 }
             }
         }
-    }
-
-    [TestMethod]
-    public void StaticDefault_EntryConverter_IsPQLastTradeEntySelector()
-    {
-        Assert.AreSame(typeof(PQLastTradeEntrySelector), PQRecentlyTraded.LastTradeEntrySelector.GetType());
     }
 
     [TestMethod]
@@ -585,9 +577,8 @@ public class PQRecentlyTradedTests
         var cloneGensis = populatedOrderBook[0]!.Clone();
         cloneGensis.StateReset();
         if (cloneGensis is IPQLastTraderPaidGivenTrade traderLastTrade)
-            traderLastTrade.TraderNameIdLookup = new PQNameIdLookupGenerator(
-                PQFieldKeys.LastTraderDictionaryUpsertCommand,
-                PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+            traderLastTrade.NameIdLookup = new PQNameIdLookupGenerator(
+                PQFieldKeys.LastTraderDictionaryUpsertCommand);
         var clonedEmptyEntries = new List<IPQLastTrade>(MaxNumberOfEntries);
         for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGensis.Clone());
         var newEmpty = new PQRecentlyTraded(clonedEmptyEntries!);

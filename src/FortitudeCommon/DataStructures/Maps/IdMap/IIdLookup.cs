@@ -6,9 +6,10 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.DataStructures.Maps.IdMap;
 
-public interface IIdLookup<T> : IEnumerable<System.Collections.Generic.KeyValuePair<int, T>>, ICloneable,
+public interface IIdLookup<T> : IEnumerable<KeyValuePair<int, T>>, ICloneable,
     IInterfacesComparable<IIdLookup<T>>
 {
+    int InstanceNum { get; }
     T? this[int id] { get; }
     int this[T? name] { get; }
     int Count { get; }

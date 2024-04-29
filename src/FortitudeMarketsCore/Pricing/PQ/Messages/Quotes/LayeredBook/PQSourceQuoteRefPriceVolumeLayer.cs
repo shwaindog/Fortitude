@@ -21,13 +21,14 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
 {
     private uint sourceQuoteReference;
 
-    public PQSourceQuoteRefPriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
-        IPQNameIdLookupGenerator? sourceIdToNameIdLookup = null, string? sourceName = null,
+    public PQSourceQuoteRefPriceVolumeLayer(IPQNameIdLookupGenerator sourceIdToNameIdLookup, decimal price = 0m, decimal volume = 0m,
+        string? sourceName = null,
         bool executable = false, uint quoteRef = 0u)
-        : base(price, volume, sourceIdToNameIdLookup, sourceName, executable) =>
+        : base(sourceIdToNameIdLookup, price, volume, sourceName, executable) =>
         SourceQuoteReference = quoteRef;
 
-    public PQSourceQuoteRefPriceVolumeLayer(IPriceVolumeLayer toClone) : base(toClone)
+    public PQSourceQuoteRefPriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator nameIdLookupGenerator) : base(toClone
+        , nameIdLookupGenerator)
     {
         if (toClone is ISourceQuoteRefPriceVolumeLayer sourceQtRefPvLayer)
             SourceQuoteReference = sourceQtRefPvLayer.SourceQuoteReference;
@@ -112,7 +113,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
 
     IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.Clone() => (IMutableSourceQuoteRefPriceVolumeLayer)Clone();
 
-    public override IPQPriceVolumeLayer Clone() => new PQSourceQuoteRefPriceVolumeLayer(this);
+    public override IPQPriceVolumeLayer Clone() => new PQSourceQuoteRefPriceVolumeLayer(this, NameIdLookup);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

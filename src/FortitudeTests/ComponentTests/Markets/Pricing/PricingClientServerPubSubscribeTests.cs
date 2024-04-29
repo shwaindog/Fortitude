@@ -6,6 +6,7 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
@@ -75,10 +76,14 @@ public class PricingClientServerPubSubscribeTests
             pQuote =>
             {
                 Logger.Info("Client Received pQuote {0}", pQuote);
-                alwaysUpdatedQuote = pqServerL2QuoteServerSetup.ConvertPQToLevel2QuoteWithSourceNameLayer(pQuote);
+                alwaysUpdatedQuote = pQuote.ToL2PriceQuote();
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });
         Logger.Info("Started PQClient and subscribed");
+        // var pqSourceQuoteSnapshot = sourcePriceQuote.ToL2PQQuote();
+        //
+        // pqSourceQuoteSnapshot.OverrideSerializationFlags = PQMessageFlags.Snapshot;
+        // pqPublisher.PublishQuoteUpdate(pqSourceQuoteSnapshot);
 
         var count = 0;
         while ((alwaysUpdatedQuote == null || alwaysUpdatedQuote.SinglePrice == 0m) &&
@@ -165,7 +170,7 @@ public class PricingClientServerPubSubscribeTests
         streamSubscription!.Subscribe(
             pQuote =>
             {
-                alwaysUpdatedQuote = pqServerL3QuoteServerSetup.ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(pQuote);
+                alwaysUpdatedQuote = pQuote.ToL3PriceQuote();
                 Logger.Info("alwaysUpdatedQuote BatchId={0}", alwaysUpdatedQuote.BatchId);
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });

@@ -10,6 +10,7 @@ public enum MessageQueueType
     , Event = 4 // fast executing non I/O rules and events, actions (monitored by watch dog to report long running operations)
     , Worker = 8 // un-monitored (via watchdog) for long running I/O rules, database, disk actions
     , Custom = 16 // user custom pool separate to I/O for custom, instance specific work
+    , AllNonIO = 28
     , All = 31
 }
 

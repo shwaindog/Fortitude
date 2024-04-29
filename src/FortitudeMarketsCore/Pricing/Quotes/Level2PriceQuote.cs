@@ -15,8 +15,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
 {
     public Level2PriceQuote()
     {
-        BidBook = new OrderBook(20);
-        AskBook = new OrderBook(20);
+        BidBook = new OrderBook(BookSide.BidBook, 20);
+        AskBook = new OrderBook(BookSide.AskBook, 20);
     }
 
     public Level2PriceQuote(ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
@@ -62,8 +62,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         }
         else
         {
-            BidBook = new OrderBook(20);
-            AskBook = new OrderBook(20);
+            BidBook = new OrderBook(BookSide.BidBook, 20);
+            AskBook = new OrderBook(BookSide.AskBook, 20);
         }
     }
 
@@ -86,7 +86,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
             else
             {
                 BidBook[0]
-                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as IMutablePriceVolumeLayer;
+                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as
+                        IMutablePriceVolumeLayer;
                 BidBook[0]!.Price = value;
             }
         }
@@ -104,7 +105,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
             else
             {
                 AskBook[0]
-                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as IMutablePriceVolumeLayer;
+                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as
+                        IMutablePriceVolumeLayer;
                 AskBook[0]!.Price = value;
             }
         }

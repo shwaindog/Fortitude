@@ -2,11 +2,9 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 
 #endregion
 
@@ -16,6 +14,7 @@ public interface IPQSourceQuoteRefTraderValueDatePriceVolumeLayer : IPQTraderPri
     IPQValueDatePriceVolumeLayer, IPQSourceQuoteRefPriceVolumeLayer,
     IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer
 {
+    new IPQNameIdLookupGenerator NameIdLookup { get; set; }
     new IPQSourceQuoteRefTraderValueDatePriceVolumeLayer Clone();
 }
 
@@ -29,35 +28,24 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
 
     public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
         : base(initialDict) =>
-        SourceNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-            PQFieldFlags.SourceNameIdLookupSubDictionaryKey);
+        NameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
 
-    public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
-        IPQNameIdLookupGenerator? sourceIdToNameIdLookup = null,
-        IPQNameIdLookupGenerator? traderIdToNameLookup = null,
+    public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(IPQNameIdLookupGenerator nameIdLookup, decimal price = 0m, decimal volume = 0m,
         DateTime? valueDate = null, string? sourceName = null,
         bool executable = false, uint sourceQuoteReference = 0u)
-        : base(price, volume, traderIdToNameLookup)
+        : base(nameIdLookup, price, volume)
     {
-        SourceNameIdLookup = sourceIdToNameIdLookup ??
-                             new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-                                 PQFieldFlags.SourceNameIdLookupSubDictionaryKey);
+        NameIdLookup = nameIdLookup;
         ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
         SourceName = sourceName;
         Executable = executable;
         SourceQuoteReference = sourceQuoteReference;
     }
 
-    public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(IPriceVolumeLayer toClone)
-        : base(toClone)
+    public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator ipNameIdLookupGenerator)
+        : base(toClone, ipNameIdLookupGenerator)
     {
-        if (toClone is IPQSourcePriceVolumeLayer pqSourcePvl)
-            SourceNameIdLookup = pqSourcePvl.SourceNameIdLookup ??
-                                 new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-                                     PQFieldFlags.SourceNameIdLookupSubDictionaryKey);
-        else
-            SourceNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-                PQFieldFlags.SourceNameIdLookupSubDictionaryKey);
+        NameIdLookup = ipNameIdLookupGenerator;
         if (toClone is ISourcePriceVolumeLayer srcPvl)
         {
             SourceName = srcPvl.SourceName;
@@ -144,10 +132,10 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
 
     public string? SourceName
     {
-        get => SourceNameIdLookup[SourceId];
+        get => NameIdLookup[SourceId];
         set
         {
-            var dictionaryId = SourceNameIdLookup.GetOrAddId(value);
+            var dictionaryId = NameIdLookup.GetOrAddId(value);
             if (dictionaryId <= 0 && value != null)
                 throw new Exception("Error attempted to set the Source Name to something " +
                                     "not defined in the source name to Id table.");
@@ -179,19 +167,17 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         }
     }
 
-    public IPQNameIdLookupGenerator SourceNameIdLookup { get; set; }
-
     public override bool IsEmpty =>
         base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch
                      && SourceName == null && SourceQuoteReference == 0u && !Executable;
 
     public override bool HasUpdates
     {
-        get => base.HasUpdates || SourceNameIdLookup!.HasUpdates;
+        get => base.HasUpdates || NameIdLookup!.HasUpdates;
         set
         {
             base.HasUpdates = value;
-            SourceNameIdLookup!.HasUpdates = value;
+            NameIdLookup!.HasUpdates = value;
         }
     }
 
@@ -261,16 +247,16 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
     public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         foreach (var baseUpdates in base.GetStringUpdates(snapShotTime, messageFlags)) yield return baseUpdates;
-        if (SourceNameIdLookup is IPQNameIdLookupGenerator pqNameIdLookupGenerator)
+        if (NameIdLookup is IPQNameIdLookupGenerator pqNameIdLookupGenerator)
             foreach (var stringUpdate in pqNameIdLookupGenerator.GetStringUpdates(snapShotTime, messageFlags))
                 yield return stringUpdate;
     }
 
-    public override bool UpdateFieldString(PQFieldStringUpdate updates)
+    public override bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        base.UpdateFieldString(updates);
-        if (updates.Field.Id != PQFieldKeys.LayerNameDictionaryUpsertCommand) return false;
-        if (SourceNameIdLookup != null) return SourceNameIdLookup.UpdateFieldString(updates);
+        base.UpdateFieldString(stringUpdate);
+        if (stringUpdate.Field.Id != PQFieldKeys.LayerNameDictionaryUpsertCommand) return false;
+        if (NameIdLookup != null) return NameIdLookup.UpdateFieldString(stringUpdate);
         return false;
     }
 
@@ -281,7 +267,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         switch (source)
         {
             case IPQSourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPv:
-                SourceNameIdLookup.CopyFrom(srcQtRefTrdrVlDtPv.SourceNameIdLookup);
+                NameIdLookup.CopyFrom(srcQtRefTrdrVlDtPv.NameIdLookup);
                 if (srcQtRefTrdrVlDtPv.IsValueDateUpdated) ValueDate = srcQtRefTrdrVlDtPv.ValueDate;
                 if (srcQtRefTrdrVlDtPv.IsSourceQuoteReferenceUpdated)
                     SourceQuoteReference = srcQtRefTrdrVlDtPv.SourceQuoteReference;
@@ -290,7 +276,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
                 SetFlagsSame(srcQtRefTrdrVlDtPv);
                 break;
             case IPQSourceQuoteRefPriceVolumeLayer pqSrcQtRefPvLayer:
-                SourceNameIdLookup.CopyFrom(pqSrcQtRefPvLayer.SourceNameIdLookup);
+                NameIdLookup.CopyFrom(pqSrcQtRefPvLayer.NameIdLookup);
                 if (pqSrcQtRefPvLayer.IsSourceQuoteReferenceUpdated)
                     SourceQuoteReference = pqSrcQtRefPvLayer.SourceQuoteReference;
                 if (pqSrcQtRefPvLayer.IsSourceNameUpdated) SourceId = pqSrcQtRefPvLayer.SourceId;
@@ -298,7 +284,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
                 SetFlagsSame(pqSrcQtRefPvLayer);
                 break;
             case IPQSourcePriceVolumeLayer pqSourcePvLayer:
-                SourceNameIdLookup.CopyFrom(pqSourcePvLayer.SourceNameIdLookup);
+                NameIdLookup.CopyFrom(pqSourcePvLayer.NameIdLookup);
                 if (pqSourcePvLayer.IsSourceNameUpdated) SourceId = pqSourcePvLayer.SourceId;
                 if (pqSourcePvLayer.IsExecutableUpdated) Executable = pqSourcePvLayer.Executable;
                 SetFlagsSame(pqSourcePvLayer);
@@ -328,24 +314,6 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         }
 
         return this;
-    }
-
-    public override void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance)
-    {
-        base.EnsureRelatedItemsAreConfigured(referenceInstance);
-        if (referenceInstance is IPQSourceTickerQuoteInfo pqSrcTkrQtInfo)
-            if (ReferenceEquals(pqSrcTkrQtInfo.SourceNameIdLookup, SourceNameIdLookup))
-                SourceNameIdLookup = pqSrcTkrQtInfo.SourceNameIdLookup.Clone();
-        if (SourceNameIdLookup == null)
-            SourceNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-                1);
-    }
-
-    public override void EnsureRelatedItemsAreConfigured(IPQPriceVolumeLayer? referenceInstance)
-    {
-        base.EnsureRelatedItemsAreConfigured(referenceInstance);
-        if (referenceInstance is IPQSourcePriceVolumeLayer pqSrcPvLayer)
-            SourceNameIdLookup = pqSrcPvLayer.SourceNameIdLookup;
     }
 
     IPQSourceQuoteRefTraderValueDatePriceVolumeLayer IPQSourceQuoteRefTraderValueDatePriceVolumeLayer.Clone() =>
@@ -395,7 +363,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
 
     IValueDatePriceVolumeLayer IValueDatePriceVolumeLayer.Clone() => (IValueDatePriceVolumeLayer)Clone();
 
-    public override IPQPriceVolumeLayer Clone() => new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(this);
+    public override IPQPriceVolumeLayer Clone() => new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(this, NameIdLookup);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

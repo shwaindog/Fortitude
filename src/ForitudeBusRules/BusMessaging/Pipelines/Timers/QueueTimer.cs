@@ -95,7 +95,7 @@ public class QueueTimer : Rule, IActionTimer
     public void OneOffTimerEnqueueAsMessage(object? state)
     {
         if (state is ITimerCallbackPayload timerCallbackPayload)
-            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, null, MessageType.TimerPayload);
+            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, MessageType.TimerPayload, null);
     }
 
     public void IntervalTimerEnqueueAsMessage(object? state)
@@ -103,7 +103,7 @@ public class QueueTimer : Rule, IActionTimer
         if (state is ITimerCallbackPayload timerCallbackPayload)
         {
             timerCallbackPayload.IncrementRefCount();
-            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, null, MessageType.TimerPayload);
+            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, MessageType.TimerPayload, null);
         }
     }
 }

@@ -129,13 +129,13 @@ public class PQServerHeartBeatSenderTests
 
             moqUpdateServer.SetupGet(us => us.IsStarted).Returns(true);
             moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
-                .Callback<object>(listObj =>
+                .Callback<IVersionedMessage>(vmsg =>
                 {
-                    var list = listObj as List<IPQLevel0Quote>;
-                    Assert.IsNotNull(list);
-                    Assert.AreEqual(2, list.Count);
-                    Assert.AreEqual(level0Quote1, list[0]);
-                    Assert.AreEqual(level0Quote2, list[1]);
+                    var hbMsg = vmsg as IPQHeartBeatQuotesMessage;
+                    Assert.IsNotNull(hbMsg);
+                    Assert.AreEqual(2, hbMsg.QuotesToSendHeartBeats.Count);
+                    Assert.AreEqual(level0Quote1, hbMsg.QuotesToSendHeartBeats[0]);
+                    Assert.AreEqual(level0Quote2, hbMsg.QuotesToSendHeartBeats[1]);
                 }).Verifiable();
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
@@ -192,13 +192,13 @@ public class PQServerHeartBeatSenderTests
 
             moqUpdateServer.SetupGet(us => us.IsStarted).Returns(true);
             moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
-                .Callback<object>(listObj =>
+                .Callback<IVersionedMessage>(vmsg =>
                 {
-                    var list = listObj as List<IPQLevel0Quote>;
-                    Assert.IsNotNull(list);
-                    Assert.AreEqual(2, list.Count);
-                    Assert.AreEqual(level0Quote1, list[0]);
-                    Assert.AreEqual(level0Quote2, list[1]);
+                    var hbMsg = vmsg as IPQHeartBeatQuotesMessage;
+                    Assert.IsNotNull(hbMsg);
+                    Assert.AreEqual(2, hbMsg.QuotesToSendHeartBeats.Count);
+                    Assert.AreEqual(level0Quote1, hbMsg.QuotesToSendHeartBeats[0]);
+                    Assert.AreEqual(level0Quote2, hbMsg.QuotesToSendHeartBeats[1]);
                 }).Verifiable();
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
@@ -254,13 +254,13 @@ public class PQServerHeartBeatSenderTests
 
             moqUpdateServer.SetupGet(us => us.IsStarted).Returns(false);
             moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
-                .Callback<object>(listObj =>
+                .Callback<IVersionedMessage>(vmsg =>
                 {
-                    var list = listObj as List<IPQLevel0Quote>;
-                    Assert.IsNotNull(list);
-                    Assert.AreEqual(2, list.Count);
-                    Assert.AreEqual(level0Quote1, list[0]);
-                    Assert.AreEqual(level0Quote2, list[1]);
+                    var hbMsg = vmsg as IPQHeartBeatQuotesMessage;
+                    Assert.IsNotNull(hbMsg);
+                    Assert.AreEqual(2, hbMsg.QuotesToSendHeartBeats.Count);
+                    Assert.AreEqual(level0Quote1, hbMsg.QuotesToSendHeartBeats[0]);
+                    Assert.AreEqual(level0Quote2, hbMsg.QuotesToSendHeartBeats[1]);
                 }).Verifiable();
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);

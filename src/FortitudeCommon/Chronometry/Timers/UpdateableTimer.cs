@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
@@ -12,6 +13,7 @@ namespace FortitudeCommon.Chronometry.Timers;
 public class UpdateableTimer : IUpdateableTimer
 {
     public const uint MaxTimerMs = uint.MaxValue - 1;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(UpdateableTimer));
     private static int totalTimers;
     private static ITimer? instance;
     private static readonly object SyncLock = new();
@@ -508,7 +510,18 @@ public class UpdateableTimer : IUpdateableTimer
         var now = TimeContext.UtcNow;
         nextOneOffTimerTickDateTime = !enable ? now + MaxTimerSpan : NextScheduledOneOffTimerTick;
         var nextTick = nextOneOffTimerTickDateTime > now ? nextOneOffTimerTickDateTime - now : TimeSpan.Zero;
-        oneOffTimer.Change(nextTick, heatBeatCheck);
+        TimeSpan rangeCheckNextTick;
+        if (now.Add(nextTick) > now.Add(MaxTimerSpan))
+        {
+            Logger.Warn("Limiting next {0} timer tick as was out of range {1}", enable ? "enabled" : "disabled", nextTick);
+            rangeCheckNextTick = now.Add(nextTick) > now.Add(MaxTimerSpan) ? MaxTimerSpan : nextTick;
+        }
+        else
+        {
+            rangeCheckNextTick = nextTick;
+        }
+
+        oneOffTimer.Change(rangeCheckNextTick, heatBeatCheck);
     }
 
     private void RegisterCallback(TimerCallBackRunInfo timerCallBack)

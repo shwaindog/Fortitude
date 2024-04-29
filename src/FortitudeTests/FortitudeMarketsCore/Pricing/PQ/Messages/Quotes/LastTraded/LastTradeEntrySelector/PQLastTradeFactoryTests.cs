@@ -26,14 +26,14 @@ public class PQLastTradeFactoryTests : PQLastTradeFactoryTestsBase
     {
         var ltFactory = new PQLastTradeFactory();
 
-        var fromPopulatedPQLastTrade = ltFactory.UpgradeLayer(populatedLastTrade);
-        Assert.AreEqual(fromPopulatedPQLastTrade, populatedLastTrade);
+        var fromPopulatedPQLastTrade = ltFactory.UpgradeLayer(PopulatedLastTrade);
+        Assert.AreEqual(fromPopulatedPQLastTrade, PopulatedLastTrade);
 
-        var paidGivenLastTrade = ltFactory.UpgradeLayer(populatedLastPaidGivenTrade);
-        Assert.IsTrue(paidGivenLastTrade.AreEquivalent(populatedLastPaidGivenTrade));
+        var paidGivenLastTrade = ltFactory.UpgradeLayer(PopulatedLastPaidGivenTrade);
+        Assert.IsTrue(paidGivenLastTrade.AreEquivalent(PopulatedLastPaidGivenTrade));
 
         var traderLastTrade =
-            ltFactory.UpgradeLayer(populatedLastTraderPQLastPaidGivenTrade);
-        Assert.IsTrue(traderLastTrade.AreEquivalent(populatedLastTraderPQLastPaidGivenTrade));
+            ltFactory.UpgradeLayer(PopulatedLastTraderPQLastPaidGivenTrade);
+        Assert.IsTrue(traderLastTrade.AreEquivalent(PopulatedLastTraderPQLastPaidGivenTrade));
     }
 }

@@ -9,44 +9,42 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 
 [TestClass]
-public class SourceQuoteRefTraderValueDatePriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
+public class PQSourcePriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
 {
     [TestMethod]
     public void NewPQLastTradeFactory_EntryCreationTypeAndCreateNewLastTradeEnty_ReturnExpected()
     {
-        var pvlFactory = new SourceQuoteRefTraderValueDatePriceVolumeLayerFactory(
-            new PQNameIdLookupGenerator(0),
-            new PQNameIdLookupGenerator(1, 1));
+        var pvlFactory = new PQSourcePriceVolumeLayerFactory(new PQNameIdLookupGenerator(0));
 
-        var emptyPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer();
+        var emptyPvl = new PQSourcePriceVolumeLayer(NameIdLookupGenerator.Clone());
 
-        Assert.AreEqual(typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer), pvlFactory.LayerCreationType);
+        Assert.AreEqual(typeof(PQSourcePriceVolumeLayer), pvlFactory.LayerCreationType);
         Assert.AreEqual(emptyPvl, pvlFactory.CreateNewLayer());
     }
 
     [TestMethod]
     public void InitialisedOtherTypes_UpgradeLayer_PreservesAsMuchCommonSupportedFields()
     {
-        var pvlFactory = new SourceQuoteRefTraderValueDatePriceVolumeLayerFactory(
-            new PQNameIdLookupGenerator(0),
-            new PQNameIdLookupGenerator(1, 1));
+        var pvlFactory = new PQSourcePriceVolumeLayerFactory(new PQNameIdLookupGenerator(0));
 
         var simplePvl = pvlFactory.UpgradeLayer(SimplePvl);
         Assert.IsTrue(SimplePvl.AreEquivalent(simplePvl));
 
         var srcPvl = pvlFactory.UpgradeLayer(SourcePvl);
-        Assert.IsTrue(SourcePvl.AreEquivalent(srcPvl));
+        Assert.AreEqual(srcPvl, SourcePvl);
 
         var srcQtRefPvl = pvlFactory.UpgradeLayer(SourceQtRefPvl);
-        Assert.IsTrue(SourceQtRefPvl.AreEquivalent(srcQtRefPvl));
+        Assert.IsTrue(srcQtRefPvl.AreEquivalent(SourceQtRefPvl));
 
         var vlDtPvl = pvlFactory.UpgradeLayer(VlDtPvl);
-        Assert.IsTrue(VlDtPvl.AreEquivalent(vlDtPvl));
+        Assert.AreEqual(VlDtPvl.Price, vlDtPvl.Price);
+        Assert.AreEqual(VlDtPvl.Volume, vlDtPvl.Volume);
 
         var trdrPvl = pvlFactory.UpgradeLayer(TraderPvl);
-        Assert.IsTrue(TraderPvl.AreEquivalent(trdrPvl));
+        Assert.AreEqual(TraderPvl.Price, trdrPvl.Price);
+        Assert.AreEqual(TraderPvl.Volume, trdrPvl.Volume);
 
         var srcQtRefTrdrVlDtPvl = pvlFactory.UpgradeLayer(SrcQtRefTrdrVlDtPvl);
-        Assert.AreEqual(srcQtRefTrdrVlDtPvl, SrcQtRefTrdrVlDtPvl);
+        Assert.IsTrue(srcQtRefTrdrVlDtPvl.AreEquivalent(SrcQtRefTrdrVlDtPvl));
     }
 }

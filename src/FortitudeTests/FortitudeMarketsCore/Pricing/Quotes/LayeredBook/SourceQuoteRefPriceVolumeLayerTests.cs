@@ -3,6 +3,8 @@
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
@@ -14,6 +16,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 public class SourceQuoteRefPriceVolumeLayerTests
 {
     private SourceQuoteRefPriceVolumeLayer emptyPvl = null!;
+    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
     private SourceQuoteRefPriceVolumeLayer populatedPvl = null!;
     private uint wellKnownQuoteRefNum;
 
@@ -22,6 +25,8 @@ public class SourceQuoteRefPriceVolumeLayerTests
     [TestInitialize]
     public void SetUp()
     {
+        nameIdLookupGenerator
+            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
         wellKnownSourceName = "TestSourceName";
         wellKnownQuoteRefNum = 54416884u;
 
@@ -60,7 +65,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
         Assert.IsTrue(fromSrcQtRefInstance.Executable);
         Assert.AreEqual(wellKnownQuoteRefNum, fromSrcQtRefInstance.SourceQuoteReference);
 
-        var pqValueDatePvl = new PQSourceQuoteRefPriceVolumeLayer(1.23456m, 5_123_456m, null,
+        var pqValueDatePvl = new PQSourceQuoteRefPriceVolumeLayer(nameIdLookupGenerator.Clone(), 1.23456m, 5_123_456m,
             wellKnownSourceName, true, wellKnownQuoteRefNum);
         var fromNonPqInstance = new SourceQuoteRefPriceVolumeLayer(pqValueDatePvl);
         Assert.AreEqual(1.23456m, fromNonPqInstance.Price);
@@ -134,7 +139,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
     [TestMethod]
     public void PQPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var pqPvl = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl);
+        var pqPvl = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
         var newEmpty = new SourceQuoteRefPriceVolumeLayer();
         newEmpty.CopyFrom(pqPvl);
         Assert.AreEqual(populatedPvl, newEmpty);

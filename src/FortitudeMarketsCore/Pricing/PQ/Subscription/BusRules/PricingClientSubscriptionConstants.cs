@@ -5,27 +5,29 @@ public static class PricingClientSubscriptionConstants
     public const string PricingSubscriptionBase = "Markets.Pricing.Subscription";
     public const string AllFeedStatusUpdates = $"{PricingSubscriptionBase}.StatusUpdates";
     public const string FeedBase = $"{PricingSubscriptionBase}.Feed.{{0}}";
-    public const string FeedAmendTickerPublication = $"{FeedBase}.AmendTickerPublication";
+    public const string FeedAmendTickerPublicationBase = $"{FeedBase}.AmendTickerPublication.Ticker";
+    public const string FeedAmendTickerPublication = $"{FeedAmendTickerPublicationBase}.{{1}}";
     public const string FeedDefaultAllTickersPublishBase = $"{FeedBase}.Ticker";
-    public const string FeedDefaultTickerPublish = $"{FeedDefaultAllTickersPublishBase}.{{1}}";
     public const string FeedRequestResponseRegistration = $"{FeedBase}.RequestResponseRegistration";
     public const string FeedAvailableTickersUpdateTemplate = $"{FeedBase}.AvailableTickersUpdate";
     public const string FeedAvailableTickersRequest = $"{FeedBase}.AvailableTickers";
     public const string FeedTickersSnapshotRequest = $"{FeedBase}.TickersSnapshotsRequest";
     public const string FeedTickerHealthRequest = $"{FeedBase}.TickerHealthRequest";
-    public const string FeedStatusRequest = $"{FeedBase}.TickerHealthRequest";
+    public const string FeedStatusRequest = $"{FeedBase}.FeedStatusRequest";
     public const string FeedStatusUpdate = $"{FeedBase}.StatusUpdate";
     public const string FeedShutdownRequest = $"{FeedBase}.Shutdown";
+    public const string FeedAmendTickerPublicationRule = $"{FeedBase}.AmendTickerPublicationRule";
 
     public static string FeedAddress(this string feedName) => string.Format(FeedBase, feedName);
 
-    public static string FeedDefaultAllTickersPublishAddress(this string feedName) =>
-        string.Format(FeedDefaultAllTickersPublishBase + ".*", feedName);
+    public static string FeedDefaultAllTickersPublishBaseAddress(this string feedName) => string.Format(FeedDefaultAllTickersPublishBase, feedName);
 
-    public static string FeedDefaultTickerPublishAddress(this string feedName, string ticker) =>
-        string.Format(FeedDefaultTickerPublish, feedName, ticker);
+    public static string FeedDefaultAllTickersPublishInterceptPattern(this string feedName) =>
+        feedName.FeedDefaultAllTickersPublishBaseAddress() + ".*";
 
-    public static string FeedAmendTickerPublicationAddress(this string feedName) => string.Format(FeedAmendTickerPublication, feedName);
+    public static string AllFeedsStatusAddress() => string.Format(AllFeedStatusUpdates);
+
+    public static string FeedAmendTickerPublicationAddress(this string feedName) => string.Format(FeedAmendTickerPublicationBase + ".", feedName);
 
     public static string FeedAvailableTickersRequestAddress(this string feedName) => string.Format(FeedAvailableTickersRequest, feedName);
 
@@ -35,9 +37,19 @@ public static class PricingClientSubscriptionConstants
 
     public static string FeedRequestResponseRegistrationAddress(this string feedName) => string.Format(FeedRequestResponseRegistration, feedName);
 
+    public static string FeedStatusRequestAddress(this string feedName) => string.Format(FeedStatusRequest, feedName);
+
     public static string FeedTickerHealthRequestAddress(this string feedName) => string.Format(FeedTickerHealthRequest, feedName);
     public static string FeedStatusUpdateAddress(this string feedName) => string.Format(FeedStatusUpdate, feedName);
 
-    public static string ExtractTickerFromDefaultTickerPublishAddress(this string address, string feedName) =>
-        address.Replace(FeedDefaultAllTickersPublishBase + ".", "");
+    public static string FeedAmendTickerPublicationRuleName(this string feedName) => string.Format(FeedAmendTickerPublicationRule, feedName);
+
+    public static string FeedAmendTickerPublicationAddress(this string feedName, string ticker) =>
+        string.Format(FeedAmendTickerPublication, feedName, ticker);
+
+    public static string ExtractTickerFromFeedDefaultTickerPublishAddress(this string address, string feedName) =>
+        address.Replace(feedName.FeedDefaultAllTickersPublishBaseAddress() + ".", "");
+
+    public static string ExtractTickerFromAmendPublicationAddress(this string address, string feedName) =>
+        address.Replace(feedName.FeedAmendTickerPublicationAddress(), "");
 }

@@ -2,6 +2,8 @@
 
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
@@ -14,11 +16,13 @@ public class TraderLayerInfoTests
 {
     private const string TraderName = "TestTraderName";
     private TraderLayerInfo emptyTli = null!;
+    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
     private TraderLayerInfo populatedTli = null!;
 
     [TestInitialize]
     public void SetUp()
     {
+        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
         emptyTli = new TraderLayerInfo();
         populatedTli = new TraderLayerInfo(TraderName, 42_111_222m);
     }
@@ -43,7 +47,7 @@ public class TraderLayerInfoTests
         Assert.AreEqual(populatedTli.TraderVolume, fromPQInstance.TraderVolume);
 
         var newExpectedTraderName = "NonPQTraderName";
-        var pqTli = new PQTraderLayerInfo(null, newExpectedTraderName, 222_444);
+        var pqTli = new PQTraderLayerInfo(nameIdLookupGenerator.Clone(), newExpectedTraderName, 222_444);
         var fromNonPqInstance = new TraderLayerInfo(pqTli);
         Assert.AreEqual(newExpectedTraderName, fromNonPqInstance.TraderName);
         Assert.AreEqual(222_444, fromNonPqInstance.TraderVolume);
@@ -77,7 +81,7 @@ public class TraderLayerInfoTests
     [TestMethod]
     public void FullyPopulatedTli_CopyFromNonPQToEmptyQuote_PvlsEqualEachOther()
     {
-        var nonPQTraderLayerInfo = new PQTraderLayerInfo(populatedTli);
+        var nonPQTraderLayerInfo = new PQTraderLayerInfo(populatedTli, nameIdLookupGenerator);
         emptyTli.CopyFrom(nonPQTraderLayerInfo);
         Assert.AreEqual(populatedTli, emptyTli);
     }

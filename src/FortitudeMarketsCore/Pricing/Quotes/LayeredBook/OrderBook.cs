@@ -16,18 +16,34 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 {
     protected IList<IPriceVolumeLayer?> BookLayers;
 
-    public OrderBook() => BookLayers = new List<IPriceVolumeLayer?>();
-
-    public OrderBook(int numBookLayers) => BookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
-
-    public OrderBook(IEnumerable<IPriceVolumeLayer> bookLayers)
+    public OrderBook()
     {
+        BookSide = BookSide.Unknown;
+        BookLayers = new List<IPriceVolumeLayer?>();
+    }
+
+    public OrderBook(BookSide bookSide)
+    {
+        BookSide = bookSide;
+        BookLayers = new List<IPriceVolumeLayer?>();
+    }
+
+    public OrderBook(BookSide bookSide, int numBookLayers)
+    {
+        BookSide = bookSide;
+        BookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
+    }
+
+    public OrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers)
+    {
+        BookSide = bookSide;
         BookLayers = bookLayers?.Select(pvl => LayerSelector.ConvertToExpectedImplementation(pvl))
             ?.ToList() ?? new List<IPriceVolumeLayer?>();
     }
 
     public OrderBook(IOrderBook toClone)
     {
+        BookSide = toClone.BookSide;
         BookLayers = new List<IPriceVolumeLayer?>(toClone.Count());
         foreach (var priceVolumeLayer in toClone)
             BookLayers.Add(LayerSelector.ConvertToExpectedImplementation(priceVolumeLayer, true));
@@ -60,6 +76,8 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             BookLayers[level] = value!;
         }
     }
+
+    public BookSide BookSide { get; }
 
     IPriceVolumeLayer? IOrderBook.this[int level] => BookLayers[level];
 
