@@ -56,7 +56,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
 
     public bool AllowUpdatesCatchup { get; }
 
-    public override PQLevel0Quote Deserialize(ISerdeContext readContext)
+    public override T Deserialize(ISerdeContext readContext)
     {
         if (readContext is IMessageBufferContext bufferContext)
         {

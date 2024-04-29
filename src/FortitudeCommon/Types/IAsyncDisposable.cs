@@ -21,5 +21,5 @@ public interface IAsyncTaskDisposable : IDisposable
         DisposeResult = Dispose();
     }
 
-    Task Dispose();
+    new Task Dispose();
 }

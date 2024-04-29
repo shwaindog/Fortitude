@@ -26,7 +26,7 @@ public interface IDeserializedNotifier : IStoreState<IDeserializedNotifier>, ICl
 }
 
 public interface IDeserializedNotifier<TM, TR> : IDeserializedNotifier, IEnumerable<IReceiverListenContext<TR>>
-    where TM : class, IVersionedMessage, new()
+    where TM : class, IVersionedMessage
 {
     bool Add(IReceiverListenContext<TR> receiverListenContext);
     void AddRequestExpected(int requestId, IReusableAsyncResponseSource<TR> responseValueTaskSource);
@@ -34,17 +34,18 @@ public interface IDeserializedNotifier<TM, TR> : IDeserializedNotifier, IEnumera
 }
 
 [Flags]
-public enum DeserializeTypeFlags
+public enum DeserializeNotifyTypeFlags
 {
     None = 0
-    , DeserializeConversation = 1
-    , DeserializeBuffer = 2
+    , MessageAndConversation = 1
+    , JustMessage = 2
 }
 
-public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where TM : class, IVersionedMessage, new()
+public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where TM : class, IVersionedMessage
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DeserializedNotifierBase<TM>));
     protected readonly bool DeserializedIsResponseMessage;
-    protected readonly DeserializeTypeFlags DeserializeType;
+    protected readonly DeserializeNotifyTypeFlags DeserializeNotifyType;
 
     protected readonly IMap<int, IAsyncResponseSource>
         ExpectedRequestResponses = new ConcurrentMap<int, IAsyncResponseSource>();
@@ -55,19 +56,20 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
     protected DeserializedNotifierBase(string registrationLocation)
     {
         Name = registrationLocation;
+        DeserializeNotifyType = DeserializeNotifyTypeFlags.MessageAndConversation;
         DeserializedIsResponseMessage = typeof(TM).GetInterfaces().Any(t => t == typeof(IResponseMessage));
     }
 
-    protected DeserializedNotifierBase(string registrationLocation, DeserializeTypeFlags deserializeType) : this(registrationLocation)
+    protected DeserializedNotifierBase(string registrationLocation, DeserializeNotifyTypeFlags deserializeNotifyType) : this(registrationLocation)
     {
-        DeserializeType = deserializeType;
+        DeserializeNotifyType = deserializeNotifyType;
         Name = registrationLocation;
     }
 
     protected DeserializedNotifierBase(DeserializedNotifierBase<TM> toClone)
     {
         DeserializedIsResponseMessage = toClone.DeserializedIsResponseMessage;
-        DeserializeType = toClone.DeserializeType;
+        DeserializeNotifyType = toClone.DeserializeNotifyType;
         ExpectedRequestResponses = toClone.ExpectedRequestResponses.Clone();
         subscriberCount = toClone.subscriberCount;
         Name = toClone.Name;
@@ -79,7 +81,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
 
     public abstract IReceiverListenContext? this[string name] { get; set; }
 
-    public Type NotifyingType => typeof(TM);
+    public virtual Type NotifyingType => typeof(TM);
 
     public string Name { get; }
 
@@ -134,7 +136,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
     {
         RegistrationCountChanged += notifyingMessageDeserializer.OnNotifierSubscribeCountChanged;
         Unsubscribe += () => { RegistrationCountChanged -= notifyingMessageDeserializer.OnNotifierSubscribeCountChanged; };
-        if (AttachToDeserializerConversationHandler != null)
+        if (DeserializeNotifyType == DeserializeNotifyTypeFlags.MessageAndConversation)
         {
             notifyingMessageDeserializer.ConversationMessageDeserialized += AttachToDeserializerConversationHandler;
             Unsubscribe += () =>
@@ -144,7 +146,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
             };
         }
 
-        if (AttachToDeserializerMessageHandler != null)
+        if (DeserializeNotifyType == DeserializeNotifyTypeFlags.JustMessage)
         {
             notifyingMessageDeserializer.MessageDeserialized += AttachToDeserializerMessageHandler;
             Unsubscribe += () => { notifyingMessageDeserializer.ConversationMessageDeserialized -= AttachToDeserializerConversationHandler; };
@@ -162,20 +164,21 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     private MessageDeserializedHandler<TM>? receiverMessageDeserializedHandler;
 
     public PassThroughDeserializedNotifier(string registrationLocation, ConversationMessageReceivedHandler<TM> conversationMessageReceived)
-        : base(registrationLocation) =>
+        : base(registrationLocation, DeserializeNotifyTypeFlags.MessageAndConversation) =>
         receiverConversationMessageReceivedHandler = conversationMessageReceived;
 
     public PassThroughDeserializedNotifier(string registrationLocation, MessageDeserializedHandler<TM> messageDeserializedHandler)
-        : base(registrationLocation) =>
+        : base(registrationLocation, DeserializeNotifyTypeFlags.JustMessage) =>
         receiverMessageDeserializedHandler = messageDeserializedHandler;
 
-    public PassThroughDeserializedNotifier(string registrationLocation, DeserializeTypeFlags deserializeType
+    public PassThroughDeserializedNotifier(string registrationLocation, DeserializeNotifyTypeFlags deserializeNotifyType
         , params IReceiverListenContext<TM>[] registerAllReceiverListenContexts) :
-        base(registrationLocation, deserializeType)
+        base(registrationLocation, deserializeNotifyType)
     {
         foreach (var receiverListenContext in registerAllReceiverListenContexts)
             registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
     }
+
 
     public PassThroughDeserializedNotifier(PassThroughDeserializedNotifier<TM> toClone) : base(toClone)
     {
@@ -187,19 +190,19 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
 
     public override ConversationMessageReceivedHandler<TM>? AttachToDeserializerConversationHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeType & DeserializeTypeFlags.DeserializeConversation) > 0 ?
+        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.MessageAndConversation) > 0 ?
             ConversationMessageDeserialized :
             null;
 
     public override MessageDeserializedHandler<TM>? AttachToDeserializerMessageHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeType & DeserializeTypeFlags.DeserializeBuffer) > 0 ?
+        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.JustMessage) > 0 ?
             MessageDeserialized :
             null;
 
     public override IReceiverListenContext? this[string name]
     {
-        get => registeredReceiverContexts[name];
+        get => registeredReceiverContexts.TryGetValue(name, out var existing) ? existing : null;
         set
         {
             var oldSubscriberCount = registeredReceiverContexts.Count;
@@ -207,6 +210,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
                 registeredReceiverContexts.AddOrUpdate(name, (IReceiverListenContext<TM>)value);
             else
                 registeredReceiverContexts.Remove(name);
+
             SubscriberCount += registeredReceiverContexts.Count - oldSubscriberCount;
         }
     }
@@ -269,22 +273,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
 
     private void ConversationMessageDeserialized(TM message, MessageHeader messageHeader, IConversation conversation)
     {
-        if (DeserializedIsResponseMessage && message is IResponseMessage responseMessage)
-            if (ExpectedRequestResponses.TryGetValue(responseMessage.RequestId, out var taskSource))
-                try
-                {
-                    if (taskSource is IReusableAsyncResponseSource<TM> typedAsyncResponseSource)
-                        typedAsyncResponseSource!.SetResult(message);
-                    ExpectedRequestResponses.Remove(responseMessage.RequestId);
-
-                    SubscriberCount--;
-                    // TODO add taskSource decrement timer
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warn("Caught exception attempt to set response callback to for message {0}. Got {1}", responseMessage, ex);
-                }
+        if (CheckRespondingMessage(message)) return;
 
         if (registeredReceiverContexts.Any())
             foreach (var receiverListenContext in registeredReceiverContexts.Values)
@@ -296,19 +285,42 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
             receiverConversationMessageReceivedHandler?.Invoke(message, messageHeader, conversation);
     }
 
-    private void MessageDeserialized(TM message, IBufferContext bufferContext)
+    private bool CheckRespondingMessage(TM message)
     {
+        if (DeserializedIsResponseMessage && message is IResponseMessage responseMessage)
+            if (ExpectedRequestResponses.TryGetValue(responseMessage.RequestId, out var taskSource))
+                try
+                {
+                    if (taskSource is IReusableAsyncResponseSource<TM> typedAsyncResponseSource)
+                        typedAsyncResponseSource!.SetResult(message);
+                    ExpectedRequestResponses.Remove(responseMessage.RequestId);
+
+                    SubscriberCount--;
+                    // TODO add taskSource decrement timer
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Caught exception attempt to set response callback to for message {0}. Got {1}", responseMessage, ex);
+                }
+
+        return false;
+    }
+
+    private void MessageDeserialized(TM message)
+    {
+        if (CheckRespondingMessage(message)) return;
         if (registeredReceiverContexts.Any())
             foreach (var receiverListenContext in registeredReceiverContexts.Values)
                 receiverListenContext.SendToReceiver(message);
         else
-            receiverMessageDeserializedHandler?.Invoke(message, bufferContext);
+            receiverMessageDeserializedHandler?.Invoke(message);
     }
 }
 
 public delegate void ConvertedConversationMessageReceivedHandler<in TM>(TM deserializedMessage, MessageHeader header, IConversation conversation);
 
-public delegate void ConvertedMessageDeserializedHandler<in TM>(TM deserializedMessage, IBufferContext bufferContext);
+public delegate void ConvertedMessageDeserializedHandler<in TM>(TM deserializedMessage);
 
 public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<TM>, IDeserializedNotifier<TM, TR>
     , IStoreState<ConvertingDeserializedNotifier<TM, TR>>
@@ -323,7 +335,8 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     private ConvertedMessageDeserializedHandler<TR>? receiverMessageDeserializedHandler;
 
     public ConvertingDeserializedNotifier(string registrationLocation, IConverter<TM, TR> converter
-        , ConvertedConversationMessageReceivedHandler<TR> conversationMessageReceived) : base(registrationLocation)
+        , ConvertedConversationMessageReceivedHandler<TR> conversationMessageReceived) : base(registrationLocation
+        , DeserializeNotifyTypeFlags.MessageAndConversation)
     {
         convertedIsResponseMessage = typeof(TR).GetInterfaces().Any(t => t == typeof(IResponseMessage));
         Converter = converter;
@@ -331,15 +344,15 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     }
 
     public ConvertingDeserializedNotifier(string registrationLocation, IConverter<TM, TR> converter
-        , ConvertedMessageDeserializedHandler<TR> messageDeserializedHandler) : base(registrationLocation)
+        , ConvertedMessageDeserializedHandler<TR> messageDeserializedHandler) : base(registrationLocation, DeserializeNotifyTypeFlags.JustMessage)
     {
         convertedIsResponseMessage = typeof(TR).GetInterfaces().Any(t => t == typeof(IResponseMessage));
         Converter = converter;
         receiverMessageDeserializedHandler = messageDeserializedHandler;
     }
 
-    public ConvertingDeserializedNotifier(string registrationLocation, IConverter<TM, TR> converter, DeserializeTypeFlags deserializeType
-        , params IReceiverListenContext<TR>[] registerAllReceiverListenContexts) : base(registrationLocation, deserializeType)
+    public ConvertingDeserializedNotifier(string registrationLocation, IConverter<TM, TR> converter, DeserializeNotifyTypeFlags deserializeNotifyType
+        , params IReceiverListenContext<TR>[] registerAllReceiverListenContexts) : base(registrationLocation, deserializeNotifyType)
     {
         convertedIsResponseMessage = typeof(TR).GetInterfaces().Any(t => t == typeof(IResponseMessage));
         Converter = converter;
@@ -362,27 +375,29 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
 
     public override ConversationMessageReceivedHandler<TM>? AttachToDeserializerConversationHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeType & DeserializeTypeFlags.DeserializeConversation) > 0 ?
+        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.MessageAndConversation) > 0 ?
             ConversationMessageDeserialized :
             null;
 
     public override MessageDeserializedHandler<TM>? AttachToDeserializerMessageHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeType & DeserializeTypeFlags.DeserializeBuffer) > 0 ?
+        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.JustMessage) > 0 ?
             MessageDeserialized :
             null;
 
+    public override Type NotifyingType => typeof(TR);
+
     public override IReceiverListenContext? this[string name]
     {
-        get => registeredReceiverContexts[name];
+        get => registeredReceiverContexts.TryGetValue(name, out var existing) ? existing : null;
         set
         {
-            var oldSubscriberCount = registeredReceiverContexts.Count;
+            var oldRegisterCount = registeredReceiverContexts.Count;
             if (value != null)
                 registeredReceiverContexts.AddOrUpdate(name, (IReceiverListenContext<TR>)value);
             else
                 registeredReceiverContexts.Remove(name);
-            SubscriberCount += registeredReceiverContexts.Count - oldSubscriberCount;
+            SubscriberCount += registeredReceiverContexts.Count - oldRegisterCount;
         }
     }
 
@@ -450,31 +465,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     private void ConversationMessageDeserialized(TM message, MessageHeader messageHeader, IConversation conversation)
     {
         var convertedMessage = Converter.Convert(message);
-        if (DeserializedIsResponseMessage && message is IResponseMessage deserializedResponseMessage)
-            if (ExpectedRequestResponses.TryGetValue(deserializedResponseMessage.RequestId, out var taskSource))
-                if (taskSource is IReusableAsyncResponseSource<TR> typedAsyncResponseSource)
-                    try
-                    {
-                        typedAsyncResponseSource!.SetResult(convertedMessage);
-                        ExpectedRequestResponses.Remove(deserializedResponseMessage.RequestId);
-                        SubscriberCount--;
-                        // TODO add taskSource decrement timer
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Warn("Caught exception attempt to set response callback to for message {0}. Got {1}", deserializedResponseMessage, ex);
-                    }
-
-        if (convertedIsResponseMessage && convertedMessage is IResponseMessage convertedResponseMessage)
-            if (ExpectedRequestResponses.TryGetValue(convertedResponseMessage.RequestId, out var taskSource))
-                if (taskSource is IReusableAsyncResponseSource<TR> typedAsyncResponseSource)
-                {
-                    typedAsyncResponseSource!.SetResult(convertedMessage);
-                    ExpectedRequestResponses.Remove(convertedResponseMessage.RequestId);
-                    // TODO add taskSource decrement timer
-                    return;
-                }
+        if (CheckRespondingMessage(message, convertedMessage)) return;
 
         if (registeredReceiverContexts.Any())
         {
@@ -487,13 +478,35 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
         }
     }
 
-    private void MessageDeserialized(TM message, IBufferContext bufferContext)
+    private void MessageDeserialized(TM message)
     {
         var convertedMessage = Converter.Convert(message);
+        if (CheckRespondingMessage(message, convertedMessage)) return;
         if (registeredReceiverContexts.Any())
             foreach (var receiverListenContext in registeredReceiverContexts.Values)
                 receiverListenContext.SendToReceiver(convertedMessage);
         else
-            receiverMessageDeserializedHandler?.Invoke(convertedMessage, bufferContext);
+            receiverMessageDeserializedHandler?.Invoke(convertedMessage);
+    }
+
+    private bool CheckRespondingMessage(TM message, TR convertedMessage)
+    {
+        if (DeserializedIsResponseMessage && message is IResponseMessage deserializedResponseMessage)
+            if (ExpectedRequestResponses.TryGetValue(deserializedResponseMessage.RequestId, out var taskSource))
+                if (taskSource is IReusableAsyncResponseSource<TR> typedAsyncResponseSource)
+                    try
+                    {
+                        typedAsyncResponseSource!.SetResult(convertedMessage);
+                        ExpectedRequestResponses.Remove(deserializedResponseMessage.RequestId);
+                        SubscriberCount--;
+                        // TODO add taskSource decrement timer
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn("Caught exception attempt to set response callback to for message {0}. Got {1}", deserializedResponseMessage, ex);
+                    }
+
+        return false;
     }
 }

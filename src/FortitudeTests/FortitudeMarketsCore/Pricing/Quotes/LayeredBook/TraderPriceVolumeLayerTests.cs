@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
@@ -17,12 +19,15 @@ public class TraderPriceVolumeLayerTests
 {
     private const string TraderNameBase = "TestTraderName";
     private TraderPriceVolumeLayer emptyPvl = null!;
+    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
     private int populatedNumberOfTraders;
     private TraderPriceVolumeLayer populatedPvl = null!;
 
     [TestInitialize]
     public void SetUp()
     {
+        nameIdLookupGenerator
+            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
         populatedNumberOfTraders = 3;
         emptyPvl = new TraderPriceVolumeLayer();
         populatedPvl = new TraderPriceVolumeLayer(4.2949_672m, 42_949_672m);
@@ -58,14 +63,14 @@ public class TraderPriceVolumeLayerTests
         Assert.AreEqual(40_000_000m, fromPQInstance.Volume);
         AssertTraderLayersAreExpected(fromPQInstance);
 
-        var pqTraderPvl = new PQTraderPriceVolumeLayer(1.23456m, 5_123_456m);
+        var pqTraderPvl = new PQTraderPriceVolumeLayer(nameIdLookupGenerator.Clone(), 1.23456m, 5_123_456m);
         AddTraderLayers(pqTraderPvl, populatedNumberOfTraders);
         var fromPqInstance = new TraderPriceVolumeLayer(pqTraderPvl);
         Assert.AreEqual(1.23456m, fromPqInstance.Price);
         Assert.AreEqual(5_123_456m, fromPqInstance.Volume);
         AssertTraderLayersAreExpected(fromPqInstance, new[] { true, true, true });
 
-        var newEmptyPvl = new PQTraderPriceVolumeLayer(emptyPvl);
+        var newEmptyPvl = new PQTraderPriceVolumeLayer(emptyPvl, nameIdLookupGenerator);
         Assert.AreEqual(0, newEmptyPvl.Price);
         Assert.AreEqual(0, newEmptyPvl.Volume);
         Assert.IsFalse(newEmptyPvl.IsPriceUpdated);
@@ -285,7 +290,7 @@ public class TraderPriceVolumeLayerTests
     [TestMethod]
     public void PQPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var pqPvl = new PQTraderPriceVolumeLayer(populatedPvl);
+        var pqPvl = new PQTraderPriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
         var newEmpty = new TraderPriceVolumeLayer();
         newEmpty.CopyFrom(pqPvl);
         Assert.AreEqual(populatedPvl, newEmpty);
@@ -294,10 +299,10 @@ public class TraderPriceVolumeLayerTests
     [TestMethod]
     public void LayerWithManyTraderDetails_CopyFromSmallerTraderPvl_ClearsDownExtraLayers()
     {
-        var lotsOfTraders = new PQTraderPriceVolumeLayer(4.2949_672m, 42_949_672m);
+        var lotsOfTraders = new PQTraderPriceVolumeLayer(nameIdLookupGenerator.Clone(), 4.2949_672m, 42_949_672m);
         AddTraderLayers(lotsOfTraders, 59);
         Assert.AreEqual(59, lotsOfTraders.Count);
-        var smallerPvl = new PQTraderPriceVolumeLayer(2.3456_78m, 2_949_672m);
+        var smallerPvl = new PQTraderPriceVolumeLayer(nameIdLookupGenerator, 2.3456_78m, 2_949_672m);
         AddTraderLayers(smallerPvl, 1);
         Assert.AreEqual(1, smallerPvl.Count);
 

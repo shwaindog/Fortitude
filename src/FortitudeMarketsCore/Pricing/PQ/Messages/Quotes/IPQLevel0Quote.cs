@@ -15,6 +15,7 @@ public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutabl
     IPQSupportsFieldUpdates<ILevel0Quote>, IPQSupportsStringUpdates<ILevel0Quote>, IRelatedItem<ILevel0Quote>,
     IVersionedMessage
 {
+    PQMessageFlags? OverrideSerializationFlags { get; set; }
     ISyncLock Lock { get; }
     uint PQSequenceId { get; set; }
     bool IsSourceTimeDateUpdated { get; set; }

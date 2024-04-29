@@ -1,9 +1,7 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
@@ -11,8 +9,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 
-public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFieldUpdates<IPriceVolumeLayer>,
-    IRelatedItem<ISourceTickerQuoteInfo>, IRelatedItem<IPQPriceVolumeLayer>
+public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFieldUpdates<IPriceVolumeLayer>
 {
     bool IsPriceUpdated { get; set; }
     bool IsVolumeUpdated { get; set; }
@@ -151,9 +148,6 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         return this;
     }
 
-    public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance) { }
-
-    public virtual void EnsureRelatedItemsAreConfigured(IPQPriceVolumeLayer? referenceInstance) { }
 
     public override IPQPriceVolumeLayer Clone() =>
         (IPQPriceVolumeLayer?)Recycler?.Borrow<PQPriceVolumeLayer>().CopyFrom(this) ?? new PQPriceVolumeLayer(this);

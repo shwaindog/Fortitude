@@ -609,10 +609,10 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
     protected virtual void HandleExecution(OrxExecutionUpdate update, MessageHeader messageHeader, IConversation cx)
     {
-        if (update.ExecutionUpdateType == ExecutionUpdateType.Created) HandleExecution(update);
+        if (update.ExecutionUpdateType == ExecutionUpdateType.Created) HandleExecutionUpdate(update);
     }
 
-    protected void HandleExecution(OrxExecutionUpdate update)
+    protected void HandleExecutionUpdate(OrxExecutionUpdate update)
     {
         var order = GetActiveOrder(update.Execution!.OrderId.ClientOrderId.ToString());
         if (PreTradeAsFinal && update.Execution!.ExecutionStageType == ExecutionStageType.PreTrade)

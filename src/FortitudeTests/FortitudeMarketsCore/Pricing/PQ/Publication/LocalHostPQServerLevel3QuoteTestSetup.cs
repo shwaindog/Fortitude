@@ -23,6 +23,8 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
     public PQPublisher<PQLevel3Quote> PqPublisher = null!;
     public PQServer<PQLevel3Quote> PqServer = null!;
 
+    public string Ticker = TestTicker;
+
     [TestInitialize]
     public void SetupPQServer()
     {
@@ -60,36 +62,41 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
         return PqPublisher;
     }
 
-    public Level3PriceQuote GenerateL3QuoteWithTraderLayerAndLastTrade()
+    public Level3PriceQuote GenerateL3QuoteWithTraderLayerAndLastTrade(int i = 0)
     {
-        var sourceBidBook = GenerateBook(20, 1.1123m, -0.0001m, 100000m, 10000m,
+        var priceDiff = i * 0.00015m;
+        var volDiff = i * 5_000m;
+        var sourceBidBook = GenerateBook(BookSide.BidBook, 20, 1.1123m + priceDiff, -0.0001m, 100000m + volDiff, 10000m,
             (price, volume) => new TraderPriceVolumeLayer(price, volume));
-        var sourceAskBook = GenerateBook(20, 1.1125m, 0.0001m, 100000m, 10000m,
+        var sourceAskBook = GenerateBook(BookSide.AskBook, 20, 1.1125m, 0.0001m, 100000m, 10000m,
             (price, volume) => new TraderPriceVolumeLayer(price, volume));
 
-        UpdateTraderQuoteBook(sourceBidBook, NameIdLookupGenerator, 20, 1, 10000, 1000);
-        UpdateTraderQuoteBook(sourceAskBook, NameIdLookupGenerator, 20, 1, 20000, 500);
+
+        var volStart = i * 1_000m;
+        UpdateTraderQuoteBook(sourceBidBook, NameIdLookupGenerator, 20, 1, 10000 + volStart, 1000 + volDiff);
+        UpdateTraderQuoteBook(sourceAskBook, NameIdLookupGenerator, 20, 1, 20000 + volStart, 500 + volDiff);
         var toggleBool = false;
         decimal growVolume = 10000;
         var traderNumber = 1;
 
-        var recentlyTraded = GenerateRecentlyTraded(10, 1.1124m, 0.00005m, new DateTime(2015, 10, 18, 11, 33, 48),
-            new TimeSpan(20 * TimeSpan.TicksPerMillisecond),
+        var recentlyTraded = GenerateRecentlyTraded(10, 1.1124m, 0.00005m + priceDiff
+            , new DateTime(2015, 10, 18, 11, 33, 48) + TimeSpan.FromSeconds(i),
+            new TimeSpan(20 + 1 * TimeSpan.TicksPerMillisecond),
             (price, time) =>
                 new LastTraderPaidGivenTrade(price, time, growVolume += growVolume, toggleBool = !toggleBool,
                     toggleBool = !toggleBool, "TraderName" + ++traderNumber), NameIdLookupGenerator);
 
         // setup source quote
         return new Level3PriceQuote(SourceTickerQuoteInfo,
-            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123),
+            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123 + i),
             false,
-            1.234538m,
-            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(234),
-            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(345),
+            1.234538m + priceDiff,
+            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(234 + 1),
+            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(345 + 1),
             DateTime.Parse("2015-08-06 22:07:23.123"),
-            new DateTime(2015, 08, 06, 22, 07, 22),
+            new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i),
             true,
-            new DateTime(2015, 08, 06, 22, 07, 22),
+            new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i),
             false,
             true,
             new PeriodSummary(),
@@ -98,15 +105,12 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
             sourceAskBook,
             true,
             recentlyTraded,
-            1008,
-            43749887,
-            new DateTime(2017, 12, 29, 21, 0, 0));
+            1008 + (uint)i,
+            43749887 + (uint)i,
+            new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i));
     }
 
-
-    public Level3PriceQuote ConvertPQToLevel3QuoteWithTraderForLayerAndLastTradeQuote(IPQLevel3Quote pQuote) => new(pQuote);
-
-    private static OrderBook GenerateBook<T>(int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
+    private static OrderBook GenerateBook<T>(BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
         where T : IPriceVolumeLayer
     {
@@ -120,7 +124,7 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
             currentVolume += deltaVolumePerLayer;
         }
 
-        return new OrderBook(generatedLayers.Cast<IPriceVolumeLayer>().ToList());
+        return new OrderBook(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
     }
 
 

@@ -12,7 +12,7 @@ public class AddressMatcher : IAddressMatcher
 
     public string AddressMatchPattern { get; }
 
-    public bool IsMatch(string address) => AddressMatchPattern.Contains(address);
+    public bool IsMatch(string address) => address.Contains(AddressMatchPattern);
 
     public static bool IsMatcherPattern(string checkAddress) => checkAddress.Contains("*");
 }

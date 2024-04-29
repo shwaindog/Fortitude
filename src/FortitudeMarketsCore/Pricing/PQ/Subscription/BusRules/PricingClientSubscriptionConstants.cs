@@ -27,7 +27,7 @@ public static class PricingClientSubscriptionConstants
 
     public static string AllFeedsStatusAddress() => string.Format(AllFeedStatusUpdates);
 
-    public static string FeedAmendTickerPublicationAddress(this string feedName) => string.Format(FeedAmendTickerPublicationBase, feedName);
+    public static string FeedAmendTickerPublicationAddress(this string feedName) => string.Format(FeedAmendTickerPublicationBase + ".", feedName);
 
     public static string FeedAvailableTickersRequestAddress(this string feedName) => string.Format(FeedAvailableTickersRequest, feedName);
 
@@ -48,8 +48,8 @@ public static class PricingClientSubscriptionConstants
         string.Format(FeedAmendTickerPublication, feedName, ticker);
 
     public static string ExtractTickerFromFeedDefaultTickerPublishAddress(this string address, string feedName) =>
-        address.Replace(FeedDefaultAllTickersPublishBase + ".", "");
+        address.Replace(feedName.FeedDefaultAllTickersPublishBaseAddress() + ".", "");
 
-    public static string ExtractTickerFromAmendPubliicationAddress(this string address, string feedName) =>
-        address.Replace(FeedAmendTickerPublicationBase + ".", "");
+    public static string ExtractTickerFromAmendPublicationAddress(this string address, string feedName) =>
+        address.Replace(feedName.FeedAmendTickerPublicationAddress(), "");
 }

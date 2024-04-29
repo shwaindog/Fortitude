@@ -1,10 +1,8 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
@@ -12,8 +10,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 
-public interface IPQLastTrade : IMutableLastTrade, IPQSupportsFieldUpdates<ILastTrade>,
-    IRelatedItem<ISourceTickerQuoteInfo>, IRelatedItem<IPQLastTrade>
+public interface IPQLastTrade : IMutableLastTrade, IPQSupportsFieldUpdates<ILastTrade>
 {
     bool IsTradeTimeSubHourUpdated { get; set; }
     bool IsTradeTimeDateUpdated { get; set; }
@@ -191,10 +188,6 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
         return this;
     }
-
-    public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance) { }
-
-    public virtual void EnsureRelatedItemsAreConfigured(IPQLastTrade? referenceInstance) { }
 
     IPQLastTrade IPQLastTrade.Clone() => (IPQLastTrade)Clone();
 

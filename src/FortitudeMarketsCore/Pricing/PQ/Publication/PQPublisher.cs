@@ -5,12 +5,22 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
+
+public interface IPQPublisher : IQuotePublisher<ILevel0Quote>
+{
+    void RegisterTickersWithServer(IMarketConnectionConfig marketConnectionConfig);
+
+    void SetNextSequenceNumberToZero(string ticker);
+
+    void SetNextSequenceNumberToFullUpdate(string ticker);
+}
 
 public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
 {
@@ -34,6 +44,34 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
             }
     }
 
+    public void SetNextSequenceNumberToZero(string ticker)
+    {
+        pqServer.SetNextSequenceNumberToZero(ticker);
+    }
+
+    public void SetNextSequenceNumberToFullUpdate(string ticker)
+    {
+        pqServer.SetNextSequenceNumberToFullUpdate(ticker);
+    }
+
+    public void Dispose()
+    {
+        shutdownFlag = true;
+
+        foreach (var pictureKvp in pictures)
+        {
+            var now = TimeContext.UtcNow;
+            var picture = pictureKvp.Value;
+            picture.ResetFields();
+            picture.SourceTime = now;
+            picture.ClientReceivedTime = now;
+            if (picture is IMutableLevel1Quote pq1) pq1.AdapterSentTime = now;
+            pqServer.Publish(picture);
+        }
+
+        pqServer.Dispose();
+    }
+
     public void PublishReset(string ticker, DateTime exchangeTs, DateTime exchangeSentTs, DateTime adapterRecvTs)
     {
         if (pictures.TryGetValue(ticker, out var pqPicture))
@@ -54,24 +92,6 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
             pqPicture!.CopyFrom(quote);
             pqServer.Publish(pqPicture);
         }
-    }
-
-    public void Dispose()
-    {
-        shutdownFlag = true;
-
-        foreach (var pictureKvp in pictures)
-        {
-            var now = TimeContext.UtcNow;
-            var picture = pictureKvp.Value;
-            picture.ResetFields();
-            picture.SourceTime = now;
-            picture.ClientReceivedTime = now;
-            if (picture is IMutableLevel1Quote pq1) pq1.AdapterSentTime = now;
-            pqServer.Publish(picture);
-        }
-
-        pqServer.Dispose();
     }
 
     public void RegisterTickersWithServer(ISourceTickerQuoteInfo sourceTickerQuoteInfo)

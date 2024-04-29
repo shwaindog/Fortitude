@@ -179,10 +179,17 @@ public sealed class SocketSender : ISocketSender
                     if (writtenSize <= 0)
                     {
                         if (writeBufferContext.EncodedBuffer!.AllRead || encoder.AttemptCount > 100)
-                            throw new SocketSendException("Message could not be serialized or was too big for the buffer"
-                                , socketSessionContext);
-                        encoder.AttemptCount++;
-                        break;
+                        {
+                            logger.Error(
+                                "Message could not be serialized or was too big for the buffer or there was no bytes to serialize. Message {0}"
+                                , encoder.Message);
+                            MoveNextEncoder(encoder);
+                        }
+                        else
+                        {
+                            encoder.AttemptCount++;
+                            break;
+                        }
                     }
 
                     if (message is IRecyclableObject recyclableObject) recyclableObject.DecrementRefCount();

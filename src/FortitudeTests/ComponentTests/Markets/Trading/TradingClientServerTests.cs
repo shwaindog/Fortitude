@@ -38,7 +38,7 @@ namespace FortitudeTests.ComponentTests.Markets.Trading;
 public class TradingClientServerTests
 {
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
-    private OrxTradingClient orxClient;
+    private OrxTradingClient orxClient = null!;
     private OrxTradingServer? orxTradingServer;
     private TradingServerConfig tradingServerConfig = null!;
 

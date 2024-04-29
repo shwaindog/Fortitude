@@ -26,6 +26,8 @@ public interface IPQServer<T> : IDisposable where T : IPQLevel0Quote
     T? Register(string ticker);
     void Unregister(T quote);
     void Publish(T quote);
+    void SetNextSequenceNumberToZero(string ticker);
+    void SetNextSequenceNumberToFullUpdate(string ticker);
 }
 
 public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
@@ -71,11 +73,12 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (!entities.TryGetValue(tickerInfo.TickerId, out var ent))
+            if (!entities.TryGetValue(tickerInfo.Id, out var ent))
             {
                 ent = quoteFactory(tickerInfo);
                 ent.PQSequenceId = uint.MaxValue;
                 entities.Add(tickerInfo.Id, ent);
+                // publish identical quote leaving next quote to also be zero.
                 var quote = quoteFactory(tickerInfo);
                 quote.PQSequenceId = uint.MaxValue;
                 quote.HasUpdates = true;
@@ -88,6 +91,15 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 
         return null;
     }
+
+    public void SetNextSequenceNumberToZero(string ticker)
+    {
+        var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
+        if (tickerInfo != null)
+            if (entities.TryGetValue(tickerInfo.Id, out var ent))
+                ent!.PQSequenceId = uint.MaxValue;
+    }
+
 
     public void Unregister(T quote)
     {
@@ -178,6 +190,14 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         }
 
         IsStarted = false;
+    }
+
+    public void SetNextSequenceNumberToFullUpdate(string ticker)
+    {
+        var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
+        if (tickerInfo != null)
+            if (entities.TryGetValue(tickerInfo.Id, out var ent))
+                ent!.HasUpdates = true;
     }
 
     private void OnSnapshotContextRequest(IConversationRequester cx, PQSnapshotIdsRequest snapshotIdsRequest)

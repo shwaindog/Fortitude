@@ -31,8 +31,8 @@ public interface IMessageDeserializationRepository : IMessageSerdesRepository, I
     INotifyingMessageDeserializer<TM>? GetDeserializer<TM>(uint msgId) where TM : class, IVersionedMessage, new();
     bool IsRegisteredWithType<TS, TM>(uint msgId) where TS : INotifyingMessageDeserializer<TM> where TM : class, IVersionedMessage, new();
 
-    event Action<IMessageDeserializer> MessageDeserializerRegistered;
-    event Action<IMessageDeserializer> MessageDeserializerUnregistered;
+    event Action<IMessageDeserializer>? MessageDeserializerRegistered;
+    event Action<IMessageDeserializer>? MessageDeserializerUnregistered;
 }
 
 public class MessageDeserializationRepository : IMessageDeserializationRepository
@@ -182,8 +182,8 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
             msgSerializer is TS :
             CascadingFallbackDeserializationRepo?.IsRegisteredWithType<TS, TM>(msgId) ?? false;
 
-    public event Action<IMessageDeserializer> MessageDeserializerRegistered;
-    public event Action<IMessageDeserializer> MessageDeserializerUnregistered;
+    public event Action<IMessageDeserializer>? MessageDeserializerRegistered;
+    public event Action<IMessageDeserializer>? MessageDeserializerUnregistered;
 
     protected void OnMessageDeserializerRegistered(IMessageDeserializer messageDeserializer)
     {

@@ -75,7 +75,7 @@ public class MessagePump : IMessagePump
         {
             for (; i < livingRules.Count; i++) toCopyTo.Add(livingRules[i]);
         }
-        catch (IndexOutOfRangeException ioe)
+        catch (IndexOutOfRangeException)
         {
             // swallow
         }
@@ -176,7 +176,7 @@ public class MessagePump : IMessagePump
                 }
                 case MessageType.ListenerUnsubscribe:
                 {
-                    var unsubscribePayload = ((Payload<MessageListenerUnsubscribe>)data.Payload!).Body(PayloadRequestType.QueueReceive);
+                    var unsubscribePayload = ((Payload<MessageListenerUnsubscribe>)data.Payload!).Body(PayloadRequestType.QueueReceive)!;
                     await listenerRegistry.RemoveListenerFromWatchList(unsubscribePayload);
                     break;
                 }
@@ -202,11 +202,11 @@ public class MessagePump : IMessagePump
             for (var i = 0; i < livingRules.Count; i++)
             {
                 var checkRule = livingRules[i];
+
                 if (checkRule.ShouldBeStopped())
                     try
                     {
                         await checkRule.StopAsync();
-                        livingRules.RemoveAt(i--);
                     }
                     catch (Exception ex)
                     {
@@ -288,7 +288,7 @@ public class MessagePump : IMessagePump
     private async Task ForceUnloadRule(BusMessage data, IListeningRule toShutdown)
     {
         await UndeployChildren(toShutdown);
-        listenerRegistry.UnsubscribeAllListenersForRule(toShutdown);
+        await listenerRegistry.UnsubscribeAllListenersForRule(toShutdown);
         try
         {
             await toShutdown.StopAsync();

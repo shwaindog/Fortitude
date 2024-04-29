@@ -19,6 +19,7 @@ namespace FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 
 public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 {
+    private static int lastInstanceNum;
     private IDeserializer[] mandatory;
     private Dictionary<ushort, IDeserializer> optional = new();
     private byte thisVersion;
@@ -62,6 +63,8 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
     }
 
     public uint MessageId { get; private set; }
+
+    public int InstanceNumber { get; } = Interlocked.Increment(ref lastInstanceNum);
 
     public IOrxDeserializerLookup OrxDeserializerLookup { get; set; }
 

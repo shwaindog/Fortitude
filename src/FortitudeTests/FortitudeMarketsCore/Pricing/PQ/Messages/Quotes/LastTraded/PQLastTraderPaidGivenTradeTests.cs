@@ -27,14 +27,11 @@ public class PQLastTraderPaidGivenTradeTests
     [TestInitialize]
     public void SetUp()
     {
-        emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand,
-            PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
-        nameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand,
-            PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
-        emptyLt = new PQLastTraderPaidGivenTrade();
+        emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        nameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        emptyLt = new PQLastTraderPaidGivenTrade(emptyNameIdLookup.Clone());
         testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
-        populatedLt = new PQLastTraderPaidGivenTrade(4.2949_672m, testDateTime, 42_949_672.95m, true, true,
-            nameIdLookup)
+        populatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 4.2949_672m, testDateTime, 42_949_672.95m, true, true)
         {
             TraderName = WellKnownTraderName
         };
@@ -43,8 +40,8 @@ public class PQLastTraderPaidGivenTradeTests
     [TestMethod]
     public void NewLt_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        var newLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName
         };
@@ -80,12 +77,12 @@ public class PQLastTraderPaidGivenTradeTests
     [TestMethod]
     public void NewLt_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        var newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName
         };
-        var fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        var fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -102,7 +99,7 @@ public class PQLastTraderPaidGivenTradeTests
 
         var nonPQLt = new LastTraderPaidGivenTrade(1.23456m, testDateTime, 42_949_672.95m, true, true,
             WellKnownTraderName);
-        var fromNonPqInstance = new PQLastTraderPaidGivenTrade(nonPQLt);
+        var fromNonPqInstance = new PQLastTraderPaidGivenTrade(nonPQLt, emptyNameIdLookup.Clone());
         Assert.AreEqual(1.23456m, fromNonPqInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromNonPqInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromNonPqInstance.TradeVolume);
@@ -117,7 +114,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromNonPqInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromNonPqInstance.IsTraderNameUpdated);
 
-        var newEmptyLt = new PQLastTraderPaidGivenTrade(emptyLt);
+        var newEmptyLt = new PQLastTraderPaidGivenTrade(emptyLt, emptyNameIdLookup);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, newEmptyLt.TradeTime);
         Assert.AreEqual(0m, newEmptyLt.TradeVolume);
@@ -136,12 +133,12 @@ public class PQLastTraderPaidGivenTradeTests
     [TestMethod]
     public void NewLt_NewFromCloneInstance_WhenOneFieldNonDefaultIsNotUpdatedNewInstanceCopies()
     {
-        var newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        var newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName, IsTradePriceUpdated = false
         };
-        var fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        var fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -156,12 +153,12 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName, IsTradeTimeDateUpdated = false
         };
-        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -176,12 +173,12 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName, IsTradeTimeSubHourUpdated = false
         };
-        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -196,12 +193,12 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName, IsTradeVolumeUpdated = false
         };
-        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -216,12 +213,12 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName, IsWasGivenUpdated = false
         };
-        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -236,12 +233,12 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName, IsWasPaidUpdated = false
         };
-        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -256,12 +253,12 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsFalse(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, nameIdLookup)
+        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
+            true, true)
         {
             TraderName = WellKnownTraderName, IsTraderNameUpdated = false
         };
-        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt);
+        fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
@@ -300,7 +297,7 @@ public class PQLastTraderPaidGivenTradeTests
         emptyLt.IsTraderNameUpdated = false;
         Assert.IsFalse(emptyLt.IsTraderNameUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
-        emptyLt.TraderNameIdLookup.HasUpdates = false;
+        emptyLt.NameIdLookup.HasUpdates = false;
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
@@ -320,11 +317,10 @@ public class PQLastTraderPaidGivenTradeTests
         var expectedStringUpdates = new PQFieldStringUpdate
         {
             Field = new PQFieldUpdate(
-                PQFieldKeys.LastTraderDictionaryUpsertCommand, 0u,
-                PQFieldFlags.TraderNameIdLookupSubDictionaryKey | PQFieldFlags.IsUpdate)
+                PQFieldKeys.LastTraderDictionaryUpsertCommand, 0u, PQFieldFlags.IsUpsert)
             , StringUpdate = new PQStringUpdate
             {
-                Command = CrudCommand.Update, DictionaryId = emptyLt.TraderNameIdLookup[emptyLt.TraderName]
+                Command = CrudCommand.Upsert, DictionaryId = emptyLt.NameIdLookup[emptyLt.TraderName]
                 , Value = emptyLt.TraderName
             }
         };
@@ -337,8 +333,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        var newEmptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand,
-            PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+        var newEmptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
         var newEmpty = new PQLastTraderPaidGivenTrade(newEmptyNameIdLookup);
         newEmpty.UpdateField(sourceUpdates[0]);
         newEmpty.UpdateFieldString(stringUpdates[0]);
@@ -449,7 +444,7 @@ public class PQLastTraderPaidGivenTradeTests
             new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
         var pqStringUpdates = populatedLt.GetStringUpdates(
             new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
-        var newEmpty = new PQLastTraderPaidGivenTrade();
+        var newEmpty = new PQLastTraderPaidGivenTrade(nameIdLookup);
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);
         Assert.AreEqual(populatedLt, newEmpty);
@@ -466,7 +461,7 @@ public class PQLastTraderPaidGivenTradeTests
     [TestMethod]
     public void FullyPopulatedLt_HasNoUpdatesCopyFrom_OnlyCopiesMinimalData()
     {
-        var emptyPriceVolumeLayer = new PQLastTraderPaidGivenTrade();
+        var emptyPriceVolumeLayer = new PQLastTraderPaidGivenTrade(nameIdLookup);
         populatedLt.HasUpdates = false;
         emptyPriceVolumeLayer.CopyFrom(populatedLt);
         Assert.AreEqual(0m, emptyPriceVolumeLayer.TradePrice);

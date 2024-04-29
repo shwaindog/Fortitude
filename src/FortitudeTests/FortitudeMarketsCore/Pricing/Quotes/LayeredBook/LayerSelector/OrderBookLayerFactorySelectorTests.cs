@@ -3,6 +3,8 @@
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
@@ -23,6 +25,9 @@ public class OrderBookLayerFactorySelectorTests
     private string expectedTraderName = null!;
     private DateTime expectedValueDate;
 
+    private IPQNameIdLookupGenerator nameIdGenerator = new PQNameIdLookupGenerator(
+        PQFieldKeys.LayerNameDictionaryUpsertCommand);
+
     private PQPriceVolumeLayer pqPriceVolumeLayer = null!;
     private PQSourcePriceVolumeLayer pqSourcePriceVolumeLayer = null!;
     private PQSourceQuoteRefPriceVolumeLayer pqSourceQutoeRefPriceVolumeLayer = null!;
@@ -41,6 +46,8 @@ public class OrderBookLayerFactorySelectorTests
     [TestInitialize]
     public void SetUp()
     {
+        nameIdGenerator = new PQNameIdLookupGenerator(
+            PQFieldKeys.LayerNameDictionaryUpsertCommand);
         expectedTraderName = "TraderName-Toly";
         expectedSourceName = "SourceName-Latrobe";
         expectedValueDate = new DateTime(2018, 01, 9, 22, 0, 0);
@@ -63,20 +70,20 @@ public class OrderBookLayerFactorySelectorTests
         };
 
         pqPriceVolumeLayer = new PQPriceVolumeLayer(ExpectedPrice, ExpectedVolume);
-        pqSourcePriceVolumeLayer = new PQSourcePriceVolumeLayer(ExpectedPrice, ExpectedVolume, null,
+        pqSourcePriceVolumeLayer = new PQSourcePriceVolumeLayer(nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume,
             expectedSourceName, true);
-        pqSourceQutoeRefPriceVolumeLayer = new PQSourceQuoteRefPriceVolumeLayer(ExpectedPrice, ExpectedVolume,
-            null, expectedSourceName, true, ExpectedQuoteRef);
+        pqSourceQutoeRefPriceVolumeLayer = new PQSourceQuoteRefPriceVolumeLayer(nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume,
+            expectedSourceName, true, ExpectedQuoteRef);
         pqValueDatePriceVolumeLayer = new PQValueDatePriceVolumeLayer(ExpectedPrice, ExpectedVolume,
             expectedValueDate);
-        pqTraderPriceVolumeLayer = new PQTraderPriceVolumeLayer(ExpectedPrice, ExpectedVolume)
+        pqTraderPriceVolumeLayer = new PQTraderPriceVolumeLayer(nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume)
         {
-            [0] = new PQTraderLayerInfo(null, expectedTraderName, ExpectedVolume)
+            [0] = new PQTraderLayerInfo(nameIdGenerator.Clone(), expectedTraderName, ExpectedVolume)
         };
-        pqSrcQtRefTrdrVlDtPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(ExpectedPrice, ExpectedVolume,
-            null, null, expectedValueDate, expectedSourceName, true, ExpectedQuoteRef)
+        pqSrcQtRefTrdrVlDtPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume
+            , expectedValueDate, expectedSourceName, true, ExpectedQuoteRef)
         {
-            [0] = new PQTraderLayerInfo(null, expectedTraderName, ExpectedVolume)
+            [0] = new PQTraderLayerInfo(nameIdGenerator.Clone(), expectedTraderName, ExpectedVolume)
         };
 
         sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,

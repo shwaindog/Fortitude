@@ -2,6 +2,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public static class PQFieldFlags
 {
+    public const byte None = 0;
+
     // start of context specific flags
     // for order book
     public const byte IsAskSideFlag = 0x20;
@@ -13,16 +15,15 @@ public static class PQFieldFlags
 
     public const byte IsGivenFlag = 0x40;
 
-    // for string field Update
-    public const byte IsUpdate = 0x20;
 
-    public const byte IsDelete = 0x40;
+    // for string field Update
+
+    // Insert or Update or if missing is delete
+    public const byte IsUpsert = 0x40;
+
     // end of context specific flags
 
     public const byte IsExtendedFieldId = 0x80;
-
-    public const byte SourceNameIdLookupSubDictionaryKey = 0x01;
-    public const byte TraderNameIdLookupSubDictionaryKey = 0x02;
 
     public const byte LayerExecutableFlag = 0x01;
 

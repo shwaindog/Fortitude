@@ -2,11 +2,13 @@
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 
@@ -16,12 +18,14 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 
 public interface IPQOrderBook : IMutableOrderBook, IPQSupportsFieldUpdates<IOrderBook>,
     IPQSupportsStringUpdates<IOrderBook>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBook>,
-    IRelatedItem<IPQSourceTickerQuoteInfo>, IRelatedItem<IPQPriceVolumeLayer>
+    IRelatedItem<IPQSourceTickerQuoteInfo>, IRelatedItem<IPQNameIdLookupGenerator>,
+    ISupportsPQNameIdLookupGenerator
 
 {
     new IPQPriceVolumeLayer? this[int level] { get; set; }
     IList<IPQPriceVolumeLayer?> AllLayers { get; set; }
     new bool HasUpdates { get; set; }
+    new IPQNameIdLookupGenerator NameIdLookup { get; set; }
     new IPQOrderBook Clone();
     new IEnumerator<IPQPriceVolumeLayer> GetEnumerator();
 }
@@ -30,28 +34,45 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBook));
 
-    public PQOrderBook() => AllLayers = new List<IPQPriceVolumeLayer?>();
+    private IList<IPQPriceVolumeLayer?>? allLayers;
 
-    public PQOrderBook(IPQSourceTickerQuoteInfo srcTickerQuoteInfo)
+    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
+
+    public PQOrderBook()
     {
-        AllLayers = new List<IPQPriceVolumeLayer?>();
+        BookSide = BookSide.Unknown;
+        NameIdLookup
+            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+    }
+
+    public PQOrderBook(BookSide bookSide)
+    {
+        BookSide = bookSide;
+        NameIdLookup
+            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+    }
+
+    public PQOrderBook(BookSide bookSide, IPQSourceTickerQuoteInfo srcTickerQuoteInfo)
+    {
+        BookSide = bookSide;
+        NameIdLookup
+            = new PQNameIdLookupGenerator(srcTickerQuoteInfo.NameIdLookup, PQFieldKeys.LayerNameDictionaryUpsertCommand);
         EnsureRelatedItemsAreConfigured(srcTickerQuoteInfo);
     }
 
-    public PQOrderBook(IEnumerable<IPriceVolumeLayer>? bookLayers = null)
+    public PQOrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null)
     {
+        BookSide = bookSide;
+        NameIdLookup = SourceOtherExistingOrNewPQNameIdNameLookup(bookLayers);
         AllLayers = bookLayers?
             .Select(pvl => (IPQPriceVolumeLayer?)LayerSelector.ConvertToExpectedImplementation(pvl))
             .ToList() ?? new List<IPQPriceVolumeLayer?>();
-        if (AllLayers.Any())
-        {
-            AllLayers[0]?.EnsureRelatedItemsAreConfigured(null as IPQSourceTickerQuoteInfo);
-            EnsureRelatedItemsAreConfigured(AllLayers[0]);
-        }
     }
 
     public PQOrderBook(IOrderBook toClone)
     {
+        BookSide = toClone.BookSide;
+        NameIdLookup = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
         var size = toClone.Capacity;
         AllLayers = new List<IPQPriceVolumeLayer?>(size);
         Capacity = toClone.Capacity;
@@ -60,17 +81,15 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             var pqLayer = (IPQPriceVolumeLayer?)LayerSelector.ConvertToExpectedImplementation(toClone[i], true);
             AllLayers.Add(pqLayer);
         }
-
-        if (AllLayers.Count == 0 && toClone.Count == 0)
-            AllLayers.Add((IPQPriceVolumeLayer?)LayerSelector.ConvertToExpectedImplementation(toClone[0], true));
     }
 
-    public static IPQOrderBookLayerFactorySelector LayerSelector { get; set; }
-        = new PQOrderBookLayerFactorySelector();
+    private IPQOrderBookLayerFactorySelector LayerSelector { get; set; } = null!;
 
     protected string PQOrderBookToStringMembers =>
         $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, " +
         $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
+
+    public BookSide BookSide { get; }
 
     public IPQPriceVolumeLayer? this[int level]
     {
@@ -95,7 +114,26 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         set => this[level] = value as IPQPriceVolumeLayer;
     }
 
-    public IList<IPQPriceVolumeLayer?> AllLayers { get; set; }
+    public IList<IPQPriceVolumeLayer?> AllLayers
+    {
+        get => allLayers ??= new List<IPQPriceVolumeLayer?>();
+        set => allLayers = value;
+    }
+
+    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
+    public IPQNameIdLookupGenerator NameIdLookup
+    {
+        get => nameIdLookupGenerator;
+        set
+        {
+            nameIdLookupGenerator = value;
+            LayerSelector = new PQOrderBookLayerFactorySelector(nameIdLookupGenerator);
+            if (allLayers != null)
+                foreach (var pqPriceVolumeLayer in allLayers.OfType<ISupportsPQNameIdLookupGenerator>())
+                    pqPriceVolumeLayer.NameIdLookup = value;
+        }
+    }
 
     public int Capacity
     {
@@ -187,15 +225,18 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         // All layers share same dictionary or should do anyway
         if (!(this[0] is IPQSupportsStringUpdates<IPriceVolumeLayer> stringUpdateable)) yield break;
         foreach (var stringUpdate in stringUpdateable.GetStringUpdates(snapShotTime, messageFlags))
-            yield return stringUpdate;
+            if (BookSide == BookSide.AskBook)
+                yield return PQFieldStringUpdate.SetFieldFlag(stringUpdate, PQFieldFlags.IsAskSideFlag);
+            else
+                yield return stringUpdate;
     }
 
-    public bool UpdateFieldString(PQFieldStringUpdate updates)
+    public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
         if (AllLayers.Count > 0)
             //all layers share same dictionary so update any layers dictionary.
-            if (this[0] is IPQSupportsStringUpdates<IPriceVolumeLayer> stringUpdateable)
-                return stringUpdateable.UpdateFieldString(updates);
+            return NameIdLookup.UpdateFieldString(stringUpdate);
+
         return false;
     }
 
@@ -211,6 +252,9 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        var thisLayDict = SourceOtherExistingOrNewPQNameIdNameLookup(source);
+
+
         for (var i = 0; i < source.Count; i++)
         {
             var sourcelayer = source[i];
@@ -229,7 +273,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
                 destinationLayer = newDestinationLayer;
             }
 
-            destinationLayer = LayerSelector.SelectPriceVolumeLayer(destinationLayer, sourcelayer);
+            destinationLayer = LayerSelector.SelectPriceVolumeLayer(destinationLayer, thisLayDict, sourcelayer);
             AllLayers[i] = destinationLayer;
             destinationLayer?.CopyFrom(sourcelayer);
         }
@@ -238,28 +282,9 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         return this;
     }
 
-    public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
+    public void EnsureRelatedItemsAreConfigured(IPQNameIdLookupGenerator? otherNameIdLookupGenerator)
     {
-        int maxBookDepth = Math.Max((byte)1, Math.Min(referenceInstance!.MaximumPublishedLayers,
-            PQFieldKeys.SingleByteFieldIdMaxBookDepth));
-
-        var layerFactory = LayerSelector.FindForLayerFlags(referenceInstance);
-
-        for (var i = 0; i < maxBookDepth; i++)
-            if (i >= AllLayers.Count || AllLayers[i] == null)
-                AllLayers.Add(layerFactory.CreateNewLayer());
-            else if (i < AllLayers.Count && AllLayers[i] is { } currentLayer
-                                         && !LayerSelector.TypeCanWholeyContain(layerFactory.LayerCreationType
-                                             , currentLayer.GetType()))
-                AllLayers[i] = layerFactory.UpgradeLayer(currentLayer);
-        for (var i = maxBookDepth; i < AllLayers.Count; i++) AllLayers.RemoveAt(i);
-    }
-
-    public void EnsureRelatedItemsAreConfigured(IPQPriceVolumeLayer? referenceInstance)
-    {
-        var numberOfItemsToCopy = Capacity;
-        // first layer copied twice only on bidBook layer.
-        for (var i = 0; i < numberOfItemsToCopy; i++) AllLayers[i]?.EnsureRelatedItemsAreConfigured(referenceInstance);
+        if (otherNameIdLookupGenerator != null) NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
     }
 
     public virtual bool AreEquivalent(IOrderBook? other, bool exactTypes = false)
@@ -284,6 +309,38 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<IPriceVolumeLayer> IEnumerable<IPriceVolumeLayer>.GetEnumerator() => GetEnumerator();
+
+    public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
+    {
+        int maxBookDepth = Math.Max((byte)1, Math.Min(referenceInstance!.MaximumPublishedLayers, PQFieldKeys.SingleByteFieldIdMaxBookDepth));
+
+        var layerFactory = LayerSelector.FindForLayerFlags(referenceInstance);
+
+        for (var i = 0; i < maxBookDepth; i++)
+            if (i >= AllLayers.Count || AllLayers[i] == null)
+                AllLayers.Add(layerFactory.CreateNewLayer());
+            else if (i < AllLayers.Count && AllLayers[i] is { } currentLayer
+                                         && !LayerSelector.TypeCanWholeyContain(layerFactory.LayerCreationType
+                                             , currentLayer.GetType()))
+                AllLayers[i] = layerFactory.UpgradeLayer(currentLayer);
+        for (var i = maxBookDepth; i < AllLayers.Count; i++) AllLayers.RemoveAt(i);
+    }
+
+    private PQNameIdLookupGenerator SourceOtherExistingOrNewPQNameIdNameLookup(IEnumerable<IPriceVolumeLayer>? source)
+    {
+        PQNameIdLookupGenerator thisLayDict;
+        if (source is IPQOrderBook { NameIdLookup: not null } pqOrderBook)
+            thisLayDict = new PQNameIdLookupGenerator(pqOrderBook.NameIdLookup, PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        else if (source?.Any(pvl => pvl is IHasNameIdLookup { NameIdLookup: not null }) == true)
+            thisLayDict = new PQNameIdLookupGenerator(
+                source.OfType<IHasNameIdLookup>().Where(pvl => pvl is { NameIdLookup: not null })
+                    .Select(pvl => pvl.NameIdLookup)
+                    .First()!, PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        else
+            thisLayDict = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+
+        return thisLayDict;
+    }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrderBook, true);
 

@@ -1,4 +1,10 @@
-﻿namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
+﻿#region
+
+using FortitudeCommon.Monitoring.Logging;
+
+#endregion
+
+namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 
 public interface IListenSubscribeInterceptor
 {
@@ -9,6 +15,8 @@ public interface IListenSubscribeInterceptor
 
 public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterceptor
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(AddressListenSubscribeInterceptor));
+
     protected AddressListenSubscribeInterceptor(string name, IAddressMatcher addressMatcher)
     {
         Name = name;
@@ -30,7 +38,7 @@ public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterc
 
     public bool ShouldRunIntercept(IMessageListenerSubscription messageListenerSubscription) =>
         AddressMatcher.IsMatch(messageListenerSubscription.PublishAddress)
-        && messageListenerSubscription.ActiveListenSubscribeInterceptors.Any(lsi => lsi.Name == Name);
+        && messageListenerSubscription.ActiveListenSubscribeInterceptors.All(lsi => lsi.Name != Name);
 
     public abstract ValueTask RunInterceptorAction(IMessageListenerSubscription messageListenerSubscription);
 }

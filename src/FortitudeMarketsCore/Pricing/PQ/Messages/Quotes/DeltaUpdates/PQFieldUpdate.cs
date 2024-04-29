@@ -56,6 +56,8 @@ public struct PQFieldUpdate
         return obj is PQFieldUpdate && Equals((PQFieldUpdate)obj);
     }
 
+    public PQFieldUpdate ChangeValue(uint newValue) => new(Id, newValue, Flag);
+
     public override int GetHashCode()
     {
         unchecked
@@ -81,6 +83,13 @@ public struct PQFieldStringUpdate
     {
         if (ReferenceEquals(null, obj)) return false;
         return obj is PQFieldStringUpdate && Equals((PQFieldStringUpdate)obj);
+    }
+
+    public static PQFieldStringUpdate SetFieldFlag(PQFieldStringUpdate original, byte toSetFlag)
+    {
+        var updated = original;
+        updated.Field = new PQFieldUpdate(original.Field.Id, original.Field.Value, (byte)(original.Field.Flag | toSetFlag));
+        return updated;
     }
 
     public override int GetHashCode()
@@ -127,6 +136,6 @@ public struct PQStringUpdate
 public enum CrudCommand : byte
 {
     None
-    , Insert
-    , Update
+    , Upsert // Insert or update
+    , Delete
 }

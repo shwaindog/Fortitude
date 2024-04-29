@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -18,13 +19,12 @@ public enum TraderLayerInfoFlags : byte
     , TraderVolumeUpdatedFlag = 0x02
 }
 
-public interface IPQTraderLayerInfo : IMutableTraderLayerInfo
+public interface IPQTraderLayerInfo : IMutableTraderLayerInfo, ISupportsPQNameIdLookupGenerator
 {
     bool HasUpdates { get; set; }
     int TraderNameId { get; set; }
     bool IsTraderNameUpdated { get; set; }
     bool IsTraderVolumeUpdated { get; set; }
-    IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
     new IPQTraderLayerInfo Clone();
 }
 
@@ -35,30 +35,23 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
     protected TraderLayerInfoFlags UpdatedFlags;
     private decimal volume;
 
-    public PQTraderLayerInfo() => TraderNameIdLookup = null!;
+    public PQTraderLayerInfo() => NameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
 
-    public PQTraderLayerInfo(IPQNameIdLookupGenerator? lookupDict, string? traderName = null,
+    public PQTraderLayerInfo(IPQNameIdLookupGenerator lookupDict, string? traderName = null,
         decimal traderVolume = 0m)
     {
-        TraderNameIdLookup = lookupDict ?? new PQNameIdLookupGenerator(
-            PQFieldKeys.LayerNameDictionaryUpsertCommand,
-            PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+        NameIdLookup = lookupDict;
         TraderName = traderName;
         TraderVolume = traderVolume;
     }
 
-    public PQTraderLayerInfo(ITraderLayerInfo toClone)
+    public PQTraderLayerInfo(ITraderLayerInfo toClone, IPQNameIdLookupGenerator pqNameIdLookupGenerator)
     {
-        var pqTraderLayerInfo = toClone as PQTraderLayerInfo;
-        if (pqTraderLayerInfo != null)
-            TraderNameIdLookup = pqTraderLayerInfo.TraderNameIdLookup;
-        else
-            TraderNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand,
-                PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+        NameIdLookup = pqNameIdLookupGenerator;
         TraderName = toClone.TraderName;
         TraderVolume = toClone.TraderVolume;
 
-        if (pqTraderLayerInfo != null) UpdatedFlags = pqTraderLayerInfo.UpdatedFlags;
+        if (toClone is PQTraderLayerInfo pqTraderLayerInfo) UpdatedFlags = pqTraderLayerInfo.UpdatedFlags;
     }
 
     protected string PQTraderLayerInfoToStringMembers => $"{nameof(TraderName)}: {TraderName}, {nameof(TraderVolume)}: {TraderVolume:N2}";
@@ -76,10 +69,10 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
 
     public string? TraderName
     {
-        get => TraderNameIdLookup[traderNameId];
+        get => NameIdLookup[traderNameId];
         set
         {
-            var convertedTraderId = TraderNameIdLookup.GetOrAddId(value);
+            var convertedTraderId = NameIdLookup.GetOrAddId(value);
             if (convertedTraderId <= 0 && value != null)
                 throw new Exception("Error attempted to set the Trader Name to something " +
                                     "not defined in the source name to Id table.");
@@ -120,7 +113,9 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
-    public IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
+    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
     public bool HasUpdates
     {
@@ -148,7 +143,7 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
         else if (pqTrdrLyrInfo != null)
         {
-            TraderNameIdLookup.CopyFrom(pqTrdrLyrInfo.TraderNameIdLookup);
+            if (pqTrdrLyrInfo.NameIdLookup != null) NameIdLookup.CopyFrom(pqTrdrLyrInfo.NameIdLookup);
             if (pqTrdrLyrInfo.IsTraderNameUpdated) TraderName = pqTrdrLyrInfo.TraderName;
             if (pqTrdrLyrInfo.IsTraderVolumeUpdated) TraderName = pqTrdrLyrInfo.TraderName;
             UpdatedFlags = (source as PQTraderLayerInfo)?.UpdatedFlags ?? UpdatedFlags;
@@ -163,7 +158,7 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
 
     IPQTraderLayerInfo IPQTraderLayerInfo.Clone() => (IPQTraderLayerInfo)Clone();
 
-    public override ITraderLayerInfo Clone() => Recycler?.Borrow<PQTraderLayerInfo>().CopyFrom(this) ?? new PQTraderLayerInfo(this);
+    public override ITraderLayerInfo Clone() => Recycler?.Borrow<PQTraderLayerInfo>().CopyFrom(this) ?? new PQTraderLayerInfo(this, NameIdLookup);
 
     public virtual bool AreEquivalent(ITraderLayerInfo? other, bool exactTypes = false)
     {

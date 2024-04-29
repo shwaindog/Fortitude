@@ -205,11 +205,11 @@ public class Level2PriceQuoteTests
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
         var expectedPeriodSummary = new PeriodSummary();
-        var convertedBidBook = new PQOrderBook(new PQSourceTickerQuoteInfo(simpleSourceTickerQuoteInfo))
+        var convertedBidBook = new PQOrderBook(BookSide.BidBook, new PQSourceTickerQuoteInfo(simpleSourceTickerQuoteInfo))
         {
             [0] = new PQPriceVolumeLayer(expectedBidPriceTop, 1_000_000)
         };
-        var convertedAskBook = new PQOrderBook(new PQSourceTickerQuoteInfo(simpleSourceTickerQuoteInfo))
+        var convertedAskBook = new PQOrderBook(BookSide.AskBook, new PQSourceTickerQuoteInfo(simpleSourceTickerQuoteInfo))
         {
             [0] = new PQPriceVolumeLayer(expectedAskPriceTop, 1_000_000)
         };

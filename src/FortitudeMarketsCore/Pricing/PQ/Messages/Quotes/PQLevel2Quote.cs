@@ -14,6 +14,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 {
+    // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel2Quote));
 
     private IPQOrderBook askBook;
@@ -24,8 +25,8 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     public PQLevel2Quote(ISourceTickerQuoteInfo sourceTickerInfo)
         : base(sourceTickerInfo)
     {
-        bidBook = new PQOrderBook(PQSourceTickerQuoteInfo!);
-        askBook = new PQOrderBook(PQSourceTickerQuoteInfo!);
+        bidBook = new PQOrderBook(BookSide.BidBook, PQSourceTickerQuoteInfo!);
+        askBook = new PQOrderBook(BookSide.AskBook, PQSourceTickerQuoteInfo!);
         // ReSharper disable once VirtualMemberCallInConstructor
         EnsureRelatedItemsAreConfigured(this);
     }
@@ -44,12 +45,12 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         }
         else
         {
-            bidBook = new PQOrderBook(PQSourceTickerQuoteInfo!);
-            askBook = new PQOrderBook(PQSourceTickerQuoteInfo!);
+            bidBook = new PQOrderBook(BookSide.BidBook, PQSourceTickerQuoteInfo!);
+            askBook = new PQOrderBook(BookSide.AskBook, PQSourceTickerQuoteInfo!);
         }
 
         // ReSharper disable once VirtualMemberCallInConstructor
-        EnsureRelatedItemsAreConfigured(this);
+        EnsureRelatedItemsAreConfigured(toClone);
     }
 
     protected string Level2ToStringMembers =>
@@ -152,6 +153,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         foreach (var bidFields in bidBook.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      quotePublicationPrecisionSetting))
             yield return bidFields;
+
         foreach (var askField in askBook.GetDeltaUpdateFields(snapShotTime,
                      messageFlags, quotePublicationPrecisionSetting))
             yield return new PQFieldUpdate(askField.Id, askField.Value,
@@ -189,18 +191,18 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     {
         foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
             yield return pqFieldStringUpdate;
-        // bid and askbook should share same dictionary so just pick either one.
-        foreach (var pqFieldStringUpdate in bidBook.GetStringUpdates(snapShotTime, messageFlags))
-            yield return pqFieldStringUpdate;
+        foreach (var pqFieldStringUpdate in bidBook.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
+        foreach (var pqFieldStringUpdate in askBook.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
     }
 
-    public override bool UpdateFieldString(PQFieldStringUpdate updates)
+    public override bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        var found = base.UpdateFieldString(updates);
+        var found = base.UpdateFieldString(stringUpdate);
         if (found) return true;
-        if (updates.Field.Id == PQFieldKeys.LayerNameDictionaryUpsertCommand)
-            // share dictionary so just updated bidbook.
-            return bidBook.UpdateFieldString(updates);
+
+        if (stringUpdate.Field.Id == PQFieldKeys.LayerNameDictionaryUpsertCommand)
+            return stringUpdate.Field.IsBid() ? BidBook.UpdateFieldString(stringUpdate) : AskBook.UpdateFieldString(stringUpdate);
+
         return false;
     }
 
@@ -216,49 +218,27 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source);
+        base.CopyFrom(source, copyMergeFlags);
 
         if (!(source is ILevel2Quote l2Q)) return this;
-        Type? originalType = null;
-        if (bidBook.AllLayers.Any()) originalType = bidBook[0]!.GetType();
         bidBook.CopyFrom(l2Q.BidBook);
         askBook.CopyFrom(l2Q.AskBook);
-        Type? newType = null;
-        if (bidBook.AllLayers.Any()) newType = bidBook[0]!.GetType();
-        if (newType != originalType) EnsureRelatedItemsAreConfigured(this);
         return this;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ILevel0Quote? quote)
     {
-        var previousSrcTkrQtInfo = PQSourceTickerQuoteInfo;
         base.EnsureRelatedItemsAreConfigured(quote);
-        if (!ReferenceEquals(previousSrcTkrQtInfo, PQSourceTickerQuoteInfo))
-        {
-            bidBook.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
-            askBook.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
-        }
 
-        if (bidBook?.AllLayers?.Any() ?? false)
+        if (quote is IPQLevel2Quote pqLevel2Quote)
         {
-            if (!ReferenceEquals(this, quote) && quote is IPQLevel2Quote pqLevel2Quote)
-            {
-                //share name lookups between many quotes
-                IPQPriceVolumeLayer? otherLayer = null;
-                if (pqLevel2Quote.BidBook?.AllLayers?.Any() ?? false)
-                    otherLayer = pqLevel2Quote.BidBook[0];
-                else if (pqLevel2Quote.AskBook?.AllLayers?.Any() ?? false) otherLayer = pqLevel2Quote.AskBook[0];
-                if (otherLayer != null) bidBook[0]!.EnsureRelatedItemsAreConfigured(otherLayer);
-            }
-
-            bidBook[0]!.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
-            bidBook.EnsureRelatedItemsAreConfigured(bidBook[0]);
-            askBook?.EnsureRelatedItemsAreConfigured(bidBook[0]);
+            BidBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.BidBook.NameIdLookup);
+            AskBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.AskBook.NameIdLookup);
         }
-        else if (askBook?.AllLayers?.Any() ?? false) // should never execute but just incase
+        else
         {
-            askBook[0]!.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
-            askBook.EnsureRelatedItemsAreConfigured(askBook[0]);
+            BidBook.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
+            AskBook.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
         }
     }
 
@@ -266,8 +246,8 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     {
         if (!(other is ILevel2Quote otherL2)) return false;
         var baseSame = base.AreEquivalent(other, exactTypes);
-        var bidBooksSame = bidBook?.AreEquivalent(otherL2.BidBook, exactTypes) ?? otherL2.BidBook == null;
-        var askBookSame = askBook?.AreEquivalent(otherL2.AskBook, exactTypes) ?? otherL2.AskBook == null;
+        var bidBooksSame = BidBook.AreEquivalent(otherL2.BidBook, exactTypes);
+        var askBookSame = AskBook.AreEquivalent(otherL2.AskBook, exactTypes);
         var bidBookChangedSame = true;
         var askBookChangedSame = true;
         if (exactTypes)
@@ -292,8 +272,10 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ (bidBook != null ? bidBook.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (askBook != null ? askBook.GetHashCode() : 0);
+            // ReSharper disable NonReadonlyMemberInGetHashCode
+            hashCode = (hashCode * 397) ^ BidBook.GetHashCode();
+            hashCode = (hashCode * 397) ^ AskBook.GetHashCode();
+            // ReSharper restore NonReadonlyMemberInGetHashCode
             return hashCode;
         }
     }

@@ -10,7 +10,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQQuoteDeserializer<T> : IPQDeserializer<T> where T : PQLevel0Quote
+public interface IPQQuoteDeserializer<T> : IPQDeserializer<T> where T : class, IPQLevel0Quote, new()
 {
     bool AllowUpdatesCatchup { get; }
     uint SyncRetryMs { get; }

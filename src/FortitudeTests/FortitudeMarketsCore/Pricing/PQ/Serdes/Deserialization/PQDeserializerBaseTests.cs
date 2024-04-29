@@ -605,7 +605,7 @@ public class PQDeserializerBaseTests
         public DummyPQQuoateDeserializerBase(ISourceTickerQuoteInfo identifier) : base(identifier) { }
 
 
-        public override PQLevel0Quote? Deserialize(ISerdeContext readContext) => throw new NotImplementedException();
+        public override T? Deserialize(ISerdeContext readContext) => throw new NotImplementedException();
 
         public void InvokeOnReceivedUpdate(IPQDeserializer quoteDeserializer)
         {

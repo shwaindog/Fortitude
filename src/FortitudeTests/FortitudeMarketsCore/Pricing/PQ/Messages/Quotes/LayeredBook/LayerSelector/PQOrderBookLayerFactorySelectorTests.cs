@@ -21,17 +21,13 @@ public class PQOrderBookLayerFactorySelectorTests
     private const decimal ExpectedVolume = 42_000_111m;
     private const uint ExpectedQuoteRef = 41_111_2222u;
 
-    private readonly PQOrderBookLayerFactorySelector layerSelector = new();
-
-    private readonly IPQNameIdLookupGenerator sourceNameIdGenerator = new PQNameIdLookupGenerator(
-        PQFieldKeys.LayerNameDictionaryUpsertCommand, PQFieldFlags.SourceNameIdLookupSubDictionaryKey);
-
-    private readonly IPQNameIdLookupGenerator traderNameIdGenerator = new PQNameIdLookupGenerator(
-        PQFieldKeys.LayerNameDictionaryUpsertCommand, PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
-
     private string expectedSourceName = null!;
     private string expectedTraderName = null!;
     private DateTime expectedValueDate;
+
+    private PQOrderBookLayerFactorySelector layerSelector = null!;
+
+    private IPQNameIdLookupGenerator nameIdGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
 
     private PQPriceVolumeLayer pqPriceVolumeLayer = null!;
     private PQSourcePriceVolumeLayer pqSourcePriceVolumeLayer = null!;
@@ -51,6 +47,8 @@ public class PQOrderBookLayerFactorySelectorTests
     [TestInitialize]
     public void SetUp()
     {
+        nameIdGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        layerSelector = new PQOrderBookLayerFactorySelector(nameIdGenerator);
         expectedTraderName = "TraderName-Leila";
         expectedSourceName = "SourceName-Wattle";
         expectedValueDate = new DateTime(2018, 01, 9, 22, 0, 0);
@@ -72,20 +70,20 @@ public class PQOrderBookLayerFactorySelectorTests
         };
 
         pqPriceVolumeLayer = new PQPriceVolumeLayer(ExpectedPrice, ExpectedVolume);
-        pqSourcePriceVolumeLayer = new PQSourcePriceVolumeLayer(ExpectedPrice, ExpectedVolume, null,
+        pqSourcePriceVolumeLayer = new PQSourcePriceVolumeLayer(nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume,
             expectedSourceName, true);
-        pqSourceQutoeRefPriceVolumeLayer = new PQSourceQuoteRefPriceVolumeLayer(ExpectedPrice, ExpectedVolume,
-            null, expectedSourceName, true, ExpectedQuoteRef);
+        pqSourceQutoeRefPriceVolumeLayer = new PQSourceQuoteRefPriceVolumeLayer(nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume,
+            expectedSourceName, true, ExpectedQuoteRef);
         pqValueDatePriceVolumeLayer = new PQValueDatePriceVolumeLayer(ExpectedPrice, ExpectedVolume,
             expectedValueDate);
-        pqTraderPriceVolumeLayer = new PQTraderPriceVolumeLayer(ExpectedPrice, ExpectedVolume)
+        pqTraderPriceVolumeLayer = new PQTraderPriceVolumeLayer(nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume)
         {
-            [0] = new PQTraderLayerInfo(null, expectedTraderName, ExpectedVolume)
+            [0] = new PQTraderLayerInfo(nameIdGenerator.Clone(), expectedTraderName, ExpectedVolume)
         };
-        pqSrcQtRefTrdrVlDtPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(ExpectedPrice, ExpectedVolume,
-            null, null, expectedValueDate, expectedSourceName, true, ExpectedQuoteRef)
+        pqSrcQtRefTrdrVlDtPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(nameIdGenerator, ExpectedPrice, ExpectedVolume,
+            expectedValueDate, expectedSourceName, true, ExpectedQuoteRef)
         {
-            [0] = new PQTraderLayerInfo(null, expectedTraderName, ExpectedVolume)
+            [0] = new PQTraderLayerInfo(nameIdGenerator.Clone(), expectedTraderName, ExpectedVolume)
         };
 
 
@@ -93,8 +91,7 @@ public class PQOrderBookLayerFactorySelectorTests
             "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
-        pqSourceTickerQuoteInfo.SourceNameIdLookup = sourceNameIdGenerator;
-        pqSourceTickerQuoteInfo.TraderNameIdLookup = traderNameIdGenerator;
+        pqSourceTickerQuoteInfo.NameIdLookup = nameIdGenerator;
     }
 
     [TestMethod]
@@ -102,16 +99,16 @@ public class PQOrderBookLayerFactorySelectorTests
     {
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.None;
         var pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQPriceVolumeLayerFactory));
     }
 
     [TestMethod]
@@ -119,43 +116,43 @@ public class PQOrderBookLayerFactorySelectorTests
     {
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceName;
         var pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
 
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
 
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                              LayerFlags.Executable | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourcePriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourcePriceVolumeLayerFactory));
     }
 
     [TestMethod]
@@ -163,49 +160,49 @@ public class PQOrderBookLayerFactorySelectorTests
     {
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceQuoteReference;
         var pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
 
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
                                              LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
                                              LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                              LayerFlags.Executable | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
 
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
                                              LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
                                              LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
                                              LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
                                              LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(SourceQuoteRefPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQSourceQuoteRefPriceVolumeLayerFactory));
     }
 
     [TestMethod]
@@ -231,17 +228,17 @@ public class PQOrderBookLayerFactorySelectorTests
     {
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName;
         var pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(TraderPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQTraderPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.TraderName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(TraderPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQTraderPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.TraderName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(TraderPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQTraderPriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                              LayerFlags.TraderName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
-        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(TraderPriceVolumeLayerFactory));
+        Assert.AreEqual(pqRecentlyTradedFactory.GetType(), typeof(PQTraderPriceVolumeLayerFactory));
     }
 
     [TestMethod]
@@ -250,73 +247,73 @@ public class PQOrderBookLayerFactorySelectorTests
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
         var pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.TraderName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                              LayerFlags.ValueDate | LayerFlags.SourceName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
 
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.ValueDate;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable |
                                              LayerFlags.SourceQuoteReference;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable | LayerFlags.ValueDate;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
                                              LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
 
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
                                              LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName |
                                              LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName |
                                              LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
         pqSourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
                                              LayerFlags.SourceName | LayerFlags.SourceQuoteReference |
                                              LayerFlags.ValueDate | LayerFlags.TraderName;
         pqRecentlyTradedFactory = layerSelector.FindForLayerFlags(pqSourceTickerQuoteInfo);
         Assert.AreEqual(pqRecentlyTradedFactory.GetType(),
-            typeof(SourceQuoteRefTraderValueDatePriceVolumeLayerFactory));
+            typeof(PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory));
     }
 
 
     [TestMethod]
     public void NonPQPriceVolumeLayerTypes_ConvertToExpectedImplementation_ConvertsToPQPriceVolumeLayerType()
     {
-        var pqPvl = layerSelector.ConvertToExpectedImplementation(priceVolumeLayer);
+        var pqPvl = layerSelector.ConvertToExpectedImplementation(priceVolumeLayer, nameIdGenerator);
         Assert.AreEqual(pqPvl.GetType(), typeof(PQPriceVolumeLayer));
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqPvl.Volume);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(sourcePriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(sourcePriceVolumeLayer, nameIdGenerator);
         var pqSrcPvl = pqPvl as PQSourcePriceVolumeLayer;
         Assert.IsNotNull(pqSrcPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
@@ -324,7 +321,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedSourceName, pqSrcPvl.SourceName);
         Assert.AreEqual(true, pqSrcPvl.Executable);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(sourceQutoeRefPriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(sourceQutoeRefPriceVolumeLayer, nameIdGenerator);
         var pqSrcQtRefPvl = pqPvl as PQSourceQuoteRefPriceVolumeLayer;
         Assert.IsNotNull(pqSrcQtRefPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
@@ -333,14 +330,14 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(true, pqSrcQtRefPvl.Executable);
         Assert.AreEqual(ExpectedQuoteRef, pqSrcQtRefPvl.SourceQuoteReference);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(valueDatePriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(valueDatePriceVolumeLayer, nameIdGenerator);
         var pqVlDtPvl = pqPvl as PQValueDatePriceVolumeLayer;
         Assert.IsNotNull(pqVlDtPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqPvl.Volume);
         Assert.AreEqual(expectedValueDate, pqVlDtPvl.ValueDate);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(traderPriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(traderPriceVolumeLayer, nameIdGenerator);
         var pqTrdrPvl = pqPvl as PQTraderPriceVolumeLayer;
         Assert.IsNotNull(pqTrdrPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
@@ -348,7 +345,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedTraderName, pqTrdrPvl[0]!.TraderName);
         Assert.AreEqual(ExpectedVolume, pqTrdrPvl[0]!.TraderVolume);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(srcQtRefTrdrVlDtPvl);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(srcQtRefTrdrVlDtPvl, nameIdGenerator);
         var convertedPqSrcQtRefTrdrVlDtPvl = pqPvl as PQSourceQuoteRefTraderValueDatePriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
@@ -364,13 +361,13 @@ public class PQOrderBookLayerFactorySelectorTests
     [TestMethod]
     public void PQPriceVolumeLayerTypes_ConvertToExpectedImplementation_ClonesPQPriceVolumeLayerType()
     {
-        var pqPvl = layerSelector.ConvertToExpectedImplementation(pqPriceVolumeLayer, true);
+        var pqPvl = layerSelector.ConvertToExpectedImplementation(pqPriceVolumeLayer, nameIdGenerator, true);
         Assert.AreEqual(pqPvl.GetType(), typeof(PQPriceVolumeLayer));
         Assert.AreNotSame(pqPriceVolumeLayer, pqPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqPvl.Volume);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourcePriceVolumeLayer, true);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourcePriceVolumeLayer, nameIdGenerator, true);
         var pqSrcPvl = pqPvl as PQSourcePriceVolumeLayer;
         Assert.IsNotNull(pqSrcPvl);
         Assert.AreNotSame(pqSourcePriceVolumeLayer, pqPvl);
@@ -379,7 +376,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedSourceName, pqSrcPvl.SourceName);
         Assert.AreEqual(true, pqSrcPvl.Executable);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourceQutoeRefPriceVolumeLayer, true);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, true);
         var pqSrcQtRefPvl = pqPvl as PQSourceQuoteRefPriceVolumeLayer;
         Assert.IsNotNull(pqSrcQtRefPvl);
         Assert.AreNotSame(pqSourceQutoeRefPriceVolumeLayer, pqPvl);
@@ -389,7 +386,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(true, pqSrcQtRefPvl.Executable);
         Assert.AreEqual(ExpectedQuoteRef, pqSrcQtRefPvl.SourceQuoteReference);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqValueDatePriceVolumeLayer, true);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqValueDatePriceVolumeLayer, nameIdGenerator, true);
         var pqVlDtPvl = pqPvl as PQValueDatePriceVolumeLayer;
         Assert.IsNotNull(pqVlDtPvl);
         Assert.AreNotSame(pqValueDatePriceVolumeLayer, pqPvl);
@@ -397,7 +394,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedVolume, pqPvl.Volume);
         Assert.AreEqual(expectedValueDate, pqVlDtPvl.ValueDate);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqTraderPriceVolumeLayer, true);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqTraderPriceVolumeLayer, nameIdGenerator, true);
         var pqTrdrPvl = pqPvl as PQTraderPriceVolumeLayer;
         Assert.IsNotNull(pqTrdrPvl);
         Assert.AreNotSame(pqTraderPriceVolumeLayer, pqPvl);
@@ -406,7 +403,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedTraderName, pqTrdrPvl[0]!.TraderName);
         Assert.AreEqual(ExpectedVolume, pqTrdrPvl[0]!.TraderVolume);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSrcQtRefTrdrVlDtPvl, true);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, true);
         var convertedPqSrcQtRefTrdrVlDtPvl = pqPvl as PQSourceQuoteRefTraderValueDatePriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(pqSrcQtRefTrdrVlDtPvl, pqPvl);
@@ -424,31 +421,31 @@ public class PQOrderBookLayerFactorySelectorTests
     [TestMethod]
     public void PQPriceVolumeLayerTypes_ConvertToExpectedImplementation_ReturnsSamePQPriceVolumeLayerType()
     {
-        var pqPvl = layerSelector.ConvertToExpectedImplementation(pqPriceVolumeLayer);
+        var pqPvl = layerSelector.ConvertToExpectedImplementation(pqPriceVolumeLayer, nameIdGenerator);
         Assert.AreEqual(pqPvl.GetType(), typeof(PQPriceVolumeLayer));
         Assert.AreSame(pqPriceVolumeLayer, pqPvl);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourcePriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourcePriceVolumeLayer, nameIdGenerator);
         var pqSrcPvl = pqPvl as PQSourcePriceVolumeLayer;
         Assert.IsNotNull(pqSrcPvl);
         Assert.AreSame(pqSourcePriceVolumeLayer, pqPvl);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourceQutoeRefPriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator);
         var pqSrcQtRefPvl = pqPvl as PQSourceQuoteRefPriceVolumeLayer;
         Assert.IsNotNull(pqSrcQtRefPvl);
         Assert.AreSame(pqSourceQutoeRefPriceVolumeLayer, pqPvl);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqValueDatePriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqValueDatePriceVolumeLayer, nameIdGenerator);
         var pqVlDtPvl = pqPvl as PQValueDatePriceVolumeLayer;
         Assert.IsNotNull(pqVlDtPvl);
         Assert.AreSame(pqValueDatePriceVolumeLayer, pqPvl);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqTraderPriceVolumeLayer);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqTraderPriceVolumeLayer, nameIdGenerator);
         var pqTrdrPvl = pqPvl as PQTraderPriceVolumeLayer;
         Assert.IsNotNull(pqTrdrPvl);
         Assert.AreSame(pqTraderPriceVolumeLayer, pqPvl);
 
-        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSrcQtRefTrdrVlDtPvl);
+        pqPvl = layerSelector.ConvertToExpectedImplementation(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator);
         var convertedPqSrcQtRefTrdrVlDtPvl = pqPvl as PQSourceQuoteRefTraderValueDatePriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreSame(pqSrcQtRefTrdrVlDtPvl, pqPvl);
@@ -619,256 +616,255 @@ public class PQOrderBookLayerFactorySelectorTests
     [TestMethod]
     public void NonPQLastTradeEntries_SelectLastTradeEntry_UpgradesLayerToSrcQtRefTrdrVlDtPVLIfCantContain()
     {
-        var result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, priceVolumeLayer);
+        var result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, priceVolumeLayer);
         Assert.AreSame(result, pqPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, priceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, priceVolumeLayer);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, priceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, priceVolumeLayer);
         Assert.AreSame(result, pqSourceQutoeRefPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, priceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, priceVolumeLayer);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, priceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, priceVolumeLayer);
         Assert.AreSame(result, pqTraderPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, priceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, priceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, sourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, sourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayer);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, sourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayer);
         Assert.AreSame(result, pqSourceQutoeRefPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, sourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, sourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, sourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, sourcePriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, sourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, sourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, sourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, sourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer,
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator,
             sourceQutoeRefPriceVolumeLayer);
         Assert.AreSame(result, pqSourceQutoeRefPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, sourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, sourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, sourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, sourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, sourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, sourceQutoeRefPriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, valueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, valueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, valueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourceQutoeRefPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, valueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayer);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, valueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, valueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, valueDatePriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, traderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, traderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, traderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, traderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, traderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, traderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourceQutoeRefPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, traderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, traderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, traderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, traderPriceVolumeLayer);
         Assert.AreSame(result, pqTraderPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, traderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, traderPriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, srcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, srcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, srcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, srcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, srcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, srcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourceQutoeRefPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, srcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, srcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, srcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, srcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, srcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, srcQtRefTrdrVlDtPvl);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
     }
 
     [TestMethod]
     public void PQLastTradeEntries_SelectLastTradeEntry_UpgradesLayerToSrcQtRefTrdrVlDtPVLIfCantContain()
     {
-        var result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, pqPriceVolumeLayer);
+        var result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayer);
         Assert.AreSame(result, pqPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, pqPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayer);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, pqPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayer);
         Assert.AreSame(result, pqSourceQutoeRefPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, pqPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayer);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, pqPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayer);
         Assert.AreSame(result, pqTraderPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, pqPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, pqPriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, pqSourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, pqSourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayer);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, pqSourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayer);
         Assert.AreSame(result, pqSourceQutoeRefPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, pqSourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, pqSourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, pqSourcePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, pqSourcePriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, pqSourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, pqSourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, pqSourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqSourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer,
-            pqSourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, pqSourceQutoeRefPriceVolumeLayer);
         Assert.AreSame(result, pqSourceQutoeRefPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, pqSourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqSourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, pqSourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, pqSourceQutoeRefPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, pqSourceQutoeRefPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, pqSourceQutoeRefPriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, pqValueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, pqValueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, pqValueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourceQutoeRefPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, pqValueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayer);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, pqValueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, pqValueDatePriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, pqValueDatePriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, pqTraderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, pqTraderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, pqTraderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqTraderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, pqTraderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, pqTraderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourceQutoeRefPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, pqTraderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqTraderPriceVolumeLayer);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, pqTraderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, pqTraderPriceVolumeLayer);
         Assert.AreSame(result, pqTraderPriceVolumeLayer);
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, pqTraderPriceVolumeLayer);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, pqTraderPriceVolumeLayer);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
 
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, pqSrcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, pqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, pqSrcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, pqSrcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqSourceQutoeRefPriceVolumeLayer, nameIdGenerator, pqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqSourceQutoeRefPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, pqSrcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, pqSrcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqTraderPriceVolumeLayer, nameIdGenerator, pqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
         Assert.IsTrue(pqTraderPriceVolumeLayer.AreEquivalent(result));
-        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, pqSrcQtRefTrdrVlDtPvl);
+        result = layerSelector.SelectPriceVolumeLayer(pqSrcQtRefTrdrVlDtPvl, nameIdGenerator, pqSrcQtRefTrdrVlDtPvl);
         Assert.AreSame(result, pqSrcQtRefTrdrVlDtPvl);
     }
 
     [TestMethod]
     public void NullPriceVolumeLayerEntries_SelectPriceVolumeLayer_HandlesEmptyValues()
     {
-        var result = layerSelector.SelectPriceVolumeLayer(null, priceVolumeLayer)!;
+        var result = layerSelector.SelectPriceVolumeLayer(null, nameIdGenerator, priceVolumeLayer)!;
         Assert.AreEqual(typeof(PQPriceVolumeLayer), result.GetType());
         Assert.IsTrue(result.IsEmpty);
-        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, null);
+        result = layerSelector.SelectPriceVolumeLayer(pqPriceVolumeLayer, nameIdGenerator, null);
         Assert.IsNull(result);
     }
 }

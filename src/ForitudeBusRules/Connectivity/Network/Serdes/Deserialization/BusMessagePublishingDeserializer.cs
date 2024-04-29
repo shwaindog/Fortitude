@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeBusRules.BusMessaging;
-using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
@@ -74,10 +73,7 @@ public class BroadcastReceiverListenContext<T> : ReceiverListenContext<T>
 
     public override void SendToReceiver(T message)
     {
-        var payload = Recycler.Borrow<RemoteMessageReceived<T>>();
-        payload.Message = message;
-
-        messageBus.PublishAsync(Rule.NoKnownSender, publishAddress, payload, new DispatchOptions());
+        messageBus.PublishAsync(Rule.NoKnownSender, publishAddress, message, new DispatchOptions());
     }
 
     public override IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
@@ -141,10 +137,7 @@ public class TargetedMessageQueueReceiverListenContext<T> : ReceiverListenContex
 
     public override void SendToReceiver(T message)
     {
-        var payload = Recycler.Borrow<RemoteMessageReceived<T>>();
-        payload.Message = message;
-
-        queueContext.RegisteredOn.EnqueuePayloadBody(payload, Rule.NoKnownSender, MessageType.Publish, publishAddress, BusMessage.AppliesToAll);
+        queueContext.RegisteredOn.EnqueuePayloadBody(message, Rule.NoKnownSender, MessageType.Publish, publishAddress, BusMessage.AppliesToAll);
     }
 
     public override IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
@@ -208,10 +201,7 @@ public class TargetedRuleReceiverListenContext<T> : ReceiverListenContext<T>
 
     public override void SendToReceiver(T message)
     {
-        var payload = Recycler.Borrow<RemoteMessageReceived<T>>();
-        payload.Message = message;
-
-        rule.Context.RegisteredOn.EnqueuePayloadBody(payload, Rule.NoKnownSender, MessageType.Publish, publishAddress, checkRule => checkRule == rule);
+        rule.Context.RegisteredOn.EnqueuePayloadBody(message, Rule.NoKnownSender, MessageType.Publish, publishAddress, checkRule => checkRule == rule);
     }
 
     public override IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>

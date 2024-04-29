@@ -18,23 +18,47 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public abstract class PQDeserializerBase : MessageDeserializer<PQLevel0Quote>
-    , IPQDeserializer
+public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeserializer<T>
+    where T : class, IPQLevel0Quote
 {
-    protected PQDeserializerBase(PQDeserializerBase toClone) : base(toClone)
+    private const byte SupportFromVersion = 1;
+    private const byte SupportToVersion = 1;
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQDeserializerBase<>));
+
+    // ReSharper disable once StaticMemberInGenericType
+    private static IPerfLoggerPool PublishPQQuoteDeserializerLatencyTraceLoggerPool =
+        PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool("clientCallback",
+            TimeSpan.FromMilliseconds(10), typeof(UserCallback));
+
+    protected readonly IList<IObserver<T>> Subscribers = new List<IObserver<T>>();
+
+    protected Func<ISourceTickerQuoteInfo, T> QuoteFactory;
+
+    protected PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig)
+    {
+        Identifier = tickerPricingSubscriptionConfig;
+        QuoteFactory = sqi => ConcreteFinder.GetConcreteMapping<T>(sqi);
+        PublishedQuote = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
+    }
+
+
+    protected PQDeserializerBase(PQDeserializerBase<T> toClone) : base(toClone)
     {
         Identifier = toClone.Identifier;
         ReceivedUpdate = toClone.ReceivedUpdate;
         SyncOk = toClone.SyncOk;
         OutOfSync = toClone.OutOfSync;
+        QuoteFactory = toClone.QuoteFactory;
+        PublishedQuote = (T)toClone.PublishedQuote.Clone();
     }
 
-    protected PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig) => Identifier = tickerPricingSubscriptionConfig;
-
     public static IPQImplementationFactory ConcreteFinder { get; set; } = new PQImplementationFactory();
+
+    protected virtual bool ShouldPublish => PublishedQuote.HasUpdates;
     public ISourceTickerQuoteInfo Identifier { get; }
     public IPQDeserializer? Previous { get; set; }
     public IPQDeserializer? Next { get; set; }
+
 
     public event Action<IPQDeserializer>? ReceivedUpdate;
     public event Action<IPQDeserializer>? SyncOk;
@@ -58,41 +82,6 @@ public abstract class PQDeserializerBase : MessageDeserializer<PQLevel0Quote>
         onOutOfSync?.Invoke(quoteDeserializer);
     }
 
-    public virtual bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => false;
-
-    public virtual bool CheckResync(DateTime utcNow) => false;
-}
-
-public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserializer<T>
-    where T : class, IPQLevel0Quote
-{
-    private const byte SupportFromVersion = 1;
-    private const byte SupportToVersion = 1;
-    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQDeserializerBase<>));
-
-    // ReSharper disable once StaticMemberInGenericType
-    private static IPerfLoggerPool PublishPQQuoteDeserializerLatencyTraceLoggerPool =
-        PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool("clientCallback",
-            TimeSpan.FromMilliseconds(10), typeof(UserCallback));
-
-    protected readonly IList<IObserver<T>> Subscribers = new List<IObserver<T>>();
-
-    protected Func<ISourceTickerQuoteInfo, T> QuoteFactory;
-
-    protected PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig) : base(tickerPricingSubscriptionConfig)
-    {
-        QuoteFactory = sqi => ConcreteFinder.GetConcreteMapping<T>(sqi);
-        PublishedQuote = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
-    }
-
-
-    protected PQDeserializerBase(PQDeserializerBase<T> toClone) : base(toClone)
-    {
-        QuoteFactory = toClone.QuoteFactory;
-        PublishedQuote = (T)toClone.PublishedQuote.Clone();
-    }
-
-    protected virtual bool ShouldPublish => PublishedQuote.HasUpdates;
     public T PublishedQuote { get; protected set; }
 
     public IDisposable Subscribe(IObserver<T> observer)
@@ -120,6 +109,10 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
             }
         });
     }
+
+    public virtual bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => false;
+
+    public virtual bool CheckResync(DateTime utcNow) => false;
 
     public unsafe void UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
@@ -159,25 +152,26 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
                 var stringUpdate = new PQStringUpdate
                 {
                     DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
-                    , Command = (pqFieldUpdate.Flag & PQFieldFlags.IsUpdate) == PQFieldFlags.IsUpdate ?
-                        CrudCommand.Update :
-                        (pqFieldUpdate.Flag & PQFieldFlags.IsDelete) == PQFieldFlags.IsDelete ?
-                            CrudCommand.None :
-                            CrudCommand.Insert
+                    , Command = (pqFieldUpdate.Flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ?
+                        CrudCommand.Upsert :
+                        CrudCommand.Delete
                 };
                 var fieldStringUpdate = new PQFieldStringUpdate
                 {
                     Field = pqFieldUpdate, StringUpdate = stringUpdate
                 };
+                // logger.Info("Received PQFieldStringUpdate: {0}", fieldStringUpdate);
                 ent.UpdateFieldString(fieldStringUpdate);
             }
         }
+
+        // logger.Info("Deserialized Quote {0}: {1} on {2}", ent.GetType().Name, ent.PQSequenceId, InstanceNumber);
     }
 
     public void PushQuoteToSubscribers(PQSyncStatus syncStatus,
         IPerfLogger? detectionToPublishLatencyTraceLogger = null)
     {
-        if (!Subscribers.Any()) return;
+        if (!Subscribers.Any() && !AllDeserializedNotifiers.Any()) return;
         var tl = PublishPQQuoteDeserializerLatencyTraceLoggerPool.StartNewTrace();
         PublishedQuote.Lock.Acquire();
         try
@@ -190,6 +184,7 @@ public abstract class PQDeserializerBase<T> : PQDeserializerBase, IPQDeserialize
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < Subscribers.Count; i++)
                 Subscribers[i].OnNext(PublishedQuote);
+            OnNotify(PublishedQuote);
             if (tl.Enabled) tl.Add("Source", Identifier.Source);
             PublishedQuote.HasUpdates = false;
         }

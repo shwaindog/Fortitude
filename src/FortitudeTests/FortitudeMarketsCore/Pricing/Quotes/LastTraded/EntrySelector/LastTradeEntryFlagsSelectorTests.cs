@@ -154,8 +154,7 @@ public class LastTradeEntryFlagsSelectorTests
 
         protected override string SelectTraderLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectTraderLastTradeEntry);
 
-        public override IMutableLastTrade? ConvertToExpectedImplementation(
-            ILastTrade? checkLastTrade, bool clone = false) =>
+        public override IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false) =>
             throw new NotImplementedException();
     }
 }

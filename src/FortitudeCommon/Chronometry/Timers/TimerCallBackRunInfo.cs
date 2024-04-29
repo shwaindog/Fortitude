@@ -75,7 +75,7 @@ public abstract class TimerCallBackRunInfo : ReusableObject<TimerCallBackRunInfo
         FirstScheduledTime = DateTime.MaxValue;
         LastRunTime = DateTime.MaxValue;
         LastRunTime = DateTime.MaxValue;
-        NextScheduleTime = DateTime.MaxValue;
+        NextScheduleTime = DateTime.UtcNow + UpdateableTimer.MaxTimerSpan;
         IntervalPeriodTimeSpan = UpdateableTimer.MaxTimerSpan;
         base.StateReset();
     }

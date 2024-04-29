@@ -126,7 +126,7 @@ public class QuoteSequencedTestDataBuilder
         if (layer == null) return;
         for (var i = 0; i < 2; i++)
         {
-            layer[i]!.TraderName = "TN" + (batchId * 5 + i);
+            layer[i]!.TraderName = (isBidBook ? "B" : "A") + "TN" + (batchId * 5 + i);
             layer[i]!.TraderVolume = batchId * 25600 + i * 100;
         }
     }

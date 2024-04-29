@@ -10,7 +10,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQDeserializer : INotifyingMessageDeserializer<PQLevel0Quote>,
+public interface IPQDeserializer : INotifyingMessageDeserializer,
     IDoublyLinkedListNode<IPQDeserializer>
 {
     ISourceTickerQuoteInfo Identifier { get; }
@@ -24,7 +24,7 @@ public interface IPQDeserializer : INotifyingMessageDeserializer<PQLevel0Quote>,
     bool CheckResync(DateTime utcNow);
 }
 
-public interface IPQDeserializer<out T> : IPQDeserializer, IObservable<T> where T : IPQLevel0Quote
+public interface IPQDeserializer<T> : IPQDeserializer, INotifyingMessageDeserializer<T>, IObservable<T> where T : class, IPQLevel0Quote
 {
     T PublishedQuote { get; }
 }

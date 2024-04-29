@@ -249,8 +249,7 @@ public class LayerFlagsSelectorTests
             ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
             nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
 
-        public override IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer,
-            bool clone = false) =>
+        public override IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false) =>
             throw new NotImplementedException();
     }
 }

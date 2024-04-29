@@ -27,8 +27,7 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
         ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
         new SourceQuoteRefTraderValueDatePriceVolumeLayer();
 
-    public override IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer,
-        bool clone = false)
+    public override IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false)
     {
         switch (priceVolumeLayer)
         {

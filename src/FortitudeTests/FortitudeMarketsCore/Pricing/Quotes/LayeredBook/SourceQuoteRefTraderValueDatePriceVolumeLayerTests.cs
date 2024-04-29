@@ -4,6 +4,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
@@ -14,6 +16,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 [TestClass]
 public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
 {
+    private IPQNameIdLookupGenerator emptyNameIdLookup = null!;
     private SourceQuoteRefTraderValueDatePriceVolumeLayer emptyPvl = null!;
     private int populatedNumberOfTraders;
     private SourceQuoteRefTraderValueDatePriceVolumeLayer populatedPvl = null!;
@@ -28,6 +31,7 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
     {
         populatedNumberOfTraders = 2;
         populatedSourceName = "TestSourceName";
+        emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
         emptyPvl = new SourceQuoteRefTraderValueDatePriceVolumeLayer();
         populatedValueDate = new DateTime(2017, 12, 26, 21, 00, 00); // only to the nearest hour.
         populatedQuoteRef = 4_2949_672u;
@@ -82,8 +86,8 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
         Assert.AreEqual(populatedQuoteRef, fromPQInstance.SourceQuoteReference);
         TraderPriceVolumeLayerTests.AssertTraderLayersAreExpected(fromPQInstance);
 
-        var pqTraderPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(populatedQuotePrice,
-            populatedQuoteVolume, null, null, populatedValueDate, populatedSourceName, true, populatedQuoteRef);
+        var pqTraderPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(emptyNameIdLookup.Clone(), populatedQuotePrice,
+            populatedQuoteVolume, populatedValueDate, populatedSourceName, true, populatedQuoteRef);
         TraderPriceVolumeLayerTests.AddTraderLayers(pqTraderPvl, populatedNumberOfTraders);
         var fromNonPqInstance = new SourceQuoteRefTraderValueDatePriceVolumeLayer(pqTraderPvl);
         Assert.AreEqual(populatedQuotePrice, fromNonPqInstance.Price);
@@ -111,7 +115,7 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
         var emptyClone = new SourceQuoteRefTraderValueDatePriceVolumeLayer(nonExactPriceVolume);
         nonExactPriceVolume.AreEquivalent(emptyClone);
 
-        var pqSrcQtRefTrdVlDtPvl = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl);
+        var pqSrcQtRefTrdVlDtPvl = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         emptyClone = new SourceQuoteRefTraderValueDatePriceVolumeLayer(pqSrcQtRefTrdVlDtPvl);
         pqSrcQtRefTrdVlDtPvl.AreEquivalent(emptyClone);
     }
@@ -123,7 +127,7 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
         var emptyClone = new SourceQuoteRefTraderValueDatePriceVolumeLayer(nonExactPriceVolume);
         nonExactPriceVolume.AreEquivalent(emptyClone);
 
-        var pqSrcPvl = new PQSourcePriceVolumeLayer(populatedPvl);
+        var pqSrcPvl = new PQSourcePriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         emptyClone = new SourceQuoteRefTraderValueDatePriceVolumeLayer(pqSrcPvl);
         pqSrcPvl.AreEquivalent(emptyClone);
     }
@@ -219,7 +223,7 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromNonPQSrcQtRefTrdrVlDtToEmptyQuote_PvlsEqualEachOther()
     {
-        var pqPriceVolume = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(populatedPvl);
+        var pqPriceVolume = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         emptyPvl.CopyFrom(pqPriceVolume);
         Assert.AreEqual(populatedPvl, emptyPvl);
 
@@ -230,7 +234,7 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
     [TestMethod]
     public void FullyPopulatedPvl_NewAndCopyFromSrcQtRefToEmptyQuote_PvlsEqualEachOther()
     {
-        var pqNonExactQuote = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl);
+        var pqNonExactQuote = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         var emptyClone = (IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer)emptyPvl.Clone();
         emptyClone.CopyFrom(pqNonExactQuote);
         pqNonExactQuote.AreEquivalent(emptyClone);
@@ -244,7 +248,7 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromSrcPvlToEmptyQuote_PvlsEqualEachOther()
     {
-        var pqNonExactPriceVolume = new PQSourcePriceVolumeLayer(populatedPvl);
+        var pqNonExactPriceVolume = new PQSourcePriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         var emptyClone = (IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer)emptyPvl.Clone();
         emptyClone.CopyFrom(pqNonExactPriceVolume);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);
@@ -272,7 +276,7 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayerTests
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromTraderPvlToEmptyQuote_PvlsEqualEachOther()
     {
-        var pqNonExactPriceVolume = new PQTraderPriceVolumeLayer(populatedPvl);
+        var pqNonExactPriceVolume = new PQTraderPriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         var emptyClone = (IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer)emptyPvl.Clone();
         emptyClone.CopyFrom(pqNonExactPriceVolume);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);

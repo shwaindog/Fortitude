@@ -1,22 +1,21 @@
 #region
 
+using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 
 public interface IPQLastTraderPaidGivenTrade : IPQLastPaidGivenTrade, IMutableLastTraderPaidGivenTrade,
-    IPQSupportsStringUpdates<ILastTrade>
+    IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator
 {
     int TraderId { get; set; }
     bool IsTraderNameUpdated { get; set; }
-    IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
+    new IPQNameIdLookupGenerator NameIdLookup { get; set; }
     new IPQLastTraderPaidGivenTrade Clone();
 }
 
@@ -24,39 +23,27 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 {
     private int traderId;
 
-    public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup) =>
-        TraderNameIdLookup = traderIdToNameLookup ?? new PQNameIdLookupGenerator(
-            PQFieldKeys.LastTraderDictionaryUpsertCommand, PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+    public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup) => NameIdLookup = traderIdToNameLookup;
 
-    public PQLastTraderPaidGivenTrade(decimal tradePrice = 0m, DateTime? tradeTime = null,
-        decimal tradeVolume = 0m, bool wasPaid = false, bool wasGiven = false,
-        IPQNameIdLookupGenerator? traderIdToNameLookup = null, string? traderName = null)
+    public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup, decimal tradePrice = 0m, DateTime? tradeTime = null,
+        decimal tradeVolume = 0m, bool wasPaid = false, bool wasGiven = false, string? traderName = null)
         : base(tradePrice, tradeTime,
             tradeVolume, wasPaid, wasGiven)
     {
-        TraderNameIdLookup = traderIdToNameLookup ?? new PQNameIdLookupGenerator(
-            PQFieldKeys.LastTraderDictionaryUpsertCommand, PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+        NameIdLookup = traderIdToNameLookup;
         TraderName = traderName;
     }
 
-    public PQLastTraderPaidGivenTrade(ILastTrade toClone) : base(toClone)
+    public PQLastTraderPaidGivenTrade(ILastTrade toClone, IPQNameIdLookupGenerator traderIdToNameLookup) : base(toClone)
     {
-        if (toClone is PQLastTraderPaidGivenTrade pqltpqt)
+        NameIdLookup = traderIdToNameLookup;
+        if (toClone is PQLastTraderPaidGivenTrade pqltpgt)
         {
-            TraderNameIdLookup = pqltpqt.TraderNameIdLookup.Clone();
-            TraderId = pqltpqt.TraderId;
-            IsTraderNameUpdated = pqltpqt.IsTraderNameUpdated;
-        }
-        else if (toClone is ILastTraderPaidGivenTrade pqLastTrdrPaidOrGivenTrade)
-        {
-            TraderNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand,
-                PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
-            TraderName = pqLastTrdrPaidOrGivenTrade.TraderName;
+            TraderId = pqltpgt.TraderId;
+            IsTraderNameUpdated = pqltpgt.IsTraderNameUpdated;
         }
 
-        if (TraderNameIdLookup == null)
-            TraderNameIdLookup = new PQNameIdLookupGenerator(
-                PQFieldKeys.LastTraderDictionaryUpsertCommand, PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
+        if (toClone is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade) TraderName = lastTraderPaidGivenTrade.TraderName;
     }
 
 
@@ -76,7 +63,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
     public string? TraderName
     {
-        get => TraderId == 0 ? null : TraderNameIdLookup[traderId];
+        get => TraderId == 0 ? null : NameIdLookup[traderId];
         set
         {
             if (value == null)
@@ -85,14 +72,14 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
                 return;
             }
 
-            var convertedSourceId = TraderNameIdLookup[value];
+            var convertedSourceId = NameIdLookup[value];
             if (convertedSourceId > 0)
             {
                 TraderId = convertedSourceId;
                 return;
             }
 
-            TraderId = TraderNameIdLookup.GetOrAddId(value);
+            TraderId = NameIdLookup.GetOrAddId(value);
         }
     }
 
@@ -109,16 +96,18 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
     public override bool HasUpdates
     {
-        get => base.HasUpdates || TraderNameIdLookup.HasUpdates;
+        get => base.HasUpdates || NameIdLookup.HasUpdates;
         set
         {
-            TraderNameIdLookup.HasUpdates = value;
+            NameIdLookup.HasUpdates = value;
             IsTraderNameUpdated = value;
             base.HasUpdates = value;
         }
     }
 
-    public IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
+    INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
     public override bool IsEmpty => base.IsEmpty && TraderName == null;
 
@@ -156,17 +145,15 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
         PQMessageFlags messageFlags)
     {
-        if (TraderNameIdLookup is IPQNameIdLookupGenerator pqNameIdLookupGenerator)
-            foreach (var stringUpdate in pqNameIdLookupGenerator.GetStringUpdates(snapShotTime,
-                         messageFlags))
-                yield return stringUpdate;
+        foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime,
+                     messageFlags))
+            yield return stringUpdate;
     }
 
-    public virtual bool UpdateFieldString(PQFieldStringUpdate updates)
+    public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        if (updates.Field.Id != PQFieldKeys.LastTraderDictionaryUpsertCommand) return false;
-        if (TraderNameIdLookup != null) return TraderNameIdLookup.UpdateFieldString(updates);
-        return false;
+        if (stringUpdate.Field.Id != PQFieldKeys.LastTraderDictionaryUpsertCommand) return false;
+        return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
     public override ILastTrade CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -180,7 +167,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
         else if (pqltpgt != null)
         {
-            TraderNameIdLookup.CopyFrom(pqltpgt.TraderNameIdLookup);
+            NameIdLookup.CopyFrom(pqltpgt.NameIdLookup);
             if (pqltpgt.IsTraderNameUpdated) TraderId = pqltpgt.traderId;
             UpdatedFlags = pqltpgt.UpdatedFlags;
         }
@@ -188,23 +175,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         return this;
     }
 
-    public override void EnsureRelatedItemsAreConfigured(ISourceTickerQuoteInfo? referenceInstance)
-    {
-        if (referenceInstance is IPQSourceTickerQuoteInfo pqSrcTkrQtInfo)
-            if (ReferenceEquals(pqSrcTkrQtInfo.LastTraderNameLookup, TraderNameIdLookup))
-                TraderNameIdLookup = pqSrcTkrQtInfo.LastTraderNameLookup.Clone();
-        if (TraderNameIdLookup == null)
-            TraderNameIdLookup = new PQNameIdLookupGenerator(
-                PQFieldKeys.LastTraderDictionaryUpsertCommand, PQFieldFlags.TraderNameIdLookupSubDictionaryKey);
-    }
-
-    public override void EnsureRelatedItemsAreConfigured(IPQLastTrade? referenceInstance)
-    {
-        if (referenceInstance is IPQLastTraderPaidGivenTrade pqTrdrPvLayer)
-            TraderNameIdLookup = pqTrdrPvLayer.TraderNameIdLookup;
-    }
-
-    public override IMutableLastTrade Clone() => new PQLastTraderPaidGivenTrade(this);
+    public override IMutableLastTrade Clone() => new PQLastTraderPaidGivenTrade(this, NameIdLookup);
 
     ILastTraderPaidGivenTrade ILastTraderPaidGivenTrade.Clone() => (ILastTraderPaidGivenTrade)Clone();
 

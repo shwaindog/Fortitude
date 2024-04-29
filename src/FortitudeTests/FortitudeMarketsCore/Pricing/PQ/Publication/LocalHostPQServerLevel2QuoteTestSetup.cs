@@ -50,9 +50,9 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
     public Level2PriceQuote GenerateL2QuoteWithSourceNameLayer()
     {
         var i = 0;
-        var sourceBidBook = GenerateBook(20, 1.1123m, -0.0001m, 100000m, 10000m,
+        var sourceBidBook = GenerateBook(BookSide.BidBook, 20, 1.1123m, -0.0001m, 100000m, 10000m,
             (price, volume) => new SourcePriceVolumeLayer(price, volume, "SourceName" + i++, true));
-        var sourceAskBook = GenerateBook(20, 1.1125m, 0.0001m, 100000m, 10000m,
+        var sourceAskBook = GenerateBook(BookSide.AskBook, 20, 1.1125m, 0.0001m, 100000m, 10000m,
             (price, volume) => new SourcePriceVolumeLayer(price, volume, "SourceName" + i++, true));
 
         UpdateSourceQuoteBook(sourceBidBook, NameIdLookupGenerator, 20, 20, 1);
@@ -77,9 +77,7 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
             true);
     }
 
-    public Level2PriceQuote ConvertPQToLevel2QuoteWithSourceNameLayer(IPQLevel2Quote pQuote) => new(pQuote);
-
-    private static OrderBook GenerateBook<T>(int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
+    private static OrderBook GenerateBook<T>(BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
         where T : IPriceVolumeLayer
     {
@@ -93,7 +91,7 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
             currentVolume += deltaVolumePerLayer;
         }
 
-        return new OrderBook(generatedLayers.Cast<IPriceVolumeLayer>().ToList());
+        return new OrderBook(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
     }
 
 

@@ -4,6 +4,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
@@ -16,12 +18,14 @@ public class LastTraderPaidGivenTradeTests
 {
     private const string WellKnownTraderName = "TestTraderName";
     private LastTraderPaidGivenTrade emptyLt = null!;
+    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
     private LastTraderPaidGivenTrade populatedLt = null!;
     private DateTime testDateTime;
 
     [TestInitialize]
     public void SetUp()
     {
+        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
         emptyLt = new LastTraderPaidGivenTrade();
         testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
         populatedLt = new LastTraderPaidGivenTrade(4.2949_672m, testDateTime, 42_949_672.95m, true, true,
@@ -61,7 +65,7 @@ public class LastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.WasPaid);
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
 
-        var nonPQLt = new PQLastTraderPaidGivenTrade(1.23456m, testDateTime, 42_949_672.95m, true, true)
+        var nonPQLt = new PQLastTraderPaidGivenTrade(nameIdLookupGenerator, 1.23456m, testDateTime, 42_949_672.95m, true, true)
         {
             TraderName = WellKnownTraderName
         };
@@ -141,7 +145,7 @@ public class LastTraderPaidGivenTradeTests
     [TestMethod]
     public void PQPopulatedLt_CopyFromToEmptyPvl_QuotesEquivalentToEachOther()
     {
-        var pqLastTrade = new PQLastTraderPaidGivenTrade(populatedLt);
+        var pqLastTrade = new PQLastTraderPaidGivenTrade(populatedLt, nameIdLookupGenerator);
         var newEmpty = new LastTraderPaidGivenTrade();
         newEmpty.CopyFrom(pqLastTrade);
         Assert.IsTrue(populatedLt.AreEquivalent(newEmpty));
