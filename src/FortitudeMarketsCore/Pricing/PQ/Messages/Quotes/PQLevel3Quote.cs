@@ -161,7 +161,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
 
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime,

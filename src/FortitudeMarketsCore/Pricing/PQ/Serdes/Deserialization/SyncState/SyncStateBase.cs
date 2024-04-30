@@ -35,7 +35,10 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
     public virtual void ProcessInState(IMessageBufferContext bufferContext)
     {
         var msgFlags = (PQMessageFlags)bufferContext.MessageHeader.Flags;
-        if ((msgFlags & PQMessageFlags.Snapshot) > 0)
+        var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
+        if ((msgFlags & PQMessageFlags.Snapshot) > 0
+            && sequenceId != LinkedDeserializer.PublishedQuote.PQSequenceId + 1 &&
+            (sequenceId != 0 || LinkedDeserializer.PublishedQuote.PQSequenceId == 0))
             ProcessSnapshot(bufferContext);
         else
             ProcessUpdate(bufferContext);

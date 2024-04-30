@@ -4,8 +4,10 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 public enum PQMessageFlags : byte
 {
     None = 0
-    , Snapshot = 1
-    , Update = 2
-    , Replay = 4
-    , Persistence = 8
+    , Complete = 1
+    , Snapshot = 3
+    , Update = 4
+    , CompleteUpdate = 5
+    , Replay = 8
+    , Persistence = 16
 }

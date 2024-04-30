@@ -93,8 +93,9 @@ public class SynchronisingStateTests : SyncStateBaseTests
     [TestMethod]
     public override void NewSyncState_ProcessSnapshot_CallsExpectedBehaviour()
     {
+        pqQuoteStreamDeserializer.PublishedQuote.PQSequenceId = 0;
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Snapshot, 1);
+            PQMessageFlags.Snapshot, 2);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -105,7 +106,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
                 Assert.AreEqual(4, strParams.Length);
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
                 Assert.AreEqual(0u, strParams[1]);
-                Assert.AreEqual(1u, strParams[2]);
+                Assert.AreEqual(2u, strParams[2]);
                 Assert.AreEqual(0u, strParams[3]);
             }).Verifiable();
 
@@ -118,7 +119,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     public virtual void NewSyncState_ProcessInStateProcessSnapshotMovesToSnapshot_LogsRecovery()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Snapshot, 1);
+            PQMessageFlags.Snapshot, 2);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -129,7 +130,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
                 Assert.AreEqual(4, strParams.Length);
                 Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
                 Assert.AreEqual(0u, strParams[1]);
-                Assert.AreEqual(1u, strParams[2]);
+                Assert.AreEqual(2u, strParams[2]);
                 Assert.AreEqual(0u, strParams[3]);
             }).Verifiable();
 

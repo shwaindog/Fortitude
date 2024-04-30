@@ -322,7 +322,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var precisionSettings = quotePublicationPrecisionSettings ?? PQSourceTickerQuoteInfo;
-        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
             yield return updatedField;

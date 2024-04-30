@@ -173,6 +173,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         set
         {
             foreach (var pqPvLayer in AllLayers.Where(pql => pql is not null)) pqPvLayer!.HasUpdates = value;
+            NameIdLookup.HasUpdates = value;
         }
     }
 
@@ -223,8 +224,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     {
         if (AllLayers.Count <= 0) yield break;
         // All layers share same dictionary or should do anyway
-        if (!(this[0] is IPQSupportsStringUpdates<IPriceVolumeLayer> stringUpdateable)) yield break;
-        foreach (var stringUpdate in stringUpdateable.GetStringUpdates(snapShotTime, messageFlags))
+        foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags))
             if (BookSide == BookSide.AskBook)
                 yield return PQFieldStringUpdate.SetFieldFlag(stringUpdate, PQFieldFlags.IsAskSideFlag);
             else
@@ -233,10 +233,8 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        if (AllLayers.Count > 0)
-            //all layers share same dictionary so update any layers dictionary.
+        if (stringUpdate.Field.Id == PQFieldKeys.LayerNameDictionaryUpsertCommand)
             return NameIdLookup.UpdateFieldString(stringUpdate);
-
         return false;
     }
 
@@ -252,30 +250,23 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        var thisLayDict = SourceOtherExistingOrNewPQNameIdNameLookup(source);
-
+        // if (source is PQOrderBook sourcePqOrderBook) NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup);
 
         for (var i = 0; i < source.Count; i++)
         {
-            var sourcelayer = source[i];
-            if (sourcelayer == null || sourcelayer.IsEmpty)
+            var sourceLayer = source[i];
+            if (sourceLayer == null || sourceLayer.IsEmpty)
             {
                 AllLayers[i]?.StateReset();
                 continue;
             }
 
             IPQPriceVolumeLayer? destinationLayer = null;
-            var foundAtIndex = false;
-            if (i < AllLayers.Count)
-            {
-                var newDestinationLayer = AllLayers[i];
-                foundAtIndex = !ReferenceEquals(newDestinationLayer, destinationLayer);
-                destinationLayer = newDestinationLayer;
-            }
+            if (i < AllLayers.Count) destinationLayer = AllLayers[i];
 
-            destinationLayer = LayerSelector.SelectPriceVolumeLayer(destinationLayer, thisLayDict, sourcelayer);
+            destinationLayer = LayerSelector.SelectPriceVolumeLayer(destinationLayer, NameIdLookup, sourceLayer);
             AllLayers[i] = destinationLayer;
-            destinationLayer?.CopyFrom(sourcelayer);
+            destinationLayer?.CopyFrom(sourceLayer);
         }
 
         for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i]?.StateReset();
@@ -284,7 +275,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public void EnsureRelatedItemsAreConfigured(IPQNameIdLookupGenerator? otherNameIdLookupGenerator)
     {
-        if (otherNameIdLookupGenerator != null) NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
+        // if (otherNameIdLookupGenerator != null) NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
     }
 
     public virtual bool AreEquivalent(IOrderBook? other, bool exactTypes = false)
@@ -312,6 +303,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
     {
+        if (referenceInstance is { NameIdLookup: not null }) NameIdLookup.CopyFrom(referenceInstance.NameIdLookup);
         int maxBookDepth = Math.Max((byte)1, Math.Min(referenceInstance!.MaximumPublishedLayers, PQFieldKeys.SingleByteFieldIdMaxBookDepth));
 
         var layerFactory = LayerSelector.FindForLayerFlags(referenceInstance);

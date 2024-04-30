@@ -90,7 +90,7 @@ public class SyncStateBaseTests
                     NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig,
                     syncRetryIntervalMs: retryWaitMs, allowUpdatesCatchup: allowCatchup)));
         SendPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
-            { PQSyncStatus = PQSyncStatus.Good };
+            { PQSyncStatus = PQSyncStatus.Good, PQSequenceId = 2 };
         DesersializerPqLevel0Quote = pqQuoteStreamDeserializer.PublishedQuote;
         SyncSlotPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
             { PQSyncStatus = PQSyncStatus.Good };
@@ -191,8 +191,9 @@ public class SyncStateBaseTests
     [TestMethod]
     public virtual void NewSyncState_ProcessSnapshot_CallsExpectedBehaviour()
     {
+        pqQuoteStreamDeserializer.PublishedQuote.PQSequenceId = 3;
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Snapshot, 1);
+            PQMessageFlags.Snapshot, 2);
         var sockBuffContext = deserializeInputList.First();
 
         var hitCallback = false;
