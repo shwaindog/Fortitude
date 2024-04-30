@@ -37,7 +37,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 
     public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags) =>
         from kvp in this
-        where messageFlags == PQMessageFlags.Snapshot || IsIdUpdated(kvp.Key)
+        where (messageFlags & PQMessageFlags.Complete) > 0 || IsIdUpdated(kvp.Key)
         select new PQFieldStringUpdate
         {
             Field = new PQFieldUpdate(dictionaryFieldKey, ReservedForStringSerializedSize,

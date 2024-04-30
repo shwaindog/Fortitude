@@ -52,8 +52,8 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
     {
         if (!(message is IPQLevel0Quote pqL0Quote)) return FinishProcessingMessageReturnValue(message, -1);
         var resolvedFlags = pqL0Quote.OverrideSerializationFlags ?? messageFlags;
+        var publishAll = (resolvedFlags & PQMessageFlags.Complete) > 0;
         pqL0Quote.OverrideSerializationFlags = null;
-        var publishAll = (resolvedFlags & PQMessageFlags.Snapshot) > 0;
         if ((publishAll ? sizeof(uint) : 0) + PQQuoteMessageHeader.HeaderSize > buffer.Length - writeOffset)
             return FinishProcessingMessageReturnValue(message, -1);
         fixed (byte* fptr = buffer)
@@ -108,7 +108,8 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                     // logger.Info("Writing string update {0} and Value = {1}", fieldStringUpdate, bytesUsed);
                 }
 
-                if (publishAll)
+                var isSnapshot = (resolvedFlags & PQMessageFlags.Snapshot) > 0;
+                if (isSnapshot)
                     StreamByteOps.ToBytes(ref sequenceIdptr
                         , pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId);
                 else

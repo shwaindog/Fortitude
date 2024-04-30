@@ -277,7 +277,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             yield return new PQFieldUpdate(PQFieldKeys.ClientReceivedSubHourTime, lower4Bytes, fifthByte);
         }
 
-        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         if (PQSourceTickerQuoteInfo != null)
             foreach (var field in PQSourceTickerQuoteInfo.GetDeltaUpdateFields(snapShotTime, messageFlags,
                          quotePublicationPrecisionSettings))

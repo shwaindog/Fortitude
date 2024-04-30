@@ -431,7 +431,7 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
     public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags updateStyle,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var updatedOnly = (updateStyle & PQMessageFlags.Update) > 0;
+        var updatedOnly = (updateStyle & PQMessageFlags.Complete) == 0;
 
         if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, Id);
         if (!updatedOnly || IsRoundingPrecisionUpdated)
@@ -474,7 +474,7 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
 
     public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
-        var isUpdateOnly = messageFlags == PQMessageFlags.Update;
+        var isUpdateOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         if (!isUpdateOnly || IsSourceUpdated)
             yield return new PQFieldStringUpdate
             {

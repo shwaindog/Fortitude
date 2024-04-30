@@ -66,7 +66,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                      quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;

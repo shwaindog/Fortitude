@@ -20,6 +20,8 @@ public interface IPQPublisher : IQuotePublisher<ILevel0Quote>
     void SetNextSequenceNumberToZero(string ticker);
 
     void SetNextSequenceNumberToFullUpdate(string ticker);
+
+    void PublishQuoteUpdateAs(ILevel0Quote quote, PQMessageFlags? withMessageFlags = null);
 }
 
 public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
@@ -84,14 +86,21 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
         }
     }
 
-    public void PublishQuoteUpdate(ILevel0Quote quote)
+    public void PublishQuoteUpdateAs(ILevel0Quote quote, PQMessageFlags? withMessageFlags = null)
     {
         if (pictures.TryGetValue(quote.SourceTickerQuoteInfo!.Ticker, out var pqPicture))
         {
             // logger.Info("About to publish quote: {0}", quote);
             pqPicture!.CopyFrom(quote);
+            pqPicture.OverrideSerializationFlags = withMessageFlags;
             pqServer.Publish(pqPicture);
+            pqPicture.OverrideSerializationFlags = null;
         }
+    }
+
+    public void PublishQuoteUpdate(ILevel0Quote quote)
+    {
+        PublishQuoteUpdateAs(quote);
     }
 
     public void RegisterTickersWithServer(ISourceTickerQuoteInfo sourceTickerQuoteInfo)

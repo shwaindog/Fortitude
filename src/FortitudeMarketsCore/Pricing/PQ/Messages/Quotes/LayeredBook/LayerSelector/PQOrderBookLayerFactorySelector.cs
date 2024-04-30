@@ -61,7 +61,7 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
         if (desired == null) return null;
         if (original == null)
         {
-            var cloneOfSrc = (IPQPriceVolumeLayer?)ConvertToExpectedImplementation(desired, nameIdLookupGenerator)?.Clone();
+            var cloneOfSrc = (IPQPriceVolumeLayer?)ConvertToExpectedImplementation(desired, nameIdLookupGenerator, true);
             cloneOfSrc?.StateReset();
             return cloneOfSrc;
         }
@@ -75,7 +75,7 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
     public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
-    public IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? checkForConvert, INameIdLookup nameIdLookup,
+    public IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? checkForConvert, IPQNameIdLookupGenerator nameIdLookup,
         bool clone = false)
     {
         switch (checkForConvert)
@@ -83,17 +83,21 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
             case null:
                 return new PQPriceVolumeLayer();
             case PQPriceVolumeLayer pqPriceVolumeLayer:
-                return clone ? pqPriceVolumeLayer.Clone() : pqPriceVolumeLayer;
+            {
+                var origOrClone = clone ? pqPriceVolumeLayer.Clone() : pqPriceVolumeLayer;
+                if (origOrClone is ISupportsPQNameIdLookupGenerator hasNameIdGen) hasNameIdGen.NameIdLookup = nameIdLookup;
+                return origOrClone;
+            }
             case ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtePvLayer:
-                return new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(srcQtRefTrdrVlDtePvLayer, (IPQNameIdLookupGenerator)nameIdLookup);
+                return new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(srcQtRefTrdrVlDtePvLayer, nameIdLookup);
             case ITraderPriceVolumeLayer trdrPvLayer:
-                return new PQTraderPriceVolumeLayer(trdrPvLayer, (IPQNameIdLookupGenerator)nameIdLookup);
+                return new PQTraderPriceVolumeLayer(trdrPvLayer, nameIdLookup);
             case IValueDatePriceVolumeLayer valueDatePriceVolumeLayer:
                 return new PQValueDatePriceVolumeLayer(valueDatePriceVolumeLayer);
             case ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer:
-                return new PQSourceQuoteRefPriceVolumeLayer(srcQtRefPvLayer, (IPQNameIdLookupGenerator)nameIdLookup);
+                return new PQSourceQuoteRefPriceVolumeLayer(srcQtRefPvLayer, nameIdLookup);
             case ISourcePriceVolumeLayer sourcePriceVolumeLayer:
-                return new PQSourcePriceVolumeLayer(sourcePriceVolumeLayer, (IPQNameIdLookupGenerator)nameIdLookup);
+                return new PQSourcePriceVolumeLayer(sourcePriceVolumeLayer, nameIdLookup);
             default:
                 return new PQPriceVolumeLayer(checkForConvert);
         }
