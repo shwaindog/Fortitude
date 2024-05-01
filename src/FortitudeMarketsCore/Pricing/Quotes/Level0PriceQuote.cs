@@ -42,6 +42,8 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
         ClientReceivedTime = toClone.ClientReceivedTime;
     }
 
+    public virtual QuoteLevel QuoteLevel => QuoteLevel.Level0;
+
     public ISourceTickerQuoteInfo? SourceTickerQuoteInfo { get; set; }
     ISourceTickerQuoteInfo? ILevel0Quote.SourceTickerQuoteInfo => SourceTickerQuoteInfo;
     public virtual DateTime SourceTime { get; set; }

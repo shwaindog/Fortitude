@@ -50,6 +50,12 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         }
     }
 
+    public override LayerType LayerType => LayerType.SourceQuoteRefTraderValueDatePriceVolume;
+
+    public override LayerFlags SupportsLayerFlags =>
+        LayerFlags.SourceQuoteReference | LayerFlags.SourceName
+                                        | LayerFlags.Executable | LayerFlags.ValueDate | base.SupportsLayerFlags;
+
     public string? SourceName { get; set; }
     public bool Executable { get; set; }
     public DateTime ValueDate { get; set; }

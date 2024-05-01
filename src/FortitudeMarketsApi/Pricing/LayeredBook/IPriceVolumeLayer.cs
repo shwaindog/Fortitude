@@ -11,6 +11,8 @@ namespace FortitudeMarketsApi.Pricing.LayeredBook;
 // duplicated 1000s of times in a ring.
 public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterfacesComparable<IPriceVolumeLayer>
 {
+    LayerType LayerType { get; }
+    LayerFlags SupportsLayerFlags { get; }
     decimal Price { get; }
     decimal Volume { get; }
     bool IsEmpty { get; }

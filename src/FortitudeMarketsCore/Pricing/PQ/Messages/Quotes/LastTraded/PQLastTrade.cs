@@ -45,6 +45,8 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     }
 
     protected string PQLastTradeToStringMembers => $"{nameof(TradePrice)}: {TradePrice:N5}, {nameof(TradeTime)}: {TradeTime:O}";
+    public virtual LastTradeType LastTradeType => LastTradeType.Price;
+    public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
 
     public DateTime TradeTime
     {

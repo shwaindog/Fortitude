@@ -17,6 +17,8 @@ public enum BookSide
 public interface IOrderBook : IEnumerable<IPriceVolumeLayer>, IReusableObject<IOrderBook>,
     IInterfacesComparable<IOrderBook>
 {
+    LayerType LayersOfType { get; }
+    LayerFlags LayersSupportsLayerFlags { get; }
     int Capacity { get; }
     int Count { get; }
     BookSide BookSide { get; }

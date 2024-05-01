@@ -7,13 +7,14 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 [TestClass]
 public class PQTickerFeedSubscriptionQuoteStreamTests
@@ -43,7 +44,7 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
                 }));
 
         sourceTickerQuoteInfo = new SourceTickerQuoteInfo(
-            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |

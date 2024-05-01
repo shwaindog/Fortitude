@@ -54,6 +54,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
         }
     }
 
+    public override QuoteLevel QuoteLevel => QuoteLevel.Level3;
+
     public IMutableRecentlyTraded? RecentlyTraded { get; set; }
 
     IRecentlyTraded? ILevel3Quote.RecentlyTraded => RecentlyTraded;

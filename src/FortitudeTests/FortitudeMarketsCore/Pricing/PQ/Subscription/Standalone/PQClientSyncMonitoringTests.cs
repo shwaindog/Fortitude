@@ -15,7 +15,7 @@ using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 [TestClass]
 public class PQClientSyncMonitoringTests

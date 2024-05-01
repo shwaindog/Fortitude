@@ -56,6 +56,8 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     protected string Level2ToStringMembers =>
         $"{base.ToString()}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, {nameof(BidBook)}: {BidBook}, {nameof(AskBook)}: {AskBook}, {nameof(BidPriceTop)}: {BidPriceTop}, {nameof(AskPriceTop)}: {AskPriceTop}";
 
+    public override QuoteLevel QuoteLevel => QuoteLevel.Level2;
+
     public bool IsBidBookChanged
     {
         get => bidBook.HasUpdates;

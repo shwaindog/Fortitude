@@ -22,6 +22,9 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
             SourceQuoteReference = srcQtRefPvLayer.SourceQuoteReference;
     }
 
+    public override LayerType LayerType => LayerType.SourceQuoteRefPriceVolume;
+    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
+
     public uint SourceQuoteReference { get; set; }
     public override bool IsEmpty => base.IsEmpty && SourceQuoteReference == 0u;
 

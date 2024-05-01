@@ -77,7 +77,7 @@ public class PQDeserializerBaseTests
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
         readWriteBuffer.WriteCursor = BufferReadWriteOffset;
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3,
             20, 0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
             LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
             LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);

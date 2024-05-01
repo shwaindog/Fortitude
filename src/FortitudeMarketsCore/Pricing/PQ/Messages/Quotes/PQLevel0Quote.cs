@@ -68,6 +68,8 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         $"{nameof(IsSinglePriceUpdated)}: {IsSinglePriceUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
         $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
 
+    public virtual QuoteLevel QuoteLevel => QuoteLevel.Level0;
+
     public PQMessageFlags? OverrideSerializationFlags { get; set; }
 
     public uint MessageId => (uint)PQMessageIds.Quote;

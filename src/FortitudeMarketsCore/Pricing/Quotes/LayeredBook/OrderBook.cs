@@ -22,7 +22,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         BookLayers = new List<IPriceVolumeLayer?>();
     }
 
-    public OrderBook(BookSide bookSide)
+    public OrderBook(BookSide bookSide, LayerType? layerType = LayerType.PriceVolume)
     {
         BookSide = bookSide;
         BookLayers = new List<IPriceVolumeLayer?>();
@@ -52,8 +52,11 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         Capacity = toClone.Capacity;
     }
 
-    public OrderBook(ISourceTickerQuoteInfo sourceTickerQuoteInfo)
+    public OrderBook(BookSide bookSide, ISourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
+        BookSide = bookSide;
+        LayersSupportsLayerFlags = sourceTickerQuoteInfo.LayerFlags;
+        LayersOfType = LayersSupportsLayerFlags.MostCompactLayerType();
         BookLayers = new List<IPriceVolumeLayer?>(sourceTickerQuoteInfo.MaximumPublishedLayers);
         for (var i = 0; i < sourceTickerQuoteInfo.MaximumPublishedLayers; i++)
             BookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
@@ -61,6 +64,10 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerQuoteInfo> LayerSelector { get; set; } =
         new OrderBookLayerFactorySelector();
+
+    public LayerType LayersOfType { get; } = LayerType.PriceVolume;
+
+    public LayerFlags LayersSupportsLayerFlags { get; } = LayerFlags.Price | LayerFlags.Volume;
 
     public IMutablePriceVolumeLayer? this[int level]
     {

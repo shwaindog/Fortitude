@@ -32,6 +32,9 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     }
 
     protected string PQValueDatePriceVolumeLayerToStringMembers => $"{PQPriceVolumeLayerToStringMembers}, {nameof(ValueDate)}: {ValueDate}";
+    public override LayerType LayerType => LayerType.ValueDatePriceVolume;
+
+    public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
 
     public DateTime ValueDate
     {

@@ -12,35 +12,35 @@ public static class PQFieldKeys
     public const byte SingleByteFieldIdMaxBookDepth = 20;
     public const byte SingleByteFieldIdMaxPossibleLastTrades = 10;
 
-    // Level 0 Fields
     public const byte PQSequenceId = 1;
-    public const byte SinglePrice = 2;
-    public const byte SourceSentDateTime = 3;
-    public const byte SourceSentSubHourTime = 4;
-    public const byte QuoteBooleanFlags = 5;
-    public const byte PQSyncStatus = 6;
-    public const byte SocketReceivingDateTime = 7;
-    public const byte SocketReceivingSubHourTime = 8;
-    public const byte ProcessedDateTime = 9;
-    public const byte ProcessedSubHourTime = 10;
-    public const byte DispatchedDateTime = 11;
-    public const byte DispatchedSubHourTime = 12;
-    public const byte ClientReceivedDateTime = 13;
-
-    public const byte ClientReceivedSubHourTime = 14;
 
     // Source Ticker Info
-    public const byte SourceTickerId = 15;
-    public const byte SourceTickerNames = 16; //StringFieldUpdate
-    public const byte RoundingPrecision = 17;
-    public const byte MinSubmitSize = 18;
-    public const byte MaxSubmitSize = 19;
-    public const byte IncrementSize = 20;
-    public const byte MinimumQuoteLife = 21;
-    public const byte LayerFlags = 22;
-    public const byte MaximumPublishedLayers = 23;
-    public const byte LastTradedFlags = 24;
-    public const byte SourceTickerBooleanFields = 25;
+    public const byte PublishQuoteLevelType = 2;
+    public const byte SourceTickerId = 3;
+    public const byte SourceTickerNames = 4; //StringFieldUpdate
+    public const byte RoundingPrecision = 5;
+    public const byte MinSubmitSize = 6;
+    public const byte MaxSubmitSize = 7;
+    public const byte IncrementSize = 8;
+    public const byte MinimumQuoteLife = 9;
+    public const byte LayerFlags = 10;
+    public const byte MaximumPublishedLayers = 11;
+    public const byte LastTradedFlags = 12;
+
+    // Level 0 Fields
+    public const byte SinglePrice = 13;
+    public const byte SourceSentDateTime = 14;
+    public const byte SourceSentSubHourTime = 15;
+    public const byte QuoteBooleanFlags = 16;
+    public const byte PQSyncStatus = 17;
+    public const byte SocketReceivingDateTime = 18;
+    public const byte SocketReceivingSubHourTime = 19;
+    public const byte ProcessedDateTime = 20;
+    public const byte ProcessedSubHourTime = 21;
+    public const byte DispatchedDateTime = 22;
+    public const byte DispatchedSubHourTime = 23;
+    public const byte ClientReceivedDateTime = 24;
+    public const byte ClientReceivedSubHourTime = 25;
 
     // Level 1 Fields
     public const byte AdapterSentDateTime = 26;

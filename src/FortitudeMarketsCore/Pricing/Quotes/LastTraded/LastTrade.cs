@@ -27,6 +27,9 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
         TradePrice = toClone.TradePrice;
     }
 
+    public virtual LastTradeType LastTradeType => LastTradeType.Price;
+    public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
+
     public DateTime TradeTime { get; set; }
 
     public virtual decimal TradePrice { get; set; }
@@ -47,8 +50,7 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
         return this;
     }
 
-    public override IMutableLastTrade Clone() =>
-        (LastTrade?)Recycler?.Borrow<LastTrade>().CopyFrom(this) ?? new LastTrade(this);
+    public override IMutableLastTrade Clone() => (LastTrade?)Recycler?.Borrow<LastTrade>().CopyFrom(this) ?? new LastTrade(this);
 
     object ICloneable.Clone() => Clone();
 
@@ -71,7 +73,7 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
     {
         unchecked
         {
-            return TradeTime.GetHashCode() * 397 ^ TradePrice.GetHashCode();
+            return (TradeTime.GetHashCode() * 397) ^ TradePrice.GetHashCode();
         }
     }
 

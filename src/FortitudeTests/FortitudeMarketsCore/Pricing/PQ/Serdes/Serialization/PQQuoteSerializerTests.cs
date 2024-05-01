@@ -10,6 +10,7 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -64,26 +65,27 @@ public class PQQuoteSerializerTests
         updateQuoteSerializer = new PQQuoteSerializer(PQMessageFlags.Update);
         snapshotQuoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
 
-        level0QuoteInfo = new SourceTickerQuoteInfo(1, "TestSource1", 1, "TestTicker1", 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
-        level1QuoteInfo = new SourceTickerQuoteInfo(2, "TestSource2", 2, "TestTicker2", 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
+        level0QuoteInfo = new SourceTickerQuoteInfo(1, "TestSource1", 1, "TestTicker1", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
+        level1QuoteInfo = new SourceTickerQuoteInfo(2, "TestSource2", 2, "TestTicker2", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
         valueDateQuoteInfo = new SourceTickerQuoteInfo(7, "TestSource", 7,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.ValueDate
             , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         everyLayerQuoteInfo = new SourceTickerQuoteInfo(8, "TestSource", 8,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume.AllFlags(), LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                           LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        simpleNoRecentlyTradedQuoteInfo = new SourceTickerQuoteInfo(3, "TestSource", 3, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
+        simpleNoRecentlyTradedQuoteInfo
+            = new SourceTickerQuoteInfo(3, "TestSource", 3, "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
         srcNmLstTrdQuoteInfo = new SourceTickerQuoteInfo(4,
-            "TestSource", 4, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestSource", 4, "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceName, LastTradedFlags.LastTradedPrice |
                                                                           LastTradedFlags.LastTradedTime);
         srcQtRfPdGvnVlmQuoteInfo = new SourceTickerQuoteInfo(
-            5, "TestSource", 5, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            5, "TestSource", 5, "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference, LastTradedFlags.PaidOrGiven);
         trdrLyrTrdrPdGvnVlmDtlsQuoteInfo = new SourceTickerQuoteInfo(
-            6, "TestSource", 6, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            6, "TestSource", 6, "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize |
             LayerFlags.TraderCount, LastTradedFlags.TraderName);
         level0Quote = new PQLevel0Quote(level0QuoteInfo);

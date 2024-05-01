@@ -28,6 +28,9 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         }
     }
 
+    public override LayerType LayerType => LayerType.SourcePriceVolume;
+    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceName | LayerFlags.Executable | base.SupportsLayerFlags;
+
     public string? SourceName { get; set; }
 
     public bool Executable { get; set; }

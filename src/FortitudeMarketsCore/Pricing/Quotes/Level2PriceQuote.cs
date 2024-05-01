@@ -33,12 +33,12 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         if (bidBook is OrderBook mutBidOrderBook)
             BidBook = mutBidOrderBook;
         else
-            BidBook = bidBook != null ? new OrderBook(bidBook) : new OrderBook(SourceTickerQuoteInfo!);
+            BidBook = bidBook != null ? new OrderBook(bidBook) : new OrderBook(BookSide.BidBook, SourceTickerQuoteInfo!);
         IsBidBookChanged = isBidBookChanged;
         if (askBook is OrderBook mutAskOrderBook)
             AskBook = mutAskOrderBook;
         else
-            AskBook = askBook != null ? new OrderBook(askBook) : new OrderBook(SourceTickerQuoteInfo!);
+            AskBook = askBook != null ? new OrderBook(askBook) : new OrderBook(BookSide.AskBook, SourceTickerQuoteInfo!);
         IsAskBookChanged = isAskBookChanged;
     }
 
@@ -66,6 +66,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
             AskBook = new OrderBook(BookSide.AskBook, 20);
         }
     }
+
+    public override QuoteLevel QuoteLevel => QuoteLevel.Level2;
 
     public IMutableOrderBook BidBook { get; set; }
     IOrderBook ILevel2Quote.BidBook => BidBook;

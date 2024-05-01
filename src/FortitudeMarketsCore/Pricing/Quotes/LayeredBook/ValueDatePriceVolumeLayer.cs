@@ -24,6 +24,10 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
             ValueDate = DateTimeConstants.UnixEpoch;
     }
 
+    public override LayerType LayerType => LayerType.ValueDatePriceVolume;
+
+    public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
+
     public DateTime ValueDate { get; set; }
     public override bool IsEmpty => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
 

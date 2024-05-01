@@ -7,12 +7,13 @@ public enum SourceTickerInfoUpdatedFlags : uint
     , SourceTickerId = 0x0001
     , SourceName = 0x0002
     , TickerName = 0x0004
-    , RoundingPrecision = 0x0008
-    , MinSubmitSize = 0x0010
-    , MaxSubmitSize = 0x0020
-    , IncrementSize = 0x0040
-    , MinimumQuoteLife = 0x0080
-    , LayerFlags = 0x0100
-    , MaximumPublishedLayers = 0x0200
-    , LastTradedFlags = 0x0400
+    , PublishedQuoteLevel = 0x0008
+    , RoundingPrecision = 0x0010
+    , MinSubmitSize = 0x0020
+    , MaxSubmitSize = 0x0040
+    , IncrementSize = 0x0080
+    , MinimumQuoteLife = 0x0100
+    , LayerFlags = 0x0200
+    , MaximumPublishedLayers = 0x0400
+    , LastTradedFlags = 0x0800
 }

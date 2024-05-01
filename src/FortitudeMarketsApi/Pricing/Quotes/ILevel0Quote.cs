@@ -10,6 +10,7 @@ namespace FortitudeMarketsApi.Pricing.Quotes;
 
 public interface ILevel0Quote : IReusableObject<ILevel0Quote>, IInterfacesComparable<ILevel0Quote>
 {
+    QuoteLevel QuoteLevel { get; }
     bool IsReplay { get; }
     DateTime SourceTime { get; }
     DateTime ClientReceivedTime { get; }

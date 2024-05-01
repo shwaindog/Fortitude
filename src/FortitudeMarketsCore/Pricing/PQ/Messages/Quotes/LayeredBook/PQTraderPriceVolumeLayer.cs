@@ -49,6 +49,9 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
     protected string PQTraderPriceVolumeLayerToStringMembers =>
         $"{PQPriceVolumeLayerToStringMembers}, {nameof(TraderDetails)}: [{string.Join(", ", TraderDetails)}]";
 
+    public override LayerType LayerType => LayerType.TraderPriceVolume;
+    public override LayerFlags SupportsLayerFlags => LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize | base.SupportsLayerFlags;
+
     IMutableTraderLayerInfo? IMutableTraderPriceVolumeLayer.this[int i]
     {
         get => this[i];

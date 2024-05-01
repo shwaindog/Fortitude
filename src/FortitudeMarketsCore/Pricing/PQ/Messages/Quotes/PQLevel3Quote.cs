@@ -56,6 +56,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         $"{nameof(IsSourceQuoteReferenceUpdated)}: {IsSourceQuoteReferenceUpdated}, {nameof(ValueDate)}: {ValueDate}, " +
         $"{nameof(IsValueDateUpdated)}: {IsValueDateUpdated}, {nameof(RecentlyTraded)}: {RecentlyTraded}";
 
+    public override QuoteLevel QuoteLevel => QuoteLevel.Level3;
+
     public uint BatchId
     {
         get => batchId;

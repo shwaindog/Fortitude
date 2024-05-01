@@ -22,6 +22,9 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
             TraderName = lastTraderPaidGivenTrade.TraderName;
     }
 
+    public override LastTradeType LastTradeType => LastTradeType.PriceLastTraderPaidOrGivenVolume;
+    public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
+
     public string? TraderName { get; set; }
     public override bool IsEmpty => base.IsEmpty && TraderName == null;
 
@@ -46,8 +49,7 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
 
     ILastTraderPaidGivenTrade ILastTraderPaidGivenTrade.Clone() => (ILastTraderPaidGivenTrade)Clone();
 
-    IMutableLastTraderPaidGivenTrade IMutableLastTraderPaidGivenTrade.Clone() =>
-        (IMutableLastTraderPaidGivenTrade)Clone();
+    IMutableLastTraderPaidGivenTrade IMutableLastTraderPaidGivenTrade.Clone() => (IMutableLastTraderPaidGivenTrade)Clone();
 
     public override bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {
@@ -65,7 +67,7 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
     {
         unchecked
         {
-            return base.GetHashCode() * 397 ^ (TraderName?.GetHashCode() ?? 0);
+            return (base.GetHashCode() * 397) ^ (TraderName?.GetHashCode() ?? 0);
         }
     }
 

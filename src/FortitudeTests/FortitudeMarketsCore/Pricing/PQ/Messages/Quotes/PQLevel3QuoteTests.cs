@@ -48,23 +48,23 @@ public class PQLevel3QuoteTests
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
         noRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
             LastTradedFlags.None);
         simpleRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
             LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice);
         paidGivenVolumeRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
             LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
             LastTradedFlags.LastTradedVolume);
         traderPaidGivenVolumeRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference,
             LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.TraderName);

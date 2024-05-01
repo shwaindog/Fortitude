@@ -55,33 +55,33 @@ public class PQLevel2QuoteTests
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
         simpleSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         sourceNameSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceName, LastTradedFlags.PaidOrGiven |
                                                                           LastTradedFlags.TraderName |
                                                                           LastTradedFlags.LastTradedVolume |
                                                                           LastTradedFlags.LastTradedTime);
         sourceQuoteRefSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue,
-            "TestSource", ushort.MaxValue, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference, LastTradedFlags.PaidOrGiven |
                                                                                     LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                                                                     LastTradedFlags.LastTradedTime);
         traderDetailsSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue,
-            "TestSource", ushort.MaxValue, "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize |
             LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                     LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         valueDateSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.ValueDate, LastTradedFlags.PaidOrGiven |
                                                                          LastTradedFlags.TraderName |
                                                                          LastTradedFlags.LastTradedVolume |
                                                                          LastTradedFlags.LastTradedTime);
         everyLayerSourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume.AllFlags(), LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                           LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         simpleEmptyLevel2Quote = new PQLevel2Quote(simpleSourceTickerQuoteInfo) { HasUpdates = false };
@@ -127,7 +127,7 @@ public class PQLevel2QuoteTests
     public void TooLargeMaxBookDepth_New_CapsBookDepthTo()
     {
         var tooLargeMaxDepth = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 21, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 21, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         var cappedLevel2Quote = new PQLevel2Quote(tooLargeMaxDepth);
@@ -141,7 +141,7 @@ public class PQLevel2QuoteTests
     public void TooSmalMaxBookDepth_New_IncreaseBookDepthAtLeast1Level()
     {
         var tooLargeMaxDepth = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 0, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 0, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         var cappedLevel2Quote = new PQLevel2Quote(tooLargeMaxDepth);

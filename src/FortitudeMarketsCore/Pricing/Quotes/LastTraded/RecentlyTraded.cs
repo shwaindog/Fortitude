@@ -32,6 +32,8 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
 
     public RecentlyTraded(ISourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
+        LastTradesSupportFlags = sourceTickerQuoteInfo.LastTradedFlags;
+        LastTradesOfType = LastTradesSupportFlags.MostCompactLayerType();
         LastTrades = new List<IMutableLastTrade?>(PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades);
         for (var i = 0; i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
             LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo));
@@ -39,6 +41,10 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
 
     public static ILastTradeEntryFlagsSelector<IMutableLastTrade, ISourceTickerQuoteInfo>
         LastTradeEntrySelector { get; set; } = new RecentlyTradedLastTradeEntrySelector();
+
+    public LastTradeType LastTradesOfType { get; }
+
+    public LastTradedFlags LastTradesSupportFlags { get; }
 
     public bool HasLastTrades => LastTrades.Any(lt => lt?.TradePrice != null);
 

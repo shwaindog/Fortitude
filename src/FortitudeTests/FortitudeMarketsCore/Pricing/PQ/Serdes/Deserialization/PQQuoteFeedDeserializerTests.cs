@@ -88,7 +88,7 @@ public class PQQuoteFeedDeserializerTests
     }
 
     private SourceTickerQuoteInfo BuildSourceTickerQuoteInfo(ushort sourceId, ushort tickerId, string ticker) =>
-        new(sourceId, "TestSource", tickerId, ticker, 20,
+        new(sourceId, "TestSource", tickerId, ticker, QuoteLevel.Level3, 20,
             0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName

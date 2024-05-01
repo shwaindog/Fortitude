@@ -4,6 +4,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -23,7 +24,7 @@ public class PQClientQuoteSerializerRepositoryTests
     [TestInitialize]
     public void SetUp()
     {
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", 20,
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", QuoteLevel.Level3, 20,
             0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
             LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
             LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);

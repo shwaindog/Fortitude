@@ -64,6 +64,12 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, " +
         $"{nameof(Count)}: {Count} {PQTraderPriceVolumeLayerToStringMembers}";
 
+    public override LayerType LayerType => LayerType.SourceQuoteRefTraderValueDatePriceVolume;
+
+    public override LayerFlags SupportsLayerFlags =>
+        LayerFlags.SourceQuoteReference | LayerFlags.SourceName
+                                        | LayerFlags.Executable | LayerFlags.ValueDate | base.SupportsLayerFlags;
+
     public DateTime ValueDate
     {
         get => valueDate;
