@@ -5,6 +5,7 @@ using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
@@ -100,7 +101,7 @@ public class PQOrderBookTests
             , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
         };
         publicationPrecisionSettings = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(
-            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", MaxNumberOfLayers, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, MaxNumberOfLayers, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                                                   LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
     }
@@ -172,34 +173,34 @@ public class PQOrderBookTests
     [TestMethod]
     public void PQOrderBook_InitializedFromOrderBook_ConvertsLayers()
     {
-        var nonPqOrderBook = new OrderBook(publicationPrecisionSettings);
+        var nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
         var pqorderBook = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                                   LayerFlags.SourceName | LayerFlags.Executable;
-        nonPqOrderBook = new OrderBook(publicationPrecisionSettings);
+        nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
         pqorderBook = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourcePriceVolumeLayer));
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                                   LayerFlags.SourceName | LayerFlags.Executable |
                                                   LayerFlags.SourceQuoteReference;
-        nonPqOrderBook = new OrderBook(publicationPrecisionSettings);
+        nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
         pqorderBook = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourceQuoteRefPriceVolumeLayer));
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                                   LayerFlags.ValueDate;
-        nonPqOrderBook = new OrderBook(publicationPrecisionSettings);
+        nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
         pqorderBook = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQValueDatePriceVolumeLayer));
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                                   LayerFlags.TraderName | LayerFlags.TraderCount |
                                                   LayerFlags.TraderSize;
-        nonPqOrderBook = new OrderBook(publicationPrecisionSettings);
+        nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
         pqorderBook = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQTraderPriceVolumeLayer));
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price.AllFlags();
-        nonPqOrderBook = new OrderBook(publicationPrecisionSettings);
+        nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
         pqorderBook = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
     }

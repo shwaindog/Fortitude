@@ -20,6 +20,7 @@ using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
@@ -155,11 +156,11 @@ public class PQStandaloneSnapshotClientTests
 
         sendSrcTkrIds = new List<ISourceTickerQuoteInfo>
         {
-            new SourceTickerQuoteInfo(7, "FirstSource", 7, "FirstTicker")
-            , new SourceTickerQuoteInfo(77, "FirstSource", 77, "SecondTicker")
-            , new SourceTickerQuoteInfo(15, "FirstSource", 16, "ThirdTicker")
-            , new SourceTickerQuoteInfo(19, "FirstSource", 19, "FourthTicker")
-            , new SourceTickerQuoteInfo(798, "FirstSource", 798, "FifthTicker")
+            new SourceTickerQuoteInfo(7, "FirstSource", 7, "FirstTicker", QuoteLevel.Level3)
+            , new SourceTickerQuoteInfo(77, "FirstSource", 77, "SecondTicker", QuoteLevel.Level3)
+            , new SourceTickerQuoteInfo(15, "FirstSource", 16, "ThirdTicker", QuoteLevel.Level3)
+            , new SourceTickerQuoteInfo(19, "FirstSource", 19, "FourthTicker", QuoteLevel.Level3)
+            , new SourceTickerQuoteInfo(798, "FirstSource", 798, "FifthTicker", QuoteLevel.Level3)
         };
 
         moqSocketBinaryDeserializer.SetupAllProperties();

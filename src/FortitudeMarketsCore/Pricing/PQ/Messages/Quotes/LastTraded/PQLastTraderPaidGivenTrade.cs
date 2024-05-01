@@ -46,9 +46,10 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         if (toClone is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade) TraderName = lastTraderPaidGivenTrade.TraderName;
     }
 
-
     protected string PQLastTraderPaidGivenTradeToStringMembers => $"{PQLastPaidGivenTradeToStringMembers}, {nameof(TraderName)}: {TraderName}";
 
+    public override LastTradeType LastTradeType => LastTradeType.PriceLastTraderPaidOrGivenVolume;
+    public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
 
     public int TraderId
     {

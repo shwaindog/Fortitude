@@ -28,6 +28,9 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
     public decimal Volume { get; set; }
     public virtual bool IsEmpty => Price == 0m && Volume == 0m;
 
+    public virtual LayerType LayerType => LayerType.PriceVolume;
+    public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
+
     public override void StateReset()
     {
         Price = Volume = 0m;

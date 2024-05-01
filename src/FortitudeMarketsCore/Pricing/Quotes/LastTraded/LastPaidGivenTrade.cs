@@ -3,7 +3,6 @@
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 
-
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.Quotes.LastTraded;
@@ -29,6 +28,11 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
             TradeVolume = lastPaidGivenTrade.TradeVolume;
         }
     }
+
+    public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
+
+    public override LastTradedFlags SupportsLastTradedFlags =>
+        LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
 
     public bool WasPaid { get; set; }
     public bool WasGiven { get; set; }
@@ -74,17 +78,16 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         return baseSame && wasPaidSame && wasGivenSame && tradeVolumeSame;
     }
 
-    public override bool Equals(object? obj) =>
-        ReferenceEquals(this, obj) || AreEquivalent(obj as ILastPaidGivenTrade, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILastPaidGivenTrade, true);
 
     public override int GetHashCode()
     {
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = hashCode * 397 ^ WasPaid.GetHashCode();
-            hashCode = hashCode * 397 ^ WasGiven.GetHashCode();
-            hashCode = hashCode * 397 ^ TradeVolume.GetHashCode();
+            hashCode = (hashCode * 397) ^ WasPaid.GetHashCode();
+            hashCode = (hashCode * 397) ^ WasGiven.GetHashCode();
+            hashCode = (hashCode * 397) ^ TradeVolume.GetHashCode();
             return hashCode;
         }
     }

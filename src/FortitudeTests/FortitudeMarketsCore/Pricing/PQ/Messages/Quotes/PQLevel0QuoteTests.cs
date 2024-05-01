@@ -40,12 +40,12 @@ public class PQLevel0QuoteTests
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
         sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
             | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                                                   | LastTradedFlags.LastTradedVolume |
                                                                   LastTradedFlags.LastTradedTime);
-        blankSourceTickerQuoteInfo = new SourceTickerQuoteInfo(0, "", 0, "");
+        blankSourceTickerQuoteInfo = new SourceTickerQuoteInfo(0, "", 0, "", QuoteLevel.Level1);
         emptyQuote = new PQLevel0Quote(sourceTickerQuoteInfo) { HasUpdates = false };
         fullyPopulatedPqLevel0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedPqLevel0Quote, 1);
@@ -524,6 +524,7 @@ public class PQLevel0QuoteTests
         public uint MessageId => (uint)PQMessageIds.Quote;
         public byte Version => 1;
         public uint PQSequenceId { get; set; }
+        public virtual QuoteLevel QuoteLevel => QuoteLevel.Level0;
         public ISyncLock Lock { get; } = new SpinLockLight();
         public IPQLevel0Quote? Previous { get; set; }
         public IPQLevel0Quote? Next { get; set; }

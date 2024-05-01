@@ -63,6 +63,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         }
     }
 
+    public override QuoteLevel QuoteLevel => QuoteLevel.Level1;
     public DateTime AdapterReceivedTime { get; set; } = DateTimeConstants.UnixEpoch;
     public DateTime AdapterSentTime { get; set; } = DateTimeConstants.UnixEpoch;
     public DateTime SourceBidTime { get; set; } = DateTimeConstants.UnixEpoch;

@@ -30,7 +30,7 @@ public class QuoteExtensionMethodsTests
     private readonly DateTime originalQuoteExchangeTime = new(2015, 11, 17, 22, 07, 23);
 
     private readonly SourceTickerQuoteInfo originalSourceTickerQuoteInfo = new(1,
-        OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, 20, 0.0001m, 1m, 1000000m, 1m);
+        OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, QuoteLevel.Level3, 20, 0.0001m, 1m, 1000000m, 1m);
 
     private ILevel3Quote originalQuote = null!;
 
@@ -80,7 +80,7 @@ public class QuoteExtensionMethodsTests
         var q2 = originalQuote.Clone();
         var newExchangerName = "DifferentExchangeName";
         var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo(1, newExchangerName, 1,
-            OriginalQuoteTickerName, 20, 0.0001m, 1m, 1000000m, 1m);
+            OriginalQuoteTickerName, QuoteLevel.Level3, 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2,
             (Level3PriceQuote pq) => pq.SourceTickerQuoteInfo, newSourceTickerQuoteInfo);
         var differences = originalQuote.DiffQuotes(q2);
@@ -102,7 +102,7 @@ public class QuoteExtensionMethodsTests
         var q2 = originalQuote.Clone();
         var newTickerName = "DifferentTicker";
         var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo(1, OriginalQuoteExchangeName, 1,
-            newTickerName, 20, 0.0001m, 1m, 1000000m, 1m);
+            newTickerName, QuoteLevel.Level3, 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField(q2, (Level3PriceQuote pq) => pq.SourceTickerQuoteInfo,
             newSourceTickerQuoteInfo);
         var differences = originalQuote.DiffQuotes(q2);

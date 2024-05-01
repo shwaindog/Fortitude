@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -181,7 +182,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
     {
         var tickerConfig = Tickers.FirstOrDefault(tc => tc.Ticker == ticker);
         if (tickerConfig == null) return null;
-        var sourceTickerINfo = new SourceTickerQuoteInfo(sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker
+        var sourceTickerINfo = new SourceTickerQuoteInfo(sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker, QuoteLevel.Level2
             , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers,
             tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision,
             tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize, tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize
@@ -195,7 +196,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
     {
         foreach (var tickerConfig in Tickers)
         {
-            var sourceTickerINfo = new SourceTickerQuoteInfo(sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker
+            var sourceTickerINfo = new SourceTickerQuoteInfo(sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker, QuoteLevel.Level2
                 , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers,
                 tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision,
                 tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize, tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize

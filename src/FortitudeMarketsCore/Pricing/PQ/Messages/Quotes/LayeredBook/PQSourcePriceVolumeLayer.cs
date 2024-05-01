@@ -61,6 +61,9 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         $"{PQPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, " +
         $"{nameof(Executable)}: {Executable}";
 
+    public override LayerType LayerType => LayerType.SourcePriceVolume;
+    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceName | LayerFlags.Executable | base.SupportsLayerFlags;
+
     public ushort SourceId
     {
         get => sourceId;

@@ -7,6 +7,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 #endregion
@@ -63,6 +64,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
         var deserializedSourceTickerQuoteInfo = recycler.Borrow<SourceTickerQuoteInfo>();
         deserializedSourceTickerQuoteInfo.SourceId = StreamByteOps.ToUShort(ref currPtr);
         deserializedSourceTickerQuoteInfo.TickerId = StreamByteOps.ToUShort(ref currPtr);
+        deserializedSourceTickerQuoteInfo.PublishedQuoteLevel = (QuoteLevel)(*currPtr++);
         deserializedSourceTickerQuoteInfo.RoundingPrecision = StreamByteOps.ToDecimal(ref currPtr);
         deserializedSourceTickerQuoteInfo.MinSubmitSize = StreamByteOps.ToDecimal(ref currPtr);
         deserializedSourceTickerQuoteInfo.MaxSubmitSize = StreamByteOps.ToDecimal(ref currPtr);

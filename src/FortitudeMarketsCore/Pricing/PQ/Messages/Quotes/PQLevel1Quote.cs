@@ -170,6 +170,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         $"{nameof(AskPriceTop)}: {AskPriceTop}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
         $"{nameof(Executable)}: {Executable}";
 
+    public override QuoteLevel QuoteLevel => QuoteLevel.Level1;
+
     public override DateTime SourceTime
     {
         get =>

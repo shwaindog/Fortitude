@@ -9,12 +9,12 @@ using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
+using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 [TestClass]
 public class PQUpdateClientTests

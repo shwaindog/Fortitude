@@ -38,6 +38,8 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
 
     public PQRecentlyTraded(IPQSourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
+        LastTradesSupportFlags = sourceTickerQuoteInfo.LastTradedFlags;
+        LastTradesOfType = LastTradesSupportFlags.MostCompactLayerType();
         lastTrades = new List<IPQLastTrade?>();
         NameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
         EnsureRelatedItemsAreConfigured(sourceTickerQuoteInfo);
@@ -61,6 +63,9 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
     }
 
     public IPQLastTradeTypeSelector LastTradeEntrySelector { get; set; } = null!;
+    public LastTradeType LastTradesOfType { get; } = LastTradeType.Price;
+
+    public LastTradedFlags LastTradesSupportFlags { get; } = LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
 
     public IPQNameIdLookupGenerator NameIdLookup
     {

@@ -38,6 +38,9 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     protected string PQSourceQuoteRefPriceVolumeLayerToStringMembers =>
         $"{PQSourcePriceVolumeLayerToStringMembers}, {nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}";
 
+    public override LayerType LayerType => LayerType.SourceQuoteRefPriceVolume;
+    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
+
     public uint SourceQuoteReference
     {
         get => sourceQuoteReference;

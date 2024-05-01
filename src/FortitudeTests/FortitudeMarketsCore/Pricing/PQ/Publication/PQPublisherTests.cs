@@ -39,9 +39,9 @@ public class PQPublisherTests
         moqMarketConnectionConfig.Setup(stpcr => stpcr.AllSourceTickerInfos)
             .Returns(new List<ISourceTickerQuoteInfo>()
             {
-                new SourceTickerQuoteInfo(1, "First", 1, "First")
-                , new SourceTickerQuoteInfo(1, "First", 2, "Second")
-                , new SourceTickerQuoteInfo(2, "Second", 1, "First")
+                new SourceTickerQuoteInfo(1, "First", 1, "First", QuoteLevel.Level3)
+                , new SourceTickerQuoteInfo(1, "First", 2, "Second", QuoteLevel.Level3)
+                , new SourceTickerQuoteInfo(2, "Second", 1, "First", QuoteLevel.Level3)
             });
 
         pqPublisher.RegisterTickersWithServer(moqMarketConnectionConfig.Object);

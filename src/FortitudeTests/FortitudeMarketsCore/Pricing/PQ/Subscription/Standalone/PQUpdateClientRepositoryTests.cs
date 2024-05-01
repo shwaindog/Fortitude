@@ -11,13 +11,12 @@ using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 [TestClass]
 public class PQUpdateClientRepositoryTests
@@ -25,7 +24,7 @@ public class PQUpdateClientRepositoryTests
     private Mock<Action<SocketSessionState>> moqAction = null!;
     private Mock<IFLogger> moqFlogger = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
-    private Mock<IOSParallelController> moqParallelControler = null!;
+    private Mock<IOSParallelController> moqParallelController = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteSerializationRepo = null!;
     private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
@@ -44,10 +43,10 @@ public class PQUpdateClientRepositoryTests
     public void SetUp()
     {
         moqFlogger = new Mock<IFLogger>();
-        moqParallelControler = new Mock<IOSParallelController>();
+        moqParallelController = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
-            .Returns(moqParallelControler.Object);
+            .Returns(moqParallelController.Object);
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();

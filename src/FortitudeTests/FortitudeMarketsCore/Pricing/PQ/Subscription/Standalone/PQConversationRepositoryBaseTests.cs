@@ -15,7 +15,7 @@ using Moq;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription;
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 [TestClass]
 public class PQConversationRepositoryBaseTests
@@ -170,6 +170,9 @@ public class PQConversationRepositoryBaseTests
         public int Id { get; } = 0;
         public IConversationSession Session { get; } = null!;
         public string Name { get; set; } = "";
+
+        public bool IsStarted { get; } = false;
+        public IStreamListener? StreamListener { get; set; }
         public event Action<string, int>? Error;
         public event Action? Started;
         public event Action? Stopped;
@@ -179,8 +182,5 @@ public class PQConversationRepositoryBaseTests
         public void Stop(CloseReason closeReason = CloseReason.Completed, string? reason = null) { }
 
         public void OnSessionFailure(string reason) { }
-
-        public bool IsStarted { get; } = false;
-        public IStreamListener? StreamListener { get; set; }
     }
 }

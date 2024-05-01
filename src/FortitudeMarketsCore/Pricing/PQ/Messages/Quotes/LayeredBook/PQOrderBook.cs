@@ -87,6 +87,10 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, " +
         $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
 
+    public LayerType LayersOfType { get; } = LayerType.PriceVolume;
+
+    public LayerFlags LayersSupportsLayerFlags { get; } = LayerFlags.Price | LayerFlags.Volume;
+
     public BookSide BookSide { get; }
 
     public IPQPriceVolumeLayer? this[int level]

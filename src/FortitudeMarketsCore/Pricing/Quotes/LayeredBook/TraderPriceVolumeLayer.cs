@@ -35,6 +35,8 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
     }
 
     protected IList<IMutableTraderLayerInfo?> TraderDetails { get; }
+    public override LayerType LayerType => LayerType.TraderPriceVolume;
+    public override LayerFlags SupportsLayerFlags => LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize | base.SupportsLayerFlags;
 
     public IMutableTraderLayerInfo? this[int i]
     {

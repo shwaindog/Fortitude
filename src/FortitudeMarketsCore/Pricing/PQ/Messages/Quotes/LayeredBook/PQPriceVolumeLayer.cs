@@ -38,6 +38,8 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
     }
 
     protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
+    public virtual LayerType LayerType => LayerType.PriceVolume;
+    public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
 
     public decimal Price
     {

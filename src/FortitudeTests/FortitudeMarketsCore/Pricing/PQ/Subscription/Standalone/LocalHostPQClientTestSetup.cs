@@ -3,7 +3,6 @@
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsCore.Pricing.PQ.Subscription;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using FortitudeTests.FortitudeCommon.Types;
 

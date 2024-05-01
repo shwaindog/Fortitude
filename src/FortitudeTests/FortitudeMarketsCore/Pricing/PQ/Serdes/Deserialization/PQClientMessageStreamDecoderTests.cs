@@ -9,6 +9,7 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
@@ -27,7 +28,7 @@ public class PQClientMessageStreamDecoderTests
     private const ushort ExpectedSourceId = ushort.MaxValue;
     private const ushort ExpectedTickerId = ushort.MaxValue;
     private const uint ExpectedStreamId = uint.MaxValue;
-    private const uint MessageSizeToQuoteSerializer = 130 + PQQuoteMessageHeader.HeaderSize;
+    private const uint MessageSizeToQuoteSerializer = 136 + PQQuoteMessageHeader.HeaderSize;
     private Mock<IPQClientQuoteDeserializerRepository> clientDeserializerRepo = null!;
     private IConversation? lastReceivedConversation;
     private List<ISourceTickerQuoteInfo> lastReceivedSourceTickerQuoteInfos = null!;
@@ -38,13 +39,13 @@ public class PQClientMessageStreamDecoderTests
 
     private List<ISourceTickerQuoteInfo> sendSourceTickerQuoteInfos = new()
     {
-        new SourceTickerQuoteInfo(0x7777, "FirstSource", 3333, "FirstTicker", 7,
+        new SourceTickerQuoteInfo(0x7777, "FirstSource", 3333, "FirstTicker", QuoteLevel.Level3, 7,
             0.000005m, 1m, 10_000_000m, 2m, 1
             , LayerFlags.Price | LayerFlags.ValueDate, LastTradedFlags.LastTradedPrice)
-        , new SourceTickerQuoteInfo(0x5151, "SecondSource", 7777, "SecondTicker", 20,
+        , new SourceTickerQuoteInfo(0x5151, "SecondSource", 7777, "SecondTicker", QuoteLevel.Level3, 20,
             0.05m, 10_000m, 1_000_000m, 5_000m, 2_000
             , LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable, LastTradedFlags.PaidOrGiven)
-        , new SourceTickerQuoteInfo(0xFFFF, "ThirdSource", 0001, "ThirdTicker", 1, 5m,
+        , new SourceTickerQuoteInfo(0xFFFF, "ThirdSource", 0001, "ThirdTicker", QuoteLevel.Level3, 1, 5m,
             100_000m, 100_000_000m, 50_000m, 1, LayerFlags.None)
     };
 
@@ -67,7 +68,7 @@ public class PQClientMessageStreamDecoderTests
         };
         readWriteBuffer.ReadCursor = BufferReadWriteOffset;
         readWriteBuffer.WriteCursor = BufferReadWriteOffset;
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ExpectedSourceId, "TestSource", ExpectedTickerId, "TestTicker",
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ExpectedSourceId, "TestSource", ExpectedTickerId, "TestTicker", QuoteLevel.Level3,
             20, 0.00001m, 30000m, 50000000m, 1000m, 1,
             LayerFlags.Volume | LayerFlags.Price,
             LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
@@ -253,13 +254,13 @@ public class PQClientMessageStreamDecoderTests
 
         sendSourceTickerQuoteInfos = new List<ISourceTickerQuoteInfo>
         {
-            new SourceTickerQuoteInfo(1111, "FourthSource", 5555, "FourthTicker", 7,
+            new SourceTickerQuoteInfo(1111, "FourthSource", 5555, "FourthTicker", QuoteLevel.Level3, 7,
                 0.000005m, 1m, 10_000_000m, 2m, 1
                 , LayerFlags.Price | LayerFlags.ValueDate, LastTradedFlags.LastTradedPrice)
-            , new SourceTickerQuoteInfo(0xAAAA, "FifthSource", 3333, "FifthTicker", 20, 0.05m,
+            , new SourceTickerQuoteInfo(0xAAAA, "FifthSource", 3333, "FifthTicker", QuoteLevel.Level3, 20, 0.05m,
                 10_000m, 1_000_000m, 5_000m, 2_000
                 , LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable, LastTradedFlags.PaidOrGiven)
-            , new SourceTickerQuoteInfo(0x2222, "SixthSource", 7777, "SixthTicker", 1, 5m,
+            , new SourceTickerQuoteInfo(0x2222, "SixthSource", 7777, "SixthTicker", QuoteLevel.Level3, 1, 5m,
                 100_000m, 100_000_000m, 50_000m, 1, LayerFlags.None
                 , LastTradedFlags.None)
         };

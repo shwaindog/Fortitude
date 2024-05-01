@@ -61,6 +61,11 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         $"{PQLastTradeToStringMembers}, {nameof(WasPaid)}: {WasPaid}, " +
         $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2}";
 
+    public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
+
+    public override LastTradedFlags SupportsLastTradedFlags =>
+        LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
+
     public bool WasPaid
     {
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasPaid) > 0;

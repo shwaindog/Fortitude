@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 
@@ -17,6 +18,7 @@ public interface ISourceTickerQuoteInfo : IInterfacesComparable<ISourceTickerQuo
     ushort TickerId { get; set; }
     string Source { get; set; }
     string Ticker { get; set; }
+    QuoteLevel PublishedQuoteLevel { get; set; }
     decimal RoundingPrecision { get; set; }
     decimal MinSubmitSize { get; set; }
     decimal MaxSubmitSize { get; set; }
@@ -38,8 +40,8 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         Ticker = null!;
     }
 
-    public SourceTickerQuoteInfo(ushort sourceId, string source, ushort tickerId, string ticker, byte maximumPublishedLayers = 20,
-        decimal roundingPrecision = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m,
+    public SourceTickerQuoteInfo(ushort sourceId, string source, ushort tickerId, string ticker, QuoteLevel publishedQuoteLevel,
+        byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m,
         decimal incrementSize = 0.01m, ushort minimumQuoteLife = 100,
         LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume,
         LastTradedFlags lastTradedFlags = LastTradedFlags.None)
@@ -48,6 +50,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         TickerId = tickerId;
         Source = source;
         Ticker = ticker;
+        PublishedQuoteLevel = publishedQuoteLevel;
         MaximumPublishedLayers = maximumPublishedLayers;
         RoundingPrecision = roundingPrecision;
         MinSubmitSize = minSubmitSize;
@@ -64,6 +67,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         TickerId = toClone.TickerId;
         Source = toClone.Source;
         Ticker = toClone.Ticker;
+        PublishedQuoteLevel = toClone.PublishedQuoteLevel;
         MaximumPublishedLayers = toClone.MaximumPublishedLayers;
         RoundingPrecision = toClone.RoundingPrecision;
         MinSubmitSize = toClone.MinSubmitSize;
@@ -83,6 +87,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
     public ushort TickerId { get; set; }
     public string Source { get; set; }
     public string Ticker { get; set; }
+    public QuoteLevel PublishedQuoteLevel { get; set; }
     public byte MaximumPublishedLayers { get; set; }
     public decimal RoundingPrecision { get; set; }
     public decimal MinSubmitSize { get; set; }
@@ -111,6 +116,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         var tickerIdSame = TickerId == other?.TickerId;
         var sourceSame = Source == other?.Source;
         var tickerSame = Ticker == other?.Ticker;
+        var quoteLevelSame = PublishedQuoteLevel == other?.PublishedQuoteLevel;
         var maxPublishedLayersSame = MaximumPublishedLayers == other?.MaximumPublishedLayers;
         var roundingPrecisionSame = RoundingPrecision == other?.RoundingPrecision;
         var minSubmitSizeSame = MinSubmitSize == other?.MinSubmitSize;
@@ -120,7 +126,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         var layerFlagsSame = LayerFlags == other?.LayerFlags;
         var lastTradedFlagsSame = LastTradedFlags == other?.LastTradedFlags;
 
-        return sourceIdSame && tickerIdSame && sourceSame && tickerSame && maxPublishedLayersSame && roundingPrecisionSame
+        return sourceIdSame && tickerIdSame && sourceSame && tickerSame && quoteLevelSame && maxPublishedLayersSame && roundingPrecisionSame
                && minSubmitSizeSame && maxSubmitSizeSame && incrmntSizeSame && minQuoteLifeSame && layerFlagsSame && lastTradedFlagsSame;
     }
 
@@ -130,6 +136,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         TickerId = source.TickerId;
         Source = source.Source;
         Ticker = source.Ticker;
+        PublishedQuoteLevel = source.PublishedQuoteLevel;
         RoundingPrecision = source.RoundingPrecision;
         MinSubmitSize = source.MinSubmitSize;
         MaxSubmitSize = source.MaxSubmitSize;
@@ -151,6 +158,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
             hashCode = (hashCode * 397) ^ TickerId;
             hashCode = (hashCode * 397) ^ Source.GetHashCode();
             hashCode = (hashCode * 397) ^ Ticker.GetHashCode();
+            hashCode = (hashCode * 397) ^ PublishedQuoteLevel.GetHashCode();
             hashCode = (hashCode * 397) ^ MaximumPublishedLayers.GetHashCode();
             hashCode = (hashCode * 397) ^ (formatPrice != null ? formatPrice.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ RoundingPrecision.GetHashCode();
@@ -166,9 +174,9 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
 
     public override string ToString() =>
         $"SourceTickerQuoteInfo {{{nameof(Id)}: {Id}, {nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, " +
-        $"{nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker},  {nameof(RoundingPrecision)}: {RoundingPrecision}, " +
-        $"{nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, " +
-        $"{nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +
-        $"{nameof(LayerFlags)}: {LayerFlags:F}, {nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, " +
-        $"{nameof(LastTradedFlags)}: {LastTradedFlags} }}";
+        $"{nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker},  {nameof(PublishedQuoteLevel)}: {PublishedQuoteLevel},  " +
+        $"{nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(MinSubmitSize)}: {MinSubmitSize}, " +
+        $"{nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, " +
+        $"{nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, {nameof(LayerFlags)}: {LayerFlags:F}, " +
+        $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags} }}";
 }
