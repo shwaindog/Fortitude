@@ -16,6 +16,7 @@ public class InitiateControls : SocketStreamControls
     private readonly object connSync = new();
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(InitiateControls));
     private readonly IOSParallelController parallelController;
+    private bool shouldAttemptReconnect = true;
     private IIntraOSThreadSignal? triggerConnectNowSignal;
 
     public InitiateControls(ISocketSessionContext socketSessionContext) : base(socketSessionContext) =>
@@ -32,8 +33,9 @@ public class InitiateControls : SocketStreamControls
 
     public override void OnSessionFailure(string reason)
     {
-        Disconnect(CloseReason.Error, reason);
-        if (SocketSessionContext.SocketReceiver?.ExpectSessionCloseMessage is { CloseReason: CloseReason.Completed }) return;
+        Disconnect(CloseReason.StartConnectionFailed, reason);
+        if (!shouldAttemptReconnect || SocketSessionContext.SocketReceiver?.ExpectSessionCloseMessage is
+                { CloseReason: CloseReason.Completed }) return;
         var scheduleConnectWaitMs = ReconnectConfig.NextReconnectIntervalMs;
         logger.Info("Will attempt reconnecting to {0} {1} id {2} reason {3} in {4}ms",
             SocketSessionContext.Name, SocketSessionContext.Id,
@@ -78,7 +80,6 @@ public class InitiateControls : SocketStreamControls
                     ReconnectConfig.NextReconnectIntervalMs = ReconnectConfig.StartReconnectIntervalMs;
                     logger.Info("Connection {0} was accepted by host {1}:{2}",
                         SocketSessionContext.Name, socketConConfig.Hostname, socketConConfig.Port);
-                    StartMessaging();
                     return true;
                 }
             }
@@ -104,8 +105,10 @@ public class InitiateControls : SocketStreamControls
 
     public override void Disconnect(CloseReason closeReason, string? reason = null)
     {
+        if (closeReason is not CloseReason.StartConnectionFailed) shouldAttemptReconnect = false;
         if (SocketSessionContext.SocketReceiver != null)
             SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(SocketSessionContext.SocketReceiver);
+        SocketSessionContext.OnSocketStateChanged(SocketSessionState.Disconnecting);
         lock (connSync)
         {
             if (reason != null || SocketSessionContext.SocketSessionState == SocketSessionState.Connected ||
@@ -114,11 +117,10 @@ public class InitiateControls : SocketStreamControls
             if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
             {
                 SocketSessionContext.OnDisconnected(closeReason, reason);
-
-                triggerConnectNowSignal?.Set();
-                StopMessaging();
                 logger.Info("Connection to {0} closed. {1}", SocketSessionContext.Name, reason);
             }
         }
+
+        if (closeReason == CloseReason.StartConnectionFailed) triggerConnectNowSignal?.Set();
     }
 }

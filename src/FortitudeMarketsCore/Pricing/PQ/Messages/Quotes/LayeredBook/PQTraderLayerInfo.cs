@@ -30,6 +30,7 @@ public interface IPQTraderLayerInfo : IMutableTraderLayerInfo, ISupportsPQNameId
 
 public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLayerInfo
 {
+    private IPQNameIdLookupGenerator nameIdLookup;
     private int traderNameId;
 
     protected TraderLayerInfoFlags UpdatedFlags;
@@ -115,7 +116,18 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
-    public IPQNameIdLookupGenerator NameIdLookup { get; set; }
+    public IPQNameIdLookupGenerator NameIdLookup
+    {
+        get => nameIdLookup;
+        set
+        {
+            if (nameIdLookup == value) return;
+            string? cacheTraderName = null;
+            if (traderNameId > 0) cacheTraderName = TraderName;
+            nameIdLookup = value;
+            if (traderNameId > 0) traderNameId = nameIdLookup.GetOrAddId(cacheTraderName);
+        }
+    }
 
     public bool HasUpdates
     {

@@ -104,7 +104,7 @@ public class SocketConversation : ISocketConversation
 
     public void OnSessionFailure(string reason) => SocketSessionContext?.StreamControls?.OnSessionFailure(reason);
 
-    public void Start()
+    public virtual void Start()
     {
         SocketSessionContext.StreamControls?.Start();
     }
@@ -114,10 +114,10 @@ public class SocketConversation : ISocketConversation
         SocketSessionContext.StreamControls?.Stop(closeReason, reason);
     }
 
-    public virtual bool Connect() => SocketSessionContext.StreamControls?.Connect() ?? false;
-
-    public void Disconnect(CloseReason closeReason, string? errorReason = null) =>
-        SocketSessionContext.StreamControls?.Disconnect(closeReason, errorReason);
+    public void StopImmediate(CloseReason closeReason = CloseReason.Completed, string? reason = null)
+    {
+        (SocketSessionContext.StreamControls as IAcceptorControls)?.StopImmediate(closeReason, reason);
+    }
 
     public void StartMessaging() => SocketSessionContext.StreamControls?.StartMessaging();
 

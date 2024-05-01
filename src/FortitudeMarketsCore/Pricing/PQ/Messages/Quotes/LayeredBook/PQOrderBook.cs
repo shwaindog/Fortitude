@@ -11,6 +11,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -41,22 +42,19 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     public PQOrderBook()
     {
         BookSide = BookSide.Unknown;
-        NameIdLookup
-            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        NameIdLookup = InitializeNewIdLookupGenerator();
     }
 
     public PQOrderBook(BookSide bookSide)
     {
         BookSide = bookSide;
-        NameIdLookup
-            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        NameIdLookup = InitializeNewIdLookupGenerator();
     }
 
     public PQOrderBook(BookSide bookSide, IPQSourceTickerQuoteInfo srcTickerQuoteInfo)
     {
         BookSide = bookSide;
-        NameIdLookup
-            = new PQNameIdLookupGenerator(srcTickerQuoteInfo.NameIdLookup, PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        NameIdLookup = InitializeNewIdLookupGenerator(srcTickerQuoteInfo.NameIdLookup);
         EnsureRelatedItemsAreConfigured(srcTickerQuoteInfo);
     }
 
@@ -250,7 +248,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        // if (source is PQOrderBook sourcePqOrderBook) NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup);
+        if (source is PQOrderBook sourcePqOrderBook) NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup);
 
         for (var i = 0; i < source.Count; i++)
         {
@@ -275,7 +273,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public void EnsureRelatedItemsAreConfigured(IPQNameIdLookupGenerator? otherNameIdLookupGenerator)
     {
-        // if (otherNameIdLookupGenerator != null) NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
+        if (otherNameIdLookupGenerator != null) NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
     }
 
     public virtual bool AreEquivalent(IOrderBook? other, bool exactTypes = false)
@@ -318,20 +316,28 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         for (var i = maxBookDepth; i < AllLayers.Count; i++) AllLayers.RemoveAt(i);
     }
 
-    private PQNameIdLookupGenerator SourceOtherExistingOrNewPQNameIdNameLookup(IEnumerable<IPriceVolumeLayer>? source)
+    private IPQNameIdLookupGenerator SourceOtherExistingOrNewPQNameIdNameLookup(IEnumerable<IPriceVolumeLayer>? source)
     {
-        PQNameIdLookupGenerator thisLayDict;
+        IPQNameIdLookupGenerator thisLayDict;
         if (source is IPQOrderBook { NameIdLookup: not null } pqOrderBook)
-            thisLayDict = new PQNameIdLookupGenerator(pqOrderBook.NameIdLookup, PQFieldKeys.LayerNameDictionaryUpsertCommand);
-        else if (source?.Any(pvl => pvl is IHasNameIdLookup { NameIdLookup: not null }) == true)
-            thisLayDict = new PQNameIdLookupGenerator(
-                source.OfType<IHasNameIdLookup>().Where(pvl => pvl is { NameIdLookup: not null })
-                    .Select(pvl => pvl.NameIdLookup)
-                    .First()!, PQFieldKeys.LayerNameDictionaryUpsertCommand);
+            thisLayDict = InitializeNewIdLookupGenerator(pqOrderBook.NameIdLookup);
         else
-            thisLayDict = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+            thisLayDict = InitializeNewIdLookupGenerator(
+                source?.OfType<ISupportsPQNameIdLookupGenerator>()
+                    ?.Where(pvl => pvl is { NameIdLookup: not null })
+                    ?.Select(pvl => pvl.NameIdLookup)
+                    ?.FirstOrDefault());
 
         return thisLayDict;
+    }
+
+    public IPQNameIdLookupGenerator InitializeNewIdLookupGenerator(IPQNameIdLookupGenerator? optionalExisting = null)
+    {
+        IPQNameIdLookupGenerator thisBookNameIdLookupGenerator = optionalExisting != null ?
+            new PQNameIdLookupGenerator(optionalExisting, PQFieldKeys.LayerNameDictionaryUpsertCommand) :
+            new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        thisBookNameIdLookupGenerator.GetOrAddId(TraderPriceVolumeLayer.TraderCountTraderName);
+        return thisBookNameIdLookupGenerator;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrderBook, true);

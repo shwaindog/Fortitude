@@ -45,12 +45,12 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
                 switch (newState)
                 {
                     case SocketSessionState.Connected:
-                        FirstConnect();
+                        NewToConnectedHandler();
                         break;
                     case SocketSessionState.Disconnecting:
                     case SocketSessionState.Disconnected:
                     case SocketSessionState.Reconnecting:
-                        FailedToConnect();
+                        NewToFailedHandler();
                         break;
                 }
 
@@ -59,29 +59,37 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
                 switch (newState)
                 {
                     case SocketSessionState.Connected:
-                        Reconnected();
+                        ReconnectingToConnectedHandler();
                         break;
                     case SocketSessionState.Disconnecting:
                     case SocketSessionState.Disconnected:
                     case SocketSessionState.Reconnecting:
-                        FailedToReconnect();
+                        ReconnectingToFailedHandler();
                         break;
                 }
 
                 break;
             case SocketSessionState.Connected:
+                if (newState == SocketSessionState.Disconnecting) ConnectedToDisconnectingHandler();
+                if (newState == SocketSessionState.Disconnected) ToDisconnectedHandler();
+                break;
             case SocketSessionState.Disconnecting:
-                if (newState == SocketSessionState.Disconnected) Disconnected();
+                if (newState == SocketSessionState.Disconnected) ToDisconnectedHandler();
                 break;
         }
     }
 
-    private void FailedToReconnect()
+    private void ConnectedToDisconnectingHandler()
     {
-        Disconnected();
+        Logger.Info("Starting graceful disconnect sequence for {0}", socketSessionContext.Name);
     }
 
-    private void Disconnected()
+    private void ReconnectingToFailedHandler()
+    {
+        ToDisconnectedHandler();
+    }
+
+    private void ToDisconnectedHandler()
     {
         var socketSender = socketSessionContext.SocketSender;
         var socketReceiver = socketSessionContext.SocketReceiver;
@@ -111,7 +119,7 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
         }
     }
 
-    private void Reconnected()
+    private void ReconnectingToConnectedHandler()
     {
         CreateConversationSenderAndReceivers();
     }
@@ -150,12 +158,12 @@ public class SocketStateChangeHandler : ISocketConnectivityChanged
         }
     }
 
-    private void FailedToConnect()
+    private void NewToFailedHandler()
     {
-        Disconnected();
+        ToDisconnectedHandler();
     }
 
-    private void FirstConnect()
+    private void NewToConnectedHandler()
     {
         CreateConversationSenderAndReceivers();
     }

@@ -16,8 +16,6 @@ public interface IStreamControls : IConversationInitiator
 {
     ValueTask<bool> StartAsync(TimeSpan timeoutTimeSpan, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null);
     ValueTask<bool> StartAsync(int timeoutMs, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null);
-    bool Connect();
-    void Disconnect(CloseReason closeReason, string? reason = null);
     void StartMessaging();
     void StopMessaging();
 }
@@ -35,28 +33,30 @@ public abstract class SocketStreamControls : IStreamControls
         ReconnectConfig = socketSessionContext.NetworkTopicConnectionConfig.ReconnectConfig;
     }
 
-    public abstract bool Connect();
-
     public abstract void OnSessionFailure(string reason);
 
-    public virtual ValueTask<bool> StartAsync(TimeSpan timeoutTimeSpan
+    public virtual async ValueTask<bool> StartAsync(TimeSpan timeoutTimeSpan
         , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
+        bool connectSucceeded;
         if (alternativeExecutionContext == null)
-            return ImmediateConnectAsync(timeoutTimeSpan);
+            connectSucceeded = await ImmediateConnectAsync(timeoutTimeSpan);
         else
             try
             {
-                return alternativeExecutionContext.Execute(ImmediateConnectAsync, timeoutTimeSpan);
+                connectSucceeded = await alternativeExecutionContext.Execute(ImmediateConnectAsync, timeoutTimeSpan);
             }
             finally
             {
                 alternativeExecutionContext.DecrementRefCount();
             }
+
+        StartMessaging();
+        return connectSucceeded;
     }
 
-    public virtual ValueTask<bool>
-        StartAsync(int timeoutMs, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
+    public virtual ValueTask<bool> StartAsync(int timeoutMs,
+        IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null) =>
         StartAsync(TimeSpan.FromMilliseconds(timeoutMs), alternativeExecutionContext);
 
     public void Start()
@@ -67,8 +67,10 @@ public abstract class SocketStreamControls : IStreamControls
 
     public void Stop(CloseReason closeReason = CloseReason.Completed, string? reason = null)
     {
-        if (SocketSessionContext.SocketConnection is { IsConnected: true }) Disconnect(closeReason, reason);
-        StopMessaging();
+        if (SocketSessionContext.SocketConnection is { IsConnected: true })
+            Disconnect(closeReason, reason);
+        else
+            SocketSessionContext.OnDisconnected(closeReason, reason);
     }
 
     public virtual void StartMessaging()
@@ -91,6 +93,8 @@ public abstract class SocketStreamControls : IStreamControls
         SocketSessionContext.SocketDispatcher.Stop();
         SocketSessionContext.OnStopped();
     }
+
+    public abstract bool Connect();
 
     public abstract void Disconnect(CloseReason closeReason, string? reason = null);
 

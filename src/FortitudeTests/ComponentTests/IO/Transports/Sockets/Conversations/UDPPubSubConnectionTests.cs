@@ -78,9 +78,9 @@ public class UdpPubSubConnectionTests
     public void ClientSendMessageDecodesCorrectlyOnServer()
     {
         // client connects
-        conversationPublisher.Connect();
+        conversationPublisher.Start();
         Thread.Sleep(20);
-        conversationSubscriber.Connect();
+        conversationSubscriber.Start();
 
         foreach (INotifyingMessageDeserializer<SimpleVersionedMessage> deserializersValue in
                  deserializers.Values)

@@ -111,7 +111,7 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
 
     public void RequestSnapshots(IList<ISourceTickerQuoteInfo> sourceTickerIds)
     {
-        Connect();
+        Start();
         if (IsStarted)
         {
             logger.Info("Sending snapshot request for streams {0}",
@@ -159,7 +159,7 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
 
     public void RequestSourceTickerQuoteInfoList()
     {
-        Connect();
+        Start();
         if (IsStarted)
         {
             logger.Info("Sending SourceTickerInfoRequest for source {0}", Name);
@@ -193,11 +193,10 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         return null;
     }
 
-    public override bool Connect()
+    public override void Start()
     {
-        var result = base.Connect();
+        base.Start();
         EnableTimeout();
-        return result;
     }
 
     private void ReceivedSourceTickerInfoResponse(PQSourceTickerInfoResponse sourceTickerInfoResponse, MessageHeader messageHeader
@@ -275,7 +274,7 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         if (timedOut)
         {
             logger.Warn("Closing PQSnapshotClient for {0} as no data timeout has been reach", SocketSessionContext.Name);
-            SocketSessionContext.StreamControls?.Disconnect(CloseReason.Completed, "Timeout after a lack of activity.");
+            SocketSessionContext.StreamControls?.Stop(CloseReason.Completed, "Timeout after a lack of activity.");
         }
     }
 

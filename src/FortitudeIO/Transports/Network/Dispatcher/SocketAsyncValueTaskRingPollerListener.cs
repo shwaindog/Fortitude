@@ -83,6 +83,7 @@ public abstract class SocketAsyncValueTaskRingPollerListener<T> : AsyncValueTask
             {
                 if (data.IsSocketAdd)
                 {
+                    // Logger.Info("Processed socket receiver add {0} on {1}", socketReceiver.Name, Ring.Name);
                     socketsPollerAndDecoding.AddForListen(socketReceiver);
                 }
                 else

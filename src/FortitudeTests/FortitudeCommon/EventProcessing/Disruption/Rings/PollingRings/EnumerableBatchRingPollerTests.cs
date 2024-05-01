@@ -97,7 +97,8 @@ public class EnumerableBatchRingPollerTests
             = new DummyEnumerableBatchRingPoller(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
 
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
-        moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
+        moqOsThread.SetupGet(ost => ost.IsBackground).Returns(true).Verifiable();
+        moqOsThread.SetupGet(ost => ost.IsAlive).Returns(true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
 
         dummyEnumerableBatchRingPoller.Start();
@@ -133,7 +134,8 @@ public class EnumerableBatchRingPollerTests
         dummyEnumerableBatchRingPoller
             = new DummyEnumerableBatchRingPoller(moqPollingRing.Object, NoDataPauseTimeout, dispatchWorkerAction, null, moqParallelController.Object);
         moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
-        moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
+        moqOsThread.SetupGet(ost => ost.IsBackground).Returns(true).Verifiable();
+        moqOsThread.SetupGet(ost => ost.IsAlive).Returns(true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
         dummyEnumerableBatchRingPoller.Start();
         Assert.AreEqual(1, dummyEnumerableBatchRingPoller.UsageCount);

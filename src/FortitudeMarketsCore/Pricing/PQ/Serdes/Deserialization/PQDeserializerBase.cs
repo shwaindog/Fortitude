@@ -165,7 +165,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
             }
         }
 
-        // logger.Info("Deserialized Quote {0}: SequenceId:{1} on Deserializer.InstanceNum {2}", 
+        // logger.Info("Deserialized Quote {0}: SequenceId:{1} on Deserializer.InstanceNum {2}",
         //     ent.GetType().Name, ent.PQSequenceId, InstanceNumber);
     }
 

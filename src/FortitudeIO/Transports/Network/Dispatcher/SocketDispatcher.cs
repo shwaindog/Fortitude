@@ -26,6 +26,12 @@ public class SocketDispatcher : ISocketDispatcher
         Sender?.Stop();
     }
 
+    public void StopImmediate()
+    {
+        Listener?.StopImmediate();
+        Sender?.StopImmediate();
+    }
+
     public int UsageCount => Math.Max(Listener?.UsageCount ?? 0, Sender?.UsageCount ?? 0);
 
     public string Name

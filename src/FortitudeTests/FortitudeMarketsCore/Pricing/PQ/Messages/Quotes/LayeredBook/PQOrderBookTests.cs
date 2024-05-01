@@ -44,6 +44,8 @@ public class PQOrderBookTests
     public void SetUp()
     {
         nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        nameIdLookupGenerator.GetOrAddId(TraderPriceVolumeLayer.TraderCountTraderName);
+
 
         simpleLayers = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
         sourceLayers = new List<IPQSourcePriceVolumeLayer>(MaxNumberOfLayers);
@@ -774,6 +776,7 @@ public class PQOrderBookTests
         for (var i = 0; i < upgradedOrderBook.Capacity; i++)
         {
             var upgradedLayer = upgradedOrderBook[i];
+
             var copyFromLayer = equivalentTo[i];
 
             Assert.IsInstanceOfType(upgradedLayer, expectedType);

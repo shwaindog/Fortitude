@@ -66,6 +66,8 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
     public int InstanceNumber { get; } = Interlocked.Increment(ref lastInstanceNum);
 
+    public uint? RegisteredForMessageId { get; set; }
+
     public IOrxDeserializerLookup OrxDeserializerLookup { get; set; }
 
     public IMessageDeserializationRepository? RegisteredRepository { get; set; }

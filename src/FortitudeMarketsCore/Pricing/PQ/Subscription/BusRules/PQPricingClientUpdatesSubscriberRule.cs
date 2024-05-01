@@ -5,6 +5,7 @@ using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
@@ -40,11 +41,13 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
     public override async ValueTask StartAsync()
     {
         await LaunchUpdateClient();
+        IncrementLifeTimeCount();
     }
 
     public override async ValueTask StopAsync()
     {
         await Context.MessageBus.UndeployRuleAsync(this, PqPricingClientFeedSyncMonitorRule);
+        updateClient?.Stop(CloseReason.Completed, $"PQPricingClientUpdatesSubscriberRule for {feedName} is stopping");
     }
 
     private async ValueTask LaunchUpdateClient()

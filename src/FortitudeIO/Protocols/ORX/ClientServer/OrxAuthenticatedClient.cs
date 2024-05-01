@@ -81,7 +81,7 @@ public abstract class OrxAuthenticatedClient
 
     protected void HandleLoggedOut(OrxLoggedOutMessage message, MessageHeader messageHeader, IConversation cx)
     {
-        Logger.Info("Logon to " + ServerName + " Adapter refused: " + message.Reason);
+        Logger.Info("Logon to " + ServerName + " closed " + message.Reason);
         IsLoggedIn = false;
         StatusUpdateHandlers?.Invoke(string.Empty, IsAvailable);
     }

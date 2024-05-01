@@ -2,6 +2,7 @@
 
 using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.BusMessaging.Pipelines;
+using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Connectivity.Network;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
@@ -22,7 +23,6 @@ using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -39,7 +39,6 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
     private readonly string feedName;
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientSnapshotConversationRequester));
     private readonly IMessageBus messageBus;
-    private readonly IPricingServerConfig pricingServerConfig;
 
     private readonly IRecycler recycler;
     private readonly string requestResponseHandlerRegistrationAddress;
@@ -52,11 +51,10 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
 
     public PQPricingClientSnapshotConversationRequester(ISocketSessionContext socketSessionContext, IStreamControls streamControls, string feedName
         , IRule creatingRule
-        , IMessageDeserializationRepository sharedDeserializationRepo, IPricingServerConfig pricingServerConfig)
+        , IMessageDeserializationRepository sharedDeserializationRepo)
         : base(socketSessionContext, streamControls)
     {
         this.feedName = feedName;
-        this.pricingServerConfig = pricingServerConfig;
         this.creatingRule = creatingRule;
         this.sharedDeserializationRepo = sharedDeserializationRepo;
         recycler = creatingRule.Context.PooledRecycler;
@@ -88,6 +86,8 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         get => socketFactories ??= SocketFactoryResolver.GetRealSocketFactories();
         set => socketFactories = value;
     }
+
+    public IIOInboundMessageQueue? IOInboundMessageQueue => SocketSessionContext.IOInboundMessageQueue(messageBus);
 
     public IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; private set; } = new List<ISourceTickerQuoteInfo>();
 
@@ -153,7 +153,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
         var started = await base.StartAsync(timeoutTimeSpan, alternativeExecutionContext);
-        if (started) await CheckAndLaunchTopicDeserializationRepositoryAmendingRuleStarted();
+        if (started) await CheckAndLaunchTopicRequestResponseRegistrationRuleStarted();
         return started;
     }
 
@@ -161,23 +161,22 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
         var started = await base.StartAsync(timeoutMs, alternativeExecutionContext);
-        if (started) await CheckAndLaunchTopicDeserializationRepositoryAmendingRuleStarted();
+        if (started) await CheckAndLaunchTopicRequestResponseRegistrationRuleStarted();
         return started;
     }
 
-    private async ValueTask CheckAndLaunchTopicDeserializationRepositoryAmendingRuleStarted()
+    private async ValueTask CheckAndLaunchTopicRequestResponseRegistrationRuleStarted()
     {
-        receiverQueuePublishAmender = messageBus.RulesMatching(r => r.FriendlyName == feedName.FeedAmendTickerPublicationRuleName()).FirstOrDefault();
+        receiverQueuePublishAmender = messageBus.RulesMatching(r => r.FriendlyName == feedName.FeedRegisterRemoteResponseRuleName()).FirstOrDefault();
         if (receiverQueuePublishAmender == null || receiverQueuePublishAmender.LifeCycleState is RuleLifeCycle.NotStarted or RuleLifeCycle.Stopped)
         {
-            var deployedSocketListenerQueue
-                = messageBus.BusIOResolver.GetInboundQueueOnSocketListener(SocketSessionContext.SocketDispatcher.Listener!);
-            receiverQueuePublishAmender = new PQPricingClientBusSubscriptionsAmenderRule(feedName, SocketSessionContext, pricingServerConfig,
-                new PQtoPQPriceConverterRepository(), sharedDeserializationRepo.Name);
+            var deployedSocketListenerQueue = IOInboundMessageQueue;
+            receiverQueuePublishAmender
+                = new PQPricingClientRequestResponseRegistrationRule(feedName, SocketSessionContext, sharedDeserializationRepo.Name);
             var dispatchResult = await messageBus.DeployRuleAsync(creatingRule, receiverQueuePublishAmender
                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
 
-            logger.Info("Have deployed topicDeserializationRepositoryAmendingRule on {0} with dispatchResults {1}"
+            logger.Info("Have deployed PQPricingClientRequestResponseRegistrationRule on {0} with dispatchResults {1}"
                 , deployedSocketListenerQueue.Name, dispatchResult);
         }
     }
@@ -199,9 +198,8 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
-        return new PQPricingClientSnapshotConversationRequester(socketSessionContext, streamControls, feedName, creatingRule
-            , sharedDeserializationRepository
-            , marketConnectionConfig.PricingServerConfig);
+        return new PQPricingClientSnapshotConversationRequester(socketSessionContext, streamControls,
+            feedName, creatingRule, sharedDeserializationRepository);
     }
 
     private void EnableTimeout()
@@ -219,7 +217,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
     private void TimeoutConnection()
     {
         logger.Warn("Closing PQSnapshotClient for {0} as no data timeout has been reach", feedName);
-        SocketSessionContext.StreamControls?.Disconnect(CloseReason.Completed, "Timeout after a lack of activity.");
+        SocketSessionContext.StreamControls?.Stop(CloseReason.Completed, "Timeout after a lack of activity.");
     }
 
     private void RestartTimeoutTimer()

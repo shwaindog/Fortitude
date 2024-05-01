@@ -119,11 +119,11 @@ public class TcpAcceptedClientControlsTests
     }
 
     [TestMethod]
-    public void Connected_CallsDisconnect_CallsShutdown()
+    public void Connected_CallsStop_CallsShutdown()
     {
         DisconnectMoqSetup();
 
-        tcpAcceptedClientControls.Disconnect(CloseReason.Completed);
+        tcpAcceptedClientControls.Stop(CloseReason.Completed);
 
         moqSocketSessionContext.Verify();
         moqSocketConnection.Verify();
@@ -151,14 +151,14 @@ public class TcpAcceptedClientControlsTests
 
 
     [TestMethod]
-    public void Unconnected_CallsDisconnect_DoesNotDoAnything()
+    public void Unconnected_CallsStop_DoesNotDoAnything()
     {
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketSessionState)
             .Returns(SocketSessionState.Disconnected);
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketConnection).Returns(moqSocketConnection.Object).Verifiable();
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(false).Verifiable();
 
-        tcpAcceptedClientControls.Disconnect(CloseReason.Completed);
+        tcpAcceptedClientControls.Stop(CloseReason.Completed);
 
         moqSocketSessionContext.Verify();
         moqFlogger.Verify();

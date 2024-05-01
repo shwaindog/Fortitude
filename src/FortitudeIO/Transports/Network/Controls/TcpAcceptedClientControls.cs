@@ -26,20 +26,24 @@ public class TcpAcceptedClientControls : SocketStreamControls
         if (SocketSessionContext.SocketReceiver != null)
             SocketSessionContext.SocketDispatcher.Listener?.UnregisterForListen(SocketSessionContext.SocketReceiver);
         if (SocketSessionContext.SocketSessionState == SocketSessionState.Connected)
+        {
             SocketSessionContext.OnDisconnecting();
+            SocketSessionContext.OnSocketStateChanged(SocketSessionState.Disconnecting);
+        }
+
         if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
         {
             logger.Info("Connection client session {0} closed. {1}", SocketSessionContext.Name, reason);
 
             SocketSessionContext.OnDisconnected(closeReason, reason);
-            StopMessaging();
         }
     }
+
 
     public override void OnSessionFailure(string reason)
     {
         logger.Warn("Problem communicating with client session {0} will not attempt reconnect. Reason {1}", SocketSessionContext, reason);
-        Disconnect(CloseReason.Error, reason);
+        Stop(CloseReason.RemoteClosed, reason);
     }
 
     protected override bool ConnectAttemptSucceeded() => false;

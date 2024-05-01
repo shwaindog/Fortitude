@@ -1,6 +1,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
@@ -26,6 +27,7 @@ namespace FortitudeMarketsCore.Trading.ORX.Publication;
 
 public sealed class OrxTradingServer : OrxAuthenticationServer
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OrxTradingServer));
     private readonly bool errorSupport;
     private readonly ITradingFeed feed;
     private readonly AdapterOrderSessionTracker orderSessionTracker;
@@ -58,7 +60,14 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
 
     public void Shutdown()
     {
+        OnDisconnecting();
         AcceptorSession.Stop(CloseReason.Completed, "OrxTradingServer is closing");
+    }
+
+    public void ShutdownImmediate()
+    {
+        WaitForClientsToClose = false;
+        AcceptorSession.Stop(CloseReason.Completed, "OrxTradingServer is closing no graceful shutdown");
     }
 
     private void OnNewTradingClientConversation(IConversationRequester cx)
@@ -203,7 +212,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
 
     private void OnOrderUpdated(IOrderUpdate orderUpdate)
     {
-        if (orderUpdate.Order?.OrderPublisher?.UnderlyingSession != null)
+        if (orderUpdate.Order?.OrderPublisher?.UnderlyingSession is { IsStarted: true })
         {
             if (orderUpdate is not OrxOrderUpdate orxOrderUpdate)
             {

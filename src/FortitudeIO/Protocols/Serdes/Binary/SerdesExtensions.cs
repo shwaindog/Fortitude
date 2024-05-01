@@ -5,9 +5,9 @@ public static class SerdesExtensions
     public static IMessageDeserializationRepository? FindConnectedFallbackWithName(this IMessageDeserializationRepository root, string? name)
     {
         var checkRepository = root;
-        while (checkRepository != null)
+        while (checkRepository != null && name != null)
         {
-            if (name != null && checkRepository.Name == name) return checkRepository;
+            if (checkRepository.Name == name) return checkRepository;
             checkRepository = checkRepository.CascadingFallbackDeserializationRepo;
         }
 

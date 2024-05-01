@@ -4,6 +4,7 @@ using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
@@ -32,6 +33,7 @@ public interface IPQServer<T> : IDisposable where T : IPQLevel0Quote
 
 public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServer<T>));
     private readonly ISocketDispatcherResolver dispatcherResolver;
     private readonly IMap<uint, T> entities = new ConcurrentMap<uint, T>();
     private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
@@ -106,6 +108,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.Id, out var ent))
         {
             quote.ResetFields();
+            quote.HasUpdates = true;
             Publish(quote);
             entities.Remove(quote.SourceTickerQuoteInfo.Id);
             heartBeatSync.Acquire();
@@ -142,7 +145,16 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
                 ent.Lock.Release();
             }
 
-            if (updateServer != null && updateServer.IsStarted) updateServer.Send(ent);
+            if (ent.HasUpdates)
+            {
+                if (updateServer != null && updateServer.IsStarted) updateServer.Send(ent);
+                // Logger.Info("Published {0}", ent);
+            }
+            else
+            {
+                Logger.Warn("Publish request has no changes so will not be published.");
+            }
+
             heartBeatSync.Acquire();
             try
             {

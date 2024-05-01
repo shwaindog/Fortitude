@@ -25,6 +25,7 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
 
     private readonly IIntraOSThreadSignal spinPauseSignal;
     private readonly int timeoutMs;
+    private bool gracefulShutdown = true;
     private volatile bool isRunning;
     private IRecycler? recycler;
     private Action? threadStartInitialization;
@@ -122,19 +123,28 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
         }
     }
 
+    public void StopImmediate()
+    {
+        gracefulShutdown = false;
+        ForceStop();
+    }
+
     protected void ForceStop()
     {
         try
         {
             UsageCount = 0;
             isRunning = false;
-            if (ExecutingThread?.IsAlive == true)
+            if (gracefulShutdown)
             {
-                spinPauseSignal.Set();
-                ExecutingThread?.Join();
-            }
+                if (ExecutingThread?.IsAlive == true)
+                {
+                    spinPauseSignal.Set();
+                    ExecutingThread?.Join();
+                }
 
-            Poll(Ring.Size);
+                Poll(Ring.Size);
+            }
         }
         catch (Exception ex)
         {

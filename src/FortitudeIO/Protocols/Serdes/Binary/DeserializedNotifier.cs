@@ -307,20 +307,21 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
         return false;
     }
 
-    private void MessageDeserialized(TM message)
+    private void MessageDeserialized(TM message, int deserializedCount, IMessageDeserializer messageDeserializer)
     {
         if (CheckRespondingMessage(message)) return;
         if (registeredReceiverContexts.Any())
             foreach (var receiverListenContext in registeredReceiverContexts.Values)
                 receiverListenContext.SendToReceiver(message);
         else
-            receiverMessageDeserializedHandler?.Invoke(message);
+            receiverMessageDeserializedHandler?.Invoke(message, deserializedCount, messageDeserializer);
     }
 }
 
 public delegate void ConvertedConversationMessageReceivedHandler<in TM>(TM deserializedMessage, MessageHeader header, IConversation conversation);
 
-public delegate void ConvertedMessageDeserializedHandler<in TM>(TM deserializedMessage);
+public delegate void ConvertedMessageDeserializedHandler<in TM>(TM deserializedMessage, int deserializedCounter
+    , IMessageDeserializer messageDeserializer);
 
 public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<TM>, IDeserializedNotifier<TM, TR>
     , IStoreState<ConvertingDeserializedNotifier<TM, TR>>
@@ -478,7 +479,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
         }
     }
 
-    private void MessageDeserialized(TM message)
+    private void MessageDeserialized(TM message, int deserializedCount, IMessageDeserializer messageDeserializer)
     {
         var convertedMessage = Converter.Convert(message);
         if (CheckRespondingMessage(message, convertedMessage)) return;
@@ -486,7 +487,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
             foreach (var receiverListenContext in registeredReceiverContexts.Values)
                 receiverListenContext.SendToReceiver(convertedMessage);
         else
-            receiverMessageDeserializedHandler?.Invoke(convertedMessage);
+            receiverMessageDeserializedHandler?.Invoke(convertedMessage, deserializedCount, messageDeserializer);
     }
 
     private bool CheckRespondingMessage(TM message, TR convertedMessage)

@@ -430,6 +430,7 @@ public class PQServerTests
         };
         moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.PQSequenceId, 10u);
+        moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release());
 
         replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);
@@ -495,10 +496,11 @@ public class PQServerTests
         // can't use moq because of property redefinition not handled properly
         var stubLevel1Quote = new PQLevel1QuoteTests.DummyLevel1Quote
         {
-            SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
+            SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true, SinglePrice = 123, IsSinglePriceUpdated = true
         };
         moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.PQSequenceId, 10u);
+        moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release());
 
         replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);

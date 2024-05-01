@@ -10,7 +10,6 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 
@@ -18,34 +17,62 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
-public class PQPricingClientBusSubscriptionsAmenderRule : TopicDeserializationRepositoryAmendingRule
+public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTopicPublicationAmendingRule
 {
-    private const uint PQSourceTickerInfoResponseMessageId = (uint)PQMessageIds.SourceTickerInfoResponse;
     private readonly string feedName;
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientBusSubscriptionsAmenderRule));
+    private readonly string feedTickersSnapshotRequestAddress;
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientBusTopicPublicationAmenderRule));
     private readonly IPricingServerConfig pricingServerConfig;
-    private List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos = new();
+    private List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos;
 
     private ISubscription? listenForFeedSourceTickerInfosSubscription;
 
-    public PQPricingClientBusSubscriptionsAmenderRule(string feedName
+    public PQPricingClientBusTopicPublicationAmenderRule(string feedName, List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos
         , ISocketSessionContext socketSessionContext
         , IPricingServerConfig pricingServerConfig
         , IConverterRepository? converterRepository = null, string? registrationRepoName = null)
         : base(feedName.FeedAmendTickerPublicationRuleName(), socketSessionContext, feedName.FeedAmendTickerPublicationAddress(),
-            feedName.FeedRequestResponseRegistrationAddress(), converterRepository, registrationRepoName)
+            converterRepository, registrationRepoName)
     {
         DefaultNotifyTypeFlags = DeserializeNotifyTypeFlags.JustMessage;
         this.feedName = feedName;
+        this.feedSourceTickerQuoteInfos = feedSourceTickerQuoteInfos;
         this.pricingServerConfig = pricingServerConfig;
+        feedTickersSnapshotRequestAddress = feedName.FeedTickersSnapshotRequestAddress();
     }
 
     public override async ValueTask StartAsync()
     {
-        logger.Info("PQClientSubscriptionsAmenderRule for feedName {0} deployed on {1} and awaiting SourceTickerInfos " +
-                    "before enabling subscription.  Listening to {2}", feedName, Context.RegisteredOn.Name, RegisterRequestIdResponseListenAddress);
-        await LauncherRequestIdResponseListener();
+        logger.Info("PQPricingClientBusTopicPublicationAmenderRule for feedName {0} deployed on {1} and listening to {2}",
+            feedName, Context.RegisteredOn.Name, ListeningOnAddress);
         await FeedSourceTickerInfoListener();
+        await LaunchTopicPublicationAmenderListener();
+    }
+
+    public override async ValueTask StopAsync()
+    {
+        if (listenForFeedSourceTickerInfosSubscription != null) await listenForFeedSourceTickerInfosSubscription.UnsubscribeAsync();
+
+        await base.StopAsync();
+    }
+
+    protected override void MessageDeserializerRegistered(IMessageDeserializer newlyRegisteredMessageDeserializer)
+    {
+        if (newlyRegisteredMessageDeserializer is IPQDeserializer)
+        {
+            var foundTicker = feedSourceTickerQuoteInfos.FirstOrDefault(stqi => stqi.Id == newlyRegisteredMessageDeserializer.RegisteredForMessageId);
+            if (foundTicker == null)
+            {
+                logger.Warn("Could not resolve the feed source ticker requiring a snapshot for message id {0} with [\n{1}\n]",
+                    newlyRegisteredMessageDeserializer.RegisteredForMessageId, string.Join("\n    ", feedSourceTickerQuoteInfos));
+                return;
+            }
+
+            var requestSnapshotOnTicker = Context.PooledRecycler.Borrow<FeedSourceTickerInfoUpdate>();
+            requestSnapshotOnTicker.FeedName = feedName;
+            requestSnapshotOnTicker.SourceTickerQuoteInfos.Add(foundTicker);
+            Context.MessageBus.Publish(this, feedTickersSnapshotRequestAddress, requestSnapshotOnTicker, new DispatchOptions());
+        }
     }
 
     protected async ValueTask FeedSourceTickerInfoListener()
@@ -54,27 +81,20 @@ public class PQPricingClientBusSubscriptionsAmenderRule : TopicDeserializationRe
             , feedName.FeedAvailableTickersUpdateAddress(), ReceivedFeedAvailableTickersUpdate);
     }
 
-    private async ValueTask ReceivedFeedAvailableTickersUpdate(IBusMessage<FeedSourceTickerInfoUpdate> feedTickersMessage)
+    private void ReceivedFeedAvailableTickersUpdate(IBusMessage<FeedSourceTickerInfoUpdate> feedTickersMessage)
     {
         var feedSourceTickerInfosUpdate = feedTickersMessage.Payload.Body();
-        var hadPreviousInfos = feedSourceTickerQuoteInfos.Any();
         if (ListenForPublishSubscriptions == null && feedSourceTickerInfosUpdate?.SourceTickerQuoteInfos.Any() == true)
-        {
-            feedSourceTickerQuoteInfos = feedSourceTickerInfosUpdate.SourceTickerQuoteInfos;
-            if (!hadPreviousInfos && feedSourceTickerQuoteInfos.Any())
+            if (feedSourceTickerQuoteInfos.Any() && !feedSourceTickerInfosUpdate.SourceTickerQuoteInfos.SequenceEqual(feedSourceTickerQuoteInfos))
             {
-                logger.Info("Received source tickers [\n {0}\n] will start listening to ticker subscriptions on {1}"
-                    , string.Join("\n    ", feedSourceTickerQuoteInfos), RemotePublishRegistrationListenAddress);
-
-                await LaunchTopicPublicationAmenderListener();
+                feedSourceTickerQuoteInfos = feedSourceTickerInfosUpdate.SourceTickerQuoteInfos;
+                logger.Info("Received updated source tickers [\n {0}\n]", string.Join("\n    ", feedSourceTickerQuoteInfos));
             }
-        }
     }
 
     protected override async ValueTask LaunchTopicPublicationAmenderListener()
     {
         await base.LaunchTopicPublicationAmenderListener();
-
         var interceptorListenPath = feedName.FeedDefaultAllTickersPublishInterceptPattern();
         var addressPublicationAmenderInterceptor = new PQPricingClientTickerPublishAmenderInterceptor(feedName,
             new AddressMatcher(interceptorListenPath), (IIOInboundMessageQueue)Context.RegisteredOn);
@@ -94,16 +114,6 @@ public class PQPricingClientBusSubscriptionsAmenderRule : TopicDeserializationRe
                   "to be able look up ticker names to SourceTickerQuoteInfo and resolve a message deserializer.  Will not be able to register tickers requests.  " +
                   $"Will not be able to update ticker subscription requests for ticker {messageDeserializerResolveRun.SubscribePostFix}";
             logger.Warn(messageDeserializerResolveRun.FailureMessage);
-            return;
-        }
-
-        if (messageDeserializerResolveRun.DeserializedType == typeof(PQSourceTickerInfoResponse))
-        {
-            messageDeserializerResolveRun.MessageId = PQSourceTickerInfoResponseMessageId;
-            var pqSourceTickerInfoResponseDeserializer = pqClientQuoteDeserializerRepository
-                .SourceNotifyingMessageDeserializerFromMessageId<PQSourceTickerInfoResponse>(PQSourceTickerInfoResponseMessageId);
-            pqSourceTickerInfoResponseDeserializer!.RemoveOnZeroNotifiers = false;
-            messageDeserializerResolveRun.MessageDeserializer = pqSourceTickerInfoResponseDeserializer;
             return;
         }
 

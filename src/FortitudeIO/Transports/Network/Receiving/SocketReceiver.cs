@@ -105,14 +105,9 @@ public sealed class SocketReceiver : ISocketReceiver
             AttemptCloseSocketOnListenerRemoval = false;
             var socketSender = socketSessionContext.SocketSender;
             if (socketSender is { CanSend: true })
-            {
                 socketSender.SendExpectSessionCloseMessageAndClose();
-            }
             else
-            {
-                socketSessionContext.SocketConnection?.OSSocket?.Close();
                 socketSessionContext.SetDisconnected();
-            }
         }
     }
 
@@ -160,7 +155,7 @@ public sealed class SocketReceiver : ISocketReceiver
     {
         logger.Info("{0} received expect session close message. closeReason:{1}, reason:{2}",
             socketSessionContext.Name, expectSessionCloseMessage.CloseReason, expectSessionCloseMessage.ReasonText);
-        socketSessionContext.StreamControls?.Disconnect(CloseReason.RemoteDisconnecting, expectSessionCloseMessage.ReasonText);
+        socketSessionContext.StreamControls?.Stop(CloseReason.RemoteDisconnecting, expectSessionCloseMessage.ReasonText);
     }
 
     public void HandleReceiveError(string message, Exception exception)

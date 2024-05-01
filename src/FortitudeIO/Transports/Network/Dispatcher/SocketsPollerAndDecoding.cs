@@ -23,7 +23,6 @@ public class SocketsPollerAndDecoding
     private readonly ISocketSelector selector;
     private readonly SocketBufferReadContext socketBufferReadContext = new();
     private readonly ISocketDataLatencyLogger? socketDataLatencyLogger;
-    private readonly List<ITimerCallbackPayload> timerActionsToExecute = new();
     private readonly IIntraOSThreadSignal unpauseSignaller;
 
     public SocketsPollerAndDecoding(string name, ISocketSelector selector, IIntraOSThreadSignal unpauseSignaller, ActionListTimer actionListTimer)
@@ -96,15 +95,23 @@ public class SocketsPollerAndDecoding
             }
         }
 
-        actionListTimer.GetTimerActionsToExecute(timerActionsToExecute);
-        foreach (var timerCallbackPayload in timerActionsToExecute)
-        {
-            if (timerCallbackPayload.IsAsyncInvoke())
-                timerCallbackPayload.InvokeAsync();
-            else
-                timerCallbackPayload.Invoke();
-            timerCallbackPayload?.DecrementRefCount();
-        }
+        using var timerActionsToExecute = actionListTimer.GetTimerActionsToExecute();
+        if (timerActionsToExecute.ShouldProcess)
+            foreach (var timerCallbackPayload in timerActionsToExecute.TimerPayloads)
+            {
+                if (timerCallbackPayload.IsAsyncInvoke())
+                {
+                    timerCallbackPayload.InvokeAsync();
+                    Logger.Warn("timerCallbackPayload InvokeAsync");
+                }
+                else
+                {
+                    timerCallbackPayload.Invoke();
+                    Logger.Warn("timerCallbackPayload Invoke");
+                }
+
+                timerCallbackPayload?.DecrementRefCount();
+            }
     }
 
     private void ProcessSocketEvent(ISocketReceiver sockRecr, IPerfLogger detectionToPublishLatencyTraceLogger)
@@ -119,6 +126,7 @@ public class SocketsPollerAndDecoding
             string? exceptionMessage = null;
             try
             {
+                // Logger.Info("Receiver has data for {0}", sockRecr.Name);
                 socketBufferReadContext.DetectTimestamp = selector.WakeTs;
                 socketBufferReadContext.SocketReceiver = sockRecr;
                 connected = sockRecr.Poll(socketBufferReadContext);
