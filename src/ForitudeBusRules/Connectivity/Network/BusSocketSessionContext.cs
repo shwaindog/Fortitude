@@ -180,7 +180,9 @@ public class BusSocketSessionContext : ISocketSessionContext
 
     public void SetDisconnected()
     {
+        SocketConnection?.OSSocket?.Close();
         SocketConnection = null;
+        StreamControls?.StopMessaging();
     }
 
     public void OnDisconnected(CloseReason closeReason, string? reason = null)

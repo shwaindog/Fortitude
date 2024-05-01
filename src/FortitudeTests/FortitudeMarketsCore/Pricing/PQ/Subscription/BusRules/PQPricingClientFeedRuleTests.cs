@@ -4,7 +4,6 @@ using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
@@ -19,6 +18,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientFeedRuleTests));
+    private AutoResetEvent haveReceivedPriceAutoResetEvent = null!;
     private PQPricingClientFeedRule pqPricingClientFeedRule = null!;
     private PQPublisher<PQLevel3Quote> pqPublisher = null!;
     private LocalHostPQServerLevel3QuoteTestSetup pqServerL3QuoteServerSetup = null!;
@@ -33,7 +33,8 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
             = pqServerL3QuoteServerSetup.DefaultServerMarketConnectionConfig.ToggleProtocolDirection("PQClientSourceFeedRuleTestsClient");
         clientMarketConfig.Name = "PQClientSourceFeedRuleTests";
         pqPricingClientFeedRule = new PQPricingClientFeedRule(clientMarketConfig);
-        testSubscribeToTickerRule = new TestSubscribeToTickerRule(clientMarketConfig.Name, "EUR/USD");
+        haveReceivedPriceAutoResetEvent = new AutoResetEvent(false);
+        testSubscribeToTickerRule = new TestSubscribeToTickerRule(clientMarketConfig.Name, "EUR/USD", haveReceivedPriceAutoResetEvent);
     }
 
     [TestCleanup]
@@ -54,10 +55,14 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         logger.Info("Deployed pricing client");
         await CustomQueue1.LaunchRuleAsync(pqPricingClientFeedRule, testSubscribeToTickerRule, CustomQueue1SelectionResult);
         logger.Info("Deployed client listening rule");
-        var sourcePriceQuote = pqServerL3QuoteServerSetup.GenerateL3QuoteWithTraderLayerAndLastTrade(1);
-        var pqLevel3Quote = sourcePriceQuote.ToL3PQQuote();
-        pqLevel3Quote.OverrideSerializationFlags = PQMessageFlags.Snapshot;
-        pqPublisher.PublishQuoteUpdate(pqLevel3Quote);
+        var receivedSnapshotTick = haveReceivedPriceAutoResetEvent.WaitOne(3_000);
+        Assert.IsTrue(receivedSnapshotTick, "Did not receive snapshot response tick from the client before timeout was reached");
+        logger.Info("Received snapshot await update");
+        var sourcePriceQuote = pqServerL3QuoteServerSetup.GenerateL3QuoteWithTraderLayerAndLastTrade(3);
+        pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
+        var receivedUpdateTick = haveReceivedPriceAutoResetEvent.WaitOne(5_000);
+        logger.Info("Received update ");
+        Assert.IsTrue(receivedUpdateTick, "Did not receive update tick from the client before timeout was reached");
         await EventQueue1.StopRuleAsync(pqPricingClientFeedRule, testSubscribeToTickerRule);
         await EventQueue1.StopRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule);
     }
@@ -68,15 +73,18 @@ public class TestSubscribeToTickerRule : Rule
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TestSubscribeToTickerRule));
     private readonly string feedName;
     private readonly string feedTickerListenAddress;
+    private readonly AutoResetEvent haveRecievedTick;
     private readonly string tickerToSubscribeTo;
 
     private ISubscription tickerListenSubscription = null!;
 
-    public TestSubscribeToTickerRule(string feedName, string tickerToSubscribeTo) : base("TestSubscribeToTickerRule_" + feedName + "_" +
-                                                                                         tickerToSubscribeTo)
+    public TestSubscribeToTickerRule(string feedName, string tickerToSubscribeTo, AutoResetEvent haveRecievedTick) : base(
+        "TestSubscribeToTickerRule_" + feedName + "_" +
+        tickerToSubscribeTo)
     {
         this.feedName = feedName;
         this.tickerToSubscribeTo = tickerToSubscribeTo;
+        this.haveRecievedTick = haveRecievedTick;
         feedTickerListenAddress = $"Markets.Pricing.Subscription.Feed.{feedName}.Ticker.{tickerToSubscribeTo}";
     }
 
@@ -97,5 +105,6 @@ public class TestSubscribeToTickerRule : Rule
         var pqL3Quote = priceQuote.Payload.Body()!;
         Logger.Info("Rule {0} listening on {1} received {2} with Sequence Number {3}", FriendlyName, feedTickerListenAddress
             , pqL3Quote.GetType().Name, pqL3Quote.PQSequenceId);
+        haveRecievedTick.Set();
     }
 }

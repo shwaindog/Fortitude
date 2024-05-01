@@ -6,4 +6,5 @@ public interface ISocketDispatcherCommon
     string Name { get; set; }
     void Start(Action? threadInitializer = null);
     void Stop();
+    void StopImmediate();
 }

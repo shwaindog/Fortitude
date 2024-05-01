@@ -270,7 +270,7 @@ public class PQStandaloneSnapshotClientTests
         moqPQQuoteDeserializationRepo.Setup(qdr => qdr.RegisterDeserializer<PQSourceTickerInfoResponse>(It.IsAny<bool>()))
             .Returns(moqSourceTickerResponseDeserializer.Object);
         pqStandaloneSnapshotClient = new PQStandaloneSnapshotClient(moqSocketSessionContext.Object, moqStreamControls.Object);
-        pqStandaloneSnapshotClient.Connect();
+        pqStandaloneSnapshotClient.Start();
         moqSocketSessionContext.Raise(ssc => ssc.SocketReceiverUpdated += null);
 
         moqTimerCallbackSubscription.Setup(tcs => tcs.Unregister(moqIntraOsThreadSignal.Object)).Verifiable();
@@ -303,7 +303,7 @@ public class PQStandaloneSnapshotClientTests
         moqFlogger.Reset();
         DisconnectMoqSetup();
 
-        pqStandaloneSnapshotClient.Connect();
+        pqStandaloneSnapshotClient.Start();
         callback!(moqIntraOsThreadSignal.Object, true);
 
         moqFlogger.Verify();
@@ -327,6 +327,6 @@ public class PQStandaloneSnapshotClientTests
 
     private void DisconnectMoqSetup()
     {
-        moqStreamControls.Setup(tcs => tcs.Disconnect(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
+        moqStreamControls.Setup(tcs => tcs.Stop(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
     }
 }

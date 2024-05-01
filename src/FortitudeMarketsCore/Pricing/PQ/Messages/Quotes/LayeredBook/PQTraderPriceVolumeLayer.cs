@@ -125,7 +125,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
-    public IPQNameIdLookupGenerator NameIdLookup
+    public virtual IPQNameIdLookupGenerator NameIdLookup
     {
         get => nameIdLookup;
         set

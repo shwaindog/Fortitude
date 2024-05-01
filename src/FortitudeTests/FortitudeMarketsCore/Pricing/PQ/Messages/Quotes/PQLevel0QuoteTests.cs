@@ -548,11 +548,10 @@ public class PQLevel0QuoteTests
         public DateTime ProcessedTime { get; set; }
         public DateTime DispatchedTime { get; set; }
         public PQSyncStatus PQSyncStatus { get; set; }
-        decimal ILevel0Quote.SinglePrice => 0m;
+        public decimal SinglePrice { get; set; } = 0m;
         bool IMutableLevel0Quote.IsReplay { get; set; }
         DateTime IMutableLevel0Quote.SourceTime { get; set; }
         DateTime IMutableLevel0Quote.ClientReceivedTime { get; set; }
-        decimal IMutableLevel0Quote.SinglePrice { get; set; }
         public int UpdateField(PQFieldUpdate updates) => -1;
         public bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => false;
 

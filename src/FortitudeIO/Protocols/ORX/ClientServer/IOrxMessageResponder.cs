@@ -12,4 +12,5 @@ public interface IOrxMessageResponder : IConversationResponder, ISocketConversat
 {
     IConversationDeserializationRepository DeserializationRepository { get; }
     IMessageSerializationRepository SerializationRepository { get; }
+    void StopImmediate(CloseReason closeReason, string? reason);
 }

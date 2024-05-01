@@ -33,6 +33,7 @@ public class OrxAuthenticationServer
 
     protected IRecycler Recycler = new Recycler();
     protected bool Stopping;
+    protected bool WaitForClientsToClose = true;
 
     public OrxAuthenticationServer(IOrxMessageResponder acceptorSession, byte currentVersion)
     {
@@ -126,13 +127,16 @@ public class OrxAuthenticationServer
             orxLoggedOutMessage.DecrementRefCount();
         }
 
-        var timeout = 10;
-        while (loggedInSessions.Count > 0 && timeout > 0)
+        if (WaitForClientsToClose)
         {
-            var count = loggedInSessions.Count;
-            if (count == 0) break;
-            timeout--;
-            Thread.Sleep(1000);
+            var timeout = 10;
+            while (loggedInSessions.Count > 0 && timeout > 0)
+            {
+                var count = loggedInSessions.Count;
+                if (count == 0) break;
+                timeout--;
+                Thread.Sleep(1000);
+            }
         }
 
         loggedInSessions.Clear();

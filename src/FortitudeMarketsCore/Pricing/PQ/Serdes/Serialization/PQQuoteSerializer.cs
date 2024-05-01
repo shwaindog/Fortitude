@@ -122,10 +122,11 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             }
 
             var written = (int)(currentPtr - writeStart);
-            /*logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +
-                                 $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
-                                 $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
-                                 $"{updateStyle}.  ThreadName {Thread.CurrentThread.Name}");*/
+            // var level0Quote = (PQLevel0Quote)message;
+            // logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +
+            //              $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
+            //              $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
+            //              $"{resolvedFlags}.  ThreadName {Thread.CurrentThread.Name}");
             StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
             return FinishProcessingMessageReturnValue(message, written);
         }

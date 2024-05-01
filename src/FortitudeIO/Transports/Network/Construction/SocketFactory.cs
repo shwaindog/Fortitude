@@ -44,7 +44,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
         logger.Info("Attempting TCP connection on {0}:{1}", host, port);
         var socket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.NoDelay = (connectionAttrbs & SocketConnectionAttributes.Fast) > 0;
-        socket.LingerState = new LingerOption(true, 1);
+        socket.LingerState = new LingerOption(false, 0);
 
         if ((networkTopicConnectionConfig.ConnectionAttributes & SocketConnectionAttributes.KeepAlive) > 0)
         {
@@ -73,7 +73,7 @@ public class SocketFactory(IOSNetworkingController networkingController) : ISock
         var port = endpointConfig.Port;
         var connectionAttrbs = networkTopicConnectionConfig.ConnectionAttributes;
         var listeningSocket = networkingController.CreateOSSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        listeningSocket.LingerState = new LingerOption(false, 0);
+        listeningSocket.LingerState = new LingerOption(true, 1);
         listeningSocket.ExclusiveAddressUse = true;
         listeningSocket.SendBufferSize = networkTopicConnectionConfig.SendBufferSize;
         listeningSocket.ReceiveBufferSize = networkTopicConnectionConfig.ReceiveBufferSize;

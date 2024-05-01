@@ -60,8 +60,9 @@ public class TradingClientServerTests
     [TestCleanup]
     public void TearDown()
     {
+        logger.Info("Test complete starting shutdown");
         orxClient.Dispose();
-        orxTradingServer?.Shutdown();
+        orxTradingServer?.ShutdownImmediate();
         FLoggerFactory.GracefullyTerminateProcessLogging();
     }
 
@@ -71,7 +72,7 @@ public class TradingClientServerTests
     public void StartedTradingServer_ClientJoinsSendsOrder_ServerSendsConfirmation()
     {
         var orxServer = OrxServerMessaging.BuildTcpResponder(tradingServerConfig.TradingServerConnectionConfig);
-        var clientAutoResetEvent = new AutoResetEvent(false);
+        var clientOrderUpdatedResetEvent = new AutoResetEvent(false);
         var serverAutoResetEvent = new AutoResetEvent(false);
         var serverResponseTradingHandler = new TradingFeedHandle
         {
@@ -80,7 +81,7 @@ public class TradingClientServerTests
         orxTradingServer = new OrxTradingServer(orxServer, serverResponseTradingHandler, true);
         orxTradingServer.OnAuthenticate += OrxTradingServer_OnAuthenticate;
 
-        orxServer.Connect();
+        orxServer.Start();
 
         var orderStatus = OrderStatus.New;
         IOrder? clientLastOrderReceived = null;
@@ -96,7 +97,7 @@ public class TradingClientServerTests
             orderStatus = orderUpdate.Order!.Status;
             logger.Info("****** ORDER UPDATED ******** orderStatus : {0} for order {1}", orderStatus, clientLastOrderReceived);
             // Console.WriteLine("orderStatus : {0}", orderStatus);
-            clientAutoResetEvent.Set();
+            clientOrderUpdatedResetEvent.Set();
         };
 
         Thread.Sleep(500);
@@ -120,7 +121,7 @@ public class TradingClientServerTests
         orxClient.SubmitOrderRequest(orderSubmitRequest);
 
         logger.Info("Just submitted order from orxClient");
-        clientAutoResetEvent.WaitOne(2_000);
+        AwaitEvent(clientOrderUpdatedResetEvent, 2_000, "Client Await Submit Order");
 
         Assert.IsNotNull(clientLastOrderReceived);
         Assert.AreEqual(OrderStatus.Active, orderStatus);
@@ -153,7 +154,7 @@ public class TradingClientServerTests
         };
         serverVenueOrderUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnVenueOrder(serverVenueOrderUpdate);
-        venueAutoResetEvent.WaitOne(5_000);
+        AwaitEvent(venueAutoResetEvent, 2_000, "Client Await VenueOrder Updated");
 
         Assert.IsNotNull(clientLastVenueOrderReceived);
         Assert.AreEqual((MutableString)"VenueOrderId23_0123"
@@ -182,7 +183,7 @@ public class TradingClientServerTests
         serverExecutionUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnExecution(serverExecutionUpdate);
 
-        executionAutoResetEvent.WaitOne(2_000);
+        AwaitEvent(executionAutoResetEvent, 2_000, "Client Await Execution Update");
 
         Assert.IsNotNull(lastExecution);
 
@@ -193,7 +194,7 @@ public class TradingClientServerTests
         {
             logger.Info("orxClient Received {0}", amendedOrder);
             clientLastOrderReceived = amendedOrder.Clone();
-            clientAutoResetEvent.Set();
+            clientOrderUpdatedResetEvent.Set();
         };
 
         serverResponseTradingHandler.OrderAmendResponse += orderAmended =>
@@ -207,8 +208,9 @@ public class TradingClientServerTests
         amendOrderRequest.AutoRecycleAtRefCountZero = false;
         orxClient.AmendOrderRequest(clientEditOrder, amendOrderRequest);
 
-        serverAutoResetEvent.WaitOne(2_000);
-        clientAutoResetEvent.WaitOne(2_000);
+        AwaitEvent(serverAutoResetEvent, 2_000, "Server Change Order Size OrderAmendResponse");
+        AwaitEvent(clientOrderUpdatedResetEvent, 2_000, "Client Order Amend Size Response");
+        clientOrderUpdatedResetEvent.WaitOne(2_000);
 
         Assert.IsNotNull(clientLastOrderReceived);
         Assert.AreEqual(1_000_000, ((ISpotOrder)clientLastOrderReceived.Product!).Size);
@@ -218,9 +220,6 @@ public class TradingClientServerTests
 
         orxClient.CancelOrder(clientEditOrder);
 
-        serverAutoResetEvent.WaitOne(2_000);
-
-
         serverResponseOrder.Status = OrderStatus.Dead;
         var serverOrderUpdate = new OrderUpdate(serverResponseOrder,
             OrderUpdateEventType.OrderDead, new DateTime(2018, 3, 30, 2, 35, 43));
@@ -228,10 +227,19 @@ public class TradingClientServerTests
         serverOrderUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnOrderUpdate(serverOrderUpdate);
 
-        clientAutoResetEvent.WaitOne(2_000);
+        AwaitEvent(clientOrderUpdatedResetEvent, 2_000, "Client Cancel Confirmed");
 
         Assert.IsNotNull(clientLastOrderReceived);
         Assert.AreEqual(OrderStatus.Dead, clientLastOrderReceived.Status);
+    }
+
+    private void AwaitEvent(AutoResetEvent waitOn, int timeout, string message)
+    {
+        var startWait = DateTime.Now;
+        var wasSet = waitOn.WaitOne(timeout);
+        var waitTime = DateTime.Now - startWait;
+        if (!wasSet) logger.Warn("Timed out waiting {0}ms on {1}", timeout, message);
+        else if (waitTime > TimeSpan.FromMilliseconds(100)) logger.Warn("Waited {0}ms for {1}", waitTime.TotalMilliseconds, message);
     }
 
     private bool OrxTradingServer_OnAuthenticate(ISocketSessionContext clientSessionConnection, MutableString? usr,

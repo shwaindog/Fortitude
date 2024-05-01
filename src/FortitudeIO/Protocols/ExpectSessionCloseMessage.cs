@@ -4,8 +4,10 @@ public enum CloseReason : byte
 {
     Unknown
     , Completed
-    , Error
+    , StartConnectionFailed
+    , RemoteRequestedClose
     , RemoteDisconnecting
+    , RemoteClosed
     , AuthorizationTimeout
     , AuthorizationFailed
 }

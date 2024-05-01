@@ -17,6 +17,7 @@ public static class PricingClientSubscriptionConstants
     public const string FeedStatusUpdate = $"{FeedBase}.StatusUpdate";
     public const string FeedShutdownRequest = $"{FeedBase}.Shutdown";
     public const string FeedAmendTickerPublicationRule = $"{FeedBase}.AmendTickerPublicationRule";
+    public const string FeedRegisterRemoteResponseRule = $"{FeedBase}.RegisterRemoteResponseCallback";
 
     public static string FeedAddress(this string feedName) => string.Format(FeedBase, feedName);
 
@@ -43,6 +44,7 @@ public static class PricingClientSubscriptionConstants
     public static string FeedStatusUpdateAddress(this string feedName) => string.Format(FeedStatusUpdate, feedName);
 
     public static string FeedAmendTickerPublicationRuleName(this string feedName) => string.Format(FeedAmendTickerPublicationRule, feedName);
+    public static string FeedRegisterRemoteResponseRuleName(this string feedName) => string.Format(FeedRegisterRemoteResponseRule, feedName);
 
     public static string FeedAmendTickerPublicationAddress(this string feedName, string ticker) =>
         string.Format(FeedAmendTickerPublication, feedName, ticker);

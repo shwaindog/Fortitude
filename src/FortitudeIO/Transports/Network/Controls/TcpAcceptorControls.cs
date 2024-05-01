@@ -24,6 +24,7 @@ public interface IAcceptorControls : IStreamControls
     event Action<IConversationRequester> ClientRemoved;
     void RemoveClient(IConversationRequester clientRequester, CloseReason closeReason, string? reason);
     void Broadcast(IVersionedMessage message);
+    void StopImmediate(CloseReason closeReason, string? reason);
 }
 
 public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
@@ -48,16 +49,6 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         get { return clients.ToDictionary(kvp => kvp.Key, kvp => kvp.Value); }
     }
 
-    public override bool Connect()
-    {
-        if (ConnectAttemptSucceeded()) return true;
-
-        OnSessionFailure(
-            $"'Could not connect to configured IP or port.  Is another process already connected?. " +
-            $"Topic.Name: '{SocketSessionContext.NetworkTopicConnectionConfig.TopicName}'");
-        return false;
-    }
-
     public override void OnSessionFailure(string reason)
     {
         var connConfig = SocketSessionContext.NetworkTopicConnectionConfig;
@@ -67,7 +58,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
 
     public void RemoveClient(IConversationRequester clientRequester, CloseReason closeReason, string? reason = null)
     {
-        if (SocketSessionContext.SocketSessionState != SocketSessionState.Disconnecting && clients.ContainsKey(clientRequester.Id))
+        if (clients.ContainsKey(clientRequester.Id))
         {
             clientsSync.Acquire();
             try
@@ -82,11 +73,12 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             try
             {
                 if (clientRequester.Session is ISocketSessionContext socketSessionContext)
-                {
-                    logger.Info("Client.Id: {0}, Name {1} disconnected from server {2}",
-                        socketSessionContext.Id, socketSessionContext.Name, SocketSessionContext.Name);
-                    clientRequester.Stop(closeReason, reason);
-                }
+                    if (clientRequester.ConversationState == ConversationState.Started)
+                    {
+                        logger.Info("Client.Id: {0}, Name {1} will be disconnected from server {2}",
+                            socketSessionContext.Id, socketSessionContext.Name, SocketSessionContext.Name);
+                        clientRequester.Stop(CloseReason.RemoteRequestedClose, reason);
+                    }
             }
             catch
             {
@@ -115,6 +107,25 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         }
     }
 
+    public void StopImmediate(CloseReason closeReason, string? reason)
+    {
+        if (SocketSessionContext.SocketConnection is { IsConnected: true }) Disconnect(closeReason, reason);
+        if (!HaveStartedMessaging) return;
+        HaveStartedMessaging = false;
+        SocketSessionContext.SocketDispatcher.StopImmediate();
+        SocketSessionContext.OnStopped();
+    }
+
+    public override bool Connect()
+    {
+        if (ConnectAttemptSucceeded()) return true;
+
+        OnSessionFailure(
+            $"'Could not connect to configured IP or port.  Is another process already connected?. " +
+            $"Topic.Name: '{SocketSessionContext.NetworkTopicConnectionConfig.TopicName}'");
+        return false;
+    }
+
     public override void Disconnect(CloseReason closeReason, string? reason = null)
     {
         connSync.Acquire();
@@ -123,20 +134,21 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             if (SocketSessionContext.SocketSessionState != SocketSessionState.Connected ||
                 !(SocketSessionContext.SocketReceiver?.IsAcceptor ?? false)) return;
             SocketSessionContext.OnDisconnecting();
+            Unregister(SocketSessionContext);
+
+            foreach (var client in clients.Values)
+                try
+                {
+                    if (client.ConversationState == ConversationState.Started) client.Stop(CloseReason.RemoteDisconnecting, reason);
+                }
+                catch
+                {
+                    // do nothing
+                }
 
             clientsSync.Acquire();
             try
             {
-                foreach (var client in clients.Values)
-                    try
-                    {
-                        client.Stop(closeReason, reason);
-                    }
-                    catch
-                    {
-                        // do nothing
-                    }
-
                 clients.Clear();
             }
             finally
@@ -144,13 +156,9 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 clientsSync.Release();
             }
 
-            Thread.Sleep(30);
-
             SocketSessionContext.SocketReceiver.Accept -= OnCxAccept;
-            Unregister(SocketSessionContext);
 
             SocketSessionContext.OnDisconnected(closeReason, reason);
-            StopMessaging();
 
             logger.Info("Publisher {0} on  {1}:{2} stopped. {3}", SocketSessionContext.Name,
                 SocketSessionContext.SocketConnection?.InstanceName, SocketSessionContext.SocketConnection?.ConnectedPort, reason);
@@ -197,7 +205,6 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
             {
                 SocketSessionContext.SocketReceiver!.Accept += OnCxAccept;
-                StartMessaging();
                 return true;
             }
         }
@@ -217,7 +224,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             if (SocketSessionContext.SocketSessionState != SocketSessionState.Disconnecting)
             {
                 var acceptedSocket = SocketSessionContext.SocketReceiver!.AcceptClientSocketRequest();
-                acceptedSocket.LingerState = new LingerOption(true, 1);
+                acceptedSocket.LingerState = new LingerOption(true, 2);
                 clientIpEndPoint = acceptedSocket.RemoteOrLocalIPEndPoint()!;
                 var clientConversation = RegisterSocketAsTcpRequesterConversation(acceptedSocket, clientIpEndPoint);
                 logger.Info("Client {0} connected to server {1}", SocketSessionContext.Name, clientIpEndPoint);
@@ -237,7 +244,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             }
             else
             {
-                Disconnect(CloseReason.Error, "Server is shutting down!");
+                logger.Warn("Not accepting connection as Server is shutting down!");
             }
         }
         catch (Exception ex)

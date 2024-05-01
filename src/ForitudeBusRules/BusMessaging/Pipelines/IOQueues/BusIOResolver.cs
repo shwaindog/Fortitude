@@ -13,7 +13,7 @@ public interface IBusIOResolver
         , MessageQueueType resolveFor = MessageQueueType.AllIO);
 
     IIOInboundMessageQueue? GetInboundQueueOnSocketListener(ISocketDispatcherListener socketDispatcherListener);
-    IIOOutboundMessageQueue? GetInboundQueueOnSocketListener(ISocketDispatcherSender socketDispatcherSender);
+    IIOOutboundMessageQueue? GetOutboundQueueOnSocketListener(ISocketDispatcherSender socketDispatcherSender);
 }
 
 public class BusIOResolver : IBusIOResolver
@@ -51,7 +51,7 @@ public class BusIOResolver : IBusIOResolver
             mq.SocketDispatcherListener == socketDispatcherListener);
     }
 
-    public IIOOutboundMessageQueue? GetInboundQueueOnSocketListener(ISocketDispatcherSender socketDispatcherSender)
+    public IIOOutboundMessageQueue? GetOutboundQueueOnSocketListener(ISocketDispatcherSender socketDispatcherSender)
     {
         return configureMessageBus.AllMessageQueues.IOOutboundMessageQueueGroup.FirstOrDefault<IIOOutboundMessageQueue>(mq =>
             mq.SocketDispatcherSender == socketDispatcherSender);

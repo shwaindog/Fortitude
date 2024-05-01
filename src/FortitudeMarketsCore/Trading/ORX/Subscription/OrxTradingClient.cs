@@ -105,8 +105,8 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxTickerMessage>()
                 .AddDeserializedNotifier(
-                    new PassThroughDeserializedNotifier<OrxTickerMessage>($"{nameof(OrxTradingClient)}.ConstructorCallback", (m, c, cx) =>
-                        Logger.Info("Instrument update: " + m)));
+                    new PassThroughDeserializedNotifier<OrxTickerMessage>($"{nameof(OrxTradingClient)}.ConstructorCallback",
+                        (OrxTickerMessage m, MessageHeader c, IConversation cx) => Logger.Info("Instrument update: " + m)));
         };
 
 

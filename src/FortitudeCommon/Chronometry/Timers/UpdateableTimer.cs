@@ -12,7 +12,7 @@ namespace FortitudeCommon.Chronometry.Timers;
 
 public class UpdateableTimer : IUpdateableTimer
 {
-    public const uint MaxTimerMs = uint.MaxValue - 1;
+    public const uint MaxTimerMs = uint.MaxValue - 3_000;
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(UpdateableTimer));
     private static int totalTimers;
     private static ITimer? instance;
@@ -477,7 +477,7 @@ public class UpdateableTimer : IUpdateableTimer
         SortOneOfTimerTicks();
 
         if (indxBeforeSort == 0 || nextOneOffTimerTickDateTime >= changed.NextScheduleTime)
-            UpdateNextOneOffTimerTick(true);
+            UpdateNextOneOffTimerTick(oneOffCallbacks.Any());
     }
 
     public bool Remove(TimerCallBackRunInfo callBackRunInfo)
@@ -511,7 +511,7 @@ public class UpdateableTimer : IUpdateableTimer
         nextOneOffTimerTickDateTime = !enable ? now + MaxTimerSpan : NextScheduledOneOffTimerTick;
         var nextTick = nextOneOffTimerTickDateTime > now ? nextOneOffTimerTickDateTime - now : TimeSpan.Zero;
         TimeSpan rangeCheckNextTick;
-        if (now.Add(nextTick) > now.Add(MaxTimerSpan))
+        if (now.Add(nextTick) > now.Add(MaxTimerSpan).Add(TimeSpan.FromSeconds(2)))
         {
             Logger.Warn("Limiting next {0} timer tick as was out of range {1}", enable ? "enabled" : "disabled", nextTick);
             rangeCheckNextTick = now.Add(nextTick) > now.Add(MaxTimerSpan) ? MaxTimerSpan : nextTick;

@@ -97,7 +97,6 @@ public sealed class SocketSender : ISocketSender
         else if (!haveClosedSocket)
         {
             haveClosedSocket = true;
-            socketSessionContext.SocketConnection?.OSSocket?.Close();
             socketSessionContext.SetDisconnected();
         }
     }
@@ -247,6 +246,7 @@ public sealed class SocketSender : ISocketSender
                 amtDataSent, SocketFlags.None);
         }
 
+        // logger.Info("Socket Sender has sent {0} bytes on {1}", sentSize, Thread.CurrentThread.Name);
         if (sentSize < 0)
             throw new SocketSendException("Win32 error " +
                                           directOSNetworkingApi.GetLastCallError() + " on send call", socketSessionContext);

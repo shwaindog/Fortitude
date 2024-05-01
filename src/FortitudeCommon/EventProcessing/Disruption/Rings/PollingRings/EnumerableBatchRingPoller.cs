@@ -24,6 +24,7 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
     private readonly object initLock = new();
     private readonly IOSParallelController osParallelController;
     private readonly int timeoutMs;
+    private bool gracefulShutdown = true;
     private volatile bool isRunning;
     private IRecycler? recycler;
     private Action? threadStartInitialization;
@@ -98,26 +99,36 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
         }
     }
 
+    public void StopImmediate()
+    {
+        gracefulShutdown = false;
+        ForceStop();
+    }
+
     public void ForceStop()
     {
         try
         {
             isRunning = false;
             are.Set();
-            ExecutingThread?.Join();
-            foreach (var data in Ring)
-                try
-                {
-                    QueueEntryStart?.Invoke(new QueueEventTime(Ring.CurrentSequence, DateTime.UtcNow));
-                    Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch
-                        , Ring.EndOfBatch);
-                    QueueEntryComplete?.Invoke(new QueueEventTime(Ring.CurrentSequence, DateTime.UtcNow));
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warn($"RingPoller '{Ring.Name}' caught exception while " +
-                                $"stopping and processing event: {data}.  {ex}");
-                }
+            if (gracefulShutdown)
+            {
+                if (ExecutingThread is { IsBackground: true, IsAlive: true }) ExecutingThread?.Join();
+
+                foreach (var data in Ring)
+                    try
+                    {
+                        QueueEntryStart?.Invoke(new QueueEventTime(Ring.CurrentSequence, DateTime.UtcNow));
+                        Processor(Ring.CurrentSequence, Ring.CurrentBatchSize, data, Ring.StartOfBatch
+                            , Ring.EndOfBatch);
+                        QueueEntryComplete?.Invoke(new QueueEventTime(Ring.CurrentSequence, DateTime.UtcNow));
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn($"RingPoller '{Ring.Name}' caught exception while " +
+                                    $"stopping and processing event: {data}.  {ex}");
+                    }
+            }
         }
         catch (Exception ex)
         {

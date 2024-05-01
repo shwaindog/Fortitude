@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary.Deserialization;
 
@@ -37,6 +38,8 @@ public interface IMessageDeserializationRepository : IMessageSerdesRepository, I
 
 public class MessageDeserializationRepository : IMessageDeserializationRepository
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessageDeserializationRepository));
+
     protected readonly IRecycler Recycler;
     protected readonly IMap<uint, IMessageDeserializer> RegisteredDeserializers = new ConcurrentMap<uint, IMessageDeserializer>();
 
@@ -79,6 +82,14 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
 
     public IMessageDeserializer RegisterDeserializer(uint msgId, IMessageDeserializer messageDeserializer, bool forceOverride = false)
     {
+        if ((messageDeserializer.RegisteredRepository != null && messageDeserializer.RegisteredRepository != this) ||
+            (messageDeserializer.RegisteredForMessageId != null && messageDeserializer.RegisteredForMessageId != msgId))
+            Logger.Warn(
+                "Attempting to register a MessageDeserializer {0} with MessageId {1} that is registered already registered on another repository or with a different MessageId"
+                ,
+                messageDeserializer, msgId);
+        messageDeserializer.RegisteredForMessageId = msgId;
+        messageDeserializer.RegisteredRepository = this;
         if (!RegisteredDeserializers.TryGetValue(msgId, out var existingMessageDeserializer))
         {
             if (forceOverride || CascadingFallbackDeserializationRepo == null ||
@@ -94,7 +105,13 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
 
         if (forceOverride)
         {
-            if (existingMessageDeserializer != null) MessageDeserializerUnregistered?.Invoke(existingMessageDeserializer);
+            if (existingMessageDeserializer != null)
+            {
+                MessageDeserializerUnregistered?.Invoke(existingMessageDeserializer);
+                existingMessageDeserializer.RegisteredForMessageId = null;
+                existingMessageDeserializer.RegisteredRepository = null;
+            }
+
             RegisteredDeserializers.AddOrUpdate(msgId, messageDeserializer);
             MessageDeserializerRegistered?.Invoke(messageDeserializer);
             return messageDeserializer;
@@ -116,6 +133,8 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
         {
             RegisteredDeserializers.Remove(msgId);
             MessageDeserializerUnregistered?.Invoke(existing!);
+            existing!.RegisteredForMessageId = null;
+            existing.RegisteredRepository = null;
             return true;
         }
 
@@ -146,6 +165,7 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
                     if (!TryGetDeserializer(kvpMessageDeserializerEntry.Key, out var preExisting))
                     {
                         var messageDeserializer = kvpMessageDeserializerEntry.Value.Clone();
+                        messageDeserializer.RegisteredRepository = this;
                         RegisterDeserializer(kvpMessageDeserializerEntry.Key, messageDeserializer);
                     }
                     else
@@ -158,6 +178,7 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
                     if (!TryGetDeserializer(kvpMessageDeserializerEntry.Key, out var preExisting))
                     {
                         var messageDeserializer = kvpMessageDeserializerEntry.Value.Clone();
+                        messageDeserializer.RegisteredRepository = this;
                         RegisterDeserializer(kvpMessageDeserializerEntry.Key, messageDeserializer);
                         MessageDeserializerRegistered?.Invoke(messageDeserializer);
                     }
@@ -165,6 +186,7 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
             else
             {
                 var messageDeserializer = kvpMessageDeserializerEntry.Value.Clone();
+                messageDeserializer.RegisteredRepository = this;
                 RegisterDeserializer(kvpMessageDeserializerEntry.Key, messageDeserializer);
             }
 

@@ -171,7 +171,9 @@ public class SocketSessionContext : ISocketSessionContext
 
     public void SetDisconnected()
     {
+        SocketConnection?.OSSocket?.Close(1_000);
         SocketConnection = null;
+        StreamControls?.StopMessaging();
     }
 
     public void OnDisconnected(CloseReason closeReason, string? reason = null)

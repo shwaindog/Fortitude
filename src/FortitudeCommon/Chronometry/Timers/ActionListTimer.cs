@@ -2,6 +2,7 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 
 #endregion
@@ -263,17 +264,27 @@ public class ActionTimer : IActionTimer
     }
 }
 
+public interface IProcessListConsumer : IDisposable
+{
+    bool ShouldProcess { get; }
+    List<ITimerCallbackPayload> TimerPayloads { get; }
+}
+
 public class ActionListTimer : ActionTimer
 {
-    private List<ITimerCallbackPayload> processingCallbacks = new();
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(ActionListTimer));
+    private readonly ShouldSkipDisposable shouldSkip = new();
+    private ShouldProcessDisposable processingCallbacks;
     private ISyncLock syncLock = new SpinLockLight();
-    private List<ITimerCallbackPayload> unprocessedCallbacks = new();
+    private ShouldProcessDisposable unprocessedCallbacks;
 
     public ActionListTimer(IUpdateableTimer backingTimer, IRecycler recycler)
         : base(backingTimer, recycler)
     {
         OneOffWaitCallback = OneOffTimerAddUnprocessedAction;
         IntervalWaitCallback = IntervalTimerAddUnprocessedAction;
+        processingCallbacks = recycler.Borrow<ShouldProcessDisposable>();
+        unprocessedCallbacks = recycler.Borrow<ShouldProcessDisposable>();
     }
 
     public void OneOffTimerAddUnprocessedAction(object? state)
@@ -283,7 +294,7 @@ public class ActionListTimer : ActionTimer
             syncLock.Acquire();
             try
             {
-                unprocessedCallbacks.Add(timerCallbackPayload);
+                unprocessedCallbacks.TimerPayloads.Add(timerCallbackPayload);
             }
             finally
             {
@@ -299,7 +310,7 @@ public class ActionListTimer : ActionTimer
             syncLock.Acquire();
             try
             {
-                unprocessedCallbacks.Add(timerCallbackPayload);
+                unprocessedCallbacks.TimerPayloads.Add(timerCallbackPayload);
             }
             finally
             {
@@ -308,19 +319,47 @@ public class ActionListTimer : ActionTimer
         }
     }
 
-    public void GetTimerActionsToExecute(List<ITimerCallbackPayload> toPopulate)
+    public IProcessListConsumer GetTimerActionsToExecute()
     {
-        toPopulate.Clear();
         syncLock.Acquire();
         try
         {
+            processingCallbacks = Recycler.Borrow<ShouldProcessDisposable>();
+            if (@unprocessedCallbacks.TimerPayloads.Any()) return shouldSkip;
             (unprocessedCallbacks, processingCallbacks) = (processingCallbacks, unprocessedCallbacks);
-            unprocessedCallbacks.Clear();
-            toPopulate.AddRange(processingCallbacks);
+            unprocessedCallbacks = Recycler.Borrow<ShouldProcessDisposable>();
         }
         finally
         {
             syncLock.Release();
+        }
+
+        return processingCallbacks;
+    }
+
+    public class ShouldSkipDisposable : IProcessListConsumer
+    {
+        public bool ShouldProcess => false;
+
+        public List<ITimerCallbackPayload> TimerPayloads => null!;
+
+        public void Dispose() { }
+    }
+
+    public class ShouldProcessDisposable : RecyclableObject, IProcessListConsumer
+    {
+        public bool ShouldProcess => TimerPayloads.Any();
+
+        public List<ITimerCallbackPayload> TimerPayloads { get; set; } = new();
+
+        public void Dispose()
+        {
+            DecrementRefCount();
+        }
+
+        public override void StateReset()
+        {
+            TimerPayloads.Clear();
         }
     }
 }

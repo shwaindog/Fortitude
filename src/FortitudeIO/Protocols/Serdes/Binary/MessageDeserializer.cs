@@ -15,6 +15,7 @@ namespace FortitudeIO.Protocols.Serdes.Binary;
 public interface IMessageDeserializer : IStoreState<IMessageDeserializer>, ICloneable<IMessageDeserializer>
 {
     int InstanceNumber { get; }
+    uint? RegisteredForMessageId { get; set; }
     Type MessageType { get; }
     IMessageDeserializationRepository? RegisteredRepository { get; set; }
     object? Deserialize(IBufferContext socketBufferReadContext);
@@ -32,6 +33,8 @@ public abstract class BinaryMessageDeserializer<TM> : IMessageDeserializer<TM>
     private static int lastInstanceNumber;
 
     public int InstanceNumber { get; } = Interlocked.Increment(ref lastInstanceNumber);
+
+    public uint? RegisteredForMessageId { get; set; }
     public virtual IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => this;
     public MarshalType MarshalType => MarshalType.Binary;
     public virtual IMessageDeserializer CopyFrom(IMessageDeserializer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
@@ -49,7 +52,7 @@ public abstract class BinaryMessageDeserializer<TM> : IMessageDeserializer<TM>
 public delegate void ConversationMessageReceivedHandler<in TM>(TM deserializedMessage, MessageHeader header, IConversation conversation)
     where TM : class, IVersionedMessage;
 
-public delegate void MessageDeserializedHandler<in TM>(TM deserializedMessage)
+public delegate void MessageDeserializedHandler<in TM>(TM deserializedMessage, int deserializedCount, IMessageDeserializer deserializer)
     where TM : class, IVersionedMessage;
 
 public interface INotifyingMessageDeserializer : IMessageDeserializer
@@ -57,6 +60,11 @@ public interface INotifyingMessageDeserializer : IMessageDeserializer
     IEnumerable<IDeserializedNotifier> AllDeserializedNotifiers { get; }
     IDeserializedNotifier? this[string name] { get; set; }
     bool RemoveOnZeroNotifiers { get; set; }
+    event ConversationMessageReceivedHandler<IVersionedMessage>? ConversationMessageDeserialized;
+    event MessageDeserializedHandler<IVersionedMessage>? MessageDeserialized;
+
+    bool IsRegistered(MessageDeserializedHandler<IVersionedMessage> deserializedHandler);
+    bool IsRegistered(ConversationMessageReceivedHandler<IVersionedMessage> deserializedHandler);
     void OnNotifierSubscribeCountChanged(IDeserializedNotifier changeDeserializedNotifier, int count);
 }
 
@@ -76,6 +84,10 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessageDeserializer<TM>));
     private readonly IMap<string, IDeserializedNotifier> registeredNotifiers = new ConcurrentMap<string, IDeserializedNotifier>();
+    private int messageDeserializedCounter = 1;
+
+    private ConversationMessageReceivedHandler<IVersionedMessage>? untypedRegisteredConversationsCallbacks;
+    private MessageDeserializedHandler<IVersionedMessage>? untypedRegisteredMessageCallbacks;
 
     protected MessageDeserializer() { }
 
@@ -90,21 +102,53 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
 
     public IEnumerable<IDeserializedNotifier> AllDeserializedNotifiers => registeredNotifiers.Values;
 
-    public bool IsRegistered(ConversationMessageReceivedHandler<TM> deserializedHandler)
-    {
-        return ConversationMessageDeserialized != null && ConversationMessageDeserialized.GetInvocationList()
+    public bool IsRegistered(MessageDeserializedHandler<IVersionedMessage> deserializedHandler) =>
+        ConversationMessageDeserialized != null && ConversationMessageDeserialized.GetInvocationList()
             .Any(del => del.Target == deserializedHandler.Target && del.Method == deserializedHandler.Method);
-    }
 
-    public bool IsRegistered(MessageDeserializedHandler<TM> deserializedHandler)
-    {
-        return MessageDeserialized != null && MessageDeserialized.GetInvocationList()
+    public bool IsRegistered(ConversationMessageReceivedHandler<IVersionedMessage> deserializedHandler) =>
+        ConversationMessageDeserialized != null && ConversationMessageDeserialized.GetInvocationList()
             .Any(del => del.Target == deserializedHandler.Target && del.Method == deserializedHandler.Method);
-    }
+
+    public bool IsRegistered(ConversationMessageReceivedHandler<TM> deserializedHandler) =>
+        ConversationMessageDeserialized != null && ConversationMessageDeserialized.GetInvocationList()
+            .Any(del => del.Target == deserializedHandler.Target && del.Method == deserializedHandler.Method);
+
+    public bool IsRegistered(MessageDeserializedHandler<TM> deserializedHandler) =>
+        MessageDeserialized != null && MessageDeserialized.GetInvocationList()
+            .Any(del => del.Target == deserializedHandler.Target && del.Method == deserializedHandler.Method);
 
     public event ConversationMessageReceivedHandler<TM>? ConversationMessageDeserialized;
 
     public event MessageDeserializedHandler<TM>? MessageDeserialized;
+
+    event ConversationMessageReceivedHandler<IVersionedMessage>? INotifyingMessageDeserializer.ConversationMessageDeserialized
+    {
+        add
+        {
+            if (untypedRegisteredConversationsCallbacks == null) ConversationMessageDeserialized += TypedConversationToUntypedInvoker;
+            untypedRegisteredConversationsCallbacks += value;
+        }
+        remove
+        {
+            untypedRegisteredConversationsCallbacks -= value;
+            if (untypedRegisteredConversationsCallbacks == null) ConversationMessageDeserialized -= TypedConversationToUntypedInvoker;
+        }
+    }
+
+    event MessageDeserializedHandler<IVersionedMessage>? INotifyingMessageDeserializer.MessageDeserialized
+    {
+        add
+        {
+            if (untypedRegisteredMessageCallbacks == null) MessageDeserialized += TypedMessageToUntypedInvoker;
+            untypedRegisteredMessageCallbacks += value;
+        }
+        remove
+        {
+            untypedRegisteredMessageCallbacks -= value;
+            if (untypedRegisteredMessageCallbacks == null) MessageDeserialized -= TypedMessageToUntypedInvoker;
+        }
+    }
 
     public IDeserializedNotifier? this[string name]
     {
@@ -177,14 +221,26 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
         return this;
     }
 
+    private void TypedConversationToUntypedInvoker(TM deserializedMessage, MessageHeader header, IConversation conversation)
+    {
+        untypedRegisteredConversationsCallbacks?.Invoke(deserializedMessage, header, conversation);
+    }
+
+    private void TypedMessageToUntypedInvoker(TM deserializedMessage, int deserializedCount, IMessageDeserializer deserializer)
+    {
+        untypedRegisteredMessageCallbacks?.Invoke(deserializedMessage, deserializedCount, deserializer);
+    }
+
     protected void OnNotify(TM message)
     {
-        MessageDeserialized?.Invoke(message);
+        messageDeserializedCounter++;
+        MessageDeserialized?.Invoke(message, messageDeserializedCounter, this);
     }
 
     protected void OnNotify(TM message, IBufferContext bufferContext)
     {
-        MessageDeserialized?.Invoke(message);
+        messageDeserializedCounter++;
+        MessageDeserialized?.Invoke(message, messageDeserializedCounter, this);
         if (bufferContext is ISocketBufferReadContext socketBufferReadContext)
             ConversationMessageDeserialized?.Invoke(message, socketBufferReadContext.MessageHeader, socketBufferReadContext.Conversation!);
     }

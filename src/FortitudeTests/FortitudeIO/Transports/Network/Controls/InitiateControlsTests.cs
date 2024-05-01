@@ -126,7 +126,7 @@ public class InitiateControlsTests
     }
 
     [TestMethod]
-    public void Connected_CallsDisconnect_CallsShutdown()
+    public void Connected_CallsStop_CallsShutdown()
     {
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketSessionState)
             .Returns(SocketSessionState.Connected);
@@ -136,7 +136,7 @@ public class InitiateControlsTests
         moqFlogger.Setup(fl => fl.Info("Connection to {0} closed. {1}", It.IsAny<object[]>())).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.OnDisconnected(It.IsAny<CloseReason>(), It.IsAny<string?>())).Verifiable();
 
-        initiateControls.Disconnect(CloseReason.Completed);
+        initiateControls.Stop(CloseReason.Completed);
 
         moqSocketSessionContext.Verify();
         moqSocketConnection.Verify();
