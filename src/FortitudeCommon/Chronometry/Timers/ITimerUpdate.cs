@@ -1,12 +1,13 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-public interface ITimerUpdate : IReusableObject<ITimerUpdate>
+public interface ITimerUpdate : IReusableObject<ITimerUpdate>, IAsyncValueTaskDisposable
 {
     bool IsFinished { get; }
     bool IsPaused { get; }

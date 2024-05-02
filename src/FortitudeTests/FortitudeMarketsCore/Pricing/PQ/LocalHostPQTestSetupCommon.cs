@@ -8,6 +8,7 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeTests.TestEnvironment;
 
 #endregion
@@ -40,7 +41,8 @@ public class LocalHostPQTestSetupCommon
         NetworkingController ??= new OSNetworkingController();
         ThreadPoolTimer ??= new UpdateableTimer("LocalHostPQTestSetupCommon");
         SourceTickersConfig ??=
-            new SourceTickersConfig(new TickerConfig(TickerId, TestTicker, TickerAvailability.AllEnabled, 0.00001m, 0.1m, 100, 0.1m, 250, LayerDetails
+            new SourceTickersConfig(new TickerConfig(TickerId, TestTicker, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m
+                , 250, LayerDetails
                 , 20, LastTradedFlags));
         SourceTickerQuoteInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
         PricingServerConfig ??= new PricingServerConfig(

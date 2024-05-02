@@ -1,8 +1,8 @@
 ﻿#region
 
 using System.Reflection;
-using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
@@ -20,7 +20,6 @@ public class RemoteMessageBusTopicPublicationAmendingRule : RemoteMessageDeseria
 
     private readonly ISocketSessionContext socketSessionContext;
     protected DeserializeNotifyTypeFlags DefaultNotifyTypeFlags = DeserializeNotifyTypeFlags.MessageAndConversation;
-    protected ISubscription? ListenForPublishSubscriptions;
 
     public RemoteMessageBusTopicPublicationAmendingRule(string ruleName, ISocketSessionContext socketSessionContext
         , string remotePublishRegistrationListenAddress, IConverterRepository? converterRepository = null, string? registrationRepoName = null)
@@ -41,15 +40,8 @@ public class RemoteMessageBusTopicPublicationAmendingRule : RemoteMessageDeseria
 
     protected virtual async ValueTask LaunchTopicPublicationAmenderListener()
     {
-        ListenForPublishSubscriptions
-            = await Context.MessageBus.RegisterRequestListenerAsync<RemoteMessageBusPublishRegistration,
-                RemoteMessageBusPublishRegistrationResponse>(this,
-                ListeningOnAddress + "*", UpdatePublishRegistrationRequestReceived);
-    }
-
-    public override async ValueTask StopAsync()
-    {
-        if (ListenForPublishSubscriptions != null) await ListenForPublishSubscriptions.UnsubscribeAsync();
+        await this.RegisterRequestListenerAsync<RemoteMessageBusPublishRegistration,
+            RemoteMessageBusPublishRegistrationResponse>(ListeningOnAddress + "*", UpdatePublishRegistrationRequestReceived);
     }
 
     protected virtual string ExtractSubscriptionPostfix(string fullMessageAddressDestination) =>

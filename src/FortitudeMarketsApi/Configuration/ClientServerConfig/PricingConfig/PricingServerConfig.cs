@@ -13,6 +13,10 @@ public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConf
 {
     INetworkTopicConnectionConfig SnapshotConnectionConfig { get; }
     INetworkTopicConnectionConfig UpdateConnectionConfig { get; }
+
+    int HeartBeatPublishIntervalMs { get; set; }
+    int HeartBeatServerToleranceRangeMs { get; set; }
+    int MaxMissedHeartBeats { get; set; }
     bool IsLastLook { get; set; }
     bool SupportsIceBergs { get; set; }
     uint SyncRetryIntervalMs { get; set; }
@@ -29,12 +33,16 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
     public PricingServerConfig() { }
 
     public PricingServerConfig(INetworkTopicConnectionConfig snapshotServerNetConnConfig, INetworkTopicConnectionConfig updateServerNetConnConfig,
+        int heartBeatPublishIntervalMs = 1_000, int heartBeatServerToleranceRangeMs = 250, int maxMissedHeartBeats = 1,
         bool isLastLook = true, bool supportsIceBergs = false, uint syncRetryIntervalMs = 2_000, bool allowUpdatesCatchup = true)
     {
         IsLastLook = isLastLook;
         SupportsIceBergs = supportsIceBergs;
         SnapshotConnectionConfig = snapshotServerNetConnConfig;
         UpdateConnectionConfig = updateServerNetConnConfig;
+        HeartBeatPublishIntervalMs = heartBeatPublishIntervalMs;
+        HeartBeatServerToleranceRangeMs = heartBeatServerToleranceRangeMs;
+        MaxMissedHeartBeats = maxMissedHeartBeats;
         SyncRetryIntervalMs = syncRetryIntervalMs;
         AllowUpdatesCatchup = allowUpdatesCatchup;
     }
@@ -44,6 +52,9 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         SnapshotConnectionConfig = toClone.SnapshotConnectionConfig.Clone();
         UpdateConnectionConfig = toClone.UpdateConnectionConfig.Clone();
         ConnectionName = toClone.ConnectionName;
+        HeartBeatPublishIntervalMs = toClone.HeartBeatPublishIntervalMs;
+        HeartBeatServerToleranceRangeMs = toClone.HeartBeatServerToleranceRangeMs;
+        MaxMissedHeartBeats = toClone.MaxMissedHeartBeats;
         IsLastLook = toClone.IsLastLook;
         SupportsIceBergs = toClone.SupportsIceBergs;
         SyncRetryIntervalMs = toClone.SyncRetryIntervalMs;
@@ -82,6 +93,36 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
             SnapshotConnectionConfig.ConnectionName = value + "Snapshot";
             UpdateConnectionConfig.ConnectionName = value + "Updates";
         }
+    }
+
+    public int HeartBeatPublishIntervalMs
+    {
+        get
+        {
+            var checkValue = this[nameof(HeartBeatPublishIntervalMs)];
+            return checkValue != null ? int.Parse(checkValue) : 1_000;
+        }
+        set => this[nameof(HeartBeatPublishIntervalMs)] = value.ToString();
+    }
+
+    public int HeartBeatServerToleranceRangeMs
+    {
+        get
+        {
+            var checkValue = this[nameof(HeartBeatServerToleranceRangeMs)];
+            return checkValue != null ? int.Parse(checkValue) : 250;
+        }
+        set => this[nameof(HeartBeatServerToleranceRangeMs)] = value.ToString();
+    }
+
+    public int MaxMissedHeartBeats
+    {
+        get
+        {
+            var checkValue = this[nameof(MaxMissedHeartBeats)];
+            return checkValue != null ? int.Parse(checkValue) : 2;
+        }
+        set => this[nameof(MaxMissedHeartBeats)] = value.ToString();
     }
 
     public bool IsLastLook
@@ -150,13 +191,17 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         var connectionNameSame = ConnectionName == other.ConnectionName;
         var snapshotServerConConfigSame = Equals(SnapshotConnectionConfig, other.SnapshotConnectionConfig);
         var updateServerConConfigSame = Equals(UpdateConnectionConfig, other.UpdateConnectionConfig);
+        var clientHeartBeatsIntervalSame = HeartBeatPublishIntervalMs == other.HeartBeatPublishIntervalMs;
+        var serverHeartBeatsToleranceSame = HeartBeatServerToleranceRangeMs == other.HeartBeatServerToleranceRangeMs;
+        var maxMissedHeartbeatSame = MaxMissedHeartBeats == other.MaxMissedHeartBeats;
         var isLastLookSame = IsLastLook == other.IsLastLook;
         var supportsIceBergsSame = SupportsIceBergs == other.SupportsIceBergs;
         var syncRetryIntervalSame = SyncRetryIntervalMs == other.SyncRetryIntervalMs;
         var syncAllowUpdatesCatchupSame = AllowUpdatesCatchup == other.AllowUpdatesCatchup;
 
-        return connectionNameSame && snapshotServerConConfigSame && updateServerConConfigSame && isLastLookSame && supportsIceBergsSame &&
-               syncRetryIntervalSame && syncAllowUpdatesCatchupSame;
+        return connectionNameSame && snapshotServerConConfigSame && updateServerConConfigSame && clientHeartBeatsIntervalSame
+               && serverHeartBeatsToleranceSame && maxMissedHeartbeatSame && isLastLookSame && supportsIceBergsSame && syncRetryIntervalSame
+               && syncAllowUpdatesCatchupSame;
     }
 
     public IPricingServerConfig Clone() => new PricingServerConfig(this);
@@ -170,6 +215,9 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
             var hashCode = SnapshotConnectionConfig.GetHashCode();
             hashCode = (hashCode * 397) ^ UpdateConnectionConfig.GetHashCode();
             hashCode = (hashCode * 397) ^ ConnectionName?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ HeartBeatPublishIntervalMs.GetHashCode();
+            hashCode = (hashCode * 397) ^ HeartBeatServerToleranceRangeMs.GetHashCode();
+            hashCode = (hashCode * 397) ^ MaxMissedHeartBeats.GetHashCode();
             hashCode = (hashCode * 397) ^ IsLastLook.GetHashCode();
             hashCode = (hashCode * 397) ^ SupportsIceBergs.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)SyncRetryIntervalMs;
@@ -180,7 +228,8 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
 
     public override string ToString() =>
         $"{nameof(PricingServerConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(SnapshotConnectionConfig)}: {SnapshotConnectionConfig}, " +
-        $"{nameof(UpdateConnectionConfig)}: {UpdateConnectionConfig}, {nameof(IsLastLook)}: {IsLastLook}, " +
-        $"{nameof(SupportsIceBergs)}: {SupportsIceBergs}, {nameof(SyncRetryIntervalMs)}: {SyncRetryIntervalMs}, " +
+        $"{nameof(UpdateConnectionConfig)}: {UpdateConnectionConfig}, {nameof(HeartBeatPublishIntervalMs)}: {HeartBeatPublishIntervalMs},  " +
+        $"{nameof(HeartBeatServerToleranceRangeMs)}: {HeartBeatServerToleranceRangeMs}, {nameof(MaxMissedHeartBeats)}: {MaxMissedHeartBeats}, " +
+        $"{nameof(IsLastLook)}: {IsLastLook}, {nameof(SupportsIceBergs)}: {SupportsIceBergs}, {nameof(SyncRetryIntervalMs)}: {SyncRetryIntervalMs}, " +
         $"{nameof(AllowUpdatesCatchup)}: {AllowUpdatesCatchup}, {nameof(Path)}: {Path}";
 }

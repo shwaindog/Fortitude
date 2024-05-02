@@ -69,7 +69,7 @@ public class PublishingRule : Rule
         {
             logger.Info("Started PublishingRule instance {0}", Id);
             this.PublishAsync(PublishAddress, ++PublishNumber, new DispatchOptions());
-            Context.Timer.RunIn(20, PublishInt);
+            Context.QueueTimer.RunIn(20, PublishInt);
             Interlocked.Increment(ref startCount);
         }
         catch (Exception ex)
@@ -90,7 +90,7 @@ public class PublishingRule : Rule
         {
             logger.Info("PublishingRule instance {0} publishing message {1}", Id, PublishNumber + 1);
             this.PublishAsync(PublishAddress, ++PublishNumber, new DispatchOptions());
-            if (PublishNumber < maxPublishCount) Context.Timer.RunIn(20, PublishInt);
+            if (PublishNumber < maxPublishCount) Context.QueueTimer.RunIn(20, PublishInt);
         }
         catch (Exception ex)
         {

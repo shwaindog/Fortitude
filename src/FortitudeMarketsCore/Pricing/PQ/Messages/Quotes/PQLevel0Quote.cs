@@ -2,6 +2,8 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
@@ -14,6 +16,27 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+
+public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutableLevel0Quote,
+    IPQSupportsFieldUpdates<ILevel0Quote>, IPQSupportsStringUpdates<ILevel0Quote>, IRelatedItem<ILevel0Quote>,
+    IVersionedMessage
+{
+    PQMessageFlags? OverrideSerializationFlags { get; set; }
+    ISyncLock Lock { get; }
+    uint PQSequenceId { get; set; }
+    bool IsSourceTimeDateUpdated { get; set; }
+    bool IsSourceTimeSubHourUpdated { get; set; }
+    bool IsReplayUpdated { get; set; }
+    bool IsSinglePriceUpdated { get; set; }
+    bool IsSyncStatusUpdated { get; set; }
+    DateTime LastPublicationTime { get; set; }
+    DateTime SocketReceivingTime { get; set; }
+    DateTime ProcessedTime { get; set; }
+    DateTime DispatchedTime { get; set; }
+    PQSyncStatus PQSyncStatus { get; set; }
+    void ResetFields();
+    new IPQLevel0Quote Clone();
+}
 
 public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 {

@@ -12,6 +12,12 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
+public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
+{
+    new IPQPeriodSummary? PeriodSummary { get; set; }
+    new IPQLevel1Quote Clone();
+}
+
 public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 {
     private DateTime adapterReceivedTime = DateTimeConstants.UnixEpoch;

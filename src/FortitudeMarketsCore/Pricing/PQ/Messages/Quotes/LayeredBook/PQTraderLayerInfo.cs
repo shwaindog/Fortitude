@@ -30,7 +30,7 @@ public interface IPQTraderLayerInfo : IMutableTraderLayerInfo, ISupportsPQNameId
 
 public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLayerInfo
 {
-    private IPQNameIdLookupGenerator nameIdLookup;
+    private IPQNameIdLookupGenerator nameIdLookup = null!;
     private int traderNameId;
 
     protected TraderLayerInfoFlags UpdatedFlags;

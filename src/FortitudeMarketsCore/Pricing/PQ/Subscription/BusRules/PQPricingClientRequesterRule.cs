@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
@@ -32,8 +31,6 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
     private int connectionTimeout;
 
     private List<ISourceTickerQuoteInfo> lastReceivedSourceTickerQuoteInfos = new();
-    private ISubscription? listenForRequestFeedAvailableTickersRefreshAddress;
-    private ISubscription? listenForRequestSnapshotIdsAddress;
     private IRule? remoteMessageBusTopicPublicationAmenderRule;
 
     private PQPricingClientSnapshotConversationRequester? snapshotClient;
@@ -44,23 +41,20 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
         await LaunchSnapshotClient();
     }
 
-    public override async ValueTask StopAsync()
+    public override ValueTask StopAsync()
     {
-        if (listenForRequestSnapshotIdsAddress != null) await listenForRequestSnapshotIdsAddress.UnsubscribeAsync();
-        if (listenForRequestFeedAvailableTickersRefreshAddress != null) await listenForRequestFeedAvailableTickersRefreshAddress.UnsubscribeAsync();
         snapshotClient?.Stop();
+        return base.StopAsync();
     }
 
     private async ValueTask LaunchSnapshotClient()
     {
-        listenForRequestFeedAvailableTickersRefreshAddress = await Context.MessageBus.RegisterListenerAsync<string>(this
-            , feedName.FeedAvailableTickersRequestAddress(), CheckAndPublishChangedFeedTickersHandler);
+        await this.RegisterListenerAsync<string>(feedName.FeedAvailableTickersRequestAddress(), CheckAndPublishChangedFeedTickersHandler);
         snapshotClient ??= PQPricingClientSnapshotConversationRequester.BuildTcpRequester(marketConnectionConfig, dispatcherResolver, feedName
             , this
             , sharedFeedDeserializationRepo);
         await AttemptSnapshotClientStart();
-        listenForRequestSnapshotIdsAddress = await Context.MessageBus.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(this
-            , feedName.FeedTickersSnapshotRequestAddress(), SnapshotIdsRequestHandler);
+        await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(feedName.FeedTickersSnapshotRequestAddress(), SnapshotIdsRequestHandler);
     }
 
     private async ValueTask SnapshotIdsRequestHandler(IBusMessage<FeedSourceTickerInfoUpdate> snapshotIdsMessage)
@@ -92,14 +86,14 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
 
             var nextAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
             logger.Warn("Warning did not connect to PQSnapshot Client will wait {0}ms before trying again", nextAttemptTime);
-            Context.Timer.RunIn((int)nextAttemptTime, AttemptSnapshotClientStart);
+            Timer.RunIn((int)nextAttemptTime, AttemptSnapshotClientStart);
         }
         catch (Exception ex)
         {
             var nextAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
             logger.Warn("Warning caught exception and did not connect to PQSnapshot Client will wait {0}ms before trying again. Got {1}"
                 , nextAttemptTime, ex);
-            Context.Timer.RunIn((int)nextAttemptTime, AttemptSnapshotClientStart);
+            Timer.RunIn((int)nextAttemptTime, AttemptSnapshotClientStart);
         }
     }
 
@@ -127,7 +121,7 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
         var nextRequestAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
         logger.Warn("Warning did not retrieve any SourceTickerQuoteInfos for {0} will wait {1}ms before trying again", feedName
             , nextRequestAttemptTime);
-        Context.Timer.RunIn((int)nextRequestAttemptTime, AttemptGetFeedAvailableTickersLaunchTopicAmender);
+        Timer.RunIn((int)nextRequestAttemptTime, AttemptGetFeedAvailableTickersLaunchTopicAmender);
     }
 
     private async ValueTask CheckAndPublishChangedFeedTickersHandler(IBusMessage<string> feedTickersMessage)
@@ -143,7 +137,7 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
         var publishSourceTickerInfos = Context.PooledRecycler.Borrow<FeedSourceTickerInfoUpdate>();
         publishSourceTickerInfos.FeedName = feedName;
         publishSourceTickerInfos.SourceTickerQuoteInfos.AddRange(lastReceivedSourceTickerQuoteInfos);
-        await Context.MessageBus.PublishAsync(this, feedAvailableTickersUpdateAddress, publishSourceTickerInfos, new DispatchOptions());
+        await this.PublishAsync(feedAvailableTickersUpdateAddress, publishSourceTickerInfos, new DispatchOptions());
     }
 
     private async ValueTask<List<ISourceTickerQuoteInfo>> RequestFeedServerSourceTickerQuoteInfos()

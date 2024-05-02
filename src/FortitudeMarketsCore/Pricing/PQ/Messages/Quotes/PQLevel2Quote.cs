@@ -12,6 +12,13 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
+public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote
+{
+    new IPQOrderBook BidBook { get; set; }
+    new IPQOrderBook AskBook { get; set; }
+    new IPQLevel2Quote Clone();
+}
+
 public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 {
     // ReSharper disable once UnusedMember.Local

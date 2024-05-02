@@ -147,7 +147,7 @@ public class MessageQueue : IMessageQueue
             processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
         }
 
         IncrementRecentMessageReceived();
@@ -186,7 +186,7 @@ public class MessageQueue : IMessageQueue
             processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
         }
 
         IncrementRecentMessageReceived();
@@ -201,7 +201,7 @@ public class MessageQueue : IMessageQueue
             = queueContext.PooledRecycler.Borrow<ReusableResponseValueTaskSource<TResponse>>();
         reusableValueTaskSource.IncrementRefCount(); // decremented when value is read for valueTask;
         reusableValueTaskSource.DispatchResult = processorRegistry.DispatchResult;
-        reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = queueContext.Timer;
+        reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = queueContext.QueueTimer;
         evt.Response = reusableValueTaskSource;
         evt.Sender = sender;
         evt.SentTime = DateTime.Now;
@@ -215,7 +215,7 @@ public class MessageQueue : IMessageQueue
 
     public ValueTask<IDispatchResult> StopRuleAsync(IRule sender, IRule rule)
     {
-        rule.LifeCycleState = RuleLifeCycle.ShuttingDown;
+        rule.LifeCycleState = RuleLifeCycle.ShutDownRequested;
         rule.Context = queueContext;
         return EnqueuePayloadBodyWithStatsAsync(rule, sender, MessageType.UnloadRule, null, null);
     }

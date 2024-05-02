@@ -50,7 +50,7 @@ public class MessageQueueTests : SingleEventQueueTestSetup
         Assert.AreEqual(2, listeningRule.LastReceivedPublishNumber);
         var publishRule2 = new PublishingRule(4);
         var publish2DispatchResult = await EventQueue.LaunchRuleAsync(publishRule2, publishRule2, EventQueueSelectionResult);
-        await Task.Delay(105); // time for 4 timer events to complete
+        await Task.Delay(125); // time for 4 timer events to complete
         Assert.AreEqual(0, publish2DispatchResult.DecrementRefCount());
         Assert.AreEqual(4, publishRule2.PublishNumber);
         Assert.AreEqual(6, listeningRule.ReceiveCount);

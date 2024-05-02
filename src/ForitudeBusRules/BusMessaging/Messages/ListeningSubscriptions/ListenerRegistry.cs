@@ -7,12 +7,12 @@ namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 public class ListenerRegistry
 {
     private readonly List<string> destinationAddresses = new();
-    public List<IMessageListenerSubscription> matcherListenerSubscriptions = new();
-    public IMap<string, List<IMessageListenerSubscription>> Listeners
-        = new ConcurrentMap<string, List<IMessageListenerSubscription>>();
+    public List<IMessageListenerRegistration> matcherListenerSubscriptions = new();
+    public IMap<string, List<IMessageListenerRegistration>> Listeners
+        = new ConcurrentMap<string, List<IMessageListenerRegistration>>();
     private List<IListenSubscribeInterceptor> subscribeInterceptors = new ();
 
-    private readonly AutoRecycledEnumerable<IMessageListenerSubscription> foundMatchingSubscriptions = new();
+    private readonly AutoRecycledEnumerable<IMessageListenerRegistration> foundMatchingSubscriptions = new();
 
     public ListenerRegistry()
     {
@@ -34,9 +34,9 @@ public class ListenerRegistry
         return false;
     }
 
-    public ValueTask RemoveListenerFromWatchList(MessageListenerUnsubscribe unsubscribePayload)
+    public ValueTask RemoveListenerFromWatchList(MessageListenerSubscription subscriptionPayload)
     {
-        var listeningAddress = unsubscribePayload.PublishAddress;
+        var listeningAddress = subscriptionPayload.PublishAddress;
         if (AddressMatcher.IsMatcherPattern(listeningAddress))
         {
             var foundMatcher = matcherListenerSubscriptions.FirstOrDefault(ls => ls.PublishAddress == listeningAddress);
@@ -53,7 +53,7 @@ public class ListenerRegistry
                 for (var i = 0; i < ruleListeners!.Count; i++)
                 {
                     var ruleListener = ruleListeners[i];
-                    if (ruleListener.SubscriberId == unsubscribePayload.SubscriberId)
+                    if (ruleListener.SubscriberId == subscriptionPayload.SubscriberId)
                     {
                         ruleListener.Dispose();
                         ruleListeners.RemoveAt(i);
@@ -64,11 +64,11 @@ public class ListenerRegistry
             }
         }
 
-        unsubscribePayload.SubscriberRule.DecrementLifeTimeCount();
+        subscriptionPayload.SubscriberRule.DecrementLifeTimeCount();
         return ValueTask.CompletedTask;
     }
 
-    private IEnumerable<IMessageListenerSubscription> AllRegiListenerSubscriptions => Listeners.SelectMany(kvp => kvp.Value);
+    private IEnumerable<IMessageListenerRegistration> AllRegiListenerSubscriptions => Listeners.SelectMany(kvp => kvp.Value);
 
     public async ValueTask AddSubscribeInterceptor(IListenSubscribeInterceptor interceptor)
     {
@@ -95,7 +95,7 @@ public class ListenerRegistry
         return ValueTask.CompletedTask;
     }
 
-    public async ValueTask AddListenerToWatchList(IMessageListenerSubscription subscribePayload)
+    public async ValueTask AddListenerToWatchList(IMessageListenerRegistration subscribePayload)
     {
         subscribePayload.SubscriberRule.IncrementLifeTimeCount();
         foreach (var listenSubscribeInterceptor in subscribeInterceptors)
@@ -155,7 +155,7 @@ public class ListenerRegistry
         return ValueTask.CompletedTask;
     }
 
-    public IEnumerable<IMessageListenerSubscription> MatchingSubscriptions(string address)
+    public IEnumerable<IMessageListenerRegistration> MatchingSubscriptions(string address)
     {
         foundMatchingSubscriptions.Clear();
         foreach (var matcherListener in matcherListenerSubscriptions)

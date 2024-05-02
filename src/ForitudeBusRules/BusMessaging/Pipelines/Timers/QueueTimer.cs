@@ -3,99 +3,135 @@
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeBusRules.BusMessaging.Pipelines.Timers;
 
-public class QueueTimer : Rule, IActionTimer
+public interface IQueueTimer : IActionTimer, IAsyncValueTaskDisposable
 {
-    private readonly ActionTimer backingTimer;
+    IRuleTimer CreateRuleTimer(IRule owningRule);
+}
 
-    public QueueTimer(IUpdateableTimer backingTimer, IQueueContext context)
+public class QueueTimer : Rule, IQueueTimer
+{
+    private static readonly NoOpTimerUpdate NoOpTimerUpdate = new();
+    private readonly ActionTimer actionTimer;
+    private readonly List<ITimerUpdate> registeredRuleTimers = new();
+    private readonly IUpdateableTimer updateableTimer;
+    private bool isClosing;
+
+    public QueueTimer(IUpdateableTimer updateableTimer, IQueueContext context)
     {
-        this.backingTimer = new ActionTimer(backingTimer, context.PooledRecycler);
-        this.backingTimer.OneOffWaitCallback = OneOffTimerEnqueueAsMessage;
-        this.backingTimer.IntervalWaitCallback = IntervalTimerEnqueueAsMessage;
+        this.updateableTimer = updateableTimer;
+        actionTimer = new ActionTimer(updateableTimer, context.PooledRecycler)
+        {
+            OneOffWaitCallback = OneOffTimerEnqueueAsMessage, IntervalWaitCallback = IntervalTimerEnqueueAsMessage
+        };
         Context = context;
         Id = "QueueTimer_" + Context.RegisteredOn.Name;
         FriendlyName = Id;
         ParentRule = this;
     }
 
-    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback) => backingTimer.RunIn(waitTimeSpan, callback);
+    public IRuleTimer CreateRuleTimer(IRule owningRule) =>
+        new RuleTimer(owningRule, new ActionTimer(updateableTimer, owningRule.Context.PooledRecycler));
 
-    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
-        backingTimer.RunIn(waitTimeSpan, state, callback);
+    public ValueTask DisposeAwaitValueTask { get; set; }
 
-    public ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback) => backingTimer.RunIn(waitMs, callback);
+    public async ValueTask Dispose()
+    {
+        isClosing = true;
+        actionTimer.StopAllTimers();
+        foreach (var registeredRuleTimer in registeredRuleTimers) await registeredRuleTimer.Dispose();
+    }
 
-    public ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class => backingTimer.RunIn(waitMs, state, callback);
+    public virtual ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitTimeSpan, callback));
 
-    public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback) => backingTimer.RunEvery(intervalMs, callback);
+    public virtual ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitTimeSpan, state, callback));
 
-    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class =>
-        backingTimer.RunEvery(intervalMs, state, callback);
+    public virtual ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitMs, callback));
 
-    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<ValueTask> callback) => backingTimer.RunEvery(periodTimeSpan, callback);
+    public virtual ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitMs, state, callback));
 
-    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
-        backingTimer.RunEvery(periodTimeSpan, state, callback);
+    public virtual ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(intervalMs, callback));
 
-    public ITimerUpdate RunAt(DateTime futureDateTime, Func<ValueTask> callback) => backingTimer.RunAt(futureDateTime, callback);
+    public virtual ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(intervalMs, state, callback));
 
-    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<T?, ValueTask> callback) where T : class =>
-        backingTimer.RunAt(futureDateTime, state, callback);
+    public virtual ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(periodTimeSpan, callback));
 
-    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action callback) => backingTimer.RunIn(waitTimeSpan, callback);
+    public virtual ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(periodTimeSpan, state, callback));
 
-    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class =>
-        backingTimer.RunIn(waitTimeSpan, state, callback);
+    public virtual ITimerUpdate RunAt(DateTime futureDateTime, Func<ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunAt(futureDateTime, callback));
 
-    public ITimerUpdate RunIn(int waitMs, Action callback) => backingTimer.RunIn(waitMs, callback);
+    public virtual ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<T?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunAt(futureDateTime, state, callback));
 
-    public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class => backingTimer.RunIn(waitMs, state, callback);
+    public virtual ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitTimeSpan, callback));
 
-    public ITimerUpdate RunEvery(int intervalMs, Action callback) => backingTimer.RunEvery(intervalMs, callback);
+    public virtual ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitTimeSpan, state, callback));
+
+    public virtual ITimerUpdate RunIn(int waitMs, Action callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitMs, callback));
+
+    public virtual ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitMs, state, callback));
+
+    public virtual ITimerUpdate RunEvery(int intervalMs, Action callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(intervalMs, callback));
 
     public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class =>
-        backingTimer.RunEvery(intervalMs, state, callback);
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(intervalMs, state, callback));
 
-    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback) => backingTimer.RunEvery(periodTimeSpan, callback);
+    public virtual ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(periodTimeSpan, callback));
 
-    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class =>
-        backingTimer.RunEvery(periodTimeSpan, state, callback);
+    public virtual ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunEvery(periodTimeSpan, state, callback));
 
-    public ITimerUpdate RunAt(DateTime futureDateTime, Action callback) => backingTimer.RunAt(futureDateTime, callback);
+    public virtual ITimerUpdate RunAt(DateTime futureDateTime, Action callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunAt(futureDateTime, callback));
 
-    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<T?> callback) where T : class =>
-        backingTimer.RunAt(futureDateTime, state, callback);
+    public virtual ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<T?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunAt(futureDateTime, state, callback));
 
-    public void PauseAllTimers()
+    public virtual void PauseAllTimers()
     {
-        backingTimer.PauseAllTimers();
+        foreach (var registeredRuleTimer in registeredRuleTimers) registeredRuleTimer.Pause();
     }
 
-    public void ResumeAllTimers()
+    public virtual void ResumeAllTimers()
     {
-        backingTimer.ResumeAllTimers();
+        foreach (var registeredRuleTimer in registeredRuleTimers) registeredRuleTimer.Resume();
     }
 
-    public void StopAllTimers()
+    public virtual void StopAllTimers()
     {
-        backingTimer.StopAllTimers();
+        foreach (var registeredRuleTimer in registeredRuleTimers) registeredRuleTimer.Cancel();
     }
 
     public override void Stop()
     {
-        backingTimer.StopAllTimers();
-        base.Stop();
+        foreach (var registeredRuleTimer in registeredRuleTimers) registeredRuleTimer.Cancel();
     }
 
     public void OneOffTimerEnqueueAsMessage(object? state)
     {
         if (state is ITimerCallbackPayload timerCallbackPayload)
-            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, MessageType.TimerPayload, null);
+            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, MessageType.TimerPayload);
     }
 
     public void IntervalTimerEnqueueAsMessage(object? state)
@@ -103,7 +139,7 @@ public class QueueTimer : Rule, IActionTimer
         if (state is ITimerCallbackPayload timerCallbackPayload)
         {
             timerCallbackPayload.IncrementRefCount();
-            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, MessageType.TimerPayload, null);
+            Context.RegisteredOn.EnqueuePayloadBody(timerCallbackPayload, this, MessageType.TimerPayload);
         }
     }
 }

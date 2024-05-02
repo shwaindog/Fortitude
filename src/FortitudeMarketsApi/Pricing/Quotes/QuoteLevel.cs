@@ -8,7 +8,7 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public enum QuoteLevel
+public enum QuoteLevel : byte
 {
     Level0 // used for publishing metrics, indicators or single values not exchange quotes
     , Level1

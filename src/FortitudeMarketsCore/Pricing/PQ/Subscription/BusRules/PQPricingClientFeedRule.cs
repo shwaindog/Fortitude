@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
@@ -25,9 +24,6 @@ public class PQPricingClientFeedRule : Rule
     private readonly string feedTickersHealthRequestAddress;
     private readonly IMarketConnectionConfig marketConnectionConfig;
     private DateTime feedStartTime;
-
-    private ISubscription? feedStatusRequestListenerSubscription;
-    private ISubscription? feedTickersListenerSubscription;
 
     private List<ISourceTickerQuoteInfo> latestReceivedSourceTickerQuoteInfos = new();
 
@@ -55,7 +51,7 @@ public class PQPricingClientFeedRule : Rule
         {
             if (pricingFeedStatus == value) return;
             pricingFeedStatus = value;
-            Context.MessageBus.Publish(this, feedFeedStatusUpdatePublishAddress,
+            this.Publish(feedFeedStatusUpdatePublishAddress,
                 new SourceFeedUpdate(pricingFeedStatus, feedName, feedAddress), new DispatchOptions(RoutingFlags.DefaultPublish));
         }
     }
@@ -64,12 +60,11 @@ public class PQPricingClientFeedRule : Rule
     {
         feedStartTime = DateTime.UtcNow;
         PricingFeedStatus = PricingFeedStatus.Starting;
-        feedStatusRequestListenerSubscription
-            = await Context.MessageBus.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse>
-                (this, feedStatusRequestAddress, ReceivedFeedStatusRequestHandler);
-        feedTickersListenerSubscription = await Context.MessageBus.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(
-            this, feedAvailableTickersUpdateAddress, ReceivedFeedAvailableTickersUpdate);
-        Context.MessageBus.Publish(this, feedAddress,
+        await this.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse>
+            (feedStatusRequestAddress, ReceivedFeedStatusRequestHandler);
+        await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(
+            feedAvailableTickersUpdateAddress, ReceivedFeedAvailableTickersUpdate);
+        this.Publish(feedAddress,
             new SourceFeedUpdate(PricingFeedStatus.Starting, feedName, feedAddress), new DispatchOptions(RoutingFlags.DefaultPublish));
         var socketDispatcherResolver = Context.MessageBus.BusIOResolver.GetDispatcherResolver(QueueSelectionStrategy.FirstInSet);
         var sharedFeedDeserializationRepository
@@ -79,18 +74,14 @@ public class PQPricingClientFeedRule : Rule
             , sharedFeedDeserializationRepository, socketDispatcherResolver);
         pqClientUpdateSubscriberRule = new PQPricingClientUpdatesSubscriberRule(feedName, marketConnectionConfig
             , sharedFeedDeserializationRepository, socketDispatcherResolver);
-        var launchSnapshotClient = Context.MessageBus.DeployRuleAsync(this, pqClientSnapshotRequesterRule, new DeploymentOptions());
-        var launchUpdateClient = Context.MessageBus.DeployRuleAsync(this, pqClientUpdateSubscriberRule, new DeploymentOptions());
+        var launchSnapshotClient = this.DeployRuleAsync(pqClientSnapshotRequesterRule, new DeploymentOptions());
+        var launchUpdateClient = this.DeployRuleAsync(pqClientUpdateSubscriberRule, new DeploymentOptions());
         await launchSnapshotClient;
         await launchUpdateClient;
     }
 
     public override async ValueTask StopAsync()
     {
-        // ReSharper disable MethodHasAsyncOverload
-        feedStatusRequestListenerSubscription?.Unsubscribe();
-        feedTickersListenerSubscription?.Unsubscribe();
-        // ReSharper restore MethodHasAsyncOverload
         if (pqClientUpdateSubscriberRule != null) await Context.MessageBus.UndeployRuleAsync(this, pqClientUpdateSubscriberRule);
         if (pqClientSnapshotRequesterRule != null) await Context.MessageBus.UndeployRuleAsync(this, pqClientSnapshotRequesterRule);
     }
@@ -108,8 +99,8 @@ public class PQPricingClientFeedRule : Rule
         PricingFeedStatusResponse? pricingFeedStatusResponse;
         if (pqClientUpdateSubscriberRule?.PqPricingClientFeedSyncMonitorRule.LifeCycleState == RuleLifeCycle.Started)
         {
-            var tickerHealthResponse = await Context.MessageBus.RequestAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>(
-                this, feedTickersHealthRequestAddress, busRequestMessage.Payload.Body(), new DispatchOptions(RoutingFlags.TargetSpecific,
+            var tickerHealthResponse = await this.RequestAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>(
+                feedTickersHealthRequestAddress, busRequestMessage.Payload.Body(), new DispatchOptions(RoutingFlags.TargetSpecific,
                     targetRule: pqClientUpdateSubscriberRule.PqPricingClientFeedSyncMonitorRule, timeoutMs: 3_000));
             pricingFeedStatusResponse = tickerHealthResponse.Response;
             pricingFeedStatusResponse?.IncrementRefCount();

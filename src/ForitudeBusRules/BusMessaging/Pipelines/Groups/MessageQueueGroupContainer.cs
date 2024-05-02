@@ -207,7 +207,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
             var requestResponseSelectionResult = selectionResult.First();
             var destinationEventQueue = requestResponseSelectionResult.MessageQueue;
             var destinationRule = requestResponseSelectionResult.Rule;
@@ -258,7 +258,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
             var payLoadMarshaller = dispatchOptions.PayloadMarshalOptions.ResolvePayloadMarshaller(msg, sender.Context.PooledRecycler);
             var payload = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
             payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is enqueued

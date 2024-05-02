@@ -6,11 +6,10 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 
-public interface IListenSubscribeInterceptor
+public interface IListenSubscribeInterceptor : IInterceptor
 {
-    string Name { get; }
-    ValueTask Intercept(IMessageListenerSubscription messageListenerSubscription);
-    bool ShouldRunIntercept(IMessageListenerSubscription messageListenerSubscription);
+    ValueTask Intercept(IMessageListenerRegistration messageListenerRegistration);
+    bool ShouldRunIntercept(IMessageListenerRegistration messageListenerRegistration);
 }
 
 public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterceptor
@@ -27,18 +26,18 @@ public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterc
 
     public string Name { get; }
 
-    public async ValueTask Intercept(IMessageListenerSubscription messageListenerSubscription)
+    public async ValueTask Intercept(IMessageListenerRegistration messageListenerRegistration)
     {
-        if (ShouldRunIntercept(messageListenerSubscription))
+        if (ShouldRunIntercept(messageListenerRegistration))
         {
-            await RunInterceptorAction(messageListenerSubscription);
-            messageListenerSubscription.AddRunListenSubscriptionInterceptor(this);
+            await RunInterceptorAction(messageListenerRegistration);
+            messageListenerRegistration.AddRunListenSubscriptionInterceptor(this);
         }
     }
 
-    public bool ShouldRunIntercept(IMessageListenerSubscription messageListenerSubscription) =>
-        AddressMatcher.IsMatch(messageListenerSubscription.PublishAddress)
-        && messageListenerSubscription.ActiveListenSubscribeInterceptors.All(lsi => lsi.Name != Name);
+    public bool ShouldRunIntercept(IMessageListenerRegistration messageListenerRegistration) =>
+        AddressMatcher.IsMatch(messageListenerRegistration.PublishAddress)
+        && messageListenerRegistration.ActiveListenSubscribeInterceptors.All(lsi => lsi.Name != Name);
 
-    public abstract ValueTask RunInterceptorAction(IMessageListenerSubscription messageListenerSubscription);
+    public abstract ValueTask RunInterceptorAction(IMessageListenerRegistration messageListenerRegistration);
 }

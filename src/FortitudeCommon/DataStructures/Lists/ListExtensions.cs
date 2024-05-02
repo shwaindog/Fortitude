@@ -14,4 +14,10 @@ public static class ListExtensions
             (toShuffle[k], toShuffle[n]) = (toShuffle[n], toShuffle[k]);
         }
     }
+
+    public static T AddReturn<T>(this IList<T> list, T value)
+    {
+        list.Add(value);
+        return value;
+    }
 }

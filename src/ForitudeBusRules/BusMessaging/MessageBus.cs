@@ -65,8 +65,7 @@ public interface IMessageBus
         , Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler);
 
 
-    ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
-    ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
+    ValueTask<ISubscription> AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
     IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate);
 }
 
@@ -147,11 +146,11 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId);
     }
 
     public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress
@@ -159,11 +158,11 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId);
     }
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
@@ -171,11 +170,11 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId);
     }
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
@@ -183,11 +182,11 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId);
     }
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>(IListeningRule rule, string publishAddress
@@ -195,11 +194,11 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId);
     }
 
     public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>(IListeningRule rule, string publishAddress
@@ -207,18 +206,18 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<ProcessorRegistry>();
         processorRegistry.DispatchResult = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
                 , processorRegistry);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId, dispatchResult);
     }
 
     public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>(IListeningRule rule, string publishAddress
@@ -226,18 +225,18 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, object>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, object>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<ProcessorRegistry>();
         processorRegistry.DispatchResult = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
                 , processorRegistry);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId, dispatchResult);
     }
 
     public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>(IListeningRule rule, string publishAddress
@@ -245,18 +244,18 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<ProcessorRegistry>();
         processorRegistry.DispatchResult = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
                 , processorRegistry);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId, dispatchResult);
     }
 
     public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>(IListeningRule rule, string publishAddress
@@ -264,18 +263,18 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<ProcessorRegistry>();
         processorRegistry.DispatchResult = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
                 , processorRegistry);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId, dispatchResult);
     }
 
     public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>(IListeningRule rule, string publishAddress
@@ -283,27 +282,33 @@ public class MessageBus : IConfigureMessageBus
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
         var msgListener
-            = new MessageListenerSubscription<TPayload, TResponse>(rule, publishAddress, subscriberId);
+            = new MessageListenerRegistration<TPayload, TResponse>(rule, publishAddress, subscriberId);
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<ProcessorRegistry>();
         processorRegistry.DispatchResult = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.DispatchResult.SentTime = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.Timer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync(msgListener, rule, MessageType.ListenerSubscribe, publishAddress
                 , processorRegistry);
-        return new MessageListenerUnsubscribe(rule, publishAddress, subscriberId, dispatchResult);
+        return new MessageListenerSubscription(rule, publishAddress, subscriberId, dispatchResult);
     }
 
-    public ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
-        , MessageQueueType onQueueTypes) =>
-        AllMessageQueues.AddListenSubscribeInterceptor(sender, interceptor, onQueueTypes);
+    public async ValueTask<ISubscription> AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
+        , MessageQueueType onQueueTypes)
+    {
+        var addressInterceptorSubscription = sender.Context.PooledRecycler.Borrow<QueueTypeInterceptorSubscription>();
+        addressInterceptorSubscription.RegisteredInterceptor = interceptor;
+        addressInterceptorSubscription.RegistrationRule = sender;
+        addressInterceptorSubscription.RegisteredQueueTypes = onQueueTypes;
+        addressInterceptorSubscription.ConfigureMessageBus = this;
 
-    public ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
-        , MessageQueueType onQueueTypes) =>
-        AllMessageQueues.RemoveListenSubscribeInterceptor(sender, interceptor, onQueueTypes);
+        await AllMessageQueues.AddListenSubscribeInterceptor(sender, interceptor, onQueueTypes);
+
+        return addressInterceptorSubscription;
+    }
 
     public ValueTask<IDispatchResult> UndeployRuleAsync(IRule sender, IRule toUndeployRule) =>
         toUndeployRule.Context.RegisteredOn.StopRuleAsync(sender, toUndeployRule);

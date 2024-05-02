@@ -46,7 +46,7 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
 
     public override async ValueTask StopAsync()
     {
-        await Context.MessageBus.UndeployRuleAsync(this, PqPricingClientFeedSyncMonitorRule);
+        await this.UndeployRuleAsync(PqPricingClientFeedSyncMonitorRule);
         updateClient?.Stop(CloseReason.Completed, $"PQPricingClientUpdatesSubscriberRule for {feedName} is stopping");
     }
 

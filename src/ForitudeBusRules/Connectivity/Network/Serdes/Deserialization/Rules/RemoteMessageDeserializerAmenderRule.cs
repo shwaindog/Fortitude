@@ -19,7 +19,7 @@ public class RemoteMessageDeserializerAmenderRule : Rule
     protected readonly string? RegistrationRepoName;
     private readonly ISocketSessionContext socketSessionContext;
     protected string ListeningOnAddress;
-    public Action<IMessageDeserializer> MessageDeserializerAdded;
+    public Action<IMessageDeserializer>? MessageDeserializerAdded;
 
     public Action<IVersionedMessage, int, IMessageDeserializer> MessageReceived;
     protected IMessageDeserializationRepository? RegisterOnRepository;

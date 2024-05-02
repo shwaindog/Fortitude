@@ -1,11 +1,9 @@
 ﻿#region
 
-using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines.Execution;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -31,9 +29,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
     private readonly IDoublyLinkedList<IPQDeserializer> syncKo = new DoublyLinkedList<IPQDeserializer>();
     private readonly IDoublyLinkedList<IPQDeserializer> syncOk = new DoublyLinkedList<IPQDeserializer>();
 
-    private ISubscription? feedTickerHealthListenerSubscription;
     private DateTime lastReceivedTickTime = DateTimeConstants.UnixEpoch;
-    private ITimerUpdate? syncCheckTimerSubscription;
 
     public PQPricingClientFeedSyncMonitorRule(string feedName, IMessageDeserializationRepository sharedFeedDeserializationRepo)
         : base("PQClientFeedSyncMonitor" + feedName)
@@ -45,17 +41,11 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     public override async ValueTask StartAsync()
     {
-        feedTickerHealthListenerSubscription
-            = await Context.MessageBus.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>(this
-                , feedName.FeedTickerHealthRequestAddress(), ReceivedTickerHealthStatusRequest);
+        await this.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>(
+            feedName.FeedTickerHealthRequestAddress(), ReceivedTickerHealthStatusRequest);
         sharedFeedDeserializationRepo.MessageDeserializerRegistered += NewDeserializerRegistered;
         sharedFeedDeserializationRepo.MessageDeserializerUnregistered += ExistingDeserializerUnregistered;
-        syncCheckTimerSubscription = Context.Timer.RunEvery(TasksFrequencyMs, MonitorDeserializersForSnapshotResync);
-    }
-
-    public override void Stop()
-    {
-        syncCheckTimerSubscription?.Cancel();
+        Timer.RunEvery(TasksFrequencyMs, MonitorDeserializersForSnapshotResync);
     }
 
     private PricingFeedStatusResponse? ReceivedTickerHealthStatusRequest(
@@ -175,7 +165,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
     private void RequestSnapshotsForTickers(FeedSourceTickerInfoUpdate deserializersInNeedOfSnapshots)
     {
         if (deserializersInNeedOfSnapshots.SourceTickerQuoteInfos.Any())
-            Context.MessageBus.Publish(this, feedRequestSnapshotsAddress, deserializersInNeedOfSnapshots, new DispatchOptions());
+            this.Publish(feedRequestSnapshotsAddress, deserializersInNeedOfSnapshots, new DispatchOptions());
         else
             deserializersInNeedOfSnapshots.DecrementRefCount();
     }

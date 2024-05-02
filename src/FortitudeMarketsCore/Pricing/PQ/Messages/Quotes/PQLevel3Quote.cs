@@ -13,6 +13,15 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
+public interface IPQLevel3Quote : IPQLevel2Quote, IMutableLevel3Quote
+{
+    new IPQRecentlyTraded? RecentlyTraded { get; set; }
+    bool IsValueDateUpdated { get; set; }
+    bool IsBatchIdUpdated { get; set; }
+    bool IsSourceQuoteReferenceUpdated { get; set; }
+    new IPQLevel3Quote Clone();
+}
+
 public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));

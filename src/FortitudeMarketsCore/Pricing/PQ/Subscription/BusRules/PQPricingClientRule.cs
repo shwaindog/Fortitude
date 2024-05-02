@@ -38,9 +38,9 @@ public class PQPricingClientRule : Rule
 
     public override async ValueTask StartAsync()
     {
-        Context.MessageBus.RegisterListener<SourceFeedUpdate>(this, AllFeedStatusUpdates + "*", ReceivedFeedUpdate);
+        this.RegisterListener<SourceFeedUpdate>(AllFeedStatusUpdates + "*", ReceivedFeedUpdate);
         foreach (var marketConnConfig in marketsConfig.Markets)
-            await Context.MessageBus.DeployRuleAsync(this, new PQPricingClientFeedRule(marketConnConfig)
+            await this.DeployRuleAsync(new PQPricingClientFeedRule(marketConnConfig)
                 , new DeploymentOptions(RoutingFlags.DefaultDeploy));
     }
 
@@ -51,7 +51,7 @@ public class PQPricingClientRule : Rule
         if (feedStatus is PricingFeedStatus.Starting or PricingFeedStatus.Stopping or PricingFeedStatus.NothingTicking)
         {
             var feedName = sourceFeedUpdate.FeedName;
-            Context.MessageBus.PublishAsync(this, AllFeedStatusUpdates, new PQClientUpdate(feedStatus, feedName)
+            this.PublishAsync(AllFeedStatusUpdates, new PQClientUpdate(feedStatus, feedName)
                 , new DispatchOptions(RoutingFlags.DefaultPublish));
         }
     }

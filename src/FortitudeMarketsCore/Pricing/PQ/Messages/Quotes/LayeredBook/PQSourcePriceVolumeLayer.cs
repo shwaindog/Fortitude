@@ -26,7 +26,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQSourcePriceVolumeLayer));
     protected LayerBooleanFlags LayerBooleanFlags;
-    private IPQNameIdLookupGenerator nameIdLookup;
+    private IPQNameIdLookupGenerator nameIdLookup = null!;
     private ushort sourceId;
 
     public PQSourcePriceVolumeLayer(IPQNameIdLookupGenerator sourceIdToNameIdLookup, decimal price = 0m, decimal volume = 0m,
