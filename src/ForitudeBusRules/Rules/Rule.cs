@@ -47,6 +47,7 @@ public interface IRule
 
 public interface IListeningRule : IRule
 {
+    new IRule ParentRule { get; set; }
     int IncrementLifeTimeCount();
     int DecrementLifeTimeCount();
     bool ShouldBeStopped();
@@ -74,7 +75,7 @@ public class Rule : IListeningRule
     private RuleFilter? notAppliesToThisRuleFilter;
     private IRule? parentRule;
 
-    private int refCount;
+    private int aliveRefCount;
     private RuleLifeCycle ruleLifeCycle;
 
     public Rule()
@@ -106,6 +107,12 @@ public class Rule : IListeningRule
         }
     }
 
+    IRule IListeningRule.ParentRule
+    {
+        get => ParentRule;
+        set => ParentRule = value;
+    }
+
     public event LifeCycleChangeHandler? LifeCycleChanged;
 
     public IRuleTimer Timer
@@ -134,8 +141,27 @@ public class Rule : IListeningRule
         if (child == this) return;
         children.Add(child);
         if (child.LifeCycleState is RuleLifeCycle.NotStarted or RuleLifeCycle.Starting or RuleLifeCycle.Started)
+        {
             IncrementLifeTimeCount();
+            if (child is IListeningRule listeningChild)
+            {
+                listeningChild.ParentRule = this;
+            }
+        }
+
         child.LifeCycleChanged += Child_LifeCycleChanged;
+    }
+
+    private void RemoveChild(IRule child)
+    {
+        if (child == this) return;
+        children.Remove(child);
+        if (child.LifeCycleState is RuleLifeCycle.ShutDownRequested or RuleLifeCycle.ShuttingDown or RuleLifeCycle.Stopped)
+        {
+            DecrementLifeTimeCount();
+        }
+
+        child.LifeCycleChanged -= Child_LifeCycleChanged;
     }
 
     public IEnumerable<IRule> ChildRules => children;
@@ -165,11 +191,11 @@ public class Rule : IListeningRule
 
     public RuleFilter NotAppliesToThisRule => notAppliesToThisRuleFilter ??= check => !ReferenceEquals(check, this);
 
-    public int IncrementLifeTimeCount() => Interlocked.Increment(ref refCount);
+    public int IncrementLifeTimeCount() => Interlocked.Increment(ref aliveRefCount);
 
-    public int DecrementLifeTimeCount() => Interlocked.Decrement(ref refCount);
+    public int DecrementLifeTimeCount() => Interlocked.Decrement(ref aliveRefCount);
 
-    public bool ShouldBeStopped() => LifeCycleState == RuleLifeCycle.Started && refCount <= 0;
+    public bool ShouldBeStopped() => LifeCycleState == RuleLifeCycle.Started && aliveRefCount <= 0;
 
     public virtual ValueTask StartAsync()
     {
@@ -245,7 +271,6 @@ public class Rule : IListeningRule
         {
             Logger.Debug("Parent rule: '{0}' shuttingDown on sending Stop to rule: '{1}'", sender.FriendlyName
                 , FriendlyName);
-            Context.RegisteredOn.EnqueuePayloadBody(Stop, sender, MessageType.RunActionPayload, null);
         }
     }
 
@@ -254,9 +279,7 @@ public class Rule : IListeningRule
         if (newState == RuleLifeCycle.Stopped)
         {
             Logger.Debug("Child rule: '{0}' stopped on rule: '{1}'", sender.FriendlyName, FriendlyName);
-            DecrementLifeTimeCount();
-            sender.LifeCycleChanged -= Child_LifeCycleChanged;
-            children.Remove(sender);
+            RemoveChild(sender);
         }
     }
 

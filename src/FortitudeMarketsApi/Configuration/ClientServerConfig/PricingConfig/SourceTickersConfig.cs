@@ -14,10 +14,10 @@ namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 public enum TickerAvailability
 {
-    AllEnabled
-    , AllDisabled
+    AllDisabled = 0
     , Pricing
     , Trading
+    , AllEnabled
 }
 
 public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>
@@ -35,6 +35,8 @@ public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConf
     public IEnumerable<ITickerConfig> Tickers { get; set; }
     ISourceTickerQuoteInfo? GetSourceTickerInfo(ushort sourceId, string sourceName, string ticker);
     IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos(ushort sourceId, string sourceName);
+    IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos(ushort sourceId, string sourceName);
+    IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos(ushort sourceId, string sourceName);
 }
 
 public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
@@ -214,6 +216,38 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
                 tickerConfig.LastTradedFlags ?? DefaultLastTradedFlags);
             yield return sourceTickerINfo;
         }
+    }
+
+    public IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos(ushort sourceId, string sourceName)
+    {
+        foreach (var tickerConfig in Tickers)
+            if (tickerConfig.TickerAvailability is TickerAvailability.Pricing or TickerAvailability.AllEnabled)
+            {
+                var sourceTickerINfo = new SourceTickerQuoteInfo(sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker,
+                    tickerConfig.PublishedQuoteLevel ?? DefaultPublishQuoteLevel, tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
+                    ,
+                    tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize,
+                    tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize, tickerConfig.IncrementSize ?? DefaultIncrementSize,
+                    tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLife, tickerConfig.LayerFlags ?? DefaultLayerFlags,
+                    tickerConfig.LastTradedFlags ?? DefaultLastTradedFlags);
+                yield return sourceTickerINfo;
+            }
+    }
+
+    public IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos(ushort sourceId, string sourceName)
+    {
+        foreach (var tickerConfig in Tickers)
+            if (tickerConfig.TickerAvailability is TickerAvailability.Trading or TickerAvailability.AllEnabled)
+            {
+                var sourceTickerINfo = new SourceTickerQuoteInfo(sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker,
+                    tickerConfig.PublishedQuoteLevel ?? DefaultPublishQuoteLevel, tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
+                    ,
+                    tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize,
+                    tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize, tickerConfig.IncrementSize ?? DefaultIncrementSize,
+                    tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLife, tickerConfig.LayerFlags ?? DefaultLayerFlags,
+                    tickerConfig.LastTradedFlags ?? DefaultLastTradedFlags);
+                yield return sourceTickerINfo;
+            }
     }
 
     public bool AreEquivalent(ISourceTickersConfig? other, bool exactTypes = false)

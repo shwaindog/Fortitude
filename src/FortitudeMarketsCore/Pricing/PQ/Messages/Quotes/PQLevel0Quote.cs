@@ -501,6 +501,12 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                && socketReceivingTimeSame && sequenceIdSame && publicationStatusSame;
     }
 
+    public virtual PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)
+    {
+        SourceTickerQuoteInfo = toSet;
+        return this;
+    }
+
     private PQSourceTickerQuoteInfo ConvertToPQSourceTickerInfo(ISourceTickerQuoteInfo value,
         PQSourceTickerQuoteInfo? originalQuoteInfo)
     {

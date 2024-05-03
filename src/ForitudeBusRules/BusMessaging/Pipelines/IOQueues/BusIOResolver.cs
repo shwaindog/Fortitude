@@ -10,7 +10,8 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
 public interface IBusIOResolver
 {
     ISocketDispatcherResolver GetDispatcherResolver(QueueSelectionStrategy queueSelectionStrategy
-        , MessageQueueType resolveFor = MessageQueueType.AllIO);
+        , MessageQueueType resolveFor = MessageQueueType.AllIO, IIOInboundMessageQueue? preferredInboundQueue = null,
+        IIOOutboundMessageQueue? preferredOutboundQueue = null);
 
     ISocketDispatcherResolver GetOutboundDispatcherResolver(IIOOutboundMessageQueue? preferOutboundMessageQueue,
         QueueSelectionStrategy queueSelectionStrategy = QueueSelectionStrategy.LeastBusy);
@@ -26,18 +27,20 @@ public class BusIOResolver : IBusIOResolver
     public BusIOResolver(IConfigureMessageBus configureMessageBus) => this.configureMessageBus = configureMessageBus;
 
     public ISocketDispatcherResolver GetDispatcherResolver(QueueSelectionStrategy queueSelectionStrategy
-        , MessageQueueType resolveFor = MessageQueueType.AllIO)
+        , MessageQueueType resolveFor = MessageQueueType.AllIO, IIOInboundMessageQueue? preferredInboundQueue = null
+        , IIOOutboundMessageQueue? preferredOutboundQueue = null)
     {
-        ISocketDispatcherListener? socketDispatcherListener = null;
-        ISocketDispatcherSender? socketDispatcherSender = null;
-        if ((resolveFor & MessageQueueType.IOInbound) > 0)
+        var socketDispatcherListener = preferredInboundQueue?.SocketDispatcherListener;
+        var socketDispatcherSender = preferredOutboundQueue?.SocketDispatcherSender;
+        if ((socketDispatcherListener == null) & ((resolveFor & MessageQueueType.IOInbound) > 0))
         {
             var selectedInbound = configureMessageBus.AllMessageQueues.IOInboundMessageQueueGroup.AsMessageQueueList()
                 .SelectEventQueue(queueSelectionStrategy);
             socketDispatcherListener = selectedInbound.SocketDispatcherListener;
         }
 
-        if ((resolveFor & MessageQueueType.IOOutbound) > 0) socketDispatcherSender = FindSocketDispatcherSender(queueSelectionStrategy);
+        if (socketDispatcherSender == null && (resolveFor & MessageQueueType.IOOutbound) > 0)
+            socketDispatcherSender = FindSocketDispatcherSender(queueSelectionStrategy);
 
         var socketDispatcher = new SocketDispatcher(socketDispatcherListener, socketDispatcherSender);
         return new SimpleSocketDispatcherResolver(socketDispatcher);

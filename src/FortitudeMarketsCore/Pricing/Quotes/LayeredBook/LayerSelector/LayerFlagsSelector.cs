@@ -9,47 +9,62 @@ namespace FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 
 public interface ILayerFlagsSelector<T, Tu> where T : class where Tu : ISourceTickerQuoteInfo
 {
+    bool OriginalCanWhollyContain(LayerFlags copySourceRequiredFlags, LayerFlags copyDestinationSupportedFlags);
     T FindForLayerFlags(Tu sourceTickerQuoteInfo);
-    IPriceVolumeLayer? ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false);
+    IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null);
+    IPriceVolumeLayer UpgradeExistingLayer(IPriceVolumeLayer? original, LayerType desiredLayerType, IPriceVolumeLayer? copy = null);
 }
 
 public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
     where T : class
     where Tu : ISourceTickerQuoteInfo
 {
+    protected static readonly List<Type> AllowedImplementations = new();
+
     public T FindForLayerFlags(Tu sourceTickerQuoteInfo)
     {
         var layerFlags = sourceTickerQuoteInfo.LayerFlags;
-        const LayerFlags priceVolumeFlags = LayerFlags.Price | LayerFlags.Volume;
-        var testCondition = priceVolumeFlags;
-
-        var onlyPriceVolume = (layerFlags & testCondition) == layerFlags;
-        if (onlyPriceVolume) return SelectSimplePriceVolumeLayer(sourceTickerQuoteInfo);
-
-        testCondition |= LayerFlags.ValueDate;
-        var onlyValueDatePriceVolumeLayer = (layerFlags & testCondition) == layerFlags;
-        if (onlyValueDatePriceVolumeLayer) return SelectValueDatePriceVolumeLayer(sourceTickerQuoteInfo);
-
-        testCondition = priceVolumeFlags | LayerFlags.SourceName | LayerFlags.Executable;
-        var onlySourcePriceVolume = (layerFlags & testCondition) == layerFlags;
-        if (onlySourcePriceVolume) return SelectSourcePriceVolumeLayer(sourceTickerQuoteInfo);
-
-        testCondition |= LayerFlags.SourceQuoteReference;
-        var onlySourceQuotRefPriceVolume = (layerFlags & testCondition) == layerFlags;
-        if (onlySourceQuotRefPriceVolume) return SelectSourceQuoteRefPriceVolumeLayer(sourceTickerQuoteInfo);
-
-        testCondition = priceVolumeFlags | LayerFlags.TraderCount;
-        var traderCtPriceVolume = (layerFlags & testCondition) == layerFlags;
-        testCondition |= priceVolumeFlags | LayerFlags.TraderName;
-        var traderName = (layerFlags & testCondition) == layerFlags;
-        testCondition |= priceVolumeFlags | LayerFlags.TraderSize;
-        var traderSize = (layerFlags & testCondition) == layerFlags;
-        if (traderCtPriceVolume || traderName || traderSize) return SelectTraderPriceVolumeLayer(sourceTickerQuoteInfo);
-
-        return SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerQuoteInfo);
+        var mostCompactLayerType = layerFlags.MostCompactLayerType();
+        return mostCompactLayerType switch
+        {
+            LayerType.PriceVolume => SelectSimplePriceVolumeLayer(sourceTickerQuoteInfo)
+            , LayerType.SourceQuoteRefTraderValueDatePriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerQuoteInfo)
+            , LayerType.TraderPriceVolume => SelectTraderPriceVolumeLayer(sourceTickerQuoteInfo)
+            , LayerType.ValueDatePriceVolume => SelectValueDatePriceVolumeLayer(sourceTickerQuoteInfo)
+            , LayerType.SourceQuoteRefPriceVolume => SelectSourceQuoteRefPriceVolumeLayer(sourceTickerQuoteInfo)
+            , LayerType.SourcePriceVolume => SelectSourcePriceVolumeLayer(sourceTickerQuoteInfo)
+            , _ => SelectSimplePriceVolumeLayer(sourceTickerQuoteInfo)
+        };
     }
 
-    public abstract IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false);
+    public bool OriginalCanWhollyContain(LayerFlags copySourceRequiredFlags, LayerFlags copyDestinationSupportedFlags) =>
+        copyDestinationSupportedFlags.HasAllOf(copySourceRequiredFlags);
+
+    public virtual IPriceVolumeLayer UpgradeExistingLayer(IPriceVolumeLayer? original, LayerType desiredLayerType, IPriceVolumeLayer? copy = null)
+    {
+        if (original == null)
+        {
+            var cloneOfSrc = CreateExpectedImplementation(desiredLayerType);
+            if (copy != null) cloneOfSrc.CopyFrom(copy);
+            return cloneOfSrc;
+        }
+
+        if ((original.LayerType != desiredLayerType && !OriginalCanWhollyContain(desiredLayerType.SupportedLayerFlags(), original.SupportsLayerFlags))
+            || !AllowedImplementations.Contains(original.GetType()))
+        {
+            var mergeOrginalDesiredLayerFlags = original.SupportsLayerFlags | desiredLayerType.SupportedLayerFlags();
+            var mostCompatibleSupportsBoth = mergeOrginalDesiredLayerFlags.MostCompactLayerType();
+            var upgradedLayer = CreateExpectedImplementation(mostCompatibleSupportsBoth);
+            upgradedLayer.CopyFrom(original);
+            if (copy != null) upgradedLayer.CopyFrom(copy);
+            return upgradedLayer;
+        }
+
+        if (copy != null) original.CopyFrom(copy);
+        return original;
+    }
+
+    public abstract IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null);
 
     protected abstract T SelectSimplePriceVolumeLayer(Tu sourceTickerQuoteInfo);
     protected abstract T SelectValueDatePriceVolumeLayer(Tu sourceTickerQuoteInfo);

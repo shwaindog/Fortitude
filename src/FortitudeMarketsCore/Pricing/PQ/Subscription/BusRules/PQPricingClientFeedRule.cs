@@ -5,6 +5,7 @@ using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -16,6 +17,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
 public class PQPricingClientFeedRule : Rule
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientFeedRule));
     private readonly string feedAddress;
     private readonly string feedAvailableTickersUpdateAddress;
     private readonly string feedFeedStatusUpdatePublishAddress;
@@ -60,6 +62,7 @@ public class PQPricingClientFeedRule : Rule
     {
         feedStartTime = DateTime.UtcNow;
         PricingFeedStatus = PricingFeedStatus.Starting;
+        Logger.Info("Starting Pricing Client Feed {0}", feedName);
         await this.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse>
             (feedStatusRequestAddress, ReceivedFeedStatusRequestHandler);
         await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(

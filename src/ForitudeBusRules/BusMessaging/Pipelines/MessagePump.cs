@@ -122,7 +122,7 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var actionBody = ((Payload<Action>)data.Payload!).Body(PayloadRequestType.QueueReceive)!;
+                        var actionBody = ((Payload<Action>)data.Payload).Body(PayloadRequestType.QueueReceive);
                         actionBody();
                     }
                     catch (Exception ex)
@@ -136,12 +136,16 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var actionBody = (IInvokeablePayload)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
-                        actionBody?.Invoke();
+                        var invokable = (IInvokeablePayload)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
+                        if (invokable.IsAsyncInvoke)
+                            await invokable.InvokeAsync();
+                        else
+                            // ReSharper disable once MethodHasAsyncOverload
+                            invokable!.Invoke();
                     }
                     catch (Exception ex)
                     {
-                        Logger.Warn("Caught exception running InvokeablePayload on {1}.  Got {0}", ringPoller.Ring.Name, ex);
+                        Logger.Warn("Caught exception running InvokablePayload on {1}.  Got {0}", ringPoller.Ring.Name, ex);
                     }
 
                     break;
@@ -150,7 +154,7 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var timerCallbackPayload = (ITimerCallbackPayload)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                        var timerCallbackPayload = (ITimerCallbackPayload)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                         if (timerCallbackPayload.IsAsyncInvoke())
                             await timerCallbackPayload.InvokeAsync();
                         else
@@ -166,7 +170,7 @@ public class MessagePump : IMessagePump
                 }
                 case MessageType.ListenerSubscribe:
                 {
-                    var subscribePayload = (IMessageListenerRegistration)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    var subscribePayload = (IMessageListenerRegistration)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                     var processorRegistry = data.ProcessorRegistry;
                     processorRegistry?.RegisterStart(subscribePayload.SubscriberRule);
                     await listenerRegistry.AddListenerToWatchList(subscribePayload);
@@ -175,19 +179,19 @@ public class MessagePump : IMessagePump
                 }
                 case MessageType.ListenerUnsubscribe:
                 {
-                    var unsubscribePayload = ((Payload<MessageListenerSubscription>)data.Payload!).Body(PayloadRequestType.QueueReceive)!;
+                    var unsubscribePayload = ((Payload<MessageListenerSubscription>)data.Payload).Body(PayloadRequestType.QueueReceive)!;
                     await listenerRegistry.RemoveListenerFromWatchList(unsubscribePayload);
                     break;
                 }
                 case MessageType.AddListenSubscribeInterceptor:
                 {
-                    var subscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    var subscribePayload = (IListenSubscribeInterceptor)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                     await listenerRegistry.AddSubscribeInterceptor(subscribePayload);
                     break;
                 }
                 case MessageType.RemoveListenSubscribeInterceptor:
                 {
-                    var unsubscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    var unsubscribePayload = (IListenSubscribeInterceptor)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                     await listenerRegistry.RemoveSubscribeInterceptor(unsubscribePayload);
                     break;
                 }
@@ -198,30 +202,24 @@ public class MessagePump : IMessagePump
                 }
             }
 
-            ReusableList<IListeningRule>? rulesToRemove = null;
             for (var i = 0; i < livingRules.Count; i++)
             {
+                if (i < 0) // async await below may alter the living rules list
+                    i = 0;
+                if (livingRules.Count == 0 || i >= livingRules.Count) // async await below may alter the living rules list
+                    break;
                 var checkRule = livingRules[i];
 
                 if (checkRule.LifeCycleState != RuleLifeCycle.Started || !checkRule.ShouldBeStopped()) continue;
                 try
                 {
-                    rulesToRemove ??= EventContext.PooledRecycler.Borrow<ReusableList<IListeningRule>>();
-                    // can't remove directly as async await may have already removed the rule by the time it returns
-                    rulesToRemove.Add(checkRule);
+                    i--;
                     await UnloadRuleAndDependents(checkRule);
                 }
                 catch (Exception ex)
                 {
                     Logger.Warn("Caught exception stopping rule {0}, Got {1}", checkRule.FriendlyName, ex);
                 }
-            }
-
-            // can now remove directly as no more async await which may have removed the rule
-            if (rulesToRemove != null)
-            {
-                foreach (var closingRule in rulesToRemove) livingRules.Remove(closingRule);
-                rulesToRemove.DecrementRefCount();
             }
 
             data.DecrementCargoRefCounts();
@@ -258,7 +256,7 @@ public class MessagePump : IMessagePump
 
     private async ValueTask UnloadExistingRule(BusMessage data)
     {
-        var toShutdown = (IListeningRule)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+        var toShutdown = (IListeningRule)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
         try
         {
             if (livingRules.Contains(toShutdown) && toShutdown.LifeCycleState == RuleLifeCycle.Started)
@@ -311,7 +309,7 @@ public class MessagePump : IMessagePump
 
     private async ValueTask LoadNewRule(BusMessage data)
     {
-        var newRule = (IListeningRule)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+        var newRule = (IListeningRule)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
         var processorRegistry = data.ProcessorRegistry!;
         processorRegistry.RegisterStart(newRule);
         try

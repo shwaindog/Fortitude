@@ -239,10 +239,10 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     {
         base.EnsureRelatedItemsAreConfigured(quote);
 
-        if (quote is IPQLevel2Quote pqLevel2Quote)
+        if (ReferenceEquals(quote, this) && quote is IPQLevel2Quote pqLevel2Quote)
         {
-            BidBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.BidBook.NameIdLookup);
-            AskBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.AskBook.NameIdLookup);
+            BidBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.BidBook.LayersSupportsLayerFlags, pqLevel2Quote.BidBook.NameIdLookup);
+            AskBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.BidBook.LayersSupportsLayerFlags, pqLevel2Quote.AskBook.NameIdLookup);
         }
         else
         {
@@ -266,6 +266,13 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         }
 
         return baseSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
+    }
+
+    public override PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)
+    {
+        SourceTickerQuoteInfo = toSet;
+        EnsureRelatedItemsAreConfigured(this);
+        return this;
     }
 
     protected override IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields(DateTime snapShotTime,

@@ -54,7 +54,7 @@ public class RemoteRequestResponseRegistrationRule : RemoteMessageDeserializerAm
     protected virtual RemoteRegistrationResponse RegisterRequestIdResponseSource(
         IBusRespondingMessage<RemoteRequestIdResponseRegistration, RemoteRegistrationResponse> requestMessage)
     {
-        var remoteRequestIdResponseRegistration = requestMessage.Payload.Body()!;
+        var remoteRequestIdResponseRegistration = requestMessage.Payload.Body();
         var resolverRun = NewMessageDeserializerResolveRun;
         try
         {

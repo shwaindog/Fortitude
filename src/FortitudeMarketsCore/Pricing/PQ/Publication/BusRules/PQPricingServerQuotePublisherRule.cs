@@ -7,11 +7,13 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication.BusRules.BusMessages;
@@ -24,11 +26,11 @@ public class PQPricingServerQuotePublisherRule : Rule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingServerQuotePublisherRule));
     private readonly string feedName;
-    private readonly int HeartBeatPublishIntervalMs;
-    private readonly int HeartBeatPublishToleranceRangeMs;
+    private readonly int heartBeatPublishIntervalMs;
+    private readonly int heartBeatPublishToleranceRangeMs;
     private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
-    private readonly IMap<uint, PQLevel0Quote> lastPublished = new ConcurrentMap<uint, PQLevel0Quote>();
     private readonly IPricingServerConfig pricingServerConfig;
+    private readonly IMap<uint, PQLevel0Quote> publishedQuotesMap = new ConcurrentMap<uint, PQLevel0Quote>();
     private readonly INetworkTopicConnectionConfig updatesConnectionConfig;
     private ITimerUpdate? heartBestRunner;
     private PQPricingServerQuoteUpdatePublisher updatePublisher = null!;
@@ -38,46 +40,89 @@ public class PQPricingServerQuotePublisherRule : Rule
         this.feedName = feedName;
         this.pricingServerConfig = pricingServerConfig;
         updatesConnectionConfig = pricingServerConfig!.UpdateConnectionConfig;
-        HeartBeatPublishToleranceRangeMs = pricingServerConfig.HeartBeatServerToleranceRangeMs;
-        HeartBeatPublishIntervalMs = pricingServerConfig.HeartBeatPublishIntervalMs;
+        heartBeatPublishToleranceRangeMs = pricingServerConfig.HeartBeatServerToleranceRangeMs;
+        heartBeatPublishIntervalMs = pricingServerConfig.HeartBeatPublishIntervalMs;
     }
 
     public override async ValueTask StartAsync()
     {
         await AttemptStartUpdatePublisher();
-        await Context.MessageBus.RegisterListenerAsync<PublishQuoteEvent>(this, feedName.FeedTickerPublishAddress(), PublishReceivedTickerHandler);
-        heartBestRunner = Context.QueueTimer.RunEvery(HeartBeatPublishIntervalMs, HeartBeatIntervalCheck);
+        await this.RegisterListenerAsync<PublishQuoteEvent>(feedName.FeedTickerPublishAddress(), PublishReceivedTickerHandler);
+        await this.RegisterRequestListenerAsync<IList<uint>, IList<ILevel0Quote>>(feedName.FeedTickerLastPublishedRequestAddress()
+            , ReceivedQuoteLastPublishedRequest);
+    }
 
-        IncrementLifeTimeCount();
+    private IList<ILevel0Quote> ReceivedQuoteLastPublishedRequest(IBusRespondingMessage<IList<uint>, IList<ILevel0Quote>> arg)
+    {
+        var quotesIdsToReturns = arg.Payload.Body();
+        var response = Context.PooledRecycler.Borrow<ReusableList<ILevel0Quote>>();
+        foreach (var quotesIdsToReturn in quotesIdsToReturns)
+        {
+            if (!publishedQuotesMap.TryGetValue(quotesIdsToReturn, out var toCopy)) continue;
+            var cloned = toCopy!.Clone();
+            cloned.AutoRecycleAtRefCountZero = true;
+            response.Add(cloned);
+        }
+
+        return response;
     }
 
     private void PublishReceivedTickerHandler(IBusMessage<PublishQuoteEvent> pricePublishRequestMessage)
     {
-        var quotePublishEvent = pricePublishRequestMessage.Payload.Body()!;
+        var quotePublishEvent = pricePublishRequestMessage.Payload.Body();
         var tickerQuoteInfo = quotePublishEvent.PublishQuote.SourceTickerQuoteInfo;
-        if (!lastPublished.TryGetValue(tickerQuoteInfo!.Id, out var pqPicture))
+        var overrideSequenceNumber = quotePublishEvent.OverrideSequenceNumber;
+        var overrideMessageFlags = quotePublishEvent.MessageFlags;
+        if (!publishedQuotesMap.TryGetValue(tickerQuoteInfo!.Id, out var sendToSerializer))
         {
-            pqPicture = tickerQuoteInfo.PublishedTypePQInstance();
-            pqPicture.PQSequenceId = uint.MaxValue;
-            pqPicture.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
-            lastPublished.Add(tickerQuoteInfo.Id, pqPicture);
-            Publish(pqPicture);
+            sendToSerializer = tickerQuoteInfo.PublishedTypePQInstance();
+            sendToSerializer.PQSequenceId = uint.MaxValue;
+            sendToSerializer.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
+            sendToSerializer.AutoRecycleAtRefCountZero = false;
+            sendToSerializer.Recycler = Context.PooledRecycler;
+            publishedQuotesMap.Add(tickerQuoteInfo.Id, sendToSerializer);
+            if (quotePublishEvent.PublishQuote.QuoteLevel.LessThan(sendToSerializer!.QuoteLevel))
+            {
+                Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");
+                return;
+            }
+
+            if (overrideSequenceNumber != null)
+            {
+                sendToSerializer.PQSequenceId = overrideSequenceNumber.Value;
+                sendToSerializer.OverrideSerializationFlags = overrideMessageFlags;
+            }
+
+            Publish(sendToSerializer);
+            heartBestRunner ??= Context.QueueTimer.RunEvery(heartBeatPublishIntervalMs, HeartBeatIntervalCheck);
         }
         else
         {
-            pqPicture!.CopyFrom(quotePublishEvent.PublishQuote);
-            pqPicture.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
-            Publish(pqPicture);
+            if (quotePublishEvent.PublishQuote.QuoteLevel.LessThan(sendToSerializer!.QuoteLevel))
+            {
+                Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");
+                return;
+            }
+
+            sendToSerializer!.CopyFrom(quotePublishEvent.PublishQuote);
+            if (overrideSequenceNumber != null)
+            {
+                sendToSerializer.PQSequenceId = overrideSequenceNumber.Value;
+                sendToSerializer.OverrideSerializationFlags = overrideMessageFlags;
+            }
+
+            sendToSerializer.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
+            Publish(sendToSerializer);
         }
     }
 
-    public void Publish(PQLevel0Quote quoteAtAnyLevel)
+    public void Publish(PQLevel0Quote toSerialize)
     {
-        if (!quoteAtAnyLevel.HasUpdates) return;
-        if (updatePublisher.IsStarted) updatePublisher.Send(quoteAtAnyLevel);
-        heartbeatQuotes.Remove(quoteAtAnyLevel);
-        heartbeatQuotes.AddLast(quoteAtAnyLevel);
-        quoteAtAnyLevel.LastPublicationTime = TimeContext.UtcNow;
+        if (!toSerialize.HasUpdates) return;
+        if (updatePublisher.IsStarted) updatePublisher.Send(toSerialize);
+        heartbeatQuotes.Remove(toSerialize);
+        heartbeatQuotes.AddLast(toSerialize);
+        toSerialize.LastPublicationTime = TimeContext.UtcNow;
     }
 
     public void HeartBeatIntervalCheck()
@@ -89,7 +134,8 @@ public class PQPricingServerQuotePublisherRule : Rule
         {
             IPQLevel0Quote? level0Quote;
             if ((level0Quote = heartbeatQuotes.Head) == null
-                || (TimeContext.UtcNow - level0Quote.LastPublicationTime).TotalMilliseconds < HeartBeatPublishToleranceRangeMs)
+                || (TimeContext.UtcNow - level0Quote.LastPublicationTime).TotalMilliseconds <
+                heartBeatPublishIntervalMs - heartBeatPublishToleranceRangeMs)
                 break;
             heartbeatQuotes.Remove(level0Quote);
             heartbeatQuotes.AddLast(level0Quote);

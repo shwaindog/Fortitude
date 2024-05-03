@@ -56,7 +56,7 @@ public class RemoteMessageBusTopicPublicationAmendingRule : RemoteMessageDeseria
     protected virtual RemoteMessageBusPublishRegistrationResponse UpdatePublishRegistrationRequestReceived(
         IBusRespondingMessage<RemoteMessageBusPublishRegistration, RemoteMessageBusPublishRegistrationResponse> contextPublishRegistrationMsg)
     {
-        var remoteMessageBusPublishRegistration = contextPublishRegistrationMsg.Payload.Body()!;
+        var remoteMessageBusPublishRegistration = contextPublishRegistrationMsg.Payload.Body();
         var addressPostfix = ExtractSubscriptionPostfix(contextPublishRegistrationMsg.DestinationAddress!);
         var resolverRun = NewMessageDeserializerResolveRun;
         try

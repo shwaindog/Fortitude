@@ -25,6 +25,10 @@ public static class RuleExtensions
         DeployRuleAsync(this IRule sender, IRule rule, DeploymentOptions options) =>
         sender.Context.MessageBus.DeployRuleAsync(sender, rule, options);
 
+    public static void
+        DeployRule(this IRule sender, IRule rule, DeploymentOptions options) =>
+        sender.Context.MessageBus.DeployRule(sender, rule, options);
+
     public static ValueTask<IDispatchResult> UndeployRuleAsync(this IRule sender, IRule toUndeployRule) =>
         sender.Context.MessageBus.UndeployRuleAsync(sender, toUndeployRule);
 

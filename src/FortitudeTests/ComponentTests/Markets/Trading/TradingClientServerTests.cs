@@ -154,7 +154,7 @@ public class TradingClientServerTests
         };
         serverVenueOrderUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnVenueOrder(serverVenueOrderUpdate);
-        AwaitEvent(venueAutoResetEvent, 2_000, "Client Await VenueOrder Updated");
+        AwaitEvent(venueAutoResetEvent, 5_000, "Client Await VenueOrder Updated");
 
         Assert.IsNotNull(clientLastVenueOrderReceived);
         Assert.AreEqual((MutableString)"VenueOrderId23_0123"

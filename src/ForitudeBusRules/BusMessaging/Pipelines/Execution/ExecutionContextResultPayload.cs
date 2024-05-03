@@ -12,12 +12,21 @@ public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvo
     private TP firstParameter = default!;
     private Action<TP>? toInvoke;
 
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        toInvoke?.Invoke(firstParameter);
+        TrySetResult(0);
+        return ValueTask.CompletedTask;
+    }
+
     public virtual void Invoke()
     {
         try
         {
             toInvoke!(firstParameter);
-            SetResult(0);
+            TrySetResult(0);
         }
         catch (Exception ex)
         {
@@ -38,12 +47,21 @@ public class TwoParamSyncActionPayload<TP, TP2> : ReusableValueTaskSource<int>, 
     private TP2 secondParameter = default!;
     private Action<TP, TP2>? toInvoke;
 
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        toInvoke?.Invoke(firstParameter, secondParameter);
+        TrySetResult(0);
+        return ValueTask.CompletedTask;
+    }
+
     public virtual void Invoke()
     {
         try
         {
             toInvoke!(firstParameter, secondParameter);
-            SetResult(0);
+            TrySetResult(0);
         }
         catch (Exception ex)
         {
@@ -62,6 +80,19 @@ public class TwoParamSyncActionPayload<TP, TP2> : ReusableValueTaskSource<int>, 
 public class NoParamsSyncResultPayload<TR> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
     private Func<TR>? toInvoke;
+
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = toInvoke.Invoke();
+            TrySetResult(result);
+        }
+
+        return ValueTask.CompletedTask;
+    }
 
     public virtual void Invoke()
     {
@@ -85,6 +116,17 @@ public class NoParamsSyncResultPayload<TR> : ReusableValueTaskSource<TR>, IInvok
 public class NoParamsAsyncResultPayload<TR> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
     private Func<ValueTask<TR>>? toInvoke;
+
+    public bool IsAsyncInvoke => true;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = await toInvoke.Invoke();
+            TrySetResult(result);
+        }
+    }
 
     public virtual void Invoke()
     {
@@ -122,6 +164,19 @@ public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, II
     private TP firstParameter = default!;
     private Func<TP, TR>? toInvoke;
 
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = toInvoke.Invoke(firstParameter);
+            TrySetResult(result);
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
     public virtual void Invoke()
     {
         try
@@ -142,10 +197,57 @@ public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, II
     }
 }
 
+public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvokeablePayload
+{
+    private TP firstParameter = default!;
+    private Func<TP, ValueTask>? toInvoke;
+
+    public bool IsAsyncInvoke => true;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            await toInvoke.Invoke(firstParameter);
+            TrySetResult(0);
+        }
+    }
+
+    public virtual void Invoke()
+    {
+        try
+        {
+            toInvoke!(firstParameter);
+            SetResult(0);
+        }
+        catch (Exception ex)
+        {
+            SetException(ex);
+        }
+    }
+
+    public void Configure(Func<TP, ValueTask> toExecute, TP firstParam)
+    {
+        toInvoke = toExecute;
+        firstParameter = firstParam;
+    }
+}
+
 public class OneParamAsyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
     private TP firstParameter = default!;
     private Func<TP, ValueTask<TR>>? toInvoke;
+
+    public bool IsAsyncInvoke => true;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = await toInvoke.Invoke(firstParameter);
+            TrySetResult(result);
+        }
+    }
 
     public virtual void Invoke()
     {
@@ -185,6 +287,19 @@ public class TwoParamsSyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<T
     private TP2 secondParameter = default!;
     private Func<TP, TP2, TR>? toInvoke;
 
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = toInvoke.Invoke(firstParameter, secondParameter);
+            TrySetResult(result);
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
     public virtual void Invoke()
     {
         try
@@ -211,6 +326,17 @@ public class TwoParamsAsyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<
     private TP firstParameter = default!;
     private TP2 secondParameter = default!;
     private Func<TP, TP2, ValueTask<TR>>? toInvoke;
+
+    public bool IsAsyncInvoke => true;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = await toInvoke.Invoke(firstParameter, secondParameter);
+            TrySetResult(result);
+        }
+    }
 
     public virtual void Invoke()
     {
@@ -252,6 +378,19 @@ public class ThreeParamsSyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskS
     private TP3 thirdParameter = default!;
     private Func<TP, TP2, TP3, TR>? toInvoke;
 
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = toInvoke.Invoke(firstParameter, secondParameter, thirdParameter);
+            TrySetResult(result);
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
     public virtual void Invoke()
     {
         try
@@ -280,6 +419,17 @@ public class ThreeParamsAsyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTask
     private TP2 secondParameter = default!;
     private TP3 thirdParameter = default!;
     private Func<TP, TP2, TP3, ValueTask<TR>>? toInvoke;
+
+    public bool IsAsyncInvoke => true;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            var result = await toInvoke.Invoke(firstParameter, secondParameter, thirdParameter);
+            TrySetResult(result);
+        }
+    }
 
     public virtual void Invoke()
     {

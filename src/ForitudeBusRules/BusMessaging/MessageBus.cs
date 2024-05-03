@@ -21,6 +21,7 @@ public interface IMessageBus
     IBusIOResolver BusIOResolver { get; }
 
     void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+    void Send<T>(T msg, MessageType messageType, DispatchOptions dispatchOptions);
 
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions);
@@ -127,6 +128,11 @@ public class MessageBus : IConfigureMessageBus
 
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         AllMessageQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
+
+    public void Send<T>(T msg, MessageType messageType, DispatchOptions dispatchOptions)
+    {
+        AllMessageQueues.Send(msg, messageType, dispatchOptions);
+    }
 
     public void DeployRule(IRule sender, IRule toDeployRule, DeploymentOptions options)
     {

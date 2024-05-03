@@ -306,12 +306,12 @@ public class OrderBookLayerFactorySelectorTests
     [TestMethod]
     public void PQPriceVolumeLayerTypes_ConvertToExpectedImplementation_ConvertsToNonPQPriceVolumeLayerType()
     {
-        var pvl = layerSelector.ConvertToExpectedImplementation(pqPriceVolumeLayer);
+        var pvl = layerSelector.CreateExpectedImplementation(LayerType.PriceVolume, pqPriceVolumeLayer);
         Assert.AreEqual(pvl.GetType(), typeof(PriceVolumeLayer));
         Assert.AreEqual(ExpectedPrice, pvl.Price);
         Assert.AreEqual(ExpectedVolume, pvl.Volume);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(pqSourcePriceVolumeLayer);
+        pvl = layerSelector.CreateExpectedImplementation(LayerType.SourcePriceVolume, pqSourcePriceVolumeLayer);
         var pqSrcPvl = pvl as SourcePriceVolumeLayer;
         Assert.IsNotNull(pqSrcPvl);
         Assert.AreEqual(ExpectedPrice, pvl.Price);
@@ -319,7 +319,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedSourceName, pqSrcPvl.SourceName);
         Assert.AreEqual(true, pqSrcPvl.Executable);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(pqSourceQutoeRefPriceVolumeLayer);
+        pvl = layerSelector.CreateExpectedImplementation(LayerType.SourceQuoteRefPriceVolume, pqSourceQutoeRefPriceVolumeLayer);
         var pqSrcQtRefPvl = pvl as SourceQuoteRefPriceVolumeLayer;
         Assert.IsNotNull(pqSrcQtRefPvl);
         Assert.AreEqual(ExpectedPrice, pvl.Price);
@@ -328,14 +328,14 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(true, pqSrcQtRefPvl.Executable);
         Assert.AreEqual(ExpectedQuoteRef, pqSrcQtRefPvl.SourceQuoteReference);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(pqValueDatePriceVolumeLayer);
+        pvl = layerSelector.CreateExpectedImplementation(LayerType.ValueDatePriceVolume, pqValueDatePriceVolumeLayer);
         var pqVlDtPvl = pvl as ValueDatePriceVolumeLayer;
         Assert.IsNotNull(pqVlDtPvl);
         Assert.AreEqual(ExpectedPrice, pvl.Price);
         Assert.AreEqual(ExpectedVolume, pvl.Volume);
         Assert.AreEqual(expectedValueDate, pqVlDtPvl.ValueDate);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(pqTraderPriceVolumeLayer);
+        pvl = layerSelector.CreateExpectedImplementation(LayerType.TraderPriceVolume, pqTraderPriceVolumeLayer);
         var pqTrdrPvl = pvl as TraderPriceVolumeLayer;
         Assert.IsNotNull(pqTrdrPvl);
         Assert.AreEqual(ExpectedPrice, pvl.Price);
@@ -343,7 +343,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedTraderName, pqTrdrPvl[0]!.TraderName);
         Assert.AreEqual(ExpectedVolume, pqTrdrPvl[0]!.TraderVolume);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(pqSrcQtRefTrdrVlDtPvl);
+        pvl = layerSelector.CreateExpectedImplementation(LayerType.SourceQuoteRefTraderValueDatePriceVolume, pqSrcQtRefTrdrVlDtPvl);
         var convertedPqSrcQtRefTrdrVlDtPvl = pvl as SourceQuoteRefTraderValueDatePriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreEqual(ExpectedPrice, pvl.Price);
@@ -357,15 +357,37 @@ public class OrderBookLayerFactorySelectorTests
     }
 
     [TestMethod]
-    public void NonPQPriceVolumeLayerTypes_ConvertToExpectedImplementation_ClonesPriceVolumeLayerType()
+    public void NonPQPriceVolumeLayerTypes_SelectPriceVolumeLayer_ReturnsUnchangeInstance()
     {
-        var pvl = layerSelector.ConvertToExpectedImplementation(priceVolumeLayer, true);
+        var pvl = layerSelector.UpgradeExistingLayer(priceVolumeLayer, pqPriceVolumeLayer.LayerType);
+        Assert.AreSame(priceVolumeLayer, pvl);
+
+        pvl = layerSelector.UpgradeExistingLayer(sourcePriceVolumeLayer, sourcePriceVolumeLayer.LayerType);
+        Assert.AreSame(sourcePriceVolumeLayer, pvl);
+
+        pvl = layerSelector.UpgradeExistingLayer(sourceQutoeRefPriceVolumeLayer, sourceQutoeRefPriceVolumeLayer.LayerType);
+        Assert.AreSame(sourceQutoeRefPriceVolumeLayer, pvl);
+
+        pvl = layerSelector.UpgradeExistingLayer(valueDatePriceVolumeLayer, valueDatePriceVolumeLayer.LayerType);
+        Assert.AreSame(valueDatePriceVolumeLayer, pvl);
+
+        pvl = layerSelector.UpgradeExistingLayer(traderPriceVolumeLayer, traderPriceVolumeLayer.LayerType);
+        Assert.AreSame(traderPriceVolumeLayer, pvl);
+
+        pvl = layerSelector.UpgradeExistingLayer(srcQtRefTrdrVlDtPvl, srcQtRefTrdrVlDtPvl.LayerType);
+        Assert.AreSame(srcQtRefTrdrVlDtPvl, pvl);
+    }
+
+    [TestMethod]
+    public void PriceVolumeLayerTypes_ConvertToExpectedImplementationCopyFrom_ReturnsCloneMatchingPriceVolumeLayerType()
+    {
+        var pvl = layerSelector.CreateExpectedImplementation(priceVolumeLayer.LayerType).CopyFrom(priceVolumeLayer);
         Assert.AreEqual(pvl.GetType(), typeof(PriceVolumeLayer));
-        Assert.AreNotSame(priceVolumeLayer, pvl);
+        Assert.AreNotSame(sourceQutoeRefPriceVolumeLayer, pvl);
         Assert.AreEqual(ExpectedPrice, pvl.Price);
         Assert.AreEqual(ExpectedVolume, pvl.Volume);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(sourcePriceVolumeLayer, true);
+        pvl = layerSelector.CreateExpectedImplementation(sourcePriceVolumeLayer.LayerType).CopyFrom(sourcePriceVolumeLayer);
         var pqSrcPvl = pvl as SourcePriceVolumeLayer;
         Assert.IsNotNull(pqSrcPvl);
         Assert.AreNotSame(sourcePriceVolumeLayer, pvl);
@@ -374,7 +396,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedSourceName, pqSrcPvl.SourceName);
         Assert.AreEqual(true, pqSrcPvl.Executable);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(sourceQutoeRefPriceVolumeLayer, true);
+        pvl = layerSelector.CreateExpectedImplementation(sourceQutoeRefPriceVolumeLayer.LayerType).CopyFrom(sourceQutoeRefPriceVolumeLayer);
         var pqSrcQtRefPvl = pvl as SourceQuoteRefPriceVolumeLayer;
         Assert.IsNotNull(pqSrcQtRefPvl);
         Assert.AreNotSame(sourceQutoeRefPriceVolumeLayer, pvl);
@@ -384,7 +406,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(true, pqSrcQtRefPvl.Executable);
         Assert.AreEqual(ExpectedQuoteRef, pqSrcQtRefPvl.SourceQuoteReference);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(valueDatePriceVolumeLayer, true);
+        pvl = layerSelector.CreateExpectedImplementation(valueDatePriceVolumeLayer.LayerType).CopyFrom(valueDatePriceVolumeLayer);
         var pqVlDtPvl = pvl as ValueDatePriceVolumeLayer;
         Assert.IsNotNull(pqVlDtPvl);
         Assert.AreNotSame(valueDatePriceVolumeLayer, pvl);
@@ -392,7 +414,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedVolume, pvl.Volume);
         Assert.AreEqual(expectedValueDate, pqVlDtPvl.ValueDate);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(traderPriceVolumeLayer, true);
+        pvl = layerSelector.CreateExpectedImplementation(traderPriceVolumeLayer.LayerType).CopyFrom(traderPriceVolumeLayer);
         var pqTrdrPvl = pvl as TraderPriceVolumeLayer;
         Assert.IsNotNull(pqTrdrPvl);
         Assert.AreNotSame(traderPriceVolumeLayer, pvl);
@@ -401,7 +423,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedTraderName, pqTrdrPvl[0]!.TraderName);
         Assert.AreEqual(ExpectedVolume, pqTrdrPvl[0]!.TraderVolume);
 
-        pvl = layerSelector.ConvertToExpectedImplementation(srcQtRefTrdrVlDtPvl, true);
+        pvl = layerSelector.CreateExpectedImplementation(srcQtRefTrdrVlDtPvl.LayerType).CopyFrom(srcQtRefTrdrVlDtPvl);
         var convertedPqSrcQtRefTrdrVlDtPvl = pvl as SourceQuoteRefTraderValueDatePriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(srcQtRefTrdrVlDtPvl, pvl);
@@ -413,38 +435,5 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedValueDate, convertedPqSrcQtRefTrdrVlDtPvl.ValueDate);
         Assert.AreEqual(expectedTraderName, convertedPqSrcQtRefTrdrVlDtPvl[0]!.TraderName);
         Assert.AreEqual(ExpectedVolume, convertedPqSrcQtRefTrdrVlDtPvl[0]!.TraderVolume);
-    }
-
-    [TestMethod]
-    public void PriceVolumeLayerTypes_ConvertToExpectedImplementation_ReturnsSamePriceVolumeLayerType()
-    {
-        var pvl = layerSelector.ConvertToExpectedImplementation(priceVolumeLayer);
-        Assert.AreEqual(pvl.GetType(), typeof(PriceVolumeLayer));
-        Assert.AreSame(priceVolumeLayer, pvl);
-
-        pvl = layerSelector.ConvertToExpectedImplementation(sourcePriceVolumeLayer);
-        var pqSrcPvl = pvl as SourcePriceVolumeLayer;
-        Assert.IsNotNull(pqSrcPvl);
-        Assert.AreSame(sourcePriceVolumeLayer, pvl);
-
-        pvl = layerSelector.ConvertToExpectedImplementation(sourceQutoeRefPriceVolumeLayer);
-        var pqSrcQtRefPvl = pvl as SourceQuoteRefPriceVolumeLayer;
-        Assert.IsNotNull(pqSrcQtRefPvl);
-        Assert.AreSame(sourceQutoeRefPriceVolumeLayer, pvl);
-
-        pvl = layerSelector.ConvertToExpectedImplementation(valueDatePriceVolumeLayer);
-        var pqVlDtPvl = pvl as ValueDatePriceVolumeLayer;
-        Assert.IsNotNull(pqVlDtPvl);
-        Assert.AreSame(valueDatePriceVolumeLayer, pvl);
-
-        pvl = layerSelector.ConvertToExpectedImplementation(traderPriceVolumeLayer);
-        var pqTrdrPvl = pvl as TraderPriceVolumeLayer;
-        Assert.IsNotNull(pqTrdrPvl);
-        Assert.AreSame(traderPriceVolumeLayer, pvl);
-
-        pvl = layerSelector.ConvertToExpectedImplementation(srcQtRefTrdrVlDtPvl);
-        var convertedPqSrcQtRefTrdrVlDtPvl = pvl as SourceQuoteRefTraderValueDatePriceVolumeLayer;
-        Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
-        Assert.AreSame(srcQtRefTrdrVlDtPvl, pvl);
     }
 }

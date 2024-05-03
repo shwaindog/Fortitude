@@ -28,4 +28,7 @@ public static class QuoteLevelExtensions
             , _ => QuoteLevel.Level3
         };
     }
+
+    public static bool LessThan(this QuoteLevel lhs, QuoteLevel rhs) => (byte)lhs < (byte)rhs;
+    public static bool GreaterThanOrEqualTo(this QuoteLevel lhs, QuoteLevel rhs) => (byte)lhs >= (byte)rhs;
 }

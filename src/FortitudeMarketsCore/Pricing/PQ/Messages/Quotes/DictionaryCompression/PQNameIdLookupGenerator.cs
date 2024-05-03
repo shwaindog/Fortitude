@@ -14,6 +14,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
     private readonly byte dictionaryFieldKey;
     protected readonly List<int> IdsUpdated = new();
 
+
     public PQNameIdLookupGenerator(byte dictionaryFieldKey) => this.dictionaryFieldKey = dictionaryFieldKey;
 
     public PQNameIdLookupGenerator(INameIdLookup toClone, byte? dictionaryFieldKey = null) : base(toClone)

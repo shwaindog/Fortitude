@@ -59,7 +59,7 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
 
     private async ValueTask SnapshotIdsRequestHandler(IBusMessage<FeedSourceTickerInfoUpdate> snapshotIdsMessage)
     {
-        var sourceTickerQuoteInfos = snapshotIdsMessage.Payload.Body()!.SourceTickerQuoteInfos;
+        var sourceTickerQuoteInfos = snapshotIdsMessage.Payload.Body().SourceTickerQuoteInfos;
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
             .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
         var succeeded = await (snapshotClient?.RequestSnapshots(sourceTickerQuoteInfos, connectionTimeout, workerQueueConnect)

@@ -19,6 +19,13 @@ public class TaskPayload : ReusableObject<IInvokeablePayload>, IInvokeablePayloa
 
     public SendOrPostCallback Callback { get; set; } = null!;
     public object? State { get; set; }
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        Invoke();
+        return ValueTask.CompletedTask;
+    }
 
     public void Invoke()
     {
