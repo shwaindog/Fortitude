@@ -2,11 +2,11 @@
 
 public interface IAsyncValueTaskDisposable : IDisposable
 {
-    ValueTask DisposeResult { get; set; }
+    ValueTask DisposeAwaitValueTask { get; set; }
 
     void IDisposable.Dispose()
     {
-        DisposeResult = Dispose();
+        DisposeAwaitValueTask = Dispose();
     }
 
     new ValueTask Dispose();

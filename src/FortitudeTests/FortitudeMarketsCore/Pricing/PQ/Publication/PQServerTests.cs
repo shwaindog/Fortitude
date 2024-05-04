@@ -57,13 +57,16 @@ public class PQServerTests
     public void Setup(LayerFlags layerDetails, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
         sourceTickerConfig1 =
-            new TickerConfig(TickerId1, TestTicker1, TickerAvailability.AllEnabled, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails, 20
+            new TickerConfig(TickerId1, TestTicker1, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails
+                , 20
                 , lastTradedFlags);
         sourceTickerConfig2 =
-            new TickerConfig(TickerId2, TestTicker2, TickerAvailability.AllEnabled, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails, 20
+            new TickerConfig(TickerId2, TestTicker2, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails
+                , 20
                 , lastTradedFlags);
         sourceTickerConfig3 =
-            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.AllEnabled, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails, 20
+            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails
+                , 20
                 , lastTradedFlags);
         sourceTickerConfigs = new SourceTickersConfig(sourceTickerConfig1, sourceTickerConfig2, sourceTickerConfig3);
         pricingServerConfig = new PricingServerConfig(

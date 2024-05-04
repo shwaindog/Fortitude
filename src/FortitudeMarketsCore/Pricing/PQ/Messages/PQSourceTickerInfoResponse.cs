@@ -38,6 +38,13 @@ public class PQSourceTickerInfoResponse : ResponseMessage
         return this;
     }
 
+    public override void StateReset()
+    {
+        SourceTickerQuoteInfos.Clear();
+        base.StateReset();
+    }
+
+
     public override IVersionedMessage Clone() =>
         Recycler?.Borrow<PQSourceTickerInfoResponse>().CopyFrom(this) ?? new PQSourceTickerInfoResponse(this);
 

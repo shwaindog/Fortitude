@@ -41,12 +41,11 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
     public override async ValueTask StartAsync()
     {
         await LaunchUpdateClient();
-        IncrementLifeTimeCount();
     }
 
     public override async ValueTask StopAsync()
     {
-        await Context.MessageBus.UndeployRuleAsync(this, PqPricingClientFeedSyncMonitorRule);
+        await this.UndeployRuleAsync(PqPricingClientFeedSyncMonitorRule);
         updateClient?.Stop(CloseReason.Completed, $"PQPricingClientUpdatesSubscriberRule for {feedName} is stopping");
     }
 
@@ -75,7 +74,7 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
             = Context.MessageBus.BusIOResolver.GetInboundQueueOnSocketListener(startedUpdateClientUpdatesConversationSubscriber.SocketSessionContext
                 .SocketDispatcher.Listener!);
         PqPricingClientFeedSyncMonitorRule = new PQPricingClientFeedSyncMonitorRule(feedName, sharedFeedDeserializationRepo);
-        await Context.MessageBus.DeployRuleAsync(this, PqPricingClientFeedSyncMonitorRule
+        await this.DeployRuleAsync(PqPricingClientFeedSyncMonitorRule
             , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedUpdatesSocketListenerQueue!.Name));
     }
 }

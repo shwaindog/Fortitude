@@ -22,7 +22,7 @@ public interface IMessagePump
     bool IsListeningOn(string address);
 
     int CopyLivingRulesTo(IAutoRecycleEnumerable<IRule> toCopyTo);
-    IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address);
+    IEnumerable<IMessageListenerRegistration> ListeningSubscriptionsOn(string address);
 
     event Action<QueueEventTime> MessageStartProcessingTime;
     event Action<QueueEventTime> MessageFinishProcessingTime;
@@ -31,9 +31,6 @@ public interface IMessagePump
 public class MessagePump : IMessagePump
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessagePump));
-
-    private static readonly Action<ValueTask, object?> RuleStarted = RuleStartedCallback;
-    private static readonly Action<ValueTask, object?> RuleStopped = RuleStoppedCallback;
 
     private readonly ListenerRegistry listenerRegistry = new();
 
@@ -83,11 +80,12 @@ public class MessagePump : IMessagePump
         return i;
     }
 
-    public IEnumerable<IMessageListenerSubscription> ListeningSubscriptionsOn(string address) => listenerRegistry.MatchingSubscriptions(address);
+    public IEnumerable<IMessageListenerRegistration> ListeningSubscriptionsOn(string address) => listenerRegistry.MatchingSubscriptions(address);
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
+        EventContext.QueueTimer.Dispose();
         ringPoller.Dispose();
     }
 
@@ -103,6 +101,7 @@ public class MessagePump : IMessagePump
 
     public void Stop()
     {
+        EventContext.QueueTimer.Dispose();
         ringPoller.Stop();
     }
 
@@ -123,7 +122,7 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var actionBody = ((Payload<Action>)data.Payload!).Body(PayloadRequestType.QueueReceive)!;
+                        var actionBody = ((Payload<Action>)data.Payload).Body(PayloadRequestType.QueueReceive);
                         actionBody();
                     }
                     catch (Exception ex)
@@ -137,12 +136,16 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var actionBody = (IInvokeablePayload)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
-                        actionBody?.Invoke();
+                        var invokable = (IInvokeablePayload)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
+                        if (invokable.IsAsyncInvoke)
+                            await invokable.InvokeAsync();
+                        else
+                            // ReSharper disable once MethodHasAsyncOverload
+                            invokable!.Invoke();
                     }
                     catch (Exception ex)
                     {
-                        Logger.Warn("Caught exception running InvokeablePayload on {1}.  Got {0}", ringPoller.Ring.Name, ex);
+                        Logger.Warn("Caught exception running InvokablePayload on {1}.  Got {0}", ringPoller.Ring.Name, ex);
                     }
 
                     break;
@@ -151,7 +154,7 @@ public class MessagePump : IMessagePump
                 {
                     try
                     {
-                        var timerCallbackPayload = (ITimerCallbackPayload)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                        var timerCallbackPayload = (ITimerCallbackPayload)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                         if (timerCallbackPayload.IsAsyncInvoke())
                             await timerCallbackPayload.InvokeAsync();
                         else
@@ -167,7 +170,7 @@ public class MessagePump : IMessagePump
                 }
                 case MessageType.ListenerSubscribe:
                 {
-                    var subscribePayload = (IMessageListenerSubscription)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    var subscribePayload = (IMessageListenerRegistration)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                     var processorRegistry = data.ProcessorRegistry;
                     processorRegistry?.RegisterStart(subscribePayload.SubscriberRule);
                     await listenerRegistry.AddListenerToWatchList(subscribePayload);
@@ -176,19 +179,19 @@ public class MessagePump : IMessagePump
                 }
                 case MessageType.ListenerUnsubscribe:
                 {
-                    var unsubscribePayload = ((Payload<MessageListenerUnsubscribe>)data.Payload!).Body(PayloadRequestType.QueueReceive)!;
+                    var unsubscribePayload = ((Payload<MessageListenerSubscription>)data.Payload).Body(PayloadRequestType.QueueReceive)!;
                     await listenerRegistry.RemoveListenerFromWatchList(unsubscribePayload);
                     break;
                 }
                 case MessageType.AddListenSubscribeInterceptor:
                 {
-                    var subscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    var subscribePayload = (IListenSubscribeInterceptor)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                     await listenerRegistry.AddSubscribeInterceptor(subscribePayload);
                     break;
                 }
                 case MessageType.RemoveListenSubscribeInterceptor:
                 {
-                    var unsubscribePayload = (IListenSubscribeInterceptor)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+                    var unsubscribePayload = (IListenSubscribeInterceptor)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                     await listenerRegistry.RemoveSubscribeInterceptor(unsubscribePayload);
                     break;
                 }
@@ -201,17 +204,22 @@ public class MessagePump : IMessagePump
 
             for (var i = 0; i < livingRules.Count; i++)
             {
+                if (i < 0) // async await below may alter the living rules list
+                    i = 0;
+                if (livingRules.Count == 0 || i >= livingRules.Count) // async await below may alter the living rules list
+                    break;
                 var checkRule = livingRules[i];
 
-                if (checkRule.ShouldBeStopped())
-                    try
-                    {
-                        await checkRule.StopAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Warn("Caught exception stopping rule {0}, Got {1}", checkRule.FriendlyName, ex);
-                    }
+                if (checkRule.LifeCycleState != RuleLifeCycle.Started || !checkRule.ShouldBeStopped()) continue;
+                try
+                {
+                    i--;
+                    await UnloadRuleAndDependents(checkRule);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Caught exception stopping rule {0}, Got {1}", checkRule.FriendlyName, ex);
+                }
             }
 
             data.DecrementCargoRefCounts();
@@ -246,36 +254,14 @@ public class MessagePump : IMessagePump
         RingPollerScheduler = new SyncContextTaskScheduler();
     }
 
-    private static void RuleStartedCallback(ValueTask launchTask, object? state)
-    {
-        if (state is IProcessorRegistry processorRegistry)
-        {
-            processorRegistry.RulePayload!.LifeCycleState = launchTask.IsCompletedSuccessfully ?
-                RuleLifeCycle.Started :
-                RuleLifeCycle.ShuttingDown;
-            processorRegistry.RegisterFinish(processorRegistry.RulePayload);
-            processorRegistry.ProcessingComplete();
-        }
-    }
-
-    private static void RuleStoppedCallback(ValueTask launchTask, object? state)
-    {
-        if (state is IProcessorRegistry processorRegistry)
-        {
-            processorRegistry.RulePayload!.LifeCycleState = RuleLifeCycle.Stopped;
-            processorRegistry.RegisterFinish(processorRegistry.RulePayload);
-            processorRegistry.ProcessingComplete();
-        }
-    }
-
     private async ValueTask UnloadExistingRule(BusMessage data)
     {
-        var toShutdown = (IListeningRule)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+        var toShutdown = (IListeningRule)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
         try
         {
             if (livingRules.Contains(toShutdown) && toShutdown.LifeCycleState == RuleLifeCycle.Started)
             {
-                await ForceUnloadRule(data, toShutdown);
+                await UnloadRuleAndDependents(toShutdown);
                 data.ProcessorRegistry!.ProcessingComplete();
             }
         }
@@ -285,13 +271,16 @@ public class MessagePump : IMessagePump
         }
     }
 
-    private async Task ForceUnloadRule(BusMessage data, IListeningRule toShutdown)
+    private async ValueTask UnloadRuleAndDependents(IListeningRule toShutdown)
     {
+        if (toShutdown.LifeCycleState != RuleLifeCycle.Started) return;
+        toShutdown.LifeCycleState = RuleLifeCycle.ShutDownRequested;
         await UndeployChildren(toShutdown);
-        await listenerRegistry.UnsubscribeAllListenersForRule(toShutdown);
         try
         {
-            await toShutdown.StopAsync();
+            foreach (var ruleRegisteredDisposables in toShutdown.OnStopResourceCleanup()) await ruleRegisteredDisposables.Dispose();
+            await listenerRegistry.UnsubscribeAllListenersForRule(toShutdown);
+            await toShutdown.MessageBusStopAsync();
         }
         catch (Exception ex)
         {
@@ -320,7 +309,7 @@ public class MessagePump : IMessagePump
 
     private async ValueTask LoadNewRule(BusMessage data)
     {
-        var newRule = (IListeningRule)data.Payload!.BodyObj(PayloadRequestType.QueueReceive)!;
+        var newRule = (IListeningRule)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
         var processorRegistry = data.ProcessorRegistry!;
         processorRegistry.RegisterStart(newRule);
         try
@@ -334,7 +323,7 @@ public class MessagePump : IMessagePump
         catch (Exception ex)
         {
             Logger.Warn("Problem starting rule: {0}.  Caught {1}", newRule.FriendlyName, ex);
-            await ForceUnloadRule(data, newRule);
+            await UnloadRuleAndDependents(newRule);
             data.ProcessorRegistry!.SetException(ex);
         }
     }

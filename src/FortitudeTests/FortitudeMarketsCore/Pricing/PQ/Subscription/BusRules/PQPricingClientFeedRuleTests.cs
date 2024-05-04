@@ -102,7 +102,7 @@ public class TestSubscribeToTickerRule : Rule
 
     private void Handler(IBusMessage<PQLevel3Quote> priceQuote)
     {
-        var pqL3Quote = priceQuote.Payload.Body()!;
+        var pqL3Quote = priceQuote.Payload.Body();
         Logger.Info("Rule {0} listening on {1} received {2} with Sequence Number {3}", FriendlyName, feedTickerListenAddress
             , pqL3Quote.GetType().Name, pqL3Quote.PQSequenceId);
         haveRecievedTick.Set();

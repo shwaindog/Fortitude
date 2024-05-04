@@ -37,26 +37,26 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     public OrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers)
     {
         BookSide = bookSide;
-        BookLayers = bookLayers?.Select(pvl => LayerSelector.ConvertToExpectedImplementation(pvl))
-            ?.ToList() ?? new List<IPriceVolumeLayer?>();
+        BookLayers = bookLayers
+            .Select(pvl => LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl)).Cast<IPriceVolumeLayer?>()
+            .ToList();
     }
 
     public OrderBook(IOrderBook toClone)
     {
         BookSide = toClone.BookSide;
         BookLayers = new List<IPriceVolumeLayer?>(toClone.Count());
+        LayersOfType = toClone.LayersOfType;
         foreach (var priceVolumeLayer in toClone)
-            BookLayers.Add(LayerSelector.ConvertToExpectedImplementation(priceVolumeLayer, true));
-        if (BookLayers.Count == 0 && toClone.Count == 0)
-            BookLayers.Add(LayerSelector.ConvertToExpectedImplementation(toClone[0], true));
+            BookLayers.Add(LayerSelector.CreateExpectedImplementation(priceVolumeLayer.LayerType, priceVolumeLayer));
         Capacity = toClone.Capacity;
     }
 
     public OrderBook(BookSide bookSide, ISourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
         BookSide = bookSide;
-        LayersSupportsLayerFlags = sourceTickerQuoteInfo.LayerFlags;
-        LayersOfType = LayersSupportsLayerFlags.MostCompactLayerType();
+
+        LayersOfType = sourceTickerQuoteInfo.LayerFlags.MostCompactLayerType();
         BookLayers = new List<IPriceVolumeLayer?>(sourceTickerQuoteInfo.MaximumPublishedLayers);
         for (var i = 0; i < sourceTickerQuoteInfo.MaximumPublishedLayers; i++)
             BookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
@@ -65,9 +65,9 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerQuoteInfo> LayerSelector { get; set; } =
         new OrderBookLayerFactorySelector();
 
-    public LayerType LayersOfType { get; } = LayerType.PriceVolume;
+    public LayerType LayersOfType { get; private set; } = LayerType.PriceVolume;
 
-    public LayerFlags LayersSupportsLayerFlags { get; } = LayerFlags.Price | LayerFlags.Volume;
+    public LayerFlags LayersSupportsLayerFlags => LayersOfType.SupportedLayerFlags();
 
     public IMutablePriceVolumeLayer? this[int level]
     {
@@ -112,7 +112,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
                                             PQFieldKeys.SingleByteFieldIdMaxBookDepth);
             while (BookLayers.Count < value)
             {
-                var cloneFirstLayer = (IMutablePriceVolumeLayer?)BookLayers[0]?.Clone();
+                var cloneFirstLayer = LayerSelector.CreateExpectedImplementation(LayersOfType);
                 cloneFirstLayer?.StateReset();
                 if (cloneFirstLayer != null) BookLayers.Add(cloneFirstLayer);
             }
@@ -127,22 +127,21 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        LayersOfType = source.LayersOfType;
         var sourceDeepestLayerSet = source.Count;
         for (var i = 0; i < sourceDeepestLayerSet; i++)
         {
             var sourceLayerToCopy = source[i];
             if (i < BookLayers.Count)
             {
-                if (!(BookLayers[i] is IMutablePriceVolumeLayer mutableLayer))
-                    BookLayers[i] = LayerSelector.ConvertToExpectedImplementation(sourceLayerToCopy, true);
-                else if (sourceLayerToCopy != null)
-                    mutableLayer.CopyFrom(sourceLayerToCopy);
+                if (sourceLayerToCopy != null)
+                    BookLayers[i] = LayerSelector.UpgradeExistingLayer(BookLayers[i], LayersOfType, sourceLayerToCopy);
                 else
                     (BookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
             }
             else
             {
-                BookLayers.Add(LayerSelector.ConvertToExpectedImplementation(sourceLayerToCopy, true));
+                BookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, sourceLayerToCopy));
             }
         }
 

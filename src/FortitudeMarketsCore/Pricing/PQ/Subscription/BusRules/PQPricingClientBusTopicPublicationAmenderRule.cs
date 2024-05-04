@@ -5,6 +5,7 @@ using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization.Rules;
 using FortitudeBusRules.Messages;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -24,8 +25,6 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientBusTopicPublicationAmenderRule));
     private readonly IPricingServerConfig pricingServerConfig;
     private List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos;
-
-    private ISubscription? listenForFeedSourceTickerInfosSubscription;
 
     public PQPricingClientBusTopicPublicationAmenderRule(string feedName, List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos
         , ISocketSessionContext socketSessionContext
@@ -51,8 +50,6 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
 
     public override async ValueTask StopAsync()
     {
-        if (listenForFeedSourceTickerInfosSubscription != null) await listenForFeedSourceTickerInfosSubscription.UnsubscribeAsync();
-
         await base.StopAsync();
     }
 
@@ -77,14 +74,14 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
 
     protected async ValueTask FeedSourceTickerInfoListener()
     {
-        listenForFeedSourceTickerInfosSubscription = await Context.MessageBus.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(this
-            , feedName.FeedAvailableTickersUpdateAddress(), ReceivedFeedAvailableTickersUpdate);
+        await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(
+            feedName.FeedAvailableTickersUpdateAddress(), ReceivedFeedAvailableTickersUpdate);
     }
 
     private void ReceivedFeedAvailableTickersUpdate(IBusMessage<FeedSourceTickerInfoUpdate> feedTickersMessage)
     {
         var feedSourceTickerInfosUpdate = feedTickersMessage.Payload.Body();
-        if (ListenForPublishSubscriptions == null && feedSourceTickerInfosUpdate?.SourceTickerQuoteInfos.Any() == true)
+        if (feedSourceTickerInfosUpdate?.SourceTickerQuoteInfos.Any() == true)
             if (feedSourceTickerQuoteInfos.Any() && !feedSourceTickerInfosUpdate.SourceTickerQuoteInfos.SequenceEqual(feedSourceTickerQuoteInfos))
             {
                 feedSourceTickerQuoteInfos = feedSourceTickerInfosUpdate.SourceTickerQuoteInfos;
@@ -99,7 +96,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
         var addressPublicationAmenderInterceptor = new PQPricingClientTickerPublishAmenderInterceptor(feedName,
             new AddressMatcher(interceptorListenPath), (IIOInboundMessageQueue)Context.RegisteredOn);
 
-        await Context.MessageBus.AddListenSubscribeInterceptor(this, addressPublicationAmenderInterceptor, MessageQueueType.AllNonIO);
+        await this.AddListenSubscribeInterceptor(addressPublicationAmenderInterceptor, MessageQueueType.AllNonIO);
     }
 
     protected override string ExtractSubscriptionPostfix(string fullMessageAddressDestination) =>

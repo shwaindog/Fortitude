@@ -20,6 +20,8 @@ public interface IMarketConnectionConfig : IConnection, ICloneable<IMarketConnec
     IPricingServerConfig? PricingServerConfig { get; set; }
     ITradingServerConfig? TradingServerConfig { get; set; }
     IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos { get; }
+    IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos { get; }
+    IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos { get; }
     IMarketConnectionConfig ShiftPortsBy(ushort deltaPorts);
 
     ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker);
@@ -150,6 +152,12 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos =>
         SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+
+    public IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos =>
+        SourceTickerConfig?.PricingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+
+    public IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos =>
+        SourceTickerConfig?.TradingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
 
     public IMarketConnectionConfig Clone() => new MarketConnectionConfig(this);
 

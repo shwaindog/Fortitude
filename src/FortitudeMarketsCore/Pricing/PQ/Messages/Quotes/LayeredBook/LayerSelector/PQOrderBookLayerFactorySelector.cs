@@ -5,7 +5,6 @@ using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
-using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 
 #endregion
@@ -15,96 +14,84 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelec
 public interface IPQOrderBookLayerFactorySelector :
     ILayerFlagsSelector<IPQOrderBookLayerFactory, IPQSourceTickerQuoteInfo>
 {
-    bool TypeCanWholeyContain(Type copySourceType, Type copyDestinationType);
-
-    IPQPriceVolumeLayer? SelectPriceVolumeLayer(IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
-        , IPriceVolumeLayer? desired);
+    IPQPriceVolumeLayer UpgradeExistingLayer(IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
+        , LayerType desiredLayerType, IPriceVolumeLayer? copy = null);
 }
 
 public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLayerFactory, IPQSourceTickerQuoteInfo>,
     IPQOrderBookLayerFactorySelector, ISupportsPQNameIdLookupGenerator
 {
-    public PQOrderBookLayerFactorySelector(IPQNameIdLookupGenerator nameIdLookup) => NameIdLookup = nameIdLookup;
-
-    public override IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false) =>
-        ConvertToExpectedImplementation(priceVolumeLayer, NameIdLookup, clone);
-
-    public virtual bool TypeCanWholeyContain(Type copySourceType, Type copyDestinationType)
+    static PQOrderBookLayerFactorySelector()
     {
-        if (copySourceType == typeof(PQPriceVolumeLayer) || copySourceType == typeof(PriceVolumeLayer)) return true;
-        if (copySourceType == typeof(SourcePriceVolumeLayer) ||
-            copySourceType == typeof(PQSourcePriceVolumeLayer))
-            return copyDestinationType == typeof(PQSourcePriceVolumeLayer) ||
-                   copyDestinationType == typeof(PQSourceQuoteRefPriceVolumeLayer) ||
-                   copyDestinationType == typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer);
-        if (copySourceType == typeof(SourceQuoteRefPriceVolumeLayer) ||
-            copySourceType == typeof(PQSourceQuoteRefPriceVolumeLayer))
-            return copyDestinationType == typeof(PQSourceQuoteRefPriceVolumeLayer) ||
-                   copyDestinationType == typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer);
-        if (copySourceType == typeof(ValueDatePriceVolumeLayer) ||
-            copySourceType == typeof(PQValueDatePriceVolumeLayer))
-            return copyDestinationType == typeof(PQValueDatePriceVolumeLayer) ||
-                   copyDestinationType == typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer);
-        if (copySourceType == typeof(TraderPriceVolumeLayer) ||
-            copySourceType == typeof(PQTraderPriceVolumeLayer))
-            return copyDestinationType == typeof(PQTraderPriceVolumeLayer) ||
-                   copyDestinationType == typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer);
-        if (copySourceType == typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer) ||
-            copySourceType == typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer))
-            return copyDestinationType == typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer);
-        return false;
+        var pqNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        foreach (var layerType in Enum.GetValues<LayerType>())
+        {
+            if (layerType == LayerType.None) continue;
+            AllowedImplementations.Add(LayerFlagToImplementation(layerType, pqNameIdLookup).GetType());
+        }
     }
 
-    public virtual IPQPriceVolumeLayer? SelectPriceVolumeLayer(IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
-        , IPriceVolumeLayer? desired)
+    public PQOrderBookLayerFactorySelector(IPQNameIdLookupGenerator nameIdLookup) => NameIdLookup = nameIdLookup;
+
+    public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null) =>
+        CreateExpectedImplementation(desiredLayerType, NameIdLookup, copy);
+
+    public override IPriceVolumeLayer
+        UpgradeExistingLayer(IPriceVolumeLayer? original, LayerType desiredLayerType, IPriceVolumeLayer? copy = null) =>
+        UpgradeExistingLayer(original as IPQPriceVolumeLayer, NameIdLookup, desiredLayerType, copy);
+
+    public IPQPriceVolumeLayer UpgradeExistingLayer(IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
+        , LayerType desiredLayerType, IPriceVolumeLayer? copy = null)
     {
-        if (desired == null) return null;
         if (original == null)
         {
-            var cloneOfSrc = (IPQPriceVolumeLayer?)ConvertToExpectedImplementation(desired, nameIdLookupGenerator, true);
-            cloneOfSrc?.StateReset();
+            var cloneOfSrc = CreateExpectedImplementation(desiredLayerType, nameIdLookupGenerator);
+            if (copy != null) cloneOfSrc.CopyFrom(copy);
             return cloneOfSrc;
         }
 
-        if (original.GetType() != desired.GetType() &&
-            !TypeCanWholeyContain(desired.GetType(), original.GetType()))
-            return new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(original, nameIdLookupGenerator);
+        if ((original.LayerType != desiredLayerType &&
+             !OriginalCanWhollyContain(desiredLayerType.SupportedLayerFlags(), original.SupportsLayerFlags))
+            || !AllowedImplementations.Contains(original.GetType()))
+        {
+            var mergeOrginalDesiredLayerFlags = original.SupportsLayerFlags | desiredLayerType.SupportedLayerFlags();
+            var mostCompatibleSupportsBoth = mergeOrginalDesiredLayerFlags.MostCompactLayerType();
+            var upgradeLayer = CreateExpectedImplementation(mostCompatibleSupportsBoth, nameIdLookupGenerator);
+            upgradeLayer.CopyFrom(original);
+            if (copy != null) upgradeLayer.CopyFrom(copy);
+            return upgradeLayer;
+        }
+
+        if (copy != null) original.CopyFrom(copy);
+
         return original;
     }
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
     public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
-    public IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? checkForConvert, IPQNameIdLookupGenerator nameIdLookup,
-        bool clone = false)
+    public IPQPriceVolumeLayer CreateExpectedImplementation(LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup
+        , IPriceVolumeLayer? copy = null)
     {
-        switch (checkForConvert)
-        {
-            case null:
-                return new PQPriceVolumeLayer();
-            case PQPriceVolumeLayer pqPriceVolumeLayer:
-            {
-                var origOrClone = clone ? pqPriceVolumeLayer.Clone() : pqPriceVolumeLayer;
-                if (origOrClone is ISupportsPQNameIdLookupGenerator hasNameIdGen) hasNameIdGen.NameIdLookup = nameIdLookup;
-                return origOrClone;
-            }
-            case ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtePvLayer:
-                return new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(srcQtRefTrdrVlDtePvLayer, nameIdLookup);
-            case ITraderPriceVolumeLayer trdrPvLayer:
-                return new PQTraderPriceVolumeLayer(trdrPvLayer, nameIdLookup);
-            case IValueDatePriceVolumeLayer valueDatePriceVolumeLayer:
-                return new PQValueDatePriceVolumeLayer(valueDatePriceVolumeLayer);
-            case ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer:
-                return new PQSourceQuoteRefPriceVolumeLayer(srcQtRefPvLayer, nameIdLookup);
-            case ISourcePriceVolumeLayer sourcePriceVolumeLayer:
-                return new PQSourcePriceVolumeLayer(sourcePriceVolumeLayer, nameIdLookup);
-            default:
-                return new PQPriceVolumeLayer(checkForConvert);
-        }
+        var newLayer = LayerFlagToImplementation(checkForConvert, nameIdLookup);
+        if (copy != null) newLayer.CopyFrom(copy);
+        return newLayer;
     }
 
-    public virtual IPQPriceVolumeLayer? SelectPriceVolumeLayer(IPQPriceVolumeLayer? original, IPriceVolumeLayer? desired) =>
-        SelectPriceVolumeLayer(original, NameIdLookup, desired);
+    public static IPQPriceVolumeLayer LayerFlagToImplementation(LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup)
+    {
+        var newLayer = checkForConvert switch
+        {
+            LayerType.PriceVolume => new PQPriceVolumeLayer()
+            , LayerType.SourceQuoteRefTraderValueDatePriceVolume => new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(nameIdLookup)
+            , LayerType.TraderPriceVolume => new PQTraderPriceVolumeLayer(nameIdLookup)
+            , LayerType.ValueDatePriceVolume => new PQValueDatePriceVolumeLayer()
+            , LayerType.SourceQuoteRefPriceVolume => new PQSourceQuoteRefPriceVolumeLayer(nameIdLookup)
+            , LayerType.SourcePriceVolume => new PQSourcePriceVolumeLayer(nameIdLookup)
+            , _ => new PQPriceVolumeLayer()
+        };
+        return newLayer;
+    }
 
     protected override IPQOrderBookLayerFactory SelectSimplePriceVolumeLayer(
         IPQSourceTickerQuoteInfo sourceTickerQuoteInfo) =>

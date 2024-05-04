@@ -554,8 +554,8 @@ public class PQOrderBookTests
                 originalTypeOrderBook[0]!.GetType(), false);
             emptyOriginalTypeOrderBook.CopyFrom(otherOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo(emptyOriginalTypeOrderBook, otherOrderBook,
-                GetExpectedType(originalTypeOrderBook[0]!.GetType(),
-                    otherOrderBook[0]!.GetType()));
+                GetExpectedType(originalTypeOrderBook[0]!.LayerType,
+                    otherOrderBook[0]!.LayerType));
         }
     }
 
@@ -571,11 +571,9 @@ public class PQOrderBookTests
                 originalTypeOrderBook[0]!.GetType(), false);
             clonedPopulatedOrderBook.CopyFrom(otherOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, otherOrderBook,
-                GetExpectedType(originalTypeOrderBook[0]!.GetType(),
-                    otherOrderBook[0]!.GetType()));
+                GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
             AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalTypeOrderBook,
-                GetExpectedType(originalTypeOrderBook[0]!.GetType(),
-                    otherOrderBook[0]!.GetType()));
+                GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
         }
     }
 
@@ -762,12 +760,72 @@ public class PQOrderBookTests
         }
     }
 
-    private Type GetExpectedType(Type originalType, Type copyType)
+    private Type GetExpectedType(LayerType originalType, LayerType copyType)
     {
-        if (copyType == typeof(PQPriceVolumeLayer)) return originalType;
-        if (originalType == typeof(PQSourceQuoteRefPriceVolumeLayer) && copyType == typeof(PQSourcePriceVolumeLayer))
-            return typeof(PQSourceQuoteRefPriceVolumeLayer);
-        return typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer);
+        return originalType switch
+        {
+            LayerType.PriceVolume => copyType switch
+            {
+                LayerType.PriceVolume => typeof(PQPriceVolumeLayer)
+                , LayerType.SourcePriceVolume => typeof(PQSourcePriceVolumeLayer)
+                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                , LayerType.TraderPriceVolume => typeof(PQTraderPriceVolumeLayer)
+                , LayerType.ValueDatePriceVolume => typeof(PQValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , _ => throw new NotImplementedException()
+            }
+            , LayerType.SourcePriceVolume => copyType switch
+            {
+                LayerType.PriceVolume => typeof(PQSourcePriceVolumeLayer)
+                , LayerType.SourcePriceVolume => typeof(PQSourcePriceVolumeLayer)
+                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , _ => throw new NotImplementedException()
+            }
+            , LayerType.SourceQuoteRefPriceVolume => copyType switch
+            {
+                LayerType.PriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , _ => throw new NotImplementedException()
+            }
+            , LayerType.ValueDatePriceVolume => copyType switch
+            {
+                LayerType.PriceVolume => typeof(PQValueDatePriceVolumeLayer)
+                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.ValueDatePriceVolume => typeof(PQValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , _ => throw new NotImplementedException()
+            }
+            , LayerType.TraderPriceVolume => copyType switch
+            {
+                LayerType.PriceVolume => typeof(PQTraderPriceVolumeLayer)
+                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.TraderPriceVolume => typeof(PQTraderPriceVolumeLayer)
+                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , _ => throw new NotImplementedException()
+            }
+            , LayerType.SourceQuoteRefTraderValueDatePriceVolume => copyType switch
+            {
+                LayerType.PriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                , _ => throw new NotImplementedException()
+            }
+            , _ => throw new NotImplementedException()
+        };
     }
 
     private void AssertAllLayersAreOfTypeAndEquivalentTo(PQOrderBook upgradedOrderBook,
@@ -781,7 +839,9 @@ public class PQOrderBookTests
             var copyFromLayer = equivalentTo[i];
 
             Assert.IsInstanceOfType(upgradedLayer, expectedType);
-            if (compareForEquivalence) Assert.IsTrue(copyFromLayer!.AreEquivalent(upgradedLayer, exactlyEquals));
+            if (compareForEquivalence)
+                Assert.IsTrue(copyFromLayer!.AreEquivalent(upgradedLayer, exactlyEquals),
+                    $"Expected {copyFromLayer} to be equivalent to {upgradedLayer} when exactlyEquals {exactlyEquals}");
         }
     }
 

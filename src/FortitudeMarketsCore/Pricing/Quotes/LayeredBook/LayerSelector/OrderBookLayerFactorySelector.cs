@@ -9,42 +9,49 @@ namespace FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 
 public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLayer, ISourceTickerQuoteInfo>
 {
+    static OrderBookLayerFactorySelector()
+    {
+        foreach (var layerType in Enum.GetValues<LayerType>())
+        {
+            if (layerType == LayerType.None) continue;
+            AllowedImplementations.Add(LayerFlagToImplementation(layerType).GetType());
+        }
+    }
+
     protected override IPriceVolumeLayer SelectSimplePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new PriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectValueDatePriceVolumeLayer(
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
+    protected override IPriceVolumeLayer SelectValueDatePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
         new ValueDatePriceVolumeLayer();
 
     protected override IPriceVolumeLayer SelectSourcePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new SourcePriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectSourceQuoteRefPriceVolumeLayer(
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
+    protected override IPriceVolumeLayer SelectSourceQuoteRefPriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
         new SourceQuoteRefPriceVolumeLayer();
 
     protected override IPriceVolumeLayer SelectTraderPriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new TraderPriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
+    protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
         new SourceQuoteRefTraderValueDatePriceVolumeLayer();
 
-    public override IPriceVolumeLayer ConvertToExpectedImplementation(IPriceVolumeLayer? priceVolumeLayer, bool clone = false)
+    public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null)
     {
-        switch (priceVolumeLayer)
+        var implementation = LayerFlagToImplementation(desiredLayerType);
+        if (copy != null) implementation.CopyFrom(copy);
+        return implementation;
+    }
+
+    public static IPriceVolumeLayer LayerFlagToImplementation(LayerType desiredLayerType)
+    {
+        var newLayer = desiredLayerType switch
         {
-            case PriceVolumeLayer _:
-                return clone ? priceVolumeLayer.Clone() : priceVolumeLayer;
-            case ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdVlDtPvLayer:
-                return new SourceQuoteRefTraderValueDatePriceVolumeLayer(srcQtRefTrdVlDtPvLayer);
-            case ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer:
-                return new SourceQuoteRefPriceVolumeLayer(srcQtRefPvLayer);
-            case ISourcePriceVolumeLayer sourcePvLayer:
-                return new SourcePriceVolumeLayer(sourcePvLayer);
-            case IValueDatePriceVolumeLayer valueDatePvLayer:
-                return new ValueDatePriceVolumeLayer(valueDatePvLayer);
-            case ITraderPriceVolumeLayer traderPvLayer:
-                return new TraderPriceVolumeLayer(traderPvLayer);
-            default:
-                return new PriceVolumeLayer(priceVolumeLayer!);
-        }
+            LayerType.PriceVolume => new PriceVolumeLayer()
+            , LayerType.SourceQuoteRefTraderValueDatePriceVolume => new SourceQuoteRefTraderValueDatePriceVolumeLayer()
+            , LayerType.SourceQuoteRefPriceVolume => new SourceQuoteRefPriceVolumeLayer()
+            , LayerType.SourcePriceVolume => new SourcePriceVolumeLayer()
+            , LayerType.ValueDatePriceVolume => new ValueDatePriceVolumeLayer()
+            , LayerType.TraderPriceVolume => new TraderPriceVolumeLayer()
+            , _ => new PriceVolumeLayer()
+        };
+        return newLayer;
     }
 }

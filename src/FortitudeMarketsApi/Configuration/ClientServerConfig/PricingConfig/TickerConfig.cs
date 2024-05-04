@@ -4,6 +4,7 @@ using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -15,6 +16,7 @@ public interface ITickerConfig : IInterfacesComparable<ITickerConfig>
     ushort TickerId { get; set; }
     string Ticker { get; set; }
     TickerAvailability? TickerAvailability { get; set; }
+    QuoteLevel? PublishedQuoteLevel { get; set; }
     decimal? RoundingPrecision { get; }
     decimal? MinSubmitSize { get; }
     decimal? MaxSubmitSize { get; }
@@ -30,13 +32,14 @@ public class TickerConfig : ConfigSection, ITickerConfig
     public TickerConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public TickerConfig() { }
 
-    public TickerConfig(ushort tickerId, string ticker, TickerAvailability? tickerAvailability = null, decimal? roundingPrecision = null,
-        decimal? minSubmitSize = null, decimal? maxSubmitSize = null, decimal? incrementSize = null, ushort? minimumQuoteLife = null
-        , LayerFlags? layerFlags = null, byte? maximumPublisherLayers = null, LastTradedFlags? lastTradedFlags = null)
+    public TickerConfig(ushort tickerId, string ticker, TickerAvailability? tickerAvailability = null, QuoteLevel? publishedQuoteLevel = null,
+        decimal? roundingPrecision = null, decimal? minSubmitSize = null, decimal? maxSubmitSize = null, decimal? incrementSize = null,
+        ushort? minimumQuoteLife = null, LayerFlags? layerFlags = null, byte? maximumPublisherLayers = null, LastTradedFlags? lastTradedFlags = null)
     {
         TickerId = tickerId;
         Ticker = ticker;
         TickerAvailability = tickerAvailability;
+        PublishedQuoteLevel = publishedQuoteLevel;
         RoundingPrecision = roundingPrecision;
         MinSubmitSize = minSubmitSize;
         MaxSubmitSize = maxSubmitSize;
@@ -52,6 +55,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         TickerId = toClone.TickerId;
         Ticker = toClone.Ticker;
         TickerAvailability = toClone.TickerAvailability;
+        PublishedQuoteLevel = toClone.PublishedQuoteLevel;
         RoundingPrecision = toClone.RoundingPrecision;
         MinSubmitSize = toClone.MinSubmitSize;
         MaxSubmitSize = toClone.MaxSubmitSize;
@@ -84,6 +88,16 @@ public class TickerConfig : ConfigSection, ITickerConfig
             return checkValue != null ? Enum.Parse<TickerAvailability>(checkValue) : null;
         }
         set => this[nameof(TickerAvailability)] = value.ToString();
+    }
+
+    public QuoteLevel? PublishedQuoteLevel
+    {
+        get
+        {
+            var checkValue = this[nameof(PublishedQuoteLevel)];
+            return checkValue != null ? Enum.Parse<QuoteLevel>(checkValue) : null;
+        }
+        set => this[nameof(PublishedQuoteLevel)] = value.ToString();
     }
 
     public decimal? RoundingPrecision
@@ -171,6 +185,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         if (other == null) return false;
         var tickerIdSame = TickerId == other.TickerId;
         var tickerSame = Ticker == other.Ticker;
+        var quoteLevelSame = PublishedQuoteLevel == other.PublishedQuoteLevel;
         var availabilitySame = TickerAvailability == other.TickerAvailability;
         var roundingSame = RoundingPrecision == other.RoundingPrecision;
         var minSubitSizeSame = MinSubmitSize == other.MinSubmitSize;
@@ -181,8 +196,8 @@ public class TickerConfig : ConfigSection, ITickerConfig
         var maxLayersSame = MaximumPublishedLayers == other.MaximumPublishedLayers;
         var lastTradedFlagsSame = LastTradedFlags == other.LastTradedFlags;
 
-        return tickerIdSame && tickerSame && availabilitySame && roundingSame && minSubitSizeSame && maxSubitSizeSame && incrementSizeSame &&
-               minQuoteLifeSizeSame && layerFlagsSizeSame && maxLayersSame && lastTradedFlagsSame;
+        return tickerIdSame && tickerSame && availabilitySame && quoteLevelSame && roundingSame && minSubitSizeSame && maxSubitSizeSame &&
+               incrementSizeSame && minQuoteLifeSizeSame && layerFlagsSizeSame && maxLayersSame && lastTradedFlagsSame;
     }
 
     public static void ClearValues(IConfigurationRoot root, string path)
@@ -190,6 +205,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         root[path + ":" + nameof(TickerId)] = null;
         root[path + ":" + nameof(Ticker)] = null;
         root[path + ":" + nameof(TickerAvailability)] = null;
+        root[path + ":" + nameof(PublishedQuoteLevel)] = null;
         root[path + ":" + nameof(RoundingPrecision)] = null;
         root[path + ":" + nameof(MinSubmitSize)] = null;
         root[path + ":" + nameof(MaxSubmitSize)] = null;
@@ -216,6 +232,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         hashCode.Add(TickerId);
         hashCode.Add(Ticker);
         hashCode.Add(TickerAvailability);
+        hashCode.Add(PublishedQuoteLevel);
         hashCode.Add(RoundingPrecision);
         hashCode.Add(MinSubmitSize);
         hashCode.Add(MaxSubmitSize);
@@ -229,8 +246,8 @@ public class TickerConfig : ConfigSection, ITickerConfig
 
     public override string ToString() =>
         $"{nameof(TickerConfig)}({nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker}, " +
-        $"{nameof(TickerAvailability)}: {TickerAvailability}, {nameof(RoundingPrecision)}: {RoundingPrecision}, " +
-        $"{nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, " +
+        $"{nameof(TickerAvailability)}: {TickerAvailability}, {nameof(PublishedQuoteLevel)}: {PublishedQuoteLevel}, " +
+        $"{nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, " +
         $"{nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +
         $"{nameof(LayerFlags)}: {LayerFlags}, {nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, " +
         $"{nameof(LastTradedFlags)}: {LastTradedFlags}, {nameof(Path)}: {Path})";

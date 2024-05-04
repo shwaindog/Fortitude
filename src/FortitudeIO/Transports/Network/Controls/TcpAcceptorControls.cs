@@ -240,7 +240,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                 }
 
                 NewClient?.Invoke(clientConversation);
-                clientConversation.Start();
+                StartClientAcceptedSession(clientConversation);
             }
             else
             {
@@ -252,6 +252,11 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             logger.Error("Error while connecting client from server {0} remote {1}.  Got {2}"
                 , SocketSessionContext.Name, clientIpEndPoint, ex);
         }
+    }
+
+    protected virtual void StartClientAcceptedSession(ConversationRequester clientConversation)
+    {
+        clientConversation.Start();
     }
 
     private void Unregister(ISocketSessionContext clientSocketSessionContext)
@@ -266,10 +271,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         socket.SendBufferSize = clientNetworkTopicConnectionConfig.SendBufferSize;
         socket.ReceiveBufferSize = clientNetworkTopicConnectionConfig.ReceiveBufferSize;
 
-        var socketSessionConnection = new SocketSessionContext(clientNetworkTopicConnectionConfig.TopicName + "AcceptedClient"
-            , ConversationType.Requester,
-            SocketConversationProtocol.TcpClient, clientNetworkTopicConnectionConfig,
-            SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory);
+        var socketSessionConnection = CreateClientSocketSessionContext(clientNetworkTopicConnectionConfig);
 
         var clientStreamInitiator = new TcpAcceptedClientControls(socketSessionConnection);
         var clientRequester = new ConversationRequester(socketSessionConnection, clientStreamInitiator, true);
@@ -279,4 +281,10 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             socket, receiverEndpoint.Address, (ushort)receiverEndpoint.Port));
         return clientRequester;
     }
+
+    protected virtual ISocketSessionContext CreateClientSocketSessionContext(INetworkTopicConnectionConfig clientNetworkTopicConnectionConfig) =>
+        new SocketSessionContext(clientNetworkTopicConnectionConfig.TopicName + "AcceptedClient"
+            , ConversationType.Requester,
+            SocketConversationProtocol.TcpClient, clientNetworkTopicConnectionConfig,
+            SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory);
 }

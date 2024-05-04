@@ -58,7 +58,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         this.creatingRule = creatingRule;
         this.sharedDeserializationRepo = sharedDeserializationRepo;
         recycler = creatingRule.Context.PooledRecycler;
-        timer = creatingRule.Context.Timer;
+        timer = creatingRule.Context.QueueTimer;
         messageBus = creatingRule.Context.MessageBus;
         cxTimeoutMs = socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
         requestResponseHandlerRegistrationAddress = feedName.FeedRequestResponseRegistrationAddress();
@@ -119,7 +119,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
             var requestId = pqSourceTickerInfoRequest.NewRequestId();
             var reusableValueTaskSource = recycler.Borrow<ReusableValueTaskSource<PQSourceTickerInfoResponse>>();
             var registerRequest = recycler.Borrow<RemoteRequestIdResponseRegistration>();
-            reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = creatingRule.Context.Timer;
+            reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = creatingRule.Context.QueueTimer;
             registerRequest.RequestId = requestId;
             registerRequest.ResponseSource = reusableValueTaskSource;
 

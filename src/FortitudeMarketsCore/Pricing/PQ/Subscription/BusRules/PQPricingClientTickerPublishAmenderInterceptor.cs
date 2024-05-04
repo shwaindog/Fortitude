@@ -29,17 +29,17 @@ public class PQPricingClientTickerPublishAmenderInterceptor : AddressListenSubsc
         this.subscribeQueue = subscribeQueue;
     }
 
-    public override async ValueTask RunInterceptorAction(IMessageListenerSubscription messageListenerSubscription)
+    public override async ValueTask RunInterceptorAction(IMessageListenerRegistration messageListenerRegistration)
     {
-        var tickerSubscribeAddress = messageListenerSubscription.PublishAddress;
+        var tickerSubscribeAddress = messageListenerRegistration.PublishAddress;
         var subscribeTicker = tickerSubscribeAddress.ExtractTickerFromFeedDefaultTickerPublishAddress(feedName);
         var amendTickerPublicationAddress = feedName.FeedAmendTickerPublicationAddress(subscribeTicker);
 
-        var subscriberRule = messageListenerSubscription.SubscriberRule;
+        var subscriberRule = messageListenerRegistration.SubscriberRule;
         var busPublicationRegistration
             = subscriberRule.Context.PooledRecycler.Borrow<RemoteMessageBusPublishRegistration>();
-        busPublicationRegistration.DeserializedType = messageListenerSubscription.PayloadType;
-        busPublicationRegistration.PublishType = messageListenerSubscription.PayloadType;
+        busPublicationRegistration.DeserializedType = messageListenerRegistration.PayloadType;
+        busPublicationRegistration.PublishType = messageListenerRegistration.PayloadType;
         busPublicationRegistration.AddRemoveRegistration = AddRemoveCommand.Add;
         busPublicationRegistration.PublishAddress = tickerSubscribeAddress;
         busPublicationRegistration.QueueContext = subscriberRule.Context;
@@ -48,22 +48,22 @@ public class PQPricingClientTickerPublishAmenderInterceptor : AddressListenSubsc
             .RequestFromPayloadAsync<RemoteMessageBusPublishRegistration, RemoteMessageBusPublishRegistrationResponse>(
                 busPublicationRegistration, subscriberRule, amendTickerPublicationAddress);
         if (!amendResult.Response?.Succeeded ?? false)
-            Logger.Warn("Failed when subscribing to {0}, got {1} for {2}", tickerSubscribeAddress, amendResult, messageListenerSubscription);
+            Logger.Warn("Failed when subscribing to {0}, got {1} for {2}", tickerSubscribeAddress, amendResult, messageListenerRegistration);
 
-        messageListenerSubscription.Unsubscribed += UnsubscribeRequest;
+        messageListenerRegistration.Unsubscribed += UnsubscribeRequest;
     }
 
-    public async ValueTask UnsubscribeRequest(IRule rule, IMessageListenerSubscription messageListenerSubscription, string listenAddress)
+    public async ValueTask UnsubscribeRequest(IRule rule, IMessageListenerRegistration messageListenerRegistration, string listenAddress)
     {
-        var tickerSubscribeAddress = messageListenerSubscription.PublishAddress;
+        var tickerSubscribeAddress = messageListenerRegistration.PublishAddress;
         var subscribeTicker = tickerSubscribeAddress.ExtractTickerFromFeedDefaultTickerPublishAddress(feedName);
         var amendTickerPublicationAddress = feedName.FeedAmendTickerPublicationAddress(subscribeTicker);
 
-        var subscriberRule = messageListenerSubscription.SubscriberRule;
+        var subscriberRule = messageListenerRegistration.SubscriberRule;
         var busPublicationRegistration
             = subscriberRule.Context.PooledRecycler.Borrow<RemoteMessageBusPublishRegistration>();
-        busPublicationRegistration.DeserializedType = messageListenerSubscription.PayloadType;
-        busPublicationRegistration.PublishType = messageListenerSubscription.PayloadType;
+        busPublicationRegistration.DeserializedType = messageListenerRegistration.PayloadType;
+        busPublicationRegistration.PublishType = messageListenerRegistration.PayloadType;
         busPublicationRegistration.AddRemoveRegistration = AddRemoveCommand.Remove;
         busPublicationRegistration.PublishAddress = tickerSubscribeAddress;
         busPublicationRegistration.QueueContext = subscriberRule.Context;
@@ -73,6 +73,6 @@ public class PQPricingClientTickerPublishAmenderInterceptor : AddressListenSubsc
                 busPublicationRegistration, subscriberRule, amendTickerPublicationAddress);
 
         if (!amendResult.Response?.Succeeded ?? false)
-            Logger.Warn("Failed unsubscribing to {0}, got {1} for {2}", tickerSubscribeAddress, amendResult, messageListenerSubscription);
+            Logger.Warn("Failed unsubscribing to {0}, got {1} for {2}", tickerSubscribeAddress, amendResult, messageListenerRegistration);
     }
 }

@@ -72,8 +72,8 @@ public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>, I
     , IStoreState<INotifyingMessageDeserializer<TM>>
     where TM : class, IVersionedMessage
 {
-    event ConversationMessageReceivedHandler<TM>? ConversationMessageDeserialized;
-    event MessageDeserializedHandler<TM>? MessageDeserialized;
+    new event ConversationMessageReceivedHandler<TM>? ConversationMessageDeserialized;
+    new event MessageDeserializedHandler<TM>? MessageDeserialized;
     bool IsRegistered(MessageDeserializedHandler<TM> deserializedHandler);
     bool IsRegistered(ConversationMessageReceivedHandler<TM> deserializedHandler);
     IDeserializedNotifier<TM, TR>? AddDeserializedNotifier<TR>(IDeserializedNotifier<TM, TR> deserializedNotifier);

@@ -24,14 +24,16 @@ public interface IPayload : IRecyclableObject
 
 public interface IPayload<out T> : IPayload
 {
-    T? Body(PayloadRequestType requestType = PayloadRequestType.CalleeRetrieve);
+    T Body(PayloadRequestType requestType = PayloadRequestType.CalleeRetrieve);
 }
 
 public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 {
-    private T? body;
-    public Payload() { }
-    public Payload(T? body) => this.body = body;
+    private T body;
+
+    public Payload() => body = default!;
+
+    public Payload(T body) => this.body = body;
 
     public Payload(Payload<T> toClone)
     {
@@ -48,10 +50,10 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 
     public Type BodyType { get; } = typeof(T);
 
-    public T? Body(PayloadRequestType requestType = PayloadRequestType.CalleeRetrieve)
+    public T Body(PayloadRequestType requestType = PayloadRequestType.CalleeRetrieve)
     {
         if (PayloadMarshaller == null) return body;
-        return body != null ? body = PayloadMarshaller.GetMarshalled(body, requestType) : body;
+        return body = PayloadMarshaller.GetMarshalled(body, requestType);
     }
 
     public object? BodyObj(PayloadRequestType requestType) => Body(requestType);
@@ -88,7 +90,7 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 
     public override void StateReset()
     {
-        body = default;
+        body = default!;
         PayloadMarshaller = null;
     }
 
@@ -112,7 +114,7 @@ public interface IBusMessage : IStoreState<IBusMessage>, ICanCarrySocketSenderPa
     IRule? Sender { get; }
     string? DestinationAddress { get; }
     DateTime? SentTime { get; }
-    IPayload? Payload { get; }
+    IPayload Payload { get; }
     IAsyncResponseSource Response { get; }
     IProcessorRegistry? ProcessorRegistry { get; }
     RuleFilter RuleFilter { get; }
@@ -154,15 +156,18 @@ public interface IBusRespondingMessage<TPayload, TResponse> : IBusMessage<TPaylo
 
 public class BusMessage : IBusMessage
 {
+    public static readonly Payload<object> ResetStatePayload = new();
     public static readonly NoMessageResponseSource NoOpCompletionSource = new();
     public static readonly RuleFilter AppliesToAll = _ => true;
     private static readonly Recycler Recycler = new();
+
+    static BusMessage() => ResetStatePayload.AutoRecycleAtRefCountZero = false;
 
     public MessageType Type { get; set; }
     public IRule? Sender { get; set; }
     public string? DestinationAddress { get; set; }
     public DateTime? SentTime { get; set; }
-    public IPayload? Payload { get; set; }
+    public IPayload Payload { get; set; } = ResetStatePayload;
     public IAsyncResponseSource Response { get; set; } = NoOpCompletionSource;
     public IProcessorRegistry? ProcessorRegistry { get; set; }
 
@@ -170,16 +175,16 @@ public class BusMessage : IBusMessage
 
     public void IncrementCargoRefCounts()
     {
-        Payload?.IncrementRefCount();
+        Payload.IncrementRefCount();
         ProcessorRegistry?.IncrementRefCount();
         Response?.IncrementRefCount();
     }
 
     public void DecrementCargoRefCounts()
     {
-        Payload?.DecrementRefCount();
+        Payload.DecrementRefCount();
         ProcessorRegistry?.DecrementRefCount();
-        Response?.DecrementRefCount();
+        Response.DecrementRefCount();
     }
 
     public IBusRespondingMessage<TPayload, TResponse> BorrowCopy<TPayload, TResponse>(IQueueContext messageContext)
@@ -232,11 +237,11 @@ public class BusMessage : IBusMessage
 
     public void InvokeTaskCallback()
     {
-        if (Payload!.BodyObj(PayloadRequestType.QueueReceive) is TaskPayload taskPayload) taskPayload.Invoke();
+        if (Payload.BodyObj(PayloadRequestType.QueueReceive) is TaskPayload taskPayload) taskPayload.Invoke();
     }
 
     public bool IsSocketSenderItem => Type == MessageType.SendToRemote;
-    public ISocketSender? SocketSender => Payload!.BodyObj(PayloadRequestType.QueueReceive) as ISocketSender;
+    public ISocketSender? SocketSender => Payload.BodyObj(PayloadRequestType.QueueReceive) as ISocketSender;
 
     public void SetAsSocketSenderItem(ISocketSender socketSender)
     {
@@ -254,7 +259,7 @@ public class BusMessage : IBusMessage
 
     public bool IsSocketReceiverItem => Type == MessageType.AddWatchSocket || Type == MessageType.RemoveWatchSocket;
     public bool IsSocketAdd => Type == MessageType.AddWatchSocket;
-    public ISocketReceiver? SocketReceiver => Payload!.BodyObj(PayloadRequestType.QueueReceive) as ISocketReceiver;
+    public ISocketReceiver? SocketReceiver => Payload.BodyObj(PayloadRequestType.QueueReceive) as ISocketReceiver;
 
     public void SetAsSocketReceiverItem(ISocketReceiver socketReceiver, bool isAdd)
     {
@@ -281,14 +286,17 @@ public class BusMessage : IBusMessage
 
 public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage<TPayload, TResponse>
 {
+    public static readonly Payload<TPayload> ResetStatePayload = new();
     public static readonly NoMessageResponseSource<TResponse> NoTypedOpCompletionSource = new();
 
     private int isInRecycler;
     private int refCount;
 
+    static BusMessage() => ResetStatePayload.AutoRecycleAtRefCountZero = false;
+
     public new Payload<TPayload> Payload
     {
-        get => (Payload<TPayload>)((BusMessage)this).Payload!;
+        get => (Payload<TPayload>)((BusMessage)this).Payload;
         set => ((BusMessage)this).Payload = value;
     }
 
@@ -343,7 +351,7 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
         Sender = null;
         DestinationAddress = null;
         SentTime = DateTimeConstants.UnixEpoch;
-        base.Payload = null;
+        base.Payload = ResetStatePayload;
         base.Response = NoOpCompletionSource;
         refCount = 0;
     }

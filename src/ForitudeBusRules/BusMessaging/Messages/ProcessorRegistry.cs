@@ -69,6 +69,8 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
         }
     }
 
+    public int IncrementRefCount() => base.IncrementRefCount();
+
     public override int DecrementRefCount()
     {
         if (RefCount == 2) // last refCount is for the consumer to decrement or will be auto decremented on a timer

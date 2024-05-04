@@ -128,6 +128,16 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
         return this;
     }
 
+    public ValueTask DisposeAwaitValueTask { get; set; }
+
+    public ValueTask Dispose()
+    {
+        if (RefCount < 2) return ValueTask.CompletedTask;
+        Cancel();
+        DecrementRefCount();
+        return ValueTask.CompletedTask;
+    }
+
     public override void StateReset()
     {
         CallBackRunInfo?.DecrementRefCount();
@@ -136,6 +146,5 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
         base.StateReset();
     }
 
-    public override ITimerUpdate Clone() =>
-        Recycler?.Borrow<OneOffTimerUpdate>().CopyFrom(this) ?? new OneOffTimerUpdate(this);
+    public override ITimerUpdate Clone() => Recycler?.Borrow<OneOffTimerUpdate>().CopyFrom(this) ?? new OneOffTimerUpdate(this);
 }

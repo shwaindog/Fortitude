@@ -5,18 +5,22 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Publication;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages;
+
+public interface IPQHeartBeatQuotesMessage : IVersionedMessage
+{
+    List<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; }
+}
 
 public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHeartBeatQuotesMessage
     , IEnumerable<IPQLevel0Quote>
 {
     public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQLevel0Quote>();
 
-    public PQHeartBeatQuotesMessage(IList<IPQLevel0Quote> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
+    public PQHeartBeatQuotesMessage(List<IPQLevel0Quote> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -25,7 +29,7 @@ public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHe
     public uint MessageId => (uint)PQMessageIds.HeartBeat;
 
     public byte Version => 1;
-    public IList<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; }
+    public List<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; } = new();
 
     public override IVersionedMessage CopyFrom(IVersionedMessage source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -39,6 +43,12 @@ public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHe
         }
 
         return this;
+    }
+
+    public override void StateReset()
+    {
+        QuotesToSendHeartBeats.Clear();
+        base.StateReset();
     }
 
     public override IVersionedMessage Clone() => throw new NotImplementedException();

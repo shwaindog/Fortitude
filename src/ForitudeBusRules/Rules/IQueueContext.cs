@@ -16,7 +16,7 @@ public interface IQueueContext
     IMessageQueue RegisteredOn { get; }
     IMessageBus MessageBus { get; }
     IRecycler PooledRecycler { get; }
-    IActionTimer Timer { get; }
+    IQueueTimer QueueTimer { get; }
 
     IMessageQueueList<IMessageQueue> GetEventQueues(MessageQueueType selector);
 }
@@ -32,13 +32,13 @@ public class QueueContext : IQueueContext
         RegisteredOn = registeredOn;
         this.configureMessageBus = configureMessageBus;
         PooledRecycler = pooledRecycler ?? new Recycler();
-        Timer = new QueueTimer(new UpdateableTimer(), this);
+        QueueTimer = new QueueTimer(new UpdateableTimer(), this);
     }
 
     public IMessageQueue RegisteredOn { get; }
     public IMessageBus MessageBus => configureMessageBus;
     public IRecycler PooledRecycler { get; }
-    public IActionTimer Timer { get; }
+    public IQueueTimer QueueTimer { get; }
 
     public IMessageQueueList<IMessageQueue> GetEventQueues(MessageQueueType selector) =>
         configureMessageBus.AllMessageQueues.SelectEventQueues(selector);

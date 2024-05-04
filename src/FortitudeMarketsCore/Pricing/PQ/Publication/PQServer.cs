@@ -102,7 +102,6 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
                 ent!.PQSequenceId = uint.MaxValue;
     }
 
-
     public void Unregister(T quote)
     {
         if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.Id, out var ent))

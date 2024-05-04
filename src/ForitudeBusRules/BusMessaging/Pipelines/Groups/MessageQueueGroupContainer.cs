@@ -40,10 +40,11 @@ public interface IMessageQueueGroupContainer : IEnumerable<IMessageQueue>
 
     ValueTask<RequestResponse<U>> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 
-    ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
     ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
     ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
     void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+    ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+    void Send<T>(T messageOrEvent, MessageType messageType, DispatchOptions dispatchOptions);
 
     IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate);
 }
@@ -168,6 +169,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var selectionResult = selectionStrategy.Select(this, sender, rule, options);
         if (selectionResult != null)
         {
+            sender.AddChild(rule);
             var routeSelectionResult = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
             destinationEventQueue.LaunchRule(sender, rule);
@@ -185,6 +187,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var selectionResult = selectionStrategy.Select(this, sender, rule, options);
         if (selectionResult != null)
         {
+            sender.AddChild(rule);
             var routeSelectionResult = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
             return destinationEventQueue.LaunchRuleAsync(sender, rule, routeSelectionResult);
@@ -207,7 +210,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
             var requestResponseSelectionResult = selectionResult.First();
             var destinationEventQueue = requestResponseSelectionResult.MessageQueue;
             var destinationRule = requestResponseSelectionResult.Rule;
@@ -258,7 +261,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
             processorRegistry.DispatchResult.SentTime = DateTime.Now;
-            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.Timer;
+            processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
             var payLoadMarshaller = dispatchOptions.PayloadMarshalOptions.ResolvePayloadMarshaller(msg, sender.Context.PooledRecycler);
             var payload = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
             payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is enqueued
@@ -281,6 +284,20 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
         var emptyDispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
         return new ValueTask<IDispatchResult>(emptyDispatchResult);
+    }
+
+    public void Send<T>(T messageOrEvent, MessageType messageType, DispatchOptions dispatchOptions)
+    {
+        var selectionStrategy = strategySelector.SelectDispatchStrategy(Rule.NoKnownSender, dispatchOptions, null);
+        var selectionResult = selectionStrategy.Select(this, Rule.NoKnownSender, dispatchOptions, "");
+        if (selectionResult is { HasItems: true })
+            foreach (var routeResult in selectionResult)
+            {
+                var destinationEventQueue = routeResult.MessageQueue;
+                var destinationRule = routeResult.Rule;
+                var _ = destinationEventQueue.EnqueuePayloadBodyWithStatsAsync(messageOrEvent,
+                    Rule.NoKnownSender, messageType, null, null, destinationRule?.AppliesToThisRule, null);
+            }
     }
 
     public IMessageQueueGroupContainer Add(IMessageQueue item)

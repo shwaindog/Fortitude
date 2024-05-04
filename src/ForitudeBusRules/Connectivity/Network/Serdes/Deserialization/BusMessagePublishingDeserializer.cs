@@ -1,6 +1,8 @@
 ﻿#region
 
 using FortitudeBusRules.BusMessaging;
+using FortitudeBusRules.BusMessaging.Pipelines.Execution;
+using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
@@ -34,9 +36,10 @@ public class BroadcastReceiverListenContext<T> : ReceiverListenContext<T>
     private string publishAddress;
     private IRecycler? recycler;
 
-    public BroadcastReceiverListenContext(string name, IMessageBus messageBus, string publishAddress) : base(name)
+    public BroadcastReceiverListenContext(string name, string publishAddress, IMessageBus? messageBus = null) : base(name)
     {
-        this.messageBus = messageBus;
+        var checkSameContext = QueueContext.CurrentThreadQueueContext;
+        this.messageBus = checkSameContext?.MessageBus ?? messageBus!;
         this.publishAddress = publishAddress;
     }
 
@@ -217,4 +220,91 @@ public class TargetedRuleReceiverListenContext<T> : ReceiverListenContext<T>
     }
 
     public override IReceiverListenContext<T> Clone() => new TargetedRuleReceiverListenContext<T>(this);
+}
+
+public class InvokeRuleCallbackListenContext<T>: ReceiverListenContext<T>
+{
+    private IRecycler? recycler;
+    private Action<T>? messageCallback;
+    private IRule? calleeRule;
+    private Func<T, ValueTask>? asyncCallback;
+
+    public InvokeRuleCallbackListenContext(string name, Action<T> callback) : base(name)
+    {
+        recycler = QueueContext.CurrentThreadQueueContext?.PooledRecycler;
+        messageCallback = SingleParamActionWrapper<T>.WrapAndAttach(callback);
+    }
+    public InvokeRuleCallbackListenContext(string name, IRule calleeRule, Func<T, ValueTask> callback) : base(name)
+    {
+        var checkSameContext = QueueContext.CurrentThreadQueueContext;
+        recycler = checkSameContext?.PooledRecycler;
+        this.calleeRule = calleeRule;
+        asyncCallback = callback;
+    }
+
+    public InvokeRuleCallbackListenContext(InvokeRuleCallbackListenContext<T> toClone) : base(toClone)
+    {
+        recycler = toClone.recycler;
+        messageCallback = toClone.messageCallback;
+        asyncCallback = toClone.asyncCallback;
+    }
+
+    public static IReceiverListenContext DynamicBuildTypedTargetedRuleReceiverListenContext(Type messageType, string name
+        , Action<T> callback)
+    {
+        
+        var typeInfo = typeof(InvokeRuleCallbackListenContext<>).MakeGenericType(messageType);
+        var invokeCallbackActionListenContext = (IReceiverListenContext)Activator.CreateInstance(typeInfo, [name, callback])!;
+        return invokeCallbackActionListenContext;
+    }
+
+    public static IReceiverListenContext DynamicBuildTypedTargetedRuleReceiverListenContext(Type messageType, string name
+        , IRule calleeRule, Func<T, ValueTask> callback)
+    {
+        
+        var typeInfo = typeof(InvokeRuleCallbackListenContext<>).MakeGenericType(messageType);
+        var invokeCallbackActionListenContext = (IReceiverListenContext)Activator.CreateInstance(typeInfo, [name, calleeRule, callback])!;
+        return invokeCallbackActionListenContext;
+    }
+
+    public IRecycler Recycler
+    {
+        get => recycler ??= new Recycler();
+        set => recycler = value;
+    }
+
+    public override void SendToReceiver(ConversationMessageNotification<T> conversationMessageNotification)
+    {
+        messageCallback?.Invoke(conversationMessageNotification.Message);
+        if (calleeRule != null && asyncCallback != null)
+        {
+            var oneParamAsyncActionCallback = recycler?.Borrow<OneParamAsyncActionPayload<T>>() ?? new OneParamAsyncActionPayload<T>();
+            oneParamAsyncActionCallback.Configure(asyncCallback, conversationMessageNotification.Message);
+            calleeRule.Context.MessageBus.Send(oneParamAsyncActionCallback, MessageType.QueueParamsExecutionPayload, new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: calleeRule));
+        }
+    }
+
+    public override void SendToReceiver(T message)
+    {
+        messageCallback?.Invoke(message);
+        if (calleeRule != null && asyncCallback != null)
+        {
+            var oneParamAsyncActionCallback = recycler?.Borrow<OneParamAsyncActionPayload<T>>() ?? new OneParamAsyncActionPayload<T>();
+            oneParamAsyncActionCallback.Configure(asyncCallback, message);
+            calleeRule.Context.MessageBus.Send(oneParamAsyncActionCallback, MessageType.QueueParamsExecutionPayload, new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: calleeRule));
+        }
+    }
+
+    public override IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IReceiverListenContext)source, copyMergeFlags);
+
+    public override IReceiverListenContext CopyFrom(IReceiverListenContext source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is not InvokeRuleCallbackListenContext<T> invokeCallbackActionListenContext) return this;
+        recycler = invokeCallbackActionListenContext.recycler;
+        messageCallback = invokeCallbackActionListenContext.messageCallback;
+        return this;
+    }
+
+    public override IReceiverListenContext<T> Clone() => new InvokeRuleCallbackListenContext<T>(this);
 }

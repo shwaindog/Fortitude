@@ -3,6 +3,7 @@
 using System.Reflection;
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
@@ -40,11 +41,8 @@ public class RemoteRequestResponseRegistrationRule : RemoteMessageDeserializerAm
 
     protected virtual async ValueTask LauncherRequestIdResponseListener()
     {
-        ListenForRequestIdResponseRegistration
-            = await Context.MessageBus
-                .RegisterRequestListenerAsync<RemoteRequestIdResponseRegistration,
-                    RemoteRegistrationResponse>(this,
-                    ListeningOnAddress + "*", RegisterRequestIdResponseSource);
+        await this.RegisterRequestListenerAsync<RemoteRequestIdResponseRegistration, RemoteRegistrationResponse>(
+            ListeningOnAddress + "*", RegisterRequestIdResponseSource);
     }
 
     protected virtual string ExtractSubscriptionPostfix(string fullMessageAddressDestination) =>
@@ -56,7 +54,7 @@ public class RemoteRequestResponseRegistrationRule : RemoteMessageDeserializerAm
     protected virtual RemoteRegistrationResponse RegisterRequestIdResponseSource(
         IBusRespondingMessage<RemoteRequestIdResponseRegistration, RemoteRegistrationResponse> requestMessage)
     {
-        var remoteRequestIdResponseRegistration = requestMessage.Payload.Body()!;
+        var remoteRequestIdResponseRegistration = requestMessage.Payload.Body();
         var resolverRun = NewMessageDeserializerResolveRun;
         try
         {
