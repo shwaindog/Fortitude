@@ -7,6 +7,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
@@ -36,6 +37,7 @@ public class PQPricingServerQuotePublisherRule : Rule
     private PQPricingServerQuoteUpdatePublisher updatePublisher = null!;
 
     public PQPricingServerQuotePublisherRule(string feedName, IPricingServerConfig pricingServerConfig)
+        : base(feedName + "_" + nameof(PQPricingServerQuotePublisherRule))
     {
         this.feedName = feedName;
         this.pricingServerConfig = pricingServerConfig;
@@ -48,14 +50,14 @@ public class PQPricingServerQuotePublisherRule : Rule
     {
         await AttemptStartUpdatePublisher();
         await this.RegisterListenerAsync<PublishQuoteEvent>(feedName.FeedTickerPublishAddress(), PublishReceivedTickerHandler);
-        await this.RegisterRequestListenerAsync<IList<uint>, IList<ILevel0Quote>>(feedName.FeedTickerLastPublishedRequestAddress()
+        await this.RegisterRequestListenerAsync<IList<uint>, IList<IPQLevel0Quote>>(feedName.FeedTickerLastPublishedQuotesRequestAddress()
             , ReceivedQuoteLastPublishedRequest);
     }
 
-    private IList<ILevel0Quote> ReceivedQuoteLastPublishedRequest(IBusRespondingMessage<IList<uint>, IList<ILevel0Quote>> arg)
+    private IList<IPQLevel0Quote> ReceivedQuoteLastPublishedRequest(IBusRespondingMessage<IList<uint>, IList<IPQLevel0Quote>> arg)
     {
+        var response = Context.PooledRecycler.Borrow<ReusableList<IPQLevel0Quote>>();
         var quotesIdsToReturns = arg.Payload.Body();
-        var response = Context.PooledRecycler.Borrow<ReusableList<ILevel0Quote>>();
         foreach (var quotesIdsToReturn in quotesIdsToReturns)
         {
             if (!publishedQuotesMap.TryGetValue(quotesIdsToReturn, out var toCopy)) continue;
@@ -70,7 +72,9 @@ public class PQPricingServerQuotePublisherRule : Rule
     private void PublishReceivedTickerHandler(IBusMessage<PublishQuoteEvent> pricePublishRequestMessage)
     {
         var quotePublishEvent = pricePublishRequestMessage.Payload.Body();
-        var tickerQuoteInfo = quotePublishEvent.PublishQuote.SourceTickerQuoteInfo;
+        var quoteToPublish = quotePublishEvent.PublishQuote;
+        // if (quoteToPublish.SinglePrice > 0) Logger.Info("PublishReceivedTickerHandler received {0}", quoteToPublish);
+        var tickerQuoteInfo = quoteToPublish.SourceTickerQuoteInfo;
         var overrideSequenceNumber = quotePublishEvent.OverrideSequenceNumber;
         var overrideMessageFlags = quotePublishEvent.MessageFlags;
         if (!publishedQuotesMap.TryGetValue(tickerQuoteInfo!.Id, out var sendToSerializer))
@@ -80,36 +84,30 @@ public class PQPricingServerQuotePublisherRule : Rule
             sendToSerializer.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
             sendToSerializer.AutoRecycleAtRefCountZero = false;
             sendToSerializer.Recycler = Context.PooledRecycler;
+            sendToSerializer.CopyFrom(quoteToPublish);
             publishedQuotesMap.Add(tickerQuoteInfo.Id, sendToSerializer);
-            if (quotePublishEvent.PublishQuote.QuoteLevel.LessThan(sendToSerializer!.QuoteLevel))
+            if (quoteToPublish.QuoteLevel.LessThan(sendToSerializer!.QuoteLevel))
             {
                 Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");
                 return;
             }
 
-            if (overrideSequenceNumber != null)
-            {
-                sendToSerializer.PQSequenceId = overrideSequenceNumber.Value;
-                sendToSerializer.OverrideSerializationFlags = overrideMessageFlags;
-            }
+            if (overrideSequenceNumber != null) sendToSerializer.PQSequenceId = overrideSequenceNumber.Value;
 
             Publish(sendToSerializer);
             heartBestRunner ??= Context.QueueTimer.RunEvery(heartBeatPublishIntervalMs, HeartBeatIntervalCheck);
         }
         else
         {
-            if (quotePublishEvent.PublishQuote.QuoteLevel.LessThan(sendToSerializer!.QuoteLevel))
+            if (quoteToPublish.QuoteLevel.LessThan(sendToSerializer!.QuoteLevel))
             {
                 Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");
                 return;
             }
 
-            sendToSerializer!.CopyFrom(quotePublishEvent.PublishQuote);
-            if (overrideSequenceNumber != null)
-            {
-                sendToSerializer.PQSequenceId = overrideSequenceNumber.Value;
-                sendToSerializer.OverrideSerializationFlags = overrideMessageFlags;
-            }
+            sendToSerializer!.CopyFrom(quoteToPublish);
+            if (overrideSequenceNumber != null) sendToSerializer.PQSequenceId = overrideSequenceNumber.Value;
+            sendToSerializer.OverrideSerializationFlags = overrideMessageFlags;
 
             sendToSerializer.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
             Publish(sendToSerializer);
@@ -144,7 +142,13 @@ public class PQPricingServerQuotePublisherRule : Rule
             heartBeatsToSend.Add(level0Quote);
         }
 
-        if (heartBeatsToSend.Count > 0 && updatePublisher.IsStarted) updatePublisher.Send(heartBeatQuotesMessage);
+        if (heartBeatsToSend.Count > 0 && updatePublisher.IsStarted)
+        {
+            Logger.Info("Publishing heartbeats for [{0}]"
+                , heartBeatQuotesMessage.QuotesToSendHeartBeats
+                    .Select(q => $"MessageId: {q.SourceTickerQuoteInfo!.Id}, PQSequenceId {q.PQSequenceId}").JoinToString());
+            updatePublisher.Send(heartBeatQuotesMessage);
+        }
     }
 
     public async ValueTask AttemptStartUpdatePublisher()

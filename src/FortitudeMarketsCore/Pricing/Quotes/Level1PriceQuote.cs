@@ -33,7 +33,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         if (periodSummary is PeriodSummary periodSummaryInstance)
             PeriodSummary = periodSummaryInstance.Clone();
         else if (periodSummary != null) PeriodSummary = new PeriodSummary(periodSummary);
-        if (!(this is Level2PriceQuote))
+        if (this is not ILevel2Quote)
         {
             BidPriceTop = bidPriceTop;
             AskPriceTop = askPriceTop;
@@ -55,7 +55,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
                 PeriodSummary = periodSummary.Clone();
             else if (lvl1Quote.PeriodSummary != null) PeriodSummary = new PeriodSummary(lvl1Quote.PeriodSummary);
 
-            if (!(this is Level2PriceQuote))
+            if (this is not ILevel2Quote)
             {
                 BidPriceTop = lvl1Quote.BidPriceTop;
                 AskPriceTop = lvl1Quote.AskPriceTop;

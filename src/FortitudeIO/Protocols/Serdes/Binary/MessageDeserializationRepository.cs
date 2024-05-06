@@ -285,9 +285,9 @@ public interface IConversationDeserializationRepository : IMessageDeserializerFa
         where TM : class, IVersionedMessage, new();
 }
 
-public abstract class ConversationRepository : MessageDeserializationFactoryRepository, IConversationDeserializationRepository
+public abstract class ConversationDeserializationRepository : MessageDeserializationFactoryRepository, IConversationDeserializationRepository
 {
-    public ConversationRepository(string name, IRecycler recycler
+    public ConversationDeserializationRepository(string name, IRecycler recycler
         , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
         base(name, recycler, cascadingFallbackDeserializationRepo) { }
 

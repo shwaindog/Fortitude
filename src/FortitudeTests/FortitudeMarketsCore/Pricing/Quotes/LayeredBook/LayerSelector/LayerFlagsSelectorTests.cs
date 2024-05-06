@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -250,7 +251,8 @@ public class LayerFlagsSelectorTests
             ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
             nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
 
-        public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null) =>
+        public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
+            CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();
     }
 }

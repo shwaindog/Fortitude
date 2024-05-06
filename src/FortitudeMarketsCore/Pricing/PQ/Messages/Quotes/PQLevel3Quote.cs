@@ -31,7 +31,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
     private uint sourceQuoteRef;
     private DateTime valueDate = DateTimeConstants.UnixEpoch;
 
-    [Obsolete] public PQLevel3Quote() => throw new NotSupportedException();
+    public PQLevel3Quote() => recentlyTraded = new PQRecentlyTraded();
 
     public PQLevel3Quote(ISourceTickerQuoteInfo uniqueSourceTickerIdentifier)
         : base(uniqueSourceTickerIdentifier)
@@ -60,7 +60,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
     }
 
     protected string Level3ToStringMembers =>
-        $"{base.ToString()}, {nameof(BatchId)}: {BatchId}, {nameof(IsBatchIdUpdated)}: {IsBatchIdUpdated}, " +
+        $"{Level2ToStringMembers}, {nameof(BatchId)}: {BatchId}, {nameof(IsBatchIdUpdated)}: {IsBatchIdUpdated}, " +
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference}, " +
         $"{nameof(IsSourceQuoteReferenceUpdated)}: {IsSourceQuoteReferenceUpdated}, {nameof(ValueDate)}: {ValueDate}, " +
         $"{nameof(IsValueDateUpdated)}: {IsValueDateUpdated}, {nameof(RecentlyTraded)}: {RecentlyTraded}";
@@ -253,7 +253,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
             if (recentlyTraded == null && l3Q.RecentlyTraded != null)
                 recentlyTraded = new PQRecentlyTraded(l3Q.RecentlyTraded);
             else if (l3Q.RecentlyTraded != null)
-                recentlyTraded?.CopyFrom(l3Q.RecentlyTraded);
+                recentlyTraded?.CopyFrom(l3Q.RecentlyTraded, copyMergeFlags);
             BatchId = l3Q.BatchId;
             SourceQuoteReference = l3Q.SourceQuoteReference;
             ValueDate = l3Q.ValueDate;
@@ -264,10 +264,10 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
             if (recentlyTraded == null && pql3Q.RecentlyTraded != null)
                 recentlyTraded = pql3Q.RecentlyTraded.Clone();
             else if (pql3Q.RecentlyTraded != null)
-                recentlyTraded?.CopyFrom(pql3Q.RecentlyTraded);
-            if (pql3Q.IsBatchIdUpdated) BatchId = pql3Q.batchId;
-            if (pql3Q.IsSourceQuoteReferenceUpdated) SourceQuoteReference = pql3Q.sourceQuoteRef;
-            if (pql3Q.IsValueDateUpdated) ValueDate = pql3Q.ValueDate;
+                recentlyTraded?.CopyFrom(pql3Q.RecentlyTraded, copyMergeFlags);
+            if (pql3Q.IsBatchIdUpdated || copyMergeFlags.HasFullReplace()) BatchId = pql3Q.batchId;
+            if (pql3Q.IsSourceQuoteReferenceUpdated || copyMergeFlags.HasFullReplace()) SourceQuoteReference = pql3Q.sourceQuoteRef;
+            if (pql3Q.IsValueDateUpdated || copyMergeFlags.HasFullReplace()) ValueDate = pql3Q.ValueDate;
             // ensure flags still match source
             UpdatedFlags = pql3Q.UpdatedFlags;
         }
@@ -290,7 +290,9 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
 
     IPQLevel3Quote IPQLevel3Quote.Clone() => (IPQLevel3Quote)Clone();
 
-    public override IPQLevel0Quote Clone() => (IPQLevel0Quote?)Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this) ?? new PQLevel3Quote(this);
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
+        ?? new PQLevel3Quote(this);
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {
@@ -319,6 +321,5 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         }
     }
 
-    public override string ToString() =>
-        $"{GetType().Name}({Level0ToStringMembers}, {Level1ToStringMembers}, {Level2ToStringMembers}, {Level3ToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({Level3ToStringMembers})";
 }

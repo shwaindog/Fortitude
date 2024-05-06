@@ -32,12 +32,12 @@ public sealed class OrxSerdesRepositoryFactory : IOrxSerdesRepositoryFactory
 
     public IConversationDeserializationRepository MessageDeserializationRepository(string name) =>
         messageDeserializationRepository
-            ??= new OrxMessageRepository(name, deserializationRecycler
+            ??= new OrxMessageDeserializationRepository(name, deserializationRecycler
                 , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository(name));
 
     public IMessageStreamDecoderFactory MessageStreamDecoderFactory(string name) =>
         messageDeserializationRepository
-            ??= new OrxMessageRepository(name, deserializationRecycler
+            ??= new OrxMessageDeserializationRepository(name, deserializationRecycler
                 , fallbackMessageSerdesRepositoryFactory?.MessageDeserializationRepository(name));
 
     public IMessageSerializationRepository MessageSerializationRepository =>

@@ -97,10 +97,11 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     {
         base.CopyFrom(source);
         var pqSourcePvl = source as IPQSourceQuoteRefPriceVolumeLayer;
+        var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is ISourceQuoteRefPriceVolumeLayer sqrpvl && pqSourcePvl == null)
             SourceQuoteReference = sqrpvl.SourceQuoteReference;
         else if (pqSourcePvl != null)
-            if (pqSourcePvl.IsSourceNameUpdated)
+            if (pqSourcePvl.IsSourceNameUpdated || isFullReplace)
                 SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
         return this;
     }

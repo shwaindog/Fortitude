@@ -161,7 +161,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     }
 
     protected string Level1ToStringMembers =>
-        $"{base.ToString()}, {nameof(IsSourceAskTimeDateUpdated)}: {IsSourceAskTimeDateUpdated}, " +
+        $"{Level0ToStringMembers}, {nameof(IsSourceAskTimeDateUpdated)}: {IsSourceAskTimeDateUpdated}, " +
         $"{nameof(IsSourceAskTimeSubHourUpdated)}: {IsSourceAskTimeSubHourUpdated}, " +
         $"{nameof(IsSourceBidTimeDateUpdated)}: {IsSourceBidTimeDateUpdated}, " +
         $"{nameof(IsSourceBidTimeSubHourUpdated)}: {IsSourceBidTimeSubHourUpdated}, " +
@@ -434,38 +434,43 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source);
+        base.CopyFrom(source, copyMergeFlags);
 
         if (source is PQLevel1Quote pq1)
         {
             // between types only copy the changed parts not everything.
-            if (pq1.IsAdapterReceivedTimeDateUpdated)
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (pq1.IsAdapterReceivedTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref adapterReceivedTime,
                     pq1.adapterReceivedTime.GetHoursFromUnixEpoch());
-            if (pq1.IsAdapterReceivedTimeSubHourUpdated)
+            if (pq1.IsAdapterReceivedTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref adapterReceivedTime,
                     pq1.adapterReceivedTime.GetSubHourComponent());
-            if (pq1.IsAdapterSentTimeDateUpdated)
+            if (pq1.IsAdapterSentTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref adapterSentTime,
                     pq1.adapterSentTime.GetHoursFromUnixEpoch());
-            if (pq1.IsAdapterSentTimeSubHourUpdated)
+            if (pq1.IsAdapterSentTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref adapterSentTime,
                     pq1.adapterSentTime.GetSubHourComponent());
-            if (pq1.IsSourceBidTimeDateUpdated)
+            if (pq1.IsSourceBidTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceBidTime,
                     pq1.sourceBidTime.GetHoursFromUnixEpoch());
-            if (pq1.IsSourceBidTimeSubHourUpdated)
+            if (pq1.IsSourceBidTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref sourceBidTime,
                     pq1.sourceBidTime.GetSubHourComponent());
-            if (pq1.IsSourceAskTimeDateUpdated)
+            if (pq1.IsSourceAskTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceAskTime,
                     pq1.sourceAskTime.GetHoursFromUnixEpoch());
-            if (pq1.IsSourceAskTimeSubHourUpdated)
+            if (pq1.IsSourceAskTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref sourceAskTime,
                     pq1.sourceAskTime.GetSubHourComponent());
-            if (pq1.IsBidPriceTopUpdated) bidPriceTop = pq1.bidPriceTop;
-            if (pq1.IsAskPriceTopUpdated) askPriceTop = pq1.askPriceTop;
-            if (pq1.IsExecutableUpdated) executable = pq1.executable;
+            if (pq1 is not ILevel2Quote)
+            {
+                if (pq1.IsBidPriceTopUpdated || isFullReplace) bidPriceTop = pq1.bidPriceTop;
+                if (pq1.IsAskPriceTopUpdated || isFullReplace) askPriceTop = pq1.askPriceTop;
+            }
+
+            if (pq1.IsExecutableUpdated || isFullReplace) executable = pq1.executable;
             // ensure flags still match source
             UpdatedFlags = pq1.UpdatedFlags;
         }
@@ -475,8 +480,12 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             AdapterSentTime = l1Q.AdapterSentTime;
             SourceBidTime = l1Q.SourceBidTime;
             SourceAskTime = l1Q.SourceAskTime;
-            BidPriceTop = l1Q.BidPriceTop;
-            AskPriceTop = l1Q.AskPriceTop;
+            if (l1Q is not ILevel2Quote)
+            {
+                BidPriceTop = l1Q.BidPriceTop;
+                AskPriceTop = l1Q.AskPriceTop;
+            }
+
             IsAskPriceTopUpdated = l1Q.IsAskPriceTopUpdated;
             IsBidPriceTopUpdated = l1Q.IsBidPriceTopUpdated;
             Executable = l1Q.Executable;
@@ -494,7 +503,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     IPQLevel1Quote IPQLevel1Quote.Clone() => (IPQLevel1Quote)Clone();
 
-    public override IPQLevel0Quote Clone() => (IPQLevel0Quote?)Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this) ?? new PQLevel1Quote(this);
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
+        ?? new PQLevel1Quote(this);
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

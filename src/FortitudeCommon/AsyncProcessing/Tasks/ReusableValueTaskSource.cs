@@ -18,17 +18,20 @@ public interface IAsyncResponseSource : IValueTaskSource, IRecyclableObject
     void SetException(Exception error);
 }
 
-public interface IReusableAsyncResponseSource<T> : IAsyncResponseSource
+public interface IReusableAsyncResponse<in T> : IAsyncResponseSource
+{
+    short Version { get; }
+    void TrySetResult(T result);
+    void SetResult(T result);
+}
+
+public interface IReusableAsyncResponseSource<T> : IReusableAsyncResponse<T>
 {
     // ReSharper disable once UnusedMemberInSuper.Global
     Task<T> AsTask { get; }
-
-    short Version { get; }
     ValueTask<T>? AwaitingValueTask { get; set; }
     void TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask);
     void TrySetResultFromAwaitingTask(Task<T> awaitingTask);
-    void TrySetResult(T result);
-    void SetResult(T result);
     ValueTask<T> GenerateValueTask();
 }
 

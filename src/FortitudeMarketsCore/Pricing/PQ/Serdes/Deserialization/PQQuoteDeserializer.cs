@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -20,6 +21,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
     where T : PQLevel0Quote, new()
 {
     public const int MaxBufferedUpdates = 128;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializer<T>));
     private readonly DeserializeStateTransitionFactory<T> stateTransitionFactory;
     private readonly StaticRing<T> syncRing;
     private SyncStateBase<T> currentSyncState;

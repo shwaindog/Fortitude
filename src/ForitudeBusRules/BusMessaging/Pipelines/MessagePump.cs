@@ -202,17 +202,25 @@ public class MessagePump : IMessagePump
                 }
             }
 
+            IListeningRule? lastRequestedRemove = null;
             for (var i = 0; i < livingRules.Count; i++)
             {
                 if (i < 0) // async await below may alter the living rules list
                     i = 0;
                 if (livingRules.Count == 0 || i >= livingRules.Count) // async await below may alter the living rules list
                     break;
+                if (lastRequestedRemove == livingRules[i])
+                {
+                    i++;
+                    if (i >= livingRules.Count) break;
+                }
+
                 var checkRule = livingRules[i];
 
                 if (checkRule.LifeCycleState != RuleLifeCycle.Started || !checkRule.ShouldBeStopped()) continue;
                 try
                 {
+                    lastRequestedRemove = checkRule;
                     i--;
                     await UnloadRuleAndDependents(checkRule);
                 }
@@ -314,9 +322,11 @@ public class MessagePump : IMessagePump
         processorRegistry.RegisterStart(newRule);
         try
         {
-            await newRule.StartAsync();
+            newRule.IncrementLifeTimeCount();
             livingRules.Add(newRule);
+            await newRule.StartAsync();
             newRule.LifeCycleState = RuleLifeCycle.Started;
+            if (newRule.DecrementLifeTimeCount() == 0) await UnloadRuleAndDependents(newRule);
             processorRegistry.RegisterFinish(newRule);
             data.ProcessorRegistry!.ProcessingComplete();
         }

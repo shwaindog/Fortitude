@@ -94,10 +94,11 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     {
         base.CopyFrom(source);
         var pqValueDate = source as IPQValueDatePriceVolumeLayer;
+        var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is IValueDatePriceVolumeLayer vlDtPvLayer && pqValueDate == null)
             ValueDate = vlDtPvLayer.ValueDate;
         else if (pqValueDate != null)
-            if (pqValueDate.IsValueDateUpdated)
+            if (pqValueDate.IsValueDateUpdated || isFullReplace)
                 ValueDate = pqValueDate.ValueDate;
         return this;
     }

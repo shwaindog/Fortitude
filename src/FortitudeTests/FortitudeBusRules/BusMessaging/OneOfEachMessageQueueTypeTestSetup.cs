@@ -23,7 +23,7 @@ namespace FortitudeTests.FortitudeBusRules.BusMessaging;
 [NoMatchingProductionClass]
 public class OneOfEachMessageQueueTypeTestSetup
 {
-    public const int AsyncRingPollerSize = 255;
+    public const int AsyncRingPollerSize = 2550;
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OneOfEachMessageQueueTypeTestSetup));
 
     public MessageQueue CustomQueue1 = null!;
@@ -42,6 +42,7 @@ public class OneOfEachMessageQueueTypeTestSetup
     [TestInitialize]
     public void SetupMessageBus()
     {
+        Logger.Info("Creating test message bus.");
         OneOfQueueTypeMessageBus();
     }
 

@@ -143,8 +143,9 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
         else
         {
-            if (pqpvl.IsPriceUpdated) Price = pqpvl.Price;
-            if (pqpvl.IsVolumeUpdated) Volume = pqpvl.Volume;
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (pqpvl.IsPriceUpdated || isFullReplace) Price = pqpvl.Price;
+            if (pqpvl.IsVolumeUpdated || isFullReplace) Volume = pqpvl.Volume;
         }
 
         return this;

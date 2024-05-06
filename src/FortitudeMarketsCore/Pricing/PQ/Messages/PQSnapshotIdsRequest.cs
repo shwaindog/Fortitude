@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 
@@ -60,4 +61,7 @@ public class PQSnapshotIdsRequest : VersionedMessage, IPQSnapshotIdsRequest // d
     }
 
     public override int GetHashCode() => RequestSourceTickerIds != null ? RequestSourceTickerIds.GetHashCode() : 0;
+
+    public override string ToString() =>
+        $"{nameof(PQSnapshotIdsRequest)}({nameof(RequestSourceTickerIds)}: [{RequestSourceTickerIds.JoinToString()}])";
 }

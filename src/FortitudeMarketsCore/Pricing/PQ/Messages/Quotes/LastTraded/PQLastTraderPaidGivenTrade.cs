@@ -168,8 +168,9 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
         else if (pqltpgt != null)
         {
+            var isFullReplace = copyMergeFlags.HasFullReplace();
             NameIdLookup.CopyFrom(pqltpgt.NameIdLookup);
-            if (pqltpgt.IsTraderNameUpdated) TraderId = pqltpgt.traderId;
+            if (pqltpgt.IsTraderNameUpdated || isFullReplace) TraderId = NameIdLookup.GetOrAddId(pqltpgt.TraderName);
             UpdatedFlags = pqltpgt.UpdatedFlags;
         }
 

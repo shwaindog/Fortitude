@@ -265,15 +265,15 @@ public class RequestingRule : Rule
         var result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
             , new DispatchOptions());
         ReceiveCount++;
-        logger.Info("RequestingRule received first result: {0}", result.Response);
+        logger.Info("RequestingRule received first result: {0}", result);
         result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
             , new DispatchOptions());
         ReceiveCount++;
-        logger.Info("RequestingRule received second result: {0}", result.Response);
+        logger.Info("RequestingRule received second result: {0}", result);
         result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
             , new DispatchOptions());
         ReceiveCount++;
-        logger.Info("RequestingRule received third result: {0}", result.Response);
+        logger.Info("RequestingRule received third result: {0}", result);
         Interlocked.Increment(ref startCount);
     }
 
@@ -335,7 +335,7 @@ public class AsyncValueTaskRespondingRule : Rule
         var calculatedResult = await this.RequestAsync<int, int>(RequestAddress
             , LastReceivedRequestNumber
             , new DispatchOptions());
-        LastReceivedResponseNumber = calculatedResult.Response;
+        LastReceivedResponseNumber = calculatedResult;
         logger.Info("AsyncValueTaskRespondingRule instance {0} received response {1}", Id, LastReceivedResponseNumber);
         return LastReceivedResponseNumber;
     }
@@ -397,7 +397,7 @@ public class AsyncTaskRespondingRule : Rule
         LastReceivedRequestNumber = busRequestMessage.Payload.Body();
         var calculatedResult = await this.RequestAsync<int, int>(RequestAddress, LastReceivedRequestNumber
             , new DispatchOptions());
-        LastReceivedResponseNumber = calculatedResult.Response;
+        LastReceivedResponseNumber = calculatedResult;
         logger.Info("AsyncTaskRespondingRule instance {0} received response {1}", Id, LastReceivedResponseNumber);
         return LastReceivedResponseNumber;
     }

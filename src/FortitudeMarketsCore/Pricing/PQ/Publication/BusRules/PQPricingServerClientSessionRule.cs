@@ -24,6 +24,7 @@ public class PQPricingServerClientSessionRule : Rule
     private readonly IConversationRequester snapshotResponderClient;
 
     public PQPricingServerClientSessionRule(string feedName, IConversationRequester snapshotResponderClient)
+        : base(feedName + "_" + nameof(PQPricingServerClientSessionRule))
     {
         this.feedName = feedName;
         this.snapshotResponderClient = snapshotResponderClient;
@@ -31,22 +32,22 @@ public class PQPricingServerClientSessionRule : Rule
 
     public override ValueTask StartAsync()
     {
-        Logger.Info($"New PQSnapshot Client Session Rule started {snapshotResponderClient}");
+        Logger.Info("New PQSnapshot Client Session Rule started {0}", snapshotResponderClient);
         var clientSocketReceiver = (ISocketReceiver)snapshotResponderClient.StreamListener!;
         var clientDecoder = (IPQServerMessageStreamDecoder)clientSocketReceiver.Decoder!;
         clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>()
             .AddDeserializedNotifier(
-                new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>($"{nameof(PQPricingServerClientSessionRule)}.{nameof(OnSnapshotIdsRequest)}"
-                    , DeserializeNotifyTypeFlags.JustMessage,
+                new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>(
+                    $"{nameof(PQPricingServerClientSessionRule)}.{nameof(OnSnapshotIdsRequest)}", DeserializeNotifyTypeFlags.JustMessage,
                     new InvokeRuleCallbackListenContext<PQSnapshotIdsRequest>(
-                        $"{nameof(PQPricingServerClientSessionRule)}", this, OnSnapshotIdsRequest)));
+                        $"{nameof(OnSnapshotIdsRequest)}", this, OnSnapshotIdsRequest)));
         clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoRequest>()
             .AddDeserializedNotifier(
                 new PassThroughDeserializedNotifier<PQSourceTickerInfoRequest>(
                     $"{nameof(PQPricingServerClientSessionRule)}.{nameof(OnSourceTickerInfoRequest)}"
                     , DeserializeNotifyTypeFlags.JustMessage,
                     new InvokeRuleCallbackListenContext<PQSourceTickerInfoRequest>(
-                        $"{nameof(PQPricingServerClientSessionRule)}", this, OnSourceTickerInfoRequest)));
+                        $"{nameof(OnSourceTickerInfoRequest)}", this, OnSourceTickerInfoRequest)));
         snapshotResponderClient.Stopped += ReceivedClientStopped;
         snapshotResponderClient.Start(); // not started automatically waits for rule to set deserializers before registering for listen.
         IncrementLifeTimeCount();
@@ -63,19 +64,19 @@ public class PQPricingServerClientSessionRule : Rule
     {
         var reusableList = Context.PooledRecycler.Borrow<ReusableList<uint>>();
         reusableList.AddRange(snapshotIdsRequestMsg.RequestSourceTickerIds);
-        var lastPublishedQuotesResponse = await this.RequestAsync<IList<uint>, IList<PQLevel0Quote>>(
+        var lastPublishedQuotesResponse = await this.RequestAsync<IList<uint>, IList<IPQLevel0Quote>>(
             feedName.FeedTickerLastPublishedQuotesRequestAddress(), reusableList, new DispatchOptions());
-        var lastPublishedQuotes = lastPublishedQuotesResponse.Response;
-        foreach (var level0Quote in lastPublishedQuotes) snapshotResponderClient.Send(level0Quote);
+        foreach (var level0Quote in lastPublishedQuotesResponse) snapshotResponderClient.Send(level0Quote);
     }
 
     private async ValueTask OnSourceTickerInfoRequest(PQSourceTickerInfoRequest sourceTickerInfoRequest)
     {
         var lastPublishedQuotesResponse = await this.RequestAsync<string, FeedSourceTickerInfoUpdate>(
             feedName.FeedPricingConfiguredTickersRequestAddress(), feedName, new DispatchOptions());
-        var pricingConfiguredTickerInfos = lastPublishedQuotesResponse.Response;
         var clientResponse = Context.PooledRecycler.Borrow<PQSourceTickerInfoResponse>();
-        clientResponse.SourceTickerQuoteInfos.AddRange(pricingConfiguredTickerInfos.SourceTickerQuoteInfos);
+        clientResponse.SourceTickerQuoteInfos.AddRange(lastPublishedQuotesResponse.SourceTickerQuoteInfos);
+        clientResponse.RequestId = sourceTickerInfoRequest.RequestId;
+        clientResponse.ResponseId = sourceTickerInfoRequest.RequestId;
         snapshotResponderClient.Send(clientResponse);
     }
 

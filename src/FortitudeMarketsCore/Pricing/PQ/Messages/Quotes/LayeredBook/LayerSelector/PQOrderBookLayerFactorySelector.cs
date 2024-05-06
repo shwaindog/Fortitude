@@ -1,6 +1,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
@@ -15,7 +16,10 @@ public interface IPQOrderBookLayerFactorySelector :
     ILayerFlagsSelector<IPQOrderBookLayerFactory, IPQSourceTickerQuoteInfo>
 {
     IPQPriceVolumeLayer UpgradeExistingLayer(IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
-        , LayerType desiredLayerType, IPriceVolumeLayer? copy = null);
+        , LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+
+    IPQPriceVolumeLayer CreateExpectedImplementation(LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup
+        , IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
 public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLayerFactory, IPQSourceTickerQuoteInfo>,
@@ -33,20 +37,22 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
 
     public PQOrderBookLayerFactorySelector(IPQNameIdLookupGenerator nameIdLookup) => NameIdLookup = nameIdLookup;
 
-    public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null) =>
-        CreateExpectedImplementation(desiredLayerType, NameIdLookup, copy);
+    public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
+        CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CreateExpectedImplementation(desiredLayerType, NameIdLookup, copy, copyMergeFlags);
 
     public override IPriceVolumeLayer
-        UpgradeExistingLayer(IPriceVolumeLayer? original, LayerType desiredLayerType, IPriceVolumeLayer? copy = null) =>
-        UpgradeExistingLayer(original as IPQPriceVolumeLayer, NameIdLookup, desiredLayerType, copy);
+        UpgradeExistingLayer(IPriceVolumeLayer? original, LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
+            CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        UpgradeExistingLayer(original as IPQPriceVolumeLayer, NameIdLookup, desiredLayerType, copy, copyMergeFlags);
 
     public IPQPriceVolumeLayer UpgradeExistingLayer(IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
-        , LayerType desiredLayerType, IPriceVolumeLayer? copy = null)
+        , LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (original == null)
         {
             var cloneOfSrc = CreateExpectedImplementation(desiredLayerType, nameIdLookupGenerator);
-            if (copy != null) cloneOfSrc.CopyFrom(copy);
+            if (copy != null) cloneOfSrc.CopyFrom(copy, copyMergeFlags);
             return cloneOfSrc;
         }
 
@@ -58,25 +64,25 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
             var mostCompatibleSupportsBoth = mergeOrginalDesiredLayerFlags.MostCompactLayerType();
             var upgradeLayer = CreateExpectedImplementation(mostCompatibleSupportsBoth, nameIdLookupGenerator);
             upgradeLayer.CopyFrom(original);
-            if (copy != null) upgradeLayer.CopyFrom(copy);
+            if (copy != null) upgradeLayer.CopyFrom(copy, copyMergeFlags);
             return upgradeLayer;
         }
 
-        if (copy != null) original.CopyFrom(copy);
+        if (copy != null) original.CopyFrom(copy, copyMergeFlags);
 
         return original;
     }
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
-    public IPQNameIdLookupGenerator NameIdLookup { get; set; }
-
     public IPQPriceVolumeLayer CreateExpectedImplementation(LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup
-        , IPriceVolumeLayer? copy = null)
+        , IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var newLayer = LayerFlagToImplementation(checkForConvert, nameIdLookup);
-        if (copy != null) newLayer.CopyFrom(copy);
+        if (copy != null) newLayer.CopyFrom(copy, copyMergeFlags);
         return newLayer;
     }
+
+    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
     public static IPQPriceVolumeLayer LayerFlagToImplementation(LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup)
     {

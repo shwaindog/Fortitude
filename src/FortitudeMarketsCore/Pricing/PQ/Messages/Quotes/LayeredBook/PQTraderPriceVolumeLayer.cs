@@ -274,14 +274,15 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         if (pqtpvl != null)
         {
             NameIdLookup.CopyFrom(pqtpvl.NameIdLookup);
+            var isFullReplace = copyMergeFlags.HasFullReplace();
             for (var i = 0; i < pqtpvl.TraderDetails.Count; i++)
             {
                 var otherTrdrLayerInfo = pqtpvl.TraderDetails[i];
                 if (otherTrdrLayerInfo?.HasUpdates ?? false)
                 {
-                    if (otherTrdrLayerInfo.IsTraderNameUpdated)
+                    if (otherTrdrLayerInfo.IsTraderNameUpdated || isFullReplace)
                         UpsertTraderName(i, NameIdLookup.GetId(otherTrdrLayerInfo.TraderName));
-                    if (otherTrdrLayerInfo.IsTraderVolumeUpdated)
+                    if (otherTrdrLayerInfo.IsTraderVolumeUpdated || isFullReplace)
                         UpsertTraderVolume(i, otherTrdrLayerInfo.TraderVolume);
                     if (TraderDetails[i] is { } currTraderDets) currTraderDets.NameIdLookup = NameIdLookup;
                 }

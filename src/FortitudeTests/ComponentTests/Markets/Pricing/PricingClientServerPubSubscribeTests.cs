@@ -14,6 +14,7 @@ using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
+using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
 #endregion
 
@@ -67,11 +68,11 @@ public class PricingClientServerPubSubscribeTests
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
             Logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
-            if (infos.Any(stqi => stqi.Source == pqServerL2QuoteServerSetup.SourceTickerQuoteInfo.Source &&
-                                  stqi.Ticker == pqServerL2QuoteServerSetup.SourceTickerQuoteInfo.Ticker)) autoResetEvent.Set();
+            if (infos.Any(stqi => stqi.Source == pqServerL2QuoteServerSetup.FirstTickerQuoteInfo.Source &&
+                                  stqi.Ticker == pqServerL2QuoteServerSetup.FirstTickerQuoteInfo.Ticker)) autoResetEvent.Set();
         };
         autoResetEvent.WaitOne(3_000);
-        var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(pqServerL2QuoteServerSetup.SourceTickerQuoteInfo, 0);
+        var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(pqServerL2QuoteServerSetup.FirstTickerQuoteInfo, 0);
         var updateNonEmpty = true;
         streamSubscription!.Subscribe(
             pQuote =>
@@ -169,11 +170,11 @@ public class PricingClientServerPubSubscribeTests
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
             Logger.Info("Client Received SourceTickerQuoteInfos [{0}]", string.Join(", ", infos));
-            if (infos.Any(stqi => stqi.Source == pqServerL3QuoteServerSetup.SourceTickerQuoteInfo.Source &&
-                                  stqi.Ticker == pqServerL3QuoteServerSetup.SourceTickerQuoteInfo.Ticker)) autoResetEvent.Set();
+            if (infos.Any(stqi => stqi.Source == pqServerL3QuoteServerSetup.FirstTickerQuoteInfo.Source &&
+                                  stqi.Ticker == pqServerL3QuoteServerSetup.FirstTickerQuoteInfo.Ticker)) autoResetEvent.Set();
         };
 
-        var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(pqServerL3QuoteServerSetup.SourceTickerQuoteInfo, 0);
+        var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(pqServerL3QuoteServerSetup.FirstTickerQuoteInfo, 0);
         var updateNonEmpty = true;
         streamSubscription!.Subscribe(
             pQuote =>
@@ -185,7 +186,7 @@ public class PricingClientServerPubSubscribeTests
                     Logger.Info("Skipping non-empty");
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
             });
-        var sourcePriceQuote = pqServerL3QuoteServerSetup.GenerateL3QuoteWithTraderLayerAndLastTrade();
+        var sourcePriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(pqServerL3QuoteServerSetup.FirstTickerQuoteInfo);
         pqPublisher.PublishQuoteUpdateAs(sourcePriceQuote, PQMessageFlags.CompleteUpdate);
         var count = 0;
         while ((alwaysUpdatedQuote == null || alwaysUpdatedQuote.SinglePrice == 0m) &&

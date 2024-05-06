@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -63,4 +64,7 @@ public class PQSourceTickerInfoResponse : ResponseMessage
     }
 
     public override int GetHashCode() => SourceTickerQuoteInfos.GetHashCode();
+
+    public override string ToString() =>
+        $"{nameof(PQSourceTickerInfoResponse)} ({MembersToString}, {nameof(SourceTickerQuoteInfos)}: [{SourceTickerQuoteInfos.JoinToString()}])";
 }

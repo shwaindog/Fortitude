@@ -19,10 +19,12 @@ public class PublishQuoteEvent : RecyclableObject
     public override void StateReset()
     {
         PublishQuote = null!;
-        MessageFlags = null!;
+        MessageFlags = null;
+        OverrideSequenceNumber = null;
         base.StateReset();
     }
 
     public override string ToString() =>
-        $"{nameof(PublishQuoteEvent)}({nameof(PublishQuote)}: {PublishQuote}, {nameof(MessageFlags)}: {MessageFlags})";
+        $"{nameof(PublishQuoteEvent)}({nameof(MessageFlags)}: {MessageFlags}, {nameof(OverrideSequenceNumber)}: {OverrideSequenceNumber}, " +
+        $"{nameof(PublishQuote)}: {PublishQuote})";
 }

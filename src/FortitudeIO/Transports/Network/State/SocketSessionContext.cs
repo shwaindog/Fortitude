@@ -30,6 +30,7 @@ public interface ISocketSessionContext : ISocketConversation, IConversationSessi
     ISocketSender? SocketSender { get; set; }
     ISocketDispatcher SocketDispatcher { get; }
     ISocketFactoryResolver SocketFactoryResolver { get; }
+    ISocketDispatcherResolver SocketDispatcherResolver { get; }
     IMessageSerdesRepositoryFactory SerdesFactory { get; set; }
     void OnSocketStateChanged(SocketSessionState newSessionState);
     void OnDisconnected(CloseReason closeReason, string? reason = null);
@@ -61,10 +62,8 @@ public class SocketSessionContext : ISocketSessionContext
         Id = Interlocked.Increment(ref idGen);
         Name = IdInjectedName(preIdName, Id);
         SocketFactoryResolver = socketFactoryResolver;
-        socketFactoryResolver.SocketDispatcherResolver = socketDispatcherResolver ?? socketFactoryResolver.SocketDispatcherResolver;
-        SocketDispatcher
-            = socketDispatcherResolver?.Resolve(networkConnectionConfig) ??
-              socketFactoryResolver.SocketDispatcherResolver!.Resolve(networkConnectionConfig);
+        SocketDispatcherResolver = socketDispatcherResolver ?? socketFactoryResolver.SocketDispatcherResolver;
+        SocketDispatcher = SocketDispatcherResolver.Resolve(networkConnectionConfig);
         SerdesFactory = serdesFactory;
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
@@ -80,6 +79,7 @@ public class SocketSessionContext : ISocketSessionContext
     public ConversationType ConversationType { get; }
     public SocketConversationProtocol SocketConversationProtocol { get; }
     public ISocketFactoryResolver SocketFactoryResolver { get; }
+    public ISocketDispatcherResolver SocketDispatcherResolver { get; }
     public IMessageSerdesRepositoryFactory SerdesFactory { get; set; }
     public ISocketDispatcher SocketDispatcher { get; set; }
     public ISocketConnection? SocketConnection { get; private set; }

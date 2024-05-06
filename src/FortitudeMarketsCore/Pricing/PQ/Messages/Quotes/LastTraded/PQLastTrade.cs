@@ -178,8 +178,9 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
         if (source is PQLastTrade pqlt)
         {
-            if (pqlt.IsTradeTimeDateUpdated || pqlt.IsTradeTimeSubHourUpdated) TradeTime = pqlt.TradeTime;
-            if (pqlt.IsTradePriceUpdated) TradePrice = pqlt.TradePrice;
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (pqlt.IsTradeTimeDateUpdated || pqlt.IsTradeTimeSubHourUpdated || isFullReplace) TradeTime = pqlt.TradeTime;
+            if (pqlt.IsTradePriceUpdated || isFullReplace) TradePrice = pqlt.TradePrice;
             UpdatedFlags = pqlt.UpdatedFlags;
         }
         else

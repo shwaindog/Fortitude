@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 
@@ -33,10 +34,11 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
     protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
         new SourceQuoteRefTraderValueDatePriceVolumeLayer();
 
-    public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null)
+    public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null
+        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var implementation = LayerFlagToImplementation(desiredLayerType);
-        if (copy != null) implementation.CopyFrom(copy);
+        if (copy != null) implementation.CopyFrom(copy, copyMergeFlags);
         return implementation;
     }
 

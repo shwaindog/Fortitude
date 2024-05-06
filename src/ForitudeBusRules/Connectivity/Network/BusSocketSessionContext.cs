@@ -40,9 +40,9 @@ public class BusSocketSessionContext : ISocketSessionContext
         Id = Interlocked.Increment(ref idGen);
         Name = IdInjectedName(preIdName, Id);
         SocketFactoryResolver = socketFactoryResolver;
-        SocketDispatcher
-            = socketDispatcherResolver?.Resolve(networkConnectionConfig) ??
-              socketFactoryResolver.SocketDispatcherResolver!.Resolve(networkConnectionConfig);
+        SocketDispatcherResolver = socketDispatcherResolver ?? socketFactoryResolver.SocketDispatcherResolver;
+        SocketDispatcher = SocketDispatcherResolver.Resolve(networkConnectionConfig);
+
         SerdesFactory = serdesFactory;
         ConversationType = conversationType;
         SocketConversationProtocol = socketConversationProtocol;
@@ -58,6 +58,7 @@ public class BusSocketSessionContext : ISocketSessionContext
     public ConversationType ConversationType { get; }
     public SocketConversationProtocol SocketConversationProtocol { get; }
     public ISocketFactoryResolver SocketFactoryResolver { get; }
+    public ISocketDispatcherResolver SocketDispatcherResolver { get; }
     public IMessageSerdesRepositoryFactory SerdesFactory { get; set; }
     public ISocketDispatcher SocketDispatcher { get; set; }
     public ISocketConnection? SocketConnection { get; private set; }
@@ -180,7 +181,7 @@ public class BusSocketSessionContext : ISocketSessionContext
 
     public void SetDisconnected()
     {
-        SocketConnection?.OSSocket?.Close();
+        SocketConnection?.OSSocket?.Close(1_000);
         SocketConnection = null;
         StreamControls?.StopMessaging();
     }

@@ -29,7 +29,7 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
     bool UnregisterDeserializer(ISourceTickerQuoteInfo identifier);
 }
 
-public sealed class PQClientQuoteDeserializerRepository : ConversationRepository, IPQClientQuoteDeserializerRepository
+public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializationRepository, IPQClientQuoteDeserializerRepository
 {
     public PQSourceTickerInfoResponseDeserializer statelessPQSourceTickerInfoResponseDeserializer;
 

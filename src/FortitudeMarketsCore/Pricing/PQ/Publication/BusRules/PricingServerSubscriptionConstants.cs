@@ -16,8 +16,6 @@ public static class PricingServerSubscriptionConstants
     public static string FeedTickerLastPublishedQuotesRequestAddress(this string feedName) =>
         string.Format(FeedTickerLastPublishedQuotesRequest, feedName);
 
-    public static string FeedTickerLastPublishedRequestAddress(this string feedName) => string.Format(FeedTickerPublish, feedName);
-
     public static string FeedPricingConfiguredTickersRequestAddress(this string feedName) =>
         string.Format(FeedPricingConfiguredTickersRequest, feedName);
 }

@@ -505,6 +505,119 @@ public class Level3PriceQuoteTests
         }
     }
 
+    public static Level3PriceQuote GenerateL3QuoteWithTraderLayerAndLastTrade(ISourceTickerQuoteInfo sourceTickerQuoteInfo, int i = 0)
+    {
+        var priceDiff = i * 0.00015m;
+        var volDiff = i * 5_000m;
+        var sourceBidBook = GenerateBook(BookSide.BidBook, 20, 1.1123m + priceDiff, -0.0001m, 100000m + volDiff, 10000m,
+            (price, volume) => new TraderPriceVolumeLayer(price, volume));
+        var sourceAskBook = GenerateBook(BookSide.AskBook, 20, 1.1125m, 0.0001m, 100000m, 10000m,
+            (price, volume) => new TraderPriceVolumeLayer(price, volume));
+
+
+        var volStart = i * 1_000m;
+        UpdateTraderQuoteBook(sourceBidBook, 20, 1, 10000 + volStart, 1000 + volDiff);
+        UpdateTraderQuoteBook(sourceAskBook, 20, 1, 20000 + volStart, 500 + volDiff);
+        var toggleBool = false;
+        decimal growVolume = 10000;
+        var traderNumber = 1;
+
+        var recentlyTraded = GenerateRecentlyTraded(10, 1.1124m, 0.00005m + priceDiff
+            , new DateTime(2015, 10, 18, 11, 33, 48) + TimeSpan.FromSeconds(i),
+            new TimeSpan(20 + 1 * TimeSpan.TicksPerMillisecond),
+            (price, time) =>
+                new LastTraderPaidGivenTrade(price, time, growVolume += growVolume, toggleBool = !toggleBool,
+                    toggleBool = !toggleBool, "TraderName" + ++traderNumber));
+
+        // setup source quote
+        return new Level3PriceQuote(sourceTickerQuoteInfo,
+            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123 + i),
+            false,
+            1.234538m + priceDiff,
+            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(234 + 1),
+            new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(345 + 1),
+            DateTime.Parse("2015-08-06 22:07:23.123"),
+            new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i),
+            true,
+            new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i),
+            false,
+            true,
+            new PeriodSummary(),
+            sourceBidBook,
+            true,
+            sourceAskBook,
+            true,
+            recentlyTraded,
+            1008 + (uint)i,
+            43749887 + (uint)i,
+            new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i));
+    }
+
+    private static OrderBook GenerateBook<T>(BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
+        decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
+        where T : IPriceVolumeLayer
+    {
+        var generatedLayers = new List<T>();
+        var currentPrice = startingPrice;
+        var currentVolume = startingVolume;
+        for (var i = 0; i < numberOfLayers; i++)
+        {
+            generatedLayers.Add(genNewLayerObj(currentPrice, currentVolume));
+            currentPrice += deltaPricePerLayer;
+            currentVolume += deltaVolumePerLayer;
+        }
+
+        return new OrderBook(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
+    }
+
+
+    private static RecentlyTraded GenerateRecentlyTraded<T>(int numberOfRecentlyTraded, decimal startingPrice,
+        decimal deltaPrice,
+        DateTime startingTime, TimeSpan deltaTime, Func<decimal, DateTime, T> generateLastTraded) where T : IMutableLastTrade
+    {
+        var currentPrice = startingPrice;
+        var currentDateTime = startingTime;
+        var lastTrades = new List<IMutableLastTrade>(numberOfRecentlyTraded);
+
+        for (var i = 0; i < numberOfRecentlyTraded; i++)
+        {
+            var lastTrade = generateLastTraded(currentPrice, currentDateTime);
+            lastTrades.Add(lastTrade);
+            currentPrice += deltaPrice;
+            currentDateTime += deltaTime;
+        }
+
+        return new RecentlyTraded(lastTrades);
+    }
+
+    private static void UpdateTraderQuoteBook(IOrderBook toUpdate, int numberOfLayers,
+        int numberOfTradersPerLayer, decimal startingVolume, decimal deltaVolumePerLayer)
+    {
+        var currentVolume = startingVolume;
+        for (var i = 0; i < numberOfLayers; i++)
+        {
+            var traderLayer = (IMutableTraderPriceVolumeLayer)toUpdate[i]!;
+            for (var j = 0; j < numberOfTradersPerLayer; j++)
+            {
+                string? traderName = null;
+                if (startingVolume != 0m && deltaVolumePerLayer != 0m) traderName = $"TraderLayer{i}_{j}";
+
+                if (traderLayer.Count <= j)
+                {
+                    traderLayer.Add(traderName!, currentVolume + j * deltaVolumePerLayer);
+                }
+                else
+                {
+                    var traderLayerInfo = traderLayer[j]!;
+                    traderLayerInfo.TraderName = traderName;
+                    traderLayerInfo.TraderVolume = currentVolume + j * deltaVolumePerLayer;
+                }
+            }
+
+            currentVolume += deltaVolumePerLayer;
+        }
+    }
+
     internal static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
         IMutableLevel3Quote commonCompareQuote, IMutableLevel3Quote changingQuote)
     {
