@@ -21,12 +21,12 @@ public interface IMessageBus
     IBusIOResolver BusIOResolver { get; }
 
     void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
-    void Send<T>(T msg, MessageType messageType, DispatchOptions dispatchOptions);
+    void Send<T>(IRule sender, T msg, MessageType messageType, DispatchOptions dispatchOptions);
 
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions);
 
-    ValueTask<RequestResponse<TU>> RequestAsync<T, TU>(IRule sender, string publishAddress, T msg
+    ValueTask<TU> RequestAsync<T, TU>(IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions);
 
     void DeployRule(IRule sender, IRule toDeployRule, DeploymentOptions options);
@@ -129,9 +129,9 @@ public class MessageBus : IConfigureMessageBus
     public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         AllMessageQueues.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
-    public void Send<T>(T msg, MessageType messageType, DispatchOptions dispatchOptions)
+    public void Send<T>(IRule sender, T msg, MessageType messageType, DispatchOptions dispatchOptions)
     {
-        AllMessageQueues.Send(msg, messageType, dispatchOptions);
+        AllMessageQueues.Send(sender, msg, messageType, dispatchOptions);
     }
 
     public void DeployRule(IRule sender, IRule toDeployRule, DeploymentOptions options)
@@ -144,7 +144,7 @@ public class MessageBus : IConfigureMessageBus
     public ValueTask<IDispatchResult> DeployRuleAsync(IRule sender, IRule toDeployRule, DeploymentOptions options) =>
         AllMessageQueues.LaunchRuleAsync(sender, toDeployRule, options);
 
-    public ValueTask<RequestResponse<TU>> RequestAsync<T, TU>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
+    public ValueTask<TU> RequestAsync<T, TU>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         AllMessageQueues.RequestAsync<T, TU>(sender, publishAddress, msg, dispatchOptions);
 
     public ISubscription RegisterListener<TPayload>(IListeningRule rule, string publishAddress

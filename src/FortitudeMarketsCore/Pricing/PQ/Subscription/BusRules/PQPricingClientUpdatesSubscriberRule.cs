@@ -28,8 +28,8 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
     private PQPricingClientUpdatesConversationSubscriber? updateClient;
 
     public PQPricingClientUpdatesSubscriberRule(string feedName, IMarketConnectionConfig marketConnectionConfig,
-        IMessageDeserializationRepository sharedFeedDeserializationRepo, ISocketDispatcherResolver dispatcherResolver) : base("PQClient_" + feedName +
-        "_PQClientSnapshotRule")
+        IMessageDeserializationRepository sharedFeedDeserializationRepo, ISocketDispatcherResolver dispatcherResolver)
+        : base("PQClient_" + feedName + "_PQClientSnapshotRule")
     {
         this.feedName = feedName;
         this.sharedFeedDeserializationRepo = sharedFeedDeserializationRepo;

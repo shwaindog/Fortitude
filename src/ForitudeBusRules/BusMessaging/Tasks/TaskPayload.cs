@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 
 #endregion
@@ -9,6 +10,7 @@ namespace FortitudeBusRules.BusMessaging.Tasks;
 
 public class TaskPayload : ReusableObject<IInvokeablePayload>, IInvokeablePayload
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TaskPayload));
     public TaskPayload() { }
 
     private TaskPayload(TaskPayload toClone)
@@ -29,7 +31,14 @@ public class TaskPayload : ReusableObject<IInvokeablePayload>, IInvokeablePayloa
 
     public void Invoke()
     {
-        Callback(State);
+        try
+        {
+            Callback(State);
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Async Task, Value Task or Thread Pool callback threw exception {0}", ex);
+        }
     }
 
     public override void StateReset()

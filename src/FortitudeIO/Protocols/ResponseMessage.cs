@@ -25,6 +25,8 @@ public abstract class ResponseMessage : VersionedMessage, IResponseMessage
 
     protected ResponseMessage(byte version) => Version = version;
 
+    public virtual string MembersToString => $"{nameof(RequestId)}: {RequestId}, {nameof(ResponseId)}: {ResponseId}";
+
     public override IVersionedMessage CopyFrom(IVersionedMessage source
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -46,4 +48,6 @@ public abstract class ResponseMessage : VersionedMessage, IResponseMessage
     {
         return ResponseId = Interlocked.Increment(ref lastResponseId);
     }
+
+    public override string ToString() => $"{nameof(ResponseMessage)}({MembersToString})";
 }

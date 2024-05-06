@@ -17,7 +17,7 @@ public static class RuleExtensions
         , DispatchOptions dispatchOptions) =>
         sender.Context.MessageBus.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
-    public static ValueTask<RequestResponse<U>> RequestAsync<T, U>(this IRule sender, string publishAddress, T msg
+    public static ValueTask<U> RequestAsync<T, U>(this IRule sender, string publishAddress, T msg
         , DispatchOptions dispatchOptions) =>
         sender.Context.MessageBus.RequestAsync<T, U>(sender, publishAddress, msg, dispatchOptions);
 

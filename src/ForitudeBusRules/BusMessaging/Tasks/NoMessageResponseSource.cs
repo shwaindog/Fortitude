@@ -12,8 +12,6 @@ namespace FortitudeBusRules.BusMessaging.Tasks;
 
 public class NoMessageResponseSource : IAsyncResponseSource
 {
-    public bool AutoRecycledByProducer { get; set; }
-
     public void GetResult(short token)
     {
         throw new NotImplementedException("No value should be passed into this instance");
@@ -55,47 +53,13 @@ public class NoMessageResponseSource : IAsyncResponseSource
 
 public class NoMessageResponseSource<T> : NoMessageResponseSource, IResponseValueTaskSource<T>
 {
-    public Task<RequestResponse<T>> AsTask => throw new NotImplementedException("No request should be be made on this instance");
+    public Task<T> AsTask => throw new NotImplementedException("No request should be be made on this instance");
 
     public short Version => throw new NotImplementedException("No request should be be made on this instance");
 
-    public ValueTask<RequestResponse<T>>? AwaitingValueTask
-    {
-        get => throw new NotImplementedException("No request should be be made on this instance");
-        set => throw new NotImplementedException("No request should be be made on this instance");
-    }
-
-    public void TrySetResultFromAwaitingTask(ValueTask<RequestResponse<T>> awaitingValueTask)
-    {
-        throw new NotImplementedException("No request should be be made on this instance");
-    }
-
-    public void TrySetResultFromAwaitingTask(Task<RequestResponse<T>> awaitingTask)
-    {
-        throw new NotImplementedException("No request should be be made on this instance");
-    }
-
-    public void TrySetResult(RequestResponse<T> result)
-    {
-        throw new NotImplementedException("No request should be be made on this instance");
-    }
-
-    public void SetResult(RequestResponse<T> result)
-    {
-        throw new NotImplementedException("No request should be be made on this instance");
-    }
+    public IDispatchResult? DispatchResult { get; set; }
 
     public void TrySetResult(T result)
-    {
-        throw new NotImplementedException("No request should be be made on this instance");
-    }
-
-    public void TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask)
-    {
-        throw new NotImplementedException("No request should be be made on this instance");
-    }
-
-    public void TrySetResultFromAwaitingTask(Task<T> awaitingTask)
     {
         throw new NotImplementedException("No request should be be made on this instance");
     }
@@ -104,6 +68,4 @@ public class NoMessageResponseSource<T> : NoMessageResponseSource, IResponseValu
     {
         throw new NotImplementedException("No request should be be made on this instance");
     }
-
-    public ValueTask<RequestResponse<T>> GenerateValueTask() => throw new NotImplementedException("No request should be be made on this instance");
 }

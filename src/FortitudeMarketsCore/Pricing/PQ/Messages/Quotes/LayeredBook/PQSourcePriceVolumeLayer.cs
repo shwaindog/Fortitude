@@ -214,8 +214,9 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
         else if (pqspvl != null)
         {
-            if (pqspvl.IsSourceNameUpdated) SourceId = (ushort)NameIdLookup.GetOrAddId(pqspvl.SourceName);
-            if (pqspvl.IsExecutableUpdated) Executable = pqspvl.Executable;
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (pqspvl.IsSourceNameUpdated || isFullReplace) SourceId = (ushort)NameIdLookup.GetOrAddId(pqspvl.SourceName);
+            if (pqspvl.IsExecutableUpdated || isFullReplace) Executable = pqspvl.Executable;
         }
 
         return this;

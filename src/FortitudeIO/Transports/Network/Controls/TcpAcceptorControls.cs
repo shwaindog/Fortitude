@@ -286,5 +286,5 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
         new SocketSessionContext(clientNetworkTopicConnectionConfig.TopicName + "AcceptedClient"
             , ConversationType.Requester,
             SocketConversationProtocol.TcpClient, clientNetworkTopicConnectionConfig,
-            SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory);
+            SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory, SocketSessionContext.SocketDispatcherResolver);
 }

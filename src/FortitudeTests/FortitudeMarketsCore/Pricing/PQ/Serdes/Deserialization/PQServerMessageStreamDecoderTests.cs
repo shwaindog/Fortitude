@@ -72,7 +72,7 @@ public class PQServerMessageStreamDecoderTests
         pqSnapshotIdsRequestSerializer = new PQSnapshotIdsRequestSerializer();
         pqSourceTickerInfoRequestSerializer = new PQSourceTickerInfoRequestSerializer();
 
-        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(new PQServerRepository("PQServerTest", new Recycler()));
+        pqServerMessageStreamDecoder = new PQServerMessageStreamDecoder(new PQServerDeserializationRepository("PQServerTest", new Recycler()));
         pqServerMessageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>()
             .AddDeserializedNotifier(new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>(
                 $"{nameof(PQServerMessageStreamDecoderTests)}.{nameof(snapshotIdsResponseCallBack)}", snapshotIdsResponseCallBack));

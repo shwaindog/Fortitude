@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.Connectivity.Network;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Conversations;
@@ -33,7 +34,7 @@ public class PQPricingServerSnapshotResponder : ConversationResponder
     }
 
     public static PQPricingServerSnapshotResponder BuildTcpResponder(string feedName, INetworkTopicConnectionConfig networkConnectionConfig,
-        ISocketDispatcherResolver? socketDispatcherResolver = null)
+        ISocketDispatcherResolver socketDispatcherResolver, IMessageBus messageBus)
     {
         var conversationType = ConversationType.Responder;
         var conversationProtocol = SocketConversationProtocol.TcpAcceptor;
@@ -45,7 +46,7 @@ public class PQPricingServerSnapshotResponder : ConversationResponder
         var socketSessionContext = new BusSocketSessionContext(networkConnectionConfig.TopicName + "Responder", conversationType, conversationProtocol
             , networkConnectionConfig, socFactories, serdesFactory, socketDispatcherResolver);
 
-        var acceptorControls = new BusTcpAcceptorControls(socketSessionContext);
+        var acceptorControls = new BusTcpAcceptorControls(socketSessionContext, messageBus);
 
         return new PQPricingServerSnapshotResponder(socketSessionContext, acceptorControls, feedName);
     }

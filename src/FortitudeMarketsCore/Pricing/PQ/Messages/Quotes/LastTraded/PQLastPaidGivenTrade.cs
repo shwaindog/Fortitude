@@ -193,9 +193,10 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
         else if (pqlpgt != null)
         {
-            if (pqlpgt.IsTradeVolumeUpdated) tradeVolume = pqlpgt.tradeVolume;
-            if (pqlpgt.IsWasPaidUpdated) WasPaid = pqlpgt.WasPaid;
-            if (pqlpgt.IsWasGivenUpdated) WasGiven = pqlpgt.WasGiven;
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (pqlpgt.IsTradeVolumeUpdated || isFullReplace) tradeVolume = pqlpgt.tradeVolume;
+            if (pqlpgt.IsWasPaidUpdated || isFullReplace) WasPaid = pqlpgt.WasPaid;
+            if (pqlpgt.IsWasGivenUpdated || isFullReplace) WasGiven = pqlpgt.WasGiven;
 
             UpdatedFlags = pqlpgt.UpdatedFlags;
         }

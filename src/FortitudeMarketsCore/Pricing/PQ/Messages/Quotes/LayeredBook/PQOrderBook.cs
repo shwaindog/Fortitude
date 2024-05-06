@@ -104,7 +104,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public IPQPriceVolumeLayer? this[int level]
     {
-        get => AllLayers[level];
+        get => level < AllLayers.Count && level >= 0 ? AllLayers[level] : null;
         set
         {
             if (value == null && level == AllLayers.Count - 1)
@@ -269,14 +269,15 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             var sourceLayer = source[i];
             if (sourceLayer == null || sourceLayer.IsEmpty)
             {
-                AllLayers[i]?.StateReset();
+                if (i < AllLayers.Count)
+                    AllLayers[i]?.StateReset();
                 continue;
             }
 
-            IPQPriceVolumeLayer? destinationLayer = null;
-            if (i < AllLayers.Count) destinationLayer = AllLayers[i];
-
-            AllLayers[i] = LayerSelector.UpgradeExistingLayer(destinationLayer, NameIdLookup, LayersOfType, sourceLayer);
+            if (i < AllLayers.Count)
+                AllLayers[i] = LayerSelector.UpgradeExistingLayer(AllLayers[i], NameIdLookup, LayersOfType, sourceLayer, copyMergeFlags);
+            else
+                AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, NameIdLookup, sourceLayer, copyMergeFlags));
         }
 
         for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i]?.StateReset();

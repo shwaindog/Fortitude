@@ -27,12 +27,12 @@ public class LocalHostPQTestSetupCommon
 
     public IMarketConnectionConfig DefaultServerMarketConnectionConfig = null!;
     public IMarketsConfig DefaultServerMarketsConfig = null!;
+    public ISourceTickerQuoteInfo FirstTickerQuoteInfo = null!;
 
     public LastTradedFlags LastTradedFlags = LastTradedFlags.None;
     public LayerFlags LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
     public OSNetworkingController NetworkingController = null!;
     public IPricingServerConfig PricingServerConfig = null!;
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo = null!;
     public ISourceTickersConfig SourceTickersConfig = null!;
     public UpdateableTimer ThreadPoolTimer = null!;
 
@@ -44,7 +44,7 @@ public class LocalHostPQTestSetupCommon
             new SourceTickersConfig(new TickerConfig(TickerId, TestTicker, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m
                 , 250, LayerDetails
                 , 20, LastTradedFlags));
-        SourceTickerQuoteInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
+        FirstTickerQuoteInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
         PricingServerConfig ??= new PricingServerConfig(
             new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
                 new List<IEndpointConfig>

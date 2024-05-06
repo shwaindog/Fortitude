@@ -5,6 +5,7 @@ using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
@@ -54,12 +55,12 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
             , this
             , sharedFeedDeserializationRepo);
         await AttemptSnapshotClientStart();
-        await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(feedName.FeedTickersSnapshotRequestAddress(), SnapshotIdsRequestHandler);
     }
 
     private async ValueTask SnapshotIdsRequestHandler(IBusMessage<FeedSourceTickerInfoUpdate> snapshotIdsMessage)
     {
         var sourceTickerQuoteInfos = snapshotIdsMessage.Payload.Body().SourceTickerQuoteInfos;
+        logger.Info("Received request to publish snapshot ids [{0}]", sourceTickerQuoteInfos.JoinToString());
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
             .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
         var succeeded = await (snapshotClient?.RequestSnapshots(sourceTickerQuoteInfos, connectionTimeout, workerQueueConnect)
@@ -80,6 +81,7 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
             if (!startedSuccessfully) startedSuccessfully = await CallSnapshotClientStartOnWorkerQueue();
             if (startedSuccessfully)
             {
+                await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(feedName.FeedTickersSnapshotRequestAddress(), SnapshotIdsRequestHandler);
                 await AttemptGetFeedAvailableTickersLaunchTopicAmender();
                 return;
             }
@@ -112,8 +114,8 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
             var dispatchResult = await Context.MessageBus.DeployRuleAsync(this, remoteMessageBusTopicPublicationAmenderRule
                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
 
-            logger.Info("Have deployed PQPricingClientBusTopicPublicationAmenderRule on {0} with dispatchResults {1}"
-                , deployedSocketListenerQueue.Name, dispatchResult);
+            // logger.Info("Have deployed PQPricingClientBusTopicPublicationAmenderRule on {0} with dispatchResults {1}"
+            //     , deployedSocketListenerQueue.Name, dispatchResult);
             await PublishUpdatedSourceTickerQuotInfos(checkSourceTickerQuoteInfos);
             return;
         }

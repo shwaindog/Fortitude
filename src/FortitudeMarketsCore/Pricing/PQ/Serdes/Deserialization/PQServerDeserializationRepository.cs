@@ -8,9 +8,10 @@ using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public sealed class PQServerRepository : ConversationRepository, IConversationDeserializationRepository
+public sealed class PQServerDeserializationRepository : ConversationDeserializationRepository, IConversationDeserializationRepository
 {
-    public PQServerRepository(string name, IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
+    public PQServerDeserializationRepository(string name, IRecycler recycler
+        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
         base(name, recycler, cascadingFallbackDeserializationRepo) { }
 
     public override IMessageDeserializer<TM>? SourceTypedMessageDeserializerFromMessageId<TM>(uint msgId) =>
@@ -39,5 +40,5 @@ public sealed class PQServerRepository : ConversationRepository, IConversationDe
     }
 
     public override IPQServerMessageStreamDecoder Supply(string name) =>
-        new PQServerMessageStreamDecoder(new PQServerRepository(name, Recycler, this));
+        new PQServerMessageStreamDecoder(new PQServerDeserializationRepository(name, Recycler, this));
 }

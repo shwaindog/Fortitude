@@ -2,6 +2,8 @@
 
 using FortitudeBusRules.BusMessaging.Tasks;
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
@@ -34,10 +36,23 @@ public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvo
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Action<TP> toExecute, TP firstParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
 }
 
@@ -69,11 +84,27 @@ public class TwoParamSyncActionPayload<TP, TP2> : ReusableValueTaskSource<int>, 
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Action<TP, TP2> toExecute, TP firstParam, TP2 secondParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
     }
 }
 
@@ -190,15 +221,29 @@ public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, II
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Func<TP, TR> toExecute, TP firstParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
 }
 
 public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OneParamAsyncActionPayload<TP>));
     private TP firstParameter = default!;
     private Func<TP, ValueTask>? toInvoke;
 
@@ -226,10 +271,23 @@ public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInv
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Func<TP, ValueTask> toExecute, TP firstParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
 }
 
@@ -274,10 +332,23 @@ public class OneParamAsyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, I
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Func<TP, ValueTask<TR>> toExecute, TP firstParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
 }
 
@@ -313,11 +384,27 @@ public class TwoParamsSyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<T
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Func<TP, TP2, TR> toExecute, TP firstParam, TP2 secondParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
     }
 }
 
@@ -363,11 +450,27 @@ public class TwoParamsAsyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Func<TP, TP2, ValueTask<TR>> toExecute, TP firstParam, TP2 secondParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
     }
 }
 
@@ -404,12 +507,31 @@ public class ThreeParamsSyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskS
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.DecrementRefCount();
+        if (thirdParameter is IRecyclableObject recyclableThirdParam) recyclableThirdParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+        if (thirdParameter is IRecyclableObject recyclableThirdParam) recyclableThirdParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Func<TP, TP2, TP3, TR> toExecute, TP firstParam, TP2 secondParam, TP3 thirdParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
         thirdParameter = thirdParam;
+        if (thirdParameter is IRecyclableObject recyclableThirdParam) recyclableThirdParam.IncrementRefCount();
     }
 }
 
@@ -456,11 +578,30 @@ public class ThreeParamsAsyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTask
         }
     }
 
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.DecrementRefCount();
+        if (thirdParameter is IRecyclableObject recyclableThirdParam) recyclableThirdParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+        if (thirdParameter is IRecyclableObject recyclableThirdParam) recyclableThirdParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
     public void Configure(Func<TP, TP2, TP3, ValueTask<TR>> toExecute, TP firstParam, TP2 secondParam, TP3 thirdParam)
     {
         toInvoke = toExecute;
         firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
         thirdParameter = thirdParam;
+        if (thirdParameter is IRecyclableObject recyclableThirdParam) recyclableThirdParam.IncrementRefCount();
     }
 }

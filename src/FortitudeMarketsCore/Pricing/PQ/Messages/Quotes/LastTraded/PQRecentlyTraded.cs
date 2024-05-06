@@ -233,7 +233,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
             else
                 lastTrades[i] = destinationLayer;
 
-            destinationLayer?.CopyFrom(sourceLayer!);
+            destinationLayer?.CopyFrom(sourceLayer!, copyMergeFlags);
         }
 
         for (var i = source.Capacity; i < lastTrades.Count; i++) lastTrades[i]?.StateReset();

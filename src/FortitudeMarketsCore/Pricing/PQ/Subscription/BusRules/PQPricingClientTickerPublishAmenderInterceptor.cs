@@ -47,7 +47,7 @@ public class PQPricingClientTickerPublishAmenderInterceptor : AddressListenSubsc
         var amendResult = await subscribeQueue
             .RequestFromPayloadAsync<RemoteMessageBusPublishRegistration, RemoteMessageBusPublishRegistrationResponse>(
                 busPublicationRegistration, subscriberRule, amendTickerPublicationAddress);
-        if (!amendResult.Response?.Succeeded ?? false)
+        if (!amendResult?.Succeeded ?? false)
             Logger.Warn("Failed when subscribing to {0}, got {1} for {2}", tickerSubscribeAddress, amendResult, messageListenerRegistration);
 
         messageListenerRegistration.Unsubscribed += UnsubscribeRequest;
@@ -72,7 +72,7 @@ public class PQPricingClientTickerPublishAmenderInterceptor : AddressListenSubsc
             .RequestFromPayloadAsync<RemoteMessageBusPublishRegistration, RemoteMessageBusPublishRegistrationResponse>(
                 busPublicationRegistration, subscriberRule, amendTickerPublicationAddress);
 
-        if (!amendResult.Response?.Succeeded ?? false)
+        if (!amendResult?.Succeeded ?? false)
             Logger.Warn("Failed unsubscribing to {0}, got {1} for {2}", tickerSubscribeAddress, amendResult, messageListenerRegistration);
     }
 }

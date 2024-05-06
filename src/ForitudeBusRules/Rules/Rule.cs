@@ -82,6 +82,7 @@ public class Rule : IListeningRule
     {
         LifeCycleState = RuleLifeCycle.NotStarted;
         parentRule = null!;
+        FriendlyName = GetType().Name + TypeInstanceCounter.Instance.GetNextInstanceNumber(GetType());
     }
 
     public Rule(string friendlyName, string id) : this()

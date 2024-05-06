@@ -62,7 +62,6 @@ public class PQPricingClientFeedRule : Rule
     {
         feedStartTime = DateTime.UtcNow;
         PricingFeedStatus = PricingFeedStatus.Starting;
-        Logger.Info("Starting Pricing Client Feed {0}", feedName);
         await this.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse>
             (feedStatusRequestAddress, ReceivedFeedStatusRequestHandler);
         await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(
@@ -81,6 +80,7 @@ public class PQPricingClientFeedRule : Rule
         var launchUpdateClient = this.DeployRuleAsync(pqClientUpdateSubscriberRule, new DeploymentOptions());
         await launchSnapshotClient;
         await launchUpdateClient;
+        Logger.Info("Launched pricing client {0}", feedName);
     }
 
     public override async ValueTask StopAsync()
@@ -105,7 +105,7 @@ public class PQPricingClientFeedRule : Rule
             var tickerHealthResponse = await this.RequestAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>(
                 feedTickersHealthRequestAddress, busRequestMessage.Payload.Body(), new DispatchOptions(RoutingFlags.TargetSpecific,
                     targetRule: pqClientUpdateSubscriberRule.PqPricingClientFeedSyncMonitorRule, timeoutMs: 3_000));
-            pricingFeedStatusResponse = tickerHealthResponse.Response;
+            pricingFeedStatusResponse = tickerHealthResponse;
             pricingFeedStatusResponse?.IncrementRefCount();
             pricingFeedStatusResponse ??= Context.PooledRecycler.Borrow<PricingFeedStatusResponse>();
 

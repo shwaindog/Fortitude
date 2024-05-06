@@ -7,12 +7,14 @@ using FortitudeIO.Protocols.Serdes.Binary;
 
 namespace FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 
-internal class OrxMessageRepository : ConversationRepository, IConversationDeserializationRepository
+internal class OrxMessageDeserializationRepository : ConversationDeserializationRepository, IConversationDeserializationRepository
 {
-    public OrxMessageRepository(string name, IRecycler recycler, IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
+    public OrxMessageDeserializationRepository(string name, IRecycler recycler
+        , IMessageDeserializationRepository? cascadingFallbackDeserializationRepo = null) :
         base(name, recycler, cascadingFallbackDeserializationRepo) { }
 
-    public override IMessageStreamDecoder Supply(string name) => new OrxMessageStreamDecoder(new OrxMessageRepository(name, Recycler, this));
+    public override IMessageStreamDecoder Supply(string name) =>
+        new OrxMessageStreamDecoder(new OrxMessageDeserializationRepository(name, Recycler, this));
 
     public override INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId) =>
         new OrxDeserializer<TM>(Recycler, msgId);

@@ -127,9 +127,9 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
                 , requestResponseHandlerRegistrationAddress, registerRequest
                 , new DispatchOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, receiverQueuePublishAmender));
 
-            if (!registrationResponse.Response?.Succeeded ?? false)
+            if (!registrationResponse?.Succeeded ?? false)
             {
-                logger.Info("Failed registration source ticker id response got {0}, for {1}", registrationResponse.Response, feedName);
+                logger.Info("Failed registration source ticker id response got {0}, for {1}", registrationResponse, feedName);
                 return null;
             }
 
@@ -175,9 +175,9 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
                 = new PQPricingClientRequestResponseRegistrationRule(feedName, SocketSessionContext, sharedDeserializationRepo.Name);
             var dispatchResult = await messageBus.DeployRuleAsync(creatingRule, receiverQueuePublishAmender
                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
-
-            logger.Info("Have deployed PQPricingClientRequestResponseRegistrationRule on {0} with dispatchResults {1}"
-                , deployedSocketListenerQueue.Name, dispatchResult);
+            //
+            // logger.Info("Have deployed PQPricingClientRequestResponseRegistrationRule on {0} with dispatchResults {1}"
+            //     , deployedSocketListenerQueue.Name, dispatchResult);
         }
     }
 

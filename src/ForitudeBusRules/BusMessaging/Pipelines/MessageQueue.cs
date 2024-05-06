@@ -45,7 +45,7 @@ public interface IMessageQueue : IComparable<IMessageQueue>
         string? destinationAddress = null, RuleFilter? ruleFilter = null
         , IPayloadMarshaller<TPayload>? payloadMarshaller = null);
 
-    ValueTask<RequestResponse<TResponse>> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload, IRule sender,
+    ValueTask<TResponse> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload, IRule sender,
         string? destinationAddress = null,
         MessageType msgType = MessageType.RequestResponse,
         ProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null);
@@ -173,7 +173,7 @@ public class MessageQueue : IMessageQueue
         return processorRegistry.GenerateValueTask();
     }
 
-    public ValueTask<RequestResponse<TResponse>> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload
+    public ValueTask<TResponse> RequestFromPayloadAsync<TPayload, TResponse>(TPayload payload
         , IRule sender,
         string? destinationAddress = null
         ,

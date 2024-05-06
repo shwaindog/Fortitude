@@ -144,12 +144,12 @@ public enum MessageType
     , RemoveListenSubscribeInterceptor
 }
 
-public interface IBusMessage<TPayload> : IBusMessage, IRecyclableObject
+public interface IBusMessage<out TPayload> : IBusMessage, IRecyclableObject
 {
-    new Payload<TPayload> Payload { get; }
+    new IPayload<TPayload> Payload { get; }
 }
 
-public interface IBusRespondingMessage<TPayload, TResponse> : IBusMessage<TPayload>
+public interface IBusRespondingMessage<out TPayload, in TResponse> : IBusMessage<TPayload>
 {
     new IResponseValueTaskSource<TResponse> Response { get; }
 }
@@ -177,14 +177,14 @@ public class BusMessage : IBusMessage
     {
         Payload.IncrementRefCount();
         ProcessorRegistry?.IncrementRefCount();
-        Response?.IncrementRefCount();
+        // Never increment or decrement Response it must survive the message
     }
 
     public void DecrementCargoRefCounts()
     {
         Payload.DecrementRefCount();
         ProcessorRegistry?.DecrementRefCount();
-        Response.DecrementRefCount();
+        // Never increment or decrement Response it must survive the message
     }
 
     public IBusRespondingMessage<TPayload, TResponse> BorrowCopy<TPayload, TResponse>(IQueueContext messageContext)
@@ -294,7 +294,7 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
 
     static BusMessage() => ResetStatePayload.AutoRecycleAtRefCountZero = false;
 
-    public new Payload<TPayload> Payload
+    public new IPayload<TPayload> Payload
     {
         get => (Payload<TPayload>)((BusMessage)this).Payload;
         set => ((BusMessage)this).Payload = value;

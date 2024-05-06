@@ -55,6 +55,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
 
     protected override void MessageDeserializerRegistered(IMessageDeserializer newlyRegisteredMessageDeserializer)
     {
+        logger.Info("New Deserializer registered {0}", newlyRegisteredMessageDeserializer.InstanceNumber);
         if (newlyRegisteredMessageDeserializer is IPQDeserializer)
         {
             var foundTicker = feedSourceTickerQuoteInfos.FirstOrDefault(stqi => stqi.Id == newlyRegisteredMessageDeserializer.RegisteredForMessageId);
@@ -82,7 +83,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
     {
         var feedSourceTickerInfosUpdate = feedTickersMessage.Payload.Body();
         if (feedSourceTickerInfosUpdate?.SourceTickerQuoteInfos.Any() == true)
-            if (feedSourceTickerQuoteInfos.Any() && !feedSourceTickerInfosUpdate.SourceTickerQuoteInfos.SequenceEqual(feedSourceTickerQuoteInfos))
+            if (!feedSourceTickerQuoteInfos.Any() && !feedSourceTickerInfosUpdate.SourceTickerQuoteInfos.SequenceEqual(feedSourceTickerQuoteInfos))
             {
                 feedSourceTickerQuoteInfos = feedSourceTickerInfosUpdate.SourceTickerQuoteInfos;
                 logger.Info("Received updated source tickers [\n {0}\n]", string.Join("\n    ", feedSourceTickerQuoteInfos));
@@ -124,6 +125,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
         }
 
         var tickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig(foundTicker, pricingServerConfig);
+        logger.Info("Will create new Deserializer for {0}", foundTicker);
 
         var pqQuoteDeserializer = pqClientQuoteDeserializerRepository.CreateQuoteDeserializer(tickerPricingSubscriptionConfig
             , messageDeserializerResolveRun.DeserializedType ?? messageDeserializerResolveRun.PublishType);

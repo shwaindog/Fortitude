@@ -283,33 +283,35 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
+        var isFullReplace = copyMergeFlags.HasFullReplace();
         switch (source)
         {
             case IPQSourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPv:
                 NameIdLookup.CopyFrom(srcQtRefTrdrVlDtPv.NameIdLookup);
-                if (srcQtRefTrdrVlDtPv.IsValueDateUpdated) ValueDate = srcQtRefTrdrVlDtPv.ValueDate;
-                if (srcQtRefTrdrVlDtPv.IsSourceQuoteReferenceUpdated)
+                if (srcQtRefTrdrVlDtPv.IsValueDateUpdated || isFullReplace) ValueDate = srcQtRefTrdrVlDtPv.ValueDate;
+                if (srcQtRefTrdrVlDtPv.IsSourceQuoteReferenceUpdated || isFullReplace)
                     SourceQuoteReference = srcQtRefTrdrVlDtPv.SourceQuoteReference;
-                if (srcQtRefTrdrVlDtPv.IsSourceNameUpdated) SourceId = (ushort)NameIdLookup.GetOrAddId(srcQtRefTrdrVlDtPv.SourceName);
-                if (srcQtRefTrdrVlDtPv.IsExecutableUpdated) Executable = srcQtRefTrdrVlDtPv.Executable;
+                if (srcQtRefTrdrVlDtPv.IsSourceNameUpdated || isFullReplace)
+                    SourceId = (ushort)NameIdLookup.GetOrAddId(srcQtRefTrdrVlDtPv.SourceName);
+                if (srcQtRefTrdrVlDtPv.IsExecutableUpdated || isFullReplace) Executable = srcQtRefTrdrVlDtPv.Executable;
                 SetFlagsSame(srcQtRefTrdrVlDtPv);
                 break;
             case IPQSourceQuoteRefPriceVolumeLayer pqSrcQtRefPvLayer:
                 NameIdLookup.CopyFrom(pqSrcQtRefPvLayer.NameIdLookup);
-                if (pqSrcQtRefPvLayer.IsSourceQuoteReferenceUpdated)
+                if (pqSrcQtRefPvLayer.IsSourceQuoteReferenceUpdated || isFullReplace)
                     SourceQuoteReference = pqSrcQtRefPvLayer.SourceQuoteReference;
-                if (pqSrcQtRefPvLayer.IsSourceNameUpdated) SourceId = (ushort)NameIdLookup.GetOrAddId(pqSrcQtRefPvLayer.SourceName);
-                if (pqSrcQtRefPvLayer.IsExecutableUpdated) Executable = pqSrcQtRefPvLayer.Executable;
+                if (pqSrcQtRefPvLayer.IsSourceNameUpdated || isFullReplace) SourceId = (ushort)NameIdLookup.GetOrAddId(pqSrcQtRefPvLayer.SourceName);
+                if (pqSrcQtRefPvLayer.IsExecutableUpdated || isFullReplace) Executable = pqSrcQtRefPvLayer.Executable;
                 SetFlagsSame(pqSrcQtRefPvLayer);
                 break;
             case IPQSourcePriceVolumeLayer pqSourcePvLayer:
                 NameIdLookup.CopyFrom(pqSourcePvLayer.NameIdLookup);
-                if (pqSourcePvLayer.IsSourceNameUpdated) SourceId = (ushort)NameIdLookup.GetOrAddId(pqSourcePvLayer.SourceName);
-                if (pqSourcePvLayer.IsExecutableUpdated) Executable = pqSourcePvLayer.Executable;
+                if (pqSourcePvLayer.IsSourceNameUpdated || isFullReplace) SourceId = (ushort)NameIdLookup.GetOrAddId(pqSourcePvLayer.SourceName);
+                if (pqSourcePvLayer.IsExecutableUpdated || isFullReplace) Executable = pqSourcePvLayer.Executable;
                 SetFlagsSame(pqSourcePvLayer);
                 break;
             case IPQValueDatePriceVolumeLayer pqValueDate:
-                if (pqValueDate.IsValueDateUpdated) ValueDate = pqValueDate.ValueDate;
+                if (pqValueDate.IsValueDateUpdated || isFullReplace) ValueDate = pqValueDate.ValueDate;
                 SetFlagsSame(pqValueDate);
                 break;
             case ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlPvLayer:

@@ -78,7 +78,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
 
     public override decimal BidPriceTop
     {
-        get => BidBook.Any() ? BidBook[0]!.Price : 0m;
+        get => BidBook.Any() ? BidBook[0]?.Price ?? 0 : 0m;
         set
         {
             if (BidBook.Capacity > 0 && BidBook[0] != null)
@@ -97,7 +97,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
 
     public override decimal AskPriceTop
     {
-        get => AskBook.Any() ? AskBook[0]!.Price : 0m;
+        get => AskBook.Any() ? AskBook[0]?.Price ?? 0 : 0m;
         set
         {
             if (AskBook.Capacity > 0 && BidBook[0] != null)

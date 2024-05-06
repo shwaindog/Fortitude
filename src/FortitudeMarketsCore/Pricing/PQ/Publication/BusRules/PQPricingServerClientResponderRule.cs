@@ -42,10 +42,10 @@ public class PQPricingServerClientResponderRule : Rule
             return;
         }
 
-        var updateServerDispatcher = Context.MessageBus.BusIOResolver.GetDispatcherResolver(
+        var snapshotRespondingServerDispatcher = Context.MessageBus.BusIOResolver.GetDispatcherResolver(
             QueueSelectionStrategy.LeastBusy, MessageQueueType.AllIO, thisIOInboundMessageQueue);
         snapshotConversationResponder = PQPricingServerSnapshotResponder.BuildTcpResponder(
-            feedName, snapshotConnectionConfig, updateServerDispatcher);
+            feedName, snapshotConnectionConfig, snapshotRespondingServerDispatcher, Context.MessageBus);
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
             .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
         var connected = await snapshotConversationResponder.StartAsync(10_000, workerQueueConnect);

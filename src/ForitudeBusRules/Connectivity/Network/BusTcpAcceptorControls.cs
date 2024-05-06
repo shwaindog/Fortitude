@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeBusRules.BusMessaging;
 using FortitudeIO.Conversations;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Controls;
@@ -12,13 +13,16 @@ namespace FortitudeBusRules.Connectivity.Network;
 
 public class BusTcpAcceptorControls : TcpAcceptorControls
 {
-    public BusTcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext) : base(acceptorSocketSessionContext) { }
+    private readonly IMessageBus messageBus;
+
+    public BusTcpAcceptorControls(ISocketSessionContext acceptorSocketSessionContext, IMessageBus messageBus) : base(acceptorSocketSessionContext) =>
+        this.messageBus = messageBus;
 
     protected override ISocketSessionContext CreateClientSocketSessionContext(INetworkTopicConnectionConfig clientNetworkTopicConnectionConfig) =>
         new BusSocketSessionContext(clientNetworkTopicConnectionConfig.TopicName + "AcceptedClient"
             , ConversationType.Requester,
             SocketConversationProtocol.TcpClient, clientNetworkTopicConnectionConfig,
-            SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory);
+            SocketSessionContext.SocketFactoryResolver, SocketSessionContext.SerdesFactory, SocketSessionContext.SocketDispatcherResolver);
 
     protected override void StartClientAcceptedSession(ConversationRequester clientConversation)
     {

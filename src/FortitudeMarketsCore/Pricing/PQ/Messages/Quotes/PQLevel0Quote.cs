@@ -401,17 +401,20 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         if (source is IPQLevel0Quote ipq0)
         {
             if (PQSourceTickerQuoteInfo != null)
-                PQSourceTickerQuoteInfo.CopyFrom(ipq0.SourceTickerQuoteInfo!);
+                PQSourceTickerQuoteInfo.CopyFrom(ipq0.SourceTickerQuoteInfo!, copyMergeFlags);
             else
                 SourceTickerQuoteInfo = ipq0.SourceTickerQuoteInfo;
             // only copy if changed
-            if (ipq0.IsSourceTimeDateUpdated) PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceTime, ipq0.SourceTime.GetHoursFromUnixEpoch());
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (ipq0.IsSourceTimeDateUpdated || isFullReplace)
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceTime, ipq0.SourceTime.GetHoursFromUnixEpoch());
 
-            if (ipq0.IsSourceTimeSubHourUpdated) PQFieldConverters.UpdateSubHourComponent(ref sourceTime, ipq0.SourceTime.GetSubHourComponent());
+            if (ipq0.IsSourceTimeSubHourUpdated || isFullReplace)
+                PQFieldConverters.UpdateSubHourComponent(ref sourceTime, ipq0.SourceTime.GetSubHourComponent());
 
-            if (ipq0.IsReplayUpdated) IsReplay = ipq0.IsReplay;
-            if (ipq0.IsSinglePriceUpdated) SinglePrice = ipq0.SinglePrice;
-            if (ipq0.IsSyncStatusUpdated) PQSyncStatus = ipq0.PQSyncStatus;
+            if (ipq0.IsReplayUpdated || isFullReplace) IsReplay = ipq0.IsReplay;
+            if (ipq0.IsSinglePriceUpdated || isFullReplace) SinglePrice = ipq0.SinglePrice;
+            if (ipq0.IsSyncStatusUpdated || isFullReplace) PQSyncStatus = ipq0.PQSyncStatus;
             //PQ tracks its own changes only copy explicit changes
 
             OverrideSerializationFlags = ipq0.OverrideSerializationFlags;
@@ -429,6 +432,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         }
         else
         {
+            OverrideSerializationFlags = null;
             ClientReceivedTime = source.ClientReceivedTime;
             SourceTickerQuoteInfo = source.SourceTickerQuoteInfo;
             SourceTime = source.SourceTime;
@@ -458,7 +462,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     IMutableLevel0Quote IMutableLevel0Quote.Clone() => Clone();
 
-    public override IPQLevel0Quote Clone() => (IPQLevel0Quote?)Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this) ?? new PQLevel0Quote(this);
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
+        ?? new PQLevel0Quote(this);
 
     public virtual bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

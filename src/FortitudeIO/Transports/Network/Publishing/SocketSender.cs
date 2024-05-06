@@ -171,6 +171,7 @@ public sealed class SocketSender : ISocketSender
                     }
 
                     var message = encoder.Message;
+                    // logger.Info("Received {0}", message);
                     foundExpectSessionClose |= message is ExpectSessionCloseMessage;
                     encoder.Serializer!.Serialize(encoder.Message, writeBufferContext);
                     var writtenSize = writeBufferContext.LastWriteLength;

@@ -27,7 +27,11 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     private IPQOrderBook askBook;
     private IPQOrderBook bidBook;
 
-    [Obsolete] public PQLevel2Quote() => throw new NotSupportedException();
+    public PQLevel2Quote()
+    {
+        bidBook = new PQOrderBook(BookSide.BidBook);
+        askBook = new PQOrderBook(BookSide.AskBook);
+    }
 
     public PQLevel2Quote(ISourceTickerQuoteInfo sourceTickerInfo)
         : base(sourceTickerInfo)
@@ -61,7 +65,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     }
 
     protected string Level2ToStringMembers =>
-        $"{base.ToString()}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, {nameof(BidBook)}: {BidBook}, {nameof(AskBook)}: {AskBook}, {nameof(BidPriceTop)}: {BidPriceTop}, {nameof(AskPriceTop)}: {AskPriceTop}";
+        $"{Level1ToStringMembers}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, {nameof(BidBook)}: {BidBook}, {nameof(AskBook)}: {AskBook}, {nameof(BidPriceTop)}: {BidPriceTop}, {nameof(AskPriceTop)}: {AskPriceTop}";
 
     public override QuoteLevel QuoteLevel => QuoteLevel.Level2;
 
@@ -125,7 +129,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     public override decimal BidPriceTop
     {
-        get => BidBook[0]!.Price;
+        get => BidBook.Count > 0 ? BidBook[0]?.Price ?? 0 : 0;
         set
         {
             if (BidBook[0]!.Price == value) return;
@@ -136,7 +140,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     public override decimal AskPriceTop
     {
-        get => AskBook[0]!.Price;
+        get => AskBook.Count > 0 ? AskBook[0]?.Price ?? 0 : 0;
         set
         {
             if (AskBook[0]!.Price == value) return;
@@ -223,15 +227,17 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     IPQLevel2Quote IPQLevel2Quote.Clone() => (IPQLevel2Quote)Clone();
 
-    public override IPQLevel0Quote Clone() => (IPQLevel0Quote?)Recycler?.Borrow<PQLevel2Quote>().CopyFrom(this) ?? new PQLevel2Quote(this);
+    public override IPQLevel0Quote Clone() =>
+        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel2Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
+        ?? new PQLevel2Quote(this);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 
         if (!(source is ILevel2Quote l2Q)) return this;
-        bidBook.CopyFrom(l2Q.BidBook);
-        askBook.CopyFrom(l2Q.AskBook);
+        bidBook.CopyFrom(l2Q.BidBook, copyMergeFlags);
+        askBook.CopyFrom(l2Q.AskBook, copyMergeFlags);
         return this;
     }
 
@@ -296,5 +302,5 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         }
     }
 
-    public override string ToString() => $"{GetType().Name}({Level0ToStringMembers}, {Level1ToStringMembers}, {Level2ToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({Level2ToStringMembers})";
 }

@@ -292,8 +292,8 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
             if (ExpectedRequestResponses.TryGetValue(responseMessage.RequestId, out var taskSource))
                 try
                 {
-                    if (taskSource is IReusableAsyncResponseSource<TM> typedAsyncResponseSource)
-                        typedAsyncResponseSource!.SetResult(message);
+                    if (taskSource is IReusableAsyncResponseSource<TM> typedAsyncResponseSource) typedAsyncResponseSource!.SetResult(message);
+
                     ExpectedRequestResponses.Remove(responseMessage.RequestId);
 
                     SubscriberCount--;
