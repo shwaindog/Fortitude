@@ -252,15 +252,16 @@ public class SocketReceiverTests
 
 
     [TestMethod]
-    public void SocketReceiverRemainingBufferLessThan400_Poll_ShiftsUnreadDataToBufferStart()
+    public unsafe void SocketReceiverRemainingBufferLessThan400_Poll_ShiftsUnreadDataToBufferStart()
     {
         PrepareSocketFullRead();
         directOsNetworkingApiStub.ClearQueue();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[401], true);
         var receiveBuffer = NonPublicInvocator.GetInstanceField<CircularReadWriteBuffer>(
             socketReceiver, "receiveBuffer");
-
-        for (var i = 0; i < receiveBuffer.Buffer.Length; i++) receiveBuffer.Buffer[i] = (byte)(i % byte.MaxValue);
+        using var fixedBuffer = receiveBuffer;
+        var wptr = receiveBuffer.WriteBuffer + receiveBuffer.BufferRelativeWriteCursor;
+        for (var i = 0; i < receiveBuffer.Size; i++) *wptr++ = (byte)(i % byte.MaxValue);
         receiveBuffer.ReadCursor = byte.MaxValue / 4;
         receiveBuffer.WriteCursor = 113;
 
@@ -269,7 +270,8 @@ public class SocketReceiverTests
         var receiveData = socketReceiver.Poll(socketBufferReadContext);
 
         Assert.IsTrue(receiveData);
-        for (var i = 0; i < 48; i++) Assert.AreEqual(i + byte.MaxValue / 4, receiveBuffer.Buffer[i]);
+        var rptr = receiveBuffer.ReadBuffer + receiveBuffer.BufferRelativeReadCursor;
+        for (var i = 0; i < 48; i++) Assert.AreEqual(i + byte.MaxValue / 4, *rptr++);
     }
 
     [TestMethod]

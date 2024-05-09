@@ -31,27 +31,25 @@ public class PQSnapshotIdsRequestSerializerTests
 
         var snapshotIdsMessage = new PQSnapshotIdsRequest(expectedIdsToReceive);
 
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset;
         var amtWritten = pqSnapshotIdsRequestSerializer
-            .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, snapshotIdsMessage);
-        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
-
-        fixed (byte* bufferPtr = readWriteBuffer.Buffer)
-        {
-            var startWritten = bufferPtr + BufferReadWriteOffset;
-            var currPtr = bufferPtr + BufferReadWriteOffset;
-            var protocolVersion = *currPtr++;
-            Assert.AreEqual(snapshotIdsMessage.Version, protocolVersion);
-            var messageFlags = *currPtr++;
-            Assert.AreEqual((byte)0, messageFlags);
-            var messageId = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(snapshotIdsMessage.MessageId, messageId);
-            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual((uint)amtWritten, messagesTotalSize);
-            var numberOfIds = StreamByteOps.ToUShort(ref currPtr);
-            Assert.AreEqual(expectedIdsToReceive.Length, numberOfIds);
-            foreach (var expectedUint in expectedIdsToReceive)
-                Assert.AreEqual(expectedUint, StreamByteOps.ToUInt(ref currPtr));
-            Assert.AreEqual(messagesTotalSize, (uint)(currPtr - startWritten));
-        }
+            .Serialize(readWriteBuffer, snapshotIdsMessage);
+        readWriteBuffer.WriteCursor += amtWritten;
+        using var fixedBuffer = readWriteBuffer;
+        var startWritten = fixedBuffer.ReadBuffer + BufferReadWriteOffset;
+        var currPtr = startWritten;
+        var protocolVersion = *currPtr++;
+        Assert.AreEqual(snapshotIdsMessage.Version, protocolVersion);
+        var messageFlags = *currPtr++;
+        Assert.AreEqual((byte)0, messageFlags);
+        var messageId = StreamByteOps.ToUInt(ref currPtr);
+        Assert.AreEqual(snapshotIdsMessage.MessageId, messageId);
+        var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+        Assert.AreEqual((uint)amtWritten, messagesTotalSize);
+        var numberOfIds = StreamByteOps.ToUShort(ref currPtr);
+        Assert.AreEqual(expectedIdsToReceive.Length, numberOfIds);
+        foreach (var expectedUint in expectedIdsToReceive)
+            Assert.AreEqual(expectedUint, StreamByteOps.ToUInt(ref currPtr));
+        Assert.AreEqual(messagesTotalSize, (uint)(currPtr - startWritten));
     }
 }

@@ -25,13 +25,11 @@ public class ExpectSessionCloseMessageDeserializer : BinaryMessageDeserializer<E
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedExpectSessionCloseMessage = recycler.Borrow<ExpectSessionCloseMessage>();
-            fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
-            {
-                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
-                deserializedExpectSessionCloseMessage.CloseReason = (CloseReason)(*ptr++);
-                if (messageBufferContext.MessageHeader.Flags > 0)
-                    deserializedExpectSessionCloseMessage.ReasonText = StreamByteOps.ToStringWithSizeHeader(ref ptr);
-            }
+            var fixedBuffer = messageBufferContext.EncodedBuffer!;
+            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            deserializedExpectSessionCloseMessage.CloseReason = (CloseReason)(*ptr++);
+            if (messageBufferContext.MessageHeader.Flags > 0)
+                deserializedExpectSessionCloseMessage.ReasonText = StreamByteOps.ToStringWithSizeHeader(ref ptr);
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             return deserializedExpectSessionCloseMessage;

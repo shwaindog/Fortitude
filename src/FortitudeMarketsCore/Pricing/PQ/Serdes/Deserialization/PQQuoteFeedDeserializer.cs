@@ -33,7 +33,7 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
     protected override bool ShouldPublish => true;
 
 
-    public override T? Deserialize(ISerdeContext readContext)
+    public override unsafe T Deserialize(ISerdeContext readContext)
     {
         if ((readContext.Direction & ContextDirection.Read) == 0)
             throw new ArgumentException("Expected readContext to allow reading");
@@ -43,9 +43,9 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
         {
             var sockBuffContext = bufferContext as SocketBufferReadContext;
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
-
-            var sequenceId = StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-                , bufferContext.EncodedBuffer.BufferRelativeReadCursor);
+            using var fixedBuffer = bufferContext.EncodedBuffer!;
+            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            var sequenceId = StreamByteOps.ToUInt(ref ptr);
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
             PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)

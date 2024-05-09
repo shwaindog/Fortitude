@@ -30,9 +30,8 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -41,28 +40,24 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(IBuffer buffer, IVersionedMessage message)
     {
         var ids = ((IPQSnapshotIdsRequest)message).RequestSourceTickerIds;
-        if (FixedSize + ids.Count * sizeof(uint) <= buffer.Length - writeOffset)
-            fixed (byte* bufStrt = buffer)
-            {
-                var writeStart = bufStrt + writeOffset;
-                var currPtr = writeStart;
-                *currPtr++ = message.Version;
-                *currPtr++ = (byte)PQMessageFlags.None; // header flags
-                StreamByteOps.ToBytes(ref currPtr, message.MessageId);
-                var messageSize = currPtr;
-                currPtr += OrxConstants.UInt32Sz;
-                StreamByteOps.ToBytes(ref currPtr, (ushort)ids.Count);
-                for (var i = 0; i < ids.Count; i++) StreamByteOps.ToBytes(ref currPtr, ids[i]);
+        using var fixedBuffer = buffer;
+        if (FixedSize + ids.Count * sizeof(uint) > buffer.RemainingStorage) return -1;
+        var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+        var currPtr = writeStart;
+        *currPtr++ = message.Version;
+        *currPtr++ = (byte)PQMessageFlags.None; // header flags
+        StreamByteOps.ToBytes(ref currPtr, message.MessageId);
+        var messageSize = currPtr;
+        currPtr += OrxConstants.UInt32Sz;
+        StreamByteOps.ToBytes(ref currPtr, (ushort)ids.Count);
+        for (var i = 0; i < ids.Count; i++) StreamByteOps.ToBytes(ref currPtr, ids[i]);
 
-                var amtWritten = currPtr - writeStart;
-                StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
-                message.DecrementRefCount();
-                return (int)amtWritten;
-            }
-
-        return -1;
+        var amtWritten = currPtr - writeStart;
+        StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+        message.DecrementRefCount();
+        return (int)amtWritten;
     }
 }

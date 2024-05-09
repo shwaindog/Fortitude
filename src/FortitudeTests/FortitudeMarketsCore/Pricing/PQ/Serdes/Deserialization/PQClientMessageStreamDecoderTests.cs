@@ -111,8 +111,7 @@ public class PQClientMessageStreamDecoderTests
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            BufferReadWriteOffset, expectedL0Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -122,8 +121,7 @@ public class PQClientMessageStreamDecoderTests
 
         writeStartOffset = readWriteBuffer.WriteCursor;
 
-        amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            readWriteBuffer.WriteCursor, expectedL0Quote);
+        amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
         readWriteBuffer.WriteCursor += amountWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -156,8 +154,7 @@ public class PQClientMessageStreamDecoderTests
         var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote>(2) { expectedL0Quote });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
-        var amtWritten = heartBeatSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset,
-            listOfHeartBeatsToUpdate);
+        var amtWritten = heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -171,8 +168,7 @@ public class PQClientMessageStreamDecoderTests
             .Returns(null!).Verifiable();
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        amtWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            readWriteBuffer.WriteCursor, expectedL0Quote);
+        amtWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
         readWriteBuffer.WriteCursor += amtWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -198,8 +194,7 @@ public class PQClientMessageStreamDecoderTests
             SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amtWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer,
-            BufferReadWriteOffset, expectedL0Quote);
+        var amtWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -224,8 +219,7 @@ public class PQClientMessageStreamDecoderTests
         var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote>(2) { expectedL0Quote });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
-        amtWritten = heartBeatSerializer.Serialize(readWriteBuffer.Buffer, readWriteBuffer.WriteCursor,
-            listOfHeartBeatsToUpdate);
+        amtWritten = heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);
         readWriteBuffer.WriteCursor += amtWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);

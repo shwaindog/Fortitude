@@ -29,9 +29,8 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -40,43 +39,38 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(IBuffer buffer, IVersionedMessage message)
     {
-        if (HeaderSize <= buffer.Length - writeOffset)
-            fixed (byte* fptr = buffer)
+        using var fixedBuffer = buffer;
+        if (HeaderSize > buffer.RemainingStorage) return -1;
+        var ptr = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+        var messageStart = ptr;
+        var end = ptr + buffer.RemainingStorage;
+        if (message is IEnumerable<IPQLevel0Quote> quotes)
+            foreach (var quote in quotes)
             {
-                var ptr = fptr + writeOffset;
-                var messageStart = ptr;
-                var end = fptr + buffer.Length;
-                var quotes = message as IEnumerable<IPQLevel0Quote>;
-                if (quotes != null)
-                    foreach (var quote in quotes)
-                    {
-                        *ptr++ = message.Version;
-                        *ptr++ = (byte)PQMessageFlags.None;
-                        StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.Id);
-                        var messageSize = ptr;
-                        ptr += sizeof(uint);
-                        quote.Lock.Acquire();
-                        try
-                        {
-                            StreamByteOps.ToBytes(ref ptr, unchecked(++quote.PQSequenceId));
-                        }
-                        finally
-                        {
-                            quote.Lock.Release();
-                        }
+                *ptr++ = message.Version;
+                *ptr++ = (byte)PQMessageFlags.None;
+                StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.Id);
+                var messageSize = ptr;
+                ptr += sizeof(uint);
+                quote.Lock.Acquire();
+                try
+                {
+                    StreamByteOps.ToBytes(ref ptr, unchecked(++quote.PQSequenceId));
+                }
+                finally
+                {
+                    quote.Lock.Release();
+                }
 
-                        if (ptr + HeartbeatSize > end) return -1;
+                if (ptr + HeartbeatSize > end) return -1;
 
-                        StreamByteOps.ToBytes(ref messageSize
-                            , PQQuoteMessageHeader.HeaderSize + sizeof(uint)); // just a heartbeat header
-                    }
-
-                message.DecrementRefCount();
-                return (int)(ptr - messageStart);
+                StreamByteOps.ToBytes(ref messageSize
+                    , PQQuoteMessageHeader.HeaderSize + sizeof(uint)); // just a heartbeat header
             }
 
-        return -1;
+        message.DecrementRefCount();
+        return (int)(ptr - messageStart);
     }
 }

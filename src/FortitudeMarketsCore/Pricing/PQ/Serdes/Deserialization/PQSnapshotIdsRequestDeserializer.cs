@@ -27,13 +27,11 @@ public class PQSnapshotIdsRequestDeserializer : MessageDeserializer<PQSnapshotId
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedSnapshotIdsRequest = recycler.Borrow<PQSnapshotIdsRequest>();
-            fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
-            {
-                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
-                var requestsCount = StreamByteOps.ToUShort(ref ptr);
-                var streamIDs = new uint[requestsCount];
-                for (var i = 0; i < streamIDs.Length; i++) deserializedSnapshotIdsRequest.RequestSourceTickerIds.Add(StreamByteOps.ToUInt(ref ptr));
-            }
+            using var fixedBuffer = messageBufferContext.EncodedBuffer!;
+            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            var requestsCount = StreamByteOps.ToUShort(ref ptr);
+            var streamIDs = new uint[requestsCount];
+            for (var i = 0; i < streamIDs.Length; i++) deserializedSnapshotIdsRequest.RequestSourceTickerIds.Add(StreamByteOps.ToUInt(ref ptr));
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             OnNotify(deserializedSnapshotIdsRequest, messageBufferContext);

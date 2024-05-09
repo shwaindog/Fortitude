@@ -24,9 +24,8 @@ public class RequesterNameMessageSerializer : IMessageSerializer<RequesterNameMe
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -35,28 +34,28 @@ public class RequesterNameMessageSerializer : IMessageSerializer<RequesterNameMe
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, RequesterNameMessage requesterNameMessage)
+    public unsafe int Serialize(IBuffer buffer, RequesterNameMessage requesterNameMessage)
     {
-        var remainingBytes = buffer.Length - writeOffset;
+        using var fixedBuffer = buffer;
+        var remainingBytes = buffer.RemainingStorage;
         var requesterConnectionName = requesterNameMessage.RequesterConnectionName;
-        if (MessageHeader.SerializationSize <= buffer.Length - writeOffset)
-            fixed (byte* bufStrt = buffer)
-            {
-                var writeStart = bufStrt + writeOffset;
-                var currPtr = writeStart;
-                *currPtr++ = requesterNameMessage.Version;
-                *currPtr++ = 0;
-                StreamByteOps.ToBytes(ref currPtr, requesterNameMessage.MessageId);
-                var messageSize = currPtr;
-                currPtr += OrxConstants.UInt32Sz;
-                remainingBytes -= MessageHeader.SerializationSize;
-                StreamByteOps.ToBytesWithSizeHeader(ref currPtr, requesterConnectionName!, remainingBytes);
-                var amtWritten = currPtr - writeStart;
-                StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+        if (MessageHeader.SerializationSize <= remainingBytes)
+        {
+            var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+            var currPtr = writeStart;
+            *currPtr++ = requesterNameMessage.Version;
+            *currPtr++ = 0;
+            StreamByteOps.ToBytes(ref currPtr, requesterNameMessage.MessageId);
+            var messageSize = currPtr;
+            currPtr += OrxConstants.UInt32Sz;
+            remainingBytes -= MessageHeader.SerializationSize;
+            StreamByteOps.ToBytesWithSizeHeader(ref currPtr, requesterConnectionName!, remainingBytes);
+            var amtWritten = currPtr - writeStart;
+            StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
 
-                requesterNameMessage.DecrementRefCount();
-                return (int)amtWritten;
-            }
+            requesterNameMessage.DecrementRefCount();
+            return (int)amtWritten;
+        }
 
         return -1;
     }

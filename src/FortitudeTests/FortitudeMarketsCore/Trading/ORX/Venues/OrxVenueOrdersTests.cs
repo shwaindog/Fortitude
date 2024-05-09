@@ -47,7 +47,7 @@ public class OrxVenueOrdersTests
         };
 
         var messageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
-            byteBuffer, 0, OrxMessageHeader.HeaderSize);
+            socketBufferReadContext.EncodedBuffer!, OrxMessageHeader.HeaderSize);
         socketBufferReadContext.MessageHeader
             = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
         socketBufferReadContext.EncodedBuffer!.ReadCursor = MessageHeader.SerializationSize;

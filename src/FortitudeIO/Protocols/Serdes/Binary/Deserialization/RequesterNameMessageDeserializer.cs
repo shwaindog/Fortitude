@@ -25,11 +25,9 @@ public class RequesterNameMessageDeserializer : MessageDeserializer<RequesterNam
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedRequesterNameMessage = recycler.Borrow<RequesterNameMessage>();
-            fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
-            {
-                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
-                deserializedRequesterNameMessage.RequesterConnectionName = StreamByteOps.ToStringWithSizeHeader(ref ptr);
-            }
+            var fixedBuffer = messageBufferContext.EncodedBuffer!;
+            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            deserializedRequesterNameMessage.RequesterConnectionName = StreamByteOps.ToStringWithSizeHeader(ref ptr);
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             OnNotify(deserializedRequesterNameMessage, messageBufferContext);

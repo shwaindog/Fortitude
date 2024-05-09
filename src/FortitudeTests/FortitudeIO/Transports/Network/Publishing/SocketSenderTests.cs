@@ -67,17 +67,25 @@ public class SocketSenderTests
             calledApiSendCount++;
             return SerializeWriteLength;
         };
+
+        unsafe void SerializeCallback(IVersionedMessage _, IBufferContext bc)
+        {
+            using var fixedBuffer = bc.EncodedBuffer!;
+            if (fixedBuffer.RemainingStorage < SerializeWriteLength)
+            {
+                bc.LastWriteLength = 0;
+                return;
+            }
+
+            var ptr = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+            for (var i = 0; i < SerializeWriteLength; i++) *ptr++ = (byte)(i + 1);
+
+            bc.LastWriteLength = SerializeWriteLength;
+            fixedBuffer.WriteCursor += SerializeWriteLength;
+        }
+
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
-            .Callback<IVersionedMessage, IBufferContext>(
-                (_, bc) =>
-                {
-                    if (bc.EncodedBuffer!.RemainingStorage < SerializeWriteLength) return;
-                    for (var i = 0; i < SerializeWriteLength; i++)
-                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.BufferRelativeWriteCursor + i] = (byte)(i + 1);
-                    bc.LastWriteLength = SerializeWriteLength;
-                    bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
-                }
-            );
+            .Callback<IVersionedMessage, IBufferContext>(SerializeCallback);
 
         directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
 
@@ -188,18 +196,25 @@ public class SocketSenderTests
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
         moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
+
+        unsafe void SerializeCallback(IVersionedMessage _, IBufferContext bc)
+        {
+            using var fixedBuffer = bc.EncodedBuffer!;
+            bc.LastWriteLength = 0;
+            if (fixedBuffer.RemainingStorage < SerializeWriteLength)
+            {
+                bc.LastWriteLength = 0;
+                return;
+            }
+
+            var ptr = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+            for (var i = 0; i < SerializeWriteLength; i++) *ptr++ = (byte)(i + 1);
+            bc.LastWriteLength = SerializeWriteLength;
+            bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
+        }
+
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
-            .Callback<IVersionedMessage, IBufferContext>(
-                (_, bc) =>
-                {
-                    bc.LastWriteLength = 0;
-                    if (bc.EncodedBuffer!.RemainingStorage < SerializeWriteLength) return;
-                    for (var i = 0; i < SerializeWriteLength; i++)
-                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.BufferRelativeWriteCursor + i] = (byte)(i + 1);
-                    bc.LastWriteLength = SerializeWriteLength;
-                    bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
-                }
-            );
+            .Callback<IVersionedMessage, IBufferContext>(SerializeCallback);
 
         socketSender.Send(moqVersionedMessage.Object);
         socketSender.Send(moqVersionedMessage.Object);
@@ -218,15 +233,15 @@ public class SocketSenderTests
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
         moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
+
+        void SerializeCallback(IVersionedMessage _, IBufferContext bc)
+        {
+            bc.LastWriteLength = 0; // fail on purpose
+        }
+
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>(
-                (_, bc) =>
-                {
-                    bc.LastWriteLength = 0;
-                    for (var i = 0; i < SerializeWriteLength; i++)
-                        bc.EncodedBuffer!.Buffer[i] = (byte)(i + 1);
-                    bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
-                }
+                SerializeCallback
             );
         sendCallBack = (_, _, _, _) => 0;
         directOsNetworkingStub = new DirectOSNetworkingStub(() => SendErrorCode, sendCallBack);
@@ -255,17 +270,26 @@ public class SocketSenderTests
         moqVersionedMessage.SetupGet(sc => sc.MessageId).Returns(MessageId).Verifiable();
         moqSocketDispatcher.SetupGet(sd => sd.Sender).Returns(moqSocketDispatcherSender.Object).Verifiable();
         moqSocketDispatcherSender.Setup(sd => sd.EnqueueSocketSender(socketSender)).Verifiable();
+
+        unsafe void SerializeCallback(IVersionedMessage _, IBufferContext bc)
+        {
+            using var fixedBuffer = bc.EncodedBuffer!;
+            bc.LastWriteLength = 0;
+            if (fixedBuffer.RemainingStorage < smallMessageSize)
+            {
+                bc.LastWriteLength = 0;
+                return;
+            }
+
+            var ptr = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+            for (var i = 0; i < smallMessageSize; i++) *ptr++ = (byte)(i + 1);
+            bc.LastWriteLength = smallMessageSize;
+            bc.EncodedBuffer!.WriteCursor += smallMessageSize;
+        }
+
         moqMessageSerializer.Setup(ms => ms.Serialize(moqVersionedMessage.Object, It.IsAny<IBufferContext>()))
             .Callback<IVersionedMessage, IBufferContext>(
-                (_, bc) =>
-                {
-                    bc.LastWriteLength = 0;
-                    if (bc.EncodedBuffer!.RemainingStorage < smallMessageSize) return;
-                    for (var i = 0; i < smallMessageSize; i++)
-                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.BufferRelativeWriteCursor + i] = (byte)(i + 1);
-                    bc.LastWriteLength = smallMessageSize;
-                    bc.EncodedBuffer!.WriteCursor += smallMessageSize;
-                }
+                SerializeCallback
             );
         sendCallBack = (_, _, len, _) =>
         {

@@ -30,9 +30,8 @@ public class PQSourceTickerInfoRequestSerializer : IMessageSerializer<PQSourceTi
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -41,22 +40,20 @@ public class PQSourceTickerInfoRequestSerializer : IMessageSerializer<PQSourceTi
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, PQSourceTickerInfoRequest sourceTickerInfoRequest)
+    public unsafe int Serialize(IBuffer buffer, PQSourceTickerInfoRequest sourceTickerInfoRequest)
     {
-        fixed (byte* bufStrt = buffer)
-        {
-            var writeStart = bufStrt + writeOffset;
-            var currPtr = writeStart;
-            *currPtr++ = sourceTickerInfoRequest.Version;
-            *currPtr++ = (byte)PQMessageFlags.None;
-            StreamByteOps.ToBytes(ref currPtr, sourceTickerInfoRequest.MessageId);
-            var messageSize = currPtr;
-            currPtr += OrxConstants.UInt32Sz;
-            StreamByteOps.ToBytes(ref currPtr, sourceTickerInfoRequest.RequestId);
-            var amtWritten = currPtr - writeStart;
-            StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
-            sourceTickerInfoRequest.DecrementRefCount();
-            return (int)amtWritten;
-        }
+        using var fixedBuffer = buffer;
+        var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+        var currPtr = writeStart;
+        *currPtr++ = sourceTickerInfoRequest.Version;
+        *currPtr++ = (byte)PQMessageFlags.None;
+        StreamByteOps.ToBytes(ref currPtr, sourceTickerInfoRequest.MessageId);
+        var messageSize = currPtr;
+        currPtr += OrxConstants.UInt32Sz;
+        StreamByteOps.ToBytes(ref currPtr, sourceTickerInfoRequest.RequestId);
+        var amtWritten = currPtr - writeStart;
+        StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+        sourceTickerInfoRequest.DecrementRefCount();
+        return (int)amtWritten;
     }
 }

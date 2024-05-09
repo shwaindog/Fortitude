@@ -264,7 +264,7 @@ public class PQDeserializerBaseTests
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL0Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;
@@ -296,7 +296,7 @@ public class PQDeserializerBaseTests
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL1Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL1Quote);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;
@@ -333,7 +333,7 @@ public class PQDeserializerBaseTests
         }
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL2Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL2Quote);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;
@@ -378,7 +378,7 @@ public class PQDeserializerBaseTests
             }
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amountWritten = quoteSerializer.Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, expectedL3Quote);
+        var amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL3Quote);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
         socketBufferReadContext.LastWriteLength = amountWritten;

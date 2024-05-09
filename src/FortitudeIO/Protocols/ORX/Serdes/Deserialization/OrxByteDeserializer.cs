@@ -84,6 +84,13 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
     public Type MessageType => typeof(Tm);
 
+    public unsafe object Deserialize(IBuffer buffer, uint length, byte messageVersion)
+    {
+        using var fixBufferPtr = buffer;
+        var ptr = fixBufferPtr.ReadBuffer + fixBufferPtr.BufferRelativeReadCursor;
+        return Deserialize(ptr, length, messageVersion);
+    }
+
     public unsafe object Deserialize(byte* ptr, uint length, byte messageVersion)
     {
         if (messageVersion >= thisVersion) return DeserializeCurrentType(ptr, length);
@@ -104,12 +111,11 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         var sockBuffContext = readContext as SocketBufferReadContext;
         sockBuffContext?.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
         if (readContext is IMessageBufferContext messageBufferContext)
-            fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer)
-            {
-                var messageVersion = messageBufferContext.MessageHeader.Version;
-                var messageSize = messageBufferContext.MessageHeader.MessageSize;
-                return (Tm)Deserialize(fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor, messageSize - MessageHeader.SerializationSize, messageVersion);
-            }
+        {
+            var messageVersion = messageBufferContext.MessageHeader.Version;
+            var messageSize = messageBufferContext.MessageHeader.MessageSize;
+            return (Tm)Deserialize(messageBufferContext.EncodedBuffer!, messageSize - MessageHeader.SerializationSize, messageVersion);
+        }
 
         throw new ArgumentException("Expected readContext to be of type IBufferContext");
     }

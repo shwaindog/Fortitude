@@ -247,6 +247,7 @@ public class InvokeRuleCallbackListenContext<T>: ReceiverListenContext<T>
     public InvokeRuleCallbackListenContext(InvokeRuleCallbackListenContext<T> toClone) : base(toClone)
     {
         recycler = toClone.recycler;
+        calleeRule = toClone.calleeRule;
         messageCallback = toClone.messageCallback;
         asyncCallback = toClone.asyncCallback;
     }
