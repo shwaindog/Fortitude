@@ -36,17 +36,16 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var readCursor = socketBufferReadContext.EncodedBuffer!.ReadCursor;
-        var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
+        var originalRead = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         byte messageFlags = 0;
         uint messageId = 0;
-        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - readCursor)
+        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - socketBufferReadContext.EncodedBuffer.ReadCursor)
             switch (messageSection)
             {
                 case MessageSection.Header:
                     fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                     {
-                        var ptr = fptr + readCursor;
+                        var ptr = fptr + socketBufferReadContext.EncodedBuffer.BufferRelativeReadCursor;
                         var version = *ptr++;
                         messageFlags = *ptr++;
                         messageId = StreamByteOps.ToUInt(ref ptr);
@@ -55,7 +54,7 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
                             = new MessageHeader(version, messageFlags, messageId, messageSize, socketBufferReadContext);
                     }
 
-                    readCursor += HeaderSize;
+                    socketBufferReadContext.EncodedBuffer.ReadCursor += HeaderSize;
                     if ((int)socketBufferReadContext.MessageHeader.MessageSize - HeaderSize >= 0)
                     {
                         messageSection = MessageSection.Data;
@@ -72,7 +71,6 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 
                     if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var messageDeserializer))
                     {
-                        socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
                         var message = messageDeserializer!.Deserialize(socketBufferReadContext);
                         if (message is ExpectSessionCloseMessage expectSessionCloseMessage)
                             socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
@@ -82,14 +80,13 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
                         Logger.Warn("Received a message with an unregistered serializer so was ignored {0}", socketBufferReadContext.MessageHeader);
                     }
 
-                    readCursor += socketBufferReadContext.LastReadLength - HeaderSize;
+                    socketBufferReadContext.EncodedBuffer.ReadCursor += socketBufferReadContext.LastReadLength - HeaderSize;
                     messageSection = MessageSection.Header;
                     ExpectedSize = HeaderSize;
                     break;
             }
 
-        socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
-        return readCursor - originalRead;
+        return (int)(socketBufferReadContext.EncodedBuffer!.ReadCursor - originalRead);
     }
 
     private enum MessageSection

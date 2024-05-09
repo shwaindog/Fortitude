@@ -48,7 +48,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
             if (readContext is IMessageBufferContext messageBufferContext)
             {
                 var simpleMessage = new SimpleVersionedMessage();
-                var readOffset = messageBufferContext.EncodedBuffer!.ReadCursor;
+                var readOffset = messageBufferContext.EncodedBuffer!.BufferRelativeReadCursor;
                 var version = messageBufferContext.MessageHeader.Version;
                 var messageSize = messageBufferContext.MessageHeader.MessageSize;
 
@@ -94,7 +94,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
             if (writeContext is IBufferContext bufferContext)
             {
                 var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer
-                    , bufferContext.EncodedBuffer.WriteCursor
+                    , bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                     , obj);
                 bufferContext.EncodedBuffer.WriteCursor += writeLength;
                 bufferContext.LastWriteLength = writeLength;
@@ -105,13 +105,13 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
             }
         }
 
-        public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
+        public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage message)
         {
             var simpleVersionedMsg = (SimpleVersionedMessage)message;
             uint bytesSerialized;
             fixed (byte* fptr = buffer)
             {
-                var currPtr = fptr;
+                var currPtr = fptr + writeOffset;
                 *currPtr++ = message.Version;
                 *currPtr++ = 0;
                 StreamByteOps.ToBytes(ref currPtr, message.MessageId);

@@ -14,12 +14,12 @@ public class PQSnapshotIdsRequestSerializerTests
 {
     private const int BufferReadWriteOffset = 100;
     private PQSnapshotIdsRequestSerializer pqSnapshotIdsRequestSerializer = null!;
-    private ReadWriteBuffer readWriteBuffer = null!;
+    private CircularReadWriteBuffer readWriteBuffer = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        readWriteBuffer = new ReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
 
         pqSnapshotIdsRequestSerializer = new PQSnapshotIdsRequestSerializer();
     }

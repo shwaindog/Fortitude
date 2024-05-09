@@ -199,7 +199,6 @@ public class MessageQueue : IMessageQueue
         evt.DestinationAddress = destinationAddress;
         var reusableValueTaskSource
             = queueContext.PooledRecycler.Borrow<ReusableResponseValueTaskSource<TResponse>>();
-        reusableValueTaskSource.IncrementRefCount(); // decremented when value is read for valueTask;
         reusableValueTaskSource.DispatchResult = processorRegistry.DispatchResult;
         reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = queueContext.QueueTimer;
         evt.Response = reusableValueTaskSource;

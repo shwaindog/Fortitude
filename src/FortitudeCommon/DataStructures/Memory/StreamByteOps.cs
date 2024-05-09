@@ -184,7 +184,7 @@ public static unsafe class StreamByteOps
         }
     }
 
-    public static int ToBytesWithSizeHeader(ref byte* ptr, string value, int availableBytes)
+    public static int ToBytesWithSizeHeader(ref byte* ptr, string value, nint availableBytes)
     {
         var stringSize = ptr;
         ptr += 2;
@@ -193,7 +193,7 @@ public static unsafe class StreamByteOps
         return strSize + 2;
     }
 
-    public static int ToBytes(ref byte* ptr, string? value, int availableBytes)
+    public static int ToBytes(ref byte* ptr, string? value, nint availableBytes)
     {
         if (value != null)
         {
@@ -204,7 +204,7 @@ public static unsafe class StreamByteOps
                 bool completed;
 
                 Encoding.UTF8.GetEncoder().Convert(toEncode,
-                    value.Length, ptr, availableBytes, true, out charsEncoded, out bytesUsed,
+                    value.Length, ptr, (int)availableBytes, true, out charsEncoded, out bytesUsed,
                     out completed);
                 ptr += bytesUsed;
                 *ptr++ = 0;
@@ -216,7 +216,7 @@ public static unsafe class StreamByteOps
         return 0;
     }
 
-    public static int ToBytesWithSizeHeader(ref byte* ptr, MutableString value, int availableBytes)
+    public static int ToBytesWithSizeHeader(ref byte* ptr, MutableString value, nint availableBytes)
     {
         var stringSize = ptr;
         ptr += 2;
@@ -225,7 +225,7 @@ public static unsafe class StreamByteOps
         return strSize + 2;
     }
 
-    public static int ToBytes(ref byte* ptr, MutableString? value, int availableBytes)
+    public static int ToBytes(ref byte* ptr, MutableString? value, nint availableBytes)
     {
         if (!ReferenceEquals(value, null))
         {
@@ -242,7 +242,7 @@ public static unsafe class StreamByteOps
                 fixed (char* toEncode = temporaryBuffer)
                 {
                     Encoding.UTF8.GetEncoder().Convert(toEncode,
-                        j, ptr, availableBytes, true, out var _, out var bytesUsed,
+                        j, ptr, (int)availableBytes, true, out var _, out var bytesUsed,
                         out var _);
                     bytesConsumed += bytesUsed;
                     ptr += bytesUsed;
@@ -351,7 +351,7 @@ public static unsafe class StreamByteOps
         return buffer;
     }
 
-    public static uint ToUInt(byte[] readBuffer, int pos)
+    public static uint ToUInt(byte[] readBuffer, nint pos)
     {
         uint buffer;
         var data = (byte*)&buffer;

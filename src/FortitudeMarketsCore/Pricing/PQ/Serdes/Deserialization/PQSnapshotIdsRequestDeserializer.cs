@@ -29,7 +29,7 @@ public class PQSnapshotIdsRequestDeserializer : MessageDeserializer<PQSnapshotId
             var deserializedSnapshotIdsRequest = recycler.Borrow<PQSnapshotIdsRequest>();
             fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
             {
-                var ptr = fptr + messageBufferContext.EncodedBuffer.ReadCursor;
+                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
                 var requestsCount = StreamByteOps.ToUShort(ref ptr);
                 var streamIDs = new uint[requestsCount];
                 for (var i = 0; i < streamIDs.Length; i++) deserializedSnapshotIdsRequest.RequestSourceTickerIds.Add(StreamByteOps.ToUInt(ref ptr));

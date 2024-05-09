@@ -73,9 +73,9 @@ public class SocketSenderTests
                 {
                     if (bc.EncodedBuffer!.RemainingStorage < SerializeWriteLength) return;
                     for (var i = 0; i < SerializeWriteLength; i++)
-                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.BufferRelativeWriteCursor + i] = (byte)(i + 1);
                     bc.LastWriteLength = SerializeWriteLength;
-                    bc.EncodedBuffer!.WriteCursor = SerializeWriteLength;
+                    bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
                 }
             );
 
@@ -195,7 +195,7 @@ public class SocketSenderTests
                     bc.LastWriteLength = 0;
                     if (bc.EncodedBuffer!.RemainingStorage < SerializeWriteLength) return;
                     for (var i = 0; i < SerializeWriteLength; i++)
-                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.BufferRelativeWriteCursor + i] = (byte)(i + 1);
                     bc.LastWriteLength = SerializeWriteLength;
                     bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
                 }
@@ -225,7 +225,7 @@ public class SocketSenderTests
                     bc.LastWriteLength = 0;
                     for (var i = 0; i < SerializeWriteLength; i++)
                         bc.EncodedBuffer!.Buffer[i] = (byte)(i + 1);
-                    bc.EncodedBuffer!.WriteCursor = SerializeWriteLength;
+                    bc.EncodedBuffer!.WriteCursor += SerializeWriteLength;
                 }
             );
         sendCallBack = (_, _, _, _) => 0;
@@ -262,7 +262,7 @@ public class SocketSenderTests
                     bc.LastWriteLength = 0;
                     if (bc.EncodedBuffer!.RemainingStorage < smallMessageSize) return;
                     for (var i = 0; i < smallMessageSize; i++)
-                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.WriteCursor + i] = (byte)(i + 1);
+                        bc.EncodedBuffer!.Buffer[bc.EncodedBuffer.BufferRelativeWriteCursor + i] = (byte)(i + 1);
                     bc.LastWriteLength = smallMessageSize;
                     bc.EncodedBuffer!.WriteCursor += smallMessageSize;
                 }

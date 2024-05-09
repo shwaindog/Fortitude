@@ -1,16 +1,21 @@
 namespace FortitudeCommon.Serdes.Binary;
 
-public interface IBuffer
+public unsafe interface IBuffer : IDisposable
 {
-    public byte[] Buffer { get; }
+    byte[] Buffer { get; }
 
+    byte* ReadBuffer { get; }
+    byte* WriteBuffer { get; }
+    nint BufferRelativeReadCursor { get; }
+    nint BufferRelativeWriteCursor { get; }
     int Size { get; }
-    int ReadCursor { get; set; }
+    nint ReadCursor { get; set; }
     bool AllRead { get; }
-    int UnreadBytesRemaining { get; }
-    int WriteCursor { get; set; }
-    int RemainingStorage { get; }
-    void Reset();
-    void MoveUnreadToBufferStart();
+    nint UnreadBytesRemaining { get; }
+    nint WriteCursor { get; set; }
+    nint RemainingStorage { get; }
+    void SetAllRead();
+    bool CanWrite(int size);
+    void TryHandleRemainingWriteBufferRunningLow();
     bool HasStorageForBytes(int bytes);
 }

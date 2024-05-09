@@ -16,5 +16,5 @@ public static class PQQuoteMessageHeader
 
     public static uint ReadCurrentMessageSequenceId(this IBufferContext bufferContext) =>
         StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-            , bufferContext.EncodedBuffer.ReadCursor);
+            , (int)bufferContext.EncodedBuffer.BufferRelativeReadCursor);
 }

@@ -157,7 +157,7 @@ public class TcpRequestResponderConnectionTests
                  requesterDeserializers.Values.Cast<INotifyingMessageDeserializer<SimpleVersionedMessage>>())
             deserializersValue.ConversationMessageDeserialized += ReceivedFromResponderDeserializerCallback;
 
-        var v1Message = new SimpleVersionedMessage { Version = 1, Payload = 765432, MessageId = 159 };
+        var v1Message = new SimpleVersionedMessage { Version = 2, Payload2 = 1.23456, MessageId = 2345 };
         // send message
         tcpRequester.StreamPublisher!.Send(v1Message);
 

@@ -30,7 +30,7 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                 , obj);
             if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
@@ -41,7 +41,7 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage message)
     {
         var ids = ((IPQSnapshotIdsRequest)message).RequestSourceTickerIds;
         if (FixedSize + ids.Count * sizeof(uint) <= buffer.Length - writeOffset)

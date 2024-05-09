@@ -37,7 +37,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                 , obj);
             bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
@@ -48,7 +48,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage message)
     {
         if (!(message is IPQLevel0Quote pqL0Quote)) return FinishProcessingMessageReturnValue(message, -1);
         var resolvedFlags = pqL0Quote.OverrideSerializationFlags ?? messageFlags;

@@ -45,7 +45,7 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
 
             var sequenceId = StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-                , bufferContext.EncodedBuffer.ReadCursor);
+                , bufferContext.EncodedBuffer.BufferRelativeReadCursor);
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
             PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)

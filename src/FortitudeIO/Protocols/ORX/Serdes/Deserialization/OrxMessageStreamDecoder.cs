@@ -31,21 +31,20 @@ public sealed class OrxMessageStreamDecoder : IOrxStreamDecoder
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var readCursor = socketBufferReadContext.EncodedBuffer!.ReadCursor;
-        var originalRead = socketBufferReadContext.EncodedBuffer.ReadCursor;
+        var originalRead = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         object? lastDecodedObj = null;
-        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - readCursor)
+        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - socketBufferReadContext.EncodedBuffer!.ReadCursor)
             if (state == State.Header)
             {
                 fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
                 {
-                    var ptr = fptr + readCursor;
+                    var ptr = fptr + socketBufferReadContext.EncodedBuffer.BufferRelativeReadCursor;
                     var version = *ptr++;
                     var flags = *ptr++;
                     messageId = StreamByteOps.ToUInt(ref ptr);
                     ExpectedSize = StreamByteOps.ToUInt(ref ptr) - MessageHeader.SerializationSize;
                     socketBufferReadContext.MessageHeader = new MessageHeader(version, flags, messageId, ExpectedSize, socketBufferReadContext);
-                    readCursor += MessageHeader.SerializationSize;
+                    socketBufferReadContext.EncodedBuffer.ReadCursor += MessageHeader.SerializationSize;
                 }
 
                 state = State.Data;
@@ -56,21 +55,19 @@ public sealed class OrxMessageStreamDecoder : IOrxStreamDecoder
                 recycleable?.DecrementRefCount();
                 if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var messageDeserializer))
                 {
-                    socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
                     lastDecodedObj = messageDeserializer!.Deserialize(socketBufferReadContext);
                     if (lastDecodedObj is ExpectSessionCloseMessage expectSessionCloseMessage)
                         socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
                 }
 
-                readCursor += (int)ExpectedSize;
+                socketBufferReadContext.EncodedBuffer.ReadCursor += (int)ExpectedSize;
                 state = State.Header;
                 ExpectedSize = OrxMessageHeader.HeaderSize;
             }
 
         socketBufferReadContext.DispatchLatencyLogger?.Dedent();
-        var amountRead = readCursor - originalRead;
-        socketBufferReadContext.EncodedBuffer.ReadCursor = readCursor;
-        return amountRead;
+        var amountRead = socketBufferReadContext.EncodedBuffer!.ReadCursor - originalRead;
+        return (int)amountRead;
     }
 
     private enum State

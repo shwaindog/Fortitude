@@ -19,11 +19,11 @@ public static class OrxMessageHeader
 
     public static uint ReadCurrentMessageId(this IBufferContext bufferContext) =>
         StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-            , bufferContext.EncodedBuffer.ReadCursor + MessageIdOffset);
+            , bufferContext.EncodedBuffer.BufferRelativeReadCursor + MessageIdOffset);
 
     public static uint ReadCurrentMessageSize(this IBufferContext bufferContext) =>
         StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-            , bufferContext.EncodedBuffer.ReadCursor + MessageSizeOffset);
+            , bufferContext.EncodedBuffer.BufferRelativeReadCursor + MessageSizeOffset);
 
     public static MessageHeader ReadBasicMessageHeader(this IBufferContext bufferContext)
     {

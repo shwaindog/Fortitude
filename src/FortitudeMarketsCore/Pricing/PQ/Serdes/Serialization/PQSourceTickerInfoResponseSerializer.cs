@@ -29,7 +29,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                 , obj);
             if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
@@ -40,7 +40,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, PQSourceTickerInfoResponse message)
+    public unsafe int Serialize(byte[] buffer, nint writeOffset, PQSourceTickerInfoResponse message)
     {
         var quoteInfos = message.SourceTickerQuoteInfos;
         var remainingBytes = buffer.Length - writeOffset;
@@ -76,7 +76,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         return -1;
     }
 
-    private unsafe int Serialize(byte* currPtr, ISourceTickerQuoteInfo sourceTickerQuoteInfo, int remainingBytes)
+    private unsafe int Serialize(byte* currPtr, ISourceTickerQuoteInfo sourceTickerQuoteInfo, nint remainingBytes)
     {
         var writeStart = currPtr;
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.SourceId);

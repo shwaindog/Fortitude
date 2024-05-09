@@ -24,7 +24,7 @@ public class ExpectSessionCloseSerializer : IMessageSerializer<ExpectSessionClos
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                 , obj);
             if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
@@ -35,7 +35,7 @@ public class ExpectSessionCloseSerializer : IMessageSerializer<ExpectSessionClos
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, ExpectSessionCloseMessage expectSessionCloseMessage)
+    public unsafe int Serialize(byte[] buffer, nint writeOffset, ExpectSessionCloseMessage expectSessionCloseMessage)
     {
         var remainingBytes = buffer.Length - writeOffset;
         var closeReasonText = expectSessionCloseMessage.ReasonText;

@@ -57,7 +57,7 @@ public sealed class SocketSender : ISocketSender
         MessageSerializationRepository = messageSerializationRepository;
         directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!
             .DirectOSNetworkingApi;
-        writeBufferContext = new BufferContext(new ReadWriteBuffer(new byte[Socket.SendBufferSize]))
+        writeBufferContext = new BufferContext(new CircularReadWriteBuffer(new byte[Socket.SendBufferSize]))
             { Direction = ContextDirection.Write };
     }
 
@@ -242,8 +242,8 @@ public sealed class SocketSender : ISocketSender
         int sentSize;
         fixed (byte* ptr = writeBufferContext.EncodedBuffer!.Buffer)
         {
-            var amtDataSent = writeBufferContext.EncodedBuffer!.UnreadBytesRemaining;
-            sentSize = directOSNetworkingApi.Send(Socket.Handle, ptr + writeBufferContext.EncodedBuffer!.ReadCursor,
+            var amtDataSent = (int)writeBufferContext.EncodedBuffer!.UnreadBytesRemaining;
+            sentSize = directOSNetworkingApi.Send(Socket.Handle, ptr + writeBufferContext.EncodedBuffer!.BufferRelativeReadCursor,
                 amtDataSent, SocketFlags.None);
         }
 
@@ -252,8 +252,8 @@ public sealed class SocketSender : ISocketSender
             throw new SocketSendException("Win32 error " +
                                           directOSNetworkingApi.GetLastCallError() + " on send call", socketSessionContext);
         writeBufferContext.EncodedBuffer!.ReadCursor += sentSize;
-        if (writeBufferContext.EncodedBuffer!.AllRead) writeBufferContext.EncodedBuffer.Reset();
-        if (!writeBufferContext.EncodedBuffer.HasStorageForBytes(400)) writeBufferContext.EncodedBuffer.MoveUnreadToBufferStart();
+        if (writeBufferContext.EncodedBuffer!.AllRead) writeBufferContext.EncodedBuffer.SetAllRead();
+        if (!writeBufferContext.EncodedBuffer.HasStorageForBytes(400)) writeBufferContext.EncodedBuffer.TryHandleRemainingWriteBufferRunningLow();
 
         return sentSize > 0;
     }

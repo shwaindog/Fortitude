@@ -241,13 +241,13 @@ public class SocketReceiverTests
 
         moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Returns(0).Verifiable();
 
-        var receiveBuffer = NonPublicInvocator.GetInstanceField<ReadWriteBuffer>(
+        var receiveBuffer = NonPublicInvocator.GetInstanceField<CircularReadWriteBuffer>(
             socketReceiver, "receiveBuffer");
         AssertReceiveBufferIsExpected(receiveBuffer, 8, 25);
         AssertReceiveBufferIsExpected(receiveBuffer, 16, 26);
         AssertReceiveBufferIsExpected(receiveBuffer, 27, 27);
-        AssertReceiveBufferIsExpected(receiveBuffer, 1, 1);
-        AssertReceiveBufferIsExpected(receiveBuffer, 1, 1);
+        AssertReceiveBufferIsExpected(receiveBuffer, 1, 28);
+        AssertReceiveBufferIsExpected(receiveBuffer, 1, 29);
     }
 
 
@@ -257,7 +257,7 @@ public class SocketReceiverTests
         PrepareSocketFullRead();
         directOsNetworkingApiStub.ClearQueue();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[401], true);
-        var receiveBuffer = NonPublicInvocator.GetInstanceField<ReadWriteBuffer>(
+        var receiveBuffer = NonPublicInvocator.GetInstanceField<CircularReadWriteBuffer>(
             socketReceiver, "receiveBuffer");
 
         for (var i = 0; i < receiveBuffer.Buffer.Length; i++) receiveBuffer.Buffer[i] = (byte)(i % byte.MaxValue);
@@ -476,7 +476,7 @@ public class SocketReceiverTests
         moqStreamControls.Verify();
     }
 
-    private void AssertReceiveBufferIsExpected(ReadWriteBuffer receiveBuffer, int expectedRead, int expectedWritten)
+    private void AssertReceiveBufferIsExpected(CircularReadWriteBuffer receiveBuffer, int expectedRead, int expectedWritten)
     {
         directOsNetworkingApiStub.QueueResponseBytes(new byte[1], true);
         moqFeedDecoder.Setup(fd => fd.Process(socketBufferReadContext)).Callback(() => { receiveBuffer.ReadCursor = expectedRead; });
@@ -495,7 +495,7 @@ public class SocketReceiverTests
             .Verifiable();
         directOsNetworkingApiStub.QueueResponseBytes(new byte[unreadBytes], true);
         socketReceiver.Poll(socketBufferReadContext);
-        moqDispatchPerfLogger.Verify(ltcsl => ltcsl.Add(It.IsAny<string>(), unreadBytes),
+        moqDispatchPerfLogger.Verify(ltcsl => ltcsl.Add("High data burst of incoming data received read ", It.IsAny<int>()),
             Times.Exactly(numTimesExpected));
         moqDispatchPerfLogger.VerifySet(ltcsl => ltcsl.WriteTrace = true,
             Times.Exactly(numTimesExpected));

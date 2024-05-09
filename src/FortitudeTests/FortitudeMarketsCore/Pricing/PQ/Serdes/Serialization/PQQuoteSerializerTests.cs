@@ -43,7 +43,7 @@ public class PQQuoteSerializerTests
     private Mock<ITimeContext> moqTimeContext = null!;
     private PQClientMessageStreamDecoder pqClientMessageStreamDecoder = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private ReadWriteBuffer readWriteBuffer = null!;
+    private CircularReadWriteBuffer readWriteBuffer = null!;
     private PQLevel3Quote simpleNoRecentlyTradedL3Quote = null!;
     private ISourceTickerQuoteInfo simpleNoRecentlyTradedQuoteInfo = null!;
     private PQQuoteSerializer snapshotQuoteSerializer = null!;
@@ -112,7 +112,7 @@ public class PQQuoteSerializerTests
             , srcNmSmplRctlyTrdedL3Quote, srcQtRefPdGvnVlmRcntlyTrdedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
         };
 
-        readWriteBuffer = new ReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
 
         moqTimeContext = new Mock<ITimeContext>();
         frozenDateTime = new DateTime(2018, 1, 15, 19, 51, 1);
@@ -202,7 +202,7 @@ public class PQQuoteSerializerTests
     {
         foreach (var pqQuote in differingQuotes)
         {
-            readWriteBuffer = new ReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
+            readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
             pqQuote.PQSequenceId = uint.MaxValue; // will roll to 0 on
             var amtWritten = updateQuoteSerializer
                 .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);

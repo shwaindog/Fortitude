@@ -29,7 +29,7 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                 , obj);
             bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
@@ -40,7 +40,7 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage msg)
+    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage msg)
     {
         // We want to make sure that at least the header will fit
         if (OrxMessageHeader.HeaderSize <= buffer.Length - writeOffset)

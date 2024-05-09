@@ -28,7 +28,7 @@ public class PQHeartbeatSerializerTests
     private PQLevel3Quote fourthQuote = null!;
     private SourceTickerQuoteInfo fourthQuoteInfo = null!;
     private PQHeartbeatSerializer pqHeartBeatSerializer = null!;
-    private ReadWriteBuffer readWriteBuffer = null!;
+    private CircularReadWriteBuffer readWriteBuffer = null!;
     private PQHeartBeatQuotesMessage secondBatchOfQuotes = null!;
     private PQLevel1Quote secondQuote = null!;
     private SourceTickerQuoteInfo secondQuoteInfo = null!;
@@ -72,7 +72,7 @@ public class PQHeartbeatSerializerTests
             = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote> { firstQuote, secondQuote, thirdQuote });
         secondBatchOfQuotes = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote> { thirdQuote, fourthQuote });
 
-        readWriteBuffer = new ReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
 
         pqHeartBeatSerializer = new PQHeartbeatSerializer();
     }

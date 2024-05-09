@@ -34,7 +34,7 @@ public class PQServerMessageStreamDecoderTests
     private PQServerMessageStreamDecoder pqServerMessageStreamDecoder = null!;
     private PQSnapshotIdsRequestSerializer pqSnapshotIdsRequestSerializer = null!;
     private PQSourceTickerInfoRequestSerializer pqSourceTickerInfoRequestSerializer = null!;
-    private ReadWriteBuffer readWriteBuffer = null!;
+    private CircularReadWriteBuffer readWriteBuffer = null!;
 
     private ConversationMessageReceivedHandler<PQSnapshotIdsRequest> snapshotIdsResponseCallBack = null!;
     private SocketBufferReadContext socketBufferReadContext = null!;
@@ -50,7 +50,7 @@ public class PQServerMessageStreamDecoderTests
         moqSocketConversation = moqSocketConversationRequester.As<ISocketConversation>();
         moqSocketSessionConnection.SetupGet(x => x.OwningConversation).Returns(moqSocketConversation.Object);
 
-        readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
         socketBufferReadContext = new SocketBufferReadContext
         {
             EncodedBuffer = readWriteBuffer, Conversation = moqSocketConversation.Object

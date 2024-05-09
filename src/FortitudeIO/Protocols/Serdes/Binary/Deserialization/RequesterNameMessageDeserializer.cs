@@ -27,7 +27,7 @@ public class RequesterNameMessageDeserializer : MessageDeserializer<RequesterNam
             var deserializedRequesterNameMessage = recycler.Borrow<RequesterNameMessage>();
             fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
             {
-                var ptr = fptr + messageBufferContext.EncodedBuffer.ReadCursor;
+                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
                 deserializedRequesterNameMessage.RequesterConnectionName = StreamByteOps.ToStringWithSizeHeader(ref ptr);
             }
 

@@ -35,7 +35,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
             fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
             {
                 var end = fptr + messageBufferContext.EncodedBuffer.RemainingStorage;
-                var ptr = fptr + messageBufferContext.EncodedBuffer.ReadCursor;
+                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
                 deserializedSourceTickerInfoResponse.RequestId = StreamByteOps.ToInt(ref ptr);
                 deserializedSourceTickerInfoResponse.ResponseId = StreamByteOps.ToInt(ref ptr);
                 var requestsCount = StreamByteOps.ToUShort(ref ptr);
