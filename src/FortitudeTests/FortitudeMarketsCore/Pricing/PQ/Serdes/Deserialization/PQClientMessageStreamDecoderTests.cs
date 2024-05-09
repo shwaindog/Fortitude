@@ -24,7 +24,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 [TestClass]
 public class PQClientMessageStreamDecoderTests
 {
-    private const int BufferReadWriteOffset = 3;
+    private const nint BufferReadWriteOffset = 3;
     private const ushort ExpectedSourceId = ushort.MaxValue;
     private const ushort ExpectedTickerId = ushort.MaxValue;
     private const uint ExpectedStreamId = uint.MaxValue;
@@ -35,7 +35,7 @@ public class PQClientMessageStreamDecoderTests
     private Mock<IMessageDeserializer> moqBinaryDeserializer = null!;
     private Mock<IConversation> moqConversation = null!;
     private PQClientMessageStreamDecoder pqClientMessageStreamDecoder = null!;
-    private ReadWriteBuffer readWriteBuffer = null!;
+    private CircularReadWriteBuffer readWriteBuffer = null!;
 
     private List<ISourceTickerQuoteInfo> sendSourceTickerQuoteInfos = new()
     {
@@ -58,7 +58,7 @@ public class PQClientMessageStreamDecoderTests
     public void SetUp()
     {
         moqConversation = new Mock<IConversation>();
-        readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
         socketBufferReadContext = new SocketBufferReadContext
         {
             DetectTimestamp = new DateTime(2017, 07, 01, 18, 59, 22)

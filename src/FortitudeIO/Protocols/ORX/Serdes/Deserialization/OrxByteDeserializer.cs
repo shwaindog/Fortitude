@@ -108,7 +108,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
             {
                 var messageVersion = messageBufferContext.MessageHeader.Version;
                 var messageSize = messageBufferContext.MessageHeader.MessageSize;
-                return (Tm)Deserialize(fptr + messageBufferContext.EncodedBuffer.ReadCursor, messageSize - MessageHeader.SerializationSize, messageVersion);
+                return (Tm)Deserialize(fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor, messageSize - MessageHeader.SerializationSize, messageVersion);
             }
 
         throw new ArgumentException("Expected readContext to be of type IBufferContext");

@@ -30,7 +30,7 @@ public class PQSourceTickerInfoRequestDeserializer : MessageDeserializer<PQSourc
             var deserializedSnapshotIdsRequest = recycler.Borrow<PQSourceTickerInfoRequest>();
             fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
             {
-                var ptr = fptr + messageBufferContext.EncodedBuffer.ReadCursor;
+                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
                 deserializedSnapshotIdsRequest.RequestId = StreamByteOps.ToInt(ref ptr);
             }
 

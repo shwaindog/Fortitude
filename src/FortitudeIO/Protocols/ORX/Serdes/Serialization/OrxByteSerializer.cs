@@ -47,7 +47,17 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         serializers = visitedSerializers.Values.Where(v => v != null).OfType<ITypeSerializer>().ToArray();
     }
 
-    public unsafe int Serialize(object message, byte[] buffer, int msgOffset, int headerOffset)
+    public unsafe int Serialize(object message, byte* ptr, byte* endPtr)
+    {
+        var msg = (Tm)message;
+        var dataStart = ptr;
+        for (var i = 0; i < serializers.Length; i++)
+            if (!serializers[i].Serialize(msg, ref ptr, endPtr))
+                return 0;
+        return (int)(ptr - dataStart);
+    }
+
+    public unsafe int Serialize(object message, byte[] buffer, nint msgOffset, int headerOffset)
     {
         fixed (byte* fptr = buffer)
         {
@@ -61,16 +71,6 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
 
             return noHeaderSize;
         }
-    }
-
-    public unsafe int Serialize(object message, byte* ptr, byte* endPtr)
-    {
-        var msg = (Tm)message;
-        var dataStart = ptr;
-        for (var i = 0; i < serializers.Length; i++)
-            if (!serializers[i].Serialize(msg, ref ptr, endPtr))
-                return 0;
-        return (int)(ptr - dataStart);
     }
 
     #region Inner members

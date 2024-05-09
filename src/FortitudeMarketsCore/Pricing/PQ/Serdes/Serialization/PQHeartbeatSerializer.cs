@@ -29,7 +29,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                 , obj);
             bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
@@ -40,7 +40,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage message)
     {
         if (HeaderSize <= buffer.Length - writeOffset)
             fixed (byte* fptr = buffer)

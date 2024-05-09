@@ -23,7 +23,7 @@ public interface ISocketBufferReadContext : IMessageBufferContext
 [TestClassNotRequired]
 public class SocketBufferReadContext : MessageBufferContext, ISocketBufferReadContext
 {
-    public SocketBufferReadContext() : base(new ReadWriteBuffer(Array.Empty<byte>())) { }
+    public SocketBufferReadContext() : base(new CircularReadWriteBuffer(Array.Empty<byte>())) { }
     public SocketBufferReadContext(IBuffer buffer) : base(buffer) { }
 
     public ISocketReceiver SocketReceiver { get; set; } = null!;

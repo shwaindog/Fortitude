@@ -20,36 +20,35 @@ public class SimpleMessageStreamDecoder : IMessageStreamDecoder
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var read = socketBufferReadContext.EncodedBuffer!.ReadCursor;
-        var originalRead = read;
+        var originalRead = socketBufferReadContext.EncodedBuffer!.ReadCursor;
         uint messageId;
-        while (read < socketBufferReadContext.EncodedBuffer.WriteCursor)
+        while (socketBufferReadContext.EncodedBuffer!.ReadCursor < socketBufferReadContext.EncodedBuffer.WriteCursor)
         {
             fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
             {
-                var ptr = fptr + read;
+                var ptr = fptr + socketBufferReadContext.EncodedBuffer!.BufferRelativeReadCursor;
                 var version = *ptr++;
                 var flags = *ptr++;
                 messageId = StreamByteOps.ToUInt(ref ptr);
                 var messageSize = StreamByteOps.ToUInt(ref ptr);
                 socketBufferReadContext.MessageHeader = new MessageHeader(version, 0, messageId, messageSize, socketBufferReadContext);
+                socketBufferReadContext.EncodedBuffer.ReadCursor += MessageHeader.SerializationSize;
             }
 
             if (MessageDeserializationRepository.TryGetDeserializer(messageId, out var u))
             {
-                socketBufferReadContext.EncodedBuffer.ReadCursor = read + MessageHeader.SerializationSize;
                 var message = u?.Deserialize(socketBufferReadContext);
                 if (message is ExpectSessionCloseMessage expectSessionCloseMessage)
                     socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
             }
 
-            read += (int)socketBufferReadContext.MessageHeader.MessageSize;
+            socketBufferReadContext.EncodedBuffer.ReadCursor
+                += (int)socketBufferReadContext.MessageHeader.MessageSize - MessageHeader.SerializationSize;
         }
 
         socketBufferReadContext.DispatchLatencyLogger?.Dedent();
-        var amountRead = read - originalRead;
-        socketBufferReadContext.EncodedBuffer.ReadCursor = read;
-        return amountRead;
+        var amountRead = socketBufferReadContext.EncodedBuffer.ReadCursor - originalRead;
+        return (int)amountRead;
     }
 
     public class SimpleDeserializerMessageDeserializationFactory : MessageDeserializationFactoryRepository

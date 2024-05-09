@@ -23,10 +23,9 @@ public class DirectWindowsNetworkingApi : IDirectOSNetworkingApi
     public int GetLastCallError() => Marshal.GetLastPInvokeError();
 
     public unsafe int Recv(IntPtr socketHandle, byte* pinnedBuffer, int len, ref bool partialMsg) =>
-        WSARecvEx(socketHandle, pinnedBuffer, len, ref partialMsg);
+        WSARecvEx(socketHandle, pinnedBuffer, (int)len, ref partialMsg);
 
-    public int IoCtlSocket(IntPtr socketHandle, ref int arg) =>
-        ioctlsocket(socketHandle, IocCtlCommand.Fionread, ref arg);
+    public int IoCtlSocket(IntPtr socketHandle, ref int arg) => ioctlsocket(socketHandle, IocCtlCommand.Fionread, ref arg);
 
     public unsafe int Send([In] IntPtr socketHandle, [In] byte* pinnedBuffer, [In] int len,
         [In] SocketFlags socketFlags) =>

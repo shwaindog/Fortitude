@@ -121,7 +121,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
         ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
         ent.ProcessedTime = sockBuffContext?.DeserializerTime ?? DateTime.Now;
         ent.PQSequenceId = sequenceId;
-        var offset = readContext.EncodedBuffer!.ReadCursor;
+        var offset = readContext.EncodedBuffer!.BufferRelativeReadCursor;
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");
         fixed (byte* fptr = readContext.EncodedBuffer.Buffer)
         {

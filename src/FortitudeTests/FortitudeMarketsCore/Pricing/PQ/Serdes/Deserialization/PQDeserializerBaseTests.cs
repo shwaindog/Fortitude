@@ -48,7 +48,7 @@ public class PQDeserializerBaseTests
     private Mock<IPQDeserializer> moqQuoteDeserializer = null!;
     private Mock<ISyncLock> moqSyncLock = null!;
     private Mock<ISourceTickerQuoteInfo> moqUniqueSrcTkrId = null!;
-    private ReadWriteBuffer readWriteBuffer = null!;
+    private CircularReadWriteBuffer readWriteBuffer = null!;
     private SocketBufferReadContext socketBufferReadContext = null!;
     private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
     private IDisposable subscribedL0Observer = null!;
@@ -66,7 +66,7 @@ public class PQDeserializerBaseTests
         dummyLevel3QuoteDeserializer = new DummyPQQuoateDeserializerBase<IPQLevel3Quote>(moqUniqueSrcTkrId.Object);
         moqQuoteDeserializer = new Mock<IPQDeserializer>();
 
-        readWriteBuffer = new ReadWriteBuffer(new byte[9000]);
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
         socketBufferReadContext = new SocketBufferReadContext
         {
             DetectTimestamp = new DateTime(2017, 07, 01, 18, 59, 22)

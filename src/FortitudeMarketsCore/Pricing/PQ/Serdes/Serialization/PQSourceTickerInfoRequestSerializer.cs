@@ -30,7 +30,7 @@ public class PQSourceTickerInfoRequestSerializer : IMessageSerializer<PQSourceTi
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.WriteCursor
+            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
                 , obj);
             if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
@@ -41,7 +41,7 @@ public class PQSourceTickerInfoRequestSerializer : IMessageSerializer<PQSourceTi
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, int writeOffset, PQSourceTickerInfoRequest sourceTickerInfoRequest)
+    public unsafe int Serialize(byte[] buffer, nint writeOffset, PQSourceTickerInfoRequest sourceTickerInfoRequest)
     {
         fixed (byte* bufStrt = buffer)
         {

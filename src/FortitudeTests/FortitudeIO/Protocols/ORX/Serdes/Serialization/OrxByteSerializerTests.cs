@@ -27,7 +27,7 @@ public class OrxByteSerializerTests
 
         socketBufferReadContext = new SocketBufferReadContext
         {
-            EncodedBuffer = new ReadWriteBuffer(byteBuffer)
+            EncodedBuffer = new CircularReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, ""), MessageHeader = new MessageHeader(1, 0, 0, 1)
         };
     }

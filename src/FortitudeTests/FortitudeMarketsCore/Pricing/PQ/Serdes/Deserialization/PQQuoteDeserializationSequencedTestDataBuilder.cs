@@ -61,7 +61,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
             {
                 DetectTimestamp = ClientReceivedTimestamp(sequenceIdTimeSpan)
                 , ReceivingTimestamp = RecevingTimestampBaseTime(sequenceIdTimeSpan)
-                , EncodedBuffer = new ReadWriteBuffer(new byte[UDP_DATAGRAM_PAYLOAD_SIZE * 4])
+                , EncodedBuffer = new CircularReadWriteBuffer(new byte[UDP_DATAGRAM_PAYLOAD_SIZE * 4])
                 , DispatchLatencyLogger = perfLogger
                 , MessageHeader = new MessageHeader(1, 0, 0, 1)
             };

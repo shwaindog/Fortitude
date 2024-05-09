@@ -28,7 +28,7 @@ public class OrxPartyTests
 
         socketBufferReadContext = new SocketBufferReadContext
         {
-            EncodedBuffer = new ReadWriteBuffer(byteBuffer)
+            EncodedBuffer = new CircularReadWriteBuffer(byteBuffer)
             , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
             , MessageHeader = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, 1)
         };

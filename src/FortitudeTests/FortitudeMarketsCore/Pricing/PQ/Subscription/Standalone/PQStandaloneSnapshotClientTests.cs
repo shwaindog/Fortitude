@@ -278,7 +278,7 @@ public class PQStandaloneSnapshotClientTests
 
         decoder.Process(new SocketBufferReadContext
         {
-            EncodedBuffer = new ReadWriteBuffer(new byte[]
+            EncodedBuffer = new CircularReadWriteBuffer(new byte[]
             {
                 1, (byte)PQMessageFlags.None, 0, 0, 0x4C, 0x7B, 0, 0, 0, 14, 0, 0, 0, 1
             })

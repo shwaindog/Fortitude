@@ -48,7 +48,7 @@ public sealed class SocketReceiver : ISocketReceiver
     private readonly IDirectOSNetworkingApi directOSNetworkingApi;
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketReceiver));
     private readonly int numberOfReceivesPerPoll;
-    private readonly ReadWriteBuffer receiveBuffer;
+    private readonly CircularReadWriteBuffer receiveBuffer;
 
     private readonly IPerfLoggerPool receiveSocketCxLatencyTraceLoggerPool;
     private readonly ISocketSessionContext socketSessionContext;
@@ -73,7 +73,7 @@ public sealed class SocketReceiver : ISocketReceiver
 
         Socket.Blocking = false;
 
-        receiveBuffer = new ReadWriteBuffer(new byte[Socket.ReceiveBufferSize]);
+        receiveBuffer = new CircularReadWriteBuffer(new byte[Socket.ReceiveBufferSize]);
         bufferSize = receiveBuffer.Buffer.Length;
 
         ZeroBytesReadIsDisconnection = true;
@@ -124,7 +124,7 @@ public sealed class SocketReceiver : ISocketReceiver
         {
             lastReportOfHighDataBursts = socketBufferReadContext.DetectTimestamp;
             socketBufferReadContext.DispatchLatencyLogger?.Add("High data burst of incoming data received read ",
-                receiveBuffer.UnreadBytesRemaining);
+                (int)receiveBuffer.UnreadBytesRemaining);
             if (socketBufferReadContext.DispatchLatencyLogger != null)
                 socketBufferReadContext.DispatchLatencyLogger.WriteTrace = true;
         }
@@ -167,8 +167,8 @@ public sealed class SocketReceiver : ISocketReceiver
 
     private int PrepareBufferAndReceiveData(IPerfLogger? detectionToPublishLatencyTraceLogger)
     {
-        if (receiveBuffer.AllRead) receiveBuffer.Reset();
-        if (!receiveBuffer.HasStorageForBytes(400)) receiveBuffer.MoveUnreadToBufferStart();
+        if (receiveBuffer.AllRead) receiveBuffer.SetAllRead();
+        if (!receiveBuffer.HasStorageForBytes(400)) receiveBuffer.TryHandleRemainingWriteBufferRunningLow();
 
         var messageRecvLen = 0;
         detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforeSocketRead
@@ -196,7 +196,7 @@ public sealed class SocketReceiver : ISocketReceiver
     {
         int messageRecvLen;
         var bufferRecvLen = 0;
-        var availableLocalBuffer = receiveBuffer.RemainingStorage;
+        var availableLocalBuffer = (int)receiveBuffer.RemainingStorage;
         fixed (byte* ptr = receiveBuffer.Buffer)
         {
             socketTraceLogger.Add("before ioctlsocket");
@@ -214,10 +214,11 @@ public sealed class SocketReceiver : ISocketReceiver
             socketTraceLogger.Add("end recv bufferRecvLen", bufferRecvLen);
             var remainingDataInSocketBuffer = bufferRecvLen;
 
+
             messageRecvLen = MultipleReceiveData(ptr, availableLocalBuffer, remainingDataInSocketBuffer,
                 socketTraceLogger);
             if (byteStreamLogger.Enabled)
-                byteStreamLogger.Debug(BitConverter.ToString(receiveBuffer.Buffer, receiveBuffer.WriteCursor,
+                byteStreamLogger.Debug(BitConverter.ToString(receiveBuffer.Buffer, (int)receiveBuffer.BufferRelativeWriteCursor,
                     messageRecvLen));
             socketTraceLogger.Add("end recv messageRecvLen", messageRecvLen);
         }
@@ -234,14 +235,14 @@ public sealed class SocketReceiver : ISocketReceiver
         do
         {
             var currentMessageLength = directOSNetworkingApi.Recv(Socket.Handle,
-                ptr + receiveBuffer.WriteCursor + messageRecvLen,
+                ptr + receiveBuffer.BufferRelativeWriteCursor + messageRecvLen,
                 Math.Min(availableLocalBuffer, remainingDataInSocketBuffer),
                 ref lastReadWasPartial);
             if (currentMessageLength <= 0)
             {
                 socketTraceLogger.Add("Recv return unexpected readsize", currentMessageLength);
                 socketTraceLogger.Add("ToReadCursor + messageRecvLen",
-                    receiveBuffer.WriteCursor + messageRecvLen);
+                    (int)(receiveBuffer.WriteCursor + messageRecvLen));
                 socketTraceLogger.Add("availableBuffer", availableLocalBuffer);
                 socketTraceLogger.WriteTrace = true;
                 messageRecvLen = currentMessageLength;
