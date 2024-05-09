@@ -29,9 +29,8 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -40,40 +39,36 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, PQSourceTickerInfoResponse message)
+    public unsafe int Serialize(IBuffer buffer, PQSourceTickerInfoResponse message)
     {
         var quoteInfos = message.SourceTickerQuoteInfos;
-        var remainingBytes = buffer.Length - writeOffset;
-        if (MessageHeader.SerializationSize + quoteInfos.Count * sizeof(uint) <= buffer.Length - writeOffset)
-            fixed (byte* bufStrt = buffer)
-            {
-                var writeStart = bufStrt + writeOffset;
-                var currPtr = writeStart;
-                *currPtr++ = message.Version;
-                *currPtr++ = (byte)PQMessageFlags.None; // header flags
-                StreamByteOps.ToBytes(ref currPtr, message.MessageId);
-                var messageSize = currPtr;
-                currPtr += OrxConstants.UInt32Sz;
-                remainingBytes -= MessageHeader.SerializationSize;
-                StreamByteOps.ToBytes(ref currPtr, message.RequestId);
-                StreamByteOps.ToBytes(ref currPtr, message.ResponseId);
-                StreamByteOps.ToBytes(ref currPtr, (ushort)quoteInfos.Count);
-                remainingBytes -= 10;
-                for (var i = 0; i < quoteInfos.Count; i++)
-                {
-                    var toSerialize = quoteInfos[i];
-                    var bytesWritten = Serialize(currPtr, toSerialize, remainingBytes);
-                    currPtr += bytesWritten;
-                    remainingBytes -= bytesWritten;
-                }
+        using var fixedBuffer = buffer;
+        var remainingBytes = buffer.RemainingStorage;
+        if (MessageHeader.SerializationSize + quoteInfos.Count * sizeof(uint) > remainingBytes) return -1;
+        var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+        var currPtr = writeStart;
+        *currPtr++ = message.Version;
+        *currPtr++ = (byte)PQMessageFlags.None; // header flags
+        StreamByteOps.ToBytes(ref currPtr, message.MessageId);
+        var messageSize = currPtr;
+        currPtr += OrxConstants.UInt32Sz;
+        remainingBytes -= MessageHeader.SerializationSize;
+        StreamByteOps.ToBytes(ref currPtr, message.RequestId);
+        StreamByteOps.ToBytes(ref currPtr, message.ResponseId);
+        StreamByteOps.ToBytes(ref currPtr, (ushort)quoteInfos.Count);
+        remainingBytes -= 10;
+        for (var i = 0; i < quoteInfos.Count; i++)
+        {
+            var toSerialize = quoteInfos[i];
+            var bytesWritten = Serialize(currPtr, toSerialize, remainingBytes);
+            currPtr += bytesWritten;
+            remainingBytes -= bytesWritten;
+        }
 
-                var amtWritten = currPtr - writeStart;
-                StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
-                message.DecrementRefCount();
-                return (int)amtWritten;
-            }
-
-        return -1;
+        var amtWritten = currPtr - writeStart;
+        StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+        message.DecrementRefCount();
+        return (int)amtWritten;
     }
 
     private unsafe int Serialize(byte* currPtr, ISourceTickerQuoteInfo sourceTickerQuoteInfo, nint remainingBytes)

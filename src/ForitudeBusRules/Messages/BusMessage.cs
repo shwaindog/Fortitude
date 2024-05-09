@@ -286,13 +286,13 @@ public class BusMessage : IBusMessage
 
 public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage<TPayload, TResponse>
 {
-    public static readonly Payload<TPayload> ResetStatePayload = new();
+    public static readonly Payload<TPayload> ResetStateTypedPayload = new();
     public static readonly NoMessageResponseSource<TResponse> NoTypedOpCompletionSource = new();
 
     private int isInRecycler;
     private int refCount;
 
-    static BusMessage() => ResetStatePayload.AutoRecycleAtRefCountZero = false;
+    static BusMessage() => ResetStateTypedPayload.AutoRecycleAtRefCountZero = false;
 
     public new IPayload<TPayload> Payload
     {
@@ -351,7 +351,7 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
         Sender = null;
         DestinationAddress = null;
         SentTime = DateTimeConstants.UnixEpoch;
-        base.Payload = ResetStatePayload;
+        base.Payload = ResetStateTypedPayload;
         base.Response = NoOpCompletionSource;
         refCount = 0;
     }

@@ -3,6 +3,7 @@
 using System.Reflection;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 
@@ -57,20 +58,19 @@ public class OrxByteSerializer<Tm> : IOrxSerializer where Tm : class, new()
         return (int)(ptr - dataStart);
     }
 
-    public unsafe int Serialize(object message, byte[] buffer, nint msgOffset, int headerOffset)
+    public unsafe int Serialize(object message, IBuffer buffer, int headerOffset)
     {
-        fixed (byte* fptr = buffer)
+        using var fixedBuffer = buffer;
+        var fptr = buffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+        var noHeaderSize = Serialize(message, fptr + headerOffset, fptr + buffer.RemainingStorage);
+        if (headerOffset == OrxMessageHeader.HeaderSize)
         {
-            var noHeaderSize = Serialize(message, fptr + msgOffset + headerOffset, fptr + buffer.Length);
-            if (headerOffset == OrxMessageHeader.HeaderSize)
-            {
-                var msgSize = (uint)(noHeaderSize + headerOffset);
-                var msgSizePtr = fptr + msgOffset + OrxMessageHeader.MessageSizeOffset;
-                StreamByteOps.ToBytes(ref msgSizePtr, msgSize);
-            }
-
-            return noHeaderSize;
+            var msgSize = (uint)(noHeaderSize + headerOffset);
+            var msgSizePtr = fptr + OrxMessageHeader.MessageSizeOffset;
+            StreamByteOps.ToBytes(ref msgSizePtr, msgSize);
         }
+
+        return noHeaderSize;
     }
 
     #region Inner members

@@ -8,11 +8,18 @@ namespace FortitudeCommon.Serdes.Binary;
 
 public unsafe class CircularReadWriteBuffer : IBuffer
 {
+    public const int LargeObjectHeapAllocationSize = 85_000;
+
     private nint bufferShifted;
     private GCHandle? handle;
     private int pinCount;
+    private bool shouldUnpin = true;
 
-    public CircularReadWriteBuffer(byte[] buffer) => Buffer = buffer;
+    public CircularReadWriteBuffer(byte[] buffer)
+    {
+        Buffer = buffer;
+        if (buffer.Length >= LargeObjectHeapAllocationSize) shouldUnpin = false;
+    }
 
     public byte[] Buffer { get; }
 
@@ -21,8 +28,8 @@ public unsafe class CircularReadWriteBuffer : IBuffer
         get
         {
             if (pinCount < 0) pinCount = 0;
-            if (handle is not { IsAllocated: true }) handle = GCHandle.Alloc(Buffer);
-            pinCount++;
+            if (handle is not { IsAllocated: true }) handle = GCHandle.Alloc(Buffer, GCHandleType.Pinned);
+            if (shouldUnpin) pinCount++;
             return (byte*)handle.Value.AddrOfPinnedObject().ToPointer();
         }
     }
@@ -32,15 +39,16 @@ public unsafe class CircularReadWriteBuffer : IBuffer
         get
         {
             if (pinCount < 0) pinCount = 0;
-            if (handle is not { IsAllocated: true }) handle = GCHandle.Alloc(Buffer);
-            pinCount++;
+            if (handle is not { IsAllocated: true }) handle = GCHandle.Alloc(Buffer, GCHandleType.Pinned);
+            if (shouldUnpin) pinCount++;
+
             return (byte*)handle.Value.AddrOfPinnedObject().ToPointer();
         }
     }
 
     public void Dispose()
     {
-        if (--pinCount <= 0 && handle is { IsAllocated: true })
+        if (shouldUnpin && --pinCount <= 0 && handle is { IsAllocated: true })
         {
             handle.Value.Free();
             handle = null;

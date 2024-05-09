@@ -14,7 +14,10 @@ public static class PQQuoteMessageHeader
                                                    sizeof(uint); // messageSize
 
 
-    public static uint ReadCurrentMessageSequenceId(this IBufferContext bufferContext) =>
-        StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-            , (int)bufferContext.EncodedBuffer.BufferRelativeReadCursor);
+    public static unsafe uint ReadCurrentMessageSequenceId(this IBufferContext bufferContext)
+    {
+        using var fixedBuffer = bufferContext.EncodedBuffer!;
+        var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+        return StreamByteOps.ToUInt(ref ptr);
+    }
 }

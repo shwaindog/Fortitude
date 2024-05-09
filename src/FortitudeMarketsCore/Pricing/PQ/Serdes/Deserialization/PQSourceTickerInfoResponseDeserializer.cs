@@ -32,23 +32,21 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedSourceTickerInfoResponse = recycler.Borrow<PQSourceTickerInfoResponse>();
-            fixed (byte* fptr = messageBufferContext.EncodedBuffer!.Buffer!)
+            using var fixedBuffer = messageBufferContext.EncodedBuffer!;
+            var end = fixedBuffer.ReadBuffer + fixedBuffer.RemainingStorage;
+            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            deserializedSourceTickerInfoResponse.RequestId = StreamByteOps.ToInt(ref ptr);
+            deserializedSourceTickerInfoResponse.ResponseId = StreamByteOps.ToInt(ref ptr);
+            var requestsCount = StreamByteOps.ToUShort(ref ptr);
+            for (var i = 0; i < requestsCount; i++)
             {
-                var end = fptr + messageBufferContext.EncodedBuffer.RemainingStorage;
-                var ptr = fptr + messageBufferContext.EncodedBuffer.BufferRelativeReadCursor;
-                deserializedSourceTickerInfoResponse.RequestId = StreamByteOps.ToInt(ref ptr);
-                deserializedSourceTickerInfoResponse.ResponseId = StreamByteOps.ToInt(ref ptr);
-                var requestsCount = StreamByteOps.ToUShort(ref ptr);
-                for (var i = 0; i < requestsCount; i++)
+                if (ptr + EstimatedSourceTickerSerializationSize > end)
                 {
-                    if (ptr + EstimatedSourceTickerSerializationSize > end)
-                    {
-                        messageBufferContext.LastReadLength = -1;
-                        return null;
-                    }
-
-                    deserializedSourceTickerInfoResponse.SourceTickerQuoteInfos.Add(DeserializeSourceTickerQuoteInfo(ref ptr));
+                    messageBufferContext.LastReadLength = -1;
+                    return null;
                 }
+
+                deserializedSourceTickerInfoResponse.SourceTickerQuoteInfos.Add(DeserializeSourceTickerQuoteInfo(ref ptr));
             }
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;

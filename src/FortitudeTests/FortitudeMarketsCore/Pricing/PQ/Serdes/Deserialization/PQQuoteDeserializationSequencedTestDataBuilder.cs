@@ -66,11 +66,11 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
                 , MessageHeader = new MessageHeader(1, 0, 0, 1)
             };
 
-            var amountWritten = quoteSerializer.Serialize(sockBuffContext.EncodedBuffer.Buffer,
-                BufferReadWriteOffset, quote);
+            sockBuffContext.EncodedBuffer.WriteCursor = BufferReadWriteOffset;
+            var amountWritten = quoteSerializer.Serialize(sockBuffContext.EncodedBuffer, quote);
             if (amountWritten < 0) throw new Exception("Serializer wrote less than expected to buffer.");
             sockBuffContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
-            sockBuffContext.EncodedBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
+            sockBuffContext.EncodedBuffer.WriteCursor += amountWritten;
             sockBuffContext.MessageHeader = new MessageHeader(1, (byte)feedType, quote.MessageId, (uint)amountWritten, sockBuffContext);
             sockBuffContext.LastWriteLength = amountWritten;
             deserializeContexts.Add(sockBuffContext);

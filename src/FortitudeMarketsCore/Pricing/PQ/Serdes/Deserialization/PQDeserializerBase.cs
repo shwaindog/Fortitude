@@ -121,50 +121,48 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
         ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
         ent.ProcessedTime = sockBuffContext?.DeserializerTime ?? DateTime.Now;
         ent.PQSequenceId = sequenceId;
+        using var fixedBuffer = readContext.EncodedBuffer!;
+        var fptr = fixedBuffer.ReadBuffer;
         var offset = readContext.EncodedBuffer!.BufferRelativeReadCursor;
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");
-        fixed (byte* fptr = readContext.EncodedBuffer.Buffer)
+        var msgHeaderEnd = fptr + offset;
+        var msgSize = readContext.MessageHeader.MessageSize;
+        var end = msgHeaderEnd + msgSize - PQQuoteMessageHeader.HeaderSize;
+        var version = readContext.MessageHeader.Version;
+        if (version < SupportFromVersion || version > SupportToVersion)
         {
-            var msgHeaderEnd = fptr + offset;
-            var msgSize = readContext.MessageHeader.MessageSize;
-            var end = msgHeaderEnd + msgSize - PQQuoteMessageHeader.HeaderSize;
-            var version = readContext.MessageHeader.Version;
-            if (version < SupportFromVersion || version > SupportToVersion)
-            {
-                logger.Warn("Received unsupported message version {0} will skip processing", version);
-                return;
-            }
-
-            var ptr = msgHeaderEnd + sizeof(uint);
-
-            while (ptr < end)
-            {
-                var flags = *ptr++;
-                ushort id;
-                if ((flags & PQFieldFlags.IsExtendedFieldId) == 0)
-                    id = *ptr++;
-                else
-                    id = StreamByteOps.ToUShort(ref ptr);
-                var pqFieldUpdate = new PQFieldUpdate(id, StreamByteOps.ToUInt(ref ptr), flags);
-                // logger.Info("Received PQDeserializerBase<> received pqFieldUpdate: {0}", pqFieldUpdate);
-                var moreBytes = ent.UpdateField(pqFieldUpdate);
-                if (moreBytes <= 0 || ptr + moreBytes + 4 > end) continue;
-                var stringUpdate = new PQStringUpdate
-                {
-                    DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
-                    , Command = (pqFieldUpdate.Flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ?
-                        CrudCommand.Upsert :
-                        CrudCommand.Delete
-                };
-                var fieldStringUpdate = new PQFieldStringUpdate
-                {
-                    Field = pqFieldUpdate, StringUpdate = stringUpdate
-                };
-                // logger.Info("Received PQFieldStringUpdate: {0}", fieldStringUpdate);
-                ent.UpdateFieldString(fieldStringUpdate);
-            }
+            logger.Warn("Received unsupported message version {0} will skip processing", version);
+            return;
         }
 
+        var ptr = msgHeaderEnd + sizeof(uint);
+
+        while (ptr < end)
+        {
+            var flags = *ptr++;
+            ushort id;
+            if ((flags & PQFieldFlags.IsExtendedFieldId) == 0)
+                id = *ptr++;
+            else
+                id = StreamByteOps.ToUShort(ref ptr);
+            var pqFieldUpdate = new PQFieldUpdate(id, StreamByteOps.ToUInt(ref ptr), flags);
+            // logger.Info("Received PQDeserializerBase<> received pqFieldUpdate: {0}", pqFieldUpdate);
+            var moreBytes = ent.UpdateField(pqFieldUpdate);
+            if (moreBytes <= 0 || ptr + moreBytes + 4 > end) continue;
+            var stringUpdate = new PQStringUpdate
+            {
+                DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
+                , Command = (pqFieldUpdate.Flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ?
+                    CrudCommand.Upsert :
+                    CrudCommand.Delete
+            };
+            var fieldStringUpdate = new PQFieldStringUpdate
+            {
+                Field = pqFieldUpdate, StringUpdate = stringUpdate
+            };
+            // logger.Info("Received PQFieldStringUpdate: {0}", fieldStringUpdate);
+            ent.UpdateFieldString(fieldStringUpdate);
+        }
         // logger.Info("Deserialized Quote {0}: SequenceId:{1} on Deserializer.InstanceNum {2}",
         //     ent.GetType().Name, ent.PQSequenceId, InstanceNumber);
     }

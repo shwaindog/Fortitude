@@ -238,22 +238,19 @@ public sealed class SocketSender : ISocketSender
 
     private unsafe bool WriteToSocketSucceeded()
     {
-        if (writeBufferContext.EncodedBuffer!.AllRead) return false;
-        int sentSize;
-        fixed (byte* ptr = writeBufferContext.EncodedBuffer!.Buffer)
-        {
-            var amtDataSent = (int)writeBufferContext.EncodedBuffer!.UnreadBytesRemaining;
-            sentSize = directOSNetworkingApi.Send(Socket.Handle, ptr + writeBufferContext.EncodedBuffer!.BufferRelativeReadCursor,
-                amtDataSent, SocketFlags.None);
-        }
+        using var fixedBuffer = writeBufferContext.EncodedBuffer!;
+        if (fixedBuffer.AllRead) return false;
+        var readStartPtr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+        var amtDataSent = (int)fixedBuffer.UnreadBytesRemaining;
+        var sentSize = directOSNetworkingApi.Send(Socket.Handle, readStartPtr, amtDataSent, SocketFlags.None);
 
         // logger.Info("Socket Sender has sent {0} bytes on {1}", sentSize, Thread.CurrentThread.Name);
         if (sentSize < 0)
             throw new SocketSendException("Win32 error " +
                                           directOSNetworkingApi.GetLastCallError() + " on send call", socketSessionContext);
-        writeBufferContext.EncodedBuffer!.ReadCursor += sentSize;
-        if (writeBufferContext.EncodedBuffer!.AllRead) writeBufferContext.EncodedBuffer.SetAllRead();
-        if (!writeBufferContext.EncodedBuffer.HasStorageForBytes(400)) writeBufferContext.EncodedBuffer.TryHandleRemainingWriteBufferRunningLow();
+        fixedBuffer.ReadCursor += sentSize;
+        if (fixedBuffer.AllRead) fixedBuffer.SetAllRead();
+        if (!fixedBuffer.HasStorageForBytes(400)) fixedBuffer.TryHandleRemainingWriteBufferRunningLow();
 
         return sentSize > 0;
     }

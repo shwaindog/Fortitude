@@ -29,9 +29,8 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -40,25 +39,24 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage msg)
+    public unsafe int Serialize(IBuffer buffer, IVersionedMessage msg)
     {
         // We want to make sure that at least the header will fit
-        if (OrxMessageHeader.HeaderSize <= buffer.Length - writeOffset)
+        if (OrxMessageHeader.HeaderSize <= buffer.RemainingStorage)
         {
-            var size = Serialize(msg, buffer, writeOffset, OrxMessageHeader.HeaderSize) + OrxMessageHeader.HeaderSize;
+            var size = Serialize(msg, buffer, OrxMessageHeader.HeaderSize) + OrxMessageHeader.HeaderSize;
             if (size >= OrxMessageHeader.HeaderSize)
             {
-                fixed (byte* fptr = buffer)
-                {
-                    var ptr = fptr + writeOffset;
-                    *ptr++ = msg.Version;
-                    *ptr++ = 0;
-                    StreamByteOps.ToBytes(ref ptr, Id);
-                    StreamByteOps.ToBytes(ref ptr, (uint)size);
-                }
+                using var fixedBuffer = buffer;
+                var fptr = fixedBuffer.WriteBuffer;
+                var ptr = fptr;
+                *ptr++ = msg.Version;
+                *ptr++ = 0;
+                StreamByteOps.ToBytes(ref ptr, Id);
+                StreamByteOps.ToBytes(ref ptr, (uint)size);
 
                 msg.DecrementRefCount();
-                return (int)size;
+                return size;
             }
         }
 

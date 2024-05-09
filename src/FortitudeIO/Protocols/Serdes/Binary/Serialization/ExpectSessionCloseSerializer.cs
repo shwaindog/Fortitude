@@ -24,9 +24,8 @@ public class ExpectSessionCloseSerializer : IMessageSerializer<ExpectSessionClos
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            if (writeLength > 0) bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -35,29 +34,29 @@ public class ExpectSessionCloseSerializer : IMessageSerializer<ExpectSessionClos
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, ExpectSessionCloseMessage expectSessionCloseMessage)
+    public unsafe int Serialize(IBuffer buffer, ExpectSessionCloseMessage expectSessionCloseMessage)
     {
-        var remainingBytes = buffer.Length - writeOffset;
+        using var fixedBuffer = buffer;
+        var remainingBytes = buffer.RemainingStorage;
         var closeReasonText = expectSessionCloseMessage.ReasonText;
-        if (MessageHeader.SerializationSize + 1 <= buffer.Length - writeOffset)
-            fixed (byte* bufStrt = buffer)
-            {
-                var writeStart = bufStrt + writeOffset;
-                var currPtr = writeStart;
-                *currPtr++ = expectSessionCloseMessage.Version;
-                *currPtr++ = closeReasonText != null ? (byte)1 : (byte)0;
-                StreamByteOps.ToBytes(ref currPtr, expectSessionCloseMessage.MessageId);
-                var messageSize = currPtr;
-                currPtr += OrxConstants.UInt32Sz;
-                *currPtr++ = (byte)expectSessionCloseMessage.CloseReason;
-                remainingBytes -= MessageHeader.SerializationSize + 1;
-                if (closeReasonText != null) StreamByteOps.ToBytesWithSizeHeader(ref currPtr, closeReasonText!, remainingBytes);
-                var amtWritten = currPtr - writeStart;
-                StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+        if (MessageHeader.SerializationSize + 1 <= remainingBytes)
+        {
+            var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+            var currPtr = writeStart;
+            *currPtr++ = expectSessionCloseMessage.Version;
+            *currPtr++ = closeReasonText != null ? (byte)1 : (byte)0;
+            StreamByteOps.ToBytes(ref currPtr, expectSessionCloseMessage.MessageId);
+            var messageSize = currPtr;
+            currPtr += OrxConstants.UInt32Sz;
+            *currPtr++ = (byte)expectSessionCloseMessage.CloseReason;
+            remainingBytes -= MessageHeader.SerializationSize + 1;
+            if (closeReasonText != null) StreamByteOps.ToBytesWithSizeHeader(ref currPtr, closeReasonText!, remainingBytes);
+            var amtWritten = currPtr - writeStart;
+            StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
 
-                expectSessionCloseMessage.DecrementRefCount();
-                return (int)amtWritten;
-            }
+            expectSessionCloseMessage.DecrementRefCount();
+            return (int)amtWritten;
+        }
 
         return -1;
     }

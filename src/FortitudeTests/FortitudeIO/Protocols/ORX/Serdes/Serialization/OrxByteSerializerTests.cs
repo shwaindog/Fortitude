@@ -43,7 +43,7 @@ public class OrxByteSerializerTests
         };
 
         var messageSize = orxDoubleStringArraySerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, OrxMessageHeader.HeaderSize);
+            socketBufferReadContext.EncodedBuffer!, OrxMessageHeader.HeaderSize);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
         socketBufferReadContext.EncodedBuffer!.ReadCursor = MessageHeader.SerializationSize;
 
@@ -69,7 +69,7 @@ public class OrxByteSerializerTests
         };
 
         var messageSize = orxLongsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, OrxMessageHeader.HeaderSize);
+            socketBufferReadContext.EncodedBuffer!, OrxMessageHeader.HeaderSize);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
         socketBufferReadContext.EncodedBuffer!.ReadCursor = MessageHeader.SerializationSize;
 
@@ -95,7 +95,7 @@ public class OrxByteSerializerTests
         };
 
         var messageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, OrxMessageHeader.HeaderSize);
+            socketBufferReadContext.EncodedBuffer!, OrxMessageHeader.HeaderSize);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
         socketBufferReadContext.EncodedBuffer!.ReadCursor = MessageHeader.SerializationSize;
 
@@ -122,7 +122,7 @@ public class OrxByteSerializerTests
         };
 
         var messageSize = orxStringsSerializer.Serialize(originalDoubleStringArray,
-            byteBuffer, 0, OrxMessageHeader.HeaderSize);
+            socketBufferReadContext.EncodedBuffer!, OrxMessageHeader.HeaderSize);
         socketBufferReadContext.MessageHeader = new MessageHeader(1, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
         socketBufferReadContext.EncodedBuffer!.ReadCursor = MessageHeader.SerializationSize;
 

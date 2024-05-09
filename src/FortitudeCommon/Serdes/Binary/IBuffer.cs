@@ -2,8 +2,6 @@ namespace FortitudeCommon.Serdes.Binary;
 
 public unsafe interface IBuffer : IDisposable
 {
-    byte[] Buffer { get; }
-
     byte* ReadBuffer { get; }
     byte* WriteBuffer { get; }
     nint BufferRelativeReadCursor { get; }

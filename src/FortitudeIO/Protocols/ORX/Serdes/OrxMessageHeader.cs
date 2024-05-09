@@ -15,15 +15,26 @@ public static class OrxMessageHeader
     public const int MessageSizeOffset = 6;
     public const int HeaderSize = MessageHeader.SerializationSize;
 
-    public static byte ReadCurrentMessageVersion(this IBufferContext bufferContext) => bufferContext.EncodedBuffer!.Buffer[VersionOffset];
+    public static unsafe byte ReadCurrentMessageVersion(this IBufferContext bufferContext)
+    {
+        using var fixedBuffer = bufferContext.EncodedBuffer!;
+        var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+        return *ptr;
+    }
 
-    public static uint ReadCurrentMessageId(this IBufferContext bufferContext) =>
-        StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-            , bufferContext.EncodedBuffer.BufferRelativeReadCursor + MessageIdOffset);
+    public static unsafe uint ReadCurrentMessageId(this IBufferContext bufferContext)
+    {
+        using var fixedBuffer = bufferContext.EncodedBuffer!;
+        var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor + MessageIdOffset;
+        return StreamByteOps.ToUInt(ref ptr);
+    }
 
-    public static uint ReadCurrentMessageSize(this IBufferContext bufferContext) =>
-        StreamByteOps.ToUInt(bufferContext.EncodedBuffer!.Buffer
-            , bufferContext.EncodedBuffer.BufferRelativeReadCursor + MessageSizeOffset);
+    public static unsafe uint ReadCurrentMessageSize(this IBufferContext bufferContext)
+    {
+        using var fixedBuffer = bufferContext.EncodedBuffer!;
+        var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor + MessageSizeOffset;
+        return StreamByteOps.ToUInt(ref ptr);
+    }
 
     public static MessageHeader ReadBasicMessageHeader(this IBufferContext bufferContext)
     {

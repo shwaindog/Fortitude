@@ -1,7 +1,13 @@
-﻿namespace FortitudeIO.Protocols.ORX.Serdes.Serialization;
+﻿#region
+
+using FortitudeCommon.Serdes.Binary;
+
+#endregion
+
+namespace FortitudeIO.Protocols.ORX.Serdes.Serialization;
 
 public interface IOrxSerializer
 {
-    int Serialize(object message, byte[] buffer, nint msgOffset, int headerOffset);
+    int Serialize(object message, IBuffer buffer, int headerOffset);
     unsafe int Serialize(object message, byte* ptr, byte* endPtr);
 }

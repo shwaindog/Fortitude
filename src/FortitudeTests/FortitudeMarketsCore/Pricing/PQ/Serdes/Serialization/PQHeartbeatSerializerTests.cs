@@ -80,66 +80,63 @@ public class PQHeartbeatSerializerTests
     [TestMethod]
     public unsafe void TwoQuotesBatchToHeartBeat_Serialize_SetTheExpectedBytesToBuffer()
     {
-        var amtWritten = pqHeartBeatSerializer
-            .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, firstBatchOfQuotes);
-        readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
+        readWriteBuffer.WriteCursor = BufferReadWriteOffset;
+        var amtWritten = pqHeartBeatSerializer.Serialize(readWriteBuffer, firstBatchOfQuotes);
+        readWriteBuffer.WriteCursor += amtWritten;
+        readWriteBuffer.ReadCursor = BufferReadWriteOffset;
+        using var fixedBuffer = readWriteBuffer;
 
-        fixed (byte* bufferPtr = readWriteBuffer.Buffer)
+        var startWritten = fixedBuffer.ReadBuffer + readWriteBuffer.BufferRelativeReadCursor;
+        var currPtr = startWritten;
+        Assert.AreEqual(amtWritten
+            , (PQQuoteMessageHeader.HeaderSize + 4) * firstBatchOfQuotes.QuotesToSendHeartBeats.Count);
+        foreach (var firstBatchOfQuote in firstBatchOfQuotes)
         {
-            var startWritten = bufferPtr + BufferReadWriteOffset;
-            var currPtr = bufferPtr + BufferReadWriteOffset;
-            Assert.AreEqual(amtWritten
-                , (PQQuoteMessageHeader.HeaderSize + 4) * firstBatchOfQuotes.QuotesToSendHeartBeats.Count);
-            foreach (var firstBatchOfQuote in firstBatchOfQuotes)
-            {
-                var protocolVersion = *currPtr++;
-                Assert.AreEqual(1, protocolVersion);
-                var messageFlags = *currPtr++;
-                Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
-                var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
-                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
-                var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(sequenceNumber, firstBatchOfQuote.PQSequenceId);
-            }
-
-            Assert.AreEqual(amtWritten, currPtr - startWritten);
+            var protocolVersion = *currPtr++;
+            Assert.AreEqual(1, protocolVersion);
+            var messageFlags = *currPtr++;
+            Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
+            var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
+            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
+            var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(sequenceNumber, firstBatchOfQuote.PQSequenceId);
         }
 
-        amtWritten = pqHeartBeatSerializer
-            .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, secondBatchOfQuotes);
+        Assert.AreEqual(amtWritten, currPtr - startWritten);
+
+        readWriteBuffer.ReadCursor += amtWritten;
+        amtWritten = pqHeartBeatSerializer.Serialize(readWriteBuffer, secondBatchOfQuotes);
         readWriteBuffer.WriteCursor += amtWritten;
 
-        fixed (byte* bufferPtr = readWriteBuffer.Buffer)
+        startWritten = fixedBuffer.ReadBuffer + readWriteBuffer.BufferRelativeReadCursor;
+        currPtr = startWritten;
+        Assert.AreEqual(amtWritten
+            , (PQQuoteMessageHeader.HeaderSize + sizeof(uint)) * secondBatchOfQuotes.QuotesToSendHeartBeats.Count);
+        foreach (var firstBatchOfQuote in secondBatchOfQuotes)
         {
-            var startWritten = bufferPtr + readWriteBuffer.ReadCursor;
-            var currPtr = bufferPtr + readWriteBuffer.ReadCursor;
-            Assert.AreEqual(amtWritten
-                , (PQQuoteMessageHeader.HeaderSize + sizeof(uint)) * secondBatchOfQuotes.QuotesToSendHeartBeats.Count);
-            foreach (var firstBatchOfQuote in secondBatchOfQuotes)
-            {
-                var protocolVersion = *currPtr++;
-                Assert.AreEqual(1, protocolVersion);
-                var messageFlags = *currPtr++;
-                Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
-                var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
-                var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
-                var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(sequenceNumber, firstBatchOfQuote.PQSequenceId);
-            }
-
-            Assert.AreEqual(amtWritten, currPtr - startWritten);
+            var protocolVersion = *currPtr++;
+            Assert.AreEqual(1, protocolVersion);
+            var messageFlags = *currPtr++;
+            Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
+            var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.Id);
+            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
+            var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(sequenceNumber, firstBatchOfQuote.PQSequenceId);
         }
+
+        Assert.AreEqual(amtWritten, currPtr - startWritten);
     }
 
     [TestMethod]
     public void FullBuffer_Serialize_WritesNothingReturnsNegativeWrittenBytes()
     {
+        readWriteBuffer.WriteCursor = readWriteBuffer.Size - 1;
         var amtWritten = pqHeartBeatSerializer
-            .Serialize(readWriteBuffer.Buffer, readWriteBuffer.Buffer.Length - 1, firstBatchOfQuotes);
+            .Serialize(readWriteBuffer, firstBatchOfQuotes);
 
         Assert.AreEqual(-1, amtWritten);
     }
@@ -147,18 +144,15 @@ public class PQHeartbeatSerializerTests
     [TestMethod]
     public unsafe void AlmostFullBuffer_Serialize_WritesHeaderReturnsNegativeWrittenAmount()
     {
-        var amtWritten = pqHeartBeatSerializer
-            .Serialize(readWriteBuffer.Buffer, readWriteBuffer.Buffer.Length - 8, firstBatchOfQuotes);
+        readWriteBuffer.WriteCursor = readWriteBuffer.Size - 8;
+        var amtWritten = pqHeartBeatSerializer.Serialize(readWriteBuffer, firstBatchOfQuotes);
 
         Assert.AreEqual(-1, amtWritten);
-
-        fixed (byte* bufferPtr = readWriteBuffer.Buffer)
-        {
-            var currPtr = bufferPtr + readWriteBuffer.Buffer.Length - 8;
-            var protocolVersion = *currPtr++;
-            Assert.AreEqual(1, protocolVersion);
-            var messageFlags = *currPtr++;
-            Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
-        }
+        using var fixedBuffer = readWriteBuffer;
+        var currPtr = fixedBuffer.ReadBuffer + readWriteBuffer.Size - 8;
+        var protocolVersion = *currPtr++;
+        Assert.AreEqual(1, protocolVersion);
+        var messageFlags = *currPtr++;
+        Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
     }
 }

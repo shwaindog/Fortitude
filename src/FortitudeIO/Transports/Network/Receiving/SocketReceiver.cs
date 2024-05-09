@@ -55,6 +55,7 @@ public sealed class SocketReceiver : ISocketReceiver
     private int bufferFullCounter;
     private DateTime lastReportOfHighDataBursts = DateTime.MinValue;
     private long numberOfMessages;
+    private byte[]? toConvertToHexadecimalString;
     private long totalMessageSize;
 
     public SocketReceiver(ISocketSessionContext socketSessionContext)
@@ -74,7 +75,7 @@ public sealed class SocketReceiver : ISocketReceiver
         Socket.Blocking = false;
 
         receiveBuffer = new CircularReadWriteBuffer(new byte[Socket.ReceiveBufferSize]);
-        bufferSize = receiveBuffer.Buffer.Length;
+        bufferSize = receiveBuffer.Size;
 
         ZeroBytesReadIsDisconnection = true;
     }
@@ -197,31 +198,39 @@ public sealed class SocketReceiver : ISocketReceiver
         int messageRecvLen;
         var bufferRecvLen = 0;
         var availableLocalBuffer = (int)receiveBuffer.RemainingStorage;
-        fixed (byte* ptr = receiveBuffer.Buffer)
+        using var fixedBuffer = receiveBuffer;
+        var ptr = fixedBuffer.ReadBuffer;
+        socketTraceLogger.Add("before ioctlsocket");
+        var socketHandle = Socket.Handle;
+        if (directOSNetworkingApi.IoCtlSocket(Socket.Handle, ref bufferRecvLen) != 0)
+            throw new Exception("Win32 error " + directOSNetworkingApi.GetLastCallError()
+                                               + $" on ioctlsocket call with Socket.Handle {socketHandle} on {socketSessionContext}");
+
+        socketTraceLogger.AddContextMeasurement(bufferRecvLen);
+        if (socketTraceLogger.Enabled)
+            if (bufferRecvLen > bufferSize * ReportFullThreshold
+                && bufferFullCounter++ % ReportEveryNthFullBufferBreach == 0)
+                TraceSocketDataStats(socketTraceLogger);
+
+        socketTraceLogger.Add("end recv bufferRecvLen", bufferRecvLen);
+        var remainingDataInSocketBuffer = bufferRecvLen;
+
+
+        messageRecvLen = MultipleReceiveData(ptr, availableLocalBuffer, remainingDataInSocketBuffer,
+            socketTraceLogger);
+        if (byteStreamLogger.Enabled)
         {
-            socketTraceLogger.Add("before ioctlsocket");
-            var socketHandle = Socket.Handle;
-            if (directOSNetworkingApi.IoCtlSocket(Socket.Handle, ref bufferRecvLen) != 0)
-                throw new Exception("Win32 error " + directOSNetworkingApi.GetLastCallError()
-                                                   + $" on ioctlsocket call with Socket.Handle {socketHandle} on {socketSessionContext}");
+            toConvertToHexadecimalString ??= new byte[bufferSize];
+            for (var i = 0; i < messageRecvLen; i++)
+            {
+                var toCopy = ptr + receiveBuffer.BufferRelativeWriteCursor + i;
+                toConvertToHexadecimalString[i] = *toCopy;
+            }
 
-            socketTraceLogger.AddContextMeasurement(bufferRecvLen);
-            if (socketTraceLogger.Enabled)
-                if (bufferRecvLen > bufferSize * ReportFullThreshold
-                    && bufferFullCounter++ % ReportEveryNthFullBufferBreach == 0)
-                    TraceSocketDataStats(socketTraceLogger);
-
-            socketTraceLogger.Add("end recv bufferRecvLen", bufferRecvLen);
-            var remainingDataInSocketBuffer = bufferRecvLen;
-
-
-            messageRecvLen = MultipleReceiveData(ptr, availableLocalBuffer, remainingDataInSocketBuffer,
-                socketTraceLogger);
-            if (byteStreamLogger.Enabled)
-                byteStreamLogger.Debug(BitConverter.ToString(receiveBuffer.Buffer, (int)receiveBuffer.BufferRelativeWriteCursor,
-                    messageRecvLen));
-            socketTraceLogger.Add("end recv messageRecvLen", messageRecvLen);
+            byteStreamLogger.Debug(BitConverter.ToString(toConvertToHexadecimalString, 0, messageRecvLen));
         }
+
+        socketTraceLogger.Add("end recv messageRecvLen", messageRecvLen);
 
         return messageRecvLen;
     }

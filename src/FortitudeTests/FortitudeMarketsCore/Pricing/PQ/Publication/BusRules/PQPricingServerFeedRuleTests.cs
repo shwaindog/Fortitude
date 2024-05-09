@@ -22,7 +22,7 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingServerFeedRuleTests));
     private IMarketConnectionConfig clientMarketConfig = null!;
-    private string feedName;
+    private string feedName = null!;
     private ManualResetEvent haveReceivedPriceAutoResetEvent = null!;
     private PQPricingClientFeedRule pqPricingClientFeedRule = null!;
     private PQPricingServerFeedRule pricingServerFeedRule = null!;

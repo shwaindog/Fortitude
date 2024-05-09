@@ -36,25 +36,24 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var originalRead = socketBufferReadContext.EncodedBuffer!.ReadCursor;
+        using var fixedBuffer = socketBufferReadContext.EncodedBuffer!;
+        var originalRead = fixedBuffer.ReadCursor;
         byte messageFlags = 0;
         uint messageId = 0;
-        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - socketBufferReadContext.EncodedBuffer.ReadCursor)
+
+        while (ExpectedSize <= fixedBuffer.WriteCursor - fixedBuffer.ReadCursor)
             switch (messageSection)
             {
                 case MessageSection.Header:
-                    fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
-                    {
-                        var ptr = fptr + socketBufferReadContext.EncodedBuffer.BufferRelativeReadCursor;
-                        var version = *ptr++;
-                        messageFlags = *ptr++;
-                        messageId = StreamByteOps.ToUInt(ref ptr);
-                        var messageSize = StreamByteOps.ToUInt(ref ptr);
-                        socketBufferReadContext.MessageHeader
-                            = new MessageHeader(version, messageFlags, messageId, messageSize, socketBufferReadContext);
-                    }
+                    var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+                    var version = *ptr++;
+                    messageFlags = *ptr++;
+                    messageId = StreamByteOps.ToUInt(ref ptr);
+                    var messageSize = StreamByteOps.ToUInt(ref ptr);
+                    socketBufferReadContext.MessageHeader
+                        = new MessageHeader(version, messageFlags, messageId, messageSize, socketBufferReadContext);
 
-                    socketBufferReadContext.EncodedBuffer.ReadCursor += HeaderSize;
+                    fixedBuffer.ReadCursor += HeaderSize;
                     if ((int)socketBufferReadContext.MessageHeader.MessageSize - HeaderSize >= 0)
                     {
                         messageSection = MessageSection.Data;
@@ -80,13 +79,13 @@ public sealed class PQServerMessageStreamDecoder : IPQServerMessageStreamDecoder
                         Logger.Warn("Received a message with an unregistered serializer so was ignored {0}", socketBufferReadContext.MessageHeader);
                     }
 
-                    socketBufferReadContext.EncodedBuffer.ReadCursor += socketBufferReadContext.LastReadLength - HeaderSize;
+                    fixedBuffer.ReadCursor += socketBufferReadContext.LastReadLength - HeaderSize;
                     messageSection = MessageSection.Header;
                     ExpectedSize = HeaderSize;
                     break;
             }
 
-        return (int)(socketBufferReadContext.EncodedBuffer!.ReadCursor - originalRead);
+        return (int)(fixedBuffer.ReadCursor - originalRead);
     }
 
     private enum MessageSection

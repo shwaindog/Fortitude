@@ -31,21 +31,20 @@ public sealed class OrxMessageStreamDecoder : IOrxStreamDecoder
 
     public unsafe int Process(SocketBufferReadContext socketBufferReadContext)
     {
-        var originalRead = socketBufferReadContext.EncodedBuffer!.ReadCursor;
+        using var fixBuffer = socketBufferReadContext.EncodedBuffer!;
+        var originalRead = fixBuffer.ReadCursor;
         object? lastDecodedObj = null;
-        while (ExpectedSize <= socketBufferReadContext.EncodedBuffer.WriteCursor - socketBufferReadContext.EncodedBuffer!.ReadCursor)
+
+        while (ExpectedSize <= fixBuffer.WriteCursor - fixBuffer!.ReadCursor)
             if (state == State.Header)
             {
-                fixed (byte* fptr = socketBufferReadContext.EncodedBuffer.Buffer)
-                {
-                    var ptr = fptr + socketBufferReadContext.EncodedBuffer.BufferRelativeReadCursor;
-                    var version = *ptr++;
-                    var flags = *ptr++;
-                    messageId = StreamByteOps.ToUInt(ref ptr);
-                    ExpectedSize = StreamByteOps.ToUInt(ref ptr) - MessageHeader.SerializationSize;
-                    socketBufferReadContext.MessageHeader = new MessageHeader(version, flags, messageId, ExpectedSize, socketBufferReadContext);
-                    socketBufferReadContext.EncodedBuffer.ReadCursor += MessageHeader.SerializationSize;
-                }
+                var ptr = fixBuffer.ReadBuffer + fixBuffer.BufferRelativeReadCursor;
+                var version = *ptr++;
+                var flags = *ptr++;
+                messageId = StreamByteOps.ToUInt(ref ptr);
+                ExpectedSize = StreamByteOps.ToUInt(ref ptr) - MessageHeader.SerializationSize;
+                socketBufferReadContext.MessageHeader = new MessageHeader(version, flags, messageId, ExpectedSize, socketBufferReadContext);
+                fixBuffer.ReadCursor += MessageHeader.SerializationSize;
 
                 state = State.Data;
             }
@@ -60,13 +59,13 @@ public sealed class OrxMessageStreamDecoder : IOrxStreamDecoder
                         socketBufferReadContext.SocketReceiver.ExpectSessionCloseMessage = expectSessionCloseMessage;
                 }
 
-                socketBufferReadContext.EncodedBuffer.ReadCursor += (int)ExpectedSize;
+                fixBuffer.ReadCursor += (int)ExpectedSize;
                 state = State.Header;
                 ExpectedSize = OrxMessageHeader.HeaderSize;
             }
 
         socketBufferReadContext.DispatchLatencyLogger?.Dedent();
-        var amountRead = socketBufferReadContext.EncodedBuffer!.ReadCursor - originalRead;
+        var amountRead = fixBuffer!.ReadCursor - originalRead;
         return (int)amountRead;
     }
 

@@ -166,9 +166,10 @@ public class PQQuoteSerializerTests
             // ReSharper disable once UnusedVariable
             var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, PQMessageFlags.Update);
 
+            readWriteBuffer.WriteCursor = BufferReadWriteOffset;
             var amtWritten = updateQuoteSerializer
-                .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
-            readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
+                .Serialize(readWriteBuffer, pqQuote);
+            readWriteBuffer.WriteCursor += amtWritten;
 
             AssertExpectedBytesWriten(amtWritten, false, expectedFieldUpdates, expectedStringUpdates, pqQuote);
         }
@@ -189,9 +190,10 @@ public class PQQuoteSerializerTests
             // ReSharper disable once UnusedVariable
             var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, PQMessageFlags.Update);
 
+            readWriteBuffer.WriteCursor = BufferReadWriteOffset;
             var amtWritten = snapshotQuoteSerializer
-                .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
-            readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
+                .Serialize(readWriteBuffer, pqQuote);
+            readWriteBuffer.WriteCursor += amtWritten;
 
             AssertExpectedBytesWriten(amtWritten, true, expectedFieldUpdates, expectedStringUpdates, pqQuote);
         }
@@ -204,9 +206,10 @@ public class PQQuoteSerializerTests
         {
             readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
             pqQuote.PQSequenceId = uint.MaxValue; // will roll to 0 on
+            readWriteBuffer.WriteCursor = BufferReadWriteOffset;
             var amtWritten = updateQuoteSerializer
-                .Serialize(readWriteBuffer.Buffer, BufferReadWriteOffset, pqQuote);
-            readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
+                .Serialize(readWriteBuffer, pqQuote);
+            readWriteBuffer.WriteCursor += amtWritten;
 
             var sockBuffContext = new SocketBufferReadContext
             {
@@ -264,67 +267,65 @@ public class PQQuoteSerializerTests
         List<PQFieldUpdate> expectedFieldUpdates, List<PQFieldStringUpdate> expectedStringUpdates,
         IPQLevel0Quote originalQuote)
     {
-        fixed (byte* bufferPtr = readWriteBuffer.Buffer)
+        using var fixedBuffer = readWriteBuffer;
+        var startWritten = fixedBuffer.ReadBuffer + BufferReadWriteOffset;
+        var currPtr = startWritten;
+        var protocolVersion = *currPtr++;
+        Assert.AreEqual(1, protocolVersion);
+        var messageFlags = *currPtr++;
+        var extendedFields = (originalQuote.SourceTickerQuoteInfo!.LayerFlags & LayerFlags.ValueDate) > 0;
+
+        Assert.AreEqual((byte)(isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update), messageFlags);
+        var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
+        Assert.AreEqual(originalQuote.SourceTickerQuoteInfo.Id, sourceTickerId);
+        var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
+        Assert.AreEqual((uint)amtWritten, messagesTotalSize);
+        var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
+        Assert.AreEqual(level0Quote.PQSequenceId, sequenceNumber);
+        foreach (var fieldUpdate in expectedFieldUpdates)
         {
-            var startWritten = bufferPtr + BufferReadWriteOffset;
-            var currPtr = bufferPtr + BufferReadWriteOffset;
-            var protocolVersion = *currPtr++;
-            Assert.AreEqual(1, protocolVersion);
-            var messageFlags = *currPtr++;
-            var extendedFields = (originalQuote.SourceTickerQuoteInfo!.LayerFlags & LayerFlags.ValueDate) > 0;
+            var flag = *currPtr++;
+            Assert.AreEqual(fieldUpdate.Flag, flag);
+            ushort fieldId;
+            if ((flag & PQFieldFlags.IsExtendedFieldId) == 0)
+                fieldId = *currPtr++;
+            else
+                fieldId = StreamByteOps.ToUShort(ref currPtr);
+            Assert.AreEqual(fieldUpdate.Id, fieldId);
 
-            Assert.AreEqual((byte)(isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update), messageFlags);
-            var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(originalQuote.SourceTickerQuoteInfo.Id, sourceTickerId);
-            var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual((uint)amtWritten, messagesTotalSize);
-            var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(level0Quote.PQSequenceId, sequenceNumber);
-            foreach (var fieldUpdate in expectedFieldUpdates)
-            {
-                var flag = *currPtr++;
-                Assert.AreEqual(fieldUpdate.Flag, flag);
-                ushort fieldId;
-                if ((flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                    fieldId = *currPtr++;
-                else
-                    fieldId = StreamByteOps.ToUShort(ref currPtr);
-                Assert.AreEqual(fieldUpdate.Id, fieldId);
-
-                var fieldValue = StreamByteOps.ToUInt(ref currPtr);
-                Assert.AreEqual(fieldUpdate.Value, fieldValue);
-            }
-
-            foreach (var stringUpdate in expectedStringUpdates)
-            {
-                var flag = *currPtr++;
-                Assert.AreEqual(stringUpdate.Field.Flag, flag);
-                Assert.AreNotEqual(0, stringUpdate.Field.Flag);
-                ushort fieldId;
-                if ((stringUpdate.Field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                    fieldId = *currPtr++;
-                else
-                    fieldId = StreamByteOps.ToUShort(ref currPtr);
-                Assert.AreEqual(stringUpdate.Field.Id, fieldId);
-
-                Assert.AreEqual(0u, stringUpdate.Field.Value);
-                var fieldValue = StreamByteOps.ToUInt(ref currPtr);
-                var bytesUsed = (uint)GetSerializedStringSize(stringUpdate.StringUpdate.Value);
-                Assert.AreEqual(bytesUsed, fieldValue);
-
-                var dictionaryId = StreamByteOps.ToInt(ref currPtr);
-                Assert.AreEqual(stringUpdate.StringUpdate.DictionaryId, dictionaryId);
-
-                var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
-                Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
-
-                var command = (flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
-                Assert.AreEqual(stringUpdate.StringUpdate.Command, command
-                    , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
-            }
-
-            Assert.AreEqual(amtWritten, currPtr - startWritten);
+            var fieldValue = StreamByteOps.ToUInt(ref currPtr);
+            Assert.AreEqual(fieldUpdate.Value, fieldValue);
         }
+
+        foreach (var stringUpdate in expectedStringUpdates)
+        {
+            var flag = *currPtr++;
+            Assert.AreEqual(stringUpdate.Field.Flag, flag);
+            Assert.AreNotEqual(0, stringUpdate.Field.Flag);
+            ushort fieldId;
+            if ((stringUpdate.Field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
+                fieldId = *currPtr++;
+            else
+                fieldId = StreamByteOps.ToUShort(ref currPtr);
+            Assert.AreEqual(stringUpdate.Field.Id, fieldId);
+
+            Assert.AreEqual(0u, stringUpdate.Field.Value);
+            var fieldValue = StreamByteOps.ToUInt(ref currPtr);
+            var bytesUsed = (uint)GetSerializedStringSize(stringUpdate.StringUpdate.Value);
+            Assert.AreEqual(bytesUsed, fieldValue);
+
+            var dictionaryId = StreamByteOps.ToInt(ref currPtr);
+            Assert.AreEqual(stringUpdate.StringUpdate.DictionaryId, dictionaryId);
+
+            var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
+            Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
+
+            var command = (flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
+            Assert.AreEqual(stringUpdate.StringUpdate.Command, command
+                , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
+        }
+
+        Assert.AreEqual(amtWritten, currPtr - startWritten);
     }
 
     private unsafe int GetSerializedStringSize(string toSerialize)

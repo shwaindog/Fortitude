@@ -37,9 +37,8 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!.Buffer, bufferContext.EncodedBuffer.BufferRelativeWriteCursor
-                , obj);
-            bufferContext.EncodedBuffer.WriteCursor += writeLength;
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
         else
@@ -48,88 +47,86 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
         }
     }
 
-    public unsafe int Serialize(byte[] buffer, nint writeOffset, IVersionedMessage message)
+    public unsafe int Serialize(IBuffer buffer, IVersionedMessage message)
     {
         if (!(message is IPQLevel0Quote pqL0Quote)) return FinishProcessingMessageReturnValue(message, -1);
         var resolvedFlags = pqL0Quote.OverrideSerializationFlags ?? messageFlags;
         var publishAll = (resolvedFlags & PQMessageFlags.Complete) > 0;
         pqL0Quote.OverrideSerializationFlags = null;
-        if ((publishAll ? sizeof(uint) : 0) + PQQuoteMessageHeader.HeaderSize > buffer.Length - writeOffset)
+        using var fixedBuffer = buffer;
+        if ((publishAll ? sizeof(uint) : 0) + PQQuoteMessageHeader.HeaderSize > buffer.RemainingStorage)
             return FinishProcessingMessageReturnValue(message, -1);
-        fixed (byte* fptr = buffer)
+        if (!publishAll && !pqL0Quote.HasUpdates) return FinishProcessingMessageReturnValue(message, 0);
+        var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+        var currentPtr = writeStart;
+        var end = writeStart + buffer.RemainingStorage;
+        *currentPtr++ = message.Version; //protocol version
+        *currentPtr++ = (byte)resolvedFlags;
+        StreamByteOps.ToBytes(ref currentPtr, pqL0Quote.SourceTickerQuoteInfo!.Id);
+        var messageSizePtr = currentPtr;
+        currentPtr += 4;
+        var sequenceIdptr = currentPtr;
+        currentPtr += 4;
+
+        var fields = pqL0Quote.GetDeltaUpdateFields(TimeContext.UtcNow, resolvedFlags);
+        pqL0Quote.Lock.Acquire();
+        try
         {
-            if (!publishAll && !pqL0Quote.HasUpdates) return FinishProcessingMessageReturnValue(message, 0);
-            var writeStart = fptr + writeOffset;
-            var currentPtr = writeStart;
-            var end = fptr + buffer.Length;
-            *currentPtr++ = message.Version; //protocol version
-            *currentPtr++ = (byte)resolvedFlags;
-            StreamByteOps.ToBytes(ref currentPtr, pqL0Quote.SourceTickerQuoteInfo!.Id);
-            var messageSizePtr = currentPtr;
-            currentPtr += 4;
-            var sequenceIdptr = currentPtr;
-            currentPtr += 4;
-
-            var fields = pqL0Quote.GetDeltaUpdateFields(TimeContext.UtcNow, resolvedFlags);
-            pqL0Quote.Lock.Acquire();
-            try
+            foreach (var field in fields)
             {
-                foreach (var field in fields)
-                {
-                    // logger.Info("Writing field {0}", field);
+                // logger.Info("Writing field {0}", field);
 
-                    if (currentPtr + FieldSize > end) return FinishProcessingMessageReturnValue(message, -1);
-                    *currentPtr++ = field.Flag;
-                    if ((field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                        *currentPtr++ = (byte)field.Id;
-                    else
-                        StreamByteOps.ToBytes(ref currentPtr, field.Id);
-
-                    StreamByteOps.ToBytes(ref currentPtr, field.Value);
-                }
-
-                var stringUpdates = pqL0Quote.GetStringUpdates
-                    (TimeContext.UtcNow, resolvedFlags);
-                foreach (var fieldStringUpdate in stringUpdates)
-                {
-                    if (currentPtr + 100 > end) return FinishProcessingMessageReturnValue(message, -1);
-
-                    *currentPtr++ = fieldStringUpdate.Field.Flag;
-                    if ((fieldStringUpdate.Field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                        *currentPtr++ = (byte)fieldStringUpdate.Field.Id;
-                    else
-                        StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.Field.Id);
-                    var stringSizePtr = currentPtr;
-                    currentPtr += 4;
-                    StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.StringUpdate.DictionaryId);
-                    var bytesUsed = StreamByteOps.ToBytes(ref currentPtr,
-                        fieldStringUpdate.StringUpdate.Value, (int)(end - currentPtr));
-                    StreamByteOps.ToBytes(ref stringSizePtr, (uint)bytesUsed);
-                    // logger.Info("Writing string update {0} and Value = {1}", fieldStringUpdate, bytesUsed);
-                }
-
-                var isSnapshot = (resolvedFlags & PQMessageFlags.Snapshot) > 0;
-                if (isSnapshot)
-                    StreamByteOps.ToBytes(ref sequenceIdptr
-                        , pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId);
+                if (currentPtr + FieldSize > end) return FinishProcessingMessageReturnValue(message, -1);
+                *currentPtr++ = field.Flag;
+                if ((field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
+                    *currentPtr++ = (byte)field.Id;
                 else
-                    StreamByteOps.ToBytes(ref sequenceIdptr, unchecked(++pqL0Quote.PQSequenceId));
-                pqL0Quote.HasUpdates = false;
-            }
-            finally
-            {
-                pqL0Quote.Lock.Release();
+                    StreamByteOps.ToBytes(ref currentPtr, field.Id);
+
+                StreamByteOps.ToBytes(ref currentPtr, field.Value);
             }
 
-            var written = (int)(currentPtr - writeStart);
-            // var level0Quote = (PQLevel0Quote)message;
-            // logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +
-            //              $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
-            //              $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
-            //              $"{resolvedFlags}.  ThreadName {Thread.CurrentThread.Name}");
-            StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
-            return FinishProcessingMessageReturnValue(message, written);
+            var stringUpdates = pqL0Quote.GetStringUpdates
+                (TimeContext.UtcNow, resolvedFlags);
+            foreach (var fieldStringUpdate in stringUpdates)
+            {
+                if (currentPtr + 100 > end) return FinishProcessingMessageReturnValue(message, -1);
+
+                *currentPtr++ = fieldStringUpdate.Field.Flag;
+                if ((fieldStringUpdate.Field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
+                    *currentPtr++ = (byte)fieldStringUpdate.Field.Id;
+                else
+                    StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.Field.Id);
+                var stringSizePtr = currentPtr;
+                currentPtr += 4;
+                StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.StringUpdate.DictionaryId);
+                var bytesUsed = StreamByteOps.ToBytes(ref currentPtr,
+                    fieldStringUpdate.StringUpdate.Value, (int)(end - currentPtr));
+                StreamByteOps.ToBytes(ref stringSizePtr, (uint)bytesUsed);
+                // logger.Info("Writing string update {0} and Value = {1}", fieldStringUpdate, bytesUsed);
+            }
+
+            var isSnapshot = (resolvedFlags & PQMessageFlags.Snapshot) > 0;
+            if (isSnapshot)
+                StreamByteOps.ToBytes(ref sequenceIdptr
+                    , pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId);
+            else
+                StreamByteOps.ToBytes(ref sequenceIdptr, unchecked(++pqL0Quote.PQSequenceId));
+            pqL0Quote.HasUpdates = false;
         }
+        finally
+        {
+            pqL0Quote.Lock.Release();
+        }
+
+        var written = (int)(currentPtr - writeStart);
+        // var level0Quote = (PQLevel0Quote)message;
+        // logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +
+        //              $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
+        //              $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
+        //              $"{resolvedFlags}.  ThreadName {Thread.CurrentThread.Name}");
+        StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
+        return FinishProcessingMessageReturnValue(message, written);
     }
 
     private int FinishProcessingMessageReturnValue(IVersionedMessage message, int response)
