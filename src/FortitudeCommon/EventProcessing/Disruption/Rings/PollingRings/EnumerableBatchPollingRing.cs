@@ -1,9 +1,9 @@
 ﻿#region
 
 using System.Collections;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
+using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 
