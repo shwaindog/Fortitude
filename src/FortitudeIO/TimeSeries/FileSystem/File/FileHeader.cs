@@ -2,7 +2,7 @@
 
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.OSWrapper.MemoryMappedFiles;
+using FortitudeCommon.OSWrapper.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
 using static FortitudeIO.TimeSeries.FileSystem.File.FortitudeTimeSeriesFileV1HeaderConstants;
 
@@ -166,12 +166,11 @@ public unsafe class FileHeader : IMutableFileHeader
     private readonly ushort internalIndexNumberOfEntries;
     private readonly ushort maxHeaderTextSizeBytes;
     private TwoContiguousPagedFileChunks? fileHeaderMemoryChunk;
-    private UnmanagedMemoryAccessor headerMemoryAccessor;
 
     private ushort headerVersion;
     private DateTime lastBucketsFileReadDateTime;
     private DateTime lastFileSizeFileReadDateTime;
-    private DateTime lastFlagsFileReadDateTime;
+    private DateTime nextFlagsFileReadDateTime;
     private FileFlags shortTermCacheFileFlags;
 
     public FileHeader(TwoContiguousPagedFileChunks startOfFileChunk)
@@ -187,7 +186,7 @@ public unsafe class FileHeader : IMutableFileHeader
             internalIndexNumberOfEntries = StreamByteOps.ToUShort(ref currPtr);
         }
 
-        lastFlagsFileReadDateTime = DateTime.UtcNow;
+        nextFlagsFileReadDateTime = DateTime.UtcNow;
     }
 
     public void Dispose()
@@ -212,7 +211,13 @@ public unsafe class FileHeader : IMutableFileHeader
 
     public FileFlags FileFlags
     {
-        get => shortTermCacheFileFlags;
+        get
+        {
+            if (DateTime.UtcNow < nextFlagsFileReadDateTime || fileHeaderMemoryChunk == null) return shortTermCacheFileFlags;
+            var currPtr = fileHeaderMemoryChunk.ChunkAddress + FileFlagsFileOffset;
+            shortTermCacheFileFlags = (FileFlags)StreamByteOps.ToUShort(ref currPtr);
+            return shortTermCacheFileFlags;
+        }
         set
         {
             if (shortTermCacheFileFlags == value || fileHeaderMemoryChunk == null) return;
@@ -220,7 +225,7 @@ public unsafe class FileHeader : IMutableFileHeader
             StreamByteOps.ToBytes(ref currPtr, (ushort)value);
             shortTermCacheFileFlags = value;
 
-            lastFlagsFileReadDateTime = DateTime.UtcNow;
+            nextFlagsFileReadDateTime = DateTime.UtcNow.AddSeconds(10);
         }
     }
 
