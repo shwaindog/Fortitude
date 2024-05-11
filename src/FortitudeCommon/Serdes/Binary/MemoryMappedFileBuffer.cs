@@ -10,12 +10,13 @@ namespace FortitudeCommon.Serdes.Binary;
 public class MemoryMappedFileBuffer : IBuffer
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MemoryMappedFileBuffer));
-    private readonly TwoContiguousPagedFileChunks contiguousPagedFile;
+    private readonly ShiftableMemoryMappedFileView contiguousPagedFile;
     private int bufferAccessCounter;
-    private IntPtr readCursor;
-    private IntPtr writeCursor;
+    private nint originalBufferRelativeWriteCursor;
+    private nint readCursor;
+    private nint writeCursor;
 
-    public MemoryMappedFileBuffer(TwoContiguousPagedFileChunks contiguousPagedFile) => this.contiguousPagedFile = contiguousPagedFile;
+    public MemoryMappedFileBuffer(ShiftableMemoryMappedFileView contiguousPagedFile) => this.contiguousPagedFile = contiguousPagedFile;
 
     public void Dispose()
     {
@@ -41,7 +42,16 @@ public class MemoryMappedFileBuffer : IBuffer
     }
 
     public nint BufferRelativeReadCursor => readCursor - (nint)contiguousPagedFile.LowerChunkFileCursorOffset;
-    public nint BufferRelativeWriteCursor => writeCursor - (nint)contiguousPagedFile.LowerChunkFileCursorOffset;
+
+    public nint BufferRelativeWriteCursor
+    {
+        get
+        {
+            originalBufferRelativeWriteCursor = writeCursor - (nint)contiguousPagedFile.LowerChunkFileCursorOffset;
+            return originalBufferRelativeWriteCursor;
+        }
+    }
+
     public long Size => PagedMemoryMappedFile.MaxFileCursorOffset;
 
     public nint ReadCursor
@@ -66,6 +76,7 @@ public class MemoryMappedFileBuffer : IBuffer
         get => writeCursor;
         set
         {
+            if (value > writeCursor) contiguousPagedFile.FlushCursorDataToDisk(originalBufferRelativeWriteCursor, (int)(value - writeCursor));
             writeCursor = value;
             if (bufferAccessCounter <= 1)
             {
