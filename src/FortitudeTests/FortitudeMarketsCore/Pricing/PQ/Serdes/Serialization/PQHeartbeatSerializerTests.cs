@@ -134,7 +134,7 @@ public class PQHeartbeatSerializerTests
     [TestMethod]
     public void FullBuffer_Serialize_WritesNothingReturnsNegativeWrittenBytes()
     {
-        readWriteBuffer.WriteCursor = readWriteBuffer.Size - 1;
+        readWriteBuffer.WriteCursor = (nint)readWriteBuffer.Size - 1;
         var amtWritten = pqHeartBeatSerializer
             .Serialize(readWriteBuffer, firstBatchOfQuotes);
 
@@ -144,7 +144,7 @@ public class PQHeartbeatSerializerTests
     [TestMethod]
     public unsafe void AlmostFullBuffer_Serialize_WritesHeaderReturnsNegativeWrittenAmount()
     {
-        readWriteBuffer.WriteCursor = readWriteBuffer.Size - 8;
+        readWriteBuffer.WriteCursor = (nint)readWriteBuffer.Size - 8;
         var amtWritten = pqHeartBeatSerializer.Serialize(readWriteBuffer, firstBatchOfQuotes);
 
         Assert.AreEqual(-1, amtWritten);

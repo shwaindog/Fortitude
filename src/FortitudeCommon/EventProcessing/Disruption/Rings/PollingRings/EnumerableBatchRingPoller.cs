@@ -14,6 +14,7 @@ public interface IEnumerableBatchRingPoller<T> : IRingPoller<T> where T : class
 {
     IRecycler Recycler { get; set; }
     new IEnumerableBatchPollingRing<T> Ring { get; }
+    void WaitForBatchRunsToComplete(int numberOfRuns);
 }
 
 public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<T> where T : class
@@ -96,6 +97,16 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
                 ExecutingThread.Name = Name;
                 ExecutingThread.Start();
             }
+        }
+    }
+
+    public void WaitForBatchRunsToComplete(int numberOfRuns)
+    {
+        for (var i = 0; i < numberOfRuns && isRunning; i++)
+        {
+            are.WaitOne(timeoutMs);
+            are.Set();
+            are.WaitOne(timeoutMs);
         }
     }
 

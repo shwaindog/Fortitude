@@ -43,7 +43,7 @@ public sealed class SocketReceiver : ISocketReceiver
     private const int LargeBufferSize = MaxUdpPacketSize / 4;
     private const double ReportFullThreshold = 0.7;
     private const int ReportEveryNthFullBufferBreach = 1000000;
-    private readonly int bufferSize;
+    private readonly long bufferSize;
     private readonly IFLogger byteStreamLogger;
     private readonly IDirectOSNetworkingApi directOSNetworkingApi;
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketReceiver));

@@ -66,4 +66,9 @@ internal class FLogEventPoller : IEnumerableBatchPollSink<FLogEvent>, IRingPolle
     {
         ringPoller.Start(threadStartInitialize);
     }
+
+    public void WaitUntilDrained()
+    {
+        ringPoller.WaitForBatchRunsToComplete(2);
+    }
 }

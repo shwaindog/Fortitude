@@ -70,8 +70,6 @@ public unsafe class CircularReadWriteBuffer : IBuffer
         bufferShifted = ReadCursor = WriteCursor;
     }
 
-    public bool CanWrite(int size) => RemainingStorage > size;
-
     public void TryHandleRemainingWriteBufferRunningLow()
     {
         if (BufferRelativeReadCursor > 0 && BufferRelativeWriteCursor > 0)
@@ -86,7 +84,9 @@ public unsafe class CircularReadWriteBuffer : IBuffer
 
     public nint RemainingStorage => Buffer.Length - BufferRelativeWriteCursor;
 
-    public int Size => Buffer.Length;
+    public long Size => Buffer.Length;
+
+    public bool CanWrite(int size) => RemainingStorage > size;
 
     ~CircularReadWriteBuffer()
     {

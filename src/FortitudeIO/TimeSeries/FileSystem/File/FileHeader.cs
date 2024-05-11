@@ -177,7 +177,7 @@ public unsafe class FileHeader : IMutableFileHeader
     {
         fileHeaderMemoryChunk = startOfFileChunk;
         {
-            var currPtr = fileHeaderMemoryChunk.ChunkAddress;
+            var currPtr = fileHeaderMemoryChunk.LowerChunkAddress;
             headerVersion = StreamByteOps.ToUShort(ref currPtr);
             if (headerVersion != 1) throw new ArgumentException("File version is not supported");
             shortTermCacheFileFlags = (FileFlags)StreamByteOps.ToUShort(ref currPtr);
@@ -201,7 +201,7 @@ public unsafe class FileHeader : IMutableFileHeader
         set
         {
             if (headerVersion == value || fileHeaderMemoryChunk == null) return;
-            var currPtr = fileHeaderMemoryChunk.ChunkAddress;
+            var currPtr = fileHeaderMemoryChunk.LowerChunkAddress;
             StreamByteOps.ToBytes(ref currPtr, value);
             headerVersion = value;
         }
@@ -214,14 +214,14 @@ public unsafe class FileHeader : IMutableFileHeader
         get
         {
             if (DateTime.UtcNow < nextFlagsFileReadDateTime || fileHeaderMemoryChunk == null) return shortTermCacheFileFlags;
-            var currPtr = fileHeaderMemoryChunk.ChunkAddress + FileFlagsFileOffset;
+            var currPtr = fileHeaderMemoryChunk.LowerChunkAddress + FileFlagsFileOffset;
             shortTermCacheFileFlags = (FileFlags)StreamByteOps.ToUShort(ref currPtr);
             return shortTermCacheFileFlags;
         }
         set
         {
             if (shortTermCacheFileFlags == value || fileHeaderMemoryChunk == null) return;
-            var currPtr = fileHeaderMemoryChunk.ChunkAddress + FileFlagsFileOffset;
+            var currPtr = fileHeaderMemoryChunk.LowerChunkAddress + FileFlagsFileOffset;
             StreamByteOps.ToBytes(ref currPtr, (ushort)value);
             shortTermCacheFileFlags = value;
 
