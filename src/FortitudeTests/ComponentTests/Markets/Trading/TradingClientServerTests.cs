@@ -63,7 +63,7 @@ public class TradingClientServerTests
         logger.Info("Test complete starting shutdown");
         orxClient.Dispose();
         orxTradingServer?.ShutdownImmediate();
-        FLoggerFactory.GracefullyTerminateProcessLogging();
+        // FLoggerFactory.WaitUntilDrained();
     }
 
     [TestCategory("Integration")]

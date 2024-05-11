@@ -90,4 +90,9 @@ public class FLoggerFactory : IFLoggerFactory
     {
         RingPoller.Dispose();
     }
+
+    public static void WaitUntilDrained()
+    {
+        RingPoller.WaitUntilDrained();
+    }
 }

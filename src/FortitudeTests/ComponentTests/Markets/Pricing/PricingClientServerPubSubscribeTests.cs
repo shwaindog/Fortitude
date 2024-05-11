@@ -39,7 +39,7 @@ public class PricingClientServerPubSubscribeTests
     public void TearDown()
     {
         pqClientSetup.TearDown();
-        FLoggerFactory.GracefullyTerminateProcessLogging();
+        // FLoggerFactory.WaitUntilDrained();
     }
 
     [TestCategory("Integration")]

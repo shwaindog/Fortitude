@@ -67,8 +67,6 @@ public unsafe class WindowsDirectMemoryApi : IOSDirectMemoryApi
     private const nint MinimumPageSize = ushort.MaxValue + 1;
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(WindowsDirectMemoryApi));
 
-    public static nint CurrentProcessHandle = Process.GetCurrentProcess().Handle;
-
     public WindowsDirectMemoryApi()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -92,11 +90,11 @@ public unsafe class WindowsDirectMemoryApi : IOSDirectMemoryApi
     public bool DecommitPageMemory(void* previouslyCommittedAddress, int numberOfPages)
     {
         var size = numberOfPages * MinimumRequiredPageSize;
-        return VirtualFreeEx(CurrentProcessHandle, previouslyCommittedAddress, size, FreeType.Decommit);
+        return VirtualFreeEx(Process.GetCurrentProcess().Handle, previouslyCommittedAddress, size, FreeType.Decommit);
     }
 
     public bool ReleaseReserveMemoryRangeInPages(void* previouslyReservedAddress, int numberOfPages) =>
-        VirtualFreeEx(CurrentProcessHandle, previouslyReservedAddress, 0, FreeType.Release);
+        VirtualFreeEx(Process.GetCurrentProcess().Handle, previouslyReservedAddress, 0, FreeType.Release);
 
     void* IOSDirectMemoryApi.memcpy(void* dest, void* src, ulong count) => memcpy(dest, src, count);
 

@@ -1,6 +1,5 @@
 ﻿#region
 
-using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
@@ -71,7 +70,7 @@ public class UdpPubSubConnectionTests
     {
         conversationSubscriber.Stop(CloseReason.Completed, "Test closing down");
         conversationPublisher.Stop(CloseReason.Completed, "Test closing down");
-        FLoggerFactory.GracefullyTerminateProcessLogging();
+        // FLoggerFactory.WaitUntilDrained();
     }
 
     [TestMethod]

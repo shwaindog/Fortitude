@@ -102,7 +102,7 @@ public class TcpRequestResponderConnectionTests
     {
         tcpRequester.Stop();
         tcpResponder.Stop();
-        FLoggerFactory.GracefullyTerminateProcessLogging();
+        // FLoggerFactory.WaitUntilDrained();
     }
 
     [TestMethod]
