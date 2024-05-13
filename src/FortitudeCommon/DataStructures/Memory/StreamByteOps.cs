@@ -114,6 +114,33 @@ public static unsafe class StreamByteOps
         }
     }
 
+    public static void ToBytes(ref byte* ptr, ulong value)
+    {
+        var data = (byte*)&value;
+        if (BitConverter.IsLittleEndian)
+        {
+            *ptr++ = *(data + 7);
+            *ptr++ = *(data + 6);
+            *ptr++ = *(data + 5);
+            *ptr++ = *(data + 4);
+            *ptr++ = *(data + 3);
+            *ptr++ = *(data + 2);
+            *ptr++ = *(data + 1);
+            *ptr++ = *data;
+        }
+        else
+        {
+            *ptr++ = *data++;
+            *ptr++ = *data++;
+            *ptr++ = *data++;
+            *ptr++ = *data++;
+            *ptr++ = *data++;
+            *ptr++ = *data++;
+            *ptr++ = *data++;
+            *ptr++ = *data;
+        }
+    }
+
     public static void ToBytes(ref byte* ptr, double value)
     {
         var data = (byte*)&value;
@@ -398,6 +425,36 @@ public static unsafe class StreamByteOps
     public static long ToLong(ref byte* ptr)
     {
         long buffer;
+        var data = (byte*)&buffer;
+        if (BitConverter.IsLittleEndian)
+        {
+            *(data + 7) = *ptr++;
+            *(data + 6) = *ptr++;
+            *(data + 5) = *ptr++;
+            *(data + 4) = *ptr++;
+            *(data + 3) = *ptr++;
+            *(data + 2) = *ptr++;
+            *(data + 1) = *ptr++;
+            *data = *ptr++;
+        }
+        else
+        {
+            *data++ = *ptr++;
+            *data++ = *ptr++;
+            *data++ = *ptr++;
+            *data++ = *ptr++;
+            *data++ = *ptr++;
+            *data++ = *ptr++;
+            *data++ = *ptr++;
+            *data = *ptr++;
+        }
+
+        return buffer;
+    }
+
+    public static ulong ToULong(ref byte* ptr)
+    {
+        ulong buffer;
         var data = (byte*)&buffer;
         if (BitConverter.IsLittleEndian)
         {
