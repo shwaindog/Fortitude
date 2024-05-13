@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 
 #endregion
 
@@ -9,7 +10,7 @@ namespace FortitudeMarketsApi.Pricing.Conflation;
 public interface IPeriodSummary : ICloneable<IPeriodSummary>, IInterfacesComparable<IPeriodSummary>
     , IStoreState<IPeriodSummary>
 {
-    TimeFrame TimeFrame { get; }
+    TimeSeriesPeriod TimeSeriesPeriod { get; }
     DateTime StartTime { get; }
     DateTime EndTime { get; }
     decimal StartBidPrice { get; }

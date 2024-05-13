@@ -28,7 +28,7 @@ public class MemoryMappedFileBuffer : IBuffer
         get
         {
             Interlocked.Increment(ref bufferAccessCounter);
-            return contiguousPagedFile.LowerChunkAddress;
+            return contiguousPagedFile.LowerHalfViewVirtualMemoryAddress;
         }
     }
 
@@ -37,17 +37,17 @@ public class MemoryMappedFileBuffer : IBuffer
         get
         {
             Interlocked.Increment(ref bufferAccessCounter);
-            return contiguousPagedFile.LowerChunkAddress;
+            return contiguousPagedFile.LowerHalfViewVirtualMemoryAddress;
         }
     }
 
-    public nint BufferRelativeReadCursor => readCursor - (nint)contiguousPagedFile.LowerChunkFileCursorOffset;
+    public nint BufferRelativeReadCursor => readCursor - (nint)contiguousPagedFile.LowerViewFileCursorOffset;
 
     public nint BufferRelativeWriteCursor
     {
         get
         {
-            originalBufferRelativeWriteCursor = writeCursor - (nint)contiguousPagedFile.LowerChunkFileCursorOffset;
+            originalBufferRelativeWriteCursor = writeCursor - (nint)contiguousPagedFile.LowerViewFileCursorOffset;
             return originalBufferRelativeWriteCursor;
         }
     }
@@ -62,7 +62,7 @@ public class MemoryMappedFileBuffer : IBuffer
             readCursor = value;
             if (bufferAccessCounter <= 1)
             {
-                var moved = contiguousPagedFile.EnsureLowerChunkContainsFileCursorOffset(readCursor, true);
+                var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(readCursor, true);
                 if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
             }
         }
@@ -80,24 +80,24 @@ public class MemoryMappedFileBuffer : IBuffer
             writeCursor = value;
             if (bufferAccessCounter <= 1)
             {
-                var moved = contiguousPagedFile.EnsureLowerChunkContainsFileCursorOffset(writeCursor, true);
+                var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(writeCursor, true);
                 if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
             }
         }
     }
 
-    public nint RemainingStorage => (nint)contiguousPagedFile.EndFileCursor - writeCursor;
+    public nint RemainingStorage => (nint)contiguousPagedFile.HighestFileCursor - writeCursor;
 
     public void SetAllRead()
     {
         readCursor = writeCursor;
-        var moved = contiguousPagedFile.EnsureLowerChunkContainsFileCursorOffset(readCursor, true);
+        var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(readCursor, true);
         if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
     }
 
     public void TryHandleRemainingWriteBufferRunningLow()
     {
-        var moved = contiguousPagedFile.EnsureLowerChunkContainsFileCursorOffset(writeCursor, true);
+        var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(writeCursor, true);
         if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
     }
 

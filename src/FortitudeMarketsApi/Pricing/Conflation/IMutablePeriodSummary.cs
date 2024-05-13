@@ -1,8 +1,14 @@
-﻿namespace FortitudeMarketsApi.Pricing.Conflation;
+﻿#region
+
+using FortitudeIO.TimeSeries;
+
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.Conflation;
 
 public interface IMutablePeriodSummary : IPeriodSummary
 {
-    new TimeFrame TimeFrame { get; set; }
+    new TimeSeriesPeriod TimeSeriesPeriod { get; set; }
     new DateTime StartTime { get; set; }
     new DateTime EndTime { get; set; }
     new decimal StartBidPrice { get; set; }
