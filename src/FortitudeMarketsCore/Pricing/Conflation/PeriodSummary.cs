@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Conflation;
 
 #endregion
@@ -10,14 +11,14 @@ namespace FortitudeMarketsCore.Pricing.Conflation;
 
 public class PeriodSummary : IMutablePeriodSummary
 {
-    private TimeFrame timeFrame;
+    private TimeSeriesPeriod timeSeriesPeriod;
 
-    public PeriodSummary(TimeFrame timeFrame = TimeFrame.Unknown, DateTime? startTime = null, DateTime? endTime = null,
+    public PeriodSummary(TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m,
         decimal highestAskPrice = 0m, decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m,
         decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u, long periodVolume = 0L)
     {
-        TimeFrame = timeFrame;
+        TimeSeriesPeriod = timeSeriesPeriod;
         StartTime = startTime ?? DateTimeConstants.UnixEpoch;
         EndTime = endTime ?? DateTimeConstants.UnixEpoch;
         StartBidPrice = startBidPrice;
@@ -34,7 +35,7 @@ public class PeriodSummary : IMutablePeriodSummary
 
     public PeriodSummary(IPeriodSummary toClone)
     {
-        TimeFrame = toClone.TimeFrame;
+        TimeSeriesPeriod = toClone.TimeSeriesPeriod;
         StartTime = toClone.StartTime;
         EndTime = toClone.EndTime;
         StartBidPrice = toClone.StartBidPrice;
@@ -49,14 +50,14 @@ public class PeriodSummary : IMutablePeriodSummary
         PeriodVolume = toClone.PeriodVolume;
     }
 
-    public TimeFrame TimeFrame
+    public TimeSeriesPeriod TimeSeriesPeriod
     {
         get
         {
-            if (timeFrame == TimeFrame.Unknown) timeFrame = this.CalcTimeFrame();
-            return timeFrame;
+            if (timeSeriesPeriod == TimeSeriesPeriod.None) timeSeriesPeriod = this.CalcTimeFrame();
+            return timeSeriesPeriod;
         }
-        set => timeFrame = value;
+        set => timeSeriesPeriod = value;
     }
 
     public DateTime StartTime { get; set; }
@@ -74,7 +75,7 @@ public class PeriodSummary : IMutablePeriodSummary
 
     public IPeriodSummary CopyFrom(IPeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        TimeFrame = source.TimeFrame;
+        TimeSeriesPeriod = source.TimeSeriesPeriod;
         StartTime = source.StartTime;
         EndTime = source.EndTime;
         StartBidPrice = source.StartBidPrice;
@@ -90,8 +91,7 @@ public class PeriodSummary : IMutablePeriodSummary
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPeriodSummary)source, copyMergeFlags);
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPeriodSummary)source, copyMergeFlags);
 
     object ICloneable.Clone() => Clone();
 
@@ -103,7 +103,7 @@ public class PeriodSummary : IMutablePeriodSummary
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame = TimeFrame == other.TimeFrame;
+        var timeFrameSame = TimeSeriesPeriod == other.TimeSeriesPeriod;
         var startTimeSame = StartTime.Equals(other.StartTime);
         var endTimeSame = EndTime.Equals(other.EndTime);
         var startBidPriceSame = StartBidPrice == other.StartBidPrice;
@@ -128,7 +128,7 @@ public class PeriodSummary : IMutablePeriodSummary
     {
         unchecked
         {
-            var hashCode = (int)TimeFrame;
+            var hashCode = (int)TimeSeriesPeriod;
             hashCode = (hashCode * 397) ^ StartTime.GetHashCode();
             hashCode = (hashCode * 397) ^ EndTime.GetHashCode();
             hashCode = (hashCode * 397) ^ StartBidPrice.GetHashCode();
@@ -144,7 +144,7 @@ public class PeriodSummary : IMutablePeriodSummary
     }
 
     public override string ToString() =>
-        $"PeriodSummary {{ {nameof(TimeFrame)}: {TimeFrame}, {nameof(StartTime)}: {StartTime:O}, " +
+        $"PeriodSummary {{ {nameof(TimeSeriesPeriod)}: {TimeSeriesPeriod}, {nameof(StartTime)}: {StartTime:O}, " +
         $"{nameof(EndTime)}: {EndTime:O}, {nameof(StartBidPrice)}: {StartBidPrice:N5}, " +
         $"{nameof(StartAskPrice)}: {StartAskPrice:N5}, {nameof(HighestBidPrice)}: {HighestBidPrice:N5}, " +
         $"{nameof(HighestAskPrice)}: {HighestAskPrice:N5}, {nameof(LowestBidPrice)}: {LowestBidPrice:N5}, " +

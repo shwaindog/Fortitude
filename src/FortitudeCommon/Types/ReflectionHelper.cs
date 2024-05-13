@@ -22,6 +22,25 @@ public static class ReflectionHelper
             Expression.New(typeof(TClass).GetConstructor(new[] { typeof(TParam) })!, ctorParam), ctorParam).Compile();
     }
 
+    public static Func<TParam1, TParam2, TClass> CtorBinder<TParam1, TParam2, TClass>()
+    {
+        var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
+        var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
+        return Expression.Lambda<Func<TParam1, TParam2, TClass>>(
+            Expression.New(typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!, ctorParam1, ctorParam2), ctorParam1
+            , ctorParam2).Compile();
+    }
+
+    public static Func<TParam1, TParam2, TParam3, TClass> CtorBinder<TParam1, TParam2, TParam3, TClass>()
+    {
+        var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
+        var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
+        var ctorParam3 = Expression.Parameter(typeof(TParam3), "Param3");
+        return Expression.Lambda<Func<TParam1, TParam2, TParam3, TClass>>(
+            Expression.New(typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3) })!, ctorParam1, ctorParam2
+                , ctorParam3), ctorParam1, ctorParam2, ctorParam3).Compile();
+    }
+
     /// <summary>
     ///     Gets a member from an object
     ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
@@ -207,8 +226,7 @@ public static class ReflectionHelper
     /// <typeparam name="T"></typeparam>
     /// <param name="typeToInstantiate"></param>
     /// <returns></returns>
-    public static T? Instantiate<T>(Type typeToInstantiate) =>
-        (T?)typeToInstantiate.Assembly.CreateInstance(typeToInstantiate.FullName!);
+    public static T? Instantiate<T>(Type typeToInstantiate) => (T?)typeToInstantiate.Assembly.CreateInstance(typeToInstantiate.FullName!);
 
 
     /// <summary>
@@ -303,8 +321,7 @@ public static class ReflectionHelper
     /// <param name="object">Object to look on</param>
     /// <param name="recursive">Browse the object tree recursively to find all the occurrences of the object</param>
     /// <returns>List of objects of type T</returns>
-    public static List<T> GetProperties<T>(object @object, bool recursive) =>
-        GetProperties<T>(@object, recursive, new List<object>());
+    public static List<T> GetProperties<T>(object @object, bool recursive) => GetProperties<T>(@object, recursive, new List<object>());
 
     /// <summary>
     ///     Get the name of the method which called this method
@@ -400,8 +417,7 @@ public static class ReflectionHelper
         return propertyInfos;
     }
 
-    private static MemberExpression GetMemberExpression<T, TU>(Expression<Func<T, TU>> expression) =>
-        GetMemberExpression(expression, true);
+    private static MemberExpression GetMemberExpression<T, TU>(Expression<Func<T, TU>> expression) => GetMemberExpression(expression, true);
 
     private static MemberExpression GetMemberExpression<T, TU>(Expression<Func<T, TU>> expression, bool enforceCheck)
     {

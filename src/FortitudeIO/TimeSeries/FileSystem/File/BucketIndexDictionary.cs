@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.OSWrapper.Memory;
+using FortitudeIO.TimeSeries.FileSystem.File.Header;
 
 #endregion
 

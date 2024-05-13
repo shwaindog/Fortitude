@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -26,14 +27,14 @@ public class PQPeriodSummary : IPQPeriodSummary
     private decimal startBidPrice;
     private DateTime startTime = DateTimeConstants.UnixEpoch;
     private uint tickCount;
-    private TimeFrame timeFrame;
+    private TimeSeriesPeriod timeSeriesPeriod;
     private PeriodSummaryUpdatedFlags updatedFlags;
 
     public PQPeriodSummary() { }
 
     public PQPeriodSummary(IPeriodSummary toClone)
     {
-        TimeFrame = toClone.TimeFrame;
+        TimeSeriesPeriod = toClone.TimeSeriesPeriod;
         StartTime = toClone.StartTime;
         EndTime = toClone.EndTime;
         StartBidPrice = toClone.StartBidPrice;
@@ -48,14 +49,14 @@ public class PQPeriodSummary : IPQPeriodSummary
         PeriodVolume = toClone.PeriodVolume;
     }
 
-    public TimeFrame TimeFrame
+    public TimeSeriesPeriod TimeSeriesPeriod
     {
         get
         {
-            if (timeFrame == TimeFrame.Unknown) timeFrame = this.CalcTimeFrame();
-            return timeFrame;
+            if (timeSeriesPeriod == TimeSeriesPeriod.None) timeSeriesPeriod = this.CalcTimeFrame();
+            return timeSeriesPeriod;
         }
-        set => timeFrame = value;
+        set => timeSeriesPeriod = value;
     }
 
     public DateTime StartTime
@@ -547,7 +548,7 @@ public class PQPeriodSummary : IPQPeriodSummary
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame = TimeFrame == other.TimeFrame;
+        var timeFrameSame = TimeSeriesPeriod == other.TimeSeriesPeriod;
         var startTimeSame = StartTime.Equals(other.StartTime);
         var endTimeSame = EndTime.Equals(other.EndTime);
         var startBidPriceSame = StartBidPrice == other.StartBidPrice;
@@ -596,7 +597,7 @@ public class PQPeriodSummary : IPQPeriodSummary
     }
 
     public override string ToString() =>
-        $"PQPeriodSummary {{ {nameof(TimeFrame)}: {TimeFrame}, {nameof(StartTime)}: {StartTime}, " +
+        $"PQPeriodSummary {{ {nameof(TimeSeriesPeriod)}: {TimeSeriesPeriod}, {nameof(StartTime)}: {StartTime}, " +
         $"{nameof(EndTime)}: {EndTime}, {nameof(StartBidPrice)}: {StartBidPrice}, {nameof(StartAskPrice)}:" +
         $" {StartAskPrice}, {nameof(HighestBidPrice)}: {HighestBidPrice}, {nameof(HighestAskPrice)}: " +
         $"{HighestAskPrice}, {nameof(LowestBidPrice)}: {LowestBidPrice}, {nameof(LowestAskPrice)}: " +

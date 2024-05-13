@@ -9,224 +9,20 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.OSWrapper.Memory;
 
-public unsafe class ShiftableMemoryMappedFileView : IDisposable
-{
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(ShiftableMemoryMappedFileView));
-    private static readonly EndOfFileEmptyChunk BeyondEndOfFileChunk = new();
-
-    private readonly bool closePagedMemoryMappedFileOnDispose;
-    private readonly IOSDirectMemoryApi osDirectMemoryApi;
-    private readonly PagedMemoryMappedFile pagedMemoryMappedFile;
-    private readonly int twoChunkSize;
-    private void* foundTwoChunkVirtualMemoryRegion;
-    private bool isDisposed;
-    private MappedPagedFileChunk? lowerContiguousChunk;
-    private MappedPagedFileChunk? upperContiguousChunk;
-
-    public ShiftableMemoryMappedFileView(PagedMemoryMappedFile pagedMemoryMappedFile, bool closePagedMemoryMappedFileOnDispose)
-    {
-        this.closePagedMemoryMappedFileOnDispose = closePagedMemoryMappedFileOnDispose;
-        try
-        {
-            this.pagedMemoryMappedFile = pagedMemoryMappedFile;
-            UpperChunkTriggerChunkShiftTolerance = pagedMemoryMappedFile.ChunkSizeBytes / 4;
-            if (closePagedMemoryMappedFileOnDispose) pagedMemoryMappedFile.IncrementUsageCount();
-            osDirectMemoryApi = MemoryUtils.OsDirectMemoryAccess;
-            twoChunkSize = pagedMemoryMappedFile.ChunkPageSize * 2;
-            foundTwoChunkVirtualMemoryRegion = FindTwoChunkFreeVirtualMemorySlot();
-            lowerContiguousChunk = pagedMemoryMappedFile.CreatePagedFileChunk(0, foundTwoChunkVirtualMemoryRegion)!;
-            if (lowerContiguousChunk == null)
-            {
-                RemapChunksOnReservedMemory(0, 2);
-                return;
-            }
-
-            upperContiguousChunk = pagedMemoryMappedFile.CreatePagedFileChunk(1,
-                lowerContiguousChunk.Address + pagedMemoryMappedFile.ChunkSizeBytes)!;
-        }
-        catch (Exception ex)
-        {
-            Logger.Warn("Caught exception trying to create TwoContiguousPagedFileChunks on file {0}. Got {1}", pagedMemoryMappedFile.FileStream.Name
-                , ex);
-            Dispose();
-            throw;
-        }
-    }
-
-    public byte* LowerChunkAddress => lowerContiguousChunk != null ? lowerContiguousChunk.Address : null;
-
-    public byte* EndAddress =>
-        IsUpperChunkAvailableForContiguousReadWrite ? upperContiguousChunk!.Address + ChunkSizeBytes : lowerContiguousChunk!.Address + ChunkSizeBytes;
-
-    public long EndFileCursor =>
-        IsUpperChunkAvailableForContiguousReadWrite ?
-            upperContiguousChunk!.StartFileCursorOffset + ChunkSizeBytes :
-            lowerContiguousChunk!.StartFileCursorOffset + ChunkSizeBytes;
-
-    public long ChunkSizeBytes => pagedMemoryMappedFile.ChunkSizeBytes;
-    public long LowerChunkNumber => lowerContiguousChunk!.FileChunkNumber;
-
-    public long UpperChunkTriggerChunkShiftTolerance { get; set; }
-
-    public long Size => ChunkSizeBytes + (IsUpperChunkAvailableForContiguousReadWrite ? ChunkSizeBytes : 0);
-
-    public long LowerChunkFileCursorOffset => lowerContiguousChunk?.StartFileCursorOffset ?? 0;
-
-    public bool IsUpperChunkAvailableForContiguousReadWrite =>
-        upperContiguousChunk is not null or EndOfFileEmptyChunk && lowerContiguousChunk != null
-                                                                && upperContiguousChunk.Address == lowerContiguousChunk.Address +
-                                                                ChunkSizeBytes;
-
-    public void Dispose()
-    {
-        if (isDisposed) return;
-        Logger.Debug("Close TwoContiguousPagedFileChunks to file {0}", pagedMemoryMappedFile.FileStream.Name);
-        isDisposed = true;
-        if (lowerContiguousChunk != null) pagedMemoryMappedFile.FreeChunk(lowerContiguousChunk);
-        if (upperContiguousChunk != null) pagedMemoryMappedFile.FreeChunk(upperContiguousChunk);
-        if (closePagedMemoryMappedFileOnDispose) pagedMemoryMappedFile.DecrementUsageCount();
-    }
-
-    private void* FindTwoChunkFreeVirtualMemorySlot()
-    {
-        var emptyReservedSpace = osDirectMemoryApi.ReserveMemoryRangeInPages(null, twoChunkSize);
-        var wasReleased = osDirectMemoryApi.ReleaseReserveMemoryRangeInPages(emptyReservedSpace, twoChunkSize);
-        // Logger.Debug("Found two chunk free slot at {0:X} to {1:X}", (nint)emptyReservedSpace, (nint)emptyReservedSpace + ChunkSizeBytes * 2);
-        if (!wasReleased)
-        {
-            var memMapFileError = Marshal.GetLastPInvokeError();
-            if (memMapFileError != 0)
-                Logger.Warn("Got Error code {0} when trying to free reserved memory at {1:X}", memMapFileError, (nint)emptyReservedSpace);
-            else
-                Logger.Warn("Failed to release memory at {0:X}", (nint)emptyReservedSpace);
-        }
-
-        return emptyReservedSpace;
-    }
-
-    ~ShiftableMemoryMappedFileView()
-    {
-        Dispose();
-    }
-
-    public bool NextChunk(bool shouldGrow = false)
-    {
-        if (upperContiguousChunk is null or EndOfFileEmptyChunk) return false;
-        var requiredFileSize = (upperContiguousChunk.FileChunkNumber + 1) * ChunkSizeBytes + ChunkSizeBytes;
-        MappedPagedFileChunk? nextChunk;
-        if (pagedMemoryMappedFile.FileStream.Length < requiredFileSize)
-        {
-            if (!shouldGrow)
-            {
-                if (upperContiguousChunk is EndOfFileEmptyChunk) return false;
-                if (lowerContiguousChunk != null) pagedMemoryMappedFile.FreeChunk(lowerContiguousChunk);
-                lowerContiguousChunk = upperContiguousChunk;
-                upperContiguousChunk = BeyondEndOfFileChunk;
-                return true;
-            }
-
-            nextChunk = pagedMemoryMappedFile.GrowAndReturnChunk(upperContiguousChunk.FileChunkNumber + 1,
-                upperContiguousChunk.Address + ChunkSizeBytes);
-        }
-        else
-        {
-            nextChunk = pagedMemoryMappedFile.CreatePagedFileChunk(upperContiguousChunk.FileChunkNumber + 1,
-                upperContiguousChunk.Address + ChunkSizeBytes);
-        }
-
-        if (nextChunk == null) return RemapChunksOnReservedMemory(upperContiguousChunk.FileChunkNumber);
-        if (lowerContiguousChunk != null) pagedMemoryMappedFile.FreeChunk(lowerContiguousChunk);
-        lowerContiguousChunk = upperContiguousChunk;
-        upperContiguousChunk = nextChunk;
-        return true;
-    }
-
-    public bool RemapChunksOnReservedMemory(int lowerChunkPageNumber, int attemptCountDown = 3)
-    {
-        if (attemptCountDown < 0)
-            throw new Exception("Unexpected mapping failed on reserved memory.  " +
-                                "Previous file chunks were not released properly");
-
-        if (lowerContiguousChunk != null) pagedMemoryMappedFile.FreeChunk(lowerContiguousChunk);
-        lowerContiguousChunk = null;
-        if (upperContiguousChunk != null) pagedMemoryMappedFile.FreeChunk(upperContiguousChunk);
-        upperContiguousChunk = null;
-        var allocationAddress = attemptCountDown == 3 ? foundTwoChunkVirtualMemoryRegion : null;
-        if (attemptCountDown < 3)
-        {
-            foundTwoChunkVirtualMemoryRegion = FindTwoChunkFreeVirtualMemorySlot();
-            allocationAddress = attemptCountDown != 0 ? foundTwoChunkVirtualMemoryRegion : null;
-        }
-
-        var checkChunk = pagedMemoryMappedFile.CreatePagedFileChunk(lowerChunkPageNumber, allocationAddress);
-        if (checkChunk == null) return RemapChunksOnReservedMemory(lowerChunkPageNumber, attemptCountDown - 1);
-        lowerContiguousChunk = checkChunk;
-
-        var requiredFileSize = (lowerChunkPageNumber + 1) * ChunkSizeBytes + ChunkSizeBytes;
-        if (pagedMemoryMappedFile.FileStream.Length < requiredFileSize)
-        {
-            upperContiguousChunk = BeyondEndOfFileChunk;
-            return true;
-        }
-
-        checkChunk = pagedMemoryMappedFile.CreatePagedFileChunk(lowerChunkPageNumber + 1,
-            lowerContiguousChunk.Address + ChunkSizeBytes);
-        if (checkChunk == null) return RemapChunksOnReservedMemory(lowerChunkPageNumber, attemptCountDown - 1);
-        upperContiguousChunk = checkChunk;
-        return true;
-    }
-
-    public byte* FileCursorBufferPointer(long fileCursorOffset)
-    {
-        EnsureLowerChunkContainsFileCursorOffset(fileCursorOffset, false);
-        return LowerChunkAddress + fileCursorOffset - LowerChunkFileCursorOffset;
-    }
-
-    public bool EnsureLowerChunkContainsFileCursorOffset(long fileCursorOffset, bool shouldGrow = false)
-    {
-        if (fileCursorOffset > PagedMemoryMappedFile.MaxFileCursorOffset)
-            throw new ArgumentOutOfRangeException(
-                $"To protect file system the maximum allowed file cursor offset is limited to {PagedMemoryMappedFile.MaxFileCursorOffset}.  Requested {fileCursorOffset}");
-        var upperChunkIsBeyondEndOfFile = upperContiguousChunk is EndOfFileEmptyChunk or null;
-        var allowedUpperChunk = !upperChunkIsBeyondEndOfFile ? UpperChunkTriggerChunkShiftTolerance : 0;
-        if (fileCursorOffset >= lowerContiguousChunk!.StartFileCursorOffset
-            && fileCursorOffset < lowerContiguousChunk.StartFileCursorOffset + pagedMemoryMappedFile.ChunkSizeBytes + allowedUpperChunk)
-            return false;
-        if ((upperChunkIsBeyondEndOfFile && shouldGrow) || (!upperChunkIsBeyondEndOfFile &&
-                                                            fileCursorOffset >= upperContiguousChunk!.StartFileCursorOffset &&
-                                                            fileCursorOffset < upperContiguousChunk.StartFileCursorOffset +
-                                                            pagedMemoryMappedFile.ChunkSizeBytes))
-        {
-            NextChunk(shouldGrow);
-            return true;
-        }
-
-        var foundChunkPageNumber
-            = pagedMemoryMappedFile.FindChunkPageNumberContainingCursor(fileCursorOffset, foundTwoChunkVirtualMemoryRegion, shouldGrow);
-        if (foundChunkPageNumber == null) throw new Exception("Attempted to set cursor beyond end of file");
-        RemapChunksOnReservedMemory(foundChunkPageNumber.Value);
-        return true;
-    }
-
-    public bool FlushCursorDataToDisk(long fileCursorOffset, int sizeToFlush)
-    {
-        var wasFlushed = lowerContiguousChunk != null && pagedMemoryMappedFile.Flush(lowerContiguousChunk, fileCursorOffset, sizeToFlush);
-        wasFlushed |= upperContiguousChunk != null && pagedMemoryMappedFile.Flush(upperContiguousChunk, fileCursorOffset, sizeToFlush);
-        return wasFlushed;
-    }
-}
-
-public unsafe class MappedPagedFileChunk : IDisposable
+public unsafe class MappedViewRegion : IDisposable
 {
     private readonly UsageCountedMemoryMappedFile usageCountedMemoryMappedFile;
     public byte* Address;
-    public int FileChunkNumber;
+    public int FileViewChunkNumber;
     public long StartFileCursorOffset;
+    public int ViewSizeInPages;
 
-    public MappedPagedFileChunk(UsageCountedMemoryMappedFile usageCountedMemoryMappedFile, int fileChunkNumber, long fileCursorPosition)
+    public MappedViewRegion(UsageCountedMemoryMappedFile usageCountedMemoryMappedFile, int fileViewChunkNumber, int viewSizeInPages
+        , long fileCursorPosition)
     {
         this.usageCountedMemoryMappedFile = usageCountedMemoryMappedFile;
-        FileChunkNumber = fileChunkNumber;
+        FileViewChunkNumber = fileViewChunkNumber;
+        ViewSizeInPages = viewSizeInPages;
         StartFileCursorOffset = fileCursorPosition;
     }
 
@@ -236,9 +32,9 @@ public unsafe class MappedPagedFileChunk : IDisposable
     }
 }
 
-public unsafe class EndOfFileEmptyChunk : MappedPagedFileChunk
+public unsafe class EndOfFileEmptyChunk : MappedViewRegion
 {
-    public EndOfFileEmptyChunk() : base(null!, 0, 0) => Address = null;
+    public EndOfFileEmptyChunk() : base(null!, 0, 0, 0) => Address = null;
 }
 
 public class UsageCountedMemoryMappedFile
@@ -282,35 +78,29 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
     private bool isDisposed;
     private int liveCount;
 
-    public PagedMemoryMappedFile(string filePath, int requestedChunkPageSize)
+    public PagedMemoryMappedFile(string filePath)
     {
         IncrementUsageCount();
         osDirectMemoryApi = osDirectMemoryApi = MemoryUtils.OsDirectMemoryAccess;
         PageSize = (int)osDirectMemoryApi.MinimumRequiredPageSize;
-        ChunkPageSize = requestedChunkPageSize <= 1 ? 1 : MemoryUtils.CeilingNextPowerOfTwo(requestedChunkPageSize);
-        ChunkSizeBytes = (int)(ChunkPageSize * PageSize);
-        var minimumFileSizeForTwoChunks = ChunkSizeBytes * 2;
-        if (minimumFileSizeForTwoChunks <= 0) minimumFileSizeForTwoChunks = PageSize * 2;
+        var minimumFileSizeForSmallestView = PageSize * 2;
+        if (minimumFileSizeForSmallestView <= 0) minimumFileSizeForSmallestView = PageSize * 2;
         var existingFile = File.Exists(filePath);
         fileStream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
         if (existingFile)
         {
             var fileSize = fileStream.Length;
-            if (fileStream.Length % ChunkSizeBytes != 0)
+            if (fileStream.Length < minimumFileSizeForSmallestView || fileStream.Length % minimumFileSizeForSmallestView != 0)
             {
-                var growFileSize = fileSize % ChunkSizeBytes + ChunkSizeBytes;
+                var growFileSize = fileSize % minimumFileSizeForSmallestView + fileSize;
                 fileStream.SetLength(growFileSize);
             }
         }
         else
         {
-            fileStream.SetLength(minimumFileSizeForTwoChunks);
+            fileStream.SetLength(minimumFileSizeForSmallestView);
         }
     }
-
-    public int ChunkPageSize { get; }
-
-    public int ChunkSizeBytes { get; }
 
     public FileStream FileStream
     {
@@ -335,9 +125,21 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         fileStream.Dispose();
     }
 
-    public ShiftableMemoryMappedFileView CreateTwoContiguousPagedFileChunks(bool closePagedMemoryMappedFileOnDispose = true)
+    public ShiftableMemoryMappedFileView CreateShiftableMemoryMappedFileView(int halfViewPageSize = 1, int reserveRegionMultiple = 1
+        , bool closePagedMemoryMappedFileOnDispose = true)
     {
-        var result = new ShiftableMemoryMappedFileView(this, closePagedMemoryMappedFileOnDispose);
+        var halfViewNumberOfPages = halfViewPageSize <= 1 ? 1 : MemoryUtils.CeilingNextPowerOfTwo(halfViewPageSize);
+        var halfViewSizeBytes = (int)(halfViewNumberOfPages * PageSize);
+        var minimumFileSizeForView = halfViewSizeBytes * 2;
+        if (minimumFileSizeForView <= 0) minimumFileSizeForView = PageSize * 2;
+        var fileSize = fileStream.Length;
+        if (fileStream.Length % minimumFileSizeForView != 0)
+        {
+            var growFileSize = fileSize % minimumFileSizeForView + fileSize;
+            fileStream.SetLength(growFileSize);
+        }
+
+        var result = new ShiftableMemoryMappedFileView(this, halfViewNumberOfPages, reserveRegionMultiple, closePagedMemoryMappedFileOnDispose);
         if (closePagedMemoryMappedFileOnDispose) DecrementUsageCount();
         return result;
     }
@@ -357,20 +159,21 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         return liveCount;
     }
 
-    public void FreeChunk(MappedPagedFileChunk toBeFreed)
+    public void FreeChunk(MappedViewRegion toBeFreed)
     {
         if (toBeFreed is not EndOfFileEmptyChunk)
         {
-            osDirectMemoryApi.ReleaseViewOfFile(toBeFreed.Address, ChunkSizeBytes);
+            osDirectMemoryApi.ReleaseViewOfFile(toBeFreed.Address, toBeFreed.ViewSizeInPages * PageSize);
             toBeFreed.Dispose();
             DecrementUsageCount();
         }
     }
 
-    public MappedPagedFileChunk? CreatePagedFileChunk(int fileChunkNumber, void* atAddress)
+    public MappedViewRegion? CreatePagedFileChunk(int fileChunkNumber, int sizeInPages, void* atAddress)
     {
         CheckDisposed();
-        var expectedFileSize = fileChunkNumber * ChunkSizeBytes + ChunkSizeBytes;
+        var chunkSizeBytes = sizeInPages * PageSize;
+        var expectedFileSize = fileChunkNumber * chunkSizeBytes + chunkSizeBytes;
         if (fileStream.Length < expectedFileSize) return null;
         if (currentLargestRefCountedMemoryMappedFile == null || currentLargestRefCountedMemoryMappedFile.MemoryMappedFileSize < FileStream.Length)
         {
@@ -382,8 +185,8 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         }
 
         var address = osDirectMemoryApi.MapPageViewOfFile(currentLargestRefCountedMemoryMappedFile.MemoryMappedFileHandle
-            , fileChunkNumber * ChunkPageSize
-            , ChunkPageSize
+            , fileChunkNumber * sizeInPages
+            , sizeInPages
             , atAddress);
         if (address == null)
         {
@@ -404,33 +207,35 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
 
         IncrementUsageCount();
         var mappedPagedFileChunk
-            = new MappedPagedFileChunk(currentLargestRefCountedMemoryMappedFile.IncrementRefCountedMemoryMappedFile(), fileChunkNumber
-                , fileChunkNumber * ChunkSizeBytes)
+            = new MappedViewRegion(currentLargestRefCountedMemoryMappedFile.IncrementRefCountedMemoryMappedFile(), fileChunkNumber, sizeInPages
+                , fileChunkNumber * chunkSizeBytes)
             {
                 Address = (byte*)address
             };
         return mappedPagedFileChunk;
     }
 
-    public MappedPagedFileChunk? GrowAndReturnChunk(int fileChunkNumber, byte* atAddress)
+    public MappedViewRegion? GrowAndReturnChunk(int fileChunkNumber, int viewSizeInPages, byte* atAddress)
     {
         CheckDisposed();
-        var expectedFileSize = fileChunkNumber * ChunkSizeBytes + ChunkSizeBytes;
+        var chunkSizeBytes = viewSizeInPages * PageSize;
+        var expectedFileSize = fileChunkNumber * chunkSizeBytes + chunkSizeBytes;
         if (fileStream.Length < expectedFileSize) fileStream.SetLength(expectedFileSize);
 
-        return CreatePagedFileChunk(fileChunkNumber, atAddress);
+        return CreatePagedFileChunk(fileChunkNumber, chunkSizeBytes, atAddress);
     }
 
-    public int? FindChunkPageNumberContainingCursor(long fileCursorOffset, void* atAddress, bool shouldGrow = false)
+    public int? FindChunkPageNumberContainingCursor(long fileCursorOffset, void* atAddress, int viewSizeInPages, bool shouldGrow = false)
     {
         CheckDisposed();
+        var chunkSizeBytes = viewSizeInPages * PageSize;
         if (fileStream.Length < fileCursorOffset && !shouldGrow) return null;
         var chunkNumber = 0;
         var chunkStartByte = 0;
-        while (fileCursorOffset >= chunkStartByte + ChunkSizeBytes)
+        while (fileCursorOffset >= chunkStartByte + chunkSizeBytes)
         {
             chunkNumber++;
-            chunkStartByte = chunkNumber * ChunkSizeBytes;
+            chunkStartByte = chunkNumber * chunkSizeBytes;
         }
 
         return chunkNumber;
@@ -441,12 +246,13 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         if (isDisposed) throw new ObjectDisposedException(GetType().Name);
     }
 
-    public bool Flush(MappedPagedFileChunk chunk, long fileCursorFrom, nint bytes)
+    public bool Flush(MappedViewRegion chunk, long fileCursorFrom, nint bytes)
     {
         CheckDisposed();
         var bytesToFlush = bytes;
+        var chunkSizeBytes = chunk.ViewSizeInPages * PageSize;
         void* addressToFlush;
-        if (fileCursorFrom > chunk.StartFileCursorOffset + ChunkSizeBytes) return false;
+        if (fileCursorFrom > chunk.StartFileCursorOffset + chunkSizeBytes) return false;
         if (fileCursorFrom < chunk.StartFileCursorOffset)
         {
             if (fileCursorFrom + bytes < chunk.StartFileCursorOffset)
