@@ -7,7 +7,6 @@ public enum FileFlags : ushort
     , WriterOpened = 1
     , Corrupt = 2
     , WriterUpdatingHistorical = 4
-    , WriterAppending = 8
     , ClosedForReading = 16
     , HasExternalIndexFile = 32
     , HasInternalIndexInHeader = 64

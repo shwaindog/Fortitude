@@ -1,0 +1,46 @@
+﻿#region
+
+using FortitudeCommon.Chronometry;
+using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing.Quotes;
+using static FortitudeMarketsApi.Pricing.TimeSeries.QuoteTimeSeriesStorageType;
+
+#endregion
+
+namespace FortitudeMarketsApi.Pricing.TimeSeries;
+
+public interface IQuoteStorageTimeResolver : IStorageTimeResolver<ILevel0Quote>
+{
+    List<QuoteTimeSeriesStorageType> StorageTypePreferences { get; set; }
+}
+
+public class QuoteStorageTimeResolver : IQuoteStorageTimeResolver
+{
+    private static DateTime unixEpoch = DateTimeConstants.UnixEpoch;
+    private static DateTime defaultDateTime = default;
+    public static IQuoteStorageTimeResolver Instance = new QuoteStorageTimeResolver();
+
+    public List<QuoteTimeSeriesStorageType> StorageTypePreferences { get; set; } = new()
+    {
+        SourceTime, ClientReceivedTime, AdapterReceivedTime, AdapterSentTime, SourceBidTime, SourceAskTime
+    };
+
+    public DateTime ResolveStorageTime(ILevel0Quote quoteToStore)
+    {
+        var currentDateTime = unixEpoch;
+        foreach (var extractTimeType in StorageTypePreferences)
+        {
+            currentDateTime = extractTimeType switch
+            {
+                SourceTime => quoteToStore.SourceTime, ClientReceivedTime => quoteToStore.ClientReceivedTime
+                , AdapterReceivedTime => quoteToStore is ILevel1Quote l1Quote ? l1Quote.AdapterReceivedTime : defaultDateTime
+                , AdapterSentTime => quoteToStore is ILevel1Quote l1Quote ? l1Quote.AdapterSentTime : defaultDateTime
+                , SourceBidTime => quoteToStore is ILevel1Quote l1Quote ? l1Quote.SourceBidTime : defaultDateTime
+                , SourceAskTime => quoteToStore is ILevel1Quote l1Quote ? l1Quote.SourceAskTime : defaultDateTime, _ => quoteToStore.SourceTime
+            };
+            if (currentDateTime != defaultDateTime && currentDateTime != unixEpoch) return currentDateTime;
+        }
+
+        return currentDateTime;
+    }
+}

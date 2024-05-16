@@ -6,11 +6,13 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
@@ -583,6 +585,9 @@ public class PQLevel0QuoteTests
         public bool IsSinglePriceUpdated { get; set; }
         public bool IsSyncStatusUpdated { get; set; }
         public DateTime LastPublicationTime { get; set; }
+
+        public DateTime StorageTime(IStorageTimeResolver<ILevel0Quote>? resolver = null) =>
+            QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
 
         public void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance) { }
 

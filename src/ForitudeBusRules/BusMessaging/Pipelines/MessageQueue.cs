@@ -293,7 +293,7 @@ public class MessageQueue : IMessageQueue
         get
         {
             uint total = 0;
-            var currentTimeToSecond = DateTime.Now.TruncToSecond();
+            var currentTimeToSecond = DateTime.Now.TruncToSecondBoundary();
             if (currentTimeToSecond != lastUpDateTime)
             {
                 var timeSpanBetweenLastMessage = currentTimeToSecond - lastUpDateTime;
@@ -372,7 +372,7 @@ public class MessageQueue : IMessageQueue
 
     private void IncrementRecentMessageReceived()
     {
-        var currentTimeToSecond = DateTime.Now.TruncToSecond();
+        var currentTimeToSecond = DateTime.Now.TruncToSecondBoundary();
         if (currentTimeToSecond != lastUpDateTime)
         {
             var timeSpanBetweenLastMessage = currentTimeToSecond - lastUpDateTime;

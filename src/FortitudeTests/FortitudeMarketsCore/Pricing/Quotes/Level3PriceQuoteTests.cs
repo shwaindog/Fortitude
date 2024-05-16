@@ -6,7 +6,6 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
@@ -14,6 +13,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
+using FortitudeMarketsCore.Pricing.TimeSeries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
@@ -118,7 +118,7 @@ public class Level3PriceQuoteTests
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyL3Quote.SourceAskTime);
             Assert.AreEqual(0m, emptyL3Quote.AskPriceTop);
             Assert.AreEqual(false, emptyL3Quote.Executable);
-            Assert.IsNull(emptyL3Quote.PeriodSummary);
+            Assert.IsNull(emptyL3Quote.SummaryPeriod);
             Assert.AreEqual(new OrderBook(BookSide.BidBook, emptyL3Quote.SourceTickerQuoteInfo!), emptyL3Quote.BidBook);
             Assert.AreEqual(new OrderBook(BookSide.AskBook, emptyL3Quote.SourceTickerQuoteInfo!), emptyL3Quote.AskBook);
             Assert.IsFalse(emptyL3Quote.IsBidBookChanged);
@@ -143,7 +143,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new PeriodSummary();
+        var expectedPeriodSummary = new QuotePeriodSummary();
         var expectedBidBook = new OrderBook(BookSide.BidBook, simpleRecentlyTradedSrcTkrQtInfo)
         {
             [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
@@ -180,7 +180,7 @@ public class Level3PriceQuoteTests
         Assert.AreEqual(expectedAskPriceTop, fromConstructor.AskPriceTop);
         Assert.AreEqual(true, fromConstructor.IsAskPriceTopUpdated);
         Assert.AreEqual(true, fromConstructor.Executable);
-        Assert.AreEqual(expectedPeriodSummary, fromConstructor.PeriodSummary);
+        Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
         Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
         Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
         Assert.IsTrue(fromConstructor.IsBidBookChanged);
@@ -203,7 +203,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new PeriodSummary();
+        var expectedPeriodSummary = new QuotePeriodSummary();
         var expectedBidBook = new OrderBook(BookSide.BidBook, simpleRecentlyTradedSrcTkrQtInfo)
         {
             [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
@@ -309,7 +309,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new PeriodSummary();
+        var expectedPeriodSummary = new QuotePeriodSummary();
         var expectedBatchId = 23456u;
         var expectedSourceQuoteRef = 56789u;
         var expectedValueDate = new DateTime(2018, 03, 03, 17, 33, 6);
@@ -336,7 +336,7 @@ public class Level3PriceQuoteTests
             emptyQuote.AskPriceTop = expectedAskPriceTop;
             emptyQuote.IsAskPriceTopUpdated = true;
             emptyQuote.Executable = true;
-            emptyQuote.PeriodSummary = expectedPeriodSummary;
+            emptyQuote.SummaryPeriod = expectedPeriodSummary;
             emptyQuote.BidBook = expectedBidOrderBook;
             emptyQuote.IsBidBookChanged = true;
             emptyQuote.AskBook = expectedAskOrderBook;
@@ -359,7 +359,7 @@ public class Level3PriceQuoteTests
             Assert.AreEqual(expectedAskPriceTop, emptyQuote.AskPriceTop);
             Assert.AreEqual(true, emptyQuote.IsAskPriceTopUpdated);
             Assert.AreEqual(true, emptyQuote.Executable);
-            Assert.AreEqual(expectedPeriodSummary, emptyQuote.PeriodSummary);
+            Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
             Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBook);
             Assert.AreEqual(true, emptyQuote.IsBidBookChanged);
             Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBook);
@@ -493,7 +493,7 @@ public class Level3PriceQuoteTests
             Assert.IsTrue(toString.Contains($"{nameof(q.AskPriceTop)}: {q.AskPriceTop:N5}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopUpdated)}: {q.IsAskPriceTopUpdated}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Executable)}: {q.Executable}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.PeriodSummary)}: {q.PeriodSummary}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.BidBook)}: {q.BidBook}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsBidBookChanged)}: {q.IsBidBookChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.AskBook)}: {q.AskBook}"));
@@ -542,7 +542,7 @@ public class Level3PriceQuoteTests
             new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i),
             false,
             true,
-            new PeriodSummary(),
+            new QuotePeriodSummary(),
             sourceBidBook,
             true,
             sourceAskBook,

@@ -7,11 +7,11 @@ public unsafe interface IBuffer : IDisposable
     nint BufferRelativeReadCursor { get; }
     nint BufferRelativeWriteCursor { get; }
     long Size { get; }
-    nint ReadCursor { get; set; }
+    long ReadCursor { get; set; }
     bool AllRead { get; }
-    nint UnreadBytesRemaining { get; }
-    nint WriteCursor { get; set; }
-    nint RemainingStorage { get; }
+    long UnreadBytesRemaining { get; }
+    long WriteCursor { get; set; }
+    long RemainingStorage { get; }
     void SetAllRead();
     void TryHandleRemainingWriteBufferRunningLow();
     bool HasStorageForBytes(int bytes);

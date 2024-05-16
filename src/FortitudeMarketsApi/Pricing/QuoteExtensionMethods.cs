@@ -4,10 +4,10 @@ using System.Linq.Expressions;
 using System.Text;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 
 #endregion
 
@@ -54,7 +54,7 @@ public static class QuoteExtensionMethods
             sb.AddIfDifferent(l1q1, l1q2, q => q.BidPriceTop);
             sb.AddIfDifferent(l1q1, l1q2, q => q.AskPriceTop);
             sb.AddIfDifferent(l1q1, l1q2, q => q.Executable);
-            sb.AddIfDifferent(l1q1, l1q2, q => q.PeriodSummary!);
+            sb.AddIfDifferent(l1q1, l1q2, q => q.SummaryPeriod!);
         }
 
         var l2q1 = q1 as ILevel2Quote;
@@ -184,7 +184,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>(this StringBuilder sb, T? q1, T? q2,
-        Expression<Func<T, IPeriodSummary>> property, bool exactValue = false) where T : ILevel0Quote
+        Expression<Func<T, IQuotePeriodSummary>> property, bool exactValue = false) where T : ILevel0Quote
     {
         var evaluator = property.Compile();
         var q1Value = q1 != null ? evaluator(q1) : null;
@@ -196,9 +196,9 @@ public static class QuoteExtensionMethods
                 .Insert(sb.Length, " ", secondLinePadding)
                 .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
-        if (q1Value is IInterfacesComparable<IPeriodSummary> comparableQ1)
+        if (q1Value is IInterfacesComparable<IQuotePeriodSummary> comparableQ1)
             areSame = comparableQ1.AreEquivalent(q2Value, exactValue);
-        else if (q2Value is IInterfacesComparable<IPeriodSummary> comparableQ2)
+        else if (q2Value is IInterfacesComparable<IQuotePeriodSummary> comparableQ2)
             areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")

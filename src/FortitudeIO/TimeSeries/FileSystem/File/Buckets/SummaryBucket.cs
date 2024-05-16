@@ -42,34 +42,33 @@ public interface ISummaryBucket : IBucket
     TimeSeriesPeriod EntriesAvailableSummaryPeriods { get; }
 }
 
-public interface ISummaryBucket<TEntry, TSummary> : IBucket<TEntry>, ISummaryBucket
+public interface ISummaryBucket<TEntry, TSummary> : IBucket<TEntry>, ISummaryBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
-    new ISummaryBucket<TEntry, TSummary> MoveToBucket(long fileStartCursorOffset);
     uint SummaryEntriesCount(TimeSeriesPeriod summaryPeriod);
     IEnumerable<TSummary> SummariesBetween(DateTime? fromDateTime = null, DateTime? toDateTime = null);
     int CopyTo(List<TSummary> destination, TimeSeriesPeriod summaryPeriod, DateTime? fromDateTime = null, DateTime? toDateTime = null);
 }
 
-public interface IMutableSummaryBucket<TEntry, TSummary> : ISummaryBucket<TEntry, TSummary>
+public interface IMutableSummaryBucket<TEntry, TSummary> : ISummaryBucket<TEntry, TSummary> where TEntry : ITimeSeriesEntry<TEntry>
 {
     public long SummaryBucketInfoListFileOffset { get; set; }
 
     TimeSeriesPeriod PrepareSummarySubBuckets();
-    new IMutableSummaryBucket<TEntry, TSummary> MoveToBucket(long fileStartCursorOffset, bool isWritable);
     bool PopulateSummaryPeriod(TimeSeriesPeriod summaryPeriod);
     void SetSummaryPeriodSerializer(IMessageSerializer useSerializer);
 }
 
-public abstract unsafe class SummaryBucket<TEntry, TSummary> : SimpleBucket<TEntry>, IMutableSummaryBucket<TEntry, TSummary>
+public abstract unsafe class SummaryBucket<TEntry, TBucket, TSummary> : DataBucket<TEntry, TBucket>, IMutableSummaryBucket<TEntry, TSummary>
+    where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     private SummaryBucketExtensionInfo cacheSummaryBucketExtensionInfo;
     protected List<SummaryBucketSummaryInfo>? CacheSummaryBucketInfos;
     protected List<ISummaryBucket>? CacheSummaryBuckets;
     private SummaryBucketExtensionInfo* mappedFileSummaryBucketExtensionInfo;
-    protected IMessageSerializer SummaryMessageSerializer;
+    protected IMessageSerializer? SummaryMessageSerializer;
 
-    protected SummaryBucket(ShiftableMemoryMappedFileView bucketMappedFileView, long bucketFileCursorOffset, bool writable)
-        : base(bucketMappedFileView, bucketFileCursorOffset, writable)
+    protected SummaryBucket(IBucketTrackingTimeSeriesFile containingTimeSeriesFile, long bucketFileCursorOffset, bool writable)
+        : base(containingTimeSeriesFile, bucketFileCursorOffset, writable)
     {
         if (mappedFileSummaryBucketExtensionInfo->SummaryBucketInfoListFileOffset == 0) PrepareSummarySubBuckets();
     }
@@ -78,7 +77,7 @@ public abstract unsafe class SummaryBucket<TEntry, TSummary> : SimpleBucket<TEnt
         IsOpen && mappedFileSummaryBucketExtensionInfo != null
                && CanUseWritableBufferInfo;
 
-    protected override long EndOfInfoSectionOffset => base.EndOfInfoSectionOffset + sizeof(SummaryBucketExtensionInfo);
+    protected override long EndOfBucketHeaderSectionOffset => base.EndOfBucketHeaderSectionOffset + sizeof(SummaryBucketExtensionInfo);
 
     public long SummaryBucketInfoListFileOffset
     {
@@ -103,9 +102,9 @@ public abstract unsafe class SummaryBucket<TEntry, TSummary> : SimpleBucket<TEnt
         {
             if (!CanUseWritableSummaryBufferExtensionInfo || SummaryBucketInfoListFileOffset == 0)
                 return cacheSummaryBucketExtensionInfo.SummaryEntriesPeriod;
-            var subBucketEntriesList = (SummaryBucketList*)(BucketMappedFileView!.LowerHalfViewVirtualMemoryAddress +
+            var subBucketEntriesList = (SummaryBucketList*)(BucketAppenderFileView!.LowerHalfViewVirtualMemoryAddress +
                                                             SummaryBucketInfoListFileOffset -
-                                                            BucketMappedFileView.LowerViewFileCursorOffset);
+                                                            BucketAppenderFileView.LowerViewFileCursorOffset);
             CacheSummaryBucketInfos ??= new List<SummaryBucketSummaryInfo>();
             CacheSummaryBucketInfos.Clear();
             for (var i = 0; i < subBucketEntriesList->PopulatedSummaryBucketCount; i++)
@@ -130,8 +129,8 @@ public abstract unsafe class SummaryBucket<TEntry, TSummary> : SimpleBucket<TEnt
         {
             if (!CanUseWritableSummaryBufferExtensionInfo) return 0;
             var selectedSummaryBucketInfo = CacheSummaryBucketInfos!.First(sbsi => sbsi.SummaryEntries == summaryPeriod);
-            selectedSummaryBucket = OpenSummaryBucket(BucketMappedFileView!, selectedSummaryBucketInfo.FileCursorOffset, false);
-            BucketMappedFileView!.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset);
+            selectedSummaryBucket = OpenSummaryBucket(BucketAppenderFileView!, selectedSummaryBucketInfo.FileCursorOffset, false);
+            BucketAppenderFileView!.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset);
         }
 
         return selectedSummaryBucket.EntryCount;
@@ -144,25 +143,21 @@ public abstract unsafe class SummaryBucket<TEntry, TSummary> : SimpleBucket<TEnt
 
     public abstract TimeSeriesPeriod PrepareSummarySubBuckets();
 
-    IMutableSummaryBucket<TEntry, TSummary> IMutableSummaryBucket<TEntry, TSummary>.MoveToBucket(
-        long fileStartCursorOffset, bool isWritable) =>
-        (IMutableSummaryBucket<TEntry, TSummary>)MoveToBucket(fileStartCursorOffset, false);
 
     public abstract bool PopulateSummaryPeriod(TimeSeriesPeriod summaryPeriod);
 
-    ISummaryBucket<TEntry, TSummary> ISummaryBucket<TEntry, TSummary>.MoveToBucket(long fileStartCursorOffset) =>
-        (ISummaryBucket<TEntry, TSummary>)MoveToBucket(fileStartCursorOffset, false);
 
     public void SetSummaryPeriodSerializer(IMessageSerializer useSerializer)
     {
         SummaryMessageSerializer = useSerializer;
     }
 
-    public override void OpenBucket(ShiftableMemoryMappedFileView mappedFileView, bool asWritable = false)
+    public override IBucket OpenBucket(ShiftableMemoryMappedFileView? mappedFileView = null, bool asWritable = false)
     {
         base.OpenBucket(mappedFileView, asWritable);
-        mappedFileSummaryBucketExtensionInfo = (SummaryBucketExtensionInfo*)base.EndOfInfoSectionOffset;
+        mappedFileSummaryBucketExtensionInfo = (SummaryBucketExtensionInfo*)base.EndOfBucketHeaderSectionOffset;
         cacheSummaryBucketExtensionInfo = *mappedFileSummaryBucketExtensionInfo;
+        return this;
     }
 
     protected abstract ISummaryBucket OpenSummaryBucket(ShiftableMemoryMappedFileView mappedFileView, long fileCursorOffset, bool asWritable = false);

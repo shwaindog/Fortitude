@@ -3,10 +3,10 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
@@ -21,7 +21,7 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null,
         bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, bool isAskPriceTopChanged = false,
-        bool executable = false, IPeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
+        bool executable = false, IQuotePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
         bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false,
         IRecentlyTraded? recentlyTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime, adapterReceivedTime,
@@ -138,8 +138,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
         $"{AdapterSentTime:O}, {nameof(SourceBidTime)}: {SourceBidTime:O}, {nameof(BidPriceTop)}: " +
         $"{BidPriceTop:N5}, {nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(SourceAskTime)}: " +
         $"{SourceAskTime:O}, {nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopUpdated)}: " +
-        $"{IsAskPriceTopUpdated}, {nameof(Executable)}: {Executable}, {nameof(PeriodSummary)}: " +
-        $"{PeriodSummary}, {nameof(BidBook)}: {BidBook}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
+        $"{IsAskPriceTopUpdated}, {nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: " +
+        $"{SummaryPeriod}, {nameof(BidBook)}: {BidBook}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
         $"{nameof(AskBook)}: {AskBook}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, " +
         $"{nameof(RecentlyTraded)}: {RecentlyTraded}, {nameof(BatchId)}: {BatchId}, " +
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference}, {nameof(ValueDate)}: {ValueDate:u} }}";

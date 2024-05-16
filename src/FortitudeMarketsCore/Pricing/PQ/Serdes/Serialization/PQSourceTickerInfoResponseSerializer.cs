@@ -71,7 +71,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         return (int)amtWritten;
     }
 
-    private unsafe int Serialize(byte* currPtr, ISourceTickerQuoteInfo sourceTickerQuoteInfo, nint remainingBytes)
+    private unsafe int Serialize(byte* currPtr, ISourceTickerQuoteInfo sourceTickerQuoteInfo, long remainingBytes)
     {
         var writeStart = currPtr;
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.SourceId);

@@ -211,7 +211,7 @@ public static unsafe class StreamByteOps
         }
     }
 
-    public static int ToBytesWithSizeHeader(ref byte* ptr, string value, nint availableBytes)
+    public static int ToBytesWithSizeHeader(ref byte* ptr, string value, long availableBytes)
     {
         var stringSize = ptr;
         ptr += 2;
@@ -220,7 +220,7 @@ public static unsafe class StreamByteOps
         return strSize + 2;
     }
 
-    public static int ToBytes(ref byte* ptr, string? value, nint availableBytes)
+    public static int ToBytes(ref byte* ptr, string? value, long availableBytes)
     {
         if (value != null)
         {
@@ -243,7 +243,7 @@ public static unsafe class StreamByteOps
         return 0;
     }
 
-    public static int ToBytesWithSizeHeader(ref byte* ptr, MutableString value, nint availableBytes)
+    public static int ToBytesWithSizeHeader(ref byte* ptr, MutableString value, long availableBytes)
     {
         var stringSize = ptr;
         ptr += 2;
@@ -252,7 +252,7 @@ public static unsafe class StreamByteOps
         return strSize + 2;
     }
 
-    public static int ToBytes(ref byte* ptr, MutableString? value, nint availableBytes)
+    public static int ToBytes(ref byte* ptr, MutableString? value, long availableBytes)
     {
         if (!ReferenceEquals(value, null))
         {

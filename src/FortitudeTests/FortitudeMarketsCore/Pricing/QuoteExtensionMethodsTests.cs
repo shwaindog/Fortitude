@@ -6,9 +6,9 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Conflation;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
+using FortitudeMarketsCore.Pricing.TimeSeries;
 
 #endregion
 
@@ -40,7 +40,7 @@ public class QuoteExtensionMethodsTests
         originalQuote = new Level3PriceQuote(originalSourceTickerQuoteInfo, originalQuoteExchangeTime, false,
             1.1124m, originalQuoteClientReceiveTime,
             originalQuoteAdapterTime, originalQuoteAdapterTime, originalQuoteBidDateTime,
-            true, originalQuoteAskDateTime, true, true, new PeriodSummary(),
+            true, originalQuoteAskDateTime, true, true, new QuotePeriodSummary(),
             new OrderBook(BookSide.BidBook, new[]
             {
                 new PriceVolumeLayer(OriginalBidTopPrice, OriginalBidTopVolume), new PriceVolumeLayer(1.1122m, 20000)

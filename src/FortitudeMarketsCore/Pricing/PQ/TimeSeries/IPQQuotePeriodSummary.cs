@@ -1,13 +1,13 @@
 #region
 
-using FortitudeMarketsApi.Pricing.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Conflation;
+namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
-public interface IPQPeriodSummary : IMutablePeriodSummary, IPQSupportsFieldUpdates<IPeriodSummary>
+public interface IPQQuotePeriodSummary : IMutableQuotePeriodSummary, IPQSupportsFieldUpdates<IQuotePeriodSummary>
 {
     bool IsStartTimeDateUpdated { get; set; }
     bool IsStartTimeSubHourUpdated { get; set; }
@@ -24,4 +24,5 @@ public interface IPQPeriodSummary : IMutablePeriodSummary, IPQSupportsFieldUpdat
     bool IsTickCountUpdated { get; set; }
     bool IsPeriodVolumeLowerBytesUpdated { get; set; }
     bool IsPeriodVolumeUpperBytesUpdated { get; set; }
+    bool IsAverageMidPriceUpdated { get; set; }
 }

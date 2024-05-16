@@ -1,4 +1,4 @@
-﻿namespace FortitudeMarketsCore.Pricing.PQ.Conflation;
+﻿namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
 [Flags]
 public enum PeriodSummaryUpdatedFlags : ushort
@@ -19,4 +19,5 @@ public enum PeriodSummaryUpdatedFlags : ushort
     , TickCountFlag = 0x1000
     , PeriodVolumeLowerBytesFlag = 0x2000
     , PeriodVolumeUpperBytesFlag = 0x4000
+    , AverageMidPriceFlag = 0x8000
 }

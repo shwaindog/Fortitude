@@ -2,21 +2,21 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.Conflation;
+namespace FortitudeMarketsCore.Pricing.TimeSeries;
 
 public static class PeriodSummaryHelpers
 {
-    public static TimeSeriesPeriod CalcTimeFrame(this IPeriodSummary periodSumary)
+    public static TimeSeriesPeriod CalcTimeFrame(this IQuotePeriodSummary quotePeriodSumary)
     {
-        if (periodSumary.StartTime.Equals(DateTimeConstants.UnixEpoch)
-            || periodSumary.EndTime < periodSumary.StartTime) return TimeSeriesPeriod.None;
-        if (periodSumary.EndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeSeriesPeriod.None;
-        if (periodSumary.StartTime.Equals(periodSumary.EndTime)) return TimeSeriesPeriod.Tick;
-        var diffTimeSpan = periodSumary.EndTime - periodSumary.StartTime;
+        if (quotePeriodSumary.SummaryStartTime.Equals(DateTimeConstants.UnixEpoch)
+            || quotePeriodSumary.SummaryEndTime < quotePeriodSumary.SummaryStartTime) return TimeSeriesPeriod.None;
+        if (quotePeriodSumary.SummaryEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeSeriesPeriod.None;
+        if (quotePeriodSumary.SummaryStartTime.Equals(quotePeriodSumary.SummaryEndTime)) return TimeSeriesPeriod.Tick;
+        var diffTimeSpan = quotePeriodSumary.SummaryEndTime - quotePeriodSumary.SummaryStartTime;
         var totalSeconds = (int)diffTimeSpan.TotalSeconds;
         if (totalSeconds == 1) return TimeSeriesPeriod.OneSecond;
         if (totalSeconds == 60) return TimeSeriesPeriod.OneMinute;
