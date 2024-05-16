@@ -5,16 +5,16 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
-using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Conflation;
+using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
 #endregion
@@ -611,9 +611,9 @@ public class PQLevel1QuoteTests
         PQLevel0QuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison, original,
             changingLevel1Quote);
 
-        PQPeriodSummaryTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-            (PQPeriodSummary)original.PeriodSummary!,
-            (PQPeriodSummary)changingLevel1Quote.PeriodSummary!);
+        PQQuotePeriodSummaryTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
+            (PQQuotePeriodSummary)original.SummaryPeriod!,
+            (PQQuotePeriodSummary)changingLevel1Quote.SummaryPeriod!);
 
         if (original.GetType() == typeof(PQLevel1Quote))
             Assert.AreEqual(!exactComparison,
@@ -674,7 +674,7 @@ public class PQLevel1QuoteTests
     public static void AssertContainsAllLevel1Fields(IList<PQFieldUpdate> checkFieldUpdates,
         PQLevel1Quote l1Q, uint expectedBooleanFlags = 3)
     {
-        PQPeriodSummaryTests.AssertPeriodSummaryContainsAllFields(checkFieldUpdates, l1Q.PeriodSummary!);
+        PQQuotePeriodSummaryTests.AssertPeriodSummaryContainsAllFields(checkFieldUpdates, l1Q.SummaryPeriod!);
 
         PQLevel0QuoteTests.AssertContainsAllLevel0Fields(checkFieldUpdates, l1Q, expectedBooleanFlags);
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceBidDateTime, l1Q.SourceBidTime.GetHoursFromUnixEpoch()),
@@ -710,10 +710,10 @@ public class PQLevel1QuoteTests
     {
         public override QuoteLevel QuoteLevel => QuoteLevel.Level1;
 
-        IMutablePeriodSummary? IMutableLevel1Quote.PeriodSummary
+        IMutableQuotePeriodSummary? IMutableLevel1Quote.SummaryPeriod
         {
-            get => PeriodSummary;
-            set => PeriodSummary = value as IPQPeriodSummary;
+            get => SummaryPeriod;
+            set => SummaryPeriod = value as IPQQuotePeriodSummary;
         }
 
         public DateTime AdapterReceivedTime
@@ -722,8 +722,8 @@ public class PQLevel1QuoteTests
             set { }
         }
 
-        IPeriodSummary? ILevel1Quote.PeriodSummary => PeriodSummary;
-        public IPQPeriodSummary? PeriodSummary { get; set; }
+        IQuotePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
+        public IPQQuotePeriodSummary? SummaryPeriod { get; set; }
         IMutableLevel1Quote IMutableLevel1Quote.Clone() => (IMutableLevel1Quote)Clone();
         IPQLevel1Quote IPQLevel1Quote.Clone() => this;
         ILevel1Quote ILevel1Quote.Clone() => this;

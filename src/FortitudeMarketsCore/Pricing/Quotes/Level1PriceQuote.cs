@@ -3,9 +3,9 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsCore.Pricing.TimeSeries;
 
 #endregion
 
@@ -20,7 +20,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null,
         DateTime? sourceBidTime = null, decimal bidPriceTop = 0m, bool isBidPriceTopChanged = false,
         DateTime? sourceAskTime = null, decimal askPriceTop = 0m, bool isAskPriceTopChanged = false,
-        bool executable = false, IPeriodSummary? periodSummary = null)
+        bool executable = false, IQuotePeriodSummary? periodSummary = null)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime)
     {
         AdapterReceivedTime = adapterReceivedTime ?? DateTimeConstants.UnixEpoch;
@@ -30,9 +30,9 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         SourceAskTime = sourceAskTime ?? DateTimeConstants.UnixEpoch;
         IsAskPriceTopUpdated = isAskPriceTopChanged;
         Executable = executable;
-        if (periodSummary is PeriodSummary periodSummaryInstance)
-            PeriodSummary = periodSummaryInstance.Clone();
-        else if (periodSummary != null) PeriodSummary = new PeriodSummary(periodSummary);
+        if (periodSummary is QuotePeriodSummary periodSummaryInstance)
+            SummaryPeriod = periodSummaryInstance.Clone();
+        else if (periodSummary != null) SummaryPeriod = new QuotePeriodSummary(periodSummary);
         if (this is not ILevel2Quote)
         {
             BidPriceTop = bidPriceTop;
@@ -51,9 +51,9 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
             SourceAskTime = lvl1Quote.SourceAskTime;
             IsAskPriceTopUpdated = lvl1Quote.IsAskPriceTopUpdated;
             Executable = lvl1Quote.Executable;
-            if (lvl1Quote.PeriodSummary is PeriodSummary periodSummary)
-                PeriodSummary = periodSummary.Clone();
-            else if (lvl1Quote.PeriodSummary != null) PeriodSummary = new PeriodSummary(lvl1Quote.PeriodSummary);
+            if (lvl1Quote.SummaryPeriod is QuotePeriodSummary periodSummary)
+                SummaryPeriod = periodSummary.Clone();
+            else if (lvl1Quote.SummaryPeriod != null) SummaryPeriod = new QuotePeriodSummary(lvl1Quote.SummaryPeriod);
 
             if (this is not ILevel2Quote)
             {
@@ -73,8 +73,8 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
     public virtual decimal AskPriceTop { get; set; }
     public bool IsAskPriceTopUpdated { get; set; }
     public bool Executable { get; set; }
-    public IMutablePeriodSummary? PeriodSummary { get; set; }
-    IPeriodSummary? ILevel1Quote.PeriodSummary => PeriodSummary;
+    public IMutableQuotePeriodSummary? SummaryPeriod { get; set; }
+    IQuotePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
 
     public override DateTime SourceTime
     {
@@ -99,16 +99,16 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
             IsAskPriceTopUpdated = level1Quote.IsAskPriceTopUpdated;
             IsBidPriceTopUpdated = level1Quote.IsBidPriceTopUpdated;
             Executable = level1Quote.Executable;
-            if (level1Quote.PeriodSummary != null)
+            if (level1Quote.SummaryPeriod != null)
             {
-                if (PeriodSummary != null)
-                    PeriodSummary.CopyFrom(level1Quote.PeriodSummary);
+                if (SummaryPeriod != null)
+                    SummaryPeriod.CopyFrom(level1Quote.SummaryPeriod);
                 else
-                    PeriodSummary = new PeriodSummary(level1Quote.PeriodSummary);
+                    SummaryPeriod = new QuotePeriodSummary(level1Quote.SummaryPeriod);
             }
-            else if (PeriodSummary != null)
+            else if (SummaryPeriod != null)
             {
-                PeriodSummary = null;
+                SummaryPeriod = null;
             }
         }
 
@@ -136,8 +136,8 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         var sourceAskTimeSame = SourceAskTime.Equals(otherL1.SourceAskTime);
         var askPriceTopSame = AskPriceTop == otherL1.AskPriceTop;
         var executableSame = Executable == otherL1.Executable;
-        var periodSummarySame = PeriodSummary?.AreEquivalent(otherL1.PeriodSummary, exactTypes)
-                                ?? otherL1.PeriodSummary == null;
+        var periodSummarySame = SummaryPeriod?.AreEquivalent(otherL1.SummaryPeriod, exactTypes)
+                                ?? otherL1.SummaryPeriod == null;
         var isBidPriceTopChangedSame = IsBidPriceTopUpdated == otherL1.IsBidPriceTopUpdated;
         var isAskPriceTopChangedSame = IsAskPriceTopUpdated == otherL1.IsAskPriceTopUpdated;
 
@@ -162,7 +162,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
             hashCode = (hashCode * 397) ^ AskPriceTop.GetHashCode();
             hashCode = (hashCode * 397) ^ IsAskPriceTopUpdated.GetHashCode();
             hashCode = (hashCode * 397) ^ Executable.GetHashCode();
-            hashCode = (hashCode * 397) ^ PeriodSummary?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ SummaryPeriod?.GetHashCode() ?? 0;
             return hashCode;
         }
     }
@@ -175,5 +175,5 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         $"{AdapterSentTime:O}, {nameof(SourceBidTime)}: {SourceBidTime:O}, {nameof(BidPriceTop)}: {BidPriceTop:N5}, " +
         $"{nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(SourceAskTime)}: {SourceAskTime:O}, " +
         $"{nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
-        $"{nameof(Executable)}: {Executable}, {nameof(PeriodSummary)}: {PeriodSummary} }}";
+        $"{nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: {SummaryPeriod} }}";
 }

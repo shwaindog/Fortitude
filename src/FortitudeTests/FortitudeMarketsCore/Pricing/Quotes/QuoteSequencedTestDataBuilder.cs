@@ -1,13 +1,13 @@
 ﻿#region
 
-using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Conflation;
-using FortitudeMarketsCore.Pricing.PQ.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
+using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
+using FortitudeMarketsCore.Pricing.TimeSeries;
 
 #endregion
 
@@ -34,20 +34,20 @@ public class QuoteSequencedTestDataBuilder
         SetupLevel3Quote(initializeQuotes as IMutableLevel3Quote, batchId);
     }
 
-    public void InitalizePeriodSummary(IMutablePeriodSummary periodSummary, uint batchId)
+    public void InitalizePeriodSummary(IMutableQuotePeriodSummary quotePeriodSummary, uint batchId)
     {
-        periodSummary.StartTime = new DateTime(2017, 11, 18, 20, 09, 11);
-        periodSummary.StartBidPrice = 0.79324m;
-        periodSummary.StartAskPrice = 0.79334m;
-        periodSummary.HighestBidPrice = 0.79354m;
-        periodSummary.HighestAskPrice = 0.79364m;
-        periodSummary.LowestBidPrice = 0.79304m;
-        periodSummary.LowestAskPrice = 0.79314m;
-        periodSummary.EndBidPrice = 0.79334m;
-        periodSummary.EndAskPrice = 0.79344m;
-        periodSummary.TickCount = 10;
-        periodSummary.PeriodVolume = 400_000_000_000_000;
-        periodSummary.EndTime = new DateTime(2017, 11, 18, 20, 09, 12);
+        quotePeriodSummary.SummaryStartTime = new DateTime(2017, 11, 18, 20, 09, 11);
+        quotePeriodSummary.StartBidPrice = 0.79324m;
+        quotePeriodSummary.StartAskPrice = 0.79334m;
+        quotePeriodSummary.HighestBidPrice = 0.79354m;
+        quotePeriodSummary.HighestAskPrice = 0.79364m;
+        quotePeriodSummary.LowestBidPrice = 0.79304m;
+        quotePeriodSummary.LowestAskPrice = 0.79314m;
+        quotePeriodSummary.EndBidPrice = 0.79334m;
+        quotePeriodSummary.EndAskPrice = 0.79344m;
+        quotePeriodSummary.TickCount = 10;
+        quotePeriodSummary.PeriodVolume = 400_000_000_000_000;
+        quotePeriodSummary.SummaryEndTime = new DateTime(2017, 11, 18, 20, 09, 12);
     }
 
     private void SetupLevel3Quote(IMutableLevel3Quote? pqLevel3Quote, uint batchId)
@@ -156,17 +156,17 @@ public class QuoteSequencedTestDataBuilder
         level1Quote.AdapterSentTime = new DateTime(2017, 07, 16, 15, 49, 40).Add(sequenceIdTimeSpan);
         level1Quote.BidPriceTop = 0.79324m + batchId * 0.00001m;
         level1Quote.AskPriceTop = 0.79326m + batchId * 0.00001m;
-        switch (level1Quote.PeriodSummary)
+        switch (level1Quote.SummaryPeriod)
         {
             case null when level1Quote is PQLevel1Quote:
-                level1Quote.PeriodSummary = new PQPeriodSummary();
+                level1Quote.SummaryPeriod = new PQQuotePeriodSummary();
                 break;
             case null:
-                level1Quote.PeriodSummary = new PeriodSummary();
+                level1Quote.SummaryPeriod = new QuotePeriodSummary();
                 break;
         }
 
-        InitalizePeriodSummary(level1Quote.PeriodSummary, batchId);
+        InitalizePeriodSummary(level1Quote.SummaryPeriod, batchId);
     }
 
     private void SetupLevel0Quote(IMutableLevel0Quote level0Quote, uint batchId)

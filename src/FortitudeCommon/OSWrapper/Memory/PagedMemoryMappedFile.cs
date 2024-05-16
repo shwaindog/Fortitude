@@ -125,7 +125,7 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         fileStream.Dispose();
     }
 
-    public ShiftableMemoryMappedFileView CreateShiftableMemoryMappedFileView(int halfViewPageSize = 1, int reserveRegionMultiple = 1
+    public ShiftableMemoryMappedFileView CreateShiftableMemoryMappedFileView(string viewName, int halfViewPageSize = 1, int reserveRegionMultiple = 1
         , bool closePagedMemoryMappedFileOnDispose = true)
     {
         var halfViewNumberOfPages = halfViewPageSize <= 1 ? 1 : MemoryUtils.CeilingNextPowerOfTwo(halfViewPageSize);
@@ -139,7 +139,8 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
             fileStream.SetLength(growFileSize);
         }
 
-        var result = new ShiftableMemoryMappedFileView(this, halfViewNumberOfPages, reserveRegionMultiple, closePagedMemoryMappedFileOnDispose);
+        var result = new ShiftableMemoryMappedFileView(viewName, this, halfViewNumberOfPages, reserveRegionMultiple
+            , closePagedMemoryMappedFileOnDispose);
         if (closePagedMemoryMappedFileOnDispose) DecrementUsageCount();
         return result;
     }
@@ -169,20 +170,28 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         }
     }
 
-    public MappedViewRegion? CreatePagedFileChunk(int fileChunkNumber, int sizeInPages, void* atAddress)
+    public bool EnsureFileCanContain(string viewName, int fileChunkNumber, int sizeInPages)
     {
-        CheckDisposed();
         var chunkSizeBytes = sizeInPages * PageSize;
         var expectedFileSize = fileChunkNumber * chunkSizeBytes + chunkSizeBytes;
-        if (fileStream.Length < expectedFileSize) return null;
+        if (fileStream.Length < expectedFileSize) return false;
         if (currentLargestRefCountedMemoryMappedFile == null || currentLargestRefCountedMemoryMappedFile.MemoryMappedFileSize < FileStream.Length)
         {
             currentLargestRefCountedMemoryMappedFile?.DecrementAndDisposeIfRefCount0();
             var memoryMappedFile = MemoryMappedFile.CreateFromFile(fileStream, null, 0,
                 MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
             currentLargestRefCountedMemoryMappedFile = new UsageCountedMemoryMappedFile(memoryMappedFile, FileStream.Length);
-            Logger.Debug("Created new RefCountedMemoryMapped file for {0} at size {1}", fileStream.Name, fileStream.Length);
+            Logger.Debug("Created new RefCountedMemoryMapped file for {0}-{1} at size {2}", fileStream.Name, viewName, fileStream.Length);
         }
+
+        return true;
+    }
+
+    public MappedViewRegion? CreatePagedFileChunk(string viewName, int fileChunkNumber, int sizeInPages, void* atAddress)
+    {
+        CheckDisposed();
+        var chunkSizeBytes = sizeInPages * PageSize;
+        if (!EnsureFileCanContain(viewName, fileChunkNumber, sizeInPages)) return null;
 
         var address = osDirectMemoryApi.MapPageViewOfFile(currentLargestRefCountedMemoryMappedFile.MemoryMappedFileHandle
             , fileChunkNumber * sizeInPages
@@ -194,14 +203,22 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
             if (memMapFileError != 0)
             {
                 if (memMapFileError == InvalidVirtualMemoryLocation)
-                    Logger.Debug("Could not map memory mapped file {0} chunk {1} to virtual memory location {2:x}.  " +
-                                 "Location probably in use will attempt to remap to a new location", FileStream.Name, fileChunkNumber
-                        , (nint)atAddress);
+                    Logger.Debug("Got InvalidVirtualMemoryLocation when attempting to map memory mapped file {0}-{1} " +
+                                 "chunk {2} to virtual memory location {3:x}.  " +
+                                 "Location probably in use will attempt to remap to a new location",
+                        FileStream.Name, viewName, fileChunkNumber, (nint)atAddress);
                 else
-                    Logger.Warn("Got Error code {0} when trying to create Memory Mapped File Mapping", memMapFileError);
+                    Logger.Warn("Got Error code {0} on map memory mapped file {1}-{2} chunk {3} to " +
+                                "virtual memory location {4:x} when trying to create Memory Mapped File Mapping",
+                        memMapFileError, FileStream.Name, viewName, fileChunkNumber, (nint)atAddress);
+            }
+            else
+            {
+                Logger.Info("Could not map memory mapped file {0}-{1} chunk {2} to virtual memory location {3:x}.  " +
+                            "Location probably in use will attempt to remap to a new location",
+                    FileStream.Name, viewName, fileChunkNumber, (nint)atAddress);
             }
 
-            if (atAddress == null) Logger.Info("Failed to create chunk at requested address will make more attempts.");
             return null;
         }
 
@@ -215,17 +232,17 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         return mappedPagedFileChunk;
     }
 
-    public MappedViewRegion? GrowAndReturnChunk(int fileChunkNumber, int viewSizeInPages, byte* atAddress)
+    public MappedViewRegion? GrowAndReturnChunk(string viewName, int fileChunkNumber, int viewSizeInPages, byte* atAddress)
     {
         CheckDisposed();
         var chunkSizeBytes = viewSizeInPages * PageSize;
         var expectedFileSize = fileChunkNumber * chunkSizeBytes + chunkSizeBytes;
         if (fileStream.Length < expectedFileSize) fileStream.SetLength(expectedFileSize);
 
-        return CreatePagedFileChunk(fileChunkNumber, chunkSizeBytes, atAddress);
+        return CreatePagedFileChunk(viewName, fileChunkNumber, chunkSizeBytes, atAddress);
     }
 
-    public int? FindChunkPageNumberContainingCursor(long fileCursorOffset, void* atAddress, int viewSizeInPages, bool shouldGrow = false)
+    public int? FindChunkPageNumberContainingCursor(long fileCursorOffset, int viewSizeInPages, bool shouldGrow = false)
     {
         CheckDisposed();
         var chunkSizeBytes = viewSizeInPages * PageSize;
@@ -252,7 +269,7 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         var bytesToFlush = bytes;
         var chunkSizeBytes = chunk.ViewSizeInPages * PageSize;
         void* addressToFlush;
-        if (fileCursorFrom > chunk.StartFileCursorOffset + chunkSizeBytes) return false;
+        if (fileCursorFrom > chunk.StartFileCursorOffset + chunkSizeBytes || fileCursorFrom < chunk.StartFileCursorOffset) return false;
         if (fileCursorFrom < chunk.StartFileCursorOffset)
         {
             if (fileCursorFrom + bytes < chunk.StartFileCursorOffset)

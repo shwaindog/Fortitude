@@ -10,13 +10,51 @@ namespace FortitudeCommon.Serdes.Binary;
 public class MemoryMappedFileBuffer : IBuffer
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MemoryMappedFileBuffer));
-    private readonly ShiftableMemoryMappedFileView contiguousPagedFile;
+    private readonly bool shouldCloseView;
     private int bufferAccessCounter;
+    private ShiftableMemoryMappedFileView? mappedFileShiftableView;
     private nint originalBufferRelativeWriteCursor;
-    private nint readCursor;
-    private nint writeCursor;
+    private long readCursor;
+    private long writeCursor;
 
-    public MemoryMappedFileBuffer(ShiftableMemoryMappedFileView contiguousPagedFile) => this.contiguousPagedFile = contiguousPagedFile;
+    public MemoryMappedFileBuffer(ShiftableMemoryMappedFileView fileShiftableView, bool shouldCloseView = true)
+    {
+        mappedFileShiftableView = fileShiftableView;
+        this.shouldCloseView = shouldCloseView;
+    }
+
+    public long ReadCursor
+    {
+        get => readCursor;
+        set
+        {
+            readCursor = value;
+            if (bufferAccessCounter <= 1)
+            {
+                var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(readCursor, true) ?? false;
+                if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
+            }
+        }
+    }
+
+    public long UnreadBytesRemaining => writeCursor - readCursor;
+
+    public long WriteCursor
+    {
+        get => writeCursor;
+        set
+        {
+            if (value > writeCursor) mappedFileShiftableView?.FlushCursorDataToDisk(originalBufferRelativeWriteCursor, (int)(value - writeCursor));
+            writeCursor = value;
+            if (bufferAccessCounter <= 1)
+            {
+                var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(writeCursor, true) ?? false;
+                if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
+            }
+        }
+    }
+
+    public long RemainingStorage => mappedFileShiftableView?.HighestFileCursor - writeCursor ?? 0;
 
     public void Dispose()
     {
@@ -27,8 +65,9 @@ public class MemoryMappedFileBuffer : IBuffer
     {
         get
         {
+            if (mappedFileShiftableView == null) return null;
             Interlocked.Increment(ref bufferAccessCounter);
-            return contiguousPagedFile.LowerHalfViewVirtualMemoryAddress;
+            return mappedFileShiftableView.LowerHalfViewVirtualMemoryAddress;
         }
     }
 
@@ -36,75 +75,59 @@ public class MemoryMappedFileBuffer : IBuffer
     {
         get
         {
+            if (mappedFileShiftableView == null) return null;
             Interlocked.Increment(ref bufferAccessCounter);
-            return contiguousPagedFile.LowerHalfViewVirtualMemoryAddress;
+            return mappedFileShiftableView.LowerHalfViewVirtualMemoryAddress;
         }
     }
 
-    public nint BufferRelativeReadCursor => readCursor - (nint)contiguousPagedFile.LowerViewFileCursorOffset;
+    public nint BufferRelativeReadCursor =>
+        mappedFileShiftableView == null ? 0 : (nint)(readCursor - mappedFileShiftableView.LowerViewFileCursorOffset);
 
     public nint BufferRelativeWriteCursor
     {
         get
         {
-            originalBufferRelativeWriteCursor = writeCursor - (nint)contiguousPagedFile.LowerViewFileCursorOffset;
+            if (mappedFileShiftableView == null) return 0;
+            originalBufferRelativeWriteCursor = (nint)(writeCursor - mappedFileShiftableView.LowerViewFileCursorOffset);
             return originalBufferRelativeWriteCursor;
         }
     }
 
     public long Size => PagedMemoryMappedFile.MaxFileCursorOffset;
 
-    public nint ReadCursor
-    {
-        get => readCursor;
-        set
-        {
-            readCursor = value;
-            if (bufferAccessCounter <= 1)
-            {
-                var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(readCursor, true);
-                if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
-            }
-        }
-    }
-
     public bool AllRead => writeCursor == readCursor;
-    public nint UnreadBytesRemaining => writeCursor - readCursor;
-
-    public nint WriteCursor
-    {
-        get => writeCursor;
-        set
-        {
-            if (value > writeCursor) contiguousPagedFile.FlushCursorDataToDisk(originalBufferRelativeWriteCursor, (int)(value - writeCursor));
-            writeCursor = value;
-            if (bufferAccessCounter <= 1)
-            {
-                var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(writeCursor, true);
-                if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
-            }
-        }
-    }
-
-    public nint RemainingStorage => (nint)contiguousPagedFile.HighestFileCursor - writeCursor;
 
     public void SetAllRead()
     {
         readCursor = writeCursor;
-        var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(readCursor, true);
+        var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(readCursor, true) ?? false;
         if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
     }
 
     public void TryHandleRemainingWriteBufferRunningLow()
     {
-        var moved = contiguousPagedFile.EnsureLowerViewContainsFileCursorOffset(writeCursor, true);
+        var moved = mappedFileShiftableView!.EnsureLowerViewContainsFileCursorOffset(writeCursor, true);
         if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
     }
 
     public bool HasStorageForBytes(int bytes) => RemainingStorage > bytes;
 
+
+    public void SetFileWriterAt(ShiftableMemoryMappedFileView fileShiftableView, long fileCursorOffset)
+    {
+        mappedFileShiftableView = fileShiftableView;
+        mappedFileShiftableView.EnsureLowerViewContainsFileCursorOffset(fileCursorOffset);
+        readCursor = writeCursor = fileCursorOffset;
+    }
+
+    public void ClearFileView()
+    {
+        mappedFileShiftableView = null;
+    }
+
     ~MemoryMappedFileBuffer()
     {
-        contiguousPagedFile.Dispose();
+        if (shouldCloseView) mappedFileShiftableView?.Dispose();
     }
 }

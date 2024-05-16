@@ -6,10 +6,10 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Conflation;
-using FortitudeMarketsCore.Pricing.PQ.Conflation;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.TimeSeries;
 
 #endregion
 
@@ -54,7 +54,7 @@ public class Level1PriceQuoteTests
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
         Assert.AreEqual(0m, emptyQuote.AskPriceTop);
         Assert.AreEqual(false, emptyQuote.Executable);
-        Assert.IsNull(emptyQuote.PeriodSummary);
+        Assert.IsNull(emptyQuote.SummaryPeriod);
     }
 
     [TestMethod]
@@ -69,7 +69,7 @@ public class Level1PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new PeriodSummary();
+        var expectedPeriodSummary = new QuotePeriodSummary();
 
         var fromConstructor = new Level1PriceQuote(sourceTickerQuoteInfo, expectedSourceTime, true,
             expectedSinglePrice, expectedClientReceivedTime, expectedAdapterReceiveTime, expectedAdapterSentTime,
@@ -90,19 +90,19 @@ public class Level1PriceQuoteTests
         Assert.AreEqual(expectedAskPriceTop, fromConstructor.AskPriceTop);
         Assert.AreEqual(true, fromConstructor.IsAskPriceTopUpdated);
         Assert.AreEqual(true, fromConstructor.Executable);
-        Assert.AreEqual(expectedPeriodSummary, fromConstructor.PeriodSummary);
+        Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
     }
 
     [TestMethod]
     public void NonPeriodSummary_New_ConvertsToPeriodSummary()
     {
-        var pqPeriodSummary = new PQPeriodSummary();
+        var pqPeriodSummary = new PQQuotePeriodSummary();
 
         var nonSourceTickerQuoteInfoQuote = new Level1PriceQuote(sourceTickerQuoteInfo, DateTime.Now, true,
             1m, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, 1m, true, DateTime.Now, 1m,
             true, true, pqPeriodSummary);
 
-        Assert.IsInstanceOfType(nonSourceTickerQuoteInfoQuote.PeriodSummary, typeof(PeriodSummary));
+        Assert.IsInstanceOfType(nonSourceTickerQuoteInfoQuote.SummaryPeriod, typeof(QuotePeriodSummary));
     }
 
     [TestMethod]
@@ -116,12 +116,12 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void NonSourceTickerQuoteInfo_New_CopiesExceptPeriodSummaryIsConverted()
     {
-        var originalPeriodSummary = fullyPopulatedLevel1Quote.PeriodSummary!;
-        var pqPeriodSummary = new PQPeriodSummary(originalPeriodSummary);
-        fullyPopulatedLevel1Quote.PeriodSummary = pqPeriodSummary;
+        var originalPeriodSummary = fullyPopulatedLevel1Quote.SummaryPeriod!;
+        var pqPeriodSummary = new PQQuotePeriodSummary(originalPeriodSummary);
+        fullyPopulatedLevel1Quote.SummaryPeriod = pqPeriodSummary;
         var copyQuote = new Level1PriceQuote(fullyPopulatedLevel1Quote);
         Assert.AreNotEqual(fullyPopulatedLevel1Quote, copyQuote);
-        fullyPopulatedLevel1Quote.PeriodSummary = originalPeriodSummary;
+        fullyPopulatedLevel1Quote.SummaryPeriod = originalPeriodSummary;
         Assert.AreEqual(fullyPopulatedLevel1Quote, copyQuote);
     }
 
@@ -157,7 +157,7 @@ public class Level1PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new PeriodSummary();
+        var expectedPeriodSummary = new QuotePeriodSummary();
 
         emptyQuote.SourceTime = expectedSourceTime;
         emptyQuote.IsReplay = true;
@@ -172,7 +172,7 @@ public class Level1PriceQuoteTests
         emptyQuote.AskPriceTop = expectedAskPriceTop;
         emptyQuote.IsAskPriceTopUpdated = true;
         emptyQuote.Executable = true;
-        emptyQuote.PeriodSummary = expectedPeriodSummary;
+        emptyQuote.SummaryPeriod = expectedPeriodSummary;
 
         Assert.AreSame(sourceTickerQuoteInfo, emptyQuote.SourceTickerQuoteInfo);
         Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
@@ -188,7 +188,7 @@ public class Level1PriceQuoteTests
         Assert.AreEqual(expectedAskPriceTop, emptyQuote.AskPriceTop);
         Assert.AreEqual(true, emptyQuote.IsAskPriceTopUpdated);
         Assert.AreEqual(true, emptyQuote.Executable);
-        Assert.AreEqual(expectedPeriodSummary, emptyQuote.PeriodSummary);
+        Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
     }
 
     [TestMethod]
@@ -279,7 +279,7 @@ public class Level1PriceQuoteTests
         Assert.IsTrue(toString.Contains($"{nameof(q.AskPriceTop)}: {q.AskPriceTop:N5}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopUpdated)}: {q.IsAskPriceTopUpdated}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.Executable)}: {q.Executable}"));
-        Assert.IsTrue(toString.Contains($"{nameof(q.PeriodSummary)}: {q.PeriodSummary}"));
+        Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
     }
 
     internal static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
@@ -288,11 +288,11 @@ public class Level1PriceQuoteTests
         Level0PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
             commonCompareQuote, changingQuote);
 
-        var diffPeriodSummary = commonCompareQuote.PeriodSummary!.Clone();
+        var diffPeriodSummary = commonCompareQuote.SummaryPeriod!.Clone();
         diffPeriodSummary.HighestAskPrice = 3.45678m;
-        changingQuote.PeriodSummary = diffPeriodSummary;
+        changingQuote.SummaryPeriod = diffPeriodSummary;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
-        changingQuote.PeriodSummary = commonCompareQuote.PeriodSummary.Clone();
+        changingQuote.SummaryPeriod = commonCompareQuote.SummaryPeriod.Clone();
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.AdapterReceivedTime = DateTime.Now;

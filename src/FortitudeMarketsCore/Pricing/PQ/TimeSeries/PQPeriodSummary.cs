@@ -4,17 +4,18 @@ using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.Conflation;
-using FortitudeMarketsCore.Pricing.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.TimeSeries;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Conflation;
+namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
-public class PQPeriodSummary : IPQPeriodSummary
+public class PQQuotePeriodSummary : IPQQuotePeriodSummary
 {
+    private decimal averageMidPrice;
     private decimal endAskPrice;
     private decimal endBidPrice;
     private DateTime endTime = DateTimeConstants.UnixEpoch;
@@ -30,13 +31,13 @@ public class PQPeriodSummary : IPQPeriodSummary
     private TimeSeriesPeriod timeSeriesPeriod;
     private PeriodSummaryUpdatedFlags updatedFlags;
 
-    public PQPeriodSummary() { }
+    public PQQuotePeriodSummary() { }
 
-    public PQPeriodSummary(IPeriodSummary toClone)
+    public PQQuotePeriodSummary(IQuotePeriodSummary toClone)
     {
-        TimeSeriesPeriod = toClone.TimeSeriesPeriod;
-        StartTime = toClone.StartTime;
-        EndTime = toClone.EndTime;
+        SummaryPeriod = toClone.SummaryPeriod;
+        SummaryStartTime = toClone.SummaryStartTime;
+        SummaryEndTime = toClone.SummaryEndTime;
         StartBidPrice = toClone.StartBidPrice;
         StartAskPrice = toClone.StartAskPrice;
         HighestBidPrice = toClone.HighestBidPrice;
@@ -49,7 +50,7 @@ public class PQPeriodSummary : IPQPeriodSummary
         PeriodVolume = toClone.PeriodVolume;
     }
 
-    public TimeSeriesPeriod TimeSeriesPeriod
+    public TimeSeriesPeriod SummaryPeriod
     {
         get
         {
@@ -59,7 +60,7 @@ public class PQPeriodSummary : IPQPeriodSummary
         set => timeSeriesPeriod = value;
     }
 
-    public DateTime StartTime
+    public DateTime SummaryStartTime
     {
         get => startTime;
         set
@@ -93,7 +94,7 @@ public class PQPeriodSummary : IPQPeriodSummary
         }
     }
 
-    public DateTime EndTime
+    public DateTime SummaryEndTime
     {
         get => endTime;
         set
@@ -124,6 +125,17 @@ public class PQPeriodSummary : IPQPeriodSummary
             if (value)
                 updatedFlags |= PeriodSummaryUpdatedFlags.EndTimeSubHourFlag;
             else if (IsEndTimeSubHourUpdated) updatedFlags ^= PeriodSummaryUpdatedFlags.EndTimeSubHourFlag;
+        }
+    }
+
+    public decimal AverageMidPrice
+    {
+        get => averageMidPrice;
+        set
+        {
+            if (averageMidPrice == value) return;
+            IsAverageMidPriceUpdated = true;
+            averageMidPrice = value;
         }
     }
 
@@ -300,6 +312,17 @@ public class PQPeriodSummary : IPQPeriodSummary
             if (value)
                 updatedFlags |= PeriodSummaryUpdatedFlags.EndAskPriceFlag;
             else if (IsEndAskPriceUpdated) updatedFlags ^= PeriodSummaryUpdatedFlags.EndAskPriceFlag;
+        }
+    }
+
+    public bool IsAverageMidPriceUpdated
+    {
+        get => (updatedFlags & PeriodSummaryUpdatedFlags.AverageMidPriceFlag) > 0;
+        set
+        {
+            if (value)
+                updatedFlags |= PeriodSummaryUpdatedFlags.AverageMidPriceFlag;
+            else if (IsEndAskPriceUpdated) updatedFlags ^= PeriodSummaryUpdatedFlags.AverageMidPriceFlag;
         }
     }
 
@@ -486,12 +509,12 @@ public class PQPeriodSummary : IPQPeriodSummary
         }
     }
 
-    public IPeriodSummary CopyFrom(IPeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IQuotePeriodSummary CopyFrom(IQuotePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (!(ps is IPQPeriodSummary pqPs))
+        if (!(ps is IPQQuotePeriodSummary pqPs))
         {
-            StartTime = ps.StartTime;
-            EndTime = ps.EndTime;
+            SummaryStartTime = ps.SummaryStartTime;
+            SummaryEndTime = ps.SummaryEndTime;
             StartBidPrice = ps.StartBidPrice;
             StartAskPrice = ps.StartAskPrice;
             HighestBidPrice = ps.HighestBidPrice;
@@ -508,16 +531,16 @@ public class PQPeriodSummary : IPQPeriodSummary
             // between types only copy the changed parts not everything.
             if (pqPs.IsStartTimeDateUpdated)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref startTime,
-                    pqPs.StartTime.GetHoursFromUnixEpoch());
+                    pqPs.SummaryStartTime.GetHoursFromUnixEpoch());
             if (pqPs.IsStartTimeSubHourUpdated)
                 PQFieldConverters.UpdateSubHourComponent(ref startTime,
-                    pqPs.StartTime.GetSubHourComponent());
+                    pqPs.SummaryStartTime.GetSubHourComponent());
             if (pqPs.IsEndTimeDateUpdated)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref endTime,
-                    pqPs.EndTime.GetHoursFromUnixEpoch());
+                    pqPs.SummaryEndTime.GetHoursFromUnixEpoch());
             if (pqPs.IsEndTimeSubHourUpdated)
                 PQFieldConverters.UpdateSubHourComponent(ref endTime,
-                    pqPs.EndTime.GetSubHourComponent());
+                    pqPs.SummaryEndTime.GetSubHourComponent());
             if (pqPs.IsStartBidPriceUpdated) StartBidPrice = pqPs.StartBidPrice;
             if (pqPs.IsStartAskPriceUpdated) StartAskPrice = pqPs.StartAskPrice;
             if (pqPs.IsHighestBidPriceUpdated) HighestBidPrice = pqPs.HighestBidPrice;
@@ -530,27 +553,27 @@ public class PQPeriodSummary : IPQPeriodSummary
             if (pqPs.IsPeriodVolumeLowerBytesUpdated || pqPs.IsPeriodVolumeUpperBytesUpdated)
                 PeriodVolume = pqPs.PeriodVolume;
 
-            if (pqPs is PQPeriodSummary pqPeriodSummary) updatedFlags = pqPeriodSummary.updatedFlags;
+            if (pqPs is PQQuotePeriodSummary pqPeriodSummary) updatedFlags = pqPeriodSummary.updatedFlags;
         }
 
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPeriodSummary)source, copyMergeFlags);
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IQuotePeriodSummary)source, copyMergeFlags);
 
-    public IMutablePeriodSummary Clone() => new PQPeriodSummary(this);
+    public IMutableQuotePeriodSummary Clone() => new PQQuotePeriodSummary(this);
 
     object ICloneable.Clone() => Clone();
 
-    IPeriodSummary ICloneable<IPeriodSummary>.Clone() => Clone();
+    IQuotePeriodSummary ICloneable<IQuotePeriodSummary>.Clone() => Clone();
 
-    public bool AreEquivalent(IPeriodSummary? other, bool exactTypes = false)
+    public bool AreEquivalent(IQuotePeriodSummary? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame = TimeSeriesPeriod == other.TimeSeriesPeriod;
-        var startTimeSame = StartTime.Equals(other.StartTime);
-        var endTimeSame = EndTime.Equals(other.EndTime);
+        var timeFrameSame = SummaryPeriod == other.SummaryPeriod;
+        var startTimeSame = SummaryStartTime.Equals(other.SummaryStartTime);
+        var endTimeSame = SummaryEndTime.Equals(other.SummaryEndTime);
         var startBidPriceSame = StartBidPrice == other.StartBidPrice;
         var startAskPriceSame = StartAskPrice == other.StartAskPrice;
         var highestBidPriceSame = HighestBidPrice == other.HighestBidPrice;
@@ -565,7 +588,7 @@ public class PQPeriodSummary : IPQPeriodSummary
         var updateFlagsSame = true;
         if (exactTypes)
         {
-            var otherPQ = (PQPeriodSummary)other;
+            var otherPQ = (PQQuotePeriodSummary)other;
             updateFlagsSame = updatedFlags == otherPQ.updatedFlags;
         }
 
@@ -574,7 +597,7 @@ public class PQPeriodSummary : IPQPeriodSummary
                && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && updateFlagsSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPeriodSummary?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IQuotePeriodSummary?)obj, true);
 
     public override int GetHashCode()
     {
@@ -597,8 +620,8 @@ public class PQPeriodSummary : IPQPeriodSummary
     }
 
     public override string ToString() =>
-        $"PQPeriodSummary {{ {nameof(TimeSeriesPeriod)}: {TimeSeriesPeriod}, {nameof(StartTime)}: {StartTime}, " +
-        $"{nameof(EndTime)}: {EndTime}, {nameof(StartBidPrice)}: {StartBidPrice}, {nameof(StartAskPrice)}:" +
+        $"PQPeriodSummary {{ {nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(SummaryStartTime)}: {SummaryStartTime}, " +
+        $"{nameof(SummaryEndTime)}: {SummaryEndTime}, {nameof(StartBidPrice)}: {StartBidPrice}, {nameof(StartAskPrice)}:" +
         $" {StartAskPrice}, {nameof(HighestBidPrice)}: {HighestBidPrice}, {nameof(HighestAskPrice)}: " +
         $"{HighestAskPrice}, {nameof(LowestBidPrice)}: {LowestBidPrice}, {nameof(LowestAskPrice)}: " +
         $"{LowestAskPrice}, {nameof(EndBidPrice)}: {EndBidPrice}, {nameof(EndAskPrice)}: {EndAskPrice}, " +

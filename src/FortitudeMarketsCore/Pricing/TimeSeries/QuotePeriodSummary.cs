@@ -3,24 +3,42 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.Conflation;
+namespace FortitudeMarketsCore.Pricing.TimeSeries;
 
-public class PeriodSummary : IMutablePeriodSummary
+public struct Candle
+{
+    public DateTime SummaryStartTime;
+    public TimeSeriesPeriod SummaryPeriod;
+    public DateTime SummaryEndTime;
+    public decimal StartBidPrice;
+    public decimal StartAskPrice;
+    public decimal HighestBidPrice;
+    public decimal HighestAskPrice;
+    public decimal LowestBidPrice;
+    public decimal LowestAskPrice;
+    public decimal EndBidPrice;
+    public decimal EndAskPrice;
+    public uint TickCount;
+    public long PeriodVolume;
+    public long AverageMidPrice;
+}
+
+public class QuotePeriodSummary : IMutableQuotePeriodSummary
 {
     private TimeSeriesPeriod timeSeriesPeriod;
 
-    public PeriodSummary(TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
+    public QuotePeriodSummary(TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m,
         decimal highestAskPrice = 0m, decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m,
         decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u, long periodVolume = 0L)
     {
-        TimeSeriesPeriod = timeSeriesPeriod;
-        StartTime = startTime ?? DateTimeConstants.UnixEpoch;
-        EndTime = endTime ?? DateTimeConstants.UnixEpoch;
+        SummaryPeriod = timeSeriesPeriod;
+        SummaryStartTime = startTime ?? DateTimeConstants.UnixEpoch;
+        SummaryEndTime = endTime ?? DateTimeConstants.UnixEpoch;
         StartBidPrice = startBidPrice;
         StartAskPrice = startAskPrice;
         HighestBidPrice = highestBidPrice;
@@ -33,11 +51,11 @@ public class PeriodSummary : IMutablePeriodSummary
         PeriodVolume = periodVolume;
     }
 
-    public PeriodSummary(IPeriodSummary toClone)
+    public QuotePeriodSummary(IQuotePeriodSummary toClone)
     {
-        TimeSeriesPeriod = toClone.TimeSeriesPeriod;
-        StartTime = toClone.StartTime;
-        EndTime = toClone.EndTime;
+        SummaryPeriod = toClone.SummaryPeriod;
+        SummaryStartTime = toClone.SummaryStartTime;
+        SummaryEndTime = toClone.SummaryEndTime;
         StartBidPrice = toClone.StartBidPrice;
         StartAskPrice = toClone.StartAskPrice;
         HighestBidPrice = toClone.HighestBidPrice;
@@ -50,7 +68,7 @@ public class PeriodSummary : IMutablePeriodSummary
         PeriodVolume = toClone.PeriodVolume;
     }
 
-    public TimeSeriesPeriod TimeSeriesPeriod
+    public TimeSeriesPeriod SummaryPeriod
     {
         get
         {
@@ -60,8 +78,8 @@ public class PeriodSummary : IMutablePeriodSummary
         set => timeSeriesPeriod = value;
     }
 
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateTime SummaryStartTime { get; set; }
+    public DateTime SummaryEndTime { get; set; }
     public decimal StartBidPrice { get; set; }
     public decimal StartAskPrice { get; set; }
     public decimal HighestBidPrice { get; set; }
@@ -73,11 +91,13 @@ public class PeriodSummary : IMutablePeriodSummary
     public uint TickCount { get; set; }
     public long PeriodVolume { get; set; }
 
-    public IPeriodSummary CopyFrom(IPeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public decimal AverageMidPrice { get; set; }
+
+    public IQuotePeriodSummary CopyFrom(IQuotePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        TimeSeriesPeriod = source.TimeSeriesPeriod;
-        StartTime = source.StartTime;
-        EndTime = source.EndTime;
+        SummaryPeriod = source.SummaryPeriod;
+        SummaryStartTime = source.SummaryStartTime;
+        SummaryEndTime = source.SummaryEndTime;
         StartBidPrice = source.StartBidPrice;
         StartAskPrice = source.StartAskPrice;
         HighestBidPrice = source.HighestBidPrice;
@@ -88,24 +108,25 @@ public class PeriodSummary : IMutablePeriodSummary
         EndAskPrice = source.EndAskPrice;
         TickCount = source.TickCount;
         PeriodVolume = source.PeriodVolume;
+        AverageMidPrice = source.AverageMidPrice;
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPeriodSummary)source, copyMergeFlags);
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IQuotePeriodSummary)source, copyMergeFlags);
 
     object ICloneable.Clone() => Clone();
 
-    IPeriodSummary ICloneable<IPeriodSummary>.Clone() => Clone();
+    IQuotePeriodSummary ICloneable<IQuotePeriodSummary>.Clone() => Clone();
 
-    public IMutablePeriodSummary Clone() => new PeriodSummary(this);
+    public IMutableQuotePeriodSummary Clone() => new QuotePeriodSummary(this);
 
-    public bool AreEquivalent(IPeriodSummary? other, bool exactTypes = false)
+    public bool AreEquivalent(IQuotePeriodSummary? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame = TimeSeriesPeriod == other.TimeSeriesPeriod;
-        var startTimeSame = StartTime.Equals(other.StartTime);
-        var endTimeSame = EndTime.Equals(other.EndTime);
+        var timeFrameSame = SummaryPeriod == other.SummaryPeriod;
+        var startTimeSame = SummaryStartTime.Equals(other.SummaryStartTime);
+        var endTimeSame = SummaryEndTime.Equals(other.SummaryEndTime);
         var startBidPriceSame = StartBidPrice == other.StartBidPrice;
         var startAskPriceSame = StartAskPrice == other.StartAskPrice;
         var highestBidPriceSame = HighestBidPrice == other.HighestBidPrice;
@@ -116,21 +137,22 @@ public class PeriodSummary : IMutablePeriodSummary
         var endAskPriceSame = EndAskPrice == other.EndAskPrice;
         var tickCountSame = TickCount == other.TickCount;
         var periodVolumeSame = PeriodVolume == other.PeriodVolume;
+        var averageMidPriceSame = AverageMidPrice == other.AverageMidPrice;
 
         return timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
                && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame
-               && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame;
+               && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && averageMidPriceSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPeriodSummary?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IQuotePeriodSummary?)obj, true);
 
     public override int GetHashCode()
     {
         unchecked
         {
-            var hashCode = (int)TimeSeriesPeriod;
-            hashCode = (hashCode * 397) ^ StartTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ EndTime.GetHashCode();
+            var hashCode = (int)SummaryPeriod;
+            hashCode = (hashCode * 397) ^ SummaryStartTime.GetHashCode();
+            hashCode = (hashCode * 397) ^ SummaryEndTime.GetHashCode();
             hashCode = (hashCode * 397) ^ StartBidPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ StartAskPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ HighestBidPrice.GetHashCode();
@@ -139,16 +161,17 @@ public class PeriodSummary : IMutablePeriodSummary
             hashCode = (hashCode * 397) ^ EndAskPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)TickCount;
             hashCode = (hashCode * 397) ^ PeriodVolume.GetHashCode();
+            hashCode = (hashCode * 397) ^ AverageMidPrice.GetHashCode();
             return hashCode;
         }
     }
 
     public override string ToString() =>
-        $"PeriodSummary {{ {nameof(TimeSeriesPeriod)}: {TimeSeriesPeriod}, {nameof(StartTime)}: {StartTime:O}, " +
-        $"{nameof(EndTime)}: {EndTime:O}, {nameof(StartBidPrice)}: {StartBidPrice:N5}, " +
+        $"{nameof(QuotePeriodSummary)} ({nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(SummaryStartTime)}: {SummaryStartTime:O}, " +
+        $"{nameof(SummaryEndTime)}: {SummaryEndTime:O}, {nameof(StartBidPrice)}: {StartBidPrice:N5}, " +
         $"{nameof(StartAskPrice)}: {StartAskPrice:N5}, {nameof(HighestBidPrice)}: {HighestBidPrice:N5}, " +
         $"{nameof(HighestAskPrice)}: {HighestAskPrice:N5}, {nameof(LowestBidPrice)}: {LowestBidPrice:N5}, " +
         $"{nameof(LowestAskPrice)}: {LowestAskPrice:N5}, {nameof(EndBidPrice)}: {EndBidPrice:N5}, " +
-        $"{nameof(EndAskPrice)}: {EndAskPrice:N5}, {nameof(TickCount)}: {TickCount}, {nameof(PeriodVolume)}: " +
-        $"{PeriodVolume:N2} }}";
+        $"{nameof(EndAskPrice)}: {EndAskPrice:N5}, {nameof(TickCount)}: {TickCount}, " +
+        $"{nameof(PeriodVolume)}: {PeriodVolume:N2}, {nameof(AverageMidPrice)}: {AverageMidPrice})";
 }

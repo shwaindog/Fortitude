@@ -3,10 +3,10 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Conflation;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
 #endregion
 
@@ -14,7 +14,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
 {
-    new IPQPeriodSummary? PeriodSummary { get; set; }
+    new IPQQuotePeriodSummary? SummaryPeriod { get; set; }
     new IPQLevel1Quote Clone();
 }
 
@@ -34,7 +34,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     public PQLevel1Quote(ISourceTickerQuoteInfo sourceTickerInfo)
         : base(sourceTickerInfo) =>
-        PeriodSummary = new PQPeriodSummary();
+        SummaryPeriod = new PQQuotePeriodSummary();
 
     public PQLevel1Quote(ILevel0Quote toClone) : base(toClone)
     {
@@ -47,9 +47,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             executable = l1QToClone.Executable;
             bidPriceTop = l1QToClone.BidPriceTop;
             askPriceTop = l1QToClone.AskPriceTop;
-            if (l1QToClone.PeriodSummary is PQPeriodSummary)
-                PeriodSummary = (PQPeriodSummary?)l1QToClone.PeriodSummary?.Clone();
-            else if (l1QToClone.PeriodSummary != null) PeriodSummary = new PQPeriodSummary(l1QToClone.PeriodSummary);
+            if (l1QToClone.SummaryPeriod is PQQuotePeriodSummary)
+                SummaryPeriod = (PQQuotePeriodSummary?)l1QToClone.SummaryPeriod?.Clone();
+            else if (l1QToClone.SummaryPeriod != null) SummaryPeriod = new PQQuotePeriodSummary(l1QToClone.SummaryPeriod);
         }
     }
 
@@ -293,22 +293,22 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         }
     }
 
-    IPeriodSummary? ILevel1Quote.PeriodSummary => PeriodSummary;
+    IQuotePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
 
-    IMutablePeriodSummary? IMutableLevel1Quote.PeriodSummary
+    IMutableQuotePeriodSummary? IMutableLevel1Quote.SummaryPeriod
     {
-        get => PeriodSummary;
-        set => PeriodSummary = value as IPQPeriodSummary;
+        get => SummaryPeriod;
+        set => SummaryPeriod = value as IPQQuotePeriodSummary;
     }
 
-    public IPQPeriodSummary? PeriodSummary { get; set; }
+    public IPQQuotePeriodSummary? SummaryPeriod { get; set; }
 
     public override bool HasUpdates
     {
-        get => base.HasUpdates || (PeriodSummary?.HasUpdates ?? false);
+        get => base.HasUpdates || (SummaryPeriod?.HasUpdates ?? false);
         set
         {
-            if (PeriodSummary != null) PeriodSummary.HasUpdates = value;
+            if (SummaryPeriod != null) SummaryPeriod.HasUpdates = value;
             base.HasUpdates = value;
         }
     }
@@ -372,8 +372,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         foreach (var updatedField in GetDeltaUpdateTopBookPriceFields(snapShotTime, updatedOnly,
                      precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
             yield return updatedField;
-        if (PeriodSummary != null)
-            foreach (var periodSummaryUpdates in PeriodSummary.GetDeltaUpdateFields(snapShotTime, messageFlags,
+        if (SummaryPeriod != null)
+            foreach (var periodSummaryUpdates in SummaryPeriod.GetDeltaUpdateFields(snapShotTime, messageFlags,
                          precisionSettings))
                 yield return periodSummaryUpdates;
     }
@@ -382,7 +382,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     {
         if (pqFieldUpdate.Id >= PQFieldKeys.PeriodStartDateTime &&
             pqFieldUpdate.Id <= PQFieldKeys.PeriodVolumeUpperBytes)
-            return PeriodSummary?.UpdateField(pqFieldUpdate) ?? -1;
+            return SummaryPeriod?.UpdateField(pqFieldUpdate) ?? -1;
         switch (pqFieldUpdate.Id)
         {
             case PQFieldKeys.SourceBidDateTime:
@@ -489,7 +489,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             IsAskPriceTopUpdated = l1Q.IsAskPriceTopUpdated;
             IsBidPriceTopUpdated = l1Q.IsBidPriceTopUpdated;
             Executable = l1Q.Executable;
-            PeriodSummary?.CopyFrom(new PQPeriodSummary(l1Q.PeriodSummary!));
+            SummaryPeriod?.CopyFrom(new PQQuotePeriodSummary(l1Q.SummaryPeriod!));
         }
 
         return this;

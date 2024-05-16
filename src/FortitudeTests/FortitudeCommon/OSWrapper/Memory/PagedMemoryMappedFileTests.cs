@@ -45,7 +45,7 @@ public class PagedMemoryMappedFileTests
     [TestMethod]
     public unsafe void CreateNewChunkedMemoryMappedFile_GetNextChunkIsContiguous_AssertsUpperBoundaryContinuesToNewChunk()
     {
-        using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView();
+        using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("onePageGrow");
         var isAvailable = onePageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
         Assert.IsTrue(isAvailable);
         var ptr = onePageShiftableView.LowerHalfViewVirtualMemoryAddress;
@@ -81,7 +81,7 @@ public class PagedMemoryMappedFileTests
     {
         const int writeCursorOffset = 16_234;
         const int writeAndFindValue = 89_234_123;
-        using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView(1, 6, false);
+        using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("onePageWrite", 1, 6, false);
 
         var isAvailable = onePageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
         Assert.IsTrue(isAvailable);
@@ -100,7 +100,7 @@ public class PagedMemoryMappedFileTests
         }
 
         onePageShiftableView.Dispose();
-        using var twoPageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView(2, 6);
+        using var twoPageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("twoPageRead", 2, 6);
         isAvailable = twoPageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
         Assert.IsTrue(isAvailable);
         var assertedFoundValue = false;

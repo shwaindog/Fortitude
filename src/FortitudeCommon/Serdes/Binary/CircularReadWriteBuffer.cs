@@ -10,7 +10,7 @@ public unsafe class CircularReadWriteBuffer : IBuffer
 {
     public const int LargeObjectHeapAllocationSize = 85_000;
 
-    private nint bufferShifted;
+    private long bufferShifted;
     private GCHandle? handle;
     private int pinCount;
     private bool shouldUnpin = true;
@@ -55,15 +55,15 @@ public unsafe class CircularReadWriteBuffer : IBuffer
         }
     }
 
-    public nint BufferRelativeReadCursor => ReadCursor - bufferShifted;
-    public nint BufferRelativeWriteCursor => WriteCursor - bufferShifted;
+    public nint BufferRelativeReadCursor => (nint)(ReadCursor - bufferShifted);
+    public nint BufferRelativeWriteCursor => (nint)(WriteCursor - bufferShifted);
 
-    public nint ReadCursor { get; set; }
-    public nint WriteCursor { get; set; }
+    public long ReadCursor { get; set; }
+    public long WriteCursor { get; set; }
 
     public bool AllRead => ReadCursor == WriteCursor;
 
-    public nint UnreadBytesRemaining => WriteCursor - ReadCursor;
+    public long UnreadBytesRemaining => WriteCursor - ReadCursor;
 
     public void SetAllRead()
     {
@@ -82,7 +82,7 @@ public unsafe class CircularReadWriteBuffer : IBuffer
 
     public bool HasStorageForBytes(int bytes) => BufferRelativeWriteCursor + bytes <= Buffer.Length;
 
-    public nint RemainingStorage => Buffer.Length - BufferRelativeWriteCursor;
+    public long RemainingStorage => Buffer.Length - BufferRelativeWriteCursor;
 
     public long Size => Buffer.Length;
 

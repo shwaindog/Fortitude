@@ -24,7 +24,7 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 [TestClass]
 public class PQClientMessageStreamDecoderTests
 {
-    private const nint BufferReadWriteOffset = 3;
+    private const long BufferReadWriteOffset = 3;
     private const ushort ExpectedSourceId = ushort.MaxValue;
     private const ushort ExpectedTickerId = ushort.MaxValue;
     private const uint ExpectedStreamId = uint.MaxValue;

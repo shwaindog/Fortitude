@@ -2,9 +2,9 @@
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Conflation;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
@@ -24,7 +24,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null,
         DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false,
         DateTime? sourceAskTime = null, bool isAskPriceTopChanged = false,
-        bool executable = false, IPeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
+        bool executable = false, IQuotePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
         bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime, adapterReceivedTime,
             adapterSentTime, sourceBidTime, 0m, isBidPriceTopChanged, sourceAskTime, 0m,
@@ -180,7 +180,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         $"{AdapterSentTime:O}, {nameof(SourceBidTime)}: {SourceBidTime:O}, {nameof(BidPriceTop)}: {BidPriceTop:N5}, " +
         $"{nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(SourceAskTime)}: {SourceAskTime:O}, " +
         $"{nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
-        $"{nameof(Executable)}: {Executable}, {nameof(PeriodSummary)}: {PeriodSummary}, {nameof(BidBook)}:" +
+        $"{nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(BidBook)}:" +
         $" {BidBook}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(AskBook)}: {AskBook}, " +
         $"{nameof(IsAskBookChanged)}: {IsAskBookChanged}}}";
 }
