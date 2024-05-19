@@ -216,19 +216,19 @@ public unsafe class ShiftableMemoryMappedFileView : IDisposable
         return true;
     }
 
-    public byte* FileCursorBufferPointer(long fileCursorOffset, bool shouldGrow = false)
+    public byte* FileCursorBufferPointer(long fileCursorOffset, long maxUpperChunkTolerance = ushort.MaxValue, bool shouldGrow = false)
     {
-        EnsureLowerViewContainsFileCursorOffset(fileCursorOffset, shouldGrow);
+        EnsureLowerViewContainsFileCursorOffset(fileCursorOffset, maxUpperChunkTolerance, shouldGrow);
         return LowerHalfViewVirtualMemoryAddress + fileCursorOffset - LowerViewFileCursorOffset;
     }
 
-    public bool EnsureLowerViewContainsFileCursorOffset(long fileCursorOffset, bool shouldGrow = false)
+    public bool EnsureLowerViewContainsFileCursorOffset(long fileCursorOffset, long maxUpperChunkTolerance = ushort.MaxValue, bool shouldGrow = false)
     {
         if (fileCursorOffset > PagedMemoryMappedFile.MaxFileCursorOffset)
             throw new ArgumentOutOfRangeException(
                 $"To protect file system the maximum allowed file cursor offset is limited to {PagedMemoryMappedFile.MaxFileCursorOffset}.  Requested {fileCursorOffset}");
         var upperChunkIsBeyondEndOfFile = upperViewContiguousChunk is EndOfFileEmptyChunk or null;
-        var allowedUpperChunk = !upperChunkIsBeyondEndOfFile ? UpperViewTriggerChunkShiftTolerance : 0;
+        var allowedUpperChunk = !upperChunkIsBeyondEndOfFile ? Math.Min(UpperViewTriggerChunkShiftTolerance, maxUpperChunkTolerance) : 0;
         if (fileCursorOffset >= lowerViewContiguousChunk!.StartFileCursorOffset
             && fileCursorOffset < lowerViewContiguousChunk.StartFileCursorOffset + HalfViewSizeBytes + allowedUpperChunk)
             return false;

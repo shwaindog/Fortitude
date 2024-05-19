@@ -22,6 +22,8 @@ public interface IReadonlyBucketIndexDictionary : IReadOnlyDictionary<uint, Buck
 {
     bool IsFixedSize { get; }
     long SizeInBytes { get; }
+
+    bool IsFileViewOpen { get; }
     void CacheAndCloseFileView();
     void OpenWithFileView(ShiftableMemoryMappedFileView memoryMappedFileView, bool isReadOnly);
 }
@@ -54,6 +56,7 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     private BucketIndexInfo* lastAddedEntryBufferPointer;
     private uint maxPossibleIndexEntries;
     private ShiftableMemoryMappedFileView? memoryMappedFileView;
+    private long requiredViewFileCursorOffset;
     private BucketIndexList* writableV1IndexHeaderSectionV1;
 
     public BucketIndexDictionary(ShiftableMemoryMappedFileView memoryMappedFileView,
@@ -99,6 +102,9 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
 
     public void CacheAndCloseFileView()
     {
+        if (!IsFileViewOpen) return;
+        if (memoryMappedFileView!.LowerViewFileCursorOffset != requiredViewFileCursorOffset)
+            memoryMappedFileView.EnsureLowerViewContainsFileCursorOffset(requiredViewFileCursorOffset, 0);
         cacheBucketIndexInfos ??= new List<KeyValuePair<uint, BucketIndexInfo>>();
         cacheBucketIndexInfos.Clear();
         cacheBucketIndexInfos.AddRange(this);
@@ -118,8 +124,9 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     {
         memoryMappedFileView = shiftableMemoryMappedFileView;
         IsReadOnly = isReadOnly;
-        writableV1IndexHeaderSectionV1 = (BucketIndexList*)memoryMappedFileView.FileCursorBufferPointer(internalIndexFileCursor, !isReadOnly);
+        writableV1IndexHeaderSectionV1 = (BucketIndexList*)memoryMappedFileView.FileCursorBufferPointer(internalIndexFileCursor, 0, !isReadOnly);
         writableV1IndexHeaderSectionV1->MaxIndexSizeEntries = maxPossibleIndexEntries;
+        requiredViewFileCursorOffset = memoryMappedFileView.LowerViewFileCursorOffset;
         firstEntryBufferPointer = &writableV1IndexHeaderSectionV1->FirstIndexInList;
         lastAddedEntryBufferPointer = &writableV1IndexHeaderSectionV1->LastAddedBucketIndexInfo;
         maxPossibleIndexEntries = writableV1IndexHeaderSectionV1->MaxIndexSizeEntries;
@@ -293,7 +300,6 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
 
     public BucketIndexInfo* GetBucketIndexInfo(uint bucketId)
     {
-        BucketIndexInfo returnResult = default;
         if (!IsFileViewOpen) return null;
 
         for (uint i = 0; i < maxPossibleIndexEntries; i++)

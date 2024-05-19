@@ -35,7 +35,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         get
         {
             BucketIndexDictionary
-                ??= new BucketIndexDictionary(SelectBucketHeaderFileView(), BucketIndexFileOffset, IndexCount, !Writable);
+                ??= new BucketIndexDictionary(SelectBucketIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
             var previousLastCreatedBucketNullable = BucketIndexDictionary.LastAddedBucketIndexInfo;
             if (previousLastCreatedBucketNullable != null)
             {
@@ -53,13 +53,16 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     public int ContainerDepth => BucketContainer.ContainerDepth + 1;
 
     public ShiftableMemoryMappedFileView ContainerHeaderFileView(int depth) => BucketContainer.ContainerHeaderFileView(depth);
+
+    public ShiftableMemoryMappedFileView ContainerIndexFileView(int depth) => BucketContainer.ContainerIndexFileView(depth);
+
     public IBucketTrackingTimeSeriesFile ContainingTimeSeriesFile => ContainingFile;
     public uint CreateBucketId() => LastAddedBucketId <= 0 ? BucketId * 1000 + 1 : LastAddedBucketId + 1;
 
     public void AddNewBucket(IMutableBucket newChild)
     {
         BucketIndexDictionary
-            ??= new BucketIndexDictionary(SelectBucketHeaderFileView(), BucketIndexFileOffset, IndexCount, !Writable);
+            ??= new BucketIndexDictionary(SelectBucketIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
         var previousLastCreatedSubBucketNullable = BucketIndexDictionary.LastAddedBucketIndexInfo;
         if (previousLastCreatedSubBucketNullable != null)
         {
@@ -229,4 +232,5 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     }
 
     protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => BucketContainer.ContainerHeaderFileView(ContainerDepth);
+    protected virtual ShiftableMemoryMappedFileView SelectBucketIndexFileView() => BucketContainer.ContainerIndexFileView(ContainerDepth);
 }
