@@ -77,6 +77,7 @@ public interface IMutableBucketContainer
     uint NonDataSizeBytes { get; set; }
     IBucketTrackingTimeSeriesFile ContainingTimeSeriesFile { get; }
     ShiftableMemoryMappedFileView ContainerHeaderFileView(int depth);
+    ShiftableMemoryMappedFileView ContainerIndexFileView(int depth);
     uint CreateBucketId();
     void AddNewBucket(IMutableBucket newChild);
 }
@@ -98,6 +99,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
 {
     private readonly int activeBucketDataViewSizePages;
     private readonly List<ShiftableMemoryMappedFileView> parentBucketsHeaderViews = new();
+    private readonly List<ShiftableMemoryMappedFileView> parentBucketsIndexViews = new();
     private ShiftableMemoryMappedFileView? activeBucketHeaderView;
     private ShiftableMemoryMappedFileView? amendOffsetView;
     private ShiftableMemoryMappedFileView? bucketAppenderView;
@@ -220,6 +222,13 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         return parentBucketsHeaderViews[depth - 1];
     }
 
+    public ShiftableMemoryMappedFileView ContainerIndexFileView(int depth)
+    {
+        for (var i = parentBucketsIndexViews.Count; i < depth; i++)
+            parentBucketsIndexViews.Add(timeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView("bucketContainerHeaderView_" + i));
+        return parentBucketsIndexViews[depth - 1];
+    }
+
     public ShiftableMemoryMappedFileView ActiveBucketHeaderFileView =>
         activeBucketHeaderView ??= timeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView(
             "activeBucketHeader", closePagedMemoryMappedFileOnDispose: false);
@@ -310,6 +319,8 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         foreach (var bucket in cacheBuckets) bucket.CloseFileView();
         foreach (var depthParentBucketHeaderViews in parentBucketsHeaderViews) depthParentBucketHeaderViews.Dispose();
         parentBucketsHeaderViews.Clear();
+        foreach (var depthParentBucketHeaderViews in parentBucketsIndexViews) depthParentBucketHeaderViews.Dispose();
+        parentBucketsIndexViews.Clear();
         activeBucketHeaderView?.Dispose();
         activeBucketHeaderView = null;
         bucketAppenderView?.Dispose();

@@ -339,14 +339,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     public virtual IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false)
     {
         BucketHeaderFileView = alternativeHeaderAndDataFileView ?? SelectBucketHeaderFileView();
-        BucketHeaderFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, asWritable);
         alternativeHeaderAndDataFileView ??= BucketContainer.ContainingTimeSeriesFile.ActiveBucketDataFileView;
-        alternativeHeaderAndDataFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, asWritable);
+        alternativeHeaderAndDataFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, 0, asWritable);
         BucketAppenderFileView = alternativeHeaderAndDataFileView;
         Writable = asWritable;
+        BucketHeaderFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, 0, asWritable);
         requiredViewFileCursorOffset = BucketHeaderFileView.LowerViewFileCursorOffset;
         requiredViewVirtualMemoryLocation = BucketHeaderFileView.LowerHalfViewVirtualMemoryAddress;
-        mappedFileBucketInfo = (BucketHeader*)BucketHeaderFileView.FileCursorBufferPointer(FileCursorOffset, asWritable);
+        mappedFileBucketInfo = (BucketHeader*)BucketHeaderFileView.FileCursorBufferPointer(FileCursorOffset, shouldGrow: asWritable);
         cacheBucketHeader = *mappedFileBucketInfo;
         BucketContainerIndexEntry = BucketContainer.BucketIndexes.GetBucketIndexInfo(BucketId);
         return this;

@@ -31,7 +31,7 @@ public class MemoryMappedFileBuffer : IBuffer
             readCursor = value;
             if (bufferAccessCounter <= 1)
             {
-                var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(readCursor, true) ?? false;
+                var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(readCursor, shouldGrow: true) ?? false;
                 if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
             }
         }
@@ -48,7 +48,7 @@ public class MemoryMappedFileBuffer : IBuffer
             writeCursor = value;
             if (bufferAccessCounter <= 1)
             {
-                var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(writeCursor, true) ?? false;
+                var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(writeCursor, shouldGrow: true) ?? false;
                 if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
             }
         }
@@ -101,13 +101,13 @@ public class MemoryMappedFileBuffer : IBuffer
     public void SetAllRead()
     {
         readCursor = writeCursor;
-        var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(readCursor, true) ?? false;
+        var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(readCursor, shouldGrow: true) ?? false;
         if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
     }
 
     public void TryHandleRemainingWriteBufferRunningLow()
     {
-        var moved = mappedFileShiftableView!.EnsureLowerViewContainsFileCursorOffset(writeCursor, true);
+        var moved = mappedFileShiftableView!.EnsureLowerViewContainsFileCursorOffset(writeCursor, shouldGrow: true);
         if (moved) Logger.Debug("Memory Mapped File Chunk Shifted LowerChunkFileCursorOffset");
     }
 

@@ -53,7 +53,7 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
         long createStartingAtFileCursorOffset, DateTime containingTime, bool isWritable)
     {
         var currentFileOffset = createStartingAtFileCursorOffset;
-        var ptr = bucketContainer.ContainingTimeSeriesFile.ActiveBucketDataFileView.FileCursorBufferPointer(createStartingAtFileCursorOffset, isWritable);
+        var ptr = bucketContainer.ContainingTimeSeriesFile.ActiveBucketDataFileView.FileCursorBufferPointer(createStartingAtFileCursorOffset, 0, isWritable);
         if (!NoPatternOrPadding)
         {
             for (var i = currentFileOffset; i < PrefixMargin; i++)
@@ -84,7 +84,7 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
         var currentFileOffset = fileCursorPosition;
         if (!NoPatternOrPadding)
         {
-            var ptr = bucketView.FileCursorBufferPointer(fileCursorPosition, true);
+            var ptr = bucketView.FileCursorBufferPointer(fileCursorPosition, 0,true);
             
             for (var i = currentFileOffset; i < SuffixPadding; i++)
             {

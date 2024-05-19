@@ -143,7 +143,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     private TimeSeriesFileHeaderBodyV1* writableV1HeaderBody;
     private TimeSeriesFileHeaderBodyV1 cacheV1HeaderBody;
     private string? bucketTypeString;
-    private BucketIndexDictionary? internalReadonlyIndexDictionary;
     private BucketIndexDictionary? internalWritableIndexDictionary;
     private List<BucketIndexInfo>? cacheSortedBucketIndexOffsets;
     private BucketIndexEarliestEntryComparer? bucketIndexEarliestEntryComparer;

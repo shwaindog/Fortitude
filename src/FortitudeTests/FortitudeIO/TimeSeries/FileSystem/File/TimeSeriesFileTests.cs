@@ -26,7 +26,7 @@ public class TimeSeriesFileTests
         memoryMappedFile = new FileInfo(newMemoryMappedFilePath);
         if (memoryMappedFile.Exists) memoryMappedFile.Delete();
         oneWeekFile = new TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>(newMemoryMappedFilePath,
-            TimeSeriesPeriod.OneWeek, DateTime.Now.Date, 6, 2,
+            TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 6, 2,
             FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader, 7);
     }
 
@@ -97,7 +97,7 @@ public class TimeSeriesFileTests
 
     public IEnumerable<Level1QuoteStruct> GenerateForEachDayAndHourOfCurrentWeek(int start, int amount)
     {
-        var dateToGenerate = DateTime.Now.Date;
+        var dateToGenerate = DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff = DayOfWeek.Sunday - currentDayOfWeek;
         var startOfWeek = dateToGenerate.AddDays(dayDiff);
@@ -113,7 +113,7 @@ public class TimeSeriesFileTests
 
     private IEnumerable<Level1QuoteStruct> GenerateRepeatableL1QuoteStructs(int start, int amount, int hour, DayOfWeek forDayOfWeek)
     {
-        var dateToGenerate = DateTime.Now.Date;
+        var dateToGenerate = DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff = forDayOfWeek - currentDayOfWeek;
         var generateDate = dateToGenerate.AddDays(dayDiff);

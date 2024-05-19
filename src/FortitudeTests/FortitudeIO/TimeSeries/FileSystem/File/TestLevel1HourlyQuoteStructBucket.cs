@@ -71,7 +71,7 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         var checkWithinRange = CheckTimeSupported(entryStorageTime);
         if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return checkWithinRange;
         var writeFileOffset = BucketDataStartFileOffset + (long)DataSizeBytes;
-        var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(writeFileOffset, true);
+        var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(writeFileOffset, shouldGrow: true);
         *ptr = entry;
         DataSizeBytes += (ulong)sizeof(Level1QuoteStruct);
         DataEntriesCount += 1;

@@ -62,7 +62,8 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         {
             if (!CanUseWritableBufferInfo) return BucketIndexDictionary!;
             BucketIndexDictionary
-                ??= new BucketIndexDictionary(SelectBucketHeaderFileView(), BucketIndexFileOffset, IndexCount, !Writable);
+                ??= new BucketIndexDictionary(BucketContainer.ContainerIndexFileView(BucketContainer.ContainerDepth), BucketIndexFileOffset
+                    , IndexCount, !Writable);
             return BucketIndexDictionary;
         }
     }
@@ -73,7 +74,8 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         {
             if (!CanUseWritableBufferInfo) return BucketIndexDictionary!;
             BucketIndexDictionary
-                ??= new BucketIndexDictionary(SelectBucketHeaderFileView(), BucketIndexFileOffset, IndexCount, !Writable);
+                ??= new BucketIndexDictionary(BucketContainer.ContainerIndexFileView(BucketContainer.ContainerDepth), BucketIndexFileOffset
+                    , IndexCount, !Writable);
             return BucketIndexDictionary;
         }
     }
@@ -103,8 +105,8 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         headerExtensionRealignmentDelta = (FileCursorOffset + sizeof(BucketHeader)) % 8;
         var headerExtensionRealignmentDeltaFileOffset = FileCursorOffset + sizeof(BucketHeader) + headerExtensionRealignmentDelta;
         mappedFileSubBucketContainerHeaderExtension
-            = (IndexedContainerHeaderExtension*)BucketAppenderFileView!.FileCursorBufferPointer(headerExtensionRealignmentDeltaFileOffset
-                , asWritable);
+            = (IndexedContainerHeaderExtension*)BucketHeaderFileView!.FileCursorBufferPointer(headerExtensionRealignmentDeltaFileOffset
+                , shouldGrow: asWritable);
         cacheIndexedContainerHeaderExtension = *mappedFileSubBucketContainerHeaderExtension;
         return this;
     }
@@ -125,7 +127,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     {
         if (IndexCount <= 0) throw new Exception("IndexedDataBucket must have at least one sub-bucket configured");
         base.InitializeNewBucket(containingTime);
-        var ptr = BucketAppenderFileView!.FileCursorBufferPointer(BucketIndexFileOffset, true);
+        var ptr = BucketAppenderFileView!.FileCursorBufferPointer(BucketIndexFileOffset, shouldGrow: true);
         for (var i = 0; i < CalculateBucketIndexByteSize(IndexCount); i++)
             *ptr++ = 0; // maybe overwritting existing data so should zero out existing data
     }
