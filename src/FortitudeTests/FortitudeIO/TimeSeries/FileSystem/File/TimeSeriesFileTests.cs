@@ -26,7 +26,8 @@ public class TimeSeriesFileTests
         memoryMappedFile = new FileInfo(newMemoryMappedFilePath);
         if (memoryMappedFile.Exists) memoryMappedFile.Delete();
         oneWeekFile = new TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>(newMemoryMappedFilePath,
-            TimeSeriesPeriod.OneWeek, DateTime.Now.Date, FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader, 7);
+            TimeSeriesPeriod.OneWeek, DateTime.Now.Date, 6, 2,
+            FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader, 7);
     }
 
     [TestCleanup]
@@ -34,34 +35,64 @@ public class TimeSeriesFileTests
     {
         oneWeekFile.Close();
         var dirInfo = new DirectoryInfo(Environment.CurrentDirectory);
-        foreach (var existingMemMappedFile in dirInfo.GetFiles("TimeSeriesFileTests_*"))
+        foreach (var existingTimeSeriesFile in dirInfo.GetFiles("TimeSeriesFileTests_*"))
             try
             {
-                existingMemMappedFile.Delete();
+                existingTimeSeriesFile.Delete();
             }
             catch (Exception ex)
             {
-                Console.Out.WriteLine("Could not delete file {0}", existingMemMappedFile);
+                Console.Out.WriteLine("Could not delete file {0}", existingTimeSeriesFile);
                 FLoggerFactory.WaitUntilDrained();
             }
     }
 
 
     [TestMethod]
-    public void CreateNewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
+    public unsafe void CreateNewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
     {
         var toPersistAndCheck = GenerateForEachDayAndHourOfCurrentWeek(0, 10).ToList();
 
+        ulong expectedDataSize = 0;
         foreach (var level1QuoteStruct in toPersistAndCheck)
         {
             var result = oneWeekFile.AppendEntry(level1QuoteStruct);
+            expectedDataSize += (ulong)sizeof(Level1QuoteStruct);
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
         }
+
+        Assert.AreEqual(expectedDataSize, oneWeekFile.Header.TotalDataSizeBytes);
 
         oneWeekFile.Close();
         oneWeekFile.ReopenFile(FileFlags.WriterOpened);
         var storedItems = oneWeekFile.AllEntries.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
+        Assert.IsTrue(toPersistAndCheck.SequenceEqual(storedItems));
+    }
+
+    [TestMethod]
+    public void CreateNewFile_BeyondFileTime_ReturnsFileRangeNotSupported()
+    {
+        var singleQuoteMiddleOfWeek = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Wednesday);
+        var nextWeekQuote = singleQuoteMiddleOfWeek.First();
+        nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
+        var result = oneWeekFile.AppendEntry(nextWeekQuote);
+        Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result);
+    }
+
+    [TestMethod]
+    public void CreateNewFile_AfterBucketClosesOnNextEntry_TryingToAddExistingEntryReturnsBucketClosedForAppend()
+    {
+        var wednesdayQuotes = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Wednesday);
+        var thursdayQuotes = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Thursday);
+        var wednesdayQuote = wednesdayQuotes.First();
+        var thursdayQuote = thursdayQuotes.First();
+        var result = oneWeekFile.AppendEntry(wednesdayQuote);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        result = oneWeekFile.AppendEntry(thursdayQuote);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        result = oneWeekFile.AppendEntry(wednesdayQuote);
+        Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result);
     }
 
     public IEnumerable<Level1QuoteStruct> GenerateForEachDayAndHourOfCurrentWeek(int start, int amount)

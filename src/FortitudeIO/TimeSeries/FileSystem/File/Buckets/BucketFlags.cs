@@ -9,7 +9,7 @@ public enum BucketFlags : ushort
     , BucketClosedGracefully = 4
     , BucketCurrentAppending = 8
     , BucketClosedForReading = 16
-    , FixedEntrySizeBucket = 32
+    , HasBucketIndex = 32
     , HasOnlySubBuckets = 64 // else is DataBucket
     , BufferZipCompressed = 128
 }
@@ -21,7 +21,7 @@ public static class BucketFlagsExtensions
     public static bool HasBucketClosedGracefullyFlag(this BucketFlags flags) => (flags & BucketFlags.BucketClosedGracefully) > 0;
     public static bool HasBucketCurrentAppendingFlag(this BucketFlags flags) => (flags & BucketFlags.BucketCurrentAppending) > 0;
     public static bool HasBucketClosedForReadingFlag(this BucketFlags flags) => (flags & BucketFlags.BucketClosedForReading) > 0;
-    public static bool HasFixedEntrySizeBucketFlag(this BucketFlags flags) => (flags & BucketFlags.FixedEntrySizeBucket) > 0;
+    public static bool HasFixedEntrySizeBucketFlag(this BucketFlags flags) => (flags & BucketFlags.HasBucketIndex) > 0;
     public static bool HasOnlySubBucketsFlag(this BucketFlags flags) => (flags & BucketFlags.HasOnlySubBuckets) > 0;
     public static bool HasBufferZipCompressedFlag(this BucketFlags flags) => (flags & BucketFlags.BufferZipCompressed) > 0;
 

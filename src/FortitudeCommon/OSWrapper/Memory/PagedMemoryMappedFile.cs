@@ -78,27 +78,28 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
     private bool isDisposed;
     private int liveCount;
 
-    public PagedMemoryMappedFile(string filePath)
+    public PagedMemoryMappedFile(string filePath, int initialFileSizePages = 2)
     {
         IncrementUsageCount();
         osDirectMemoryApi = osDirectMemoryApi = MemoryUtils.OsDirectMemoryAccess;
         PageSize = (int)osDirectMemoryApi.MinimumRequiredPageSize;
-        var minimumFileSizeForSmallestView = PageSize * 2;
-        if (minimumFileSizeForSmallestView <= 0) minimumFileSizeForSmallestView = PageSize * 2;
+        var initialFileSize = PageSize * Math.Max(2, initialFileSizePages);
+        if (initialFileSize <= 0) initialFileSize = PageSize * 2;
+
         var existingFile = File.Exists(filePath);
         fileStream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
         if (existingFile)
         {
             var fileSize = fileStream.Length;
-            if (fileStream.Length < minimumFileSizeForSmallestView || fileStream.Length % minimumFileSizeForSmallestView != 0)
+            if (fileStream.Length < initialFileSize || fileStream.Length % initialFileSize != 0)
             {
-                var growFileSize = fileSize % minimumFileSizeForSmallestView + fileSize;
+                var growFileSize = fileSize % initialFileSize + fileSize;
                 fileStream.SetLength(growFileSize);
             }
         }
         else
         {
-            fileStream.SetLength(minimumFileSizeForSmallestView);
+            fileStream.SetLength(initialFileSize);
         }
     }
 

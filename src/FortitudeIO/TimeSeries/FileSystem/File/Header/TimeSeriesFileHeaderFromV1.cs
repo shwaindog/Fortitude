@@ -37,6 +37,9 @@ public interface ITimeSeriesFileHeader : IDisposable
     FileOperation LastWriterOperation { get; }
     ulong LastWriterLastWriteOffset { get; }
     DateTime LastWriterWriteTime { get; }
+    uint TotalEntries { get; }
+    ulong TotalDataSizeBytes { get; }
+    uint TotalNonDataSizeBytes { get; }
     bool BucketsHaveChanged { get; }
     void CloseFileView();
     bool ReopenFileView(ShiftableMemoryMappedFileView memoryMappedFileView, FileFlags fileFlags = FileFlags.None);
@@ -68,6 +71,9 @@ public interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
     new FileOperation LastWriterOperation { get; set; }
     new ulong LastWriterLastWriteOffset { get; set; }
     new DateTime LastWriterWriteTime { get; set; }
+    new uint TotalEntries { get; set; }
+    new ulong TotalDataSizeBytes { get; set; }
+    new uint TotalNonDataSizeBytes { get; set; }
     int RemainingFirstBucketPadding { get; set; }
     new IBucketIndexDictionary BucketIndexes { get; }
 }
@@ -92,31 +98,34 @@ public struct FileStartVersionHeader
 public struct TimeSeriesFileHeaderBodyV1
 {
     public const ushort SerializationParameterDataMaxSize = 1024;
-    public FileFlags FileFlags;
+    public ulong FileSize;
+    public long FileStartPeriod;
+    public ulong LastWriterLastWriteOffset;
+    public long LastWriterWriteTime;
+    public ulong TotalDataSizeBytes;
     public uint FileHeaderSize;
+    public uint InternalIndexMaxSize;
+    public uint HighestBucketId;
+    public uint Buckets;
+    public uint LastWriterBucket;
+    public uint TotalEntries;
+    public uint TotalNonDataSizeBytes;
+    public uint FirstBucketFileStartOffset;
     public ushort FileTypeEnum;
     public ushort MaxHeaderTextSizeBytes;
     public ushort BucketTypeTextFileStartOffset;
-    public uint InternalIndexMaxSize;
-    public ulong FileSize;
-    public long FileStartPeriod;
+    public ushort OriginalSourceTextFileStartOffset;
+    public ushort ExternalIndexFileNameFileStartOffset;
+    public ushort AnnotationFileNameFileStartOffset;
+    public ushort InternalIndexFileStartOffset;
+    public ushort SerializationParameterDataSize;
     public TimeSeriesPeriod FilePeriod;
     public TimeSeriesPeriod BucketPeriod;
     public TimeSeriesPeriod EntriesPeriod;
     public TimeSeriesPeriod SubBucketPeriods;
     public TimeSeriesPeriod SummariesPeriods;
-    public uint HighestBucketId;
-    public uint Buckets;
-    public uint LastWriterBucket;
+    public FileFlags FileFlags;
     public FileOperation LastWriterOperation;
-    public ulong LastWriterLastWriteOffset;
-    public long LastWriterWriteTime;
-    public ushort OriginalSourceTextFileStartOffset;
-    public ushort ExternalIndexFileNameFileStartOffset;
-    public ushort AnnotationFileNameFileStartOffset;
-    public ushort InternalIndexFileStartOffset;
-    public uint FirstBucketFileStartOffset;
-    public ushort SerializationParameterDataSize;
     public byte SerializationParameterData;
 }
 
@@ -154,6 +163,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         {
             writableV1HeaderBody->InternalIndexFileStartOffset = EndOfStringValuesFileOffset;
         }
+        TotalNonDataSizeBytes = FileHeaderSize + 2;
 
         cacheV1HeaderBody = *writableV1HeaderBody;
     }
@@ -205,7 +215,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress;
                 StreamByteOps.ToBytes(ref ptr, value);
-                headerMemoryMappedFileView.FlushCursorDataToDisk(0, sizeof(ushort));
             }
             headerVersion = value;
         }
@@ -226,7 +235,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->FileFlags = value;
                 cacheV1HeaderBody.FileFlags = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->FileFlags, sizeof(FileFlags));
             }
         }
     }
@@ -246,7 +254,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->FileHeaderSize = value;
                 cacheV1HeaderBody.FileHeaderSize = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->FileHeaderSize, sizeof(uint));
             }
         }
     }
@@ -263,7 +270,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->MaxHeaderTextSizeBytes = value;
                 cacheV1HeaderBody.MaxHeaderTextSizeBytes = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->MaxHeaderTextSizeBytes, sizeof(ushort));
             }
         }
     }
@@ -301,16 +307,13 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + EndOfSerializerParametersFileOffset;
                 var bytes = StreamByteOps.ToBytesWithSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes);
-                headerMemoryMappedFileView.FlushCursorDataToDisk(EndOfSerializerParametersFileOffset, bytes);
                 writableV1HeaderBody->BucketTypeTextFileStartOffset = EndOfSerializerParametersFileOffset;
                 cacheV1HeaderBody.BucketTypeTextFileStartOffset = EndOfSerializerParametersFileOffset;
-                headerMemoryMappedFileView.FlushCursorDataToDisk(writableV1HeaderBody->BucketTypeTextFileStartOffset, sizeof(ushort));
             }
             else if (value == null)
             {
                 writableV1HeaderBody->BucketTypeTextFileStartOffset = 0;
                 cacheV1HeaderBody.BucketTypeTextFileStartOffset = 0;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->BucketTypeTextFileStartOffset, sizeof(ushort));
 
             }
             bucketTypeString = value;
@@ -327,7 +330,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->InternalIndexMaxSize = value;
                 cacheV1HeaderBody.InternalIndexMaxSize = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->InternalIndexMaxSize, sizeof(uint));
             }
         }
     }
@@ -347,7 +349,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->FileSize = value;
                 cacheV1HeaderBody.FileSize = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->FileSize, sizeof(ulong));
             }
         }
     }
@@ -367,7 +368,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->FileStartPeriod = value.Ticks;
                 cacheV1HeaderBody.FileStartPeriod = writableV1HeaderBody->LastWriterWriteTime;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->FileStartPeriod, sizeof(long));
             }
         }
     }
@@ -387,7 +387,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->FilePeriod = value;
                 cacheV1HeaderBody.FilePeriod = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->FilePeriod, sizeof(TimeSeriesPeriod));
             }
         }
     }
@@ -407,7 +406,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->BucketPeriod = value;
                 cacheV1HeaderBody.BucketPeriod = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->BucketPeriod, sizeof(TimeSeriesPeriod));
             }
         }
     }
@@ -427,7 +425,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->EntriesPeriod = value;
                 cacheV1HeaderBody.EntriesPeriod = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->EntriesPeriod, sizeof(TimeSeriesPeriod));
             }
         }
     }
@@ -447,7 +444,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->SubBucketPeriods = value;
                 cacheV1HeaderBody.SubBucketPeriods = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->SubBucketPeriods, sizeof(TimeSeriesPeriod));
             }
         }
     }
@@ -467,7 +463,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->SummariesPeriods = value;
                 cacheV1HeaderBody.SummariesPeriods = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->SummariesPeriods, sizeof(TimeSeriesPeriod));
             }
         }
     }
@@ -487,7 +482,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->HighestBucketId = value;
                 cacheV1HeaderBody.HighestBucketId = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->HighestBucketId, sizeof(uint));
             }
         }
     }
@@ -507,7 +501,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->Buckets = value;
                 cacheV1HeaderBody.Buckets = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->Buckets, sizeof(uint));
             }
         }
     }
@@ -527,7 +520,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->LastWriterBucket = value;
                 cacheV1HeaderBody.LastWriterBucket = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->LastWriterBucket, sizeof(uint));
             }
         }
     }
@@ -547,7 +539,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->LastWriterOperation = value;
                 cacheV1HeaderBody.LastWriterOperation = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->LastWriterOperation, sizeof(FileOperation));
             }
         }
     }
@@ -567,7 +558,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->LastWriterLastWriteOffset = value;
                 cacheV1HeaderBody.LastWriterLastWriteOffset = value;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->LastWriterLastWriteOffset, sizeof(ulong));
             }
         }
     }
@@ -587,7 +577,63 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->LastWriterWriteTime = value.Ticks;
                 cacheV1HeaderBody.LastWriterWriteTime = writableV1HeaderBody->LastWriterWriteTime;
-                headerMemoryMappedFileView.FlushPtrDataToDisk(&writableV1HeaderBody->LastWriterWriteTime, sizeof(long));
+            }
+        }
+    }
+
+    public uint TotalEntries 
+    {
+        get
+        {
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalEntries;
+            cacheV1HeaderBody.TotalEntries = writableV1HeaderBody->TotalEntries;
+            return cacheV1HeaderBody.TotalEntries;
+        }
+        set
+        {
+            if (cacheV1HeaderBody.TotalEntries == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                writableV1HeaderBody->TotalEntries = value;
+                cacheV1HeaderBody.TotalEntries = value;
+            }
+        }
+    }
+
+    public ulong TotalDataSizeBytes 
+    {
+        get
+        {
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalDataSizeBytes;
+            cacheV1HeaderBody.TotalDataSizeBytes = writableV1HeaderBody->TotalDataSizeBytes;
+            return cacheV1HeaderBody.TotalDataSizeBytes;
+        }
+        set
+        {
+            if (cacheV1HeaderBody.TotalDataSizeBytes == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                writableV1HeaderBody->TotalDataSizeBytes = value;
+                cacheV1HeaderBody.TotalDataSizeBytes = value;
+            }
+        }
+    }
+
+    public uint TotalNonDataSizeBytes 
+    {
+        get
+        {
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalNonDataSizeBytes;
+            cacheV1HeaderBody.TotalNonDataSizeBytes = writableV1HeaderBody->TotalNonDataSizeBytes;
+            return cacheV1HeaderBody.TotalNonDataSizeBytes;
+        }
+        set
+        {
+            if (cacheV1HeaderBody.TotalNonDataSizeBytes == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                writableV1HeaderBody->TotalNonDataSizeBytes = value;
+                cacheV1HeaderBody.TotalNonDataSizeBytes = value;
             }
         }
     }
@@ -607,7 +653,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->InternalIndexFileStartOffset = value;
                 cacheV1HeaderBody.InternalIndexFileStartOffset = value;
-                headerMemoryMappedFileView.FlushCursorDataToDisk(InternalIndexFileStartOffset, sizeof(ushort));
             }
         }
     }
@@ -615,7 +660,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     public bool BucketsHaveChanged => writableV1HeaderBody->Buckets != cacheV1HeaderBody.Buckets;
 
 
-    IBucketIndexDictionary IMutableTimeSeriesFileHeader.BucketIndexes
+    public IBucketIndexDictionary BucketIndexes
     {
         get
         {
@@ -630,21 +675,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
-    public IReadonlyBucketIndexDictionary BucketIndexes
-    {
-        get
-        {
-            if (headerMemoryMappedFileView == null) throw new Exception("File is closed");
-            if (!HasInternalIndex && !HasExternalBucketIndex) throw new Exception("No indexes defined for file");
-
-            // Todo add external indexes later
-
-            internalReadonlyIndexDictionary
-                ??= new BucketIndexDictionary(headerMemoryMappedFileView, InternalIndexFileStartOffset, InternalIndexMaxSize, true);
-            return internalReadonlyIndexDictionary;
-
-        }
-    }
+    IReadonlyBucketIndexDictionary ITimeSeriesFileHeader.BucketIndexes => BucketIndexes;
 
     public IEnumerable<BucketIndexInfo> EarliestOrderedBuckets
     {
@@ -664,7 +695,9 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 
     public void CloseFileView()
     {
+        headerMemoryMappedFileView?.FlushCursorDataToDisk(0, (int)FileHeaderSize + 2);
         headerMemoryMappedFileView?.Dispose();
+        headerMemoryMappedFileView = null;
     }
 
     public bool ReopenFileView(ShiftableMemoryMappedFileView memoryMappedFileView, FileFlags fileFlags = FileFlags.None)
@@ -672,8 +705,10 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         if (FileIsOpen) return true;
         headerMemoryMappedFileView = memoryMappedFileView;
         isWritable = fileFlags.HasWriterOpenedFlag();
+        internalWritableIndexDictionary?.OpenWithFileView(memoryMappedFileView, !isWritable);
         writableV1HeaderBody = (TimeSeriesFileHeaderBodyV1*)(memoryMappedFileView.LowerHalfViewVirtualMemoryAddress + 2);
         writableV1HeaderBody->FileFlags = FileFlags | fileFlags.Unset(FileFlags.HasInternalIndexInHeader);
+
         cacheV1HeaderBody = *writableV1HeaderBody;
         return true;
     }

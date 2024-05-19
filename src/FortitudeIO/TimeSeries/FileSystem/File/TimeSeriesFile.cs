@@ -24,9 +24,9 @@ public interface ITimeSeriesFile : IDisposable
     ushort FileVersion { get; }
     ITimeSeriesFileHeader Header { get; }
 
-    TimeSeriesPeriod FileTimePeriod { get; }
+    TimeSeriesPeriod TimeSeriesPeriod { get; }
 
-    DateTime FileStartPeriod { get; }
+    DateTime PeriodStartTime { get; }
 
     string FileName { get; }
     bool IsWritable { get; }
@@ -66,21 +66,38 @@ public interface IMutableTimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFil
     StorageAttemptResult AppendEntry(TEntry entry);
 }
 
-public interface IBucketTrackingTimeSeriesFile : ITimeSeriesFile
+public interface IMutableBucketContainer
 {
+    int ContainerDepth { get; }
+    DateTime PeriodStartTime { get; }
+    TimeSeriesPeriod TimeSeriesPeriod { get; }
+    IBucketIndexDictionary BucketIndexes { get; }
+    uint DataEntriesCount { get; set; }
+    ulong DataSizeBytes { get; set; }
+    uint NonDataSizeBytes { get; set; }
+    IBucketTrackingTimeSeriesFile ContainingTimeSeriesFile { get; }
+    ShiftableMemoryMappedFileView ContainerHeaderFileView(int depth);
+    uint CreateBucketId();
+    void AddNewBucket(IMutableBucket newChild);
+}
+
+public interface IBucketTrackingTimeSeriesFile : ITimeSeriesFile, IMutableBucketContainer
+{
+    new bool IsOpen { get; }
+    new DateTime PeriodStartTime { get; }
+    new TimeSeriesPeriod TimeSeriesPeriod { get; }
     new IMutableTimeSeriesFileHeader Header { get; set; }
     IBucket? CurrentlyOpenBucket { get; set; }
-    ShiftableMemoryMappedFileView ActiveBucketAppenderFileView { get; }
+    ShiftableMemoryMappedFileView ActiveBucketDataFileView { get; }
     ShiftableMemoryMappedFileView ActiveBucketHeaderFileView { get; }
     ShiftableMemoryMappedFileView AmendRelatedFileView { get; }
-    ShiftableMemoryMappedFileView ParentBucketFileView { get; }
-
-    void AddBucket(IMutableBucket bucket);
 }
 
 public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBucket, TEntry>, IBucketTrackingTimeSeriesFile
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
+    private readonly int activeBucketDataViewSizePages;
+    private readonly List<ShiftableMemoryMappedFileView> parentBucketsHeaderViews = new();
     private ShiftableMemoryMappedFileView? activeBucketHeaderView;
     private ShiftableMemoryMappedFileView? amendOffsetView;
     private ShiftableMemoryMappedFileView? bucketAppenderView;
@@ -88,14 +105,13 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
     private List<TBucket> cacheBuckets = new();
     private TBucket? currentlyOpenBucket;
     private IBucketIndexDictionary? fileBucketIndexOffsets;
-    private IMutableTimeSeriesFileHeader fileHeader;
     private bool isWritable;
     private uint lastAddedIndexKey;
-    private ShiftableMemoryMappedFileView? parentBucketReaderView;
     private PagedMemoryMappedFile? timeSeriesMemoryMappedFile;
 
-    public TimeSeriesFile(string filePath, bool isWritable)
+    public TimeSeriesFile(string filePath, bool isWritable, int activeBucketDataViewSizePages = 1)
     {
+        this.activeBucketDataViewSizePages = Math.Max(1, activeBucketDataViewSizePages);
         FileName = filePath;
         IsWritable = isWritable;
         timeSeriesMemoryMappedFile = new PagedMemoryMappedFile(filePath);
@@ -103,41 +119,42 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         var ptr = headerFileView.LowerHalfViewVirtualMemoryAddress;
         FileVersion = StreamByteOps.ToUShort(ref ptr);
         if (FileVersion is 0 or 1) // select appropriate header file based on file version
-            fileHeader = new TimeSeriesFileHeaderFromV1(headerFileView, isWritable);
+            Header = new TimeSeriesFileHeaderFromV1(headerFileView, isWritable);
         else
             throw new Exception("Unsupported file version being loaded");
 
-        if (fileHeader.BucketType != typeof(TBucket))
+        if (Header.BucketType != typeof(TBucket))
             throw new Exception("Attempting to open a file saved with a different bucket type");
-        FileTimePeriod = fileHeader.FilePeriod;
-        FileStartPeriod = fileHeader.FileStartPeriod;
+        TimeSeriesPeriod = Header.FilePeriod;
+        PeriodStartTime = Header.FileStartPeriod;
     }
 
-    public TimeSeriesFile(string filePath, TimeSeriesPeriod filePeriod, DateTime fileStartPeriod,
-        FileFlags fileFlags = FileFlags.None, uint internalIndexSize = 0, ushort maxStringSizeBytes = 512)
+    public TimeSeriesFile(string filePath, TimeSeriesPeriod filePeriod, DateTime fileStartPeriod, int initialFileSizePages,
+        int activeBucketDataViewSizePages = 1, FileFlags fileFlags = FileFlags.None, uint internalIndexSize = 0, ushort maxStringSizeBytes = 512)
     {
         FileName = filePath;
+        this.activeBucketDataViewSizePages = Math.Max(1, activeBucketDataViewSizePages);
         IsWritable = fileFlags.HasWriterOpenedFlag();
-        timeSeriesMemoryMappedFile = new PagedMemoryMappedFile(filePath);
+        timeSeriesMemoryMappedFile = new PagedMemoryMappedFile(filePath, initialFileSizePages);
         var headerFileView = timeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
         var ptr = headerFileView.LowerHalfViewVirtualMemoryAddress;
         FileVersion = StreamByteOps.ToUShort(ref ptr);
         if (FileVersion is 0 or 1) // select appropriate header file based on file version
-            fileHeader = TimeSeriesFileHeaderFromV1.NewFileCreateHeader(headerFileView, fileFlags, internalIndexSize, maxStringSizeBytes);
+            Header = TimeSeriesFileHeaderFromV1.NewFileCreateHeader(headerFileView, fileFlags, internalIndexSize, maxStringSizeBytes);
         else
             throw new Exception("Unsupported file version being loaded");
 
-        FileTimePeriod = filePeriod;
-        FileStartPeriod = FileTimePeriod.ContainingPeriodBoundaryStart(fileStartPeriod);
-        fileHeader.FilePeriod = filePeriod;
-        fileHeader.FileStartPeriod = fileStartPeriod;
+        TimeSeriesPeriod = filePeriod;
+        PeriodStartTime = TimeSeriesPeriod.ContainingPeriodBoundaryStart(fileStartPeriod);
+        Header.FilePeriod = filePeriod;
+        Header.FileStartPeriod = fileStartPeriod;
     }
 
     public TBucket? LastAddedBucket
     {
         get
         {
-            fileBucketIndexOffsets ??= fileHeader.BucketIndexes;
+            fileBucketIndexOffsets ??= Header.BucketIndexes;
             var previousLastCreatedBucketNullable = fileBucketIndexOffsets.LastAddedBucketIndexInfo;
             if (previousLastCreatedBucketNullable != null)
             {
@@ -149,10 +166,33 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         }
     }
 
-    IMutableTimeSeriesFileHeader IBucketTrackingTimeSeriesFile.Header
+    public uint DataEntriesCount
     {
-        get => fileHeader;
-        set => fileHeader = value;
+        get => Header.TotalEntries;
+        set => Header.TotalEntries = value;
+    }
+
+    public ulong DataSizeBytes
+    {
+        get => Header.TotalDataSizeBytes;
+        set => Header.TotalDataSizeBytes = value;
+    }
+
+    public IBucketTrackingTimeSeriesFile ContainingTimeSeriesFile => this;
+
+    public uint CreateBucketId()
+    {
+        return Header.HighestBucketId += 1;
+    }
+
+    public IBucketIndexDictionary BucketIndexes => fileBucketIndexOffsets ??= Header.BucketIndexes;
+
+    public int ContainerDepth => 0;
+
+    public uint NonDataSizeBytes
+    {
+        get => Header.TotalNonDataSizeBytes;
+        set => Header.TotalNonDataSizeBytes = value;
     }
 
     public IBucket? CurrentlyOpenBucket
@@ -165,25 +205,28 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         }
     }
 
-    public ShiftableMemoryMappedFileView ActiveBucketAppenderFileView =>
+    public ShiftableMemoryMappedFileView ActiveBucketDataFileView =>
         bucketAppenderView ??= timeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView(
-            "activeBucketDataAppender", closePagedMemoryMappedFileOnDispose: false);
+            "activeBucketDataAppender", activeBucketDataViewSizePages, closePagedMemoryMappedFileOnDispose: false);
 
     public ShiftableMemoryMappedFileView AmendRelatedFileView =>
         amendOffsetView ??= timeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView(
             "amendRelatedBucketOffsets", closePagedMemoryMappedFileOnDispose: false);
 
-    public ShiftableMemoryMappedFileView ParentBucketFileView =>
-        amendOffsetView ??= timeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView(
-            "parentBucketHeader", closePagedMemoryMappedFileOnDispose: false);
+    public ShiftableMemoryMappedFileView ContainerHeaderFileView(int depth)
+    {
+        for (var i = parentBucketsHeaderViews.Count; i < depth; i++)
+            parentBucketsHeaderViews.Add(timeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView("bucketContainerHeaderView_" + i));
+        return parentBucketsHeaderViews[depth - 1];
+    }
 
     public ShiftableMemoryMappedFileView ActiveBucketHeaderFileView =>
         activeBucketHeaderView ??= timeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView(
             "activeBucketHeader", closePagedMemoryMappedFileOnDispose: false);
 
-    public void AddBucket(IMutableBucket bucket)
+    public void AddNewBucket(IMutableBucket bucket)
     {
-        fileBucketIndexOffsets ??= fileHeader.BucketIndexes;
+        fileBucketIndexOffsets ??= Header.BucketIndexes;
         var previousLastCreatedBucketNullable = fileBucketIndexOffsets.LastAddedBucketIndexInfo;
         if (previousLastCreatedBucketNullable != null)
         {
@@ -203,7 +246,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         }
 
         var bucketIndexOffset
-            = new BucketIndexInfo(bucket.BucketId, bucket.BucketPeriodStart, bucket.BucketFlags, bucket.BucketPeriod, bucket.FileCursorOffset);
+            = new BucketIndexInfo(bucket.BucketId, bucket.PeriodStartTime, bucket.BucketFlags, bucket.TimeSeriesPeriod, bucket.FileCursorOffset);
         lastAddedIndexKey = fileBucketIndexOffsets.NextEmptyIndexKey;
         fileBucketIndexOffsets.Add(lastAddedIndexKey, bucketIndexOffset);
         cacheBuckets.Add((TBucket)bucket);
@@ -211,16 +254,12 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
 
     public ushort FileVersion { get; }
 
-    IMutableTimeSeriesFileHeader IMutableTimeSeriesFile.Header
-    {
-        get => fileHeader;
-        set => fileHeader = value;
-    }
+    public IMutableTimeSeriesFileHeader Header { get; set; }
 
-    public ITimeSeriesFileHeader Header => fileHeader;
-    public TimeSeriesPeriod FileTimePeriod { get; }
+    ITimeSeriesFileHeader ITimeSeriesFile.Header => Header;
+    public TimeSeriesPeriod TimeSeriesPeriod { get; }
 
-    public DateTime FileStartPeriod { get; }
+    public DateTime PeriodStartTime { get; }
 
     public string FileName { get; }
 
@@ -237,16 +276,17 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         if (!IsWritable) return StorageAttemptResult.BucketClosedForAppend;
         var entryTime = entry.StorageTime();
         var bucketMatch = currentlyOpenBucket?.CheckTimeSupported(entryTime) ?? LastAddedBucket?.CheckTimeSupported(entryTime)
-            ?? StorageAttemptResult.TypeNotCompatible;
+            ?? StorageAttemptResult.NoBucketChecked;
+        if (bucketMatch == StorageAttemptResult.BucketClosedForAppend) return bucketMatch;
         if (bucketMatch == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket!.AppendEntry(entry);
-        if (bucketMatch == StorageAttemptResult.ForNextTimePeriod)
+        if (bucketMatch == StorageAttemptResult.NextBucketPeriod)
         {
             currentlyOpenBucket = currentlyOpenBucket!.CloseAndCreateNextBucket();
-            return currentlyOpenBucket?.AppendEntry(entry) ?? StorageAttemptResult.FileRangeNotSupported;
+            return currentlyOpenBucket?.AppendEntry(entry) ?? StorageAttemptResult.NextFilePeriod;
         }
 
         var searchedBucket = GetOrCreateBucketFor(entryTime);
-        if (searchedBucket == null) return StorageAttemptResult.FileRangeNotSupported;
+        if (searchedBucket == null) return StorageAttemptResult.NextFilePeriod;
         return searchedBucket.AppendEntry(entry);
     }
 
@@ -254,7 +294,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         ChronologicallyOrderedBuckets().SelectMany(bucket =>
         {
             if (!bucket.IsOpen) bucket.OpenBucket(asWritable: IsWritable);
-            return bucket.AllEntries;
+            return bucket.AllBucketEntriesFrom();
         });
 
     public IEnumerable<TEntry> Entries(DateTime? fromTime = null, DateTime? toTime = null) => throw new NotImplementedException();
@@ -268,16 +308,17 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
     {
         IsWritable = false;
         foreach (var bucket in cacheBuckets) bucket.CloseFileView();
+        foreach (var depthParentBucketHeaderViews in parentBucketsHeaderViews) depthParentBucketHeaderViews.Dispose();
+        parentBucketsHeaderViews.Clear();
         activeBucketHeaderView?.Dispose();
         activeBucketHeaderView = null;
         bucketAppenderView?.Dispose();
         bucketAppenderView = null;
         amendOffsetView?.Dispose();
         amendOffsetView = null;
-        parentBucketReaderView?.Dispose();
-        parentBucketReaderView = null;
         fileBucketIndexOffsets?.CacheAndCloseFileView();
         fileBucketIndexOffsets = null;
+        Header.CloseFileView();
         timeSeriesMemoryMappedFile?.Dispose();
         timeSeriesMemoryMappedFile = null;
     }
@@ -287,14 +328,14 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
         if (IsOpen) return true;
         timeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName);
         var headerFileView = timeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
-        fileHeader.ReopenFileView(headerFileView, fileFlags);
+        Header.ReopenFileView(headerFileView, fileFlags);
         return true;
     }
 
     public TBucket? BucketAt(uint index)
     {
         if (IsOpen) return null;
-        fileBucketIndexOffsets ??= fileHeader.BucketIndexes;
+        fileBucketIndexOffsets ??= Header.BucketIndexes;
         if (fileBucketIndexOffsets.ContainsKey(index)) return null;
         var bucketIndexInfo = fileBucketIndexOffsets[index];
         currentlyOpenBucket = bucketFactory.OpenExistingBucket(this, bucketIndexInfo.ParentOrFileOffset, IsWritable);
@@ -311,7 +352,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
     public IEnumerable<TBucket> ChronologicallyOrderedBuckets()
     {
         if (IsOpen) return cacheBuckets;
-        fileBucketIndexOffsets ??= fileHeader.BucketIndexes;
+        fileBucketIndexOffsets ??= Header.BucketIndexes;
         cacheBuckets.Clear();
 
         foreach (var bucketIndexOffset in fileBucketIndexOffsets.Values)
@@ -330,15 +371,15 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
     public TBucket? GetOrCreateBucketFor(DateTime storageDateTime)
     {
         var searchResult = currentlyOpenBucket?.CheckTimeSupported(storageDateTime)
-                           ?? LastAddedBucket?.CheckTimeSupported(storageDateTime) ?? StorageAttemptResult.TypeNotCompatible;
+                           ?? LastAddedBucket?.CheckTimeSupported(storageDateTime) ?? StorageAttemptResult.NoBucketChecked;
 
         if (searchResult == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket;
-        if (searchResult == StorageAttemptResult.FileRangeNotSupported)
+        if (searchResult == StorageAttemptResult.NextFilePeriod)
             throw new InvalidOperationException("Entry can not be contained within this file");
-        if (searchResult == StorageAttemptResult.TypeNotCompatible)
+        if (searchResult == StorageAttemptResult.NoBucketChecked)
         {
-            var fileEndTime = FileTimePeriod.PeriodEnd(FileStartPeriod);
-            if (storageDateTime < FileStartPeriod || storageDateTime > fileEndTime) return null;
+            var fileEndTime = TimeSeriesPeriod.PeriodEnd(PeriodStartTime);
+            if (storageDateTime < PeriodStartTime || storageDateTime > fileEndTime) return null;
         }
 
         foreach (var existingBucket in ChronologicallyOrderedBuckets())
@@ -346,9 +387,9 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : IMutableTimeSeriesFile<TBu
                 return existingBucket;
         if (!cacheBuckets.Any()) currentlyOpenBucket = bucketFactory.CreateNewBucket(this, Header.EndOfHeaderFileOffset, storageDateTime, true);
 
-        if (IsWritable && searchResult == StorageAttemptResult.ForNextTimePeriod &&
+        if (IsWritable && searchResult == StorageAttemptResult.NextBucketPeriod &&
             (currentlyOpenBucket?.BucketFlags.HasBucketCurrentAppendingFlag() ?? false))
-            currentlyOpenBucket = (TBucket)currentlyOpenBucket.CloseAndCreateNextBucket()!;
+            currentlyOpenBucket = currentlyOpenBucket.CloseAndCreateNextBucket()!;
         return currentlyOpenBucket;
     }
 

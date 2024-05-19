@@ -34,7 +34,7 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
     public QuotePeriodSummary(TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m,
         decimal highestAskPrice = 0m, decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m,
-        decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u, long periodVolume = 0L)
+        decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u, long periodVolume = 0L, decimal averageMidPrice = 0m)
     {
         SummaryPeriod = timeSeriesPeriod;
         SummaryStartTime = startTime ?? DateTimeConstants.UnixEpoch;
@@ -49,6 +49,7 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
         EndAskPrice = endAskPrice;
         TickCount = tickCount;
         PeriodVolume = periodVolume;
+        AverageMidPrice = averageMidPrice;
     }
 
     public QuotePeriodSummary(IQuotePeriodSummary toClone)
@@ -66,6 +67,7 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
         EndAskPrice = toClone.EndAskPrice;
         TickCount = toClone.TickCount;
         PeriodVolume = toClone.PeriodVolume;
+        AverageMidPrice = toClone.AverageMidPrice;
     }
 
     public TimeSeriesPeriod SummaryPeriod
@@ -90,7 +92,6 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
     public decimal EndAskPrice { get; set; }
     public uint TickCount { get; set; }
     public long PeriodVolume { get; set; }
-
     public decimal AverageMidPrice { get; set; }
 
     public IQuotePeriodSummary CopyFrom(IQuotePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
