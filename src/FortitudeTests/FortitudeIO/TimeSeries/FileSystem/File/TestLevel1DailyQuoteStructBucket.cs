@@ -14,9 +14,9 @@ public class TestLevel1DailyQuoteStructBucket :
 {
     private static BucketFactory<TestLevel1DailyQuoteStructBucket> bucketBucketFactory = new();
 
-    public TestLevel1DailyQuoteStructBucket(IBucketTrackingTimeSeriesFile containingTimeSeriesFile, long bucketFileCursorOffset, bool writable)
-        : base(containingTimeSeriesFile, bucketFileCursorOffset, writable) =>
-        MaxSubBucketCount = 24;
+    public TestLevel1DailyQuoteStructBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable)
+        : base(bucketContainer, bucketFileCursorOffset, writable) =>
+        IndexCount = 24;
 
-    public override TimeSeriesPeriod BucketPeriod => TimeSeriesPeriod.OneDay;
+    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }

@@ -15,45 +15,43 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TestLevel1HourlyQuoteStructBucket));
 
-    public TestLevel1HourlyQuoteStructBucket(IBucketTrackingTimeSeriesFile containingTimeSeriesFile, long bucketFileCursorOffset, bool writable) :
-        base(containingTimeSeriesFile, bucketFileCursorOffset, writable) { }
+    public TestLevel1HourlyQuoteStructBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable) :
+        base(bucketContainer, bucketFileCursorOffset, writable) { }
 
-    public override TimeSeriesPeriod BucketPeriod => TimeSeriesPeriod.OneHour;
+    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneHour;
 
-    public override IEnumerable<Level1QuoteStruct> AllEntries
+    public override IEnumerable<Level1QuoteStruct> AllBucketEntriesFrom(long? fileCursorOffset = null)
     {
-        get
+        if (!IsOpen) return Enumerable.Empty<Level1QuoteStruct>();
+        var endOffSet = BucketDataStartFileOffset + (long)DataSizeBytes;
+        var returnResults = new List<Level1QuoteStruct>();
+        var readFileOffset = fileCursorOffset ?? BucketDataStartFileOffset;
+        var readEntryCount = 1;
+        while (readFileOffset < endOffSet)
         {
-            if (!IsOpen) return Enumerable.Empty<Level1QuoteStruct>();
-            var endOffSet = EntriesBufferFileOffset + SerializedEntriesBytes;
-            var returnResults = new List<Level1QuoteStruct>();
-            var readFileOffset = EntriesBufferFileOffset;
-            var readEntryCount = 1;
-            while (readFileOffset < endOffSet)
-            {
-                var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(readFileOffset);
-                var checkEntry = *ptr;
-                returnResults.Add(checkEntry);
-                readFileOffset += sizeof(Level1QuoteStruct);
-                Logger.Info("Bucket {0} with StartTime {1} read EntryNum: {2} at {3}- {4} ", BucketId, BucketPeriodStart, readEntryCount++
-                    , readFileOffset, checkEntry);
-            }
-
-            return returnResults;
+            var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(readFileOffset);
+            var checkEntry = *ptr;
+            returnResults.Add(checkEntry);
+            readFileOffset += sizeof(Level1QuoteStruct);
+            Logger.Info("Bucket {0} with StartTime {1} read EntryNum: {2} at {3}- {4} ", BucketId, PeriodStartTime, readEntryCount++
+                , readFileOffset, checkEntry);
         }
+
+        return returnResults;
     }
 
-    public override IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromDateTime = null
-        , DateTime? toDateTime = null) =>
+    public override IEnumerable<TM> EntriesBetween<TM>(long fileCursorOffset, IMessageDeserializer<TM> usingMessageDeserializer
+        , DateTime? fromTime = null
+        , DateTime? toTime = null) =>
         throw new NotImplementedException();
 
     public override int CopyTo(List<Level1QuoteStruct> destination, DateTime? fromDateTime = null, DateTime? toDateTime = null)
     {
         if (!IsOpen) return 0;
-        var readFileOffset = EntriesBufferFileOffset;
+        var readFileOffset = BucketDataStartFileOffset;
         var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(readFileOffset);
         var count = 0;
-        while (readFileOffset < EntriesBufferFileOffset + SerializedEntriesBytes)
+        while (readFileOffset < BucketDataStartFileOffset + (long)DataSizeBytes)
         {
             var checkEntry = *ptr;
             if (EntryIntersects(checkEntry))
@@ -72,12 +70,13 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         var entryStorageTime = entry.StorageTime(StorageTimeResolver);
         var checkWithinRange = CheckTimeSupported(entryStorageTime);
         if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return checkWithinRange;
-        var writeFileOffset = EntriesBufferFileOffset + SerializedEntriesBytes;
+        var writeFileOffset = BucketDataStartFileOffset + (long)DataSizeBytes;
         var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(writeFileOffset, true);
         *ptr = entry;
-        SerializedEntriesBytes += sizeof(Level1QuoteStruct);
-        EntryCount += 1;
-        Logger.Info("Bucket {0} with StartTime {1} wrote EntryNumber: {2} at {3} - {4} ", BucketId, BucketPeriodStart, EntryCount, writeFileOffset
+        DataSizeBytes += (ulong)sizeof(Level1QuoteStruct);
+        DataEntriesCount += 1;
+        Logger.Info("Bucket {0} with StartTime {1} wrote EntryNumber: {2} at {3} - {4} ", BucketId, PeriodStartTime, DataEntriesCount
+            , writeFileOffset
             , entry);
         return StorageAttemptResult.PeriodRangeMatched;
     }

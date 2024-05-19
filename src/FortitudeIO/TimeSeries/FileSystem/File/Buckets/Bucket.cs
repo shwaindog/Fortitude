@@ -13,29 +13,32 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 [StructLayout(LayoutKind.Sequential, Pack = 8)]
 public struct BucketHeader
 {
+    public static readonly long LowestBucketGranularityTickDivisor = TimeSpan.FromHours(1).Ticks;
+
     public uint BucketId;
     public uint ParentBucketId;
     public BucketFlags BucketFlags;
-    public TimeSeriesPeriod BucketPeriod;
+    public TimeSeriesPeriod TimeSeriesPeriod;
     public long ParentDeltaFileOffset;
-    public long BucketPeriodStart;
     public long PreviousSiblingDeltaFileOffset;
     public long NextSiblingBucketDeltaFileOffset;
     public long CreatedDateTime;
     public long LastAmendedDateTime;
-    public uint EntryCount;
-    public long SerializedEntriesBytes;
+    public ulong DataSizeBytes;
+    public uint DataEntriesCount;
+    public uint PeriodStartTime;
 }
 
 public enum StorageAttemptResult
 {
-    PeriodRangeMatched
-    , ForNextTimePeriod
-    , ForPreviousTimePeriod
+    EntryNotCompatible
+    , NoBucketChecked
+    , PeriodRangeMatched
+    , NextBucketPeriod
     , StorageTimeNotSupported
-    , FileRangeNotSupported
+    , NextFilePeriod
+    , CalculateFilePeriod
     , BucketSearchRange
-    , TypeNotCompatible
     , BucketClosedForAppend
 }
 
@@ -46,30 +49,32 @@ public interface IBucket : IDisposable
     uint ParentBucketId { get; }
     long ParentDeltaFileOffset { get; }
     long FileCursorOffset { get; }
-    TimeSeriesPeriod BucketPeriod { get; }
-    DateTime BucketPeriodStart { get; }
+    TimeSeriesPeriod TimeSeriesPeriod { get; }
+    DateTime PeriodStartTime { get; }
+    uint BucketHeaderSizeBytes { get; }
     bool IsOpen { get; }
     long PreviousSiblingBucketDeltaFileOffset { get; }
     long NextSiblingBucketDeltaFileOffset { get; }
     DateTime CreatedDateTime { get; }
     DateTime LastAmendedDateTime { get; }
-    uint EntryCount { get; }
-    long EntriesBufferFileOffset { get; }
-    long SerializedEntriesBytes { get; }
+    uint DataEntriesCount { get; }
+    long BucketDataStartFileOffset { get; }
+    ulong DataSizeBytes { get; }
+    uint NonDataSizeBytes { get; }
     Type ExpectedEntryType { get; }
 
     bool Intersects(DateTime? fromTime = null, DateTime? toTime = null);
     StorageAttemptResult CheckTimeSupported(DateTime storageDateTime);
     void CloseFileView();
-    IBucket OpenBucket(ShiftableMemoryMappedFileView? mappedFileView = null, bool asWritable = false);
+    IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false);
 }
 
 public interface IBucket<TEntry> : IBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
-    IEnumerable<TEntry> AllEntries { get; }
-    IEnumerable<TEntry> EntriesBetween(DateTime? fromDateTime = null, DateTime? toDateTime = null);
+    IEnumerable<TEntry> AllBucketEntriesFrom(long? fromFileCursorOffset = null);
+    IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null);
 
-    IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromDateTime = null, DateTime? toDateTime = null)
+    IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromTime = null, DateTime? toTime = null)
         where TM : class, IVersionedMessage;
 
     int CopyTo(List<TEntry> destination, DateTime? fromDateTime = null, DateTime? toDateTime = null);
@@ -82,16 +87,18 @@ public interface IMutableBucket : IBucket
     new BucketFlags BucketFlags { get; set; }
     new DateTime CreatedDateTime { get; set; }
     new DateTime LastAmendedDateTime { get; set; }
-    new DateTime BucketPeriodStart { get; set; }
+    new DateTime PeriodStartTime { get; set; }
     new uint ParentBucketId { get; set; }
     new long ParentDeltaFileOffset { get; set; }
     new long PreviousSiblingBucketDeltaFileOffset { get; set; }
     new long NextSiblingBucketDeltaFileOffset { get; set; }
+    new uint DataEntriesCount { get; set; }
+    new ulong DataSizeBytes { get; set; }
+    new uint NonDataSizeBytes { get; set; }
     IBuffer? DataWriterAtAppendLocation { get; }
-    uint CreateBucketId(uint previouslyHighestBucketId);
-    uint CreateBucketId(uint parentBucketId, uint? previousSiblingBucketId);
+    uint CreateBucketId(uint previousHighestBucketId);
     void SetEntrySerializer(IMessageSerializer useSerializer);
-    void InitializeNewBucket(DateTime containingTime, IMutableSubBucketContainerBucket? parentBucket = null);
+    void InitializeNewBucket(DateTime containingTime);
     long CalculateBucketEndFileOffset();
 }
 
@@ -105,5 +112,5 @@ public interface IBucketNavigation<TBucket> where TBucket : class, IBucketNaviga
 {
     BucketFactory<TBucket> BucketFactory { get; set; }
     TBucket? MoveNext { get; }
-    TBucket? CloseAndCreateNextBucket(IMutableSubBucketContainerBucket? parentBucket = null);
+    TBucket? CloseAndCreateNextBucket();
 }

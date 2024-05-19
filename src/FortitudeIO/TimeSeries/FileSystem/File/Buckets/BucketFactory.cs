@@ -5,8 +5,8 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket
 {
-    private static readonly Func<IBucketTrackingTimeSeriesFile, long, bool, TBucket> ParamConstructor = 
-        ReflectionHelper.CtorBinder<IBucketTrackingTimeSeriesFile, long, bool, TBucket>();
+    private static readonly Func<IMutableBucketContainer, long, bool, TBucket> ParamConstructor = 
+        ReflectionHelper.CtorBinder<IMutableBucketContainer, long, bool, TBucket>();
     
     private int prefixMargin = 32;
     private int prefixPadding = 21;
@@ -49,11 +49,11 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
     public long BucketInfoStartFileOffset => PrefixMargin + BucketPrefixPattern.Length + PrefixPadding;
     public long LastEntryBucketEndFileOffset => SuffixPadding + BucketSuffixPattern.Length + SuffixMargin;
 
-    public unsafe TBucket CreateNewBucket(IBucketTrackingTimeSeriesFile containingFile,
-        long createStartingAtFileCursorOffset, DateTime containingTime, bool isWritable, IMutableSubBucketContainerBucket? parentBucket = null)
+    public unsafe TBucket CreateNewBucket(IMutableBucketContainer bucketContainer,
+        long createStartingAtFileCursorOffset, DateTime containingTime, bool isWritable)
     {
         var currentFileOffset = createStartingAtFileCursorOffset;
-        var ptr = containingFile.ActiveBucketAppenderFileView.FileCursorBufferPointer(createStartingAtFileCursorOffset, isWritable);
+        var ptr = bucketContainer.ContainingTimeSeriesFile.ActiveBucketDataFileView.FileCursorBufferPointer(createStartingAtFileCursorOffset, isWritable);
         if (!NoPatternOrPadding)
         {
             for (var i = currentFileOffset; i < PrefixMargin; i++)
@@ -73,9 +73,9 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
             }
             currentFileOffset += PrefixPadding;
         }
-        var newBucket = ParamConstructor(containingFile, currentFileOffset, isWritable);
+        var newBucket = ParamConstructor(bucketContainer, currentFileOffset, isWritable);
         newBucket.BucketFactory = this;
-        newBucket.InitializeNewBucket(containingTime, parentBucket);
+        newBucket.InitializeNewBucket(containingTime);
         return newBucket;
     }
 
@@ -106,9 +106,9 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
         return currentFileOffset;
     }
 
-    public TBucket OpenExistingBucket(IBucketTrackingTimeSeriesFile containingFile,
+    public TBucket OpenExistingBucket(IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool isWritable)
     {
-        return ParamConstructor(containingFile, bucketFileCursorOffset, isWritable);
+        return ParamConstructor(bucketContainer, bucketFileCursorOffset, isWritable);
     }
 }

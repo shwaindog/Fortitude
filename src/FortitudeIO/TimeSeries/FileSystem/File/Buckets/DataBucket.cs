@@ -13,25 +13,28 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
-    protected readonly IBucketTrackingTimeSeriesFile ContainingTimeSeriesFile;
+    protected readonly IMutableBucketContainer BucketContainer;
+    protected readonly IBucketTrackingTimeSeriesFile ContainingFile;
     protected ShiftableMemoryMappedFileView? BucketAppenderFileView;
+    protected BucketIndexInfo* BucketContainerIndexEntry;
     protected ShiftableMemoryMappedFileView? BucketHeaderFileView;
     private BucketHeader cacheBucketHeader;
     protected IMessageSerializer? EntrySerializer;
     private MemoryMappedFileBuffer? fileBuffer;
-    private long headerRealignmentDelta;
+    protected long HeaderRealignmentDelta;
     private BucketHeader* mappedFileBucketInfo;
     private long requiredViewFileCursorOffset;
     private byte* requiredViewVirtualMemoryLocation;
     protected bool Writable;
 
-    protected DataBucket(IBucketTrackingTimeSeriesFile containingTimeSeriesFile,
-        long bucketFileCursorOffset, bool writable)
+    protected DataBucket(IMutableBucketContainer bucketContainer,
+        long bucketFileCursorOffset, bool writable, IMutableBucketContainer? parentBucket = null)
     {
-        ContainingTimeSeriesFile = containingTimeSeriesFile;
-        containingTimeSeriesFile.CurrentlyOpenBucket = this;
-        headerRealignmentDelta = bucketFileCursorOffset % 8;
-        FileCursorOffset = bucketFileCursorOffset + headerRealignmentDelta;
+        BucketContainer = bucketContainer;
+        ContainingFile = bucketContainer.ContainingTimeSeriesFile;
+        ContainingFile.CurrentlyOpenBucket = this;
+        HeaderRealignmentDelta = bucketFileCursorOffset % 8;
+        FileCursorOffset = bucketFileCursorOffset + HeaderRealignmentDelta;
         // ReSharper disable VirtualMemberCallInConstructor
         OpenBucket(asWritable: writable);
         // ReSharper restore VirtualMemberCallInConstructor
@@ -48,24 +51,29 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public TBucket? MoveNext =>
         NextSiblingBucketDeltaFileOffset != 0 ?
-            BucketFactory.OpenExistingBucket(ContainingTimeSeriesFile, FileCursorOffset + NextSiblingBucketDeltaFileOffset, Writable) :
+            BucketFactory.OpenExistingBucket(BucketContainer.ContainingTimeSeriesFile, FileCursorOffset + NextSiblingBucketDeltaFileOffset
+                , Writable) :
             default;
 
-    public virtual TBucket? CloseAndCreateNextBucket(IMutableSubBucketContainerBucket? parentBucket = null)
+    public virtual TBucket? CloseAndCreateNextBucket()
     {
         if (!Writable) return null;
-        var nextStartPeriod = BucketPeriod.PeriodEnd(BucketPeriodStart);
+        var nextStartPeriod = TimeSeriesPeriod.PeriodEnd(PeriodStartTime);
         var nextPeriodResult = CheckTimeSupported(nextStartPeriod);
-        if (nextPeriodResult == StorageAttemptResult.ForNextTimePeriod)
+        if (nextPeriodResult == StorageAttemptResult.NextBucketPeriod)
         {
             BucketFlags = BucketFlags.BucketClosedGracefully | BucketFlags.Unset(BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending);
             // TODO SubBucketOnlyBucket needs to add up all sizes of containing buckets when closing.
             var bucketEndCursor = BucketFactory.AppendCloseBucketDelimiter(BucketAppenderFileView!, CalculateBucketEndFileOffset());
-            return BucketFactory.CreateNewBucket(ContainingTimeSeriesFile, bucketEndCursor, nextStartPeriod, Writable, parentBucket);
+            var nextBucket = BucketFactory.CreateNewBucket(BucketContainer, bucketEndCursor, nextStartPeriod, true);
+            CloseFileView();
+            return nextBucket;
         }
 
         return null;
     }
+
+    public virtual uint BucketHeaderSizeBytes => (uint)(HeaderRealignmentDelta + (EndOfBucketHeaderSectionOffset - FileCursorOffset));
 
     public Type ExpectedEntryType => typeof(TEntry);
 
@@ -135,26 +143,27 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
         }
     }
 
-    public abstract TimeSeriesPeriod BucketPeriod { get; }
+    public abstract TimeSeriesPeriod TimeSeriesPeriod { get; }
 
     public bool Intersects(DateTime? fromTime = null, DateTime? toTime = null) =>
-        (BucketPeriodStart < toTime || (toTime == null && fromTime != null))
-        && (BucketPeriod.PeriodEnd(BucketPeriodStart) > fromTime || (fromTime == null && toTime != null));
+        (PeriodStartTime < toTime || (toTime == null && fromTime != null))
+        && (TimeSeriesPeriod.PeriodEnd(PeriodStartTime) > fromTime || (fromTime == null && toTime != null));
 
-    public DateTime BucketPeriodStart
+    public DateTime PeriodStartTime
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return DateTime.FromBinary(cacheBucketHeader.BucketPeriodStart);
-            cacheBucketHeader.BucketPeriodStart = mappedFileBucketInfo->BucketPeriodStart;
-            return DateTime.FromBinary(cacheBucketHeader.BucketPeriodStart);
+            if (!CanUseWritableBufferInfo)
+                return DateTime.FromBinary(cacheBucketHeader.PeriodStartTime * BucketHeader.LowestBucketGranularityTickDivisor);
+            cacheBucketHeader.PeriodStartTime = mappedFileBucketInfo->PeriodStartTime;
+            return DateTime.FromBinary(cacheBucketHeader.PeriodStartTime * BucketHeader.LowestBucketGranularityTickDivisor);
         }
 
         set
         {
-            if (value.Ticks == cacheBucketHeader.BucketPeriodStart || !Writable || !CanUseWritableBufferInfo) return;
-            mappedFileBucketInfo->BucketPeriodStart = value.Ticks;
-            cacheBucketHeader.BucketPeriodStart = value.Ticks;
+            if (value.Ticks == cacheBucketHeader.PeriodStartTime || !Writable || !CanUseWritableBufferInfo) return;
+            mappedFileBucketInfo->PeriodStartTime = (uint)(value.Ticks / BucketHeader.LowestBucketGranularityTickDivisor);
+            cacheBucketHeader.PeriodStartTime = (uint)(value.Ticks / BucketHeader.LowestBucketGranularityTickDivisor);
         }
     }
 
@@ -226,62 +235,90 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
         }
     }
 
-    public uint EntryCount
+    public uint DataEntriesCount
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.EntryCount;
-            cacheBucketHeader.EntryCount = mappedFileBucketInfo->EntryCount;
-            return cacheBucketHeader.EntryCount;
+            if (!CanUseWritableBufferInfo) return cacheBucketHeader.DataEntriesCount;
+            cacheBucketHeader.DataEntriesCount = mappedFileBucketInfo->DataEntriesCount;
+            return cacheBucketHeader.DataEntriesCount;
         }
 
         set
         {
-            if (value == cacheBucketHeader.EntryCount || !Writable || !CanUseWritableBufferInfo) return;
-            mappedFileBucketInfo->EntryCount = value;
-            cacheBucketHeader.EntryCount = value;
+            if (value == cacheBucketHeader.DataEntriesCount || !Writable || !CanUseWritableBufferInfo) return;
+            if (BucketContainerIndexEntry != null)
+            {
+                var deltaEntries = value - mappedFileBucketInfo->DataEntriesCount;
+                BucketContainerIndexEntry->NumEntries += deltaEntries;
+                BucketContainer.DataEntriesCount += deltaEntries;
+            }
+
+            mappedFileBucketInfo->DataEntriesCount = value;
+            cacheBucketHeader.DataEntriesCount = value;
         }
     }
 
-    public long EntriesBufferFileOffset => EndOfBucketHeaderSectionOffset;
+    public virtual long BucketDataStartFileOffset => EndOfBucketHeaderSectionOffset;
 
-    public long SerializedEntriesBytes
+    public ulong DataSizeBytes
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.SerializedEntriesBytes;
-            cacheBucketHeader.SerializedEntriesBytes = mappedFileBucketInfo->SerializedEntriesBytes;
-            return cacheBucketHeader.SerializedEntriesBytes;
+            if (!CanUseWritableBufferInfo) return cacheBucketHeader.DataSizeBytes;
+            cacheBucketHeader.DataSizeBytes = mappedFileBucketInfo->DataSizeBytes;
+            return cacheBucketHeader.DataSizeBytes;
         }
 
         set
         {
-            if (value == cacheBucketHeader.SerializedEntriesBytes || !Writable || !CanUseWritableBufferInfo) return;
-            mappedFileBucketInfo->SerializedEntriesBytes = value;
-            cacheBucketHeader.SerializedEntriesBytes = value;
+            if (value == cacheBucketHeader.DataSizeBytes || !Writable || !CanUseWritableBufferInfo) return;
+            if (BucketContainerIndexEntry != null)
+            {
+                var deltaBytes = value - mappedFileBucketInfo->DataSizeBytes;
+                BucketContainerIndexEntry->DataSizeBytes += deltaBytes;
+                BucketContainer.DataSizeBytes += deltaBytes;
+            }
+
+            mappedFileBucketInfo->DataSizeBytes = value;
+            cacheBucketHeader.DataSizeBytes = value;
+        }
+    }
+
+    public uint NonDataSizeBytes
+    {
+        get => BucketHeaderSizeBytes;
+
+        set
+        {
+            if (value > BucketHeaderSizeBytes || !Writable || !CanUseWritableBufferInfo) return;
+            if (BucketContainerIndexEntry == null) return;
+            var additionalNonBucketDataSize = value - NonDataSizeBytes;
+            BucketContainer.NonDataSizeBytes = additionalNonBucketDataSize;
         }
     }
 
     public IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
 
-    public virtual uint CreateBucketId(uint previouslyHighestBucketId) => previouslyHighestBucketId + 1;
+    public virtual uint CreateBucketId(uint previousHighestBucketId) => previousHighestBucketId + 1;
 
     public StorageAttemptResult CheckTimeSupported(DateTime storageDateTime)
     {
         if (!IsOpen) OpenBucket(asWritable: Writable);
         if (storageDateTime == default || storageDateTime == DateTimeConstants.UnixEpoch) return StorageAttemptResult.StorageTimeNotSupported;
-        var bucketPeriod = BucketPeriod;
-        var bucketEndTime = bucketPeriod.PeriodEnd(BucketPeriodStart);
-        if (storageDateTime >= BucketPeriodStart && storageDateTime < bucketEndTime)
-            return StorageAttemptResult.PeriodRangeMatched;
+        var bucketPeriod = TimeSeriesPeriod;
+        var bucketEndTime = bucketPeriod.PeriodEnd(PeriodStartTime);
+        if (storageDateTime >= PeriodStartTime && storageDateTime < bucketEndTime)
+            return BucketFlags.HasBucketCurrentAppendingFlag() ? StorageAttemptResult.PeriodRangeMatched : StorageAttemptResult.BucketClosedForAppend;
+
         if (storageDateTime >= bucketEndTime && storageDateTime < bucketPeriod.PeriodEnd(bucketEndTime))
-            return StorageAttemptResult.ForNextTimePeriod;
-        if (storageDateTime >= bucketPeriod.PreviousPeriodStart(BucketPeriodStart) && storageDateTime < BucketPeriodStart)
-            return StorageAttemptResult.ForPreviousTimePeriod;
-        var filePeriod = ContainingTimeSeriesFile.FileTimePeriod;
-        var fileStartTime = ContainingTimeSeriesFile.FileStartPeriod;
+            return StorageAttemptResult.NextBucketPeriod;
+        if (storageDateTime >= bucketPeriod.PreviousPeriodStart(PeriodStartTime) && storageDateTime < PeriodStartTime)
+            return StorageAttemptResult.BucketClosedForAppend;
+        var filePeriod = ((ITimeSeriesFile)BucketContainer.ContainingTimeSeriesFile).TimeSeriesPeriod;
+        var fileStartTime = ((ITimeSeriesFile)BucketContainer.ContainingTimeSeriesFile).PeriodStartTime;
         if (storageDateTime >= fileStartTime && storageDateTime < filePeriod.PeriodEnd(fileStartTime)) return StorageAttemptResult.BucketSearchRange;
-        return StorageAttemptResult.FileRangeNotSupported;
+        return StorageAttemptResult.NextFilePeriod;
     }
 
     public bool IsOpen => BucketAppenderFileView != null && BucketHeaderFileView != null;
@@ -294,58 +331,48 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
         {
             if (!IsOpenForAppend || BucketAppenderFileView == null) return null;
             fileBuffer ??= new MemoryMappedFileBuffer(BucketAppenderFileView, false);
-            fileBuffer.SetFileWriterAt(BucketAppenderFileView, EntriesBufferFileOffset + SerializedEntriesBytes);
+            fileBuffer.SetFileWriterAt(BucketAppenderFileView, BucketDataStartFileOffset + (long)DataSizeBytes);
             return fileBuffer;
         }
     }
 
-    public virtual IBucket OpenBucket(ShiftableMemoryMappedFileView? mappedFileView = null, bool asWritable = false)
+    public virtual IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false)
     {
-        BucketHeaderFileView = ContainingTimeSeriesFile.ActiveBucketHeaderFileView;
+        BucketHeaderFileView = alternativeHeaderAndDataFileView ?? SelectBucketHeaderFileView();
         BucketHeaderFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, asWritable);
-        mappedFileView ??= SelectAppenderFileView();
-        mappedFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, asWritable);
-        BucketAppenderFileView = mappedFileView;
+        alternativeHeaderAndDataFileView ??= BucketContainer.ContainingTimeSeriesFile.ActiveBucketDataFileView;
+        alternativeHeaderAndDataFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, asWritable);
+        BucketAppenderFileView = alternativeHeaderAndDataFileView;
         Writable = asWritable;
         requiredViewFileCursorOffset = BucketHeaderFileView.LowerViewFileCursorOffset;
         requiredViewVirtualMemoryLocation = BucketHeaderFileView.LowerHalfViewVirtualMemoryAddress;
         mappedFileBucketInfo = (BucketHeader*)BucketHeaderFileView.FileCursorBufferPointer(FileCursorOffset, asWritable);
         cacheBucketHeader = *mappedFileBucketInfo;
+        BucketContainerIndexEntry = BucketContainer.BucketIndexes.GetBucketIndexInfo(BucketId);
         return this;
     }
 
-    public virtual void InitializeNewBucket(DateTime containingTime, IMutableSubBucketContainerBucket? parentBucket = null)
+    public virtual void InitializeNewBucket(DateTime containingTime)
     {
-        var bucketStartTime = BucketPeriod.ContainingPeriodBoundaryStart(containingTime);
-        BucketPeriodStart = bucketStartTime;
-        var bucketId = parentBucket != null ?
-            CreateBucketId(parentBucket.BucketId, parentBucket.LastAddedChildBucketId) :
-            CreateBucketId(ContainingTimeSeriesFile.Header.HighestBucketId);
-        if (BucketFactory.IsFileRootBucketType) ContainingTimeSeriesFile.Header.HighestBucketId = bucketId;
+        var bucketStartTime = TimeSeriesPeriod.ContainingPeriodBoundaryStart(containingTime);
+        PeriodStartTime = bucketStartTime;
+        var bucketId = BucketContainer.CreateBucketId();
+        if (BucketFactory.IsFileRootBucketType) BucketContainer.ContainingTimeSeriesFile.Header.HighestBucketId = bucketId;
 
         BucketId = bucketId;
         BucketFlags = BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending;
         CreatedDateTime = DateTime.UtcNow;
         LastAmendedDateTime = DateTime.UtcNow;
-        EntryCount = 0;
-        SerializedEntriesBytes = 0;
-        var thisEndBucketTime = BucketPeriod.PeriodEnd(BucketPeriodStart);
-        if (parentBucket != null)
-        {
-            var parentBucketEndTime = parentBucket.BucketPeriod.PeriodEnd(parentBucket.BucketPeriodStart);
-            if (parentBucketEndTime == thisEndBucketTime) BucketFlags |= BucketFlags.IsLastPossibleSibling;
-            ParentBucketId = parentBucket.BucketId;
-            ParentDeltaFileOffset = parentBucket.FileCursorOffset - FileCursorOffset;
-            parentBucket.AddNewChildBucket(this);
-        }
-        else
-        {
-            var fileEndTime = ContainingTimeSeriesFile.FileTimePeriod.PeriodEnd(ContainingTimeSeriesFile.FileStartPeriod);
-            if (fileEndTime == thisEndBucketTime) BucketFlags |= BucketFlags.IsLastPossibleSibling;
-            ParentBucketId = 0;
-            ParentDeltaFileOffset = 0;
-            ContainingTimeSeriesFile.AddBucket(this);
-        }
+        DataEntriesCount = 0;
+        DataSizeBytes = 0;
+        var thisEndBucketTime = TimeSeriesPeriod.PeriodEnd(PeriodStartTime);
+        var fileEndTime = BucketContainer.TimeSeriesPeriod.PeriodEnd(BucketContainer.PeriodStartTime);
+        if (fileEndTime == thisEndBucketTime) BucketFlags |= BucketFlags.IsLastPossibleSibling;
+        ParentBucketId = 0;
+        ParentDeltaFileOffset = 0;
+        BucketContainer.AddNewBucket(this);
+        BucketContainerIndexEntry->NumIndexEntries += 1;
+        BucketContainer.NonDataSizeBytes += BucketHeaderSizeBytes;
     }
 
     public virtual void Dispose()
@@ -358,22 +385,24 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
         BucketAppenderFileView = null;
         BucketHeaderFileView = null;
         mappedFileBucketInfo = null;
+        BucketContainerIndexEntry = null;
         Writable = false;
     }
 
-    public virtual long CalculateBucketEndFileOffset() => EntriesBufferFileOffset + SerializedEntriesBytes;
+    public virtual long CalculateBucketEndFileOffset() => BucketDataStartFileOffset + (long)DataSizeBytes;
 
-    public abstract IEnumerable<TEntry> AllEntries { get; }
+    public abstract IEnumerable<TEntry> AllBucketEntriesFrom(long? fromFileCursorOffset = null);
 
-    public virtual IEnumerable<TEntry> EntriesBetween(DateTime? fromDateTime = null, DateTime? toDateTime = null)
+    public virtual IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null)
     {
-        foreach (var timeSeriesEntry in AllEntries)
-            if (EntryIntersects(timeSeriesEntry, fromDateTime, toDateTime))
+        foreach (var timeSeriesEntry in AllBucketEntriesFrom(BucketDataStartFileOffset))
+            if (EntryIntersects(timeSeriesEntry, fromTime, toTime))
                 yield return timeSeriesEntry;
     }
 
-    public abstract IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromDateTime = null
-        , DateTime? toDateTime = null) where TM : class, IVersionedMessage;
+    public virtual IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromTime = null
+        , DateTime? toTime = null) where TM : class, IVersionedMessage =>
+        EntriesBetween(BucketDataStartFileOffset, usingMessageDeserializer, fromTime, toTime);
 
     public abstract int CopyTo(List<TEntry> destination, DateTime? fromDateTime = null, DateTime? toDateTime = null);
 
@@ -384,14 +413,23 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public abstract StorageAttemptResult AppendEntry(TEntry entry);
 
-    public virtual uint CreateBucketId(uint parentBucketId, uint? previousSiblingBucketId) =>
-        previousSiblingBucketId != null ? previousSiblingBucketId.Value + 1 : parentBucketId * 1000;
+
+    public virtual IEnumerable<TEntry> EntriesBetween(long fileCursorOffset, DateTime? fromTime = null, DateTime? toTime = null)
+    {
+        foreach (var timeSeriesEntry in AllBucketEntriesFrom(fileCursorOffset))
+            if (EntryIntersects(timeSeriesEntry, fromTime, toTime))
+                yield return timeSeriesEntry;
+    }
+
+    public abstract IEnumerable<TM> EntriesBetween<TM>(long fileCursorOffset, IMessageDeserializer<TM> usingMessageDeserializer
+        , DateTime? fromTime = null
+        , DateTime? toTime = null) where TM : class, IVersionedMessage;
+
 
     ~DataBucket()
     {
         Dispose();
     }
-
 
     protected bool EntryIntersects(TEntry checkEntry, DateTime? fromTime = null, DateTime? toTime = null)
     {
@@ -400,5 +438,5 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
                && (entryStorageTime > fromTime || (fromTime == null && toTime != null));
     }
 
-    protected virtual ShiftableMemoryMappedFileView SelectAppenderFileView() => ContainingTimeSeriesFile.ActiveBucketAppenderFileView;
+    protected virtual ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => ContainingFile.ActiveBucketHeaderFileView;
 }

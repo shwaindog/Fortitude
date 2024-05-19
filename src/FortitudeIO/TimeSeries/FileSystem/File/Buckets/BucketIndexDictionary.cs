@@ -26,7 +26,7 @@ public interface IReadonlyBucketIndexDictionary : IReadOnlyDictionary<uint, Buck
     void OpenWithFileView(ShiftableMemoryMappedFileView memoryMappedFileView, bool isReadOnly);
 }
 
-public interface IBucketIndexDictionary : IDictionary<uint, BucketIndexInfo>, IReadonlyBucketIndexDictionary
+public unsafe interface IBucketIndexDictionary : IDictionary<uint, BucketIndexInfo>, IReadonlyBucketIndexDictionary
 {
     BucketIndexInfo? LastAddedBucketIndexInfo { get; }
     uint NextEmptyIndexKey { get; }
@@ -40,6 +40,7 @@ public interface IBucketIndexDictionary : IDictionary<uint, BucketIndexInfo>, IR
     new bool Contains(KeyValuePair<uint, BucketIndexInfo> item);
     new void CopyTo(KeyValuePair<uint, BucketIndexInfo>[] array, int arrayIndex);
     new IEnumerator<KeyValuePair<uint, BucketIndexInfo>> GetEnumerator();
+    BucketIndexInfo* GetBucketIndexInfo(uint key);
 }
 
 public unsafe class BucketIndexDictionary : IBucketIndexDictionary
@@ -101,7 +102,11 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
         cacheBucketIndexInfos ??= new List<KeyValuePair<uint, BucketIndexInfo>>();
         cacheBucketIndexInfos.Clear();
         cacheBucketIndexInfos.AddRange(this);
-        cacheLastAddedEntry = *lastAddedEntryBufferPointer;
+        if (lastAddedEntryBufferPointer != null)
+            cacheLastAddedEntry = *lastAddedEntryBufferPointer;
+        else
+            cacheLastAddedEntry = default;
+
         IsReadOnly = true;
         memoryMappedFileView = null;
         writableV1IndexHeaderSectionV1 = null;
@@ -286,6 +291,20 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
         set => Add(key, value);
     }
 
+    public BucketIndexInfo* GetBucketIndexInfo(uint bucketId)
+    {
+        BucketIndexInfo returnResult = default;
+        if (!IsFileViewOpen) return null;
+
+        for (uint i = 0; i < maxPossibleIndexEntries; i++)
+        {
+            var indexEntry = firstEntryBufferPointer + i;
+            if (indexEntry->BucketId == bucketId) return indexEntry;
+        }
+
+        return null;
+    }
+
     public ICollection<uint> Keys
     {
         get
@@ -340,6 +359,6 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     {
         if (maxEntries == 0) return 0;
         var fileRealignment = proposedStartPosition % 8;
-        return (uint)(sizeof(SubBucketIndexList) + sizeof(SubBucketIndexInfo) * (maxEntries - 1) + fileRealignment);
+        return (uint)(sizeof(BucketIndexList) + sizeof(BucketIndexInfo) * (maxEntries - 1) + fileRealignment);
     }
 }
