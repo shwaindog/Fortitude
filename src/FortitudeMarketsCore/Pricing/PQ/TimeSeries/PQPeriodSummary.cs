@@ -13,7 +13,7 @@ using FortitudeMarketsCore.Pricing.TimeSeries;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
-public class PQQuotePeriodSummary : IPQQuotePeriodSummary
+public class PQPricePeriodSummary : IPQPricePeriodSummary
 {
     private decimal averageMidPrice;
     private decimal endAskPrice;
@@ -31,9 +31,9 @@ public class PQQuotePeriodSummary : IPQQuotePeriodSummary
     private TimeSeriesPeriod timeSeriesPeriod;
     private PeriodSummaryUpdatedFlags updatedFlags;
 
-    public PQQuotePeriodSummary() { }
+    public PQPricePeriodSummary() { }
 
-    public PQQuotePeriodSummary(IQuotePeriodSummary toClone)
+    public PQPricePeriodSummary(IPricePeriodSummary toClone)
     {
         SummaryPeriod = toClone.SummaryPeriod;
         SummaryStartTime = toClone.SummaryStartTime;
@@ -509,9 +509,9 @@ public class PQQuotePeriodSummary : IPQQuotePeriodSummary
         }
     }
 
-    public IQuotePeriodSummary CopyFrom(IQuotePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IPricePeriodSummary CopyFrom(IPricePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (!(ps is IPQQuotePeriodSummary pqPs))
+        if (!(ps is IPQPricePeriodSummary pqPs))
         {
             SummaryStartTime = ps.SummaryStartTime;
             SummaryEndTime = ps.SummaryEndTime;
@@ -553,21 +553,21 @@ public class PQQuotePeriodSummary : IPQQuotePeriodSummary
             if (pqPs.IsPeriodVolumeLowerBytesUpdated || pqPs.IsPeriodVolumeUpperBytesUpdated)
                 PeriodVolume = pqPs.PeriodVolume;
 
-            if (pqPs is PQQuotePeriodSummary pqPeriodSummary) updatedFlags = pqPeriodSummary.updatedFlags;
+            if (pqPs is PQPricePeriodSummary pqPeriodSummary) updatedFlags = pqPeriodSummary.updatedFlags;
         }
 
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IQuotePeriodSummary)source, copyMergeFlags);
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
-    public IMutableQuotePeriodSummary Clone() => new PQQuotePeriodSummary(this);
+    public IMutablePricePeriodSummary Clone() => new PQPricePeriodSummary(this);
 
     object ICloneable.Clone() => Clone();
 
-    IQuotePeriodSummary ICloneable<IQuotePeriodSummary>.Clone() => Clone();
+    IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
-    public bool AreEquivalent(IQuotePeriodSummary? other, bool exactTypes = false)
+    public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
@@ -588,7 +588,7 @@ public class PQQuotePeriodSummary : IPQQuotePeriodSummary
         var updateFlagsSame = true;
         if (exactTypes)
         {
-            var otherPQ = (PQQuotePeriodSummary)other;
+            var otherPQ = (PQPricePeriodSummary)other;
             updateFlagsSame = updatedFlags == otherPQ.updatedFlags;
         }
 
@@ -597,7 +597,7 @@ public class PQQuotePeriodSummary : IPQQuotePeriodSummary
                && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && updateFlagsSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IQuotePeriodSummary?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPricePeriodSummary?)obj, true);
 
     public override int GetHashCode()
     {

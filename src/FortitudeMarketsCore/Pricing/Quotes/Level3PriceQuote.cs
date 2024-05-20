@@ -21,7 +21,7 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null,
         bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, bool isAskPriceTopChanged = false,
-        bool executable = false, IQuotePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
+        bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
         bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false,
         IRecentlyTraded? recentlyTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime, adapterReceivedTime,

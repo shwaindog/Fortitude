@@ -27,11 +27,11 @@ public struct Candle
     public long AverageMidPrice;
 }
 
-public class QuotePeriodSummary : IMutableQuotePeriodSummary
+public class PricePeriodSummary : IMutablePricePeriodSummary
 {
     private TimeSeriesPeriod timeSeriesPeriod;
 
-    public QuotePeriodSummary(TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
+    public PricePeriodSummary(TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m,
         decimal highestAskPrice = 0m, decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m,
         decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u, long periodVolume = 0L, decimal averageMidPrice = 0m)
@@ -52,7 +52,7 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
         AverageMidPrice = averageMidPrice;
     }
 
-    public QuotePeriodSummary(IQuotePeriodSummary toClone)
+    public PricePeriodSummary(IPricePeriodSummary toClone)
     {
         SummaryPeriod = toClone.SummaryPeriod;
         SummaryStartTime = toClone.SummaryStartTime;
@@ -94,7 +94,7 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
     public long PeriodVolume { get; set; }
     public decimal AverageMidPrice { get; set; }
 
-    public IQuotePeriodSummary CopyFrom(IQuotePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IPricePeriodSummary CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SummaryPeriod = source.SummaryPeriod;
         SummaryStartTime = source.SummaryStartTime;
@@ -113,15 +113,15 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IQuotePeriodSummary)source, copyMergeFlags);
+    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
     object ICloneable.Clone() => Clone();
 
-    IQuotePeriodSummary ICloneable<IQuotePeriodSummary>.Clone() => Clone();
+    IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
-    public IMutableQuotePeriodSummary Clone() => new QuotePeriodSummary(this);
+    public IMutablePricePeriodSummary Clone() => new PricePeriodSummary(this);
 
-    public bool AreEquivalent(IQuotePeriodSummary? other, bool exactTypes = false)
+    public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
@@ -145,7 +145,7 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
                && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && averageMidPriceSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IQuotePeriodSummary?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPricePeriodSummary?)obj, true);
 
     public override int GetHashCode()
     {
@@ -168,7 +168,7 @@ public class QuotePeriodSummary : IMutableQuotePeriodSummary
     }
 
     public override string ToString() =>
-        $"{nameof(QuotePeriodSummary)} ({nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(SummaryStartTime)}: {SummaryStartTime:O}, " +
+        $"{nameof(PricePeriodSummary)} ({nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(SummaryStartTime)}: {SummaryStartTime:O}, " +
         $"{nameof(SummaryEndTime)}: {SummaryEndTime:O}, {nameof(StartBidPrice)}: {StartBidPrice:N5}, " +
         $"{nameof(StartAskPrice)}: {StartAskPrice:N5}, {nameof(HighestBidPrice)}: {HighestBidPrice:N5}, " +
         $"{nameof(HighestAskPrice)}: {HighestAskPrice:N5}, {nameof(LowestBidPrice)}: {LowestBidPrice:N5}, " +

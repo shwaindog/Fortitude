@@ -143,7 +143,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
         var expectedBidBook = new OrderBook(BookSide.BidBook, simpleRecentlyTradedSrcTkrQtInfo)
         {
             [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
@@ -203,7 +203,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
         var expectedBidBook = new OrderBook(BookSide.BidBook, simpleRecentlyTradedSrcTkrQtInfo)
         {
             [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
@@ -309,7 +309,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
         var expectedBatchId = 23456u;
         var expectedSourceQuoteRef = 56789u;
         var expectedValueDate = new DateTime(2018, 03, 03, 17, 33, 6);
@@ -542,7 +542,7 @@ public class Level3PriceQuoteTests
             new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i),
             false,
             true,
-            new QuotePeriodSummary(),
+            new PricePeriodSummary(),
             sourceBidBook,
             true,
             sourceAskBook,

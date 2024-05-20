@@ -258,9 +258,11 @@ public class PQDeserializerBaseTests
     [TestMethod]
     public void EmptyQuoteLvl0Quote_UpdateQuote_SetsDispatcherContextDetails()
     {
+        var expectedSequenceId = 101u;
         var expectedL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo)
         {
             SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
+            , PQSequenceId = expectedSequenceId
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
@@ -271,7 +273,6 @@ public class PQDeserializerBaseTests
 
         var actualL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
 
-        var expectedSequenceId = 101u;
         socketBufferReadContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + MessageHeaderByteSize;
         dummyLevel0QuoteDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualL0Quote, expectedSequenceId);
 

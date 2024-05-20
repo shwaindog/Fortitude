@@ -156,7 +156,7 @@ public class Level2PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
         var expectedBidBook = new OrderBook(BookSide.BidBook, simpleSourceTickerQuoteInfo)
         {
             [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
@@ -204,7 +204,7 @@ public class Level2PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
         var convertedBidBook = new PQOrderBook(BookSide.BidBook, new PQSourceTickerQuoteInfo(simpleSourceTickerQuoteInfo))
         {
             [0] = new PQPriceVolumeLayer(expectedBidPriceTop, 1_000_000)
@@ -311,7 +311,7 @@ public class Level2PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
 
         foreach (var emptyQuote in allEmptyQuotes)
         {
@@ -503,7 +503,7 @@ public class Level2PriceQuoteTests
             new DateTime(2015, 08, 06, 22, 07, 22),
             false,
             true,
-            new QuotePeriodSummary(),
+            new PricePeriodSummary(),
             sourceBidBook,
             true,
             sourceAskBook,

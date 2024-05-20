@@ -10,13 +10,13 @@ namespace FortitudeMarketsCore.Pricing.TimeSeries;
 
 public static class PeriodSummaryHelpers
 {
-    public static TimeSeriesPeriod CalcTimeFrame(this IQuotePeriodSummary quotePeriodSumary)
+    public static TimeSeriesPeriod CalcTimeFrame(this IPricePeriodSummary pricePeriodSumary)
     {
-        if (quotePeriodSumary.SummaryStartTime.Equals(DateTimeConstants.UnixEpoch)
-            || quotePeriodSumary.SummaryEndTime < quotePeriodSumary.SummaryStartTime) return TimeSeriesPeriod.None;
-        if (quotePeriodSumary.SummaryEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeSeriesPeriod.None;
-        if (quotePeriodSumary.SummaryStartTime.Equals(quotePeriodSumary.SummaryEndTime)) return TimeSeriesPeriod.Tick;
-        var diffTimeSpan = quotePeriodSumary.SummaryEndTime - quotePeriodSumary.SummaryStartTime;
+        if (pricePeriodSumary.SummaryStartTime.Equals(DateTimeConstants.UnixEpoch)
+            || pricePeriodSumary.SummaryEndTime < pricePeriodSumary.SummaryStartTime) return TimeSeriesPeriod.None;
+        if (pricePeriodSumary.SummaryEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeSeriesPeriod.None;
+        if (pricePeriodSumary.SummaryStartTime.Equals(pricePeriodSumary.SummaryEndTime)) return TimeSeriesPeriod.Tick;
+        var diffTimeSpan = pricePeriodSumary.SummaryEndTime - pricePeriodSumary.SummaryStartTime;
         var totalSeconds = (int)diffTimeSpan.TotalSeconds;
         if (totalSeconds == 1) return TimeSeriesPeriod.OneSecond;
         if (totalSeconds == 60) return TimeSeriesPeriod.OneMinute;

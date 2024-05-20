@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Diagnostics;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.OSWrapper.Memory;
 using FortitudeCommon.Serdes.Binary;
@@ -249,6 +250,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
             if (value == cacheBucketHeader.DataEntriesCount || !Writable || !CanUseWritableBufferInfo) return;
             if (BucketContainerIndexEntry != null)
             {
+                if (BucketHeaderFileView.LowerViewFileCursorOffset != requiredViewFileCursorOffset) Debugger.Break();
                 var deltaEntries = value - mappedFileBucketInfo->DataEntriesCount;
                 BucketContainerIndexEntry->NumEntries += deltaEntries;
                 BucketContainer.DataEntriesCount += deltaEntries;
@@ -275,6 +277,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
             if (value == cacheBucketHeader.DataSizeBytes || !Writable || !CanUseWritableBufferInfo) return;
             if (BucketContainerIndexEntry != null)
             {
+                if (BucketHeaderFileView.LowerViewFileCursorOffset != requiredViewFileCursorOffset) Debugger.Break();
                 var deltaBytes = value - mappedFileBucketInfo->DataSizeBytes;
                 BucketContainerIndexEntry->DataSizeBytes += deltaBytes;
                 BucketContainer.DataSizeBytes += deltaBytes;
@@ -292,6 +295,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
         set
         {
             if (value > BucketHeaderSizeBytes || !Writable || !CanUseWritableBufferInfo) return;
+            if (BucketHeaderFileView.LowerViewFileCursorOffset != requiredViewFileCursorOffset) Debugger.Break();
             if (BucketContainerIndexEntry == null) return;
             var additionalNonBucketDataSize = value - NonDataSizeBytes;
             BucketContainer.NonDataSizeBytes = additionalNonBucketDataSize;

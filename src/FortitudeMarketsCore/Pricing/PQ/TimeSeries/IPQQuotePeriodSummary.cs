@@ -7,7 +7,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
-public interface IPQQuotePeriodSummary : IMutableQuotePeriodSummary, IPQSupportsFieldUpdates<IQuotePeriodSummary>
+public interface IPQPricePeriodSummary : IMutablePricePeriodSummary, IPQSupportsFieldUpdates<IPricePeriodSummary>
 {
     bool IsStartTimeDateUpdated { get; set; }
     bool IsStartTimeSubHourUpdated { get; set; }

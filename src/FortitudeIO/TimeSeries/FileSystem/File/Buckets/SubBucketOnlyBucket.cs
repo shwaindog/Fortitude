@@ -35,7 +35,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         get
         {
             BucketIndexDictionary
-                ??= new BucketIndexDictionary(SelectBucketIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
+                ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
             var previousLastCreatedBucketNullable = BucketIndexDictionary.LastAddedBucketIndexInfo;
             if (previousLastCreatedBucketNullable != null)
             {
@@ -52,9 +52,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
 
     public int ContainerDepth => BucketContainer.ContainerDepth + 1;
 
-    public ShiftableMemoryMappedFileView ContainerHeaderFileView(int depth) => BucketContainer.ContainerHeaderFileView(depth);
-
-    public ShiftableMemoryMappedFileView ContainerIndexFileView(int depth) => BucketContainer.ContainerIndexFileView(depth);
+    public ShiftableMemoryMappedFileView ContainerIndexAndHeaderFileView(int depth, uint requiredViewSize) =>
+        ContainingFile.ContainerIndexAndHeaderFileView(depth, requiredViewSize);
 
     public IBucketTrackingTimeSeriesFile ContainingTimeSeriesFile => ContainingFile;
     public uint CreateBucketId() => LastAddedBucketId <= 0 ? BucketId * 1000 + 1 : LastAddedBucketId + 1;
@@ -62,7 +61,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     public void AddNewBucket(IMutableBucket newChild)
     {
         BucketIndexDictionary
-            ??= new BucketIndexDictionary(SelectBucketIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
+            ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
         var previousLastCreatedSubBucketNullable = BucketIndexDictionary.LastAddedBucketIndexInfo;
         if (previousLastCreatedSubBucketNullable != null)
         {
@@ -231,6 +230,5 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         return currentlyOpenSubBucket.AppendEntry(entry);
     }
 
-    protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => BucketContainer.ContainerHeaderFileView(ContainerDepth);
-    protected virtual ShiftableMemoryMappedFileView SelectBucketIndexFileView() => BucketContainer.ContainerIndexFileView(ContainerDepth);
+    protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => SelectBucketHeaderAndIndexFileView();
 }

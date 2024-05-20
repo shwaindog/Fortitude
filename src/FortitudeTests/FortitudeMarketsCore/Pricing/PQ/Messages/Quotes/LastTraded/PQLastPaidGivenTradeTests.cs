@@ -413,7 +413,7 @@ public class PQLastPaidGivenTradeTests
     public void PopulatedLt_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewLt_CopiesAllFieldsToNewLt()
     {
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQLastPaidGivenTrade();
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         Assert.AreEqual(populatedLt, newEmpty);

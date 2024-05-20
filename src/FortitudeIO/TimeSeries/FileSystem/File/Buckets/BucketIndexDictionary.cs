@@ -104,7 +104,7 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     {
         if (!IsFileViewOpen) return;
         if (memoryMappedFileView!.LowerViewFileCursorOffset != requiredViewFileCursorOffset)
-            memoryMappedFileView.EnsureLowerViewContainsFileCursorOffset(requiredViewFileCursorOffset, 0);
+            memoryMappedFileView.EnsureLowerViewContainsFileCursorOffset(requiredViewFileCursorOffset);
         cacheBucketIndexInfos ??= new List<KeyValuePair<uint, BucketIndexInfo>>();
         cacheBucketIndexInfos.Clear();
         cacheBucketIndexInfos.AddRange(this);
@@ -124,7 +124,8 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     {
         memoryMappedFileView = shiftableMemoryMappedFileView;
         IsReadOnly = isReadOnly;
-        writableV1IndexHeaderSectionV1 = (BucketIndexList*)memoryMappedFileView.FileCursorBufferPointer(internalIndexFileCursor, 0, !isReadOnly);
+        writableV1IndexHeaderSectionV1
+            = (BucketIndexList*)memoryMappedFileView.FileCursorBufferPointer(internalIndexFileCursor, shouldGrow: !isReadOnly);
         writableV1IndexHeaderSectionV1->MaxIndexSizeEntries = maxPossibleIndexEntries;
         requiredViewFileCursorOffset = memoryMappedFileView.LowerViewFileCursorOffset;
         firstEntryBufferPointer = &writableV1IndexHeaderSectionV1->FirstIndexInList;

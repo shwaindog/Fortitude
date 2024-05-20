@@ -249,7 +249,7 @@ public class PQPriceVolumeLayerTests
     public void PopulatedPvl_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewPvl_CopiesAllFieldsToNewPvl()
     {
         var pqFieldUpdates = populatedPvl.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQPriceVolumeLayer();
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         Assert.AreEqual(populatedPvl, newEmpty);

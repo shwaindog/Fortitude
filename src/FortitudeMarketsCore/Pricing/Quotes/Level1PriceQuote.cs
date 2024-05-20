@@ -20,7 +20,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null,
         DateTime? sourceBidTime = null, decimal bidPriceTop = 0m, bool isBidPriceTopChanged = false,
         DateTime? sourceAskTime = null, decimal askPriceTop = 0m, bool isAskPriceTopChanged = false,
-        bool executable = false, IQuotePeriodSummary? periodSummary = null)
+        bool executable = false, IPricePeriodSummary? periodSummary = null)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime)
     {
         AdapterReceivedTime = adapterReceivedTime ?? DateTimeConstants.UnixEpoch;
@@ -30,9 +30,9 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         SourceAskTime = sourceAskTime ?? DateTimeConstants.UnixEpoch;
         IsAskPriceTopUpdated = isAskPriceTopChanged;
         Executable = executable;
-        if (periodSummary is QuotePeriodSummary periodSummaryInstance)
+        if (periodSummary is PricePeriodSummary periodSummaryInstance)
             SummaryPeriod = periodSummaryInstance.Clone();
-        else if (periodSummary != null) SummaryPeriod = new QuotePeriodSummary(periodSummary);
+        else if (periodSummary != null) SummaryPeriod = new PricePeriodSummary(periodSummary);
         if (this is not ILevel2Quote)
         {
             BidPriceTop = bidPriceTop;
@@ -51,9 +51,9 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
             SourceAskTime = lvl1Quote.SourceAskTime;
             IsAskPriceTopUpdated = lvl1Quote.IsAskPriceTopUpdated;
             Executable = lvl1Quote.Executable;
-            if (lvl1Quote.SummaryPeriod is QuotePeriodSummary periodSummary)
+            if (lvl1Quote.SummaryPeriod is PricePeriodSummary periodSummary)
                 SummaryPeriod = periodSummary.Clone();
-            else if (lvl1Quote.SummaryPeriod != null) SummaryPeriod = new QuotePeriodSummary(lvl1Quote.SummaryPeriod);
+            else if (lvl1Quote.SummaryPeriod != null) SummaryPeriod = new PricePeriodSummary(lvl1Quote.SummaryPeriod);
 
             if (this is not ILevel2Quote)
             {
@@ -73,8 +73,8 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
     public virtual decimal AskPriceTop { get; set; }
     public bool IsAskPriceTopUpdated { get; set; }
     public bool Executable { get; set; }
-    public IMutableQuotePeriodSummary? SummaryPeriod { get; set; }
-    IQuotePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
+    public IMutablePricePeriodSummary? SummaryPeriod { get; set; }
+    IPricePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
 
     public override DateTime SourceTime
     {
@@ -104,7 +104,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
                 if (SummaryPeriod != null)
                     SummaryPeriod.CopyFrom(level1Quote.SummaryPeriod);
                 else
-                    SummaryPeriod = new QuotePeriodSummary(level1Quote.SummaryPeriod);
+                    SummaryPeriod = new PricePeriodSummary(level1Quote.SummaryPeriod);
             }
             else if (SummaryPeriod != null)
             {

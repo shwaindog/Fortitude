@@ -7,8 +7,8 @@ using FortitudeIO.TimeSeries;
 
 namespace FortitudeMarketsApi.Pricing.TimeSeries;
 
-public interface IQuotePeriodSummary : ICloneable<IQuotePeriodSummary>, IInterfacesComparable<IQuotePeriodSummary>
-    , IStoreState<IQuotePeriodSummary>, ITimeSeriesSummary
+public interface IPricePeriodSummary : ICloneable<IPricePeriodSummary>, IInterfacesComparable<IPricePeriodSummary>
+    , IStoreState<IPricePeriodSummary>, ITimeSeriesSummary
 {
     decimal StartBidPrice { get; }
     decimal StartAskPrice { get; }
@@ -23,7 +23,7 @@ public interface IQuotePeriodSummary : ICloneable<IQuotePeriodSummary>, IInterfa
     decimal AverageMidPrice { get; }
 }
 
-public interface IMutableQuotePeriodSummary : IQuotePeriodSummary
+public interface IMutablePricePeriodSummary : IPricePeriodSummary
 {
     new TimeSeriesPeriod SummaryPeriod { get; set; }
     new DateTime SummaryStartTime { get; set; }
@@ -39,5 +39,5 @@ public interface IMutableQuotePeriodSummary : IQuotePeriodSummary
     new uint TickCount { get; set; }
     new long PeriodVolume { get; set; }
     new decimal AverageMidPrice { get; set; }
-    new IMutableQuotePeriodSummary Clone();
+    new IMutablePricePeriodSummary Clone();
 }

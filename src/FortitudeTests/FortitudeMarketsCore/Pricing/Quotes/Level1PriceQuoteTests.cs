@@ -69,7 +69,7 @@ public class Level1PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
 
         var fromConstructor = new Level1PriceQuote(sourceTickerQuoteInfo, expectedSourceTime, true,
             expectedSinglePrice, expectedClientReceivedTime, expectedAdapterReceiveTime, expectedAdapterSentTime,
@@ -96,13 +96,13 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void NonPeriodSummary_New_ConvertsToPeriodSummary()
     {
-        var pqPeriodSummary = new PQQuotePeriodSummary();
+        var pqPeriodSummary = new PQPricePeriodSummary();
 
         var nonSourceTickerQuoteInfoQuote = new Level1PriceQuote(sourceTickerQuoteInfo, DateTime.Now, true,
             1m, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, 1m, true, DateTime.Now, 1m,
             true, true, pqPeriodSummary);
 
-        Assert.IsInstanceOfType(nonSourceTickerQuoteInfoQuote.SummaryPeriod, typeof(QuotePeriodSummary));
+        Assert.IsInstanceOfType(nonSourceTickerQuoteInfoQuote.SummaryPeriod, typeof(PricePeriodSummary));
     }
 
     [TestMethod]
@@ -117,7 +117,7 @@ public class Level1PriceQuoteTests
     public void NonSourceTickerQuoteInfo_New_CopiesExceptPeriodSummaryIsConverted()
     {
         var originalPeriodSummary = fullyPopulatedLevel1Quote.SummaryPeriod!;
-        var pqPeriodSummary = new PQQuotePeriodSummary(originalPeriodSummary);
+        var pqPeriodSummary = new PQPricePeriodSummary(originalPeriodSummary);
         fullyPopulatedLevel1Quote.SummaryPeriod = pqPeriodSummary;
         var copyQuote = new Level1PriceQuote(fullyPopulatedLevel1Quote);
         Assert.AreNotEqual(fullyPopulatedLevel1Quote, copyQuote);
@@ -157,7 +157,7 @@ public class Level1PriceQuoteTests
         var expectedBidPriceTop = 2.34567m;
         var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new QuotePeriodSummary();
+        var expectedPeriodSummary = new PricePeriodSummary();
 
         emptyQuote.SourceTime = expectedSourceTime;
         emptyQuote.IsReplay = true;

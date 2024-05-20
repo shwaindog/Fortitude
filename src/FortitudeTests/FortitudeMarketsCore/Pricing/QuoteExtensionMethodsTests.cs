@@ -40,7 +40,7 @@ public class QuoteExtensionMethodsTests
         originalQuote = new Level3PriceQuote(originalSourceTickerQuoteInfo, originalQuoteExchangeTime, false,
             1.1124m, originalQuoteClientReceiveTime,
             originalQuoteAdapterTime, originalQuoteAdapterTime, originalQuoteBidDateTime,
-            true, originalQuoteAskDateTime, true, true, new QuotePeriodSummary(),
+            true, originalQuoteAskDateTime, true, true, new PricePeriodSummary(),
             new OrderBook(BookSide.BidBook, new[]
             {
                 new PriceVolumeLayer(OriginalBidTopPrice, OriginalBidTopVolume), new PriceVolumeLayer(1.1122m, 20000)
