@@ -284,9 +284,9 @@ public class PQRecentlyTradedTests
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
             var pqFieldUpdates = populatedRecentlyTraded.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var pqStringUpdates = populatedRecentlyTraded.GetStringUpdates(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var newEmpty = CreateNewEmpty(populatedRecentlyTraded);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
             foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);

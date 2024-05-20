@@ -14,7 +14,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
 {
-    new IPQQuotePeriodSummary? SummaryPeriod { get; set; }
+    new IPQPricePeriodSummary? SummaryPeriod { get; set; }
     new IPQLevel1Quote Clone();
 }
 
@@ -34,7 +34,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     public PQLevel1Quote(ISourceTickerQuoteInfo sourceTickerInfo)
         : base(sourceTickerInfo) =>
-        SummaryPeriod = new PQQuotePeriodSummary();
+        SummaryPeriod = new PQPricePeriodSummary();
 
     public PQLevel1Quote(ILevel0Quote toClone) : base(toClone)
     {
@@ -47,9 +47,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             executable = l1QToClone.Executable;
             bidPriceTop = l1QToClone.BidPriceTop;
             askPriceTop = l1QToClone.AskPriceTop;
-            if (l1QToClone.SummaryPeriod is PQQuotePeriodSummary)
-                SummaryPeriod = (PQQuotePeriodSummary?)l1QToClone.SummaryPeriod?.Clone();
-            else if (l1QToClone.SummaryPeriod != null) SummaryPeriod = new PQQuotePeriodSummary(l1QToClone.SummaryPeriod);
+            if (l1QToClone.SummaryPeriod is PQPricePeriodSummary)
+                SummaryPeriod = (PQPricePeriodSummary?)l1QToClone.SummaryPeriod?.Clone();
+            else if (l1QToClone.SummaryPeriod != null) SummaryPeriod = new PQPricePeriodSummary(l1QToClone.SummaryPeriod);
         }
     }
 
@@ -293,15 +293,15 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         }
     }
 
-    IQuotePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
+    IPricePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
 
-    IMutableQuotePeriodSummary? IMutableLevel1Quote.SummaryPeriod
+    IMutablePricePeriodSummary? IMutableLevel1Quote.SummaryPeriod
     {
         get => SummaryPeriod;
-        set => SummaryPeriod = value as IPQQuotePeriodSummary;
+        set => SummaryPeriod = value as IPQPricePeriodSummary;
     }
 
-    public IPQQuotePeriodSummary? SummaryPeriod { get; set; }
+    public IPQPricePeriodSummary? SummaryPeriod { get; set; }
 
     public override bool HasUpdates
     {
@@ -489,7 +489,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             IsAskPriceTopUpdated = l1Q.IsAskPriceTopUpdated;
             IsBidPriceTopUpdated = l1Q.IsBidPriceTopUpdated;
             Executable = l1Q.Executable;
-            SummaryPeriod?.CopyFrom(new PQQuotePeriodSummary(l1Q.SummaryPeriod!));
+            SummaryPeriod?.CopyFrom(new PQPricePeriodSummary(l1Q.SummaryPeriod!));
         }
 
         return this;

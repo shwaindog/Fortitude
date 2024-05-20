@@ -8,6 +8,6 @@ public enum PQMessageFlags : byte
     , Snapshot = 3
     , Update = 4
     , CompleteUpdate = 5
-    , Replay = 8
-    , Persistence = 16
+    , IncludeReceiverTimes = 8
+    , NoChangeOrHeartbeat = 16
 }

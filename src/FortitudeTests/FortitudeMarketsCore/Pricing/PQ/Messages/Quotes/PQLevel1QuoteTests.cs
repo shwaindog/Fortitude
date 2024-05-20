@@ -496,8 +496,9 @@ public class PQLevel1QuoteTests
     public void PopulatedQuote_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewQuote_CopiesAllFieldsToNewQuote()
     {
         var pqFieldUpdates = fullyPopulatedPqLevel1Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQLevel1Quote(sourceTickerQuoteInfo);
+        newEmpty.PQSequenceId = fullyPopulatedPqLevel1Quote.PQSequenceId;
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         // not copied from field updates as is used in by server to track publication times.
         newEmpty.LastPublicationTime = fullyPopulatedPqLevel1Quote.LastPublicationTime;
@@ -611,9 +612,9 @@ public class PQLevel1QuoteTests
         PQLevel0QuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison, original,
             changingLevel1Quote);
 
-        PQQuotePeriodSummaryTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-            (PQQuotePeriodSummary)original.SummaryPeriod!,
-            (PQQuotePeriodSummary)changingLevel1Quote.SummaryPeriod!);
+        PQPricePeriodSummaryTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
+            (PQPricePeriodSummary)original.SummaryPeriod!,
+            (PQPricePeriodSummary)changingLevel1Quote.SummaryPeriod!);
 
         if (original.GetType() == typeof(PQLevel1Quote))
             Assert.AreEqual(!exactComparison,
@@ -674,7 +675,7 @@ public class PQLevel1QuoteTests
     public static void AssertContainsAllLevel1Fields(IList<PQFieldUpdate> checkFieldUpdates,
         PQLevel1Quote l1Q, uint expectedBooleanFlags = 3)
     {
-        PQQuotePeriodSummaryTests.AssertPeriodSummaryContainsAllFields(checkFieldUpdates, l1Q.SummaryPeriod!);
+        PQPricePeriodSummaryTests.AssertPeriodSummaryContainsAllFields(checkFieldUpdates, l1Q.SummaryPeriod!);
 
         PQLevel0QuoteTests.AssertContainsAllLevel0Fields(checkFieldUpdates, l1Q, expectedBooleanFlags);
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceBidDateTime, l1Q.SourceBidTime.GetHoursFromUnixEpoch()),
@@ -710,10 +711,10 @@ public class PQLevel1QuoteTests
     {
         public override QuoteLevel QuoteLevel => QuoteLevel.Level1;
 
-        IMutableQuotePeriodSummary? IMutableLevel1Quote.SummaryPeriod
+        IMutablePricePeriodSummary? IMutableLevel1Quote.SummaryPeriod
         {
             get => SummaryPeriod;
-            set => SummaryPeriod = value as IPQQuotePeriodSummary;
+            set => SummaryPeriod = value as IPQPricePeriodSummary;
         }
 
         public DateTime AdapterReceivedTime
@@ -722,8 +723,8 @@ public class PQLevel1QuoteTests
             set { }
         }
 
-        IQuotePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
-        public IPQQuotePeriodSummary? SummaryPeriod { get; set; }
+        IPricePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
+        public IPQPricePeriodSummary? SummaryPeriod { get; set; }
         IMutableLevel1Quote IMutableLevel1Quote.Clone() => (IMutableLevel1Quote)Clone();
         IPQLevel1Quote IPQLevel1Quote.Clone() => this;
         ILevel1Quote ILevel1Quote.Clone() => this;

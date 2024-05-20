@@ -34,20 +34,20 @@ public class QuoteSequencedTestDataBuilder
         SetupLevel3Quote(initializeQuotes as IMutableLevel3Quote, batchId);
     }
 
-    public void InitalizePeriodSummary(IMutableQuotePeriodSummary quotePeriodSummary, uint batchId)
+    public void InitalizePeriodSummary(IMutablePricePeriodSummary pricePeriodSummary, uint batchId)
     {
-        quotePeriodSummary.SummaryStartTime = new DateTime(2017, 11, 18, 20, 09, 11);
-        quotePeriodSummary.StartBidPrice = 0.79324m;
-        quotePeriodSummary.StartAskPrice = 0.79334m;
-        quotePeriodSummary.HighestBidPrice = 0.79354m;
-        quotePeriodSummary.HighestAskPrice = 0.79364m;
-        quotePeriodSummary.LowestBidPrice = 0.79304m;
-        quotePeriodSummary.LowestAskPrice = 0.79314m;
-        quotePeriodSummary.EndBidPrice = 0.79334m;
-        quotePeriodSummary.EndAskPrice = 0.79344m;
-        quotePeriodSummary.TickCount = 10;
-        quotePeriodSummary.PeriodVolume = 400_000_000_000_000;
-        quotePeriodSummary.SummaryEndTime = new DateTime(2017, 11, 18, 20, 09, 12);
+        pricePeriodSummary.SummaryStartTime = new DateTime(2017, 11, 18, 20, 09, 11);
+        pricePeriodSummary.StartBidPrice = 0.79324m;
+        pricePeriodSummary.StartAskPrice = 0.79334m;
+        pricePeriodSummary.HighestBidPrice = 0.79354m;
+        pricePeriodSummary.HighestAskPrice = 0.79364m;
+        pricePeriodSummary.LowestBidPrice = 0.79304m;
+        pricePeriodSummary.LowestAskPrice = 0.79314m;
+        pricePeriodSummary.EndBidPrice = 0.79334m;
+        pricePeriodSummary.EndAskPrice = 0.79344m;
+        pricePeriodSummary.TickCount = 10;
+        pricePeriodSummary.PeriodVolume = 400_000_000_000_000;
+        pricePeriodSummary.SummaryEndTime = new DateTime(2017, 11, 18, 20, 09, 12);
     }
 
     private void SetupLevel3Quote(IMutableLevel3Quote? pqLevel3Quote, uint batchId)
@@ -159,10 +159,10 @@ public class QuoteSequencedTestDataBuilder
         switch (level1Quote.SummaryPeriod)
         {
             case null when level1Quote is PQLevel1Quote:
-                level1Quote.SummaryPeriod = new PQQuotePeriodSummary();
+                level1Quote.SummaryPeriod = new PQPricePeriodSummary();
                 break;
             case null:
-                level1Quote.SummaryPeriod = new QuotePeriodSummary();
+                level1Quote.SummaryPeriod = new PricePeriodSummary();
                 break;
         }
 

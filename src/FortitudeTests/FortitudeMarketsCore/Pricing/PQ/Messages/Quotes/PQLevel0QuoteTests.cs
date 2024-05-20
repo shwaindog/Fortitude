@@ -265,7 +265,7 @@ public class PQLevel0QuoteTests
     }
 
     [TestMethod]
-    public void PopulatedQuote_GetDeltaUpdatesUpdatePersistenceThenUpdateFieldNewQuote_CopiesAllFieldsToNewQuote()
+    public void PopulatedQuote_GetDeltaUpdatesUpdateIncludeReceiverTimesThenUpdateFieldNewQuote_CopiesAllFieldsToNewQuote()
     {
         ((PQSourceTickerQuoteInfo)fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo!).HasUpdates = true;
         fullyPopulatedPqLevel0Quote.IsSourceTimeDateUpdated = true;
@@ -274,20 +274,9 @@ public class PQLevel0QuoteTests
         fullyPopulatedPqLevel0Quote.IsSinglePriceUpdated = true;
         fullyPopulatedPqLevel0Quote.IsSyncStatusUpdated = true;
         var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update | PQMessageFlags.Persistence).ToList();
+            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
-        foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
-        // not copied from field updates as is used in by server to track publication times.
-        newEmpty.LastPublicationTime = fullyPopulatedPqLevel0Quote.LastPublicationTime;
-        Assert.AreEqual(fullyPopulatedPqLevel0Quote, newEmpty);
-    }
-
-    [TestMethod]
-    public void PopulatedQuote_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewQuote_CopiesAllFieldsToNewQuote()
-    {
-        var pqFieldUpdates = fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
-        var newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
+        newEmpty.PQSequenceId = fullyPopulatedPqLevel0Quote.PQSequenceId;
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         // not copied from field updates as is used in by server to track publication times.
         newEmpty.LastPublicationTime = fullyPopulatedPqLevel0Quote.LastPublicationTime;

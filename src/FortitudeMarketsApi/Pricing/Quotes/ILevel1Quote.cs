@@ -19,7 +19,7 @@ public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>
     decimal AskPriceTop { get; }
     bool IsAskPriceTopUpdated { get; }
     bool Executable { get; }
-    IQuotePeriodSummary? SummaryPeriod { get; }
+    IPricePeriodSummary? SummaryPeriod { get; }
     new ILevel1Quote Clone();
 }
 

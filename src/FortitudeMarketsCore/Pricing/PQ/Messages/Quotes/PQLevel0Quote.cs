@@ -280,11 +280,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var persistenceOrReplay = (messageFlags & (PQMessageFlags.Persistence | PQMessageFlags.Replay)) > 0;
-        if (persistenceOrReplay)
+        var includeReceiverTimes = (messageFlags & PQMessageFlags.IncludeReceiverTimes) > 0;
+        if (includeReceiverTimes)
         {
-            yield return new PQFieldUpdate(PQFieldKeys.PQSequenceId, PQSequenceId);
-
             yield return new PQFieldUpdate(PQFieldKeys.SocketReceivingDateTime
                 , SocketReceivingTime.GetHoursFromUnixEpoch());
             var fifthByte = SocketReceivingTime.GetSubHourComponent().BreakLongToByteAndUint(out var lower4Bytes);

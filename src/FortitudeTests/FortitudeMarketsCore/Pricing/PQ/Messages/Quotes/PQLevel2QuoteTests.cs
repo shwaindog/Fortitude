@@ -1098,9 +1098,9 @@ public class PQLevel2QuoteTests
         foreach (var populatedL2Quote in allFullyPopulatedQuotes)
         {
             var pqFieldUpdates = populatedL2Quote.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var pqStringUpdates = populatedL2Quote.GetStringUpdates(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var emptyQuoteSourceTickerQuoteInfo
                 = new PQSourceTickerQuoteInfo(populatedL2Quote.SourceTickerQuoteInfo!)
                 {
@@ -1110,6 +1110,7 @@ public class PQLevel2QuoteTests
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
             foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);
             // not copied from field updates as is used in by server to track publication times.
+            newEmpty.PQSequenceId = populatedL2Quote.PQSequenceId;
             newEmpty.LastPublicationTime = populatedL2Quote.LastPublicationTime;
 
             Assert.AreEqual(populatedL2Quote, newEmpty,

@@ -24,7 +24,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null,
         DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false,
         DateTime? sourceAskTime = null, bool isAskPriceTopChanged = false,
-        bool executable = false, IQuotePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
+        bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
         bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime, adapterReceivedTime,
             adapterSentTime, sourceBidTime, 0m, isBidPriceTopChanged, sourceAskTime, 0m,

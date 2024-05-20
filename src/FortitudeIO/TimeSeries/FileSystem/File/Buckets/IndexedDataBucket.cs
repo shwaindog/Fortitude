@@ -62,7 +62,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         {
             if (!CanUseWritableBufferInfo) return BucketIndexDictionary!;
             BucketIndexDictionary
-                ??= new BucketIndexDictionary(BucketContainer.ContainerIndexFileView(BucketContainer.ContainerDepth), BucketIndexFileOffset
+                ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset
                     , IndexCount, !Writable);
             return BucketIndexDictionary;
         }
@@ -74,7 +74,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         {
             if (!CanUseWritableBufferInfo) return BucketIndexDictionary!;
             BucketIndexDictionary
-                ??= new BucketIndexDictionary(BucketContainer.ContainerIndexFileView(BucketContainer.ContainerDepth), BucketIndexFileOffset
+                ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset
                     , IndexCount, !Writable);
             return BucketIndexDictionary;
         }
@@ -150,6 +150,9 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     }
 
     protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => ContainingFile.ActiveBucketHeaderFileView;
+
+    protected virtual ShiftableMemoryMappedFileView SelectBucketHeaderAndIndexFileView() =>
+        BucketContainer.ContainerIndexAndHeaderFileView(BucketContainer.ContainerDepth + 1, BucketHeaderSizeBytes);
 
     protected long CalculateBucketIndexByteSize(ushort subBucketCount)
     {

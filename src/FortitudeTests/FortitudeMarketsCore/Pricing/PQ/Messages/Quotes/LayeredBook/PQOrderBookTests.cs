@@ -425,9 +425,9 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
             var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var pqStringUpdates = populatedOrderBook.GetStringUpdates(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.Replay).ToList();
+                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var newEmpty = CreateNewEmpty(populatedOrderBook);
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);

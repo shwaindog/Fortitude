@@ -14,15 +14,49 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
+public enum PQSerializationFlags
+{
+    ForSocketPublish = 0
+    , ForStorage = 1
+    , ForStorageIncludeReceiverTimes = 3
+}
+
+[Flags]
+public enum StorageFlags
+{
+    // Start From PQMessageFlags
+    None = 0
+    , Complete = 1
+    , Snapshot = 3
+    , Update = 4
+    , CompleteUpdate = 5
+    , Replay = 8
+    , NoChangeOrHeartbeat = 16
+    // end from PQMessageFlags
+    , OneByteMessageSize = 32
+    , TwoByteMessageSize = 64
+    , ThreeByteMessageSize = 96
+    , IncludesSequenceId = 128
+}
+
 internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 {
     private const int FieldSize = 2 * sizeof(byte) + sizeof(uint);
     private readonly PQMessageFlags messageFlags;
+    private readonly PQSerializationFlags serializationFlags;
+    private List<PQFieldUpdate> fieldsToSerialize = new();
 
     // ReSharper disable once UnusedMember.Local
     private IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteSerializer));
 
-    public PQQuoteSerializer(PQMessageFlags messageFlags) => this.messageFlags = messageFlags;
+    private uint previousSerializedSequenceId;
+    private List<PQFieldStringUpdate> stringUpdatesToSerialize = new();
+
+    public PQQuoteSerializer(PQMessageFlags messageFlags, PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
+    {
+        this.messageFlags = messageFlags;
+        this.serializationFlags = serializationFlags;
+    }
 
     public MarshalType MarshalType => MarshalType.Binary;
 
@@ -51,6 +85,10 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
     {
         if (!(message is IPQLevel0Quote pqL0Quote)) return FinishProcessingMessageReturnValue(message, -1);
         var resolvedFlags = pqL0Quote.OverrideSerializationFlags ?? messageFlags;
+        resolvedFlags |= serializationFlags == PQSerializationFlags.ForStorageIncludeReceiverTimes ?
+            PQMessageFlags.IncludeReceiverTimes :
+            PQMessageFlags.None;
+        var resolvedStorageFlags = (StorageFlags)(byte)resolvedFlags;
         var publishAll = (resolvedFlags & PQMessageFlags.Complete) > 0;
         pqL0Quote.OverrideSerializationFlags = null;
         using var fixedBuffer = buffer;
@@ -60,19 +98,61 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
         var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
         var currentPtr = writeStart;
         var end = writeStart + buffer.RemainingStorage;
-        *currentPtr++ = message.Version; //protocol version
-        *currentPtr++ = (byte)resolvedFlags;
-        StreamByteOps.ToBytes(ref currentPtr, pqL0Quote.SourceTickerQuoteInfo!.Id);
-        var messageSizePtr = currentPtr;
-        currentPtr += 4;
-        var sequenceIdptr = currentPtr;
-        currentPtr += 4;
-
-        var fields = pqL0Quote.GetDeltaUpdateFields(TimeContext.UtcNow, resolvedFlags);
+        fieldsToSerialize.Clear();
+        stringUpdatesToSerialize.Clear();
         pqL0Quote.Lock.Acquire();
         try
         {
-            foreach (var field in fields)
+            fieldsToSerialize.AddRange(pqL0Quote.GetDeltaUpdateFields(TimeContext.UtcNow, resolvedFlags));
+            stringUpdatesToSerialize.AddRange(pqL0Quote.GetStringUpdates(TimeContext.UtcNow, resolvedFlags));
+
+            if (serializationFlags == PQSerializationFlags.ForSocketPublish) *currentPtr++ = message.Version; //protocol version
+
+            var flagsPtr = currentPtr++;
+            if (serializationFlags == PQSerializationFlags.ForSocketPublish)
+                StreamByteOps.ToBytes(ref currentPtr, pqL0Quote.SourceTickerQuoteInfo!.Id);
+
+            var messageSizePtr = currentPtr;
+            var sequenceIdBytes = 4;
+            if (serializationFlags == PQSerializationFlags.ForSocketPublish)
+            {
+                currentPtr += 4;
+            }
+            else if (stringUpdatesToSerialize.Any())
+            {
+                sequenceIdBytes = pqL0Quote.PQSequenceId == previousSerializedSequenceId + 1 && !publishAll ? 0 : 4;
+                resolvedStorageFlags |= sequenceIdBytes > 0 ? StorageFlags.IncludesSequenceId : StorageFlags.None;
+                resolvedStorageFlags |= StorageFlags.ThreeByteMessageSize;
+                currentPtr += 3;
+            }
+            else
+            {
+                sequenceIdBytes = pqL0Quote.PQSequenceId == previousSerializedSequenceId + 1 && !publishAll ? 0 : 4;
+                resolvedStorageFlags |= sequenceIdBytes > 0 ? StorageFlags.IncludesSequenceId : StorageFlags.None;
+                var countSingleByteIdUpdates = fieldsToSerialize.Count(fu => (fu.Flag & PQFieldFlags.IsExtendedFieldId) == 0);
+                var countTwoByteIdUpdates = fieldsToSerialize.Count(fu => (fu.Flag & PQFieldFlags.IsExtendedFieldId) > 0);
+                var totalBytes = countSingleByteIdUpdates * 6 + countTwoByteIdUpdates * 7 + sequenceIdBytes;
+                switch (totalBytes)
+                {
+                    case < byte.MaxValue:
+                        currentPtr++;
+                        resolvedStorageFlags |= StorageFlags.OneByteMessageSize;
+                        break;
+                    case < ushort.MaxValue:
+                        currentPtr += 2;
+                        resolvedStorageFlags |= StorageFlags.TwoByteMessageSize;
+                        break;
+                    default:
+                        currentPtr += 3;
+                        resolvedStorageFlags |= StorageFlags.ThreeByteMessageSize;
+                        break;
+                }
+            }
+
+            var sequenceIdptr = currentPtr;
+            currentPtr += sequenceIdBytes;
+
+            foreach (var field in fieldsToSerialize)
             {
                 // logger.Info("Writing field {0}", field);
 
@@ -86,9 +166,7 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 StreamByteOps.ToBytes(ref currentPtr, field.Value);
             }
 
-            var stringUpdates = pqL0Quote.GetStringUpdates
-                (TimeContext.UtcNow, resolvedFlags);
-            foreach (var fieldStringUpdate in stringUpdates)
+            foreach (var fieldStringUpdate in stringUpdatesToSerialize)
             {
                 if (currentPtr + 100 > end) return FinishProcessingMessageReturnValue(message, -1);
 
@@ -106,27 +184,45 @@ internal sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 // logger.Info("Writing string update {0} and Value = {1}", fieldStringUpdate, bytesUsed);
             }
 
-            var isSnapshot = (resolvedFlags & PQMessageFlags.Snapshot) > 0;
-            if (isSnapshot)
-                StreamByteOps.ToBytes(ref sequenceIdptr
-                    , pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId);
-            else
-                StreamByteOps.ToBytes(ref sequenceIdptr, unchecked(++pqL0Quote.PQSequenceId));
+            if (sequenceIdBytes > 0)
+            {
+                var isSnapshot = (resolvedFlags & PQMessageFlags.Snapshot) > 0;
+                if (isSnapshot)
+                {
+                    previousSerializedSequenceId = pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId;
+                    StreamByteOps.ToBytes(ref sequenceIdptr, previousSerializedSequenceId);
+                }
+                else
+                {
+                    previousSerializedSequenceId = unchecked(++pqL0Quote.PQSequenceId);
+                    StreamByteOps.ToBytes(ref sequenceIdptr, previousSerializedSequenceId);
+                }
+            }
+
+            *flagsPtr = serializationFlags == PQSerializationFlags.ForSocketPublish ? (byte)resolvedFlags : (byte)resolvedStorageFlags;
+
             pqL0Quote.HasUpdates = false;
+
+            var written = (int)(currentPtr - writeStart);
+
+            if ((resolvedStorageFlags & StorageFlags.OneByteMessageSize) > 0 && written > byte.MaxValue)
+                throw new Exception($"Expected bytes written to be less than {byte.MaxValue}");
+            if ((resolvedStorageFlags & StorageFlags.TwoByteMessageSize) > 0 && written > ushort.MaxValue)
+                throw new Exception($"Expected bytes written to be less than {ushort.MaxValue}");
+            if ((resolvedStorageFlags & StorageFlags.ThreeByteMessageSize) > 0 && written > 0x00FF_FFFF)
+                throw new Exception($"Expected bytes written to be less than {0x00FF_FFFF}");
+            // var level0Quote = (PQLevel0Quote)message;
+            // logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +
+            //              $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
+            //              $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
+            //              $"{resolvedFlags}.  ThreadName {Thread.CurrentThread.Name}");
+            StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
+            return FinishProcessingMessageReturnValue(message, written);
         }
         finally
         {
             pqL0Quote.Lock.Release();
         }
-
-        var written = (int)(currentPtr - writeStart);
-        // var level0Quote = (PQLevel0Quote)message;
-        // logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +
-        //              $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
-        //              $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
-        //              $"{resolvedFlags}.  ThreadName {Thread.CurrentThread.Name}");
-        StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
-        return FinishProcessingMessageReturnValue(message, written);
     }
 
     private int FinishProcessingMessageReturnValue(IVersionedMessage message, int response)
