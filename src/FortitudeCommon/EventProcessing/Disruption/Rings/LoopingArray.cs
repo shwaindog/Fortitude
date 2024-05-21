@@ -57,9 +57,9 @@ public class LoopingArray<T> : IEnumerable<T?> where T : class, new()
         ConsumerCursor += Math.Min(PublisherCursor - ConsumerCursor, range);
     }
 
-    public T Peek()
+    public T? Peek()
     {
-        if (PublisherCursor == ConsumerCursor) throw new Exception("Ring empty");
+        if (PublisherCursor == ConsumerCursor) return null;
         return Cells[(int)ConsumerCursor & RingMask];
     }
 }

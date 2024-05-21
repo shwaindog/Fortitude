@@ -1,12 +1,13 @@
-﻿using FortitudeCommon.OSWrapper.Memory;
+﻿using System.Linq.Expressions;
+using FortitudeCommon.OSWrapper.Memory;
 using FortitudeCommon.Types;
 
 namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket
 {
-    private static readonly Func<IMutableBucketContainer, long, bool, TBucket> ParamConstructor = 
-        ReflectionHelper.CtorBinder<IMutableBucketContainer, long, bool, TBucket>();
+    private static readonly Func<IMutableBucketContainer, long, bool, ShiftableMemoryMappedFileView?, TBucket> ParamConstructor = 
+        ReflectionHelper.CtorBinder<IMutableBucketContainer, long, bool, ShiftableMemoryMappedFileView?, TBucket>();
     
     private int prefixMargin = 32;
     private int prefixPadding = 21;
@@ -53,7 +54,7 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
         long createStartingAtFileCursorOffset, DateTime containingTime, bool isWritable)
     {
         var currentFileOffset = createStartingAtFileCursorOffset;
-        var ptr = bucketContainer.ContainingTimeSeriesFile.ActiveBucketDataFileView.FileCursorBufferPointer(createStartingAtFileCursorOffset, 0, isWritable);
+        var ptr = bucketContainer.ContainingSession.ActiveBucketDataFileView.FileCursorBufferPointer(createStartingAtFileCursorOffset, 0, isWritable);
         if (!NoPatternOrPadding)
         {
             for (var i = currentFileOffset; i < PrefixMargin; i++)
@@ -73,7 +74,7 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
             }
             currentFileOffset += PrefixPadding;
         }
-        var newBucket = ParamConstructor(bucketContainer, currentFileOffset, isWritable);
+        var newBucket = ParamConstructor(bucketContainer, currentFileOffset, isWritable, null);
         newBucket.BucketFactory = this;
         newBucket.InitializeNewBucket(containingTime);
         return newBucket;
@@ -107,8 +108,8 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
     }
 
     public TBucket OpenExistingBucket(IMutableBucketContainer bucketContainer,
-        long bucketFileCursorOffset, bool isWritable)
+        long bucketFileCursorOffset, bool isWritable, ShiftableMemoryMappedFileView? alternativeMappedFileView = null)
     {
-        return ParamConstructor(bucketContainer, bucketFileCursorOffset, isWritable);
+        return ParamConstructor(bucketContainer, bucketFileCursorOffset, isWritable, alternativeMappedFileView);
     }
 }

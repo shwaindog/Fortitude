@@ -15,19 +15,25 @@ namespace FortitudeCommon.Types;
 /// </summary>
 public static class ReflectionHelper
 {
+    public static Func<TClass> DefaultCtorFunc<TClass>() =>
+        Expression.Lambda<Func<TClass>>(
+            Expression.New(typeof(TClass).GetConstructor(Type.EmptyTypes)!)).Compile();
+
     public static Func<TParam, TClass> CtorBinder<TParam, TClass>()
     {
         var ctorParam = Expression.Parameter(typeof(TParam), "Param");
+        var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam) })!;
         return Expression.Lambda<Func<TParam, TClass>>(
-            Expression.New(typeof(TClass).GetConstructor(new[] { typeof(TParam) })!, ctorParam), ctorParam).Compile();
+            Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
     }
 
     public static Func<TParam1, TParam2, TClass> CtorBinder<TParam1, TParam2, TClass>()
     {
         var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
         var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
+        var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!;
         return Expression.Lambda<Func<TParam1, TParam2, TClass>>(
-            Expression.New(typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!, ctorParam1, ctorParam2), ctorParam1
+            Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
             , ctorParam2).Compile();
     }
 
@@ -36,9 +42,24 @@ public static class ReflectionHelper
         var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
         var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
         var ctorParam3 = Expression.Parameter(typeof(TParam3), "Param3");
+        var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3) })!;
         return Expression.Lambda<Func<TParam1, TParam2, TParam3, TClass>>(
-            Expression.New(typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3) })!, ctorParam1, ctorParam2
+            Expression.New(constructorInfo, ctorParam1, ctorParam2
                 , ctorParam3), ctorParam1, ctorParam2, ctorParam3).Compile();
+    }
+
+    public static Func<TParam1, TParam2, TParam3, TParam4, TClass> CtorBinder<TParam1, TParam2, TParam3, TParam4, TClass>()
+        where TParam4 : class?
+    {
+        var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
+        var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
+        var ctorParam3 = Expression.Parameter(typeof(TParam3), "Param3");
+        var ctorParam4 = Expression.Parameter(typeof(TParam4), "Param4");
+        var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3), typeof(TParam4) })!;
+        return Expression.Lambda<Func<TParam1, TParam2, TParam3, TParam4, TClass>>(
+                Expression.New(constructorInfo
+                    , ctorParam1, ctorParam2, ctorParam3, ctorParam4), ctorParam1, ctorParam2, ctorParam3, ctorParam4)
+            .Compile();
     }
 
     /// <summary>
