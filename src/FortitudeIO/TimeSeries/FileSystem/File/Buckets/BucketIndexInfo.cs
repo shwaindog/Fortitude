@@ -37,6 +37,12 @@ public struct BucketIndexInfo
         get => DateTime.FromBinary(BucketPeriodStart * LowestBucketGranularityTickDivisor);
         set => BucketPeriodStart = (uint)(value.Ticks / LowestBucketGranularityTickDivisor);
     }
+
+    public override string ToString() =>
+        $"{nameof(BucketIndexInfo)}({nameof(BucketId)}: {BucketId}, {nameof(NumEntries)}: {NumEntries}, {nameof(BucketPeriod)}: {BucketPeriod}, " +
+        $"{nameof(BucketFlags)}: {BucketFlags}, {nameof(DataSizeBytes)}: {DataSizeBytes}, " +
+        $"{nameof(ParentOrFileOffset)}: {ParentOrFileOffset}, {nameof(NumIndexEntries)}: {NumIndexEntries}, " +
+        $"{nameof(BucketStartTime)}: {BucketStartTime})";
 }
 
 public class BucketIndexEarliestEntryComparer : IComparer<BucketIndexInfo>

@@ -165,6 +165,7 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
     {
         if (toBeFreed is not EndOfFileEmptyChunk)
         {
+            // Flush(toBeFreed, toBeFreed.StartFileCursorOffset, toBeFreed.ViewSizeInPages * PageSize);
             osDirectMemoryApi.ReleaseViewOfFile(toBeFreed.Address, toBeFreed.ViewSizeInPages * PageSize);
             toBeFreed.Dispose();
             DecrementUsageCount();
@@ -286,8 +287,9 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         }
         else
         {
-            var chunkOffset = fileCursorFrom - chunk.StartFileCursorOffset;
+            var chunkOffset = (int)(fileCursorFrom - chunk.StartFileCursorOffset);
             addressToFlush = chunk.Address + chunkOffset;
+            if (bytesToFlush + chunkOffset > PageSize) bytesToFlush = bytesToFlush + chunkOffset - PageSize;
         }
 
         if (!osDirectMemoryApi.FlushPageDataToDisk(addressToFlush, bytesToFlush))

@@ -24,6 +24,7 @@
     <Folder Include="Configuration\ClientServerConfig\PricingConfig\" />
     <Folder Include="Configuration\ClientServerConfig\TradingConfig\" />
     <Folder Include="Pricing\Quotes\SourceTickerInfo\" />
+    <Folder Include="Pricing\TimeSeries\FileSystem\File\Buckets\" />
   </ItemGroup>
 
 </Project>

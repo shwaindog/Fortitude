@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.OSWrapper.Memory;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
@@ -14,8 +15,9 @@ public class TestLevel1DailyQuoteStructBucket :
 {
     private static BucketFactory<TestLevel1DailyQuoteStructBucket> bucketBucketFactory = new();
 
-    public TestLevel1DailyQuoteStructBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable)
-        : base(bucketContainer, bucketFileCursorOffset, writable) =>
+    public TestLevel1DailyQuoteStructBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+        bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         IndexCount = 24;
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;

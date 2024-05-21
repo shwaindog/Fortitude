@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.Memory;
 using FortitudeIO.Protocols.Serdes.Binary;
 
@@ -21,27 +22,30 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SubBucketOnlyBucket<,,>));
     private readonly List<TSubBucket> cacheSubBuckets = new();
     private readonly BucketFactory<TSubBucket> subBucketFactory = new();
     private TSubBucket? currentlyOpenSubBucket;
     private uint lastAddedIndexKey;
 
-    protected SubBucketOnlyBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable)
-        : base(bucketContainer, bucketFileCursorOffset, writable) =>
+    protected SubBucketOnlyBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+        , ShiftableMemoryMappedFileView? alternativeFileView = null)
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         BucketFlags |= BucketFlags.HasOnlySubBuckets;
 
     public TSubBucket? LastAddedSubBucket
     {
         get
         {
-            BucketIndexDictionary
-                ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
-            var previousLastCreatedBucketNullable = BucketIndexDictionary.LastAddedBucketIndexInfo;
+            var previousLastCreatedBucketNullable = BucketIndexes.LastAddedBucketIndexInfo;
             if (previousLastCreatedBucketNullable != null)
             {
                 var previousLastCreated = previousLastCreatedBucketNullable.Value;
                 currentlyOpenSubBucket
-                    = subBucketFactory.OpenExistingBucket(BucketContainer, previousLastCreated.ParentOrFileOffset, Writable);
+                    = subBucketFactory.OpenExistingBucket(BucketContainer,
+                        FileCursorOffset + previousLastCreated.ParentOrFileOffset, Writable
+                        , ContainingFile.ReadChildrenFileView);
+                currentlyOpenSubBucket.CloseFileView();
             }
 
             return currentlyOpenSubBucket;
@@ -55,14 +59,12 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     public ShiftableMemoryMappedFileView ContainerIndexAndHeaderFileView(int depth, uint requiredViewSize) =>
         ContainingFile.ContainerIndexAndHeaderFileView(depth, requiredViewSize);
 
-    public IBucketTrackingTimeSeriesFile ContainingTimeSeriesFile => ContainingFile;
+    public IBucketTrackingSession ContainingSession => ContainingFile;
     public uint CreateBucketId() => LastAddedBucketId <= 0 ? BucketId * 1000 + 1 : LastAddedBucketId + 1;
 
     public void AddNewBucket(IMutableBucket newChild)
     {
-        BucketIndexDictionary
-            ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset, IndexCount, !Writable);
-        var previousLastCreatedSubBucketNullable = BucketIndexDictionary.LastAddedBucketIndexInfo;
+        var previousLastCreatedSubBucketNullable = BucketIndexes.LastAddedBucketIndexInfo;
         if (previousLastCreatedSubBucketNullable != null)
         {
             var previousLastCreated = previousLastCreatedSubBucketNullable.Value;
@@ -77,15 +79,17 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
             }
 
             previousLastCreated.BucketFlags = previousFileFlags.Unset(BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending);
-            BucketIndexDictionary.Add(lastAddedIndexKey, previousLastCreated);
+            BucketIndexes.Add(lastAddedIndexKey, previousLastCreated);
         }
 
         var bucketIndexOffset
             = new BucketIndexInfo(newChild.BucketId, newChild.PeriodStartTime, newChild.BucketFlags, newChild.TimeSeriesPeriod
                 , newChild.FileCursorOffset - FileCursorOffset);
-        lastAddedIndexKey = BucketIndexDictionary.NextEmptyIndexKey;
+        // Logger.Info("BucketId {0} at {1} added child BucketId {2} at {3} with delta {4}", BucketId, FileCursorOffset, newChild.BucketId
+        //     , newChild.FileCursorOffset, newChild.FileCursorOffset - FileCursorOffset);
+        lastAddedIndexKey = BucketIndexes.NextEmptyIndexKey;
         LastAddedBucketId = newChild.BucketId;
-        BucketIndexDictionary.Add(lastAddedIndexKey, bucketIndexOffset);
+        BucketIndexes.Add(lastAddedIndexKey, bucketIndexOffset);
         cacheSubBuckets.Add((TSubBucket)newChild);
     }
 
@@ -94,19 +98,22 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     {
         get
         {
-            if (IsOpen) return cacheSubBuckets;
+            if (!IsOpen || (Writable && cacheSubBuckets.Any())) return cacheSubBuckets;
+            if (!CanUseWritableBufferInfo) RefreshViews();
+
             cacheSubBuckets.Clear();
 
-            foreach (var subBucketIndexOffset in BucketIndexDictionary!.Values)
-            {
-                if (currentlyOpenSubBucket is { IsOpen: true }) currentlyOpenSubBucket.CloseFileView();
-                if (subBucketIndexOffset is { BucketFlags: BucketFlags.None })
+            foreach (var subBucketIndexOffset in BucketIndexes.Values)
+                if (subBucketIndexOffset is not { BucketFlags: BucketFlags.None })
                 {
-                    currentlyOpenSubBucket = subBucketFactory.OpenExistingBucket(BucketContainer
-                        , FileCursorOffset + subBucketIndexOffset.ParentOrFileOffset, false);
+                    // Logger.Info("BucketId {0} at {1} Attempting to open child BucketId {2} having offset {3} with at {4}", BucketId, FileCursorOffset
+                    //     , subBucketIndexOffset.BucketId, subBucketIndexOffset.ParentOrFileOffset
+                    //     , FileCursorOffset + subBucketIndexOffset.ParentOrFileOffset);
+                    currentlyOpenSubBucket = subBucketFactory.OpenExistingBucket(this
+                        , FileCursorOffset + subBucketIndexOffset.ParentOrFileOffset, false, ContainingFile.ReadChildrenFileView);
                     cacheSubBuckets.Add(currentlyOpenSubBucket);
+                    currentlyOpenSubBucket.CloseFileView();
                 }
-            }
 
             return cacheSubBuckets;
         }
@@ -131,10 +138,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     public override IEnumerable<TEntry> AllBucketEntriesFrom(long? fileCursorOffset = null) =>
         SubBuckets.SelectMany(subBucket =>
         {
-            if (!subBucket.IsOpen) subBucket.OpenBucket(asWritable: Writable);
-            var result = subBucket.AllBucketEntriesFrom();
-            subBucket.CloseFileView();
-            return result;
+            subBucket.RefreshViews();
+            return subBucket.AllBucketEntriesFrom();
         });
 
     public override IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null)
@@ -142,10 +147,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
             .SelectMany(subBucket =>
             {
-                if (!subBucket.IsOpen) subBucket.OpenBucket(asWritable: Writable);
-                var result = subBucket.EntriesBetween(fromTime, toTime);
-                subBucket.CloseFileView();
-                return result;
+                subBucket.RefreshViews();
+                return subBucket.EntriesBetween(fromTime, toTime);
             });
     }
 
@@ -155,10 +158,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
             .SelectMany(subBucket =>
             {
-                if (!subBucket.IsOpen) subBucket.OpenBucket(asWritable: Writable);
-                var result = subBucket.EntriesBetween(usingMessageDeserializer, fromTime, toTime);
-                subBucket.CloseFileView();
-                return result;
+                subBucket.RefreshViews();
+                return subBucket.EntriesBetween(usingMessageDeserializer, fromTime, toTime);
             });
     }
 
@@ -167,10 +168,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
             .SelectMany(subBucket =>
             {
-                if (!subBucket.IsOpen) subBucket.OpenBucket(asWritable: Writable);
-                var result = subBucket.EntriesBetween(fromTime, toTime);
-                subBucket.CloseFileView();
-                return result;
+                subBucket.RefreshViews();
+                return subBucket.EntriesBetween(fromTime, toTime);
             });
     }
 
@@ -181,10 +180,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
             .SelectMany(subBucket =>
             {
-                if (!subBucket.IsOpen) subBucket.OpenBucket(asWritable: Writable);
-                var result = subBucket.EntriesBetween(usingMessageDeserializer, fromTime, toTime);
-                subBucket.CloseFileView();
-                return result;
+                subBucket.RefreshViews();
+                return subBucket.EntriesBetween(usingMessageDeserializer, fromTime, toTime);
             });
     }
 
@@ -193,15 +190,14 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         var preAppendSize = destination.Count;
         foreach (var subBucket in SubBuckets.Where(sb => sb.Intersects(fromDateTime, toDateTime)))
         {
-            if (!subBucket.IsOpen) subBucket.OpenBucket(asWritable: Writable);
+            subBucket.RefreshViews();
             subBucket.CopyTo(destination, fromDateTime, toDateTime);
-            subBucket.CloseFileView();
         }
 
         return destination.Count - preAppendSize;
     }
 
-    public override StorageAttemptResult AppendEntry(TEntry entry)
+    public override unsafe StorageAttemptResult AppendEntry(TEntry entry)
     {
         if (!Writable) return StorageAttemptResult.BucketClosedForAppend;
         var entryStorageTime = entry.StorageTime(StorageTimeResolver);
@@ -222,11 +218,13 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
             (currentlyOpenSubBucket?.BucketFlags.HasBucketCurrentAppendingFlag() ?? false))
         {
             currentlyOpenSubBucket = currentlyOpenSubBucket.CloseAndCreateNextBucket()!;
+            BucketContainerIndexEntry->NumIndexEntries += 1;
             return currentlyOpenSubBucket.AppendEntry(entry);
         }
 
         currentlyOpenSubBucket = subBucketFactory.CreateNewBucket(this, BucketDataStartFileOffset,
             entryStorageTime, true);
+        BucketContainerIndexEntry->NumIndexEntries = 1;
         return currentlyOpenSubBucket.AppendEntry(entry);
     }
 

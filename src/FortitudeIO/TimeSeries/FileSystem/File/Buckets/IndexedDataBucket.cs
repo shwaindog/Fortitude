@@ -32,13 +32,14 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     protected IBucketIndexDictionary? BucketIndexDictionary;
+    private long bucketIndexRealignmentDelta;
     private IndexedContainerHeaderExtension cacheIndexedContainerHeaderExtension;
     private long headerExtensionRealignmentDelta;
-    private IndexedContainerHeaderExtension* mappedFileSubBucketContainerHeaderExtension;
-    private long subBucketIndexRealignmentDelta;
+    private IndexedContainerHeaderExtension* mappedIndexedContainerHeader;
 
-    protected IndexedDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable)
-        : base(bucketContainer, bucketFileCursorOffset, writable) =>
+    protected IndexedDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+        , ShiftableMemoryMappedFileView? alternativeFileView = null)
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         BucketFlags |= BucketFlags.HasBucketIndex;
 
     protected override long EndOfBucketHeaderSectionOffset =>
@@ -51,8 +52,8 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     {
         get
         {
-            subBucketIndexRealignmentDelta = EndOfBucketHeaderSectionOffset % 8;
-            return EndOfBucketHeaderSectionOffset + subBucketIndexRealignmentDelta;
+            bucketIndexRealignmentDelta = EndOfBucketHeaderSectionOffset % 8 > 0 ? 8 - EndOfBucketHeaderSectionOffset % 8 : 0;
+            return EndOfBucketHeaderSectionOffset + bucketIndexRealignmentDelta;
         }
     }
 
@@ -60,7 +61,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return BucketIndexDictionary!;
+            if (!CanUseWritableBufferInfo && BucketIndexDictionary != null) return BucketIndexDictionary!;
             BucketIndexDictionary
                 ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset
                     , IndexCount, !Writable);
@@ -87,14 +88,14 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         get
         {
             if (!CanUseWritableBufferInfo) return cacheIndexedContainerHeaderExtension.IndexCount;
-            cacheIndexedContainerHeaderExtension.IndexCount = mappedFileSubBucketContainerHeaderExtension->IndexCount;
+            cacheIndexedContainerHeaderExtension.IndexCount = mappedIndexedContainerHeader->IndexCount;
             return cacheIndexedContainerHeaderExtension.IndexCount;
         }
 
         set
         {
             if (value == cacheIndexedContainerHeaderExtension.IndexCount || !Writable || !CanUseWritableBufferInfo) return;
-            mappedFileSubBucketContainerHeaderExtension->IndexCount = value;
+            mappedIndexedContainerHeader->IndexCount = value;
             cacheIndexedContainerHeaderExtension.IndexCount = value;
         }
     }
@@ -102,24 +103,36 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     public override IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false)
     {
         base.OpenBucket(alternativeHeaderAndDataFileView, asWritable);
-        headerExtensionRealignmentDelta = (FileCursorOffset + sizeof(BucketHeader)) % 8;
+        headerExtensionRealignmentDelta = (FileCursorOffset + sizeof(BucketHeader)) % 8 > 0 ? 8 - (FileCursorOffset + sizeof(BucketHeader)) % 8 : 0;
         var headerExtensionRealignmentDeltaFileOffset = FileCursorOffset + sizeof(BucketHeader) + headerExtensionRealignmentDelta;
-        mappedFileSubBucketContainerHeaderExtension
+        mappedIndexedContainerHeader
             = (IndexedContainerHeaderExtension*)BucketHeaderFileView!.FileCursorBufferPointer(headerExtensionRealignmentDeltaFileOffset
                 , shouldGrow: asWritable);
-        cacheIndexedContainerHeaderExtension = *mappedFileSubBucketContainerHeaderExtension;
+
+        cacheIndexedContainerHeaderExtension = *mappedIndexedContainerHeader;
+        if (IndexCount > 0)
+        {
+            if (BucketIndexDictionary != null)
+                BucketIndexDictionary.OpenWithFileView(BucketHeaderFileView!, !Writable);
+            else
+                BucketIndexDictionary
+                    ??= new BucketIndexDictionary(BucketHeaderFileView!, BucketIndexFileOffset, IndexCount, !Writable);
+        }
+
         return this;
     }
 
     public override void Dispose()
     {
-        BucketIndexes.CacheAndCloseFileView();
+        if (Writable) BucketHeaderFileView!.FlushPtrDataToDisk(mappedIndexedContainerHeader, sizeof(IndexedContainerHeaderExtension));
+        BucketIndexDictionary?.CacheAndCloseFileView();
         base.Dispose();
     }
 
     public override void CloseFileView()
     {
-        BucketIndexes.CacheAndCloseFileView();
+        if (Writable) BucketHeaderFileView!.FlushPtrDataToDisk(mappedIndexedContainerHeader, sizeof(IndexedContainerHeaderExtension));
+        BucketIndexDictionary?.CacheAndCloseFileView();
         base.CloseFileView();
     }
 

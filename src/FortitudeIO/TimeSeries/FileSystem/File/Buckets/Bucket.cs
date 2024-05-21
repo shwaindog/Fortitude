@@ -5,6 +5,7 @@ using FortitudeCommon.OSWrapper.Memory;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 #endregion
 
@@ -62,7 +63,7 @@ public interface IBucket : IDisposable
     ulong DataSizeBytes { get; }
     uint NonDataSizeBytes { get; }
     Type ExpectedEntryType { get; }
-
+    void RefreshViews(ShiftableMemoryMappedFileView? usingMappedFileView = null);
     bool Intersects(DateTime? fromTime = null, DateTime? toTime = null);
     StorageAttemptResult CheckTimeSupported(DateTime storageDateTime);
     void CloseFileView();
@@ -71,6 +72,8 @@ public interface IBucket : IDisposable
 
 public interface IBucket<TEntry> : IBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
+    void Entries(IReaderContext<TEntry> readerContext);
+
     IEnumerable<TEntry> AllBucketEntriesFrom(long? fromFileCursorOffset = null);
     IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null);
 

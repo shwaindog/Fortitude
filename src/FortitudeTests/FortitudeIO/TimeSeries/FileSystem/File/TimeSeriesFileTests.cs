@@ -13,11 +13,14 @@ namespace FortitudeTests.FortitudeIO.TimeSeries.FileSystem.File;
 [TestClass]
 public class TimeSeriesFileTests
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileTests));
     private static int newTestCount;
     private FileInfo memoryMappedFile = null!;
     private string newMemoryMappedFilePath = null!;
 
     private TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct> oneWeekFile = null!;
+    private IReaderFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>? readerSession;
+    private IWriterFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct> writerSession = null!;
 
     [TestInitialize]
     public void Setup()
@@ -26,13 +29,16 @@ public class TimeSeriesFileTests
         memoryMappedFile = new FileInfo(newMemoryMappedFilePath);
         if (memoryMappedFile.Exists) memoryMappedFile.Delete();
         oneWeekFile = new TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>(newMemoryMappedFilePath,
-            TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 6, 2,
+            TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 6,
             FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader, 7);
+        writerSession = oneWeekFile.GetWriterSession()!;
     }
 
     [TestCleanup]
     public void TearDown()
     {
+        readerSession?.Close();
+        writerSession.Close();
         oneWeekFile.Close();
         var dirInfo = new DirectoryInfo(Environment.CurrentDirectory);
         foreach (var existingTimeSeriesFile in dirInfo.GetFiles("TimeSeriesFileTests_*"))
@@ -56,16 +62,16 @@ public class TimeSeriesFileTests
         ulong expectedDataSize = 0;
         foreach (var level1QuoteStruct in toPersistAndCheck)
         {
-            var result = oneWeekFile.AppendEntry(level1QuoteStruct);
+            var result = writerSession.AppendEntry(level1QuoteStruct);
             expectedDataSize += (ulong)sizeof(Level1QuoteStruct);
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
         }
 
         Assert.AreEqual(expectedDataSize, oneWeekFile.Header.TotalDataSizeBytes);
 
-        oneWeekFile.Close();
-        oneWeekFile.ReopenFile(FileFlags.WriterOpened);
-        var storedItems = oneWeekFile.AllEntries.ToList();
+        writerSession.Close();
+        readerSession = oneWeekFile.GetReaderSession();
+        var storedItems = readerSession.AllEntries.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         Assert.IsTrue(toPersistAndCheck.SequenceEqual(storedItems));
     }
@@ -76,7 +82,7 @@ public class TimeSeriesFileTests
         var singleQuoteMiddleOfWeek = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Wednesday);
         var nextWeekQuote = singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
-        var result = oneWeekFile.AppendEntry(nextWeekQuote);
+        var result = writerSession.AppendEntry(nextWeekQuote);
         Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result);
     }
 
@@ -87,11 +93,11 @@ public class TimeSeriesFileTests
         var thursdayQuotes = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Thursday);
         var wednesdayQuote = wednesdayQuotes.First();
         var thursdayQuote = thursdayQuotes.First();
-        var result = oneWeekFile.AppendEntry(wednesdayQuote);
+        var result = writerSession.AppendEntry(wednesdayQuote);
         Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
-        result = oneWeekFile.AppendEntry(thursdayQuote);
+        result = writerSession.AppendEntry(thursdayQuote);
         Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
-        result = oneWeekFile.AppendEntry(wednesdayQuote);
+        result = writerSession.AppendEntry(wednesdayQuote);
         Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result);
     }
 
