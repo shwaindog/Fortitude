@@ -74,6 +74,8 @@ public interface IReaderContext<TEntry>
     int CountBucketsVisited { get; set; }
     void FinishedConsumingEntry(TEntry entry);
     bool ProcessCandidateEntry(TEntry entry);
+
+    void RunReader();
 }
 
 public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
@@ -159,10 +161,16 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         }
     }
 
+    public void RunReader()
+    {
+        var processedCount = 0;
+        foreach (var subscribePullResult in entriesFile.StartReaderContext(this)) processedCount++;
+    }
+
     public int CountMatch { get; set; }
     public int CountProcessed { get; set; }
     public int CountBucketsVisited { get; set; }
-    public bool ContinueSearching { get; private set; }
+    public bool ContinueSearching { get; private set; } = true;
     public IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
 
     public bool ProcessCandidateEntry(TEntry entry)
@@ -177,7 +185,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         }
 
         if (!rangeMatch) return false;
-        if (CountMatch >= MaxResults - 1)
+        if (MaxResults > 0 && CountMatch >= MaxResults - 1)
         {
             ContinueSearching = false;
             return false;

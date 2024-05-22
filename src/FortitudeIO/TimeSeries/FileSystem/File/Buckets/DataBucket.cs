@@ -4,7 +4,6 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.Memory;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
@@ -409,25 +408,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public virtual long CalculateBucketEndFileOffset() => BucketDataStartFileOffset + (long)DataSizeBytes;
 
-    public void Entries(IReaderContext<TEntry> readerContext)
-    {
-        throw new NotImplementedException();
-    }
-
-    public abstract IEnumerable<TEntry> AllBucketEntriesFrom(long? fromFileCursorOffset = null);
-
-    public virtual IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null)
-    {
-        foreach (var timeSeriesEntry in AllBucketEntriesFrom(BucketDataStartFileOffset))
-            if (EntryIntersects(timeSeriesEntry, fromTime, toTime))
-                yield return timeSeriesEntry;
-    }
-
-    public virtual IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromTime = null
-        , DateTime? toTime = null) where TM : class, IVersionedMessage =>
-        EntriesBetween(BucketDataStartFileOffset, usingMessageDeserializer, fromTime, toTime);
-
-    public abstract int CopyTo(List<TEntry> destination, DateTime? fromDateTime = null, DateTime? toDateTime = null);
+    public abstract IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null);
 
     public void SetEntrySerializer(IMessageSerializer useSerializer)
     {
@@ -436,18 +417,13 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public abstract StorageAttemptResult AppendEntry(TEntry entry);
 
-
-    public virtual IEnumerable<TEntry> EntriesBetween(long fileCursorOffset, DateTime? fromTime = null, DateTime? toTime = null)
+    public bool BucketIntersects(PeriodRange? period = null)
     {
-        foreach (var timeSeriesEntry in AllBucketEntriesFrom(fileCursorOffset))
-            if (EntryIntersects(timeSeriesEntry, fromTime, toTime))
-                yield return timeSeriesEntry;
+        if (period == null) return true;
+        var range = period.Value;
+        return (range.FromTime < TimeSeriesPeriod.PeriodEnd(PeriodStartTime) || (range.FromTime == null && range.ToTime != null))
+               && (range.ToTime > PeriodStartTime || (range.ToTime == null && range.FromTime != null));
     }
-
-    public abstract IEnumerable<TM> EntriesBetween<TM>(long fileCursorOffset, IMessageDeserializer<TM> usingMessageDeserializer
-        , DateTime? fromTime = null
-        , DateTime? toTime = null) where TM : class, IVersionedMessage;
-
 
     ~DataBucket()
     {
