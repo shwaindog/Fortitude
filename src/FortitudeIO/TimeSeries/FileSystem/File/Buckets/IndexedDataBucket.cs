@@ -2,7 +2,7 @@
 
 using System.Runtime.InteropServices;
 using FortitudeCommon.OSWrapper.Memory;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 #endregion
 
@@ -145,21 +145,12 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
             *ptr++ = 0; // maybe overwritting existing data so should zero out existing data
     }
 
-    public override IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null)
+    public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null)
     {
-        var firstMatchingIndexEntry = BucketIndexes.Values.FirstOrDefault(bii => bii.Intersects(fromTime, toTime));
+        var firstMatchingIndexEntry = BucketIndexes.Values.FirstOrDefault(bii => bii.Intersects(readerContext.PeriodRange));
         if (!Equals(firstMatchingIndexEntry, default(BucketIndexInfo)))
-            return EntriesBetween(FileCursorOffset + firstMatchingIndexEntry.ParentOrFileOffset, fromTime, toTime);
+            return ReadEntries(readerContext, FileCursorOffset + firstMatchingIndexEntry.ParentOrFileOffset);
         return Enumerable.Empty<TEntry>();
-    }
-
-    public override IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromTime = null
-        , DateTime? toTime = null)
-    {
-        var firstMatchingIndexEntry = BucketIndexes.Values.FirstOrDefault(bii => bii.Intersects(fromTime, toTime));
-        if (!Equals(firstMatchingIndexEntry, default(BucketIndexInfo)))
-            return EntriesBetween(FileCursorOffset + firstMatchingIndexEntry.ParentOrFileOffset, usingMessageDeserializer, fromTime, toTime);
-        return Enumerable.Empty<TM>();
     }
 
     protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => ContainingFile.ActiveBucketHeaderFileView;

@@ -1,9 +1,11 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
+using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
@@ -15,6 +17,7 @@ public class TimeSeriesFileTests
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileTests));
     private static int newTestCount;
+    private Func<Level1QuoteStruct>? createNewEntryFactory = null!;
     private FileInfo memoryMappedFile = null!;
     private string newMemoryMappedFilePath = null!;
 
@@ -27,6 +30,7 @@ public class TimeSeriesFileTests
     {
         newMemoryMappedFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
         memoryMappedFile = new FileInfo(newMemoryMappedFilePath);
+        createNewEntryFactory = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
         if (memoryMappedFile.Exists) memoryMappedFile.Delete();
         oneWeekFile = new TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>(newMemoryMappedFilePath,
             TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 6,
@@ -71,9 +75,22 @@ public class TimeSeriesFileTests
 
         writerSession.Close();
         readerSession = oneWeekFile.GetReaderSession();
-        var storedItems = readerSession.AllEntries.ToList();
+        var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
+        Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
+        Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         Assert.IsTrue(toPersistAndCheck.SequenceEqual(storedItems));
+        var newReaderSession = oneWeekFile.GetReaderSession();
+        Assert.AreNotSame(readerSession, newReaderSession);
+        var newEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;
+        newEntriesReader.RunReader();
+        var listResults = newEntriesReader.ResultList;
+        Assert.AreEqual(toPersistAndCheck.Count, newEntriesReader.CountMatch);
+        Assert.AreEqual(allEntriesReader.CountMatch, newEntriesReader.CountProcessed);
+        Assert.AreEqual(toPersistAndCheck.Count, listResults.Count);
+        Assert.IsTrue(toPersistAndCheck.SequenceEqual(listResults));
     }
 
     [TestMethod]

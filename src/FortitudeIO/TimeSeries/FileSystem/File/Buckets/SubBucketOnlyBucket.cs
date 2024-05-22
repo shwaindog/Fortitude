@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.Memory;
-using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 #endregion
 
@@ -135,67 +135,13 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
 
     public override long CalculateBucketEndFileOffset() => SubBuckets.Max(sb => sb.CalculateBucketEndFileOffset());
 
-    public override IEnumerable<TEntry> AllBucketEntriesFrom(long? fileCursorOffset = null) =>
-        SubBuckets.SelectMany(subBucket =>
-        {
-            subBucket.RefreshViews();
-            return subBucket.AllBucketEntriesFrom();
-        });
-
-    public override IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null)
-    {
-        return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
+    public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null) =>
+        SubBuckets.Where(sb => sb.BucketIntersects(readerContext.PeriodRange))
             .SelectMany(subBucket =>
             {
                 subBucket.RefreshViews();
-                return subBucket.EntriesBetween(fromTime, toTime);
+                return subBucket.ReadEntries(readerContext, fromFileCursorOffset);
             });
-    }
-
-    public override IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromTime = null
-        , DateTime? toTime = null)
-    {
-        return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
-            .SelectMany(subBucket =>
-            {
-                subBucket.RefreshViews();
-                return subBucket.EntriesBetween(usingMessageDeserializer, fromTime, toTime);
-            });
-    }
-
-    public override IEnumerable<TEntry> EntriesBetween(long fileCursorOffset, DateTime? fromTime = null, DateTime? toTime = null)
-    {
-        return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
-            .SelectMany(subBucket =>
-            {
-                subBucket.RefreshViews();
-                return subBucket.EntriesBetween(fromTime, toTime);
-            });
-    }
-
-    public override IEnumerable<TM> EntriesBetween<TM>(long fileCursorOffset, IMessageDeserializer<TM> usingMessageDeserializer
-        , DateTime? fromTime = null
-        , DateTime? toTime = null)
-    {
-        return SubBuckets.Where(sb => sb.Intersects(fromTime, toTime))
-            .SelectMany(subBucket =>
-            {
-                subBucket.RefreshViews();
-                return subBucket.EntriesBetween(usingMessageDeserializer, fromTime, toTime);
-            });
-    }
-
-    public override int CopyTo(List<TEntry> destination, DateTime? fromDateTime = null, DateTime? toDateTime = null)
-    {
-        var preAppendSize = destination.Count;
-        foreach (var subBucket in SubBuckets.Where(sb => sb.Intersects(fromDateTime, toDateTime)))
-        {
-            subBucket.RefreshViews();
-            subBucket.CopyTo(destination, fromDateTime, toDateTime);
-        }
-
-        return destination.Count - preAppendSize;
-    }
 
     public override unsafe StorageAttemptResult AppendEntry(TEntry entry)
     {

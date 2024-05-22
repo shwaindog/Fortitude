@@ -3,7 +3,6 @@
 using System.Runtime.InteropServices;
 using FortitudeCommon.OSWrapper.Memory;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
@@ -65,6 +64,7 @@ public interface IBucket : IDisposable
     Type ExpectedEntryType { get; }
     void RefreshViews(ShiftableMemoryMappedFileView? usingMappedFileView = null);
     bool Intersects(DateTime? fromTime = null, DateTime? toTime = null);
+    bool BucketIntersects(PeriodRange? period = null);
     StorageAttemptResult CheckTimeSupported(DateTime storageDateTime);
     void CloseFileView();
     IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false);
@@ -72,15 +72,7 @@ public interface IBucket : IDisposable
 
 public interface IBucket<TEntry> : IBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
-    void Entries(IReaderContext<TEntry> readerContext);
-
-    IEnumerable<TEntry> AllBucketEntriesFrom(long? fromFileCursorOffset = null);
-    IEnumerable<TEntry> EntriesBetween(DateTime? fromTime = null, DateTime? toTime = null);
-
-    IEnumerable<TM> EntriesBetween<TM>(IMessageDeserializer<TM> usingMessageDeserializer, DateTime? fromTime = null, DateTime? toTime = null)
-        where TM : class, IVersionedMessage;
-
-    int CopyTo(List<TEntry> destination, DateTime? fromDateTime = null, DateTime? toDateTime = null);
+    IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null);
 }
 
 public interface IMutableBucket : IBucket

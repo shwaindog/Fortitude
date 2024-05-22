@@ -34,8 +34,6 @@ public interface IMutableTimeSeriesBucketSession<TBucket> : ITimeSeriesBucketSes
 public interface ITimeSeriesEntriesSession<TEntry> : ITimeSeriesFileSession
     where TEntry : ITimeSeriesEntry<TEntry>
 {
-    IEnumerable<TEntry> AllEntries { get; }
-    IEnumerable<TEntry> Entries(DateTime? fromTime = null, DateTime? toTime = null);
     IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext);
 }
 
@@ -70,7 +68,11 @@ public interface IBucketTrackingSession : IMutableBucketContainer
 }
 
 public interface IReaderFileSession<TBucket, TEntry> : ITimeSeriesEntriesSession<TEntry>, ITimeSeriesBucketSession<TBucket>
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry> { }
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+{
+    IReaderContext<TEntry> GetAllEntriesReader(Func<TEntry>? createNew = null);
+    IReaderContext<TEntry> GetEntriesBetweenReader(DateTime? fromTime, DateTime? toTime, Func<TEntry>? createNew = null);
+}
 
 public interface IWriterFileSession<TBucket, TEntry> : IMutableTimeSeriesEntriesSession<TEntry>, IMutableTimeSeriesBucketSession<TBucket>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry> { }
@@ -218,9 +220,22 @@ public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket
         cacheBuckets.Add((TBucket)bucket);
     }
 
+    public IReaderContext<TEntry> GetAllEntriesReader(Func<TEntry>? createNew = null) => new TimeSeriesFileReaderContext<TEntry>(this, createNew);
+
+    public IReaderContext<TEntry> GetEntriesBetweenReader(DateTime? fromTime, DateTime? toTime, Func<TEntry>? createNew = null) =>
+        new TimeSeriesFileReaderContext<TEntry>(this, createNew)
+        {
+            PeriodRange = new PeriodRange(fromTime, toTime)
+        };
+
     public ITimeSeriesFile TimeSeriesFile => timeSeriesFile;
 
-    public IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext) => throw new NotImplementedException();
+    public IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext) =>
+        ChronologicallyOrderedBuckets().SelectMany(bucket =>
+        {
+            bucket.RefreshViews();
+            return bucket.ReadEntries(readerContext);
+        });
 
     public bool IsWritable
     {
@@ -229,20 +244,6 @@ public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket
     }
 
     public bool IsOpen { get; private set; }
-
-    public IEnumerable<TEntry> AllEntries =>
-        ChronologicallyOrderedBuckets().SelectMany(bucket =>
-        {
-            if (!bucket.IsOpen) bucket.OpenBucket(asWritable: IsWritable);
-            return bucket.AllBucketEntriesFrom();
-        });
-
-    public IEnumerable<TEntry> Entries(DateTime? fromTime = null, DateTime? toTime = null) =>
-        ChronologicallyOrderedBuckets().SelectMany(bucket =>
-        {
-            if (!bucket.IsOpen) bucket.OpenBucket(asWritable: IsWritable);
-            return bucket.EntriesBetween(fromTime, toTime);
-        });
 
     public void Close()
     {
