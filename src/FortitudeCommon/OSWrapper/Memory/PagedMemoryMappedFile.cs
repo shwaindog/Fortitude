@@ -118,6 +118,8 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         }
     }
 
+    public bool IsOpen => !isDisposed;
+
     public void Dispose()
     {
         if (liveCount > 0 || isDisposed) return;

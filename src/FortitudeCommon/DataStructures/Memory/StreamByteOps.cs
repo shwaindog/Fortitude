@@ -211,11 +211,38 @@ public static unsafe class StreamByteOps
         }
     }
 
+    public static byte StringAutoHeaderSize(long maxPossibleBytes) =>
+        maxPossibleBytes <= byte.MaxValue + 1 ? (byte)1
+        : maxPossibleBytes <= ushort.MaxValue + 2 ? (byte)2
+        : (byte)4;
+
+    public static int ToBytesWithAutoSizeHeader(ref byte* ptr, string? value, long availableBytes)
+    {
+        var stringSize = ptr;
+        var headerSize = StringAutoHeaderSize(availableBytes);
+        ptr += headerSize;
+        var strSize = ToBytes(ref ptr, value, Math.Min(availableBytes - headerSize - 1, ushort.MaxValue));
+        switch (headerSize)
+        {
+            case 1:
+                *stringSize = (byte)strSize;
+                break;
+            case 2:
+                ToBytes(ref stringSize, (ushort)strSize);
+                break;
+            default:
+                ToBytes(ref stringSize, strSize);
+                break;
+        }
+
+        return strSize + headerSize;
+    }
+
     public static int ToBytesWithSizeHeader(ref byte* ptr, string value, long availableBytes)
     {
         var stringSize = ptr;
         ptr += 2;
-        var strSize = (ushort)ToBytes(ref ptr, value, Math.Min(availableBytes, ushort.MaxValue));
+        var strSize = (ushort)ToBytes(ref ptr, value, Math.Min(availableBytes - 3, ushort.MaxValue));
         ToBytes(ref stringSize, strSize);
         return strSize + 2;
     }
@@ -585,10 +612,20 @@ public static unsafe class StreamByteOps
         return sb.ToString();
     }
 
-    public static string ToStringWithSizeHeader(ref byte* ptr)
+
+    public static string? ToStringWithAutoSizeHeader(ref byte* ptr, int maxPossibleBytes)
+    {
+        var headerSize = StringAutoHeaderSize(maxPossibleBytes);
+        var stringSize = headerSize == 1 ? *ptr++
+            : headerSize == 2 ? ToUShort(ref ptr)
+            : ToInt(ref ptr);
+        return stringSize == 0 ? null : ToString(ref ptr, stringSize);
+    }
+
+    public static string? ToStringWithSizeHeader(ref byte* ptr)
     {
         var stringSize = ToUShort(ref ptr);
-        return ToString(ref ptr, stringSize);
+        return stringSize == 0 ? null : ToString(ref ptr, stringSize);
     }
 
     public static int ToMutableString(ref byte* ptr, int readBytes, MutableString destination)

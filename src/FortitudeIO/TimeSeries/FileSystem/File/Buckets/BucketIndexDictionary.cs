@@ -15,6 +15,7 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 public struct BucketIndexList
 {
     public uint MaxIndexSizeEntries;
+    public int IndexSHA256;
     public uint LastAddedBucketIndexInfoKey;
     public BucketIndexInfo FirstIndexInList;
 }
@@ -134,7 +135,7 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
         IsReadOnly = isReadOnly;
         writableV1IndexHeaderSectionV1
             = (BucketIndexList*)memoryMappedFileView.FileCursorBufferPointer(internalIndexFileCursor, shouldGrow: !isReadOnly);
-        Logger.Info("Opening BucketIndex at FileCursor {0}", internalIndexFileCursor);
+        // Logger.Info("Opening BucketIndex at FileCursor {0}", internalIndexFileCursor);
         writableV1IndexHeaderSectionV1->MaxIndexSizeEntries = maxPossibleIndexEntries;
         requiredViewFileCursorOffset = memoryMappedFileView.LowerViewFileCursorOffset;
         firstEntryBufferPointer = &writableV1IndexHeaderSectionV1->FirstIndexInList;

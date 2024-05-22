@@ -1,4 +1,10 @@
-﻿namespace FortitudeCommon.Extensions;
+﻿#region
+
+using System.Text;
+
+#endregion
+
+namespace FortitudeCommon.Extensions;
 
 public static class StringExtensions
 {
@@ -34,4 +40,34 @@ public static class StringExtensions
 
     public static bool IsNullOrEmpty(this string? value) => string.IsNullOrEmpty(value);
     public static bool IsEmptyString(this object? value) => Equals(value, string.Empty);
+
+
+    public static string CharIndexPosListedSizeString(this int size)
+    {
+        var sb = new StringBuilder();
+        sb.Append("0");
+        int i;
+        if (size < 1000)
+        {
+            i = 4;
+            for (; i < size + 4; i += 4) sb.AppendFormat("_{0:000}", i);
+        }
+        else if (size < 10_000)
+        {
+            i = 5;
+            for (; i < size + 5; i += 5) sb.AppendFormat("_{0:0000}", i);
+        }
+        else if (size < 100_000)
+        {
+            i = 6;
+            for (; i < size + 6; i += 6) sb.AppendFormat("_{0:00000}", i);
+        }
+        else
+        {
+            i = 7;
+            for (; i < size + 7; i += 7) sb.AppendFormat("_{0:000000}", i);
+        }
+
+        return sb.ToString(0, size);
+    }
 }
