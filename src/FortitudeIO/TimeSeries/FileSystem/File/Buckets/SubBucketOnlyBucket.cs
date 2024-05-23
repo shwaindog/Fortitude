@@ -131,6 +131,17 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         base.CloseFileView();
     }
 
+    public override void VisitChildrenCacheAndClose()
+    {
+        foreach (var subBucket in SubBuckets)
+        {
+            subBucket.RefreshViews();
+            subBucket.VisitChildrenCacheAndClose();
+        }
+
+        CloseFileView();
+    }
+
     public override uint CreateBucketId(uint previousHighestBucketId) => BucketId * 1000 + LastAddedBucketId + 1;
 
     public override long CalculateBucketEndFileOffset() => SubBuckets.Max(sb => sb.CalculateBucketEndFileOffset());

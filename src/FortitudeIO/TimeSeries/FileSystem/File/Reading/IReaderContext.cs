@@ -30,18 +30,6 @@ public enum EntryResultSourcing
     , NewEachEntryLimited
 }
 
-public struct PeriodRange
-{
-    public PeriodRange(DateTime? fromTime, DateTime? toTime)
-    {
-        FromTime = fromTime;
-        ToTime = toTime;
-    }
-
-    public DateTime? FromTime { get; }
-    public DateTime? ToTime { get; }
-}
-
 public interface IReaderContext<TEntry>
 {
     IMessageDeserializer? BucketDeserializer { get; set; }

@@ -68,10 +68,12 @@ public interface IBucket : IDisposable
     StorageAttemptResult CheckTimeSupported(DateTime storageDateTime);
     void CloseFileView();
     IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false);
+    void VisitChildrenCacheAndClose();
 }
 
 public interface IBucket<TEntry> : IBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
+    Func<TEntry>? DefaultEntryFactory { get; }
     IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null);
 }
 

@@ -40,6 +40,12 @@ public interface ITimeSeriesFileHeader : IDisposable
     uint TotalEntries { get; }
     ulong TotalDataSizeBytes { get; }
     uint TotalNonDataSizeBytes { get; }
+    string? InstrumentName { get; }
+    string? Category { get; }
+    string? SourceName { get; }
+    string? OriginSourceText { get; }
+    string? ExternalIndexFileRelativePath { get; }
+    string? AnnotationFileRelativePath { get; }
     bool BucketsHaveChanged { get; }
     void CloseFileView();
     bool ReopenFileView(ShiftableMemoryMappedFileView memoryMappedFileView, FileFlags fileFlags = FileFlags.None);
@@ -49,12 +55,12 @@ public interface ITimeSeriesFileHeader : IDisposable
 }
 
 
-public interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
+public unsafe interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
 {
     new ushort HeaderVersion { get; set; }
     new FileFlags FileFlags { get; set; }
     new ushort FileTypeEnum { get; set; }
-    new Type? BucketType { get; }
+    new Type? BucketType { get; set; }
     new uint InternalIndexMaxSize { get; set; }
     new ushort MaxHeaderTextSizeBytes { get; set; }
     new uint FileHeaderSize { get; set; }
@@ -74,8 +80,16 @@ public interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
     new uint TotalEntries { get; set; }
     new ulong TotalDataSizeBytes { get; set; }
     new uint TotalNonDataSizeBytes { get; set; }
+    new string? InstrumentName { get; set; }
+    new string? Category { get; set; }
+    new string? SourceName { get; set; }
+    new string? OriginSourceText { get; set; }
+    new string? ExternalIndexFileRelativePath { get; set; }
+    new string? AnnotationFileRelativePath { get; set; }
     int RemainingFirstBucketPadding { get; set; }
     new IBucketIndexDictionary BucketIndexes { get; }
+    ushort SubHeaderMaxSize { get; }
+    byte* SubHeaderPointer { get; }
 }
 
 public enum FileOperation : byte
@@ -113,12 +127,14 @@ public struct TimeSeriesFileHeaderBodyV1
     public uint FirstBucketFileStartOffset;
     public ushort FileTypeEnum;
     public ushort MaxHeaderTextSizeBytes;
-    public ushort BucketTypeTextFileStartOffset;
-    public ushort OriginalSourceTextFileStartOffset;
-    public ushort ExternalIndexFileNameFileStartOffset;
-    public ushort AnnotationFileNameFileStartOffset;
+    public ushort BucketTypeTextFileStartOffset;                // 1
+    public ushort InstrumentNameTextFileStartOffset;            // 2
+    public ushort SourceNameTextFileStartOffset;                // 3
+    public ushort CategoryTextFileStartOffset;                  // 4
+    public ushort OriginSourceTextFileStartOffset;              // 5
+    public ushort ExternalIndexFileRelativePathFileStartOffset; // 6
+    public ushort AnnotationFileRelativePathFileStartOffset;    // 7
     public ushort InternalIndexFileStartOffset;
-    public ushort SerializationParameterDataSize;
     public TimeSeriesPeriod FilePeriod;
     public TimeSeriesPeriod BucketPeriod;
     public TimeSeriesPeriod EntriesPeriod;
@@ -126,45 +142,67 @@ public struct TimeSeriesFileHeaderBodyV1
     public TimeSeriesPeriod SummariesPeriods;
     public FileFlags FileFlags;
     public FileOperation LastWriterOperation;
-    public byte SerializationParameterData;
 }
 
 
 public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 {
-    public const int SerializerParameterSizeBytes = 1024;
+    public const int SubHeaderReservedSpaceSizeBytes = 1024;
     public const ushort NewFileDefaultVersion = 1;
     public static readonly ushort[] SupportedFileVersions = [1];
     private ShiftableMemoryMappedFileView? headerMemoryMappedFileView;
+    private ushort stringSizeHeaderSize;
     private bool isWritable;
+    private const int HeaderStringCount = 7;
 
     private ushort headerVersion;
 
     private TimeSeriesFileHeaderBodyV1* writableV1HeaderBody;
     private TimeSeriesFileHeaderBodyV1 cacheV1HeaderBody;
     private string? bucketTypeString;
+    private string? instrumentNameString;
+    private string? categoryString;
+    private string? sourceNameString;
+    private string? originSourceTextString;
+    private string? externalIndexFileRelativePathString;
+    private string? annotationFileRelativePathString;
     private BucketIndexDictionary? internalWritableIndexDictionary;
     private List<BucketIndexInfo>? cacheSortedBucketIndexOffsets;
     private BucketIndexEarliestEntryComparer? bucketIndexEarliestEntryComparer;
 
     public TimeSeriesFileHeaderFromV1(ShiftableMemoryMappedFileView memoryMappedFileView, FileFlags fileFlags = FileFlags.None,
-        uint internalIndexSize = 0, ushort maxStringSizeBytes = 512)
+        uint internalIndexSize = 0, ushort maxStringSizeBytes = byte.MaxValue)
     {
         headerMemoryMappedFileView = memoryMappedFileView;
         isWritable = true;
         HeaderVersion = NewFileDefaultVersion;
         writableV1HeaderBody = (TimeSeriesFileHeaderBodyV1*)(memoryMappedFileView.LowerHalfViewVirtualMemoryAddress + 2);
-        writableV1HeaderBody->FileFlags = FileFlags.WriterOpened | fileFlags;
-        writableV1HeaderBody->InternalIndexMaxSize = internalIndexSize;
-        writableV1HeaderBody->MaxHeaderTextSizeBytes = maxStringSizeBytes;
-        writableV1HeaderBody->FileHeaderSize = CalculateHeaderSize(fileFlags, HeaderVersion, internalIndexSize, maxStringSizeBytes);
+        FileFlags = FileFlags.WriterOpened | fileFlags;
+        InternalIndexMaxSize = internalIndexSize;
+        MaxHeaderTextSizeBytes = maxStringSizeBytes;
+        FileHeaderSize = CalculateHeaderSize(fileFlags, HeaderVersion, internalIndexSize,
+            HeaderStringCount, maxStringSizeBytes);
         if(fileFlags.HasInternalIndexInHeaderFlag() && internalIndexSize > 0)
         {
             writableV1HeaderBody->InternalIndexFileStartOffset = EndOfStringValuesFileOffset;
         }
         TotalNonDataSizeBytes = FileHeaderSize + 2;
+        stringSizeHeaderSize = StreamByteOps.StringAutoHeaderSize(maxStringSizeBytes);
+        writableV1HeaderBody->BucketTypeTextFileStartOffset = CalculateStringStart(0);
+        writableV1HeaderBody->InstrumentNameTextFileStartOffset = CalculateStringStart(1);
+        writableV1HeaderBody->SourceNameTextFileStartOffset = CalculateStringStart(2);
+        writableV1HeaderBody->CategoryTextFileStartOffset = CalculateStringStart(3);
+        writableV1HeaderBody->OriginSourceTextFileStartOffset = CalculateStringStart(4);
+        writableV1HeaderBody->ExternalIndexFileRelativePathFileStartOffset = CalculateStringStart(5);
+        writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset = CalculateStringStart(6);
 
         cacheV1HeaderBody = *writableV1HeaderBody;
+    }
+
+    private ushort CalculateStringStart(byte position)
+    {
+        var firstStringStart = StartOfStringStorageFileOffset;
+        return (ushort)(firstStringStart + StringSizeBytesStorage(MaxHeaderTextSizeBytes) * position);
     }
 
     public TimeSeriesFileHeaderFromV1(ShiftableMemoryMappedFileView memoryMappedFileView, bool writable)
@@ -180,20 +218,17 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         cacheV1HeaderBody = *writableV1HeaderBody;
     }
 
-    public static TimeSeriesFileHeaderFromV1 OpenExistFileHeader(ShiftableMemoryMappedFileView memoryMappedFileView, bool writable)
-    {
-        return new TimeSeriesFileHeaderFromV1(memoryMappedFileView, writable);
-    }
-
     public static TimeSeriesFileHeaderFromV1 NewFileCreateHeader(ShiftableMemoryMappedFileView memoryMappedFileView, 
-        FileFlags fileFlags = FileFlags.None, uint internalIndexSize = 0, ushort maxStringSizeBytes = 512)
+        FileFlags fileFlags = FileFlags.None, uint internalIndexSize = 0, ushort maxStringSizeBytes = byte.MaxValue)
     {
         return new TimeSeriesFileHeaderFromV1(memoryMappedFileView, fileFlags, internalIndexSize, maxStringSizeBytes);
     }
 
     public ushort EndOfHeaderBodyFileOffset => (ushort)(2 + sizeof(TimeSeriesFileHeaderBodyV1));
-    public ushort EndOfSerializerParametersFileOffset => (ushort)(EndOfHeaderBodyFileOffset + SerializerParameterSizeBytes);
-    public ushort EndOfStringValuesFileOffset => (ushort)(EndOfSerializerParametersFileOffset + (MaxHeaderTextSizeBytes + 3)*4);
+    public ushort EndOfSubHeaderFileOffset => (ushort)(EndOfHeaderBodyFileOffset + SubHeaderReservedSpaceSizeBytes);
+    public ushort StartOfStringStorageFileOffset => EndOfSubHeaderFileOffset;
+    public ushort EndOfStringValuesFileOffset => (ushort)(EndOfSubHeaderFileOffset + 
+                                                          StringSizeBytesStorage(MaxHeaderTextSizeBytes)*HeaderStringCount);
 
     public bool FileIsOpen => headerMemoryMappedFileView != null;
 
@@ -237,6 +272,12 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             }
         }
     }
+
+    public ushort SubHeaderMaxSize => SubHeaderReservedSpaceSizeBytes;
+    public byte* SubHeaderPointer => FileIsOpen 
+        ? headerMemoryMappedFileView!.LowerHalfViewVirtualMemoryAddress + EndOfHeaderBodyFileOffset
+        : null;
+
     public bool WriterOpen => FileFlags.HasWriterOpenedFlag();
     public bool HasInternalIndex => FileFlags.HasInternalIndexInHeaderFlag() && InternalIndexMaxSize > 0;
     public bool HasExternalBucketIndex => FileFlags.HasExternalIndexFileFlag();
@@ -270,52 +311,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
                 writableV1HeaderBody->MaxHeaderTextSizeBytes = value;
                 cacheV1HeaderBody.MaxHeaderTextSizeBytes = value;
             }
-        }
-    }
-
-    public Type? BucketType
-    {
-        get
-        {
-            var typeNameString = BucketTypeString;
-            return typeNameString == null ? null : Type.GetType(typeNameString);
-        }
-        set
-        {
-            if (bucketTypeString == value?.FullName || headerMemoryMappedFileView == null) return;
-            BucketTypeString = value?.FullName;
-        }
-    }
-
-    private string? BucketTypeString
-    {
-        get
-        {
-            if (bucketTypeString != null) return bucketTypeString;
-            if (writableV1HeaderBody->BucketTypeTextFileStartOffset != 0 && headerMemoryMappedFileView != null)
-            {
-                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->BucketTypeTextFileStartOffset;
-                bucketTypeString = StreamByteOps.ToStringWithSizeHeader(ref ptr);
-            }
-            return bucketTypeString;
-        }
-        set
-        {
-            if (bucketTypeString == value || headerMemoryMappedFileView == null) return;
-            if (isWritable && value != null)
-            {
-                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + EndOfSerializerParametersFileOffset;
-                var bytes = StreamByteOps.ToBytesWithSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes);
-                writableV1HeaderBody->BucketTypeTextFileStartOffset = EndOfSerializerParametersFileOffset;
-                cacheV1HeaderBody.BucketTypeTextFileStartOffset = EndOfSerializerParametersFileOffset;
-            }
-            else if (value == null)
-            {
-                writableV1HeaderBody->BucketTypeTextFileStartOffset = 0;
-                cacheV1HeaderBody.BucketTypeTextFileStartOffset = 0;
-
-            }
-            bucketTypeString = value;
         }
     }
 
@@ -656,6 +651,195 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
+    public Type? BucketType
+    {
+        get
+        {
+            var typeNameString = BucketTypeString;
+            return typeNameString == null ? null : Type.GetType(typeNameString);
+        }
+        set
+        {
+            if (bucketTypeString == value?.FullName || headerMemoryMappedFileView == null) return;
+            BucketTypeString = value?.AssemblyQualifiedName;
+        }
+    }
+
+    private string? BucketTypeString
+    {
+        get
+        {
+            if (bucketTypeString != null) return bucketTypeString;
+            if (writableV1HeaderBody->BucketTypeTextFileStartOffset != 0 && headerMemoryMappedFileView != null)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->BucketTypeTextFileStartOffset;
+                bucketTypeString = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            return bucketTypeString;
+        }
+        set
+        {
+            if (bucketTypeString == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->BucketTypeTextFileStartOffset;
+                StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            bucketTypeString = null;
+            bucketTypeString = BucketTypeString;
+        }
+    }
+
+    public string? InstrumentName 
+    {
+        get
+        {
+            if (instrumentNameString != null) return instrumentNameString;
+            if (writableV1HeaderBody->InstrumentNameTextFileStartOffset != 0 && headerMemoryMappedFileView != null)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->InstrumentNameTextFileStartOffset;
+                instrumentNameString = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            return instrumentNameString;
+        }
+        set
+        {
+            if (instrumentNameString == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->InstrumentNameTextFileStartOffset;
+                StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            instrumentNameString = null;
+            instrumentNameString = InstrumentName;
+        }
+    }
+
+    public string? Category 
+    {
+        get
+        {
+            if (categoryString != null) return categoryString;
+            if (writableV1HeaderBody->CategoryTextFileStartOffset != 0 && headerMemoryMappedFileView != null)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->CategoryTextFileStartOffset;
+                categoryString = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            return categoryString;
+        }
+        set
+        {
+            if (categoryString == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->CategoryTextFileStartOffset;
+                StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            categoryString = null;
+            categoryString = Category;
+        }
+    }
+
+    public string? SourceName 
+    {
+        get
+        {
+            if (sourceNameString != null) return sourceNameString;
+            if (writableV1HeaderBody->SourceNameTextFileStartOffset != 0 && headerMemoryMappedFileView != null)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->SourceNameTextFileStartOffset;
+                sourceNameString = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            return sourceNameString;
+        }
+        set
+        {
+            if (sourceNameString == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->SourceNameTextFileStartOffset;
+                StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            sourceNameString = null;
+            sourceNameString = SourceName;
+        }
+    }
+
+    public string? OriginSourceText 
+    {
+        get
+        {
+            if (originSourceTextString != null) return originSourceTextString;
+            if (writableV1HeaderBody->OriginSourceTextFileStartOffset != 0 && headerMemoryMappedFileView != null)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->OriginSourceTextFileStartOffset;
+                originSourceTextString = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            return originSourceTextString;
+        }
+        set
+        {
+            if (originSourceTextString == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->OriginSourceTextFileStartOffset;
+                StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            originSourceTextString = null;
+            originSourceTextString = OriginSourceText;
+        }
+    }
+
+    public string? ExternalIndexFileRelativePath 
+    {
+        get
+        {
+            if (externalIndexFileRelativePathString != null) return externalIndexFileRelativePathString;
+            if (writableV1HeaderBody->ExternalIndexFileRelativePathFileStartOffset != 0 && headerMemoryMappedFileView != null)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->ExternalIndexFileRelativePathFileStartOffset;
+                externalIndexFileRelativePathString = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            return externalIndexFileRelativePathString;
+        }
+        set
+        {
+            if (externalIndexFileRelativePathString == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->ExternalIndexFileRelativePathFileStartOffset;
+                StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            externalIndexFileRelativePathString = null;
+            externalIndexFileRelativePathString = ExternalIndexFileRelativePath;
+        }
+    }
+
+    public string? AnnotationFileRelativePath 
+    {
+        get
+        {
+            if (annotationFileRelativePathString != null) return annotationFileRelativePathString;
+            if (writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset != 0 && headerMemoryMappedFileView != null)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset;
+                annotationFileRelativePathString = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            return annotationFileRelativePathString;
+        }
+        set
+        {
+            if (annotationFileRelativePathString == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                var ptr = headerMemoryMappedFileView.LowerHalfViewVirtualMemoryAddress + writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset;
+                StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, value, MaxHeaderTextSizeBytes + stringSizeHeaderSize);
+            }
+            annotationFileRelativePathString = null;
+            annotationFileRelativePathString = AnnotationFileRelativePath;
+        }
+    }
+
     public bool BucketsHaveChanged => writableV1HeaderBody->Buckets != cacheV1HeaderBody.Buckets;
 
 
@@ -681,7 +865,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         get
         {
             cacheSortedBucketIndexOffsets ??= new List<BucketIndexInfo>();
-            if (!cacheSortedBucketIndexOffsets.Any() && !WriterOpen) return cacheSortedBucketIndexOffsets;
+            if (cacheSortedBucketIndexOffsets.Any() && !WriterOpen) return cacheSortedBucketIndexOffsets;
             bucketIndexEarliestEntryComparer ??= new BucketIndexEarliestEntryComparer();
             var bucketIndexes = BucketIndexes;
             cacheSortedBucketIndexOffsets.AddRange(bucketIndexes.Values);
@@ -712,8 +896,6 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         return true;
     }
 
-    public ushort NextStringOffset => (ushort)(MaxHeaderTextSizeBytes + 3);
-
     public static uint CalculateMinimumBodyReadSize(ushort version)
     {
         if (!SupportedFileVersions.Contains(version))
@@ -724,16 +906,21 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         return versionedHeaderBodySizeBytes;
     }
 
-    public static uint CalculateHeaderSize(FileFlags flags, ushort version, uint internalFixedSizeIndexSize = 0, ushort maxStringSizeBytes = 512)
+    private static ushort StringAdditionalBytes(ushort maxStringBytes) => (ushort)(StreamByteOps.StringAutoHeaderSize(maxStringBytes) + 1);
+
+    private static ushort StringSizeBytesStorage(ushort maxStringBytes) => (ushort)(maxStringBytes + StringAdditionalBytes(maxStringBytes));
+
+    public static uint CalculateHeaderSize(FileFlags flags, ushort version, uint internalFixedSizeIndexSize = 0, 
+        byte numberOfStrings = HeaderStringCount, ushort maxStringSizeBytes = byte.MaxValue)
     {
         if (!SupportedFileVersions.Contains(version))
             throw new NotImplementedException($"Only supports version [{SupportedFileVersions.JoinToString()}] of files");
-
-        var stringSizeBytes = (uint)maxStringSizeBytes + 3; // two bytes to record size and a null terminator at the end of the string
-        var totalStringBytes = 4 * stringSizeBytes; // bucketTypeText, sourceText, externalIndexFilename, annoationsFileName
+        // one/two bytes to record size and a null terminator at the end of the string
+        var stringSizeBytes = StringSizeBytesStorage(maxStringSizeBytes); 
+        var totalStringBytes = numberOfStrings * stringSizeBytes;
 
         uint versionedFixedInternalIndexSizeBytes = 0;
-        uint headerInfoSectionAndStringSection = CalculateMinimumBodyReadSize(version) + totalStringBytes; 
+        uint headerInfoSectionAndStringSection = (uint)(CalculateMinimumBodyReadSize(version) + totalStringBytes); 
         if (flags.HasInternalIndexInHeaderFlag() && internalFixedSizeIndexSize > 0)
         {
             versionedFixedInternalIndexSizeBytes = BucketIndexDictionary.CalculateDictionarySizeInBytes(internalFixedSizeIndexSize, headerInfoSectionAndStringSection + 2);

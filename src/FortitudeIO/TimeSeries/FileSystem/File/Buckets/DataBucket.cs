@@ -87,6 +87,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public virtual uint BucketHeaderSizeBytes => (uint)(HeaderRealignmentDelta + (EndOfBucketHeaderSectionOffset - FileCursorOffset));
 
+    public virtual Func<TEntry>? DefaultEntryFactory => null;
+
     public Type ExpectedEntryType => typeof(TEntry);
 
     public uint BucketId
@@ -410,6 +412,11 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public abstract IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null);
 
+    public virtual void VisitChildrenCacheAndClose()
+    {
+        CloseFileView();
+    }
+
     public void SetEntrySerializer(IMessageSerializer useSerializer)
     {
         EntrySerializer = useSerializer;
@@ -417,24 +424,11 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public abstract StorageAttemptResult AppendEntry(TEntry entry);
 
-    public bool BucketIntersects(PeriodRange? period = null)
-    {
-        if (period == null) return true;
-        var range = period.Value;
-        return (range.FromTime < TimeSeriesPeriod.PeriodEnd(PeriodStartTime) || (range.FromTime == null && range.ToTime != null))
-               && (range.ToTime > PeriodStartTime || (range.ToTime == null && range.FromTime != null));
-    }
+    public bool BucketIntersects(PeriodRange? period = null) => period.IntersectsWith(TimeSeriesPeriod, PeriodStartTime);
 
     ~DataBucket()
     {
         Dispose();
-    }
-
-    protected bool EntryIntersects(TEntry checkEntry, DateTime? fromTime = null, DateTime? toTime = null)
-    {
-        var entryStorageTime = checkEntry.StorageTime(StorageTimeResolver);
-        return (entryStorageTime < toTime || (toTime == null && fromTime != null))
-               && (entryStorageTime > fromTime || (fromTime == null && toTime != null));
     }
 
     protected virtual ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => ContainingFile.ActiveBucketHeaderFileView;
