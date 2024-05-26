@@ -44,6 +44,7 @@ public class MemoryMappedFileBuffer : IBuffer
         get => writeCursor;
         set
         {
+            LimitNextSerialize = null;
             if (value > writeCursor) mappedFileShiftableView?.FlushCursorDataToDisk(originalBufferRelativeWriteCursor, (int)(value - writeCursor));
             writeCursor = value;
             if (bufferAccessCounter <= 1)
@@ -54,7 +55,9 @@ public class MemoryMappedFileBuffer : IBuffer
         }
     }
 
-    public long RemainingStorage => mappedFileShiftableView?.HighestFileCursor - writeCursor ?? 0;
+    public long RemainingStorage => LimitNextSerialize ?? mappedFileShiftableView?.HighestFileCursor - writeCursor ?? 0;
+
+    public long? LimitNextSerialize { get; set; }
 
     public void Dispose()
     {

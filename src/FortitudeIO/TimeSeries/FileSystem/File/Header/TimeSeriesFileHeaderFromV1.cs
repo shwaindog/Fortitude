@@ -13,6 +13,7 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Header;
 public interface ITimeSeriesFileHeader : IDisposable
 {
     bool FileIsOpen { get; }
+    bool HasSubHeader { get; }
     ushort HeaderVersion { get; }
     FileFlags FileFlags { get; }
     TimeSeriesEntryType TimeSeriesEntryType { get; }
@@ -49,12 +50,13 @@ public interface ITimeSeriesFileHeader : IDisposable
     string? OriginSourceText { get; }
     string? ExternalIndexFileRelativePath { get; }
     string? AnnotationFileRelativePath { get; }
+    IFileSubHeader? SubHeader { get; }
     bool BucketsHaveChanged { get; }
     void CloseFileView();
     bool ReopenFileView(ShiftableMemoryMappedFileView memoryMappedFileView, FileFlags fileFlags = FileFlags.None);
-
     IReadonlyBucketIndexDictionary BucketIndexes { get; }
     IEnumerable<BucketIndexInfo> EarliestOrderedBuckets { get; }
+    Func<ShiftableMemoryMappedFileView, ushort, bool, IFileSubHeader>? SubHeaderFactory { get; set; }
 }
 
 
@@ -181,6 +183,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     private BucketIndexDictionary? internalWritableIndexDictionary;
     private List<BucketIndexInfo>? cacheSortedBucketIndexOffsets;
     private BucketIndexEarliestEntryComparer? bucketIndexEarliestEntryComparer;
+    private IFileSubHeader? subHeader;
 
     public TimeSeriesFileHeaderFromV1(ShiftableMemoryMappedFileView memoryMappedFileView, 
         Type fileType, Type bucketType, Type entryType, 
@@ -327,6 +330,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         : null;
 
     public bool WriterOpen => FileFlags.HasWriterOpenedFlag();
+    public bool HasSubHeader => FileFlags.HasSubFileHeaderFileFlag();
     public bool HasInternalIndex => FileFlags.HasInternalIndexInHeaderFlag() && InternalIndexMaxSize > 0;
     public bool HasExternalBucketIndex => FileFlags.HasExternalIndexFileFlag();
 
@@ -992,6 +996,21 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
+    public IFileSubHeader? SubHeader
+    {
+        get
+        {
+            if (headerMemoryMappedFileView != null && subHeader == null && FileFlags.HasSubFileHeaderFileFlag() && SubHeaderFactory != null)
+            {
+                subHeader = SubHeaderFactory(headerMemoryMappedFileView!, EndOfSubHeaderFileOffset, isWritable);
+            }
+            return subHeader;
+        }
+        protected set => subHeader = value;
+    }
+
+    public Func<ShiftableMemoryMappedFileView, ushort, bool, IFileSubHeader>? SubHeaderFactory { get; set; }
+
     public bool BucketsHaveChanged => writableV1HeaderBody->Buckets != cacheV1HeaderBody.Buckets;
 
 
@@ -1031,6 +1050,10 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     public void CloseFileView()
     {
         headerMemoryMappedFileView?.FlushCursorDataToDisk(0, (int)FileHeaderSize + 2);
+        if (HasSubHeader && SubHeader != null)
+        {
+            SubHeader.CloseFileView();
+        }
         headerMemoryMappedFileView?.Dispose();
         headerMemoryMappedFileView = null;
     }
@@ -1043,19 +1066,13 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         internalWritableIndexDictionary?.OpenWithFileView(memoryMappedFileView, !isWritable);
         writableV1HeaderBody = (TimeSeriesFileHeaderBodyV1*)(memoryMappedFileView.LowerHalfViewVirtualMemoryAddress + 2);
         writableV1HeaderBody->FileFlags = FileFlags | fileFlags.Unset(FileFlags.HasInternalIndexInHeader);
+        if (HasSubHeader && SubHeader != null)
+        {
+            SubHeader.ReopenFileView(memoryMappedFileView, fileFlags);
+        }
 
         cacheV1HeaderBody = *writableV1HeaderBody;
         return true;
-    }
-
-    public static uint CalculateMinimumBodyReadSize(ushort version)
-    {
-        if (!SupportedFileVersions.Contains(version))
-            throw new NotImplementedException($"Only supports version [{SupportedFileVersions.JoinToString()}] of files");
-
-        var versionStructSizeBytes = (uint)sizeof(FileStartVersionHeader);
-        var versionedHeaderBodySizeBytes = versionStructSizeBytes + (uint)sizeof(TimeSeriesFileHeaderBodyV1) + TimeSeriesFileHeaderBodyV1.SerializationParameterDataMaxSize;
-        return versionedHeaderBodySizeBytes;
     }
 
     private static ushort StringSizeBytesStorage(ushort maxStringBytes) => (ushort)(maxStringBytes + StreamByteOps.StringAutoHeaderSize(maxStringBytes));

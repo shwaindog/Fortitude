@@ -12,6 +12,7 @@ public enum FileFlags : ushort
     , HasInternalIndexInHeader = 64
     , HasExternalAnnotationFile = 128
     , HasOriginalSourceText = 256
+    , HasSubFileHeader = 512
 }
 
 public static class FileFlagExtensions
@@ -21,6 +22,7 @@ public static class FileFlagExtensions
     public static bool HasExternalIndexFileFlag(this FileFlags flags) => (flags & FileFlags.HasExternalIndexFile) > 0;
     public static bool HasInternalIndexInHeaderFlag(this FileFlags flags) => (flags & FileFlags.HasInternalIndexInHeader) > 0;
     public static bool HasExternalAnnotationFileFlag(this FileFlags flags) => (flags & FileFlags.HasExternalAnnotationFile) > 0;
+    public static bool HasSubFileHeaderFileFlag(this FileFlags flags) => (flags & FileFlags.HasSubFileHeader) > 0;
 
     public static FileFlags Unset(this FileFlags flags, FileFlags toUnset) => flags & ~toUnset;
 }

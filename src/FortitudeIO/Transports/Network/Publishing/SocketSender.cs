@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
@@ -19,14 +22,14 @@ namespace FortitudeIO.Transports.Network.Publishing;
 
 public interface ISocketSender : IStreamPublisher
 {
-    int Id { get; }
-    string Name { get; }
-    bool CanSend { get; }
+    int                             Id                             { get; }
+    string                          Name                           { get; }
+    bool                            CanSend                        { get; }
     IMessageSerializationRepository MessageSerializationRepository { get; }
-    bool AttemptCloseOnSendComplete { get; set; }
-    IOSSocket Socket { get; set; }
-    void SetCloseReason(CloseReason closeReason, string? reasonText);
-    void SendExpectSessionCloseMessageAndClose();
+    bool                            AttemptCloseOnSendComplete     { get; set; }
+    IOSSocket                       Socket                         { get; set; }
+    void                            SetCloseReason(CloseReason closeReason, string? reasonText);
+    void                            SendExpectSessionCloseMessageAndClose();
 }
 
 public sealed class SocketSender : ISocketSender
@@ -44,19 +47,19 @@ public sealed class SocketSender : ISocketSender
 
     private readonly BufferContext writeBufferContext;
 
-    private CloseReason closeReason;
-    private string? closeReasonText;
-    private bool haveClosedSocket;
-    private bool haveSentExpectSessionCloseMessage;
-    private volatile bool sendActive;
+    private          CloseReason closeReason;
+    private          string?     closeReasonText;
+    private          bool        haveClosedSocket;
+    private          bool        haveSentExpectSessionCloseMessage;
+    private volatile bool        sendActive;
 
     public SocketSender(ISocketSessionContext socketSessionContext, IMessageSerializationRepository messageSerializationRepository)
     {
-        Socket = socketSessionContext.SocketConnection!.OSSocket;
-        this.socketSessionContext = socketSessionContext;
+        Socket                         = socketSessionContext.SocketConnection!.OSSocket;
+        this.socketSessionContext      = socketSessionContext;
         MessageSerializationRepository = messageSerializationRepository;
         directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!
-            .DirectOSNetworkingApi;
+                                                    .DirectOSNetworkingApi;
         writeBufferContext = new BufferContext(new CircularReadWriteBuffer(new byte[Socket.SendBufferSize]))
             { Direction = ContextDirection.Write };
     }
@@ -82,7 +85,7 @@ public sealed class SocketSender : ISocketSender
     public void SetCloseReason(CloseReason closeReason, string? reasonText)
     {
         this.closeReason = closeReason;
-        closeReasonText = reasonText;
+        closeReasonText  = reasonText;
     }
 
     public void SendExpectSessionCloseMessageAndClose()
@@ -90,7 +93,7 @@ public sealed class SocketSender : ISocketSender
         var canSendExpectClose = closeReason != CloseReason.RemoteDisconnecting && CanSend;
         if (canSendExpectClose && !haveSentExpectSessionCloseMessage)
         {
-            AttemptCloseOnSendComplete = true;
+            AttemptCloseOnSendComplete        = true;
             haveSentExpectSessionCloseMessage = true;
             Send(new ExpectSessionCloseMessage(closeReason, closeReasonText));
         }
@@ -134,8 +137,8 @@ public sealed class SocketSender : ISocketSender
         try
         {
             var encoder = encoders.Claim();
-            encoder.Message = message;
-            encoder.Serializer = checkSerializer;
+            encoder.Message      = message;
+            encoder.Serializer   = checkSerializer;
             encoder.AttemptCount = 1;
         }
         finally
@@ -163,7 +166,7 @@ public sealed class SocketSender : ISocketSender
                     sendLock.Acquire();
                     try
                     {
-                        encoder = encoders.Peek();
+                        encoder = encoders.Peek()!;
                     }
                     finally
                     {
@@ -181,8 +184,8 @@ public sealed class SocketSender : ISocketSender
                         if (writeBufferContext.EncodedBuffer!.AllRead || encoder.AttemptCount > 100)
                         {
                             logger.Error(
-                                "Message could not be serialized or was too big for the buffer or there was no bytes to serialize. Message {0}"
-                                , encoder.Message);
+                                         "Message could not be serialized or was too big for the buffer or there was no bytes to serialize. Message {0}"
+                                       , encoder.Message);
                             MoveNextEncoder(encoder);
                         }
                         else
@@ -217,12 +220,12 @@ public sealed class SocketSender : ISocketSender
     public void HandleSendError(string message, Exception exception)
     {
         logger.Warn(
-            $"Error trying to send for {socketSessionContext.Name} got {message} and {exception}");
+                    $"Error trying to send for {socketSessionContext.Name} got {message} and {exception}");
     }
 
     private void MoveNextEncoder(SocketEncoder encoder)
     {
-        encoder.Message = null!;
+        encoder.Message    = null!;
         encoder.Serializer = null!;
         sendLock.Acquire();
         try
@@ -241,8 +244,8 @@ public sealed class SocketSender : ISocketSender
         using var fixedBuffer = writeBufferContext.EncodedBuffer!;
         if (fixedBuffer.AllRead) return false;
         var readStartPtr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
-        var amtDataSent = (int)fixedBuffer.UnreadBytesRemaining;
-        var sentSize = directOSNetworkingApi.Send(Socket.Handle, readStartPtr, amtDataSent, SocketFlags.None);
+        var amtDataSent  = (int)fixedBuffer.UnreadBytesRemaining;
+        var sentSize     = directOSNetworkingApi.Send(Socket.Handle, readStartPtr, amtDataSent, SocketFlags.None);
 
         // logger.Info("Socket Sender has sent {0} bytes on {1}", sentSize, Thread.CurrentThread.Name);
         if (sentSize < 0)
@@ -261,9 +264,9 @@ public sealed class SocketSender : ISocketSender
 
     internal sealed class SocketEncoder
     {
-        public int AttemptCount = 0;
-        public IVersionedMessage Message = null!;
-        public IMessageSerializer Serializer = null!;
+        public int                AttemptCount = 0;
+        public IVersionedMessage  Message      = null!;
+        public IMessageSerializer Serializer   = null!;
     }
 }
 

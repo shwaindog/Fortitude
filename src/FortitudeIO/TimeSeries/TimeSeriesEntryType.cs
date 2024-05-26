@@ -3,9 +3,8 @@
 public enum TimeSeriesEntryType : ushort
 {
     Custom
-    , VenuePrice
-    , TickerPrice
-    , TickerPeriodSummary
+    , Price
+    , PricePeriodSummary
     , Indicator
     , AlgoState
     , AlgoSignal

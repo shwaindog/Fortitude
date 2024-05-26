@@ -892,7 +892,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         public override unsafe void Deserialize(Tm message, ref byte* ptr)
         {
             var array = new string[StreamByteOps.ToUShort(ref ptr)];
-            for (var i = 0; i < array.Length; i++) array[i] = StreamByteOps.ToStringWithSizeHeader(ref ptr);
+            for (var i = 0; i < array.Length; i++) array[i] = StreamByteOps.ToStringWithSizeHeader(ref ptr)!;
             Set(message, array);
         }
     }
@@ -909,7 +909,7 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         {
             int size = StreamByteOps.ToUShort(ref ptr);
             var stringList = recycler.Borrow<List<string>>();
-            for (var i = 0; i < size; i++) stringList.Add(StreamByteOps.ToStringWithSizeHeader(ref ptr));
+            for (var i = 0; i < size; i++) stringList.Add(StreamByteOps.ToStringWithSizeHeader(ref ptr)!);
             Set(message, stringList);
         }
     }
@@ -969,8 +969,8 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
             var dic = new Dictionary<string, string>();
             for (var i = 0; i < count; i++)
             {
-                var key = StreamByteOps.ToStringWithSizeHeader(ref ptr);
-                var value = StreamByteOps.ToStringWithSizeHeader(ref ptr);
+                var key = StreamByteOps.ToStringWithSizeHeader(ref ptr)!;
+                var value = StreamByteOps.ToStringWithSizeHeader(ref ptr)!;
                 dic[key] = value;
             }
 

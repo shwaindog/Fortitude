@@ -23,7 +23,7 @@ public class TimeSeriesFileTests
 
     private TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct> oneWeekFile = null!;
     private IReaderFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>? readerSession;
-    private TestDirectoryFileNameResolver testFileNameResolver;
+    private TestDirectoryFileNameResolver testFileNameResolver = null!;
     private string testTimeSeriesFilePath = null!;
     private FileInfo timeSeriesFile = null!;
     private IWriterFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct> writerSession = null!;
@@ -41,7 +41,7 @@ public class TimeSeriesFileTests
         };
         createTestCreateFileParameters = new CreateFileParameters(testFileNameResolver,
             "TestInstrumentName", "TestSourceName",
-            TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, TimeSeriesEntryType.TickerPrice, 7,
+            TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, TimeSeriesEntryType.Price, 7,
             FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader, 6,
             category: "TestInstrumentCategory");
         oneWeekFile = new TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>(createTestCreateFileParameters);
@@ -62,7 +62,7 @@ public class TimeSeriesFileTests
             }
             catch (Exception ex)
             {
-                Console.Out.WriteLine("Could not delete file {0}", existingTimeSeriesFile);
+                Console.Out.WriteLine("Could not delete file {0}. Got {1}", existingTimeSeriesFile, ex);
                 FLoggerFactory.WaitUntilDrained();
             }
     }
@@ -104,7 +104,7 @@ public class TimeSeriesFileTests
     }
 
     [TestMethod]
-    public void CreatNewFile_SetLargeStringsWhichAreTruncated_CloseReopenSafelyReturnsTruncatedStrings()
+    public void CreateNewFile_SetLargeStringsWhichAreTruncated_CloseReopenSafelyReturnsTruncatedStrings()
     {
         var largeString = 999.CharIndexPosListedSizeString();
         var truncated = largeString.Substring(0, 254); // byte.MaxValue -1 (largest storable value)  (-1 null terminator)
@@ -123,7 +123,7 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.InstrumentName);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
-        Assert.AreEqual(TimeSeriesEntryType.TickerPrice, header.TimeSeriesEntryType);
+        Assert.AreEqual(TimeSeriesEntryType.Price, header.TimeSeriesEntryType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
         Assert.AreEqual(typeof(TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>), header.TimeSeriesFileType);
@@ -139,7 +139,7 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.InstrumentName);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
-        Assert.AreEqual(TimeSeriesEntryType.TickerPrice, header.TimeSeriesEntryType);
+        Assert.AreEqual(TimeSeriesEntryType.Price, header.TimeSeriesEntryType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
         Assert.AreEqual(typeof(TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>), header.TimeSeriesFileType);
@@ -148,7 +148,7 @@ public class TimeSeriesFileTests
     [TestMethod]
     public void CreateNewFile_BeyondFileTime_ReturnsFileRangeNotSupported()
     {
-        Assert.AreEqual(TimeSeriesEntryType.TickerPrice, oneWeekFile.TimeSeriesEntryType);
+        Assert.AreEqual(TimeSeriesEntryType.Price, oneWeekFile.TimeSeriesEntryType);
         var singleQuoteMiddleOfWeek = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Wednesday);
         var nextWeekQuote = singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);

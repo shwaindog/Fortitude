@@ -37,7 +37,7 @@ public class PagedMemoryMappedFileTests
             }
             catch (Exception ex)
             {
-                Console.Out.WriteLine("Could not delete file {0}", existingMemMappedFile);
+                Console.Out.WriteLine("Could not delete file {0}. Got {1}", existingMemMappedFile, ex);
                 FLoggerFactory.WaitUntilDrained();
             }
     }
