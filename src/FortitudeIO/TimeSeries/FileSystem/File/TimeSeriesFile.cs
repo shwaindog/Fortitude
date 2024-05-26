@@ -2,6 +2,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.OSWrapper.Memory;
+using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
@@ -18,6 +19,7 @@ public interface ITimeSeriesFile : IDisposable
     bool AutoCloseOnZeroSessions { get; set; }
     int SessionCount { get; }
     DateTime PeriodStartTime { get; }
+    TimeSeriesEntryType TimeSeriesEntryType { get; }
     string InstrumentName { get; }
     string Category { get; }
     string SourceName { get; }
@@ -64,42 +66,29 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
     private List<IReaderFileSession<TBucket, TEntry>> readerSessions = new();
     private IWriterFileSession<TBucket, TEntry>? writerSession;
 
-    public TimeSeriesFile(string filePath)
+    // derived classes should implement equivalent parameter constructor to be open with OpenExistingTimeSeriesFile(string filePath)
+    public TimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
     {
-        FileName = filePath;
-        TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(filePath);
-        var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
-        var ptr = headerFileView.LowerHalfViewVirtualMemoryAddress;
-        FileVersion = StreamByteOps.ToUShort(ref ptr);
-        if (FileVersion is 0 or 1) // select appropriate header file based on file version
-            Header = new TimeSeriesFileHeaderFromV1(headerFileView, true);
-        else
-            throw new Exception("Unsupported file version being loaded");
-
+        FileName = pagedMemoryMappedFile.FileStream.Name;
+        TimeSeriesMemoryMappedFile = pagedMemoryMappedFile;
+        Header = header;
         if (Header.BucketType != typeof(TBucket))
             throw new Exception("Attempting to open a file saved with a different bucket type");
-        TimeSeriesPeriod = Header.FilePeriod;
-        PeriodStartTime = Header.FileStartPeriod;
+        if (Header.EntryType != typeof(TEntry))
+            throw new Exception("Attempting to open a file saved with a different entry type");
     }
 
-    public TimeSeriesFile(string filePath, string instrumentName, string sourceName, TimeSeriesPeriod filePeriod,
-        DateTime fileStartPeriod, uint internalIndexSize = 0, FileFlags fileFlags = FileFlags.None, int initialFileSizePages = 2,
-        ushort maxStringSizeBytes = byte.MaxValue, string? instrumentCategory = null)
+    public TimeSeriesFile(CreateFileParameters createParameters)
     {
-        FileName = filePath;
-        TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(filePath, initialFileSizePages);
+        FileName = createParameters.FileNameResolver.FilePath(createParameters).FullName;
+        TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName, createParameters.InitialFileSizePages);
         var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
         var ptr = headerFileView.LowerHalfViewVirtualMemoryAddress;
         FileVersion = StreamByteOps.ToUShort(ref ptr);
         if (FileVersion is 0 or 1) // select appropriate header file based on file version
-            Header = TimeSeriesFileHeaderFromV1.NewFileCreateHeader(headerFileView, fileFlags, internalIndexSize, maxStringSizeBytes);
+            Header = TimeSeriesFileHeaderFromV1.NewFileCreateHeader(this, headerFileView, createParameters);
         else
             throw new Exception("Unsupported file version being loaded");
-
-        TimeSeriesPeriod = filePeriod;
-        PeriodStartTime = TimeSeriesPeriod.ContainingPeriodBoundaryStart(fileStartPeriod);
-        Header.FilePeriod = filePeriod;
-        Header.FileStartPeriod = fileStartPeriod;
     }
 
     internal PagedMemoryMappedFile? TimeSeriesMemoryMappedFile { get; private set; }
@@ -128,19 +117,37 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
     public bool AutoCloseOnZeroSessions { get; set; } = true;
     public int SessionCount => numberOfOpenSessions;
 
+    public TimeSeriesEntryType TimeSeriesEntryType => Header.TimeSeriesEntryType;
+
     ITimeSeriesFileHeader ITimeSeriesFile.Header => Header;
-    public TimeSeriesPeriod TimeSeriesPeriod { get; }
-    public DateTime PeriodStartTime { get; }
+    public TimeSeriesPeriod TimeSeriesPeriod => Header.FilePeriod;
+    public DateTime PeriodStartTime => Header.FileStartPeriod;
 
     ITimeSeriesFileSession? ITimeSeriesFile.GetWriterSession() => GetWriterSession();
 
     ITimeSeriesFileSession ITimeSeriesFile.GetReaderSession() => GetReaderSession();
     ITimeSeriesFileSession ITimeSeriesFile.GetInfoSession() => GetInfoSession();
 
-    public string SourceName { get; set; }
+    public string SourceName
+    {
+        get => Header.SourceName!;
+        set => Header.SourceName = value;
+    }
+
     public Type EntryType => typeof(TEntry);
-    public string InstrumentName { get; set; }
-    public string Category { get; set; }
+
+    public string InstrumentName
+    {
+        get => Header.InstrumentName!;
+        set => Header.InstrumentName = value;
+    }
+
+    public string Category
+    {
+        get => Header.Category!;
+        set => Header.Category = value;
+    }
+
     public bool Intersects(PeriodRange? periodRange = null) => periodRange.IntersectsWith(TimeSeriesPeriod, PeriodStartTime);
 
     public string FileName { get; }
@@ -209,6 +216,25 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
         }
 
         return infoSession;
+    }
+
+    public static ITimeSeriesFile OpenExistingTimeSeriesFile(string filePath)
+    {
+        var timeSeriesMemoryMappedFile = new PagedMemoryMappedFile(filePath);
+        var headerFileView = timeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
+        var ptr = headerFileView.LowerHalfViewVirtualMemoryAddress;
+        var fileVersion = StreamByteOps.ToUShort(ref ptr);
+        if (fileVersion is not (0 or 1)) // select appropriate header file based on file version
+            throw new Exception("Unsupported file version being loaded");
+        var header = new TimeSeriesFileHeaderFromV1(headerFileView, true);
+        var fileType = header.TimeSeriesFileType;
+        var fileTypeOpenExistingCtor =
+            ReflectionHelper.CtorDerivedBinder<PagedMemoryMappedFile, IMutableTimeSeriesFileHeader, TimeSeriesFile<TBucket, TEntry>>(fileType);
+        if (fileTypeOpenExistingCtor == null)
+            throw new Exception($"Could not create constructor for {fileType} with " +
+                                $"parameters PagedMemoryMappedFile, IMutableTimeSeriesFileHeader");
+        var existingFile = fileTypeOpenExistingCtor(timeSeriesMemoryMappedFile, header);
+        return existingFile;
     }
 
     public int IncrementSessionCount() => Interlocked.Increment(ref numberOfOpenSessions);
