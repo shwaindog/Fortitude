@@ -1,0 +1,37 @@
+﻿#region
+
+using FortitudeCommon.OSWrapper.Memory;
+using FortitudeIO.Protocols;
+using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem.File;
+using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
+using FortitudeIO.TimeSeries.FileSystem.File.Header;
+using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
+
+public class PriceQuoteTimeSeriesFile<TBucket, TEntry> : TimeSeriesFile<TBucket, TEntry>, IPriceQuoteTimeSeriesFile<TEntry>
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
+    where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, IVersionedMessage
+{
+    public PriceQuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+        : base(pagedMemoryMappedFile, header)
+    {
+        Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
+        PriceQuoteFileHeader = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
+    }
+
+    public PriceQuoteTimeSeriesFile(CreateSourceTickerQuoteFile sourceTickerTimeSeriesFileParams) : base(sourceTickerTimeSeriesFileParams
+        .FileParameters)
+    {
+        Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
+        PriceQuoteFileHeader = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
+    }
+
+    IPriceQuoteFileHeader IPriceQuoteTimeSeriesFile.PriceQuoteFileHeader => PriceQuoteFileHeader;
+
+    public IPriceQuoteFileHeader<TEntry> PriceQuoteFileHeader { get; set; }
+}

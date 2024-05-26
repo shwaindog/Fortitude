@@ -11,6 +11,7 @@ public unsafe interface IBuffer : IDisposable
     bool AllRead { get; }
     long UnreadBytesRemaining { get; }
     long WriteCursor { get; set; }
+    long? LimitNextSerialize { get; set; }
     long RemainingStorage { get; }
     void SetAllRead();
     void TryHandleRemainingWriteBufferRunningLow();

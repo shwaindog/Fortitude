@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -25,9 +28,9 @@ public class RequesterNameMessageDeserializer : MessageDeserializer<RequesterNam
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedRequesterNameMessage = recycler.Borrow<RequesterNameMessage>();
-            var fixedBuffer = messageBufferContext.EncodedBuffer!;
-            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
-            deserializedRequesterNameMessage.RequesterConnectionName = StreamByteOps.ToStringWithSizeHeader(ref ptr);
+            var fixedBuffer                      = messageBufferContext.EncodedBuffer!;
+            var ptr                              = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            deserializedRequesterNameMessage.RequesterConnectionName = StreamByteOps.ToStringWithSizeHeader(ref ptr)!;
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
             OnNotify(deserializedRequesterNameMessage, messageBufferContext);

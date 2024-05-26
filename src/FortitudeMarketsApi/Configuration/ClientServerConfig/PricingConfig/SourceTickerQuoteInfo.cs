@@ -3,6 +3,7 @@
 using System.Globalization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -11,7 +12,7 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-public interface ISourceTickerQuoteInfo : IInterfacesComparable<ISourceTickerQuoteInfo>, ICloneable<ISourceTickerQuoteInfo>
+public interface ISourceTickerQuoteInfo : IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage
 {
     uint Id { get; }
     ushort SourceId { get; set; }
@@ -28,6 +29,7 @@ public interface ISourceTickerQuoteInfo : IInterfacesComparable<ISourceTickerQuo
     byte MaximumPublishedLayers { get; set; }
     LastTradedFlags LastTradedFlags { get; set; }
     string FormatPrice { get; }
+    new ISourceTickerQuoteInfo Clone();
 }
 
 public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISourceTickerQuoteInfo
@@ -80,7 +82,8 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
 
     object ICloneable.Clone() => Clone();
 
-    public override ISourceTickerQuoteInfo Clone() => Recycler?.Borrow<SourceTickerQuoteInfo>()?.CopyFrom(this) ?? new SourceTickerQuoteInfo(this);
+    public uint MessageId => Id;
+    public byte Version => 1;
 
     public uint Id => (uint)((SourceId << 16) | TickerId);
     public ushort SourceId { get; set; }
@@ -129,6 +132,18 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         return sourceIdSame && tickerIdSame && sourceSame && tickerSame && quoteLevelSame && maxPublishedLayersSame && roundingPrecisionSame
                && minSubmitSizeSame && maxSubmitSizeSame && incrmntSizeSame && minQuoteLifeSame && layerFlagsSame && lastTradedFlagsSame;
     }
+
+
+    IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
+
+    IReusableObject<IVersionedMessage> IStoreState<IReusableObject<IVersionedMessage>>.CopyFrom(IReusableObject<IVersionedMessage> source
+        , CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
+
+    IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
+
+    public override ISourceTickerQuoteInfo Clone() => Recycler?.Borrow<SourceTickerQuoteInfo>()?.CopyFrom(this) ?? new SourceTickerQuoteInfo(this);
 
     public override ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

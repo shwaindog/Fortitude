@@ -71,8 +71,8 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
         deserializedSourceTickerQuoteInfo.LayerFlags = (LayerFlags)StreamByteOps.ToUInt(ref currPtr);
         deserializedSourceTickerQuoteInfo.MaximumPublishedLayers = *currPtr++;
         deserializedSourceTickerQuoteInfo.LastTradedFlags = (LastTradedFlags)StreamByteOps.ToUShort(ref currPtr);
-        deserializedSourceTickerQuoteInfo.Source = StreamByteOps.ToStringWithSizeHeader(ref currPtr);
-        deserializedSourceTickerQuoteInfo.Ticker = StreamByteOps.ToStringWithSizeHeader(ref currPtr);
+        deserializedSourceTickerQuoteInfo.Source = StreamByteOps.ToStringWithSizeHeader(ref currPtr)!;
+        deserializedSourceTickerQuoteInfo.Ticker = StreamByteOps.ToStringWithSizeHeader(ref currPtr)!;
 
         return deserializedSourceTickerQuoteInfo;
     }

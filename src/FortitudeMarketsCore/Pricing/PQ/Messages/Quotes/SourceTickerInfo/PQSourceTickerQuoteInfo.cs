@@ -2,7 +2,9 @@
 
 using System.Globalization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeIO.Protocols;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -35,7 +37,7 @@ public interface IPQSourceTickerQuoteInfo : ISourceTickerQuoteInfo, IPQQuotePubl
     new IPQSourceTickerQuoteInfo Clone();
 }
 
-public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
+public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, IPQSourceTickerQuoteInfo
 {
     private string? formatPrice;
     private decimal incrementSize;
@@ -115,6 +117,10 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
     }
 
     public uint Id => ((uint)SourceId << 16) | TickerId;
+
+    public uint MessageId => Id;
+
+    public byte Version => 1;
 
     public ushort SourceId
     {
@@ -449,12 +455,27 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
                && maxPublishLayersSame && lastTradedFlagsSame && updatesSame;
     }
 
+    IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
 
-    public IPQSourceTickerQuoteInfo Clone() => new PQSourceTickerQuoteInfo(this);
+    IPQSourceTickerQuoteInfo ICloneable<IPQSourceTickerQuoteInfo>.Clone() => Clone();
+
+    IPQSourceTickerQuoteInfo IPQSourceTickerQuoteInfo.Clone() => Clone();
 
     object ICloneable.Clone() => Clone();
 
-    ISourceTickerQuoteInfo ICloneable<ISourceTickerQuoteInfo>.Clone() => Clone();
+    public IReusableObject<IVersionedMessage> CopyFrom(IReusableObject<IVersionedMessage> source,
+        CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
+
+    public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
+
+    ISourceTickerQuoteInfo ISourceTickerQuoteInfo.Clone() => Clone();
+
+    public override PQSourceTickerQuoteInfo Clone() =>
+        Recycler?.Borrow<PQSourceTickerQuoteInfo>().CopyFrom(this) as PQSourceTickerQuoteInfo
+        ?? new PQSourceTickerQuoteInfo(this);
+
 
     public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags updateStyle,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
@@ -587,6 +608,26 @@ public class PQSourceTickerQuoteInfo : IPQSourceTickerQuoteInfo
         }
 
         return -1;
+    }
+
+
+    public override PQSourceTickerQuoteInfo CopyFrom(
+        PQSourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        var hasFullReplace = copyMergeFlags.HasFullReplace();
+        if (source.IsSourceUpdated || hasFullReplace) Source = source.Source;
+        if (source.IsSourceUpdated || hasFullReplace) Ticker = source.Ticker;
+        if (source.IsPublishedQuoteLevelUpdated || hasFullReplace) PublishedQuoteLevel = source.PublishedQuoteLevel;
+        if (source.IsRoundingPrecisionUpdated || hasFullReplace) RoundingPrecision = source.RoundingPrecision;
+        if (source.IsMinSubmitSizeUpdated || hasFullReplace) MinSubmitSize = source.MinSubmitSize;
+        if (source.IsMaxSubmitSizeUpdated || hasFullReplace) MaxSubmitSize = source.MaxSubmitSize;
+        if (source.IsIncrementSizeUpdated || hasFullReplace) IncrementSize = source.IncrementSize;
+        if (source.IsMinimumQuoteLifeUpdated || hasFullReplace) MinimumQuoteLife = source.MinimumQuoteLife;
+        if (source.IsLayerFlagsUpdated || hasFullReplace) LayerFlags = source.LayerFlags;
+        if (source.IsMaximumPublishedLayersUpdated || hasFullReplace)
+            MaximumPublishedLayers = source.MaximumPublishedLayers;
+        if (source.IsLastTradedFlagsUpdated || hasFullReplace) LastTradedFlags = source.LastTradedFlags;
+        return this;
     }
 
     public ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source

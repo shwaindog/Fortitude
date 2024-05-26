@@ -613,7 +613,7 @@ public static unsafe class StreamByteOps
     }
 
 
-    public static string? ToStringWithAutoSizeHeader(ref byte* ptr, int maxPossibleBytes)
+    public static string? ToStringWithAutoSizeHeader(ref byte* ptr, long maxPossibleBytes)
     {
         var headerSize = StringAutoHeaderSize(maxPossibleBytes);
         var stringSize = headerSize == 1 ? *ptr++
