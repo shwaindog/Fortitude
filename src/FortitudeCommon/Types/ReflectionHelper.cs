@@ -27,12 +27,31 @@ public static class ReflectionHelper
             Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
     }
 
+    public static Func<TParam, TClassBaseType> CtorDerivedBinder<TParam, TClassBaseType>(Type classDerivedType)
+    {
+        var ctorParam = Expression.Parameter(typeof(TParam), "Param");
+        var constructorInfo
+            = classDerivedType.GetConstructor(new[] { typeof(TParam) })!;
+        return Expression.Lambda<Func<TParam, TClassBaseType>>(
+            Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
+    }
+
     public static Func<TParam1, TParam2, TClass> CtorBinder<TParam1, TParam2, TClass>()
     {
         var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
         var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!;
         return Expression.Lambda<Func<TParam1, TParam2, TClass>>(
+            Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
+            , ctorParam2).Compile();
+    }
+
+    public static Func<TParam1, TParam2, TClassBaseType> CtorDerivedBinder<TParam1, TParam2, TClassBaseType>(Type classDerivedType)
+    {
+        var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
+        var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
+        var constructorInfo = classDerivedType.GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!;
+        return Expression.Lambda<Func<TParam1, TParam2, TClassBaseType>>(
             Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
             , ctorParam2).Compile();
     }
