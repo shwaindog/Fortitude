@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 
@@ -9,18 +12,18 @@ namespace FortitudeCommon.Serdes.Binary;
 
 public class MemoryMappedFileBuffer : IBuffer
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MemoryMappedFileBuffer));
-    private readonly bool shouldCloseView;
-    private int bufferAccessCounter;
-    private ShiftableMemoryMappedFileView? mappedFileShiftableView;
-    private nint originalBufferRelativeWriteCursor;
-    private long readCursor;
-    private long writeCursor;
+    private static readonly IFLogger                       Logger = FLoggerFactory.Instance.GetLogger(typeof(MemoryMappedFileBuffer));
+    private readonly        bool                           shouldCloseView;
+    private                 int                            bufferAccessCounter;
+    private                 ShiftableMemoryMappedFileView? mappedFileShiftableView;
+    private                 nint                           originalBufferRelativeWriteCursor;
+    private                 long                           readCursor;
+    private                 long                           writeCursor;
 
     public MemoryMappedFileBuffer(ShiftableMemoryMappedFileView fileShiftableView, bool shouldCloseView = true)
     {
         mappedFileShiftableView = fileShiftableView;
-        this.shouldCloseView = shouldCloseView;
+        this.shouldCloseView    = shouldCloseView;
     }
 
     public long ReadCursor
@@ -70,7 +73,7 @@ public class MemoryMappedFileBuffer : IBuffer
         {
             if (mappedFileShiftableView == null) return null;
             Interlocked.Increment(ref bufferAccessCounter);
-            return mappedFileShiftableView.LowerHalfViewVirtualMemoryAddress;
+            return mappedFileShiftableView.StartAddress;
         }
     }
 
@@ -80,7 +83,7 @@ public class MemoryMappedFileBuffer : IBuffer
         {
             if (mappedFileShiftableView == null) return null;
             Interlocked.Increment(ref bufferAccessCounter);
-            return mappedFileShiftableView.LowerHalfViewVirtualMemoryAddress;
+            return mappedFileShiftableView.StartAddress;
         }
     }
 

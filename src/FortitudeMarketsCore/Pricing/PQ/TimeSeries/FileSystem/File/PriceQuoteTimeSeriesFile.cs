@@ -1,6 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.OSWrapper.Memory;
+#region
+
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
@@ -21,14 +24,14 @@ public class PriceQuoteTimeSeriesFile<TBucket, TEntry> : TimeSeriesFile<TBucket,
         : base(pagedMemoryMappedFile, header)
     {
         Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
-        PriceQuoteFileHeader = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
+        PriceQuoteFileHeader    = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
     }
 
     public PriceQuoteTimeSeriesFile(CreateSourceTickerQuoteFile sourceTickerTimeSeriesFileParams) : base(sourceTickerTimeSeriesFileParams
-        .FileParameters)
+             .FileParameters)
     {
         Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
-        PriceQuoteFileHeader = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
+        PriceQuoteFileHeader    = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
     }
 
     IPriceQuoteFileHeader IPriceQuoteTimeSeriesFile.PriceQuoteFileHeader => PriceQuoteFileHeader;

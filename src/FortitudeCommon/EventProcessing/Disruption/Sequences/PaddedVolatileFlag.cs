@@ -1,7 +1,8 @@
 ﻿#region
 
 using System.Runtime.InteropServices;
-using FortitudeCommon.OSWrapper.Memory;
+using FortitudeCommon.DataStructures.Memory;
+
 
 #endregion
 

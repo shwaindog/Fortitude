@@ -1,10 +1,10 @@
 ﻿#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 

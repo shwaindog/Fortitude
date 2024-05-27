@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.OSWrapper.Memory;
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
@@ -23,5 +26,5 @@ public class TestLevel1DailyQuoteStructBucket :
 
     public override Func<Level1QuoteStruct> DefaultEntryFactory =>
         () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch,
-            0m, 0m, false);
+                                    0m, 0m, false);
 }

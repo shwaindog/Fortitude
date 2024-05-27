@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.Memory;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
@@ -26,7 +29,7 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
     {
         if (!IsOpen) yield break;
 
-        var endOffSet = BucketDataStartFileOffset + (long)DataSizeBytes;
+        var endOffSet      = BucketDataStartFileOffset + (long)DataSizeBytes;
         var readFileOffset = fromFileCursorOffset ?? BucketDataStartFileOffset;
         while (readFileOffset < endOffSet)
         {
@@ -55,9 +58,9 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         var checkWithinRange = CheckTimeSupported(entryStorageTime);
         if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return checkWithinRange;
         var writeFileOffset = BucketDataStartFileOffset + (long)DataSizeBytes;
-        var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(writeFileOffset, shouldGrow: true);
-        *ptr = entry;
-        DataSizeBytes += (ulong)sizeof(Level1QuoteStruct);
+        var ptr             = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(writeFileOffset, shouldGrow: true);
+        *ptr             =  entry;
+        DataSizeBytes    += (ulong)sizeof(Level1QuoteStruct);
         DataEntriesCount += 1;
         // Logger.Info("Bucket {0} with StartTime {1} wrote EntryNumber: {2} for DataSize {3} at {4} - {5} ",
         //     BucketId, PeriodStartTime, DataEntriesCount, DataSizeBytes, writeFileOffset, entry);
