@@ -1,8 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 
@@ -11,16 +14,16 @@ namespace FortitudeTests.FortitudeCommon.OSWrapper.Memory;
 [TestClass]
 public class PagedMemoryMappedFileTests
 {
-    private static int newTestCount;
-    private FileInfo memoryMappedFile = null!;
-    private string newMemoryMappedFilePath = null!;
-    private PagedMemoryMappedFile pagedMemoryMappedFile = null!;
+    private static int                   newTestCount;
+    private        FileInfo              memoryMappedFile        = null!;
+    private        string                newMemoryMappedFilePath = null!;
+    private        PagedMemoryMappedFile pagedMemoryMappedFile   = null!;
 
     [TestInitialize]
     public void Setup()
     {
         newMemoryMappedFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
-        memoryMappedFile = new FileInfo(newMemoryMappedFilePath);
+        memoryMappedFile        = new FileInfo(newMemoryMappedFilePath);
         if (memoryMappedFile.Exists) memoryMappedFile.Delete();
         pagedMemoryMappedFile = new PagedMemoryMappedFile(newMemoryMappedFilePath);
     }
@@ -46,12 +49,12 @@ public class PagedMemoryMappedFileTests
     public unsafe void CreateNewChunkedMemoryMappedFile_GetNextChunkIsContiguous_AssertsUpperBoundaryContinuesToNewChunk()
     {
         using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("onePageGrow");
-        var isAvailable = onePageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
+        var       isAvailable          = onePageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
         Assert.IsTrue(isAvailable);
-        var ptr = onePageShiftableView.LowerHalfViewVirtualMemoryAddress;
+        var ptr                = onePageShiftableView.StartAddress;
         var maxIntsInTwoChunks = onePageShiftableView.HalfViewSizeBytes / 2;
         for (var i = 0; i < maxIntsInTwoChunks; i++) StreamByteOps.ToBytes(ref ptr, i);
-        ptr = onePageShiftableView.LowerHalfViewVirtualMemoryAddress;
+        ptr = onePageShiftableView.StartAddress;
         for (var i = 0; i < maxIntsInTwoChunks; i++)
         {
             var readValue = StreamByteOps.ToInt(ref ptr);
@@ -59,7 +62,7 @@ public class PagedMemoryMappedFileTests
         }
 
         Assert.IsTrue(onePageShiftableView.ShiftFileUpByHalfOfViewSize(true));
-        ptr = onePageShiftableView.LowerHalfViewVirtualMemoryAddress;
+        ptr = onePageShiftableView.StartAddress;
         for (var i = maxIntsInTwoChunks / 2; i < maxIntsInTwoChunks; i++)
         {
             var readValue = StreamByteOps.ToInt(ref ptr);
@@ -79,8 +82,8 @@ public class PagedMemoryMappedFileTests
     [TestMethod]
     public unsafe void CreateMemoryMappedFile_SetAValueMultipleChunksThenClosePagedMemoryMapFile_NewMemoryMappedFileFindValue()
     {
-        const int writeCursorOffset = 16_234;
-        const int writeAndFindValue = 89_234_123;
+        const int writeCursorOffset    = 16_234;
+        const int writeAndFindValue    = 89_234_123;
         using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("onePageWrite", 1, 6, false);
 
         var isAvailable = onePageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
@@ -89,7 +92,7 @@ public class PagedMemoryMappedFileTests
         {
             if (i == 6)
             {
-                var ptr = onePageShiftableView.LowerHalfViewVirtualMemoryAddress + writeCursorOffset;
+                var ptr = onePageShiftableView.StartAddress + writeCursorOffset;
                 StreamByteOps.ToBytes(ref ptr, writeAndFindValue);
             }
 
@@ -108,7 +111,7 @@ public class PagedMemoryMappedFileTests
         {
             if (i == 3)
             {
-                var ptr = twoPageShiftableView.LowerHalfViewVirtualMemoryAddress + writeCursorOffset;
+                var ptr        = twoPageShiftableView.StartAddress + writeCursorOffset;
                 var checkValue = StreamByteOps.ToInt(ref ptr);
                 Assert.AreEqual(writeAndFindValue, checkValue);
                 assertedFoundValue = true;
@@ -116,8 +119,8 @@ public class PagedMemoryMappedFileTests
 
             Assert.AreEqual(i, twoPageShiftableView.LowerViewFileChunkNumber);
             Assert.AreEqual(i * twoPageShiftableView.HalfViewSizeBytes, twoPageShiftableView.LowerViewFileCursorOffset,
-                $"When i = {i} expected FileCursorOffset to be {i * twoPageShiftableView.HalfViewSizeBytes} " +
-                $"but was {twoPageShiftableView.LowerViewFileCursorOffset} when ChunkSizeBytes was {twoPageShiftableView.HalfViewSizeBytes}");
+                            $"When i = {i} expected FileCursorOffset to be {i * twoPageShiftableView.HalfViewSizeBytes} " +
+                            $"but was {twoPageShiftableView.LowerViewFileCursorOffset} when ChunkSizeBytes was {twoPageShiftableView.HalfViewSizeBytes}");
 
             twoPageShiftableView.ShiftFileUpByHalfOfViewSize(false);
         }
@@ -127,7 +130,7 @@ public class PagedMemoryMappedFileTests
         var expectedFileCursorWriteOffset = 6 * onePageShiftableView.HalfViewSizeBytes + writeCursorOffset;
         twoPageShiftableView.EnsureLowerViewContainsFileCursorOffset(expectedFileCursorWriteOffset);
         Assert.AreEqual(3, twoPageShiftableView.LowerViewFileChunkNumber);
-        var chunk3Ptr = twoPageShiftableView.LowerHalfViewVirtualMemoryAddress + writeCursorOffset;
+        var chunk3Ptr          = twoPageShiftableView.StartAddress + writeCursorOffset;
         var checkExpectedValue = StreamByteOps.ToInt(ref chunk3Ptr);
         Assert.AreEqual(writeAndFindValue, checkExpectedValue);
 

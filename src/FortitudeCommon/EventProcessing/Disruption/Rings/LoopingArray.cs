@@ -1,7 +1,8 @@
 ﻿#region
 
 using System.Collections;
-using FortitudeCommon.OSWrapper.Memory;
+using FortitudeCommon.DataStructures.Memory;
+
 
 #endregion
 

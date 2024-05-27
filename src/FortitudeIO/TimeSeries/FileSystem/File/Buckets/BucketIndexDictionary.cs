@@ -1,11 +1,14 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 
@@ -14,9 +17,9 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 [StructLayout(LayoutKind.Sequential, Pack = 8)]
 public struct BucketIndexList
 {
-    public uint MaxIndexSizeEntries;
-    public int IndexSHA256;
-    public uint LastAddedBucketIndexInfoKey;
+    public uint            MaxIndexSizeEntries;
+    public int             IndexSHA256;
+    public uint            LastAddedBucketIndexInfoKey;
     public BucketIndexInfo FirstIndexInList;
 }
 
@@ -33,38 +36,38 @@ public interface IReadonlyBucketIndexDictionary : IReadOnlyDictionary<uint, Buck
 public unsafe interface IBucketIndexDictionary : IDictionary<uint, BucketIndexInfo>, IReadonlyBucketIndexDictionary
 {
     BucketIndexInfo? LastAddedBucketIndexInfo { get; }
-    uint NextEmptyIndexKey { get; }
+    uint             NextEmptyIndexKey        { get; }
     new BucketIndexInfo this[uint key] { get; set; }
-    new ICollection<uint> Keys { get; }
-    new ICollection<BucketIndexInfo> Values { get; }
-    new int Count { get; }
-    new bool IsReadOnly { get; }
-    new bool ContainsKey(uint key);
-    new bool TryGetValue(uint key, out BucketIndexInfo value);
-    new bool Contains(KeyValuePair<uint, BucketIndexInfo> item);
-    new void CopyTo(KeyValuePair<uint, BucketIndexInfo>[] array, int arrayIndex);
+    new ICollection<uint>                                Keys       { get; }
+    new ICollection<BucketIndexInfo>                     Values     { get; }
+    new int                                              Count      { get; }
+    new bool                                             IsReadOnly { get; }
+    new bool                                             ContainsKey(uint key);
+    new bool                                             TryGetValue(uint key, out BucketIndexInfo value);
+    new bool                                             Contains(KeyValuePair<uint, BucketIndexInfo> item);
+    new void                                             CopyTo(KeyValuePair<uint, BucketIndexInfo>[] array, int arrayIndex);
     new IEnumerator<KeyValuePair<uint, BucketIndexInfo>> GetEnumerator();
-    BucketIndexInfo* GetBucketIndexInfo(uint key);
-    void DumpIndexToLogs();
-    void FlushIndexToDisk();
+    BucketIndexInfo*                                     GetBucketIndexInfo(uint key);
+    void                                                 DumpIndexToLogs();
+    void                                                 FlushIndexToDisk();
 }
 
 public unsafe class BucketIndexDictionary : IBucketIndexDictionary
 {
-    private const long IndexFileCursorAlignment = 8;
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(BucketIndexDictionary));
-    private static IRecycler recycler = new Recycler();
-    private readonly List<KeyValuePair<uint, BucketIndexInfo>> cacheBucketIndexInfos = new();
-    private readonly long internalIndexFileCursor;
-    private BucketIndexInfo? cacheLastAddedEntry;
-    private BucketIndexInfo* firstEntryBufferPointer;
-    private long headerRealignmentOffset;
-    private uint lastAddedEntryIndexKey = uint.MaxValue;
-    private uint* lastAddedEntryIndexKeyBufferPtr;
-    private uint maxPossibleIndexEntries;
-    private ShiftableMemoryMappedFileView? memoryMappedFileView;
-    private long requiredViewFileCursorOffset;
-    private BucketIndexList* writableV1IndexHeaderSectionV1;
+    private const           long                                      IndexFileCursorAlignment = 8;
+    private static readonly IFLogger                                  Logger = FLoggerFactory.Instance.GetLogger(typeof(BucketIndexDictionary));
+    private static          IRecycler                                 recycler = new Recycler();
+    private readonly        List<KeyValuePair<uint, BucketIndexInfo>> cacheBucketIndexInfos = new();
+    private readonly        long                                      internalIndexFileCursor;
+    private                 BucketIndexInfo?                          cacheLastAddedEntry;
+    private                 BucketIndexInfo*                          firstEntryBufferPointer;
+    private                 long                                      headerRealignmentOffset;
+    private                 uint                                      lastAddedEntryIndexKey = uint.MaxValue;
+    private                 uint*                                     lastAddedEntryIndexKeyBufferPtr;
+    private                 uint                                      maxPossibleIndexEntries;
+    private                 ShiftableMemoryMappedFileView?            memoryMappedFileView;
+    private                 long                                      requiredViewFileCursorOffset;
+    private                 BucketIndexList*                          writableV1IndexHeaderSectionV1;
 
     public BucketIndexDictionary(ShiftableMemoryMappedFileView memoryMappedFileView,
         long fileStartCursorOffset, uint maxPossibleIndexEntries, bool isReadOnly)
@@ -73,7 +76,7 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
         internalIndexFileCursor = fileStartCursorOffset + headerRealignmentOffset;
         OpenWithFileView(memoryMappedFileView, isReadOnly);
         writableV1IndexHeaderSectionV1->MaxIndexSizeEntries = maxPossibleIndexEntries;
-        this.maxPossibleIndexEntries = maxPossibleIndexEntries;
+        this.maxPossibleIndexEntries                        = maxPossibleIndexEntries;
     }
 
     public bool IsFileViewOpen =>
@@ -117,31 +120,29 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
             FlushIndexToDisk();
             cacheBucketIndexInfos.Clear();
             cacheBucketIndexInfos.AddRange(this);
-            cacheLastAddedEntry = lastAddedEntryIndexKey != uint.MaxValue ?
-                this[lastAddedEntryIndexKey] :
-                default(BucketIndexInfo?);
+            cacheLastAddedEntry = lastAddedEntryIndexKey != uint.MaxValue ? this[lastAddedEntryIndexKey] : default(BucketIndexInfo?);
         }
 
-        IsReadOnly = true;
-        memoryMappedFileView = null;
-        writableV1IndexHeaderSectionV1 = null;
+        IsReadOnly                      = true;
+        memoryMappedFileView            = null;
+        writableV1IndexHeaderSectionV1  = null;
         lastAddedEntryIndexKeyBufferPtr = null;
-        firstEntryBufferPointer = null;
+        firstEntryBufferPointer         = null;
     }
 
     public void OpenWithFileView(ShiftableMemoryMappedFileView shiftableMemoryMappedFileView, bool isReadOnly)
     {
         memoryMappedFileView = shiftableMemoryMappedFileView;
-        IsReadOnly = isReadOnly;
+        IsReadOnly           = isReadOnly;
         writableV1IndexHeaderSectionV1
             = (BucketIndexList*)memoryMappedFileView.FileCursorBufferPointer(internalIndexFileCursor, shouldGrow: !isReadOnly);
         // Logger.Info("Opening BucketIndex at FileCursor {0}", internalIndexFileCursor);
         writableV1IndexHeaderSectionV1->MaxIndexSizeEntries = maxPossibleIndexEntries;
-        requiredViewFileCursorOffset = memoryMappedFileView.LowerViewFileCursorOffset;
-        firstEntryBufferPointer = &writableV1IndexHeaderSectionV1->FirstIndexInList;
-        lastAddedEntryIndexKeyBufferPtr = &writableV1IndexHeaderSectionV1->LastAddedBucketIndexInfoKey;
-        lastAddedEntryIndexKey = *lastAddedEntryIndexKeyBufferPtr;
-        maxPossibleIndexEntries = writableV1IndexHeaderSectionV1->MaxIndexSizeEntries;
+        requiredViewFileCursorOffset                        = memoryMappedFileView.LowerViewFileCursorOffset;
+        firstEntryBufferPointer                             = &writableV1IndexHeaderSectionV1->FirstIndexInList;
+        lastAddedEntryIndexKeyBufferPtr                     = &writableV1IndexHeaderSectionV1->LastAddedBucketIndexInfoKey;
+        lastAddedEntryIndexKey                              = *lastAddedEntryIndexKeyBufferPtr;
+        maxPossibleIndexEntries                             = writableV1IndexHeaderSectionV1->MaxIndexSizeEntries;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -164,8 +165,8 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     {
         if (!IsFileViewOpen || item.Key > maxPossibleIndexEntries || IsReadOnly) return;
         var indexEntry = firstEntryBufferPointer + item.Key;
-        *indexEntry = item.Value;
-        lastAddedEntryIndexKey = item.Key;
+        *indexEntry                      = item.Value;
+        lastAddedEntryIndexKey           = item.Key;
         *lastAddedEntryIndexKeyBufferPtr = item.Key;
         cacheBucketIndexInfos.Add(item);
         memoryMappedFileView!.FlushPtrDataToDisk(indexEntry, sizeof(BucketIndexInfo));
@@ -233,8 +234,8 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     {
         if (!IsFileViewOpen || key > maxPossibleIndexEntries || IsReadOnly) return;
         var indexEntry = firstEntryBufferPointer + key;
-        *indexEntry = value;
-        lastAddedEntryIndexKey = key;
+        *indexEntry                      = value;
+        lastAddedEntryIndexKey           = key;
         *lastAddedEntryIndexKeyBufferPtr = key;
         cacheBucketIndexInfos.Add(new KeyValuePair<uint, BucketIndexInfo>(key, value));
         memoryMappedFileView!.FlushPtrDataToDisk(indexEntry, sizeof(BucketIndexInfo));
@@ -367,14 +368,14 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
         if (!IsFileViewOpen)
         {
             Logger.Warn("Could not dump index logs because view name {0} with file LowerViewFileCursorOffset is {1} and requires {2}",
-                memoryMappedFileView?.ViewName, memoryMappedFileView?.LowerViewFileCursorOffset, requiredViewFileCursorOffset);
+                        memoryMappedFileView?.ViewName, memoryMappedFileView?.LowerViewFileCursorOffset, requiredViewFileCursorOffset);
             return;
         }
 
         for (uint i = 0; i < maxPossibleIndexEntries; i++)
         {
             var nonEmptyEntry = firstEntryBufferPointer + i;
-            var addResult = *nonEmptyEntry;
+            var addResult     = *nonEmptyEntry;
             Logger.Info("BucketIndex at {0} {1} at address {2}", internalIndexFileCursor, addResult, (nint)(firstEntryBufferPointer + i));
         }
     }

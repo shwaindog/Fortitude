@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.OSWrapper.Memory;
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
@@ -86,7 +86,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
         FileName                   = createParameters.FileNameResolver.FilePath(createParameters).FullName;
         TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName, createParameters.InitialFileSizePages);
         var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
-        var ptr            = headerFileView.LowerHalfViewVirtualMemoryAddress;
+        var ptr            = headerFileView.StartAddress;
         FileVersion = StreamByteOps.ToUShort(ref ptr);
         if (FileVersion is 0 or 1) // select appropriate header file based on file version
             Header = TimeSeriesFileHeaderFromV1.NewFileCreateHeader(this, headerFileView, createParameters);
@@ -225,7 +225,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
     {
         var timeSeriesMemoryMappedFile = new PagedMemoryMappedFile(filePath);
         var headerFileView             = timeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
-        var ptr                        = headerFileView.LowerHalfViewVirtualMemoryAddress;
+        var ptr                        = headerFileView.StartAddress;
         var fileVersion                = StreamByteOps.ToUShort(ref ptr);
         if (fileVersion is not (0 or 1)) // select appropriate header file based on file version
             throw new Exception("Unsupported file version being loaded");
