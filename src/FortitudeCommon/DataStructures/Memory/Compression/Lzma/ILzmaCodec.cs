@@ -20,7 +20,7 @@ internal class InvalidParamException : ApplicationException
     public InvalidParamException() : base("Invalid Parameter") { }
 }
 
-public interface ICodeProgress
+public interface ICodecProgress
 {
     /// <summary>
     ///     Callback progress.
@@ -34,32 +34,44 @@ public interface ICodeProgress
     void SetProgress(long inSize, long outSize);
 };
 
-public interface ICoder
+public struct ByteStream
 {
-    /// <summary>
-    ///     Codes streams.
-    /// </summary>
-    /// <param name="inStream">
-    ///     input Stream.
-    /// </param>
-    /// <param name="outStream">
-    ///     output Stream.
-    /// </param>
-    /// <param name="inSize">
-    ///     input Size. -1 if unknown.
-    /// </param>
-    /// <param name="outSize">
-    ///     output Size. -1 if unknown.
-    /// </param>
-    /// <param name="progress">
-    ///     callback progress reference.
-    /// </param>
-    /// <exception cref="DataErrorException">
-    ///     if input stream is not valid
-    /// </exception>
-    void Code(Stream inStream, Stream outStream,
-        long inSize, long outSize, ICodeProgress progress);
-};
+    public ByteStream(Stream stream) => Stream = stream;
+    public ByteStream(IByteArray byteArray) => ByteArray = byteArray;
+    public Stream?     Stream    { get; }
+    public IByteArray? ByteArray { get; }
+}
+
+public struct LzmaEncoderParams
+{
+    public LzmaEncoderParams()
+    {
+        DictionarySize = 1 << 23;
+        PosStateBits   = 2;
+        LitContextBits = 3;
+        LitPosBits     = 0;
+        Algorithm      = 2;
+        NumFastBytes   = 128;
+        MatchFinder    = "bt4";
+        HasEOS         = false;
+        InputSize      = -1;
+        OutputSize     = -1;
+    }
+
+    public int    DictionarySize { get; set; }
+    public int    PosStateBits   { get; set; }
+    public int    LitContextBits { get; set; }
+    public int    LitPosBits     { get; set; }
+    public int    Algorithm      { get; set; }
+    public int    NumFastBytes   { get; set; }
+    public string MatchFinder    { get; set; }
+    public bool   HasEOS         { get; set; }
+    public long   InputSize      { get; set; }
+    public long   OutputSize     { get; set; }
+
+    public ByteStream?     TrainStream    { get; set; }
+    public ICodecProgress? CodecProgress  { get; set; }
+}
 
 /*
 public interface ICoder2
@@ -153,17 +165,13 @@ public enum CoderPropID
   , EndMarker
 };
 
-public interface ISetCoderProperties
+public interface ILzmaEncoder
 {
-    void SetCoderProperties(CoderPropID[] propIDs, object[] properties);
-};
-
-public interface IWriteCoderProperties
-{
-    void WriteCoderProperties(Stream outStream);
+    void Compress(LzmaEncoderParams encoderParams, ByteStream inStream, ByteStream outStream);
 }
 
-public interface ISetDecoderProperties
+public interface ILzmaDecoder
 {
+    void Decompress(ByteStream inStream, ByteStream outStream, ICodecProgress? progress = null);
     void SetDecoderProperties(byte[] properties);
 }

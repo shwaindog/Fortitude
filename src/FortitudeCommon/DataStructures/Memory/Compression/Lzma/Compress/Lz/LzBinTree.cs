@@ -7,15 +7,17 @@ using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Common;
 
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
 
-public class BinTree : InWindow, IMatchFinder
+public class BinTree : IMatchFinder
 {
-    private const uint Hash2Size = 1 << 10;
-    private const uint Hash3Size = 1 << 16;
-    private const uint BT2HashSize = 1 << 16;
-    private const uint StartMaxLen = 1;
-    private const uint Hash3Offset = Hash2Size;
-    private const uint EmptyHashValue = 0;
-    private const uint MaxValForNormalize = ((uint)1 << 31) - 1;
+    private readonly IInWindow sourceWindow;
+
+    private const  uint  Hash2Size          = 1 << 10;
+    private const  uint  Hash3Size          = 1 << 16;
+    private const  uint  BT2HashSize        = 1 << 16;
+    private const  uint  StartMaxLen        = 1;
+    private const  uint  Hash3Offset        = Hash2Size;
+    private const  uint  EmptyHashValue     = 0;
+    private const  uint  MaxValForNormalize = ((uint)1 << 31) - 1;
 
     private uint    cutValue = 0xFF;
     private uint    cyclicBufferPos;
@@ -33,30 +35,35 @@ public class BinTree : InWindow, IMatchFinder
 
     private uint numHashDirectBytes = 0;
 
-    public new void SetStream(Stream stream)
+    public BinTree(IInWindow? sourceWindow = null)
     {
-        base.SetStream(stream);
-    }
-
-    public new void ReleaseStream()
-    {
-        base.ReleaseStream();
-    }
-
-    public new void Init()
-    {
-        base.Init();
+        this.sourceWindow = sourceWindow ?? new InWindow();
         for (uint i = 0; i < hashSizeSum; i++)
             hash![i] = EmptyHashValue;
-        cyclicBufferPos = 0;
-        ReduceOffsets(-1);
     }
 
-    public new byte GetIndexByte(int index) => base.GetIndexByte(index);
+    public void SetStream(ByteStream stream)
+    {
+        sourceWindow.SetStream(stream);
+    }
 
-    public new uint GetMatchLen(int index, uint distance, uint limit) => base.GetMatchLen(index, distance, limit);
+    public void ReleaseStream()
+    {
+        sourceWindow.ReleaseStream();
+    }
 
-    public new uint GetNumAvailableBytes() => base.GetNumAvailableBytes();
+    public void Init()
+    {
+        sourceWindow.Init();
+        cyclicBufferPos = 0;
+        sourceWindow.ReduceOffsets(-1);
+    }
+
+    public byte GetIndexByte(int index) => sourceWindow.GetIndexByte(index);
+
+    public uint GetMatchLen(int index, uint distance, uint limit) => sourceWindow.GetMatchLen(index, distance, limit);
+
+    public uint GetNumAvailableBytes() => sourceWindow.GetNumAvailableBytes();
 
     public void Create(uint historySize, uint keepAddBufferBefore,
         uint matchMaxLen, uint keepAddBufferAfter)
@@ -68,7 +75,7 @@ public class BinTree : InWindow, IMatchFinder
         var windowReservSize = (historySize + keepAddBufferBefore +
                                 matchMaxLen + keepAddBufferAfter) / 2 + 256;
 
-        base.Create(historySize + keepAddBufferBefore, matchMaxLen + keepAddBufferAfter, windowReservSize);
+        sourceWindow.Create(historySize + keepAddBufferBefore, matchMaxLen + keepAddBufferAfter, windowReservSize);
 
         this.matchMaxLen = matchMaxLen;
 
@@ -101,13 +108,13 @@ public class BinTree : InWindow, IMatchFinder
     public uint GetMatches(uint[] distances)
     {
         uint lenLimit;
-        if (Pos + matchMaxLen <= StreamPos)
+        if (sourceWindow.Pos + matchMaxLen <= sourceWindow.StreamPos)
         {
             lenLimit = matchMaxLen;
         }
         else
         {
-            lenLimit = StreamPos - Pos;
+            lenLimit = sourceWindow.StreamPos - sourceWindow.Pos;
             if (lenLimit < minMatchCheck)
             {
                 MovePos();
@@ -116,22 +123,22 @@ public class BinTree : InWindow, IMatchFinder
         }
 
         uint offset = 0;
-        var matchMinPos = Pos > cyclicBufferSize ? Pos - cyclicBufferSize : 0;
-        var cur = BufferOffset + Pos;
+        var matchMinPos = sourceWindow.Pos > cyclicBufferSize ? sourceWindow.Pos - cyclicBufferSize : 0;
+        var cur = sourceWindow.BufferOffset + sourceWindow.Pos;
         var maxLen = StartMaxLen; // to avoid items for len < hashSize;
         uint hashValue, hash2Value = 0, hash3Value = 0;
 
         if (hashArray)
         {
-            var temp = CRC.Table[BufferBase[cur]] ^ BufferBase[cur + 1];
+            var temp = CRC.Table[sourceWindow.BufferBase[cur]] ^ sourceWindow.BufferBase[cur + 1];
             hash2Value = temp & (Hash2Size - 1);
-            temp ^= (uint)BufferBase[cur + 2] << 8;
+            temp ^= (uint)sourceWindow.BufferBase[cur + 2] << 8;
             hash3Value = temp & (Hash3Size - 1);
-            hashValue = (temp ^ (CRC.Table[BufferBase[cur + 3]] << 5)) & hashMask;
+            hashValue = (temp ^ (CRC.Table[sourceWindow.BufferBase[cur + 3]] << 5)) & hashMask;
         }
         else
         {
-            hashValue = BufferBase[cur] ^ ((uint)BufferBase[cur + 1] << 8);
+            hashValue = sourceWindow.BufferBase[cur] ^ ((uint)sourceWindow.BufferBase[cur + 1] << 8);
         }
 
         var curMatch = hash![fixHashSize + hashValue];
@@ -139,22 +146,22 @@ public class BinTree : InWindow, IMatchFinder
         {
             var curMatch2 = hash[hash2Value];
             var curMatch3 = hash[Hash3Offset + hash3Value];
-            hash[hash2Value] = Pos;
-            hash[Hash3Offset + hash3Value] = Pos;
+            hash[hash2Value] = sourceWindow.Pos;
+            hash[Hash3Offset + hash3Value] = sourceWindow.Pos;
             if (curMatch2 > matchMinPos)
-                if (BufferBase[BufferOffset + curMatch2] == BufferBase[cur])
+                if (sourceWindow.BufferBase[sourceWindow.BufferOffset + curMatch2] == sourceWindow.BufferBase[cur])
                 {
                     distances[offset++] = maxLen = 2;
-                    distances[offset++] = Pos - curMatch2 - 1;
+                    distances[offset++] = sourceWindow.Pos - curMatch2 - 1;
                 }
 
             if (curMatch3 > matchMinPos)
-                if (BufferBase[BufferOffset + curMatch3] == BufferBase[cur])
+                if (sourceWindow.BufferBase[sourceWindow.BufferOffset + curMatch3] == sourceWindow.BufferBase[cur])
                 {
                     if (curMatch3 == curMatch2)
                         offset -= 2;
                     distances[offset++] = maxLen = 3;
-                    distances[offset++] = Pos - curMatch3 - 1;
+                    distances[offset++] = sourceWindow.Pos - curMatch3 - 1;
                     curMatch2 = curMatch3;
                 }
 
@@ -165,7 +172,7 @@ public class BinTree : InWindow, IMatchFinder
             }
         }
 
-        hash[fixHashSize + hashValue] = Pos;
+        hash[fixHashSize + hashValue] = sourceWindow.Pos;
 
         var ptr0 = (cyclicBufferPos << 1) + 1;
         var ptr1 = cyclicBufferPos << 1;
@@ -175,11 +182,11 @@ public class BinTree : InWindow, IMatchFinder
 
         if (numHashDirectBytes != 0)
             if (curMatch > matchMinPos)
-                if (BufferBase[BufferOffset + curMatch + numHashDirectBytes] !=
-                    BufferBase[cur + numHashDirectBytes])
+                if (sourceWindow.BufferBase[sourceWindow.BufferOffset + curMatch + numHashDirectBytes] !=
+                    sourceWindow.BufferBase[cur + numHashDirectBytes])
                 {
                     distances[offset++] = maxLen = numHashDirectBytes;
-                    distances[offset++] = Pos - curMatch - 1;
+                    distances[offset++] = sourceWindow.Pos - curMatch - 1;
                 }
 
         var count = cutValue;
@@ -192,17 +199,17 @@ public class BinTree : InWindow, IMatchFinder
                 break;
             }
 
-            var delta = Pos - curMatch;
+            var delta = sourceWindow.Pos - curMatch;
             var cyclicPos = (delta <= cyclicBufferPos ?
                 cyclicBufferPos - delta :
                 cyclicBufferPos - delta + cyclicBufferSize) << 1;
 
-            var pby1 = BufferOffset + curMatch;
-            var len = Math.Min(len0, len1);
-            if (BufferBase[pby1 + len] == BufferBase[cur + len])
+            var pby1 = sourceWindow.BufferOffset + curMatch;
+            var len  = Math.Min(len0, len1);
+            if (sourceWindow.BufferBase[pby1 + len] == sourceWindow.BufferBase[cur + len])
             {
                 while (++len != lenLimit)
-                    if (BufferBase[pby1 + len] != BufferBase[cur + len])
+                    if (sourceWindow.BufferBase[pby1 + len] != sourceWindow.BufferBase[cur + len])
                         break;
                 if (maxLen < len)
                 {
@@ -217,7 +224,7 @@ public class BinTree : InWindow, IMatchFinder
                 }
             }
 
-            if (BufferBase[pby1 + len] < BufferBase[cur + len])
+            if (sourceWindow.BufferBase[pby1 + len] < sourceWindow.BufferBase[cur + len])
             {
                 son![ptr1] = curMatch;
                 ptr1 = cyclicPos + 1;
@@ -237,47 +244,51 @@ public class BinTree : InWindow, IMatchFinder
         return offset;
     }
 
-    public void Skip(uint num)
+    public void Process(uint num, IInWindow? contextInput = null)
     {
+        contextInput ??= sourceWindow;
         do
         {
             uint lenLimit;
-            if (Pos + matchMaxLen <= StreamPos)
+            if (contextInput.Pos + matchMaxLen <= contextInput.StreamPos)
             {
                 lenLimit = matchMaxLen;
             }
             else
             {
-                lenLimit = StreamPos - Pos;
+                lenLimit = contextInput.StreamPos - contextInput.Pos;
                 if (lenLimit < minMatchCheck)
                 {
-                    MovePos();
+                    MovePos(contextInput);
                     continue;
                 }
             }
 
-            var matchMinPos = Pos > cyclicBufferSize ? Pos - cyclicBufferSize : 0;
-            var cur = BufferOffset + Pos;
+            var matchMinPos = contextInput.Pos > cyclicBufferSize ? contextInput.Pos - cyclicBufferSize : 0;
+            var cur         = contextInput.BufferOffset + contextInput.Pos;
 
             uint hashValue;
 
             if (hashArray)
             {
-                var temp = CRC.Table[BufferBase[cur]] ^ BufferBase[cur + 1];
-                var hash2Value = temp & (Hash2Size - 1);
-                hash![hash2Value] = Pos;
-                temp ^= (uint)BufferBase[cur + 2] << 8;
+                var temp      = CRC.Table[contextInput.BufferBase[cur]] ^ contextInput.BufferBase[cur + 1];
+                var hash2Value= temp & (Hash2Size - 1);
+                hash![hash2Value]  =  contextInput.Pos;
+
+                temp ^= (uint)contextInput.BufferBase[cur + 2] << 8;
+
                 var hash3Value = temp & (Hash3Size - 1);
-                hash[Hash3Offset + hash3Value] = Pos;
-                hashValue = (temp ^ (CRC.Table[BufferBase[cur + 3]] << 5)) & hashMask;
+                hash[Hash3Offset + hash3Value] = contextInput.Pos;
+
+                hashValue = (temp ^ (CRC.Table[contextInput.BufferBase[cur + 3]] << 5)) & hashMask;
             }
             else
             {
-                hashValue = BufferBase[cur] ^ ((uint)BufferBase[cur + 1] << 8);
+                hashValue = contextInput.BufferBase[cur] ^ ((uint)contextInput.BufferBase[cur + 1] << 8);
             }
 
             var curMatch = hash![fixHashSize + hashValue];
-            hash[fixHashSize + hashValue] = Pos;
+            hash[fixHashSize + hashValue] = contextInput.Pos;
 
             var ptr0 = (cyclicBufferPos << 1) + 1;
             var ptr1 = cyclicBufferPos << 1;
@@ -294,17 +305,17 @@ public class BinTree : InWindow, IMatchFinder
                     break;
                 }
 
-                var delta = Pos - curMatch;
+                var delta = contextInput.Pos - curMatch;
                 var cyclicPos = (delta <= cyclicBufferPos ?
                     cyclicBufferPos - delta :
                     cyclicBufferPos - delta + cyclicBufferSize) << 1;
 
-                var pby1 = BufferOffset + curMatch;
-                var len = Math.Min(len0, len1);
-                if (BufferBase[pby1 + len] == BufferBase[cur + len])
+                var pby1 = contextInput.BufferOffset + curMatch;
+                var len  = Math.Min(len0, len1);
+                if (contextInput.BufferBase[pby1 + len] == contextInput.BufferBase[cur + len])
                 {
                     while (++len != lenLimit)
-                        if (BufferBase[pby1 + len] != BufferBase[cur + len])
+                        if (contextInput.BufferBase[pby1 + len] != contextInput.BufferBase[cur + len])
                             break;
                     if (len == lenLimit)
                     {
@@ -314,7 +325,7 @@ public class BinTree : InWindow, IMatchFinder
                     }
                 }
 
-                if (BufferBase[pby1 + len] < BufferBase[cur + len])
+                if (contextInput.BufferBase[pby1 + len] < contextInput.BufferBase[cur + len])
                 {
                     son![ptr1] = curMatch;
                     ptr1 = cyclicPos + 1;
@@ -330,8 +341,8 @@ public class BinTree : InWindow, IMatchFinder
                 }
             }
 
-            MovePos();
-        } while (--num != 0);
+            MovePos(contextInput);
+        } while (--num > 0);
     }
 
     public void SetType(int numHashBytes)
@@ -351,13 +362,18 @@ public class BinTree : InWindow, IMatchFinder
         }
     }
 
-    public new void MovePos()
+    public void MovePos()
+    {
+        MovePos(sourceWindow);
+    }
+
+    private void MovePos(IInWindow input)
     {
         if (++cyclicBufferPos >= cyclicBufferSize)
             cyclicBufferPos = 0;
-        base.MovePos();
-        if (Pos == MaxValForNormalize)
-            Normalize();
+        input.MovePos();
+        if (input.Pos == MaxValForNormalize)
+            Normalize(input);
     }
 
     private void NormalizeLinks(uint[] items, uint numItems, uint subValue)
@@ -375,10 +391,15 @@ public class BinTree : InWindow, IMatchFinder
 
     private void Normalize()
     {
-        var subValue = Pos - cyclicBufferSize;
+        Normalize(sourceWindow);
+    }
+
+    private void Normalize(IInWindow input)
+    {
+        var subValue = input.Pos - cyclicBufferSize;
         NormalizeLinks(son!, cyclicBufferSize * 2, subValue);
         NormalizeLinks(hash!, hashSizeSum, subValue);
-        ReduceOffsets((int)subValue);
+        input.ReduceOffsets((int)subValue);
     }
 
     public void SetCutValue(uint cutValue)

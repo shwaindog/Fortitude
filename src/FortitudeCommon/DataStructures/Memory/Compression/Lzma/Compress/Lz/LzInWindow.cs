@@ -2,23 +2,27 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+using Google.Protobuf.WellKnownTypes;
+
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
 
-public class InWindow
+public class InWindow : IInWindow
 {
-    public uint BlockSize; // Size of Allocated memory block
-    public byte[] BufferBase = null!; // pointer to buffer with data
+    public uint       BlockSize;                                // Size of Allocated memory block
+    public IByteArray BufferBase { get; private set; } = null!; // pointer to buffer with data
 
-    public uint BufferOffset;
-    private uint keepSizeAfter; // how many BYTEs must be kept buffer after _pos
+    public  uint BufferOffset { get; private set; }
+    private uint keepSizeAfter;  // how many BYTEs must be kept buffer after _pos
     private uint keepSizeBefore; // how many BYTEs must be kept in buffer before _pos
 
-    private uint    pointerToLastSafePosition;
-    public  uint    Pos;      // offset (from _buffer) of curent byte
-    private uint    posLimit; // offset (from _buffer) of first byte when new block reading must be done
-    private Stream? stream;
-    private bool    streamEndWasReached; // if (true) then _streamPos shows real end of stream
-    public  uint    StreamPos;           // offset (from _buffer) of first not read byte from Stream
+    private uint        pointerToLastSafePosition;
+    public  uint        Pos { get; private set; } // offset (from _buffer) of curent byte
+    private uint        posLimit;                 // offset (from _buffer) of first byte when new block reading must be done
+    private ByteStream? stream;
+    private bool        streamEndWasReached;            // if (true) then _streamPos shows real end of stream
+    public  uint        StreamPos { get; private set; } // offset (from _buffer) of first not read byte from Stream
+    private long        streamOffset;
 
     public void MoveBlock()
     {
@@ -44,7 +48,7 @@ public class InWindow
             var size = (int)(0 - BufferOffset + BlockSize - StreamPos);
             if (size == 0)
                 return;
-            var numReadBytes = stream!.Read(BufferBase, (int)(BufferOffset + StreamPos), size);
+            var numReadBytes = ReadByteRange((int)(BufferOffset + StreamPos), size);
             if (numReadBytes == 0)
             {
                 posLimit = StreamPos;
@@ -62,6 +66,43 @@ public class InWindow
         }
     }
 
+    int ReadByteRange(int offset, int size)
+    {
+        var numRead = 0;
+        if (stream!.Value.Stream is IAcceptsByteArrayStream readIntoByteArray)
+        {
+            numRead = readIntoByteArray.Read(BufferBase, offset, size);
+        }
+        else if(stream.Value.Stream != null) 
+        {
+            var cappedSize = Math.Min(size, stream!.Value.Stream.Length - stream!.Value.Stream.Position);
+            var readBytes  = new byte[byte.MaxValue];
+            var readSoFar  = 0;
+            for (; readSoFar < cappedSize; )
+            {
+                var amountToRead = Math.Min(cappedSize - readSoFar, byte.MaxValue);
+                var bytesRead    = stream!.Value.Stream.Read(readBytes, 0, (int)amountToRead);
+                for (int j = 0; j < bytesRead; j++)
+                {
+                    BufferBase[offset + readSoFar + j] = readBytes[j];
+                }
+                readSoFar += bytesRead;
+            }
+            numRead = readSoFar;
+        }
+        else
+        {
+            var byteArray  = stream!.Value.ByteArray!;
+            var cappedSize = Math.Min(BufferBase.Length - offset, Math.Min(size, byteArray.Length - streamOffset));
+            for (int i = 0; i < cappedSize; i++)
+            {
+                BufferBase[offset + i] = byteArray[streamOffset++];
+            }
+            numRead = (int)cappedSize;
+        }
+        return numRead;
+    }
+
     private void Free()
     {
         BufferBase = null!;
@@ -76,13 +117,13 @@ public class InWindow
         {
             Free();
             this.BlockSize = blockSize;
-            BufferBase = new byte[this.BlockSize];
+            BufferBase = new ObjectByteArrayWrapper(new byte[this.BlockSize]);
         }
 
         pointerToLastSafePosition = this.BlockSize - keepSizeAfter;
     }
 
-    public void SetStream(Stream stream)
+    public void SetStream(ByteStream stream)
     {
         this.stream = stream;
     }

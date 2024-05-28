@@ -101,7 +101,7 @@ internal struct BitDecoder
             Prob += (BitModelTotal - Prob) >> NumMoveBits;
             if (rangeDecoder.Range < RangeDecoder.TopValue)
             {
-                rangeDecoder.Code = (rangeDecoder.Code << 8) | (byte)rangeDecoder.Stream!.ReadByte();
+                rangeDecoder.Code  =   (rangeDecoder.Code << 8) | (byte)rangeDecoder.ReadByte();
                 rangeDecoder.Range <<= 8;
             }
 
@@ -114,7 +114,7 @@ internal struct BitDecoder
             Prob -= Prob >> NumMoveBits;
             if (rangeDecoder.Range < RangeDecoder.TopValue)
             {
-                rangeDecoder.Code = (rangeDecoder.Code << 8) | (byte)rangeDecoder.Stream!.ReadByte();
+                rangeDecoder.Code  =   (rangeDecoder.Code << 8) | (byte)rangeDecoder.ReadByte();
                 rangeDecoder.Range <<= 8;
             }
 

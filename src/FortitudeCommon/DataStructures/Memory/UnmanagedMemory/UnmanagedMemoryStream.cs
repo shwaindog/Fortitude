@@ -3,7 +3,13 @@
 
 namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
 
-public class UnmanagedMemoryStream : Stream
+public interface IAcceptsByteArrayStream
+{
+    int  Read(IByteArray buffer, int offset, int count);
+    void Write(IByteArray buffer, int offset, int count);
+}
+
+public class UnmanagedMemoryStream : Stream, IAcceptsByteArrayStream
 {
     private readonly IByteArray byteArray;
     private readonly bool       writable;
@@ -19,6 +25,24 @@ public class UnmanagedMemoryStream : Stream
     public override bool CanWrite => writable;
     public override long Length   => byteArray.Length;
     public override long Position { get; set; }
+
+    public int Read(IByteArray buffer, int offset, int count)
+    {
+        var remainingBytes = byteArray.Length - Position;
+        var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
+
+        for (var i = offset; i < cappedSize; i++) buffer[i] = byteArray[(int)Position++];
+        return (int)cappedSize;
+    }
+
+    public void Write(IByteArray buffer, int offset, int count)
+    {
+        if (!writable) return;
+        var remainingBytes = byteArray.Length - Position;
+        var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
+
+        for (var i = offset; i < cappedSize; i++) byteArray[(int)Position++] = buffer[i];
+    }
 
     public override void Flush()
     {

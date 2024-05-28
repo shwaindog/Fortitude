@@ -15,21 +15,26 @@ internal class RangeEncoder
 
     private long StartPosition;
 
-    private Stream? Stream;
+    private ByteStream byteStream;
 
-    public void SetStream(Stream stream)
+    private long   streamOffset = 5;
+    private byte[] oneByteArray = new byte[1];
+
+    private long ByteStreamPos => byteStream.Stream?.Position ?? streamOffset;
+
+    public void SetStream(ByteStream stream)
     {
-        Stream = stream;
+        byteStream = stream;
     }
 
     public void ReleaseStream()
     {
-        Stream = null;
+        byteStream = default;
     }
 
     public void Init()
     {
-        StartPosition = Stream!.Position;
+        StartPosition = ByteStreamPos;
 
         Low = 0;
         Range = 0xFFFFFFFF;
@@ -45,12 +50,22 @@ internal class RangeEncoder
 
     public void FlushStream()
     {
-        Stream?.Flush();
+        if (byteStream.Stream != null)
+        {
+            byteStream.Stream.Flush();
+        }
+        else
+        {
+            byteStream.ByteArray!.Flush();
+        }
     }
 
     public void CloseStream()
     {
-        Stream?.Close();
+        if (byteStream.Stream != null)
+        {
+            byteStream.Stream.Close();
+        }
     }
 
     public void Encode(uint start, uint size, uint total)
@@ -71,7 +86,16 @@ internal class RangeEncoder
             var temp = cache;
             do
             {
-                Stream!.WriteByte((byte)(temp + (Low >> 32)));
+                var writeByte = (byte)(temp + (Low >> 32));
+                if (byteStream.Stream != null)
+                {
+                    oneByteArray[0] = writeByte;
+                    byteStream!.Stream.Write(oneByteArray, 0, 1);
+                }
+                else if(streamOffset < byteStream.ByteArray!.Length)
+                {
+                    byteStream.ByteArray![streamOffset++] = writeByte;
+                }
                 temp = 0xFF;
             } while (--cacheSize != 0);
 
@@ -117,9 +141,7 @@ internal class RangeEncoder
         }
     }
 
-    public long GetProcessedSizeAdd() =>
-        cacheSize +
-        Stream!.Position - StartPosition + 4;
+    public long GetProcessedSizeAdd() => cacheSize + streamOffset - StartPosition;
     // (long)Stream.GetProcessedSize();
 }
 
@@ -128,38 +150,59 @@ internal class RangeDecoder
     public const uint TopValue = 1 << 24;
     public uint Code;
 
+    public long readBytes;
     public uint Range;
 
     // public Buffer.InBuffer Stream = new Buffer.InBuffer(1 << 16);
-    public Stream? Stream;
+    public  ByteStream byteStream;
+    private byte[]     oneByteArray = new byte[1];
 
-    public void Init(Stream stream)
+    public void Init(ByteStream stream)
     {
         // Stream.Init(stream);
-        Stream = stream;
+        byteStream = stream;
 
         Code = 0;
         Range = 0xFFFFFFFF;
         for (var i = 0; i < 5; i++)
-            Code = (Code << 8) | (byte)Stream.ReadByte();
+        {
+            Code = (Code << 8) | ReadByte();
+        }
+    }
+
+    public byte ReadByte()
+    {
+        if (byteStream.Stream != null)
+        {
+            byteStream.Stream.Read(oneByteArray, 0, 1);
+            return oneByteArray[0];
+        } 
+        else if (readBytes < byteStream.ByteArray!.Length)
+        {
+            return byteStream.ByteArray![readBytes++];
+        }
+        throw new Exception("Attempted to read beyond the end of the stream");
     }
 
     public void ReleaseStream()
     {
         // Stream.ReleaseStream();
-        Stream = null!;
+        byteStream = default;
     }
 
     public void CloseStream()
     {
-        Stream?.Close();
+        if (byteStream.Stream != null)
+        {
+            byteStream.Stream.Close();
+        }
     }
 
     public void Normalize()
     {
         while (Range < TopValue)
         {
-            Code = (Code << 8) | (byte)Stream!.ReadByte();
+            Code  =   (Code << 8) | ReadByte();
             Range <<= 8;
         }
     }
@@ -168,7 +211,7 @@ internal class RangeDecoder
     {
         if (Range < TopValue)
         {
-            Code = (Code << 8) | (byte)Stream!.ReadByte();
+            Code  =   (Code << 8) | ReadByte();
             Range <<= 8;
         }
     }
@@ -204,7 +247,7 @@ internal class RangeDecoder
 
             if (range < TopValue)
             {
-                code = (code << 8) | (byte)Stream!.ReadByte();
+                code  =   (code << 8) | ReadByte();
                 range <<= 8;
             }
         }

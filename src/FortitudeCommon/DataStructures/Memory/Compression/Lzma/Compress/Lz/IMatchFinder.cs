@@ -6,7 +6,7 @@ namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
 
 internal interface IInWindowStream
 {
-    void SetStream(Stream inStream);
+    void SetStream(ByteStream inStream);
     void Init();
     void ReleaseStream();
     byte GetIndexByte(int index);
@@ -20,5 +20,5 @@ internal interface IMatchFinder : IInWindowStream
         uint matchMaxLen, uint keepAddBufferAfter);
 
     uint GetMatches(uint[] distances);
-    void Skip(uint num);
+    void Process(uint num, IInWindow? contextInput = null);
 }
