@@ -11,13 +11,14 @@ namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
 
 public unsafe class VirtualMemoryByteArrayEnumerator : IEnumerator<byte>
 {
-    private readonly long                        arrayOffset;
-    private readonly int                         length;
+    private readonly long arrayOffset;
+    private readonly long length;
+
     private readonly IVirtualMemoryAddressRange? mappedViewRegion;
 
     private long currPos = -1;
 
-    public VirtualMemoryByteArrayEnumerator(IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset, int length)
+    public VirtualMemoryByteArrayEnumerator(IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset, long length)
     {
         this.mappedViewRegion = mappedViewRegion;
         this.arrayOffset      = arrayOffset;

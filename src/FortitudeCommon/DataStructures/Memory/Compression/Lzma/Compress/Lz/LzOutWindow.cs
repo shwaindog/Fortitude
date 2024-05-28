@@ -2,18 +2,19 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
+using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
 
-public class OutWindow
+public class OutWindow : IOutWindow
 {
     private byte[]  buffer = null!;
     private uint    pos;
     private Stream? stream;
     private uint    streamPos;
     private uint    windowSize = 0;
-
-    public uint TrainSize = 0;
-
+    public uint TrainSize { get; private set; }
+    
     public void Create(uint windowSize)
     {
         if (this.windowSize != windowSize)
@@ -41,23 +42,14 @@ public class OutWindow
         var len = stream.Length;
         var size = len < windowSize ? (uint)len : windowSize;
         TrainSize = size;
-        stream.Position = len - size;
-        streamPos = pos = 0;
-        while (size > 0)
-        {
-            var curSize = windowSize - pos;
-            if (size < curSize)
-                curSize = size;
-            var numReadBytes = stream.Read(buffer, (int)pos, (int)curSize);
-            if (numReadBytes == 0)
-                return false;
-            size -= (uint)numReadBytes;
-            pos += (uint)numReadBytes;
-            streamPos += (uint)numReadBytes;
-            if (pos == windowSize)
-                streamPos = pos = 0;
-        }
+        return true;
+    }
 
+    public bool Train(IByteArray stream)
+    {
+        var len  = stream.Length;
+        var size = len < windowSize ? (uint)len : windowSize;
+        TrainSize = (uint)size;
         return true;
     }
 

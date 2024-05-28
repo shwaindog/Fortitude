@@ -4,7 +4,7 @@
 
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Coders;
 
-internal abstract class Base
+internal sealed class LzmaCodecConstants
 {
     public const uint NumRepDistances = 4;
     public const uint NumStates = 12;

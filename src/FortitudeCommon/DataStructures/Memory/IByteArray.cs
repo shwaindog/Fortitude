@@ -11,12 +11,12 @@ namespace FortitudeCommon.DataStructures.Memory;
 
 public interface IByteArray : IReadOnlyList<byte>, IDisposable
 {
-    int Length { get; }
+    long Length { get; }
     byte this[long index] { get; set; }
-    new int Count { get; }
-    void    SetLength(long newSize);
-    void    CopyTo(byte[] array, int arrayIndex);
-    void    Flush();
+    new long Count { get; }
+    void     SetLength(long newSize);
+    void     CopyTo(byte[] array, int arrayIndex);
+    void     Flush();
 }
 
 public class ObjectByteArrayWrapper : IByteArray
@@ -50,8 +50,8 @@ public class ObjectByteArrayWrapper : IByteArray
         backingArray = replacementArray;
     }
 
-    public int     Length => backingArray.Length;
-    int IByteArray.Count  => Count;
+    public long     Length => backingArray.Length;
+    long IByteArray.Count  => Count;
 
     public void CopyTo(byte[] array, int arrayIndex)
     {

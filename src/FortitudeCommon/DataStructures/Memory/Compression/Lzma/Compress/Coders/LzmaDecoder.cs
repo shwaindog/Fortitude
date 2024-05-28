@@ -11,40 +11,41 @@ using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder
 
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Coders;
 
-public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
+public class Decoder : ILzmaDecoder // ,System.IO.Stream
 {
     private bool solid = false;
 
     private uint dictionarySize;
     private uint dictionarySizeCheck;
 
-    private BitDecoder[] isMatchDecoders = new BitDecoder[Base.NumStates << Base.NumPosStatesBitsMax];
-    private BitDecoder[] isRep0LongDecoders = new BitDecoder[Base.NumStates << Base.NumPosStatesBitsMax];
-    private BitDecoder[] isRepDecoders = new BitDecoder[Base.NumStates];
-    private BitDecoder[] isRepG0Decoders = new BitDecoder[Base.NumStates];
-    private BitDecoder[] isRepG1Decoders = new BitDecoder[Base.NumStates];
-    private BitDecoder[] isRepG2Decoders = new BitDecoder[Base.NumStates];
+    private BitDecoder[] isMatchDecoders = new BitDecoder[LzmaCodecConstants.NumStates << LzmaCodecConstants.NumPosStatesBitsMax];
+    private BitDecoder[] isRep0LongDecoders = new BitDecoder[LzmaCodecConstants.NumStates << LzmaCodecConstants.NumPosStatesBitsMax];
+    private BitDecoder[] isRepDecoders = new BitDecoder[LzmaCodecConstants.NumStates];
+    private BitDecoder[] isRepG0Decoders = new BitDecoder[LzmaCodecConstants.NumStates];
+    private BitDecoder[] isRepG1Decoders = new BitDecoder[LzmaCodecConstants.NumStates];
+    private BitDecoder[] isRepG2Decoders = new BitDecoder[LzmaCodecConstants.NumStates];
 
     private LenDecoder lenDecoder = new();
 
     private LiteralDecoder literalDecoder = new();
 
-    private OutWindow outWindow = new();
+    private IOutWindow outWindow;
 
-    private BitTreeDecoder posAlignDecoder = new(Base.NumAlignBits);
-    private BitDecoder[] posDecoders = new BitDecoder[Base.NumFullDistances - Base.EndPosModelIndex];
+    private BitTreeDecoder posAlignDecoder = new(LzmaCodecConstants.NumAlignBits);
+    private BitDecoder[] posDecoders = new BitDecoder[LzmaCodecConstants.NumFullDistances - LzmaCodecConstants.EndPosModelIndex];
 
-    private BitTreeDecoder[] posSlotDecoder = new BitTreeDecoder[Base.NumLenToPosStates];
+    private BitTreeDecoder[] posSlotDecoder = new BitTreeDecoder[LzmaCodecConstants.NumLenToPosStates];
 
     private uint posStateMask;
-    private FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder.RangeDecoder rangeDecoder = new();
+    private RangeDecoder rangeDecoder = new();
     private LenDecoder repLenDecoder = new();
 
-    public Decoder()
+    public Decoder(IOutWindow? outWindow)
     {
+        this.outWindow = outWindow ?? new OutWindow();
         dictionarySize = 0xFFFFFFFF;
-        for (var i = 0; i < Base.NumLenToPosStates; i++)
-            posSlotDecoder[i] = new BitTreeDecoder(Base.NumPosSlotBits);
+        for (var i = 0; i < LzmaCodecConstants.NumLenToPosStates; i++)
+            posSlotDecoder[i] = new BitTreeDecoder(LzmaCodecConstants.NumPosSlotBits);
     }
 
     private void SetDictionarySize(uint dictionarySize)
@@ -69,7 +70,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
 
     private void SetPosBitsProperties(int pb)
     {
-        if (pb > Base.NumPosStatesBitsMax)
+        if (pb > LzmaCodecConstants.NumPosStatesBitsMax)
             throw new InvalidParamException();
         var numPosStates = (uint)1 << pb;
         lenDecoder.Create(numPosStates);
@@ -77,17 +78,44 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
         posStateMask = numPosStates - 1;
     }
 
-    private void Init(Stream inStream, Stream outStream)
+    private void Init(ByteStream inStream, ByteStream outStream)
     {
         rangeDecoder.Init(inStream);
-        outWindow.Init(outStream, solid);
+        if (outStream.Stream != null)
+        {
+            outWindow = new OutWindow();
+            outWindow.Init(outStream.Stream, solid);
+        }
+        else
+        {
+            outWindow = new DirectBufferOutWindow(outStream.ByteArray!);
+        }
+        byte[] properties = new byte[5];
+
+        int readBytes;
+        if (inStream.Stream != null)
+        {
+            readBytes = inStream.Stream.Read(properties, 0, 5);
+        }
+        else
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                properties[j] = inStream.ByteArray![j];
+            }
+            readBytes = 5;
+        }
+        if (readBytes != 5)
+            throw (new Exception("input .lzma is too short"));
+        SetDecoderProperties(properties);
+
 
         uint i;
-        for (i = 0; i < Base.NumStates; i++)
+        for (i = 0; i < LzmaCodecConstants.NumStates; i++)
         {
             for (uint j = 0; j <= posStateMask; j++)
             {
-                var index = (i << Base.NumPosStatesBitsMax) + j;
+                var index = (i << LzmaCodecConstants.NumPosStatesBitsMax) + j;
                 isMatchDecoders[index].Init();
                 isRep0LongDecoders[index].Init();
             }
@@ -99,10 +127,10 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
         }
 
         literalDecoder.Init();
-        for (i = 0; i < Base.NumLenToPosStates; i++)
+        for (i = 0; i < LzmaCodecConstants.NumLenToPosStates; i++)
             posSlotDecoder[i].Init();
         // m_PosSpecDecoder.Init();
-        for (i = 0; i < Base.NumFullDistances - Base.EndPosModelIndex; i++)
+        for (i = 0; i < LzmaCodecConstants.NumFullDistances - LzmaCodecConstants.EndPosModelIndex; i++)
             posDecoders[i].Init();
 
         lenDecoder.Init();
@@ -110,12 +138,19 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
         posAlignDecoder.Init();
     }
 
-    public void Code(Stream inStream, Stream outStream,
-        long inSize, long outSize, ICodeProgress progress)
+    public void Decompress(ByteStream inStream, ByteStream outStream, ICodecProgress? progress = null)
     {
         Init(inStream, outStream);
-
-        var state = new Base.State();
+        
+        long outSize = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            int v = inStream.Stream != null ? inStream.Stream.ReadByte() : inStream.ByteArray![0];
+            if (v < 0)
+                throw (new Exception("Can't Read 1"));
+            outSize |= ((long)(byte)v) << (8 * i);
+        }
+        var state = new LzmaCodecConstants.State();
         state.Init();
         uint rep0 = 0, rep1 = 0, rep2 = 0, rep3 = 0;
 
@@ -123,7 +158,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
         var outSize64 = (ulong)outSize;
         if (nowPos64 < outSize64)
         {
-            if (isMatchDecoders[state.Index << Base.NumPosStatesBitsMax].Decode(rangeDecoder) != 0)
+            if (isMatchDecoders[state.Index << LzmaCodecConstants.NumPosStatesBitsMax].Decode(rangeDecoder) != 0)
                 throw new DataErrorException();
             state.UpdateChar();
             var b = literalDecoder.DecodeNormal(rangeDecoder, 0, 0);
@@ -136,7 +171,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
             // while(nowPos64 < next)
         {
             var posState = (uint)nowPos64 & posStateMask;
-            if (isMatchDecoders[(state.Index << Base.NumPosStatesBitsMax) + posState].Decode(rangeDecoder) == 0)
+            if (isMatchDecoders[(state.Index << LzmaCodecConstants.NumPosStatesBitsMax) + posState].Decode(rangeDecoder) == 0)
             {
                 byte b;
                 var prevByte = outWindow.GetByte(0);
@@ -156,7 +191,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
                 {
                     if (isRepG0Decoders[state.Index].Decode(rangeDecoder) == 0)
                     {
-                        if (isRep0LongDecoders[(state.Index << Base.NumPosStatesBitsMax) + posState].Decode(rangeDecoder) == 0)
+                        if (isRep0LongDecoders[(state.Index << LzmaCodecConstants.NumPosStatesBitsMax) + posState].Decode(rangeDecoder) == 0)
                         {
                             state.UpdateShortRep();
                             outWindow.PutByte(outWindow.GetByte(rep0));
@@ -190,7 +225,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
                         rep0 = distance;
                     }
 
-                    len = repLenDecoder.Decode(rangeDecoder, posState) + Base.MatchMinLen;
+                    len = repLenDecoder.Decode(rangeDecoder, posState) + LzmaCodecConstants.MatchMinLen;
                     state.UpdateRep();
                 }
                 else
@@ -198,14 +233,14 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
                     rep3 = rep2;
                     rep2 = rep1;
                     rep1 = rep0;
-                    len = Base.MatchMinLen + lenDecoder.Decode(rangeDecoder, posState);
+                    len = LzmaCodecConstants.MatchMinLen + lenDecoder.Decode(rangeDecoder, posState);
                     state.UpdateMatch();
-                    var posSlot = posSlotDecoder[Base.GetLenToPosState(len)].Decode(rangeDecoder);
-                    if (posSlot >= Base.StartPosModelIndex)
+                    var posSlot = posSlotDecoder[LzmaCodecConstants.GetLenToPosState(len)].Decode(rangeDecoder);
+                    if (posSlot >= LzmaCodecConstants.StartPosModelIndex)
                     {
                         var numDirectBits = (int)((posSlot >> 1) - 1);
                         rep0 = (2 | (posSlot & 1)) << numDirectBits;
-                        if (posSlot < Base.EndPosModelIndex)
+                        if (posSlot < LzmaCodecConstants.EndPosModelIndex)
                         {
                             rep0 += BitTreeDecoder.ReverseDecode(posDecoders,
                                 rep0 - posSlot - 1, rangeDecoder, numDirectBits);
@@ -213,7 +248,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
                         else
                         {
                             rep0 += rangeDecoder.DecodeDirectBits(
-                                numDirectBits - Base.NumAlignBits) << Base.NumAlignBits;
+                                numDirectBits - LzmaCodecConstants.NumAlignBits) << LzmaCodecConstants.NumAlignBits;
                             rep0 += posAlignDecoder.ReverseDecode(rangeDecoder);
                         }
                     }
@@ -248,7 +283,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
         var remainder = properties[0] / 9;
         var lp = remainder % 5;
         var pb = remainder / 5;
-        if (pb > Base.NumPosStatesBitsMax)
+        if (pb > LzmaCodecConstants.NumPosStatesBitsMax)
             throw new InvalidParamException();
         uint dictionarySize = 0;
         for (var i = 0; i < 4; i++)
@@ -258,27 +293,21 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
         SetPosBitsProperties(pb);
     }
 
-    public bool Train(Stream stream)
-    {
-        solid = true;
-        return outWindow.Train(stream);
-    }
-
     private class LenDecoder
     {
         private BitDecoder choice = new();
         private BitDecoder choice2 = new();
-        private BitTreeDecoder highCoder = new(Base.NumHighLenBits);
-        private BitTreeDecoder[] lowCoder = new BitTreeDecoder[Base.NumPosStatesMax];
-        private BitTreeDecoder[] midCoder = new BitTreeDecoder[Base.NumPosStatesMax];
+        private BitTreeDecoder highCoder = new(LzmaCodecConstants.NumHighLenBits);
+        private BitTreeDecoder[] lowCoder = new BitTreeDecoder[LzmaCodecConstants.NumPosStatesMax];
+        private BitTreeDecoder[] midCoder = new BitTreeDecoder[LzmaCodecConstants.NumPosStatesMax];
         private uint numPosStates = 0;
 
         public void Create(uint numPosStates)
         {
             for (var posState = this.numPosStates; posState < numPosStates; posState++)
             {
-                lowCoder[posState] = new BitTreeDecoder(Base.NumLowLenBits);
-                midCoder[posState] = new BitTreeDecoder(Base.NumMidLenBits);
+                lowCoder[posState] = new BitTreeDecoder(LzmaCodecConstants.NumLowLenBits);
+                midCoder[posState] = new BitTreeDecoder(LzmaCodecConstants.NumMidLenBits);
             }
 
             this.numPosStates = numPosStates;
@@ -297,7 +326,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
             highCoder.Init();
         }
 
-        public uint Decode(FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder.RangeDecoder rangeDecoder, uint posState)
+        public uint Decode(RangeDecoder rangeDecoder, uint posState)
         {
             if (choice.Decode(rangeDecoder) == 0)
             {
@@ -305,14 +334,14 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
             }
             else
             {
-                var symbol = Base.NumLowLenSymbols;
+                var symbol = LzmaCodecConstants.NumLowLenSymbols;
                 if (choice2.Decode(rangeDecoder) == 0)
                 {
                     symbol += midCoder[posState].Decode(rangeDecoder);
                 }
                 else
                 {
-                    symbol += Base.NumMidLenSymbols;
+                    symbol += LzmaCodecConstants.NumMidLenSymbols;
                     symbol += highCoder.Decode(rangeDecoder);
                 }
 
@@ -351,11 +380,11 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
 
         private uint GetState(uint pos, byte prevByte) => ((pos & posMask) << numPrevBits) + (uint)(prevByte >> (8 - numPrevBits));
 
-        public byte DecodeNormal(FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder.RangeDecoder rangeDecoder, uint pos
+        public byte DecodeNormal(RangeDecoder rangeDecoder, uint pos
             , byte prevByte) =>
             coders![GetState(pos, prevByte)].DecodeNormal(rangeDecoder);
 
-        public byte DecodeWithMatchByte(FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder.RangeDecoder rangeDecoder, uint pos
+        public byte DecodeWithMatchByte(RangeDecoder rangeDecoder, uint pos
             , byte prevByte, byte matchByte) =>
             coders![GetState(pos, prevByte)].DecodeWithMatchByte(rangeDecoder, matchByte);
 
@@ -373,7 +402,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
                 for (var i = 0; i < 0x300; i++) decoders[i].Init();
             }
 
-            public byte DecodeNormal(FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder.RangeDecoder rangeDecoder)
+            public byte DecodeNormal(RangeDecoder rangeDecoder)
             {
                 uint symbol = 1;
                 do
@@ -384,7 +413,7 @@ public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
                 return (byte)symbol;
             }
 
-            public byte DecodeWithMatchByte(FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder.RangeDecoder rangeDecoder
+            public byte DecodeWithMatchByte(RangeDecoder rangeDecoder
                 , byte matchByte)
             {
                 uint symbol = 1;

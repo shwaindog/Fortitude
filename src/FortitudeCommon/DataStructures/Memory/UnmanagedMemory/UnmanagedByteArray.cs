@@ -36,7 +36,7 @@ public unsafe class UnmanagedByteArray : IByteArray
         for (var i = 0; i < Length; i++) array[arrayIndex + i] = *(mappedViewRegion!.StartAddress + arrayOffset + i);
     }
 
-    int IReadOnlyCollection<byte>.Count => Length;
+    int IReadOnlyCollection<byte>.Count => (int)Length;
 
     byte IReadOnlyList<byte>.this[int index] => this[index];
 
@@ -70,9 +70,9 @@ public unsafe class UnmanagedByteArray : IByteArray
         mappedViewRegion?.Flush();
     }
 
-    public int Length { get; private set; }
+    public long Length { get; private set; }
 
-    int IByteArray.Count => Length;
+    long IByteArray.Count => Length;
 
     public void Dispose()
     {
