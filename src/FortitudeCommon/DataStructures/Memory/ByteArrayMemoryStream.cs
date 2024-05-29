@@ -18,15 +18,17 @@ public interface IAcceptsByteArrayStream : IStream
 public class ByteArrayMemoryStream : Stream, IAcceptsByteArrayStream
 {
     private readonly IByteArray byteArray;
-    private readonly bool       closeByteArrayOnDispose;
-    private readonly bool       writable;
+
+    private readonly bool writable;
 
     public ByteArrayMemoryStream(IByteArray byteArray, bool writable, bool closeByteArrayOnDispose = true)
     {
-        this.byteArray               = byteArray;
-        this.writable                = writable;
-        this.closeByteArrayOnDispose = closeByteArrayOnDispose;
+        this.byteArray          = byteArray;
+        this.writable           = writable;
+        CloseByteArrayOnDispose = closeByteArrayOnDispose;
     }
+
+    public bool CloseByteArrayOnDispose { get; set; }
 
     public override bool CanRead  => Position < byteArray.Length;
     public override bool CanSeek  => true;
@@ -114,13 +116,15 @@ public class ByteArrayMemoryStream : Stream, IAcceptsByteArrayStream
 
     public override void Close()
     {
-        if (closeByteArrayOnDispose) byteArray.Dispose();
+        if (CloseByteArrayOnDispose) byteArray.Dispose();
         base.Close();
     }
 
+    public ByteArrayMemoryStream ReopenStream() => new(byteArray, writable, CloseByteArrayOnDispose);
+
     protected override void Dispose(bool disposing)
     {
-        if (closeByteArrayOnDispose && disposing) byteArray.Dispose();
+        if (CloseByteArrayOnDispose && disposing) byteArray.Dispose();
         base.Dispose(disposing);
     }
 }

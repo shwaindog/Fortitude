@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

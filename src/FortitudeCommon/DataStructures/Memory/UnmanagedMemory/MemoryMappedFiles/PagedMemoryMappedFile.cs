@@ -43,6 +43,13 @@ public unsafe class MappedViewRegion : IVirtualMemoryAddressRange
         originPagedMemoryMappedFile?.Flush(this, StartFileCursorOffset, SizeBytes);
     }
 
+    public UnmanagedByteArray CreateUnmanagedByteArrayInThisView(long viewOffset, int length)
+    {
+        if (viewOffset + length > (nint)EndAddress)
+            throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
+        return new UnmanagedByteArray(this, viewOffset, length);
+    }
+
     public void Dispose()
     {
         originPagedMemoryMappedFile?.FreeChunk(this);
@@ -106,23 +113,25 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
     public PagedMemoryMappedFile(string filePath, int initialFileSizePages = 2)
     {
         IncrementUsageCount();
-        var initialFileSize                       = PageSize * Math.Max(2, initialFileSizePages);
-        if (initialFileSize <= 0) initialFileSize = PageSize * 2;
+        var initialMinimumFileSize                              = PageSize * Math.Max(2, initialFileSizePages);
+        if (initialMinimumFileSize <= 0) initialMinimumFileSize = PageSize * 2;
 
         var existingFile = File.Exists(filePath);
         fileStream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
         if (existingFile)
         {
             var fileSize = fileStream.Length;
-            if (fileStream.Length < initialFileSize || fileStream.Length % initialFileSize != 0)
+            if (fileStream.Length < initialMinimumFileSize || fileStream.Length % initialMinimumFileSize != 0)
             {
-                var growFileSize = fileSize % initialFileSize + fileSize;
+                var unMatchedSize = fileSize % initialMinimumFileSize;
+                var growAmount    = initialMinimumFileSize - unMatchedSize;
+                var growFileSize  = fileSize + growAmount;
                 fileStream.SetLength(growFileSize);
             }
         }
         else
         {
-            fileStream.SetLength(initialFileSize);
+            fileStream.SetLength(initialMinimumFileSize);
         }
     }
 
@@ -196,7 +205,7 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         return result;
     }
 
-    public UnmanagedByteArray CreateVirtualMemoryMappedByteArray(long fileCursorPosition, int length)
+    public UnmanagedByteArray CreateUnmanagedByteArray(long fileCursorPosition, int length)
     {
         CheckDisposed();
         var pageStart   = (int)(fileCursorPosition / PageSize);
@@ -207,9 +216,8 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         var viewRegion    = CreateMappedViewRegion("VirtualMemoryMappedByteArray", pageStart, numberOfPages, null);
         if (viewRegion!.StartFileCursorOffset > fileCursorPosition)
             throw new Exception("Memory mapped file view does not match expected file position");
-        var viewOffset       = fileCursorPosition - viewRegion.StartFileCursorOffset;
-        var virtualByteArray = new UnmanagedByteArray(viewRegion, viewOffset, length);
-        return virtualByteArray;
+        var viewOffset = fileCursorPosition - viewRegion.StartFileCursorOffset;
+        return viewRegion.CreateUnmanagedByteArrayInThisView(viewOffset, length);
     }
 
     public MemoryMappedFileBuffer CreateMemoryMappedBuffer(long fileCursorPosition, string viewName, int halfViewPageSize = 1

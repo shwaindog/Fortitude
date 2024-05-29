@@ -44,5 +44,6 @@ public static class MemoryUtils
         return new UnmanagedByteArray(virtualMemoryRange, 0, size);
     }
 
-    public static ByteArrayMemoryStream CreateByteArrayMemoryStream(long size) => new(CreateUnmanagedByteArray(size), true);
+    public static ByteArrayMemoryStream CreateByteArrayMemoryStream(long size, bool writable = true, bool closeByteArrayOnDispose = true) =>
+        new(CreateUnmanagedByteArray(size), writable, closeByteArrayOnDispose);
 }
