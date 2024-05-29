@@ -29,18 +29,20 @@ public static class MemoryUtils
 
     public static unsafe void* MemCpy(void* dest, void* src, ulong count) => OsDirectMemoryAccess.memcpy(dest, src, count);
 
-    public static unsafe IVirtualMemoryAddressRange AllocVirtualMemory(int size)
+    public static unsafe IVirtualMemoryAddressRange AllocVirtualMemory(long size)
     {
         var osDirectMemoryApi = OsDirectMemoryAccess;
-        var numberOfPages     = Math.Max(1, (int)(size / osDirectMemoryApi.MinimumRequiredPageSize));
+        var numberOfPages     = Math.Max(1, (int)(size / osDirectMemoryApi.MinimumRequiredPageSize + 1));
         var addressStart      = osDirectMemoryApi.ReserveMemoryRangeInPages(null, numberOfPages);
         osDirectMemoryApi.CommitPageMemory(addressStart, numberOfPages);
         return new DisposableVirtualMemoryRange(osDirectMemoryApi, (byte*)addressStart, numberOfPages);
     }
 
-    public static IByteArray CreateUnmanagedByteArray(int size)
+    public static IByteArray CreateUnmanagedByteArray(long size)
     {
         var virtualMemoryRange = AllocVirtualMemory(size);
         return new UnmanagedByteArray(virtualMemoryRange, 0, size);
     }
+
+    public static ByteArrayMemoryStream CreateByteArrayMemoryStream(long size) => new(CreateUnmanagedByteArray(size), true);
 }

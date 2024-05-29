@@ -67,6 +67,8 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
 
     public string FileName => pagedMemoryMappedFile.FileStream.Name;
 
+    public long FileSize => pagedMemoryMappedFile.Length;
+
     public long HighestFileCursor =>
         IsUpperViewAvailableForContiguousReadWrite
             ? upperViewContiguousChunk!.StartFileCursorOffset + HalfViewSizeBytes

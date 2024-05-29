@@ -2,6 +2,8 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
+using FortitudeCommon.OSWrapper.Streams;
+
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma;
 
 /// <summary>
@@ -34,13 +36,11 @@ public interface ICodecProgress
     void SetProgress(long inSize, long outSize);
 };
 
-public struct ByteStream
+public enum MatchFinderType
 {
-    public ByteStream(Stream stream) => Stream = stream;
-    public ByteStream(IByteArray byteArray) => ByteArray = byteArray;
-    public Stream?     Stream    { get; }
-    public IByteArray? ByteArray { get; }
-}
+    BT2
+  , BT4
+};
 
 public struct LzmaEncoderParams
 {
@@ -52,25 +52,25 @@ public struct LzmaEncoderParams
         LitPosBits     = 0;
         Algorithm      = 2;
         NumFastBytes   = 128;
-        MatchFinder    = "bt4";
+        MatchFinder    = MatchFinderType.BT4;
         HasEOS         = false;
         InputSize      = -1;
         OutputSize     = -1;
     }
 
-    public int    DictionarySize { get; set; }
-    public int    PosStateBits   { get; set; }
-    public int    LitContextBits { get; set; }
-    public int    LitPosBits     { get; set; }
-    public int    Algorithm      { get; set; }
-    public int    NumFastBytes   { get; set; }
-    public string MatchFinder    { get; set; }
-    public bool   HasEOS         { get; set; }
-    public long   InputSize      { get; set; }
-    public long   OutputSize     { get; set; }
+    public int  DictionarySize { get; set; }
+    public int  PosStateBits   { get; set; }
+    public int  LitContextBits { get; set; }
+    public int  LitPosBits     { get; set; }
+    public int  Algorithm      { get; set; }
+    public int  NumFastBytes   { get; set; }
+    public bool HasEOS         { get; set; }
+    public long InputSize      { get; set; }
+    public long OutputSize     { get; set; }
 
-    public ByteStream?     TrainStream    { get; set; }
-    public ICodecProgress? CodecProgress  { get; set; }
+    public MatchFinderType MatchFinder   { get; set; }
+    public IStream?        TrainStream   { get; set; }
+    public ICodecProgress? CodecProgress { get; set; }
 }
 
 /*
@@ -164,14 +164,3 @@ public enum CoderPropID
     /// </summary>
   , EndMarker
 };
-
-public interface ILzmaEncoder
-{
-    void Compress(LzmaEncoderParams encoderParams, ByteStream inStream, ByteStream outStream);
-}
-
-public interface ILzmaDecoder
-{
-    void Decompress(ByteStream inStream, ByteStream outStream, ICodecProgress? progress = null);
-    void SetDecoderProperties(byte[] properties);
-}

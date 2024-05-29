@@ -9,7 +9,7 @@ using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace FortitudeTests.FortitudeCommon.OSWrapper.Memory;
+namespace FortitudeTests.FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 
 [TestClass]
 public class PagedMemoryMappedFileTests

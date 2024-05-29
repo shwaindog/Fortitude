@@ -2,7 +2,7 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder;
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Coders;
 
 internal struct BitEncoder
 {
@@ -22,7 +22,7 @@ internal struct BitEncoder
     public void UpdateModel(uint symbol)
     {
         if (symbol == 0)
-            Prob += (BitModelTotal - Prob) >> NumMoveBits;
+            Prob += BitModelTotal - Prob >> NumMoveBits;
         else
             Prob -= Prob >> NumMoveBits;
     }
@@ -35,7 +35,7 @@ internal struct BitEncoder
         if (symbol == 0)
         {
             rangeEncoder.Range = newBound;
-            Prob += (BitModelTotal - Prob) >> NumMoveBits;
+            Prob += BitModelTotal - Prob >> NumMoveBits;
         }
         else
         {
@@ -58,17 +58,17 @@ internal struct BitEncoder
         const int NumBits = NumBitModelTotalBits - NumMoveReducingBits;
         for (var i = NumBits - 1; i >= 0; i--)
         {
-            var start = (uint)1 << (NumBits - i - 1);
-            var end = (uint)1 << (NumBits - i);
+            var start = (uint)1 << NumBits - i - 1;
+            var end = (uint)1 << NumBits - i;
             for (var j = start; j < end; j++)
                 ProbPrices[j] = ((uint)i << NumBitPriceShiftBits) +
-                                (((end - j) << NumBitPriceShiftBits) >> (NumBits - i - 1));
+                                (end - j << NumBitPriceShiftBits >> NumBits - i - 1);
         }
     }
 
-    public uint GetPrice(uint symbol) => ProbPrices[(((Prob - symbol) ^ -(int)symbol) & (BitModelTotal - 1)) >> NumMoveReducingBits];
+    public uint GetPrice(uint symbol) => ProbPrices[((Prob - symbol ^ -(int)symbol) & BitModelTotal - 1) >> NumMoveReducingBits];
     public uint GetPrice0() => ProbPrices[Prob >> NumMoveReducingBits];
-    public uint GetPrice1() => ProbPrices[(BitModelTotal - Prob) >> NumMoveReducingBits];
+    public uint GetPrice1() => ProbPrices[BitModelTotal - Prob >> NumMoveReducingBits];
 }
 
 internal struct BitDecoder
@@ -82,7 +82,7 @@ internal struct BitDecoder
     public void UpdateModel(int numMoveBits, uint symbol)
     {
         if (symbol == 0)
-            Prob += (BitModelTotal - Prob) >> numMoveBits;
+            Prob += BitModelTotal - Prob >> numMoveBits;
         else
             Prob -= Prob >> numMoveBits;
     }
@@ -94,14 +94,14 @@ internal struct BitDecoder
 
     public uint Decode(RangeDecoder rangeDecoder)
     {
-        var newBound = (uint)(rangeDecoder.Range >> NumBitModelTotalBits) * (uint)Prob;
+        var newBound = (rangeDecoder.Range >> NumBitModelTotalBits) * Prob;
         if (rangeDecoder.Code < newBound)
         {
             rangeDecoder.Range = newBound;
-            Prob += (BitModelTotal - Prob) >> NumMoveBits;
+            Prob += BitModelTotal - Prob >> NumMoveBits;
             if (rangeDecoder.Range < RangeDecoder.TopValue)
             {
-                rangeDecoder.Code  =   (rangeDecoder.Code << 8) | (byte)rangeDecoder.ReadByte();
+                rangeDecoder.Code = rangeDecoder.Code << 8 | rangeDecoder.ReadByte();
                 rangeDecoder.Range <<= 8;
             }
 
@@ -114,7 +114,7 @@ internal struct BitDecoder
             Prob -= Prob >> NumMoveBits;
             if (rangeDecoder.Range < RangeDecoder.TopValue)
             {
-                rangeDecoder.Code  =   (rangeDecoder.Code << 8) | (byte)rangeDecoder.ReadByte();
+                rangeDecoder.Code = rangeDecoder.Code << 8 | rangeDecoder.ReadByte();
                 rangeDecoder.Range <<= 8;
             }
 

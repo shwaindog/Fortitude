@@ -2,7 +2,9 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder;
+using FortitudeCommon.OSWrapper.Streams;
+
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Coders;
 
 internal class RangeEncoder
 {
@@ -15,21 +17,20 @@ internal class RangeEncoder
 
     private long StartPosition;
 
-    private ByteStream byteStream;
+    private IStream byteStream = null!;
 
-    private long   streamOffset = 5;
-    private byte[] oneByteArray = new byte[1];
+    private long streamOffset = 5;
 
-    private long ByteStreamPos => byteStream.Stream?.Position ?? streamOffset;
+    private long ByteStreamPos => byteStream.Position;
 
-    public void SetStream(ByteStream stream)
+    public void SetStream(IStream stream)
     {
         byteStream = stream;
     }
 
     public void ReleaseStream()
     {
-        byteStream = default;
+        byteStream = null!;
     }
 
     public void Init()
@@ -50,22 +51,12 @@ internal class RangeEncoder
 
     public void FlushStream()
     {
-        if (byteStream.Stream != null)
-        {
-            byteStream.Stream.Flush();
-        }
-        else
-        {
-            byteStream.ByteArray!.Flush();
-        }
+        byteStream.Flush();
     }
 
     public void CloseStream()
     {
-        if (byteStream.Stream != null)
-        {
-            byteStream.Stream.Close();
-        }
+        byteStream.Close();
     }
 
     public void Encode(uint start, uint size, uint total)
@@ -81,21 +72,13 @@ internal class RangeEncoder
 
     public void ShiftLow()
     {
-        if ((uint)Low < (uint)0xFF000000 || (uint)(Low >> 32) == 1)
+        if ((uint)Low < 0xFF000000 || (uint)(Low >> 32) == 1)
         {
             var temp = cache;
             do
             {
                 var writeByte = (byte)(temp + (Low >> 32));
-                if (byteStream.Stream != null)
-                {
-                    oneByteArray[0] = writeByte;
-                    byteStream!.Stream.Write(oneByteArray, 0, 1);
-                }
-                else if(streamOffset < byteStream.ByteArray!.Length)
-                {
-                    byteStream.ByteArray![streamOffset++] = writeByte;
-                }
+                byteStream!.WriteByte(writeByte);
                 temp = 0xFF;
             } while (--cacheSize != 0);
 
@@ -111,7 +94,7 @@ internal class RangeEncoder
         for (var i = numTotalBits - 1; i >= 0; i--)
         {
             Range >>= 1;
-            if (((v >> i) & 1) == 1)
+            if ((v >> i & 1) == 1)
                 Low += Range;
             if (Range < TopValue)
             {
@@ -154,10 +137,9 @@ internal class RangeDecoder
     public uint Range;
 
     // public Buffer.InBuffer Stream = new Buffer.InBuffer(1 << 16);
-    public  ByteStream byteStream;
-    private byte[]     oneByteArray = new byte[1];
+    public  IStream byteStream = null!;
 
-    public void Init(ByteStream stream)
+    public void Init(IStream stream)
     {
         // Stream.Init(stream);
         byteStream = stream;
@@ -166,43 +148,31 @@ internal class RangeDecoder
         Range = 0xFFFFFFFF;
         for (var i = 0; i < 5; i++)
         {
-            Code = (Code << 8) | ReadByte();
+            Code = Code << 8 | ReadByte();
         }
     }
 
     public byte ReadByte()
     {
-        if (byteStream.Stream != null)
-        {
-            byteStream.Stream.Read(oneByteArray, 0, 1);
-            return oneByteArray[0];
-        } 
-        else if (readBytes < byteStream.ByteArray!.Length)
-        {
-            return byteStream.ByteArray![readBytes++];
-        }
-        throw new Exception("Attempted to read beyond the end of the stream");
+        return (byte)byteStream.ReadByte();
     }
 
     public void ReleaseStream()
     {
         // Stream.ReleaseStream();
-        byteStream = default;
+        byteStream = null!;
     }
 
     public void CloseStream()
     {
-        if (byteStream.Stream != null)
-        {
-            byteStream.Stream.Close();
-        }
+        byteStream.Close();
     }
 
     public void Normalize()
     {
         while (Range < TopValue)
         {
-            Code  =   (Code << 8) | ReadByte();
+            Code = Code << 8 | ReadByte();
             Range <<= 8;
         }
     }
@@ -211,7 +181,7 @@ internal class RangeDecoder
     {
         if (Range < TopValue)
         {
-            Code  =   (Code << 8) | ReadByte();
+            Code = Code << 8 | ReadByte();
             Range <<= 8;
         }
     }
@@ -241,13 +211,13 @@ internal class RangeDecoder
                 result |= 1;
             }
             */
-            var t = (code - range) >> 31;
-            code -= range & (t - 1);
-            result = (result << 1) | (1 - t);
+            var t = code - range >> 31;
+            code -= range & t - 1;
+            result = result << 1 | 1 - t;
 
             if (range < TopValue)
             {
-                code  =   (code << 8) | ReadByte();
+                code = code << 8 | ReadByte();
                 range <<= 8;
             }
         }

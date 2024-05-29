@@ -2,7 +2,8 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder;
+
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Coders;
 
 internal struct BitTreeEncoder
 {
@@ -27,9 +28,9 @@ internal struct BitTreeEncoder
         for (var bitIndex = NumBitLevels; bitIndex > 0;)
         {
             bitIndex--;
-            var bit = (symbol >> bitIndex) & 1;
+            var bit = symbol >> bitIndex & 1;
             Models[m].Encode(rangeEncoder, bit);
-            m = (m << 1) | bit;
+            m = m << 1 | bit;
         }
     }
 
@@ -40,7 +41,7 @@ internal struct BitTreeEncoder
         {
             var bit = symbol & 1;
             Models[m].Encode(rangeEncoder, bit);
-            m = (m << 1) | bit;
+            m = m << 1 | bit;
             symbol >>= 1;
         }
     }
@@ -52,7 +53,7 @@ internal struct BitTreeEncoder
         for (var bitIndex = NumBitLevels; bitIndex > 0;)
         {
             bitIndex--;
-            var bit = (symbol >> bitIndex) & 1;
+            var bit = symbol >> bitIndex & 1;
             price += Models[m].GetPrice(bit);
             m = (m << 1) + bit;
         }
@@ -69,7 +70,7 @@ internal struct BitTreeEncoder
             var bit = symbol & 1;
             symbol >>= 1;
             price += Models[m].GetPrice(bit);
-            m = (m << 1) | bit;
+            m = m << 1 | bit;
         }
 
         return price;
@@ -85,7 +86,7 @@ internal struct BitTreeEncoder
             var bit = symbol & 1;
             symbol >>= 1;
             price += Models[startIndex + m].GetPrice(bit);
-            m = (m << 1) | bit;
+            m = m << 1 | bit;
         }
 
         return price;
@@ -99,7 +100,7 @@ internal struct BitTreeEncoder
         {
             var bit = symbol & 1;
             Models[startIndex + m].Encode(rangeEncoder, bit);
-            m = (m << 1) | bit;
+            m = m << 1 | bit;
             symbol >>= 1;
         }
     }

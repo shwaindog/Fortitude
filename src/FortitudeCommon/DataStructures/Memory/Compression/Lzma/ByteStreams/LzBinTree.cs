@@ -4,28 +4,29 @@
 
 
 using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Common;
+using FortitudeCommon.OSWrapper.Streams;
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;
 
 public class BinTree : IMatchFinder
 {
     private readonly IInWindow sourceWindow;
 
-    private const  uint  Hash2Size          = 1 << 10;
-    private const  uint  Hash3Size          = 1 << 16;
-    private const  uint  BT2HashSize        = 1 << 16;
-    private const  uint  StartMaxLen        = 1;
-    private const  uint  Hash3Offset        = Hash2Size;
-    private const  uint  EmptyHashValue     = 0;
-    private const  uint  MaxValForNormalize = ((uint)1 << 31) - 1;
+    private const uint Hash2Size = 1 << 10;
+    private const uint Hash3Size = 1 << 16;
+    private const uint BT2HashSize = 1 << 16;
+    private const uint StartMaxLen = 1;
+    private const uint Hash3Offset = Hash2Size;
+    private const uint EmptyHashValue = 0;
+    private const uint MaxValForNormalize = ((uint)1 << 31) - 1;
 
-    private uint    cutValue = 0xFF;
-    private uint    cyclicBufferPos;
-    private uint    cyclicBufferSize = 0;
+    private uint cutValue = 0xFF;
+    private uint cyclicBufferPos;
+    private uint cyclicBufferSize = 0;
     private uint[]? hash;
-    private uint    hashMask;
-    private uint    hashSizeSum = 0;
-    private uint    matchMaxLen;
+    private uint hashMask;
+    private uint hashSizeSum = 0;
+    private uint matchMaxLen;
 
     private uint[]? son;
 
@@ -38,11 +39,9 @@ public class BinTree : IMatchFinder
     public BinTree(IInWindow? sourceWindow = null)
     {
         this.sourceWindow = sourceWindow ?? new InWindow();
-        for (uint i = 0; i < hashSizeSum; i++)
-            hash![i] = EmptyHashValue;
     }
 
-    public void SetStream(ByteStream stream)
+    public void SetStream(IStream stream)
     {
         sourceWindow.SetStream(stream);
     }
@@ -55,6 +54,8 @@ public class BinTree : IMatchFinder
     public void Init()
     {
         sourceWindow.Init();
+        for (uint i = 0; i < hashSizeSum; i++)
+            hash![i] = EmptyHashValue;
         cyclicBufferPos = 0;
         sourceWindow.ReduceOffsets(-1);
     }
@@ -131,14 +132,14 @@ public class BinTree : IMatchFinder
         if (hashArray)
         {
             var temp = CRC.Table[sourceWindow.BufferBase[cur]] ^ sourceWindow.BufferBase[cur + 1];
-            hash2Value = temp & (Hash2Size - 1);
+            hash2Value = temp & Hash2Size - 1;
             temp ^= (uint)sourceWindow.BufferBase[cur + 2] << 8;
-            hash3Value = temp & (Hash3Size - 1);
-            hashValue = (temp ^ (CRC.Table[sourceWindow.BufferBase[cur + 3]] << 5)) & hashMask;
+            hash3Value = temp & Hash3Size - 1;
+            hashValue = (temp ^ CRC.Table[sourceWindow.BufferBase[cur + 3]] << 5) & hashMask;
         }
         else
         {
-            hashValue = sourceWindow.BufferBase[cur] ^ ((uint)sourceWindow.BufferBase[cur + 1] << 8);
+            hashValue = sourceWindow.BufferBase[cur] ^ (uint)sourceWindow.BufferBase[cur + 1] << 8;
         }
 
         var curMatch = hash![fixHashSize + hashValue];
@@ -205,7 +206,7 @@ public class BinTree : IMatchFinder
                 cyclicBufferPos - delta + cyclicBufferSize) << 1;
 
             var pby1 = sourceWindow.BufferOffset + curMatch;
-            var len  = Math.Min(len0, len1);
+            var len = Math.Min(len0, len1);
             if (sourceWindow.BufferBase[pby1 + len] == sourceWindow.BufferBase[cur + len])
             {
                 while (++len != lenLimit)
@@ -265,26 +266,26 @@ public class BinTree : IMatchFinder
             }
 
             var matchMinPos = contextInput.Pos > cyclicBufferSize ? contextInput.Pos - cyclicBufferSize : 0;
-            var cur         = contextInput.BufferOffset + contextInput.Pos;
+            var cur = contextInput.BufferOffset + contextInput.Pos;
 
             uint hashValue;
 
             if (hashArray)
             {
-                var temp      = CRC.Table[contextInput.BufferBase[cur]] ^ contextInput.BufferBase[cur + 1];
-                var hash2Value= temp & (Hash2Size - 1);
-                hash![hash2Value]  =  contextInput.Pos;
+                var temp = CRC.Table[contextInput.BufferBase[cur]] ^ contextInput.BufferBase[cur + 1];
+                var hash2Value = temp & Hash2Size - 1;
+                hash![hash2Value] = contextInput.Pos;
 
                 temp ^= (uint)contextInput.BufferBase[cur + 2] << 8;
 
-                var hash3Value = temp & (Hash3Size - 1);
+                var hash3Value = temp & Hash3Size - 1;
                 hash[Hash3Offset + hash3Value] = contextInput.Pos;
 
-                hashValue = (temp ^ (CRC.Table[contextInput.BufferBase[cur + 3]] << 5)) & hashMask;
+                hashValue = (temp ^ CRC.Table[contextInput.BufferBase[cur + 3]] << 5) & hashMask;
             }
             else
             {
-                hashValue = contextInput.BufferBase[cur] ^ ((uint)contextInput.BufferBase[cur + 1] << 8);
+                hashValue = contextInput.BufferBase[cur] ^ (uint)contextInput.BufferBase[cur + 1] << 8;
             }
 
             var curMatch = hash![fixHashSize + hashValue];
@@ -311,7 +312,7 @@ public class BinTree : IMatchFinder
                     cyclicBufferPos - delta + cyclicBufferSize) << 1;
 
                 var pby1 = contextInput.BufferOffset + curMatch;
-                var len  = Math.Min(len0, len1);
+                var len = Math.Min(len0, len1);
                 if (contextInput.BufferBase[pby1 + len] == contextInput.BufferBase[cur + len])
                 {
                     while (++len != lenLimit)

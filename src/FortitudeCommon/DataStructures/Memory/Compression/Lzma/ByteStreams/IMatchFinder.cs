@@ -2,11 +2,13 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
+using FortitudeCommon.OSWrapper.Streams;
+
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;
 
 internal interface IInWindowStream
 {
-    void SetStream(ByteStream inStream);
+    void SetStream(IStream inStream);
     void Init();
     void ReleaseStream();
     byte GetIndexByte(int index);

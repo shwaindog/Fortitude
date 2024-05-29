@@ -1,23 +1,31 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+#region
 
-public interface IAcceptsByteArrayStream
+using FortitudeCommon.OSWrapper.Streams;
+
+#endregion
+
+namespace FortitudeCommon.DataStructures.Memory;
+
+public interface IAcceptsByteArrayStream : IStream
 {
     int  Read(IByteArray buffer, int offset, int count);
     void Write(IByteArray buffer, int offset, int count);
 }
 
-public class UnmanagedMemoryStream : Stream, IAcceptsByteArrayStream
+public class ByteArrayMemoryStream : Stream, IAcceptsByteArrayStream
 {
     private readonly IByteArray byteArray;
+    private readonly bool       closeByteArrayOnDispose;
     private readonly bool       writable;
 
-    public UnmanagedMemoryStream(IByteArray byteArray, bool writable)
+    public ByteArrayMemoryStream(IByteArray byteArray, bool writable, bool closeByteArrayOnDispose = true)
     {
-        this.byteArray = byteArray;
-        this.writable  = writable;
+        this.byteArray               = byteArray;
+        this.writable                = writable;
+        this.closeByteArrayOnDispose = closeByteArrayOnDispose;
     }
 
     public override bool CanRead  => Position < byteArray.Length;
@@ -31,7 +39,7 @@ public class UnmanagedMemoryStream : Stream, IAcceptsByteArrayStream
         var remainingBytes = byteArray.Length - Position;
         var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
 
-        for (var i = offset; i < cappedSize; i++) buffer[i] = byteArray[(int)Position++];
+        for (var i = offset; i < offset + cappedSize; i++) buffer[i] = byteArray[(int)Position++];
         return (int)cappedSize;
     }
 
@@ -41,7 +49,7 @@ public class UnmanagedMemoryStream : Stream, IAcceptsByteArrayStream
         var remainingBytes = byteArray.Length - Position;
         var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
 
-        for (var i = offset; i < cappedSize; i++) byteArray[(int)Position++] = buffer[i];
+        for (var i = offset; i < offset + cappedSize; i++) byteArray[(int)Position++] = buffer[i];
     }
 
     public override void Flush()
@@ -54,7 +62,7 @@ public class UnmanagedMemoryStream : Stream, IAcceptsByteArrayStream
         var remainingBytes = byteArray.Length - Position;
         var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
 
-        for (var i = offset; i < cappedSize; i++) buffer[i] = byteArray[(int)Position++];
+        for (var i = offset; i < offset + cappedSize; i++) buffer[i] = byteArray[(int)Position++];
         return (int)cappedSize;
     }
 
@@ -93,6 +101,26 @@ public class UnmanagedMemoryStream : Stream, IAcceptsByteArrayStream
         var remainingBytes = byteArray.Length - Position;
         var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
 
-        for (var i = offset; i < cappedSize; i++) byteArray[(int)Position++] = buffer[i];
+        for (var i = offset; i < offset + cappedSize; i++) byteArray[(int)Position++] = buffer[i];
+    }
+
+    public override int ReadByte() => byteArray.Length - Position <= 0 ? -1 : byteArray[Position++];
+
+    public override void WriteByte(byte value)
+    {
+        if (!writable || byteArray.Length - Position <= 0) return;
+        byteArray[Position++] = value;
+    }
+
+    public override void Close()
+    {
+        if (closeByteArrayOnDispose) byteArray.Dispose();
+        base.Close();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (closeByteArrayOnDispose && disposing) byteArray.Dispose();
+        base.Dispose(disposing);
     }
 }

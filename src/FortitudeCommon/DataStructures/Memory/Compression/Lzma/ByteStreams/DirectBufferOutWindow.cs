@@ -1,17 +1,17 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+using FortitudeCommon.OSWrapper.Streams;
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;
 
 public class DirectBufferOutWindow : IOutWindow
 {
     private IByteArray buffer = null!;
-    private long       pos;
-    private Stream?    trainOnlyStream;
-    private long       windowSize = 0;
-    
+    private long pos;
+    private IStream? trainOnlyStream;
+    private long windowSize = 0;
+
     public uint TrainSize { get; private set; }
 
     public void Create(uint windowSize)
@@ -26,27 +26,27 @@ public class DirectBufferOutWindow : IOutWindow
     {
         // System.GC.Collect();
         buffer = mappedBuffer;
-        this.windowSize = mappedBuffer.Length;
+        windowSize = mappedBuffer.Length;
 
         pos = 0;
     }
 
-    public void Init(Stream stream, bool solid)
+    public void Init(IStream stream, bool solid)
     {
         ReleaseStream();
-        this.trainOnlyStream = stream;
+        trainOnlyStream = stream;
         if (!solid)
         {
-            pos       = 0;
+            pos = 0;
             TrainSize = 0;
         }
     }
 
-    public bool Train(Stream stream)
+    public bool Train(IStream stream)
     {
-        var len  = stream.Length;
+        var len = stream.Length;
         var size = len < windowSize ? (uint)len : windowSize;
-        TrainSize       = (uint)size;
+        TrainSize = (uint)size;
         return true;
     }
 
@@ -60,12 +60,12 @@ public class DirectBufferOutWindow : IOutWindow
         else
         {
             var cappedSize = Math.Min((int)curSize, trainOnlyStream!.Length - trainOnlyStream.Position);
-            var readBytes  = new byte[byte.MaxValue];
-            var readSoFar  = 0;
-            for (; readSoFar < cappedSize; )
+            var readBytes = new byte[byte.MaxValue];
+            var readSoFar = 0;
+            for (; readSoFar < cappedSize;)
             {
                 var amountToRead = Math.Min(cappedSize - readSoFar, byte.MaxValue);
-                var bytesRead    = trainOnlyStream.Read(readBytes, 0, (int)amountToRead);
+                var bytesRead = trainOnlyStream.Read(readBytes, 0, (int)amountToRead);
                 for (int j = 0; j < bytesRead; j++)
                 {
                     buffer[readSoFar + j] = readBytes[j];

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
@@ -19,63 +22,63 @@ namespace FortitudeIO.Transports.Network.Receiving;
 
 public interface ISocketReceiver : IStreamListener
 {
-    string Name { get; }
-    bool IsAcceptor { get; }
-    bool ListenActive { get; set; }
-    IntPtr SocketHandle { get; }
-    bool ZeroBytesReadIsDisconnection { get; set; }
-    bool AttemptCloseSocketOnListenerRemoval { get; set; }
-    IOSSocket Socket { get; set; }
-    ExpectSessionCloseMessage? ExpectSessionCloseMessage { get; set; }
-    IActionTimer? ResponseTimer { get; set; }
-    void UnregisteredHandler();
-    bool Poll(SocketBufferReadContext socketBufferReadContext);
-    event Action? Accept;
-    void HandleRemoteDisconnecting(ExpectSessionCloseMessage expectSessionCloseMessage);
-    void HandleReceiveError(string message, Exception exception);
-    IOSSocket AcceptClientSocketRequest();
-    void NewClientSocketRequest();
+    string                     Name                                { get; }
+    bool                       IsAcceptor                          { get; }
+    bool                       ListenActive                        { get; set; }
+    IntPtr                     SocketHandle                        { get; }
+    bool                       ZeroBytesReadIsDisconnection        { get; set; }
+    bool                       AttemptCloseSocketOnListenerRemoval { get; set; }
+    IOSSocket                  Socket                              { get; set; }
+    ExpectSessionCloseMessage? ExpectSessionCloseMessage           { get; set; }
+    IActionTimer?              ResponseTimer                       { get; set; }
+    void                       UnregisteredHandler();
+    bool                       Poll(SocketBufferReadContext socketBufferReadContext);
+    event Action?              Accept;
+    void                       HandleRemoteDisconnecting(ExpectSessionCloseMessage expectSessionCloseMessage);
+    void                       HandleReceiveError(string message, Exception exception);
+    IOSSocket                  AcceptClientSocketRequest();
+    void                       NewClientSocketRequest();
 }
 
 public sealed class SocketReceiver : ISocketReceiver
 {
-    private const int MaxUdpPacketSize = 65507;
-    private const int LargeBufferSize = MaxUdpPacketSize / 4;
-    private const double ReportFullThreshold = 0.7;
-    private const int ReportEveryNthFullBufferBreach = 1000000;
-    private readonly long bufferSize;
-    private readonly IFLogger byteStreamLogger;
-    private readonly IDirectOSNetworkingApi directOSNetworkingApi;
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(SocketReceiver));
-    private readonly int numberOfReceivesPerPoll;
+    private const    int                     MaxUdpPacketSize               = 65507;
+    private const    int                     LargeBufferSize                = MaxUdpPacketSize / 4;
+    private const    double                  ReportFullThreshold            = 0.7;
+    private const    int                     ReportEveryNthFullBufferBreach = 1000000;
+    private readonly long                    bufferSize;
+    private readonly IFLogger                byteStreamLogger;
+    private readonly IDirectOSNetworkingApi  directOSNetworkingApi;
+    private readonly IFLogger                logger = FLoggerFactory.Instance.GetLogger(typeof(SocketReceiver));
+    private readonly int                     numberOfReceivesPerPoll;
     private readonly CircularReadWriteBuffer receiveBuffer;
 
-    private readonly IPerfLoggerPool receiveSocketCxLatencyTraceLoggerPool;
+    private readonly IPerfLoggerPool       receiveSocketCxLatencyTraceLoggerPool;
     private readonly ISocketSessionContext socketSessionContext;
-    private int bufferFullCounter;
-    private DateTime lastReportOfHighDataBursts = DateTime.MinValue;
-    private long numberOfMessages;
-    private byte[]? toConvertToHexadecimalString;
-    private long totalMessageSize;
+    private          int                   bufferFullCounter;
+    private          DateTime              lastReportOfHighDataBursts = DateTime.MinValue;
+    private          long                  numberOfMessages;
+    private          byte[]?               toConvertToHexadecimalString;
+    private          long                  totalMessageSize;
 
     public SocketReceiver(ISocketSessionContext socketSessionContext)
     {
         this.socketSessionContext = socketSessionContext;
-        Socket = socketSessionContext.SocketConnection!.OSSocket;
-        directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!.DirectOSNetworkingApi;
-        numberOfReceivesPerPoll = socketSessionContext.NetworkTopicConnectionConfig.NumberOfReceivesPerPoll;
+        Socket                    = socketSessionContext.SocketConnection!.OSSocket;
+        directOSNetworkingApi     = socketSessionContext.SocketFactoryResolver.NetworkingController!.DirectOSNetworkingApi;
+        numberOfReceivesPerPoll   = socketSessionContext.NetworkTopicConnectionConfig.NumberOfReceivesPerPoll;
 
         var socketUseDescriptionNoWhiteSpaces = this.socketSessionContext.Name.Replace(" ", "");
         receiveSocketCxLatencyTraceLoggerPool = PerfLoggingPoolFactory.Instance
-            .GetLatencyTracingLoggerPool("Receive." + socketUseDescriptionNoWhiteSpaces,
-                TimeSpan.FromMilliseconds(1), typeof(ISession));
-        byteStreamLogger = FLoggerFactory.Instance.GetLogger("SocketByteDump." + socketUseDescriptionNoWhiteSpaces);
+                                                                      .GetLatencyTracingLoggerPool("Receive." + socketUseDescriptionNoWhiteSpaces,
+                                                                                                   TimeSpan.FromMilliseconds(1), typeof(ISession));
+        byteStreamLogger                = FLoggerFactory.Instance.GetLogger("SocketByteDump." + socketUseDescriptionNoWhiteSpaces);
         byteStreamLogger.DefaultEnabled = false;
 
         Socket.Blocking = false;
 
         receiveBuffer = new CircularReadWriteBuffer(new byte[Socket.ReceiveBufferSize]);
-        bufferSize = receiveBuffer.Size;
+        bufferSize    = receiveBuffer.Length;
 
         ZeroBytesReadIsDisconnection = true;
     }
@@ -86,12 +89,12 @@ public sealed class SocketReceiver : ISocketReceiver
 
     public bool AttemptCloseSocketOnListenerRemoval { get; set; }
 
-    public bool ListenActive { get; set; }
-    public IntPtr SocketHandle => Socket.Handle;
-    public bool ZeroBytesReadIsDisconnection { get; set; }
+    public bool   ListenActive                 { get; set; }
+    public IntPtr SocketHandle                 => Socket.Handle;
+    public bool   ZeroBytesReadIsDisconnection { get; set; }
 
     public event Action? Accept;
-    public bool IsAcceptor => Accept != null;
+    public bool          IsAcceptor => Accept != null;
 
     public ExpectSessionCloseMessage? ExpectSessionCloseMessage { get; set; }
 
@@ -121,18 +124,18 @@ public sealed class SocketReceiver : ISocketReceiver
         if (recvLen == 0)
             return !ZeroBytesReadIsDisconnection;
         if (receiveBuffer.UnreadBytesRemaining > LargeBufferSize
-            && socketBufferReadContext.DetectTimestamp > lastReportOfHighDataBursts.AddMinutes(1))
+         && socketBufferReadContext.DetectTimestamp > lastReportOfHighDataBursts.AddMinutes(1))
         {
             lastReportOfHighDataBursts = socketBufferReadContext.DetectTimestamp;
             socketBufferReadContext.DispatchLatencyLogger?.Add("High data burst of incoming data received read ",
-                (int)receiveBuffer.UnreadBytesRemaining);
+                                                               (int)receiveBuffer.UnreadBytesRemaining);
             if (socketBufferReadContext.DispatchLatencyLogger != null)
                 socketBufferReadContext.DispatchLatencyLogger.WriteTrace = true;
         }
 
         socketBufferReadContext.ReceivingTimestamp = receivingTs;
-        socketBufferReadContext.Conversation = socketSessionContext.OwningConversation;
-        socketBufferReadContext.EncodedBuffer = receiveBuffer;
+        socketBufferReadContext.Conversation       = socketSessionContext.OwningConversation;
+        socketBufferReadContext.EncodedBuffer      = receiveBuffer;
         if (Decoder.Process(socketBufferReadContext) <= 0)
         {
             socketBufferReadContext.DispatchLatencyLogger?.Add("Data detected but not decoded");
@@ -155,7 +158,7 @@ public sealed class SocketReceiver : ISocketReceiver
     public void HandleRemoteDisconnecting(ExpectSessionCloseMessage expectSessionCloseMessage)
     {
         logger.Info("{0} received expect session close message. closeReason:{1}, reason:{2}",
-            socketSessionContext.Name, expectSessionCloseMessage.CloseReason, expectSessionCloseMessage.ReasonText);
+                    socketSessionContext.Name, expectSessionCloseMessage.CloseReason, expectSessionCloseMessage.ReasonText);
         socketSessionContext.StreamControls?.Stop(CloseReason.RemoteDisconnecting, expectSessionCloseMessage.ReasonText);
     }
 
@@ -173,7 +176,7 @@ public sealed class SocketReceiver : ISocketReceiver
 
         var messageRecvLen = 0;
         detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforeSocketRead
-            , socketSessionContext.Name);
+                                                , socketSessionContext.Name);
         var socketTraceLogger = receiveSocketCxLatencyTraceLoggerPool.StartNewTrace();
         try
         {
@@ -182,7 +185,7 @@ public sealed class SocketReceiver : ISocketReceiver
         finally
         {
             detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.AfterSocketRead,
-                (double)messageRecvLen);
+                                                      (double)messageRecvLen);
             detectionToPublishLatencyTraceLogger?.Indent();
             receiveSocketCxLatencyTraceLoggerPool.StopTrace(socketTraceLogger);
         }
@@ -195,11 +198,11 @@ public sealed class SocketReceiver : ISocketReceiver
 
     private unsafe int GatherSocketDataSizeMetricsAndReceiveData(IPerfLogger socketTraceLogger)
     {
-        int messageRecvLen;
-        var bufferRecvLen = 0;
-        var availableLocalBuffer = (int)receiveBuffer.RemainingStorage;
-        using var fixedBuffer = receiveBuffer;
-        var ptr = fixedBuffer.ReadBuffer;
+        int       messageRecvLen;
+        var       bufferRecvLen        = 0;
+        var       availableLocalBuffer = (int)receiveBuffer.RemainingStorage;
+        using var fixedBuffer          = receiveBuffer;
+        var       ptr                  = fixedBuffer.ReadBuffer;
         socketTraceLogger.Add("before ioctlsocket");
         var socketHandle = Socket.Handle;
         if (directOSNetworkingApi.IoCtlSocket(Socket.Handle, ref bufferRecvLen) != 0)
@@ -209,7 +212,7 @@ public sealed class SocketReceiver : ISocketReceiver
         socketTraceLogger.AddContextMeasurement(bufferRecvLen);
         if (socketTraceLogger.Enabled)
             if (bufferRecvLen > bufferSize * ReportFullThreshold
-                && bufferFullCounter++ % ReportEveryNthFullBufferBreach == 0)
+             && bufferFullCounter++ % ReportEveryNthFullBufferBreach == 0)
                 TraceSocketDataStats(socketTraceLogger);
 
         socketTraceLogger.Add("end recv bufferRecvLen", bufferRecvLen);
@@ -217,7 +220,7 @@ public sealed class SocketReceiver : ISocketReceiver
 
 
         messageRecvLen = MultipleReceiveData(ptr, availableLocalBuffer, remainingDataInSocketBuffer,
-            socketTraceLogger);
+                                             socketTraceLogger);
         if (byteStreamLogger.Enabled)
         {
             toConvertToHexadecimalString ??= new byte[bufferSize];
@@ -238,30 +241,30 @@ public sealed class SocketReceiver : ISocketReceiver
     private unsafe int MultipleReceiveData(byte* ptr, int availableLocalBuffer, int remainingDataInSocketBuffer,
         IPerfLogger socketTraceLogger)
     {
-        var messageRecvLen = 0;
-        var i = 0;
+        var messageRecvLen     = 0;
+        var i                  = 0;
         var lastReadWasPartial = false;
         do
         {
             var currentMessageLength = directOSNetworkingApi.Recv(Socket.Handle,
-                ptr + receiveBuffer.BufferRelativeWriteCursor + messageRecvLen,
-                Math.Min(availableLocalBuffer, remainingDataInSocketBuffer),
-                ref lastReadWasPartial);
+                                                                  ptr + receiveBuffer.BufferRelativeWriteCursor + messageRecvLen,
+                                                                  Math.Min(availableLocalBuffer, remainingDataInSocketBuffer),
+                                                                  ref lastReadWasPartial);
             if (currentMessageLength <= 0)
             {
                 socketTraceLogger.Add("Recv return unexpected readsize", currentMessageLength);
                 socketTraceLogger.Add("ToReadCursor + messageRecvLen",
-                    (int)(receiveBuffer.WriteCursor + messageRecvLen));
+                                      (int)(receiveBuffer.WriteCursor + messageRecvLen));
                 socketTraceLogger.Add("availableBuffer", availableLocalBuffer);
                 socketTraceLogger.WriteTrace = true;
-                messageRecvLen = currentMessageLength;
+                messageRecvLen               = currentMessageLength;
                 break;
             }
 
-            messageRecvLen += currentMessageLength;
+            messageRecvLen              += currentMessageLength;
             remainingDataInSocketBuffer -= currentMessageLength;
-            availableLocalBuffer -= currentMessageLength;
-            totalMessageSize += currentMessageLength;
+            availableLocalBuffer        -= currentMessageLength;
+            totalMessageSize            += currentMessageLength;
             numberOfMessages++;
             i++;
         } while (i < numberOfReceivesPerPoll &&
