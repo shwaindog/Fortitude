@@ -3,29 +3,30 @@
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+using FortitudeCommon.OSWrapper.Streams;
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;
 
 public class OutWindow : IOutWindow
 {
-    private byte[]  buffer = null!;
-    private uint    pos;
-    private Stream? stream;
-    private uint    streamPos;
-    private uint    windowSize = 0;
+    private byte[] buffer = null!;
+    private uint pos;
+    private IStream? stream;
+    private uint streamPos;
+    private uint windowSize = 0;
     public uint TrainSize { get; private set; }
-    
+
     public void Create(uint windowSize)
     {
-        if (this.windowSize != windowSize)
-            // System.GC.Collect();
-            buffer = new byte[windowSize];
+        if (this.windowSize > 0 && this.windowSize != windowSize) return;
+        // System.GC.Collect();
+        buffer = new byte[windowSize];
         this.windowSize = windowSize;
         pos = 0;
         streamPos = 0;
     }
 
-    public void Init(Stream stream, bool solid)
+    public void Init(IStream stream, bool solid)
     {
         ReleaseStream();
         this.stream = stream;
@@ -37,7 +38,7 @@ public class OutWindow : IOutWindow
         }
     }
 
-    public bool Train(Stream stream)
+    public bool Train(IStream stream)
     {
         var len = stream.Length;
         var size = len < windowSize ? (uint)len : windowSize;
@@ -47,9 +48,9 @@ public class OutWindow : IOutWindow
 
     public bool Train(IByteArray stream)
     {
-        var len  = stream.Length;
+        var len = stream.Length;
         var size = len < windowSize ? (uint)len : windowSize;
-        TrainSize = (uint)size;
+        TrainSize = size;
         return true;
     }
 

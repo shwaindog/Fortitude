@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Serdes.Binary;
 
@@ -23,7 +26,7 @@ public class CircularReadWriteBufferTests
         Assert.AreEqual(0, readWriteBuffer.BufferRelativeWriteCursor);
         Assert.AreEqual(0, readWriteBuffer.UnreadBytesRemaining);
         Assert.IsTrue(readWriteBuffer.AllRead);
-        Assert.AreEqual(20, readWriteBuffer.Size);
+        Assert.AreEqual(20, readWriteBuffer.Length);
         Assert.AreEqual(20, readWriteBuffer.RemainingStorage);
         Assert.IsTrue(readWriteBuffer.HasStorageForBytes(20));
         Assert.IsFalse(readWriteBuffer.HasStorageForBytes(21));

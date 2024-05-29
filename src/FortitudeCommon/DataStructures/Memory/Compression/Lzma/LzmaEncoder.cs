@@ -4,18 +4,22 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Coders;
-using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Lz;
-using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder;
+using FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;
+using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Coders;
+using FortitudeCommon.OSWrapper.Streams;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Coders;
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma;
 
-public class Encoder : ILzmaEncoder
+public interface ILzmaEncoder
 {
-    private readonly IInWindow? inputWindow;
-    private const    uint       IfinityPrice = 0xFFFFFFF;
+    void Compress(LzmaEncoderParams encoderParams, IStream inStream, IStream outStream);
+}
+
+public class LzmaEncoder : ILzmaEncoder
+{
+    private const uint IfinityPrice = 0xFFFFFFF;
 
     private const int DefaultDictionaryLogSize = 22;
     private const uint NumFastBytesDefault = 0x20;
@@ -28,11 +32,6 @@ public class Encoder : ILzmaEncoder
 
     private static byte[] fastPos = new byte[1 << 11];
 
-    private static string[] MatchFinderIDs =
-    {
-        "BT2", "BT4"
-    };
-
     private uint additionalOffset;
     private uint alignPriceCount;
     private uint[] alignPrices = new uint[LzmaCodecConstants.AlignTableSize];
@@ -41,8 +40,8 @@ public class Encoder : ILzmaEncoder
     private uint dictionarySizePrev = 0xFFFFFFFF;
     private uint[] distancesPrices = new uint[LzmaCodecConstants.NumFullDistances << LzmaCodecConstants.NumLenToPosStatesBits];
 
-    private uint    distTableSize = DefaultDictionaryLogSize * 2;
-    private bool    finished;
+    private uint distTableSize = DefaultDictionaryLogSize * 2;
+    private bool finished;
 
     private BitEncoder[] isMatch = new BitEncoder[LzmaCodecConstants.NumStates << LzmaCodecConstants.NumPosStatesBitsMax];
     private BitEncoder[] isRep = new BitEncoder[LzmaCodecConstants.NumStates];
@@ -61,7 +60,7 @@ public class Encoder : ILzmaEncoder
     private uint[] matchDistances = new uint[LzmaCodecConstants.MatchMaxLen * 2 + 2];
     private IMatchFinder matchFinder = null!;
 
-    private EMatchFinderType matchFinderType = EMatchFinderType.BT4;
+    private MatchFinderType matchFinderType = MatchFinderType.BT4;
     private uint matchPriceCount;
 
     private bool needReleaseMFStream;
@@ -81,12 +80,12 @@ public class Encoder : ILzmaEncoder
 
     private BitTreeEncoder[] posSlotEncoder = new BitTreeEncoder[LzmaCodecConstants.NumLenToPosStates];
 
-    private uint[] posSlotPrices = new uint[1 << (LzmaCodecConstants.NumPosSlotBits + LzmaCodecConstants.NumLenToPosStatesBits)];
+    private uint[] posSlotPrices = new uint[1 << LzmaCodecConstants.NumPosSlotBits + LzmaCodecConstants.NumLenToPosStatesBits];
 
     private int posStateBits = 2;
     private uint posStateMask = 4 - 1;
     private byte previousByte;
-    private FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.RangeCoder.RangeEncoder rangeEncoder = new();
+    private RangeEncoder rangeEncoder = new();
     private uint[] repDistances = new uint[LzmaCodecConstants.NumRepDistances];
     private LenPriceTableEncoder repMatchLenEncoder = new();
 
@@ -103,7 +102,7 @@ public class Encoder : ILzmaEncoder
 
     private uint[] tempPrices = new uint[LzmaCodecConstants.NumFullDistances];
 
-    static Encoder()
+    static LzmaEncoder()
     {
         const byte kFastSlots = 22;
         var c = 2;
@@ -111,27 +110,25 @@ public class Encoder : ILzmaEncoder
         fastPos[1] = 1;
         for (byte slotFast = 2; slotFast < kFastSlots; slotFast++)
         {
-            var k = (uint)1 << ((slotFast >> 1) - 1);
+            var k = (uint)1 << (slotFast >> 1) - 1;
             for (uint j = 0; j < k; j++, c++)
                 fastPos[c] = slotFast;
         }
     }
 
-    public Encoder(IInWindow? inputWindow = null)
+    public LzmaEncoder()
     {
-        this.inputWindow = inputWindow;
-        for (var i = 0; i < NumOpts; i++)
+        for (int i = 0; i < NumOpts; i++)
             optimum[i] = new Optimal();
-        for (var i = 0; i < LzmaCodecConstants.NumLenToPosStates; i++)
+        for (int i = 0; i < LzmaCodecConstants.NumLenToPosStates; i++)
             posSlotEncoder[i] = new BitTreeEncoder(LzmaCodecConstants.NumPosSlotBits);
     }
 
-
-    public void Compress(LzmaEncoderParams encoderParams, ByteStream inStream, ByteStream outStream)
+    public void Compress(LzmaEncoderParams encoderParams, IStream inStream, IStream outStream)
     {
         needReleaseMFStream = false;
-        
-        CoderPropID[] propIDs = 
+
+        CoderPropID[] propIDs =
         {
             CoderPropID.DictionarySize,
             CoderPropID.PosStateBits,
@@ -142,7 +139,7 @@ public class Encoder : ILzmaEncoder
             CoderPropID.MatchFinder,
             CoderPropID.EndMarker
         };
-        object[] properties = 
+        object[] properties =
         {
             encoderParams.DictionarySize,
             encoderParams.PosStateBits,
@@ -159,45 +156,31 @@ public class Encoder : ILzmaEncoder
         if (encoderParams.HasEOS)
             fileSize = -1;
         else
-            fileSize = inStream.Stream?.Length ?? inStream.ByteArray!.Length;
+            fileSize = inStream.Length;
         for (int i = 0; i < 8; i++)
         {
-            var writeByte = (Byte)(fileSize >> (8 * i));
-            if (outStream.Stream != null)
-            {
-                outStream.Stream.WriteByte(writeByte);
-            }
-            else
-            {
-                outStream.ByteArray![5 + i] = writeByte;
-            }
+            var writeByte = (byte)(fileSize >> 8 * i);
+            outStream.WriteByte(writeByte);
         }
-        matchFinder.Init();
-        if (encoderParams.TrainStream != null)
-        {
-            var trainByteStream = encoderParams.TrainStream.Value;
-            var trainStreamSize = trainByteStream.Stream?.Length ?? trainByteStream.ByteArray!.Length;
-
-            IInWindow trainWindow;
-            uint      trainLength;
-            if (trainByteStream.Stream != null)
-            {
-                trainWindow = new InWindow();
-                trainWindow.SetStream(trainByteStream);
-                trainLength = (uint)trainByteStream.Stream.Length;
-            }
-            else
-            {
-                trainWindow = new DirectBufferInWindow(trainByteStream.ByteArray!);
-                trainLength = (uint)trainByteStream.ByteArray!.Length;
-            }
-            matchFinder.Process(trainLength, trainWindow);
-        }
-        matchFinder.SetStream(inStream);
 
         try
         {
             SetStreams(inStream, outStream);
+            
+            matchFinder.SetStream(inStream);
+            matchFinder.Init();
+            if (encoderParams.TrainStream != null)
+            {
+                var trainByteStream = encoderParams.TrainStream;
+                var trainStreamSize = trainByteStream.Length;
+
+                IInWindow trainWindow;
+                uint      trainLength;
+                trainWindow = new InWindow();
+                trainWindow.SetStream(trainByteStream);
+                trainLength = (uint)trainByteStream.Length;
+                matchFinder.Process(trainLength, trainWindow);
+            }
             while (true)
             {
                 long processedInSize;
@@ -215,7 +198,7 @@ public class Encoder : ILzmaEncoder
         }
     }
 
-    public void SetCoderProperties(CoderPropID[] propIDs, object[] properties)
+    private void SetCoderProperties(CoderPropID[] propIDs, object[] properties)
     {
         for (uint i = 0; i < properties.Length; i++)
         {
@@ -223,120 +206,112 @@ public class Encoder : ILzmaEncoder
             switch (propIDs[i])
             {
                 case CoderPropID.NumFastBytes:
-                {
-                    if (!(prop is int))
-                        throw new InvalidParamException();
-                    var numFastBytes = (int)prop;
-                    if (numFastBytes < 5 || numFastBytes > LzmaCodecConstants.MatchMaxLen)
-                        throw new InvalidParamException();
-                    this.numFastBytes = (uint)numFastBytes;
-                    break;
-                }
-                case CoderPropID.Algorithm:
-                {
-                    /*
-                    if (!(prop is Int32))
-                        throw new InvalidParamException();
-                    Int32 maximize = (Int32)prop;
-                    _fastMode = (maximize == 0);
-                    _maxMode = (maximize >= 2);
-                    */
-                    break;
-                }
-                case CoderPropID.MatchFinder:
-                {
-                    if (!(prop is string))
-                        throw new InvalidParamException();
-                    var matchFinderIndexPrev = matchFinderType;
-                    var m = FindMatchFinder(((string)prop).ToUpper());
-                    if (m < 0)
-                        throw new InvalidParamException();
-                    matchFinderType = (EMatchFinderType)m;
-                    if (matchFinder != null && matchFinderIndexPrev != matchFinderType)
                     {
-                        dictionarySizePrev = 0xFFFFFFFF;
-                        matchFinder = null!;
+                        if (!(prop is int))
+                            throw new InvalidParamException();
+                        var numFastBytes = (int)prop;
+                        if (numFastBytes < 5 || numFastBytes > LzmaCodecConstants.MatchMaxLen)
+                            throw new InvalidParamException();
+                        this.numFastBytes = (uint)numFastBytes;
+                        break;
                     }
+                case CoderPropID.Algorithm:
+                    {
+                        /*
+                        if (!(prop is Int32))
+                            throw new InvalidParamException();
+                        Int32 maximize = (Int32)prop;
+                        _fastMode = (maximize == 0);
+                        _maxMode = (maximize >= 2);
+                        */
+                        break;
+                    }
+                case CoderPropID.MatchFinder:
+                    {
+                        if (!(prop is string or MatchFinderType))
+                            throw new InvalidParamException();
+                        var matchFinderIndexPrev = matchFinderType;
+                        var m = FindMatchFinder(prop.ToString()!);
+                        if (m < 0)
+                            throw new InvalidParamException();
+                        if (m != null && matchFinderIndexPrev != matchFinderType)
+                        {
+                            matchFinderType    = m.Value;
+                            dictionarySizePrev = 0xFFFFFFFF;
+                            matchFinder        = null!;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 case CoderPropID.DictionarySize:
-                {
-                    const int DicLogSizeMaxCompress = 30;
-                    if (!(prop is int))
-                        throw new InvalidParamException();
-                    ;
-                    var dictionarySize = (int)prop;
-                    if (dictionarySize < (uint)(1 << LzmaCodecConstants.DicLogSizeMin) ||
-                        dictionarySize > (uint)(1 << DicLogSizeMaxCompress))
-                        throw new InvalidParamException();
-                    this.dictionarySize = (uint)dictionarySize;
-                    int dicLogSize;
-                    for (dicLogSize = 0; dicLogSize < (uint)DicLogSizeMaxCompress; dicLogSize++)
-                        if (dictionarySize <= (uint)1 << dicLogSize)
-                            break;
-                    distTableSize = (uint)dicLogSize * 2;
-                    break;
-                }
+                    {
+                        const int DicLogSizeMaxCompress = 30;
+                        if (!(prop is int))
+                            throw new InvalidParamException();
+                        ;
+                        var dictionarySize = (int)prop;
+                        if (dictionarySize < (uint)(1 << LzmaCodecConstants.DicLogSizeMin) ||
+                            dictionarySize > (uint)(1 << DicLogSizeMaxCompress))
+                            throw new InvalidParamException();
+                        this.dictionarySize = (uint)dictionarySize;
+                        int dicLogSize;
+                        for (dicLogSize = 0; dicLogSize < (uint)DicLogSizeMaxCompress; dicLogSize++)
+                            if (dictionarySize <= (uint)1 << dicLogSize)
+                                break;
+                        distTableSize = (uint)dicLogSize * 2;
+                        break;
+                    }
                 case CoderPropID.PosStateBits:
-                {
-                    if (!(prop is int))
-                        throw new InvalidParamException();
-                    var v = (int)prop;
-                    if (v < 0 || v > (uint)LzmaCodecConstants.NumPosStatesBitsEncodingMax)
-                        throw new InvalidParamException();
-                    posStateBits = (int)v;
-                    posStateMask = ((uint)1 << (int)posStateBits) - 1;
-                    break;
-                }
+                    {
+                        if (!(prop is int))
+                            throw new InvalidParamException();
+                        var v = (int)prop;
+                        if (v < 0 || v > (uint)LzmaCodecConstants.NumPosStatesBitsEncodingMax)
+                            throw new InvalidParamException();
+                        posStateBits = v;
+                        posStateMask = ((uint)1 << posStateBits) - 1;
+                        break;
+                    }
                 case CoderPropID.LitPosBits:
-                {
-                    if (!(prop is int))
-                        throw new InvalidParamException();
-                    var v = (int)prop;
-                    if (v < 0 || v > (uint)LzmaCodecConstants.NumLitPosStatesBitsEncodingMax)
-                        throw new InvalidParamException();
-                    numLiteralPosStateBits = (int)v;
-                    break;
-                }
+                    {
+                        if (!(prop is int))
+                            throw new InvalidParamException();
+                        var v = (int)prop;
+                        if (v < 0 || v > LzmaCodecConstants.NumLitPosStatesBitsEncodingMax)
+                            throw new InvalidParamException();
+                        numLiteralPosStateBits = v;
+                        break;
+                    }
                 case CoderPropID.LitContextBits:
-                {
-                    if (!(prop is int))
-                        throw new InvalidParamException();
-                    var v = (int)prop;
-                    if (v < 0 || v > (uint)LzmaCodecConstants.NumLitContextBitsMax)
-                        throw new InvalidParamException();
-                    ;
-                    numLiteralContextBits = (int)v;
-                    break;
-                }
+                    {
+                        if (!(prop is int))
+                            throw new InvalidParamException();
+                        var v = (int)prop;
+                        if (v < 0 || v > LzmaCodecConstants.NumLitContextBitsMax)
+                            throw new InvalidParamException();
+                        ;
+                        numLiteralContextBits = v;
+                        break;
+                    }
                 case CoderPropID.EndMarker:
-                {
-                    if (!(prop is bool))
-                        throw new InvalidParamException();
-                    SetWriteEndMarkerMode((bool)prop);
-                    break;
-                }
+                    {
+                        if (!(prop is bool))
+                            throw new InvalidParamException();
+                        SetWriteEndMarkerMode((bool)prop);
+                        break;
+                    }
                 default:
                     throw new InvalidParamException();
             }
         }
     }
 
-    public void WriteCoderProperties(ByteStream outStream)
+    private void WriteCoderProperties(IStream outStream)
     {
         properties[0] = (byte)((posStateBits * 5 + numLiteralPosStateBits) * 9 + numLiteralContextBits);
         for (var i = 0; i < 4; i++)
-            properties[1 + i] = (byte)((dictionarySize >> (8 * i)) & 0xFF);
-        if (outStream.Stream != null)
-        {
-            outStream.Stream.Write(properties, 0, PropSize);
-        }
-        else
-        {
-            for (var i = 0; i < 5; i++)
-                 outStream.ByteArray![i] = properties[i];
-        }
+            properties[1 + i] = (byte)(dictionarySize >> 8 * i & 0xFF);
+        outStream.Write(properties, 0, PropSize);
     }
 
     private static uint GetPosSlot(uint pos)
@@ -365,13 +340,14 @@ public class Encoder : ILzmaEncoder
             repDistances[i] = 0;
     }
 
-    private void Create()
+    private void Create(IStream inputStream)
     {
         if (matchFinder == null)
         {
-            var bt = new BinTree(inputWindow);
+            var inputWindow = new InWindow();
+            var bt           = new BinTree(inputWindow);
             var numHashBytes = 4;
-            if (matchFinderType == EMatchFinderType.BT2)
+            if (matchFinderType == MatchFinderType.BT2)
                 numHashBytes = 2;
             bt.SetType(numHashBytes);
             matchFinder = bt;
@@ -556,8 +532,8 @@ public class Encoder : ILzmaEncoder
         }
         else
         {
-            lenMain              = longestMatchLength;
-            numDistancePairs     = this.numDistancePairs;
+            lenMain = longestMatchLength;
+            numDistancePairs = this.numDistancePairs;
             longestMatchWasFound = false;
         }
 
@@ -601,7 +577,7 @@ public class Encoder : ILzmaEncoder
 
         if (lenMain < 2 && currentByte != matchByte && repLens[repMaxIndex] < 2)
         {
-            backRes = (uint)0xFFFFFFFF;
+            backRes = 0xFFFFFFFF;
             return 1;
         }
 
@@ -675,7 +651,7 @@ public class Encoder : ILzmaEncoder
             uint offs = 0;
             while (len > matchDistances[offs])
                 offs += 2;
-            for (;; len++)
+            for (; ; len++)
             {
                 var distance = matchDistances[offs + 1];
                 var curAndLenPrice = normalMatchPrice + GetPosLenPrice(distance, len, posState);
@@ -867,7 +843,7 @@ public class Encoder : ILzmaEncoder
                 {
                     var state2 = state;
                     state2.UpdateChar();
-                    var posStateNext = (position + 1) & posStateMask;
+                    var posStateNext = position + 1 & posStateMask;
                     var nextRepMatchPrice = curAnd1Price +
                                             isMatch[(state2.Index << LzmaCodecConstants.NumPosStatesBitsMax) + posStateNext].GetPrice1() +
                                             isRep[state2.Index].GetPrice1();
@@ -927,16 +903,16 @@ public class Encoder : ILzmaEncoder
                     {
                         var state2 = state;
                         state2.UpdateRep();
-                        var posStateNext = (position + lenTest) & posStateMask;
+                        var posStateNext = position + lenTest & posStateMask;
                         var curAndLenCharPrice =
                             repMatchPrice + GetRepPrice(repIndex, lenTest, state, posState) +
                             isMatch[(state2.Index << LzmaCodecConstants.NumPosStatesBitsMax) + posStateNext].GetPrice0() +
                             literalEncoder.GetSubCoder(position + lenTest,
                                 matchFinder.GetIndexByte((int)lenTest - 1 - 1)).GetPrice(true,
-                                matchFinder.GetIndexByte((int)((int)lenTest - 1 - (int)(reps[repIndex] + 1))),
+                                matchFinder.GetIndexByte((int)lenTest - 1 - (int)(reps[repIndex] + 1)),
                                 matchFinder.GetIndexByte((int)lenTest - 1));
                         state2.UpdateChar();
-                        posStateNext = (position + lenTest + 1) & posStateMask;
+                        posStateNext = position + lenTest + 1 & posStateMask;
                         var nextMatchPrice = curAndLenCharPrice + isMatch[(state2.Index << LzmaCodecConstants.NumPosStatesBitsMax) + posStateNext].GetPrice1();
                         var nextRepMatchPrice = nextMatchPrice + isRep[state2.Index].GetPrice1();
 
@@ -980,7 +956,7 @@ public class Encoder : ILzmaEncoder
                 while (startLen > matchDistances[offs])
                     offs += 2;
 
-                for (var lenTest = startLen;; lenTest++)
+                for (var lenTest = startLen; ; lenTest++)
                 {
                     var curBack = matchDistances[offs + 1];
                     var curAndLenPrice = normalMatchPrice + GetPosLenPrice(curBack, lenTest, posState);
@@ -1003,7 +979,7 @@ public class Encoder : ILzmaEncoder
                             {
                                 var state2 = state;
                                 state2.UpdateMatch();
-                                var posStateNext = (position + lenTest) & posStateMask;
+                                var posStateNext = position + lenTest & posStateMask;
                                 var curAndLenCharPrice = curAndLenPrice +
                                                          isMatch[(state2.Index << LzmaCodecConstants.NumPosStatesBitsMax) + posStateNext].GetPrice0() +
                                                          literalEncoder.GetSubCoder(position + lenTest,
@@ -1011,7 +987,7 @@ public class Encoder : ILzmaEncoder
                                                              matchFinder.GetIndexByte((int)lenTest - (int)(curBack + 1) - 1),
                                                              matchFinder.GetIndexByte((int)lenTest - 1));
                                 state2.UpdateChar();
-                                posStateNext = (position + lenTest + 1) & posStateMask;
+                                posStateNext = position + lenTest + 1 & posStateMask;
                                 var nextMatchPrice = curAndLenCharPrice +
                                                      isMatch[(state2.Index << LzmaCodecConstants.NumPosStatesBitsMax) + posStateNext].GetPrice1();
                                 var nextRepMatchPrice = nextMatchPrice + isRep[state2.Index].GetPrice1();
@@ -1046,7 +1022,7 @@ public class Encoder : ILzmaEncoder
     private bool ChangePair(uint smallDist, uint bigDist)
     {
         const int kDif = 7;
-        return smallDist < (uint)1 << (32 - kDif) && bigDist >= smallDist << kDif;
+        return smallDist < (uint)1 << 32 - kDif && bigDist >= smallDist << kDif;
     }
 
     private void WriteEndMarker(uint posState)
@@ -1198,7 +1174,7 @@ public class Encoder : ILzmaEncoder
                     if (posSlot >= LzmaCodecConstants.StartPosModelIndex)
                     {
                         var footerBits = (int)((posSlot >> 1) - 1);
-                        var baseVal = (2 | (posSlot & 1)) << footerBits;
+                        var baseVal = (2 | posSlot & 1) << footerBits;
                         var posReduced = pos - baseVal;
 
                         if (posSlot < LzmaCodecConstants.EndPosModelIndex)
@@ -1260,7 +1236,7 @@ public class Encoder : ILzmaEncoder
         }
     }
 
-    private void SetOutStream(ByteStream outStream)
+    private void SetOutStream(IStream outStream)
     {
         rangeEncoder.SetStream(outStream);
     }
@@ -1276,10 +1252,10 @@ public class Encoder : ILzmaEncoder
         ReleaseOutStream();
     }
 
-    private void SetStreams(ByteStream inStream, ByteStream outStream)
+    private void SetStreams(IStream inStream, IStream outStream)
     {
         finished = false;
-        Create();
+        Create(inStream);
         SetOutStream(outStream);
         Init();
 
@@ -1303,7 +1279,7 @@ public class Encoder : ILzmaEncoder
         {
             var posSlot = GetPosSlot(i);
             var footerBits = (int)((posSlot >> 1) - 1);
-            var baseVal = (2 | (posSlot & 1)) << footerBits;
+            var baseVal = (2 | posSlot & 1) << footerBits;
             tempPrices[i] = BitTreeEncoder.ReverseGetPrice(posEncoders,
                 baseVal - posSlot - 1, footerBits, i - baseVal);
         }
@@ -1317,7 +1293,7 @@ public class Encoder : ILzmaEncoder
             for (posSlot = 0; posSlot < distTableSize; posSlot++)
                 posSlotPrices[st + posSlot] = encoder.GetPrice(posSlot);
             for (posSlot = LzmaCodecConstants.EndPosModelIndex; posSlot < distTableSize; posSlot++)
-                posSlotPrices[st + posSlot] += ((posSlot >> 1) - 1 - LzmaCodecConstants.NumAlignBits) << BitEncoder.NumBitPriceShiftBits;
+                posSlotPrices[st + posSlot] += (posSlot >> 1) - 1 - LzmaCodecConstants.NumAlignBits << BitEncoder.NumBitPriceShiftBits;
 
             var st2 = lenToPosState * LzmaCodecConstants.NumFullDistances;
             uint i;
@@ -1337,12 +1313,14 @@ public class Encoder : ILzmaEncoder
         alignPriceCount = 0;
     }
 
-    private static int FindMatchFinder(string s)
+    private static MatchFinderType? FindMatchFinder(string s)
     {
-        for (var m = 0; m < MatchFinderIDs.Length; m++)
-            if (s == MatchFinderIDs[m])
-                return m;
-        return -1;
+        foreach (var finderType in Enum.GetValues<MatchFinderType>())
+        {
+            if (s == finderType.ToString())
+                return finderType;
+        }
+        return null;
     }
 
     public void SetTrainSize(uint trainSize)
@@ -1350,27 +1328,22 @@ public class Encoder : ILzmaEncoder
         this.trainSize = trainSize;
     }
 
-    private enum EMatchFinderType
-    {
-        BT2
-        , BT4
-    };
 
     private class LiteralEncoder
     {
         private Encoder2[]? coders;
-        private int         numPosBits;
-        private int         numPrevBits;
-        private uint        posMask;
+        private int numPosBits;
+        private int numPrevBits;
+        private uint posMask;
 
         public void Create(int numPosBits, int numPrevBits)
         {
             if (coders != null && this.numPrevBits == numPrevBits && this.numPosBits == numPosBits)
                 return;
-            this.numPosBits  = numPosBits;
-            posMask        = ((uint)1 << numPosBits) - 1;
+            this.numPosBits = numPosBits;
+            posMask = ((uint)1 << numPosBits) - 1;
             this.numPrevBits = numPrevBits;
-            var numStates = (uint)1 << (this.numPrevBits + this.numPosBits);
+            var numStates = (uint)1 << this.numPrevBits + this.numPosBits;
             coders = new Encoder2[numStates];
             for (uint i = 0; i < numStates; i++)
                 coders[i].Create();
@@ -1378,13 +1351,13 @@ public class Encoder : ILzmaEncoder
 
         public void Init()
         {
-            var numStates = (uint)1 << (numPrevBits + numPosBits);
+            var numStates = (uint)1 << numPrevBits + numPosBits;
             for (uint i = 0; i < numStates; i++)
                 coders![i].Init();
         }
 
         public Encoder2 GetSubCoder(uint pos, byte prevByte) =>
-            coders![((pos & posMask) << numPrevBits) + (uint)(prevByte >> (8 - numPrevBits))];
+            coders![((pos & posMask) << numPrevBits) + (uint)(prevByte >> 8 - numPrevBits)];
 
         public struct Encoder2
         {
@@ -1405,9 +1378,9 @@ public class Encoder : ILzmaEncoder
                 uint context = 1;
                 for (var i = 7; i >= 0; i--)
                 {
-                    var bit = (uint)((symbol >> i) & 1);
+                    var bit = (uint)(symbol >> i & 1);
                     encoders[context].Encode(rangeEncoder, bit);
-                    context = (context << 1) | bit;
+                    context = context << 1 | bit;
                 }
             }
 
@@ -1418,17 +1391,17 @@ public class Encoder : ILzmaEncoder
                 var same = true;
                 for (var i = 7; i >= 0; i--)
                 {
-                    var bit = (uint)((symbol >> i) & 1);
+                    var bit = (uint)(symbol >> i & 1);
                     var state = context;
                     if (same)
                     {
-                        var matchBit = (uint)((matchByte >> i) & 1);
-                        state += (1 + matchBit) << 8;
+                        var matchBit = (uint)(matchByte >> i & 1);
+                        state += 1 + matchBit << 8;
                         same = matchBit == bit;
                     }
 
                     encoders[state].Encode(rangeEncoder, bit);
-                    context = (context << 1) | bit;
+                    context = context << 1 | bit;
                 }
             }
 
@@ -1442,8 +1415,8 @@ public class Encoder : ILzmaEncoder
                     {
                         var matchBit = (uint)(matchByte >> i) & 1;
                         var bit = (uint)(symbol >> i) & 1;
-                        price += encoders[((1 + matchBit) << 8) + context].GetPrice(bit);
-                        context = (context << 1) | bit;
+                        price += encoders[(1 + matchBit << 8) + context].GetPrice(bit);
+                        context = context << 1 | bit;
                         if (matchBit != bit)
                         {
                             i--;
@@ -1455,7 +1428,7 @@ public class Encoder : ILzmaEncoder
                 {
                     var bit = (uint)(symbol >> i) & 1;
                     price += encoders[context].GetPrice(bit);
-                    context = (context << 1) | bit;
+                    context = context << 1 | bit;
                 }
 
                 return price;

@@ -16,7 +16,7 @@ public unsafe class UnmanagedByteArray : IByteArray
 
     private VirtualMemoryByteArrayEnumerator? reusableEnumerator;
 
-    public UnmanagedByteArray(IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset, int length)
+    public UnmanagedByteArray(IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset, long length)
     {
         if (mappedViewRegion.SizeBytes < arrayOffset + length)
             throw new Exception("Memory mapped file view size does not match expected file position and/or size");

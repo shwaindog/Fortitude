@@ -2,7 +2,7 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
-namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Compress.Coders;
+namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.Coders;
 
 internal sealed class LzmaCodecConstants
 {
@@ -28,7 +28,7 @@ internal sealed class LzmaCodecConstants
     public const uint EndPosModelIndex = 14;
     public const uint NumPosModels = EndPosModelIndex - StartPosModelIndex;
 
-    public const uint NumFullDistances = 1 << ((int)EndPosModelIndex / 2);
+    public const uint NumFullDistances = 1 << (int)EndPosModelIndex / 2;
 
     public const uint NumLitPosStatesBitsEncodingMax = 4;
     public const uint NumLitContextBitsMax = 8;
@@ -54,7 +54,7 @@ internal sealed class LzmaCodecConstants
         len -= MatchMinLen;
         if (len < NumLenToPosStates)
             return len;
-        return (uint)(NumLenToPosStates - 1);
+        return NumLenToPosStates - 1;
     }
 
     // static byte []kLiteralNextStates  = {0, 0, 0, 0, 1, 2, 3, 4,  5,  6,   4, 5};

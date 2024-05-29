@@ -67,6 +67,11 @@ public class MemoryMappedFileBuffer : IBuffer
         Interlocked.Decrement(ref bufferAccessCounter);
     }
 
+    public void Close()
+    {
+        Dispose();
+    }
+
     public unsafe byte* ReadBuffer
     {
         get
@@ -100,9 +105,110 @@ public class MemoryMappedFileBuffer : IBuffer
         }
     }
 
-    public long Size => PagedMemoryMappedFile.MaxFileCursorOffset;
+    public bool CanRead  => BufferRelativeReadCursor < (mappedFileShiftableView?.HighestFileCursor ?? 0);
+    public bool CanSeek  => true;
+    public bool CanWrite => BufferRelativeWriteCursor < (mappedFileShiftableView?.HighestFileCursor ?? 0);
+
+    public long Position
+    {
+        get => WriteCursor = ReadCursor;
+        set
+        {
+            if (value < mappedFileShiftableView!.LowerViewFileCursorOffset
+             || value > mappedFileShiftableView.LowerViewFileCursorOffset + mappedFileShiftableView.HalfViewSizeBytes)
+                mappedFileShiftableView.EnsureLowerViewContainsFileCursorOffset(value, shouldGrow: true);
+            WriteCursor = ReadCursor = value;
+        }
+    }
+
+    public long Length => mappedFileShiftableView?.FileSize ?? 0;
 
     public bool AllRead => writeCursor == readCursor;
+
+    public void Flush()
+    {
+        mappedFileShiftableView?.Flush();
+    }
+
+    public unsafe int Read(byte[] buffer, int offset, int count)
+    {
+        var remainingBytes = BufferRelativeWriteCursor - BufferRelativeReadCursor;
+        var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
+
+        var ptr                                                      = ReadBuffer + BufferRelativeReadCursor;
+        for (var i = offset; i < offset + cappedSize; i++) buffer[i] = *ptr++;
+        ReadCursor = cappedSize;
+        return (int)cappedSize;
+    }
+
+    public unsafe int ReadByte()
+    {
+        var result = ReadCursor >= WriteCursor ? -1 : *(ReadBuffer + BufferRelativeReadCursor);
+        ReadCursor++;
+        return result;
+    }
+
+    public long Seek(long offset, SeekOrigin origin)
+    {
+        switch (origin)
+        {
+            case SeekOrigin.Begin:
+                if (offset > Length)
+                    mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(offset, shouldGrow: true);
+                if (offset < 0)
+                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                Position = (int)offset;
+                break;
+            case SeekOrigin.End:
+                if (offset > Length)
+                    mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(offset, shouldGrow: true);
+                if (offset < 0)
+                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                Position = Length - (int)offset;
+                break;
+            default:
+                var proposedCursor = Position + (int)offset;
+                if (proposedCursor > Length || proposedCursor < 0)
+                    mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(proposedCursor, shouldGrow: true);
+                if (proposedCursor < 0)
+                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                Position = proposedCursor;
+                break;
+        }
+        return Position;
+    }
+
+    public void SetLength(long value)
+    {
+        if (mappedFileShiftableView != null)
+        {
+            var originalFileOffset = mappedFileShiftableView.LowerViewFileCursorOffset;
+            mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(value, shouldGrow: true);
+            mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(originalFileOffset);
+        }
+    }
+
+    public unsafe void Write(byte[] buffer, int offset, int count)
+    {
+        var remainingBytes = Length - WriteCursor;
+        var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
+
+        var ptr = WriteBuffer + BufferRelativeWriteCursor;
+
+        for (var i = offset; i < offset + cappedSize; i++) *ptr++ = buffer[i];
+        WriteCursor += cappedSize;
+    }
+
+    public unsafe void WriteByte(byte value)
+    {
+        if (BufferRelativeWriteCursor >= Length) TryHandleRemainingWriteBufferRunningLow();
+        if (BufferRelativeWriteCursor < Length)
+        {
+            var ptr = WriteBuffer + BufferRelativeWriteCursor;
+            *ptr = value;
+            WriteCursor++;
+        }
+    }
 
     public void SetAllRead()
     {

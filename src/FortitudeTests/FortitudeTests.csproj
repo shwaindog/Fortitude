@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="FortitudeCommon\OSWrapper\Memory\" />
     <Folder Include="FortitudeMarketsCore\Configuration\ClientServerConfig\PricingConfig\" />
     <Folder Include="FortitudeMarketsCore\Pricing\Quotes\SourceTickerInfo\" />
   </ItemGroup>
