@@ -74,7 +74,6 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
             ? upperViewContiguousChunk!.StartFileCursorOffset + HalfViewSizeBytes
             : lowerViewContiguousChunk!.StartFileCursorOffset + HalfViewSizeBytes;
 
-
     public int HalfViewPageSize { get; }
 
     public long HalfViewSizeBytes        { get; }
@@ -89,6 +88,13 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
                                                                     && upperViewContiguousChunk.StartAddress ==
                                                                        lowerViewContiguousChunk.StartAddress +
                                                                        HalfViewSizeBytes;
+
+    public UnmanagedByteArray CreateUnmanagedByteArrayInThisView(long viewOffset, int length)
+    {
+        if (viewOffset < (nint)StartAddress || viewOffset + length > (nint)EndAddress)
+            throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
+        return new UnmanagedByteArray(this, viewOffset, length);
+    }
 
     public byte* StartAddress => lowerViewContiguousChunk != null ? lowerViewContiguousChunk.StartAddress : null;
 

@@ -1,5 +1,6 @@
-﻿// Licensed under the MIT license.
-// Copyright Alexis Sawenko 2024 all rights reserved
+﻿// This file was taken from 7-zip.org/sdk.html
+// LZMA SDK is placed in the public domain.
+// all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
 #region
 
@@ -15,18 +16,18 @@ namespace FortitudeTests.FortitudeCommon.DataStructures.Memory.Compression.Lzma;
 [TestClassNotRequired]
 public class TestLzmaHelper
 {
-    private const uint kAdditionalSize           = 6 << 20;
-    private const uint kCompressedAdditionalSize = 1 << 10;
-    private const uint kMaxLzmaPropSize          = 10;
-    private const int  kSubBits                  = 8;
+    private const uint AdditionalSize           = 6 << 20;
+    private const uint CompressedAdditionalSize = 1 << 10;
+    private const uint MaxLzmaPropSize          = 10;
+    private const int  SubBits                  = 8;
 
     private static uint GetLogSize(uint size)
     {
-        for (var i = kSubBits; i < 32; i++)
-        for (uint j = 0; j < 1 << kSubBits; j++)
-            if (size <= ((uint)1 << i) + (j << (i - kSubBits)))
-                return (uint)(i << kSubBits) + j;
-        return 32 << kSubBits;
+        for (var i = SubBits; i < 32; i++)
+        for (uint j = 0; j < 1 << SubBits; j++)
+            if (size <= ((uint)1 << i) + (j << (i - SubBits)))
+                return (uint)(i << SubBits) + j;
+        return 32 << SubBits;
     }
 
     private static ulong MyMultDiv64(ulong value, ulong elapsedTime)
@@ -45,8 +46,8 @@ public class TestLzmaHelper
 
     private static ulong GetCompressRating(uint dictionarySize, ulong elapsedTime, ulong size)
     {
-        ulong t                 = GetLogSize(dictionarySize) - (18 << kSubBits);
-        var   numCommandsForOne = 1060 + ((t * t * 10) >> (2 * kSubBits));
+        ulong t                 = GetLogSize(dictionarySize) - (18 << SubBits);
+        var   numCommandsForOne = 1060 + ((t * t * 10) >> (2 * SubBits));
         var   numCommands       = (ulong)size * numCommandsForOne;
         return MyMultDiv64(numCommands, elapsedTime);
     }
@@ -96,7 +97,7 @@ public class TestLzmaHelper
         PrintRating(rating);
     }
 
-    public static unsafe int LzmaBenchmark(int numIterations, uint dictionarySize)
+    public static int LzmaBenchmark(int numIterations, uint dictionarySize)
     {
         if (numIterations <= 0)
             return 0;
@@ -110,10 +111,10 @@ public class TestLzmaHelper
         var encoder = new LzmaEncoder();
         var decoder = new LzmaDecoder();
 
-        var kBufferSize           = dictionarySize + kAdditionalSize;
-        var kCompressedBufferSize = kBufferSize / 2 + kCompressedAdditionalSize;
+        var bufferSize           = dictionarySize + AdditionalSize;
+        var compressedBufferSize = bufferSize / 2 + CompressedAdditionalSize;
 
-        var progressInfo = new CProgressInfo
+        var progressInfo = new TestCodecProgress
         {
             ApprovedStart = dictionarySize
         };
@@ -122,12 +123,12 @@ public class TestLzmaHelper
             DictionarySize = (int)dictionarySize, CodecProgress = progressInfo
         };
 
-        var rg = new CBenchRandomGenerator();
+        var rg = new RandomBitBufferGenerator();
 
         var originalStream     = new byte[4096];
         var decompressedStream = new byte[4096];
 
-        rg.Set(kBufferSize);
+        rg.Set(bufferSize);
         rg.Generate();
         var crc = new CRC();
         crc.Init();
@@ -143,7 +144,7 @@ public class TestLzmaHelper
         inStream.Write(rg.Buffer, 0, (int)rg.BufferSize);
         inStream.Position = 0;
         // var compressedStream = new MemoryStream((int)kCompressedBufferSize);
-        var compressedStream = MemoryUtils.CreateByteArrayMemoryStream(kCompressedBufferSize);
+        var compressedStream = MemoryUtils.CreateByteArrayMemoryStream(compressedBufferSize);
         var crcOutStream     = new CrcOutStream(rg.BufferSize);
         for (var i = 0; i < numIterations; i++)
         {
@@ -196,10 +197,10 @@ public class TestLzmaHelper
                 stillData = originalRead > 0;
             }
 
-            var benchSize = kBufferSize - (ulong)progressInfo.InSize;
+            var benchSize = bufferSize - (ulong)progressInfo.InSize;
             PrintResults(dictionarySize, encodeTime, benchSize, false, 0);
             Console.Write("     ");
-            PrintResults(dictionarySize, decodeTime, kBufferSize, true, (ulong)compressedSize);
+            PrintResults(dictionarySize, decodeTime, bufferSize, true, (ulong)compressedSize);
             Console.Write("   ");
             Console.Write($"{totalUncompressedSize:0,000}");
             Console.Write("   ");
@@ -218,160 +219,13 @@ public class TestLzmaHelper
         PrintResults(dictionarySize, totalEncodeTime, totalBenchSize, false, 0);
         Console.Write("     ");
         PrintResults(dictionarySize, totalDecodeTime,
-                     kBufferSize * (ulong)numIterations, true, totalCompressedSize);
+                     bufferSize * (ulong)numIterations, true, totalCompressedSize);
         Console.WriteLine("    Average");
         return 0;
     }
 
-    private class CRandomGenerator
-    {
-        private uint A1;
-        private uint A2;
 
-        public CRandomGenerator()
-        {
-            Init();
-        }
-
-        public void Init()
-        {
-            A1 = 362436069;
-            A2 = 521288629;
-        }
-
-        public uint GetRnd() =>
-            ((A1 = 36969 * (A1 & 0xffff) + (A1 >> 16)) << 16) ^
-            (A2 = 18000 * (A2 & 0xffff) + (A2 >> 16));
-    };
-
-    private class CBitRandomGenerator
-    {
-        private int NumBits;
-
-        private CRandomGenerator RG = new();
-
-        private uint Value;
-
-        public void Init()
-        {
-            Value   = 0;
-            NumBits = 0;
-        }
-
-        public uint GetRnd(int numBits)
-        {
-            uint result;
-            if (NumBits > numBits)
-            {
-                result  =   Value & (((uint)1 << numBits) - 1);
-                Value   >>= numBits;
-                NumBits -=  numBits;
-                return result;
-            }
-            numBits -=  NumBits;
-            result  =   Value << numBits;
-            Value   =   RG.GetRnd();
-            result  |=  Value & (((uint)1 << numBits) - 1);
-            Value   >>= numBits;
-            NumBits =   32 - numBits;
-            return result;
-        }
-    };
-
-    private class CBenchRandomGenerator
-    {
-        public byte[] Buffer = null!;
-
-        public  uint                BufferSize;
-        private uint                Pos;
-        private uint                Rep0;
-        private CBitRandomGenerator RG = new();
-
-        public CBenchRandomGenerator() { }
-
-        public void Set(uint bufferSize)
-        {
-            Buffer     = new byte[bufferSize];
-            Pos        = 0;
-            BufferSize = bufferSize;
-        }
-
-        private uint GetRndBit() => RG.GetRnd(1);
-
-        private uint GetLogRandBits(int numBits)
-        {
-            var len = RG.GetRnd(numBits);
-            return RG.GetRnd((int)len);
-        }
-
-        private uint GetOffset()
-        {
-            if (GetRndBit() == 0)
-                return GetLogRandBits(4);
-            return (GetLogRandBits(4) << 10) | RG.GetRnd(10);
-        }
-
-        private uint GetLen1() => RG.GetRnd(1 + (int)RG.GetRnd(2));
-        private uint GetLen2() => RG.GetRnd(2 + (int)RG.GetRnd(2));
-
-        public void Generate()
-        {
-            RG.Init();
-            Rep0 = 1;
-            while (Pos < BufferSize)
-                if (GetRndBit() == 0 || Pos < 1)
-                {
-                    Buffer[Pos++] = (byte)RG.GetRnd(8);
-                }
-                else
-                {
-                    uint len;
-                    if (RG.GetRnd(3) == 0)
-                    {
-                        len = 1 + GetLen1();
-                    }
-                    else
-                    {
-                        do
-                        {
-                            Rep0 = GetOffset();
-                        } while (Rep0 >= Pos);
-                        Rep0++;
-                        len = 2 + GetLen2();
-                    }
-                    for (uint i = 0; i < len && Pos < BufferSize; i++, Pos++)
-                        Buffer[Pos] = Buffer[Pos - Rep0];
-                }
-        }
-    };
-
-    private class CrcOutStream : ByteArrayMemoryStream
-    {
-        private CRC CRC = new();
-
-        public CrcOutStream(long size) : base(MemoryUtils.CreateUnmanagedByteArray(size), true) { }
-
-        public void Init()
-        {
-            CRC.Init();
-        }
-
-        public uint GetDigest() => CRC.GetDigest();
-
-        public override void WriteByte(byte b)
-        {
-            CRC.UpdateByte(b);
-            base.WriteByte(b);
-        }
-
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            CRC.Update(buffer, (uint)offset, (uint)count);
-            base.Write(buffer, offset, count);
-        }
-    };
-
-    private class CProgressInfo : ICodecProgress
+    private class TestCodecProgress : ICodecProgress
     {
         public long     ApprovedStart;
         public long     InSize;
@@ -390,5 +244,153 @@ public class TestLzmaHelper
         {
             InSize = 0;
         }
+    }
+}
+
+internal class CrcOutStream : ByteArrayMemoryStream
+{
+    private CRC CRC = new();
+
+    public CrcOutStream(long size) : base(MemoryUtils.CreateUnmanagedByteArray(size), true) { }
+
+    public void Init()
+    {
+        CRC.Init();
+    }
+
+    public uint GetDigest() => CRC.GetDigest();
+
+    public override void WriteByte(byte b)
+    {
+        CRC.UpdateByte(b);
+        base.WriteByte(b);
+    }
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        CRC.Update(buffer, (uint)offset, (uint)count);
+        base.Write(buffer, offset, count);
+    }
+}
+
+internal class ConsistentRandomUintGenerator
+{
+    private uint state1;
+    private uint state2;
+
+    public ConsistentRandomUintGenerator()
+    {
+        Init();
+    }
+
+    public void Init()
+    {
+        state1 = 362436069;
+        state2 = 521288629;
+    }
+
+    public uint GetRnd() =>
+        ((state1 = 36969 * (state1 & 0xffff) + (state1 >> 16)) << 16) ^
+        (state2 = 18000 * (state2 & 0xffff) + (state2 >> 16));
+}
+
+internal class BitRangeRandomUintGenerator
+{
+    private int numBits;
+
+    private ConsistentRandomUintGenerator RG = new();
+
+    private uint value;
+
+    public void Init()
+    {
+        value   = 0;
+        numBits = 0;
+    }
+
+    public uint GetRnd(int numBits)
+    {
+        uint result;
+        if (this.numBits > numBits)
+        {
+            result       =   value & (((uint)1 << numBits) - 1);
+            value        >>= numBits;
+            this.numBits -=  numBits;
+            return result;
+        }
+        numBits      -=  this.numBits;
+        result       =   value << numBits;
+        value        =   RG.GetRnd();
+        result       |=  value & (((uint)1 << numBits) - 1);
+        value        >>= numBits;
+        this.numBits =   32 - numBits;
+        return result;
+    }
+}
+
+internal class RandomBitBufferGenerator
+{
+    public byte[] Buffer = null!;
+
+    public  uint                        BufferSize;
+    private uint                        Pos;
+    private uint                        Rep0;
+    private BitRangeRandomUintGenerator RG = new();
+
+    public RandomBitBufferGenerator() { }
+
+    public void Set(uint bufferSize)
+    {
+        Buffer     = new byte[bufferSize];
+        Pos        = 0;
+        BufferSize = bufferSize;
+    }
+
+    private uint GetRndBit() => RG.GetRnd(1);
+
+    private uint GetLogRandBits(int numBits)
+    {
+        var len = RG.GetRnd(numBits);
+        return RG.GetRnd((int)len);
+    }
+
+    private uint GetOffset()
+    {
+        if (GetRndBit() == 0)
+            return GetLogRandBits(4);
+        return (GetLogRandBits(4) << 10) | RG.GetRnd(10);
+    }
+
+    private uint GetLen1() => RG.GetRnd(1 + (int)RG.GetRnd(2));
+    private uint GetLen2() => RG.GetRnd(2 + (int)RG.GetRnd(2));
+
+    public void Generate()
+    {
+        RG.Init();
+        Rep0 = 1;
+        while (Pos < BufferSize)
+            if (GetRndBit() == 0 || Pos < 1)
+            {
+                Buffer[Pos++] = (byte)RG.GetRnd(8);
+            }
+            else
+            {
+                uint len;
+                if (RG.GetRnd(3) == 0)
+                {
+                    len = 1 + GetLen1();
+                }
+                else
+                {
+                    do
+                    {
+                        Rep0 = GetOffset();
+                    } while (Rep0 >= Pos);
+                    Rep0++;
+                    len = 2 + GetLen2();
+                }
+                for (uint i = 0; i < len && Pos < BufferSize; i++, Pos++)
+                    Buffer[Pos] = Buffer[Pos - Rep0];
+            }
     }
 }

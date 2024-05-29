@@ -29,6 +29,13 @@ public unsafe class DisposableVirtualMemoryRange : IVirtualMemoryAddressRange
 
     public void Flush() { }
 
+    public UnmanagedByteArray CreateUnmanagedByteArrayInThisView(long viewOffset, int length)
+    {
+        if (viewOffset + length > (nint)EndAddress)
+            throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
+        return new UnmanagedByteArray(this, viewOffset, length);
+    }
+
     public byte* StartAddress { get; }
     public long  SizeBytes    => sizeInPages * osDirectMemoryApi.MinimumRequiredPageSize;
     public byte* EndAddress   => StartAddress + SizeBytes - 1;

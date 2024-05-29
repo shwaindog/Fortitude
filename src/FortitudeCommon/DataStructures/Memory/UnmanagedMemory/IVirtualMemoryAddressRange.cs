@@ -5,8 +5,9 @@ namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
 
 public unsafe interface IVirtualMemoryAddressRange : IDisposable
 {
-    byte* StartAddress { get; }
-    long  SizeBytes    { get; }
-    byte* EndAddress   { get; }
-    void  Flush();
+    byte*              StartAddress { get; }
+    long               SizeBytes    { get; }
+    byte*              EndAddress   { get; }
+    UnmanagedByteArray CreateUnmanagedByteArrayInThisView(long fileCursorPosition, int length);
+    void               Flush();
 }
