@@ -17,21 +17,23 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
-    private static readonly IFLogger                       Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
-    protected readonly      IMutableBucketContainer        BucketContainer;
-    protected readonly      IBucketTrackingSession         ContainingFile;
-    protected               ShiftableMemoryMappedFileView? BucketAppenderFileView;
-    protected               BucketIndexInfo*               BucketContainerIndexEntry;
-    private                 BucketFactory<TBucket>?        bucketFactory;
-    protected               ShiftableMemoryMappedFileView? BucketHeaderFileView;
-    private                 BucketHeader                   cacheBucketHeader;
-    protected               IMessageSerializer?            EntrySerializer;
-    private                 MemoryMappedFileBuffer?        fileBuffer;
-    protected               long                           HeaderRealignmentDelta;
-    private                 BucketHeader*                  mappedFileBucketInfo;
-    protected               long                           RequiredHeaderViewFileCursorOffset;
-    protected               byte*                          RequiredHeaderViewLocation;
-    protected               bool                           Writable;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
+
+    protected readonly IMutableBucketContainer BucketContainer;
+    protected readonly IBucketTrackingSession  ContainingFile;
+
+    protected ShiftableMemoryMappedFileView? BucketAppenderDataReaderFileView;
+    protected BucketIndexInfo*               BucketContainerIndexEntry;
+    private   BucketFactory<TBucket>?        bucketFactory;
+    protected ShiftableMemoryMappedFileView? BucketHeaderFileView;
+    private   BucketHeader                   cacheBucketHeader;
+    protected IMessageSerializer?            EntrySerializer;
+    private   MemoryMappedFileBuffer?        fileBuffer;
+    protected long                           HeaderRealignmentDelta;
+    private   BucketHeader*                  mappedFileBucketInfo;
+    protected long                           RequiredHeaderViewFileCursorOffset;
+    protected byte*                          RequiredHeaderViewLocation;
+    protected bool                           Writable;
 
     protected DataBucket(IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
@@ -48,7 +50,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     protected virtual long EndOfBucketHeaderSectionOffset => FileCursorOffset + sizeof(BucketHeader);
 
-    protected bool CanUseWritableBufferInfo =>
+    protected virtual bool CanAccessHeaderFromFileView =>
         IsOpen && mappedFileBucketInfo != null
                && BucketHeaderFileView!.StartAddress == RequiredHeaderViewLocation
                && BucketHeaderFileView!.LowerViewFileCursorOffset == RequiredHeaderViewFileCursorOffset;
@@ -72,8 +74,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
         if (nextPeriodResult == StorageAttemptResult.NextBucketPeriod)
         {
             BucketFlags = BucketFlags.BucketClosedGracefully | BucketFlags.Unset(BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending);
-            var bucketEndCursor = BucketFactory.AppendCloseBucketDelimiter(BucketAppenderFileView!, CalculateBucketEndFileOffset());
-            CloseFileView();
+            var bucketEndCursor = BucketFactory.AppendCloseBucketDelimiter(BucketAppenderDataReaderFileView!, CalculateBucketEndFileOffset());
+            CloseBucketFileViews();
             var nextBucket = BucketFactory.CreateNewBucket(BucketContainer, bucketEndCursor, nextStartPeriod, true);
             return nextBucket;
         }
@@ -91,13 +93,13 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.BucketId;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.BucketId;
             cacheBucketHeader.BucketId = mappedFileBucketInfo->BucketId;
             return cacheBucketHeader.BucketId;
         }
         set
         {
-            if (value == cacheBucketHeader.BucketId || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.BucketId || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->BucketId = value;
             cacheBucketHeader.BucketId     = value;
         }
@@ -107,13 +109,13 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.ParentBucketId;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.ParentBucketId;
             cacheBucketHeader.ParentBucketId = mappedFileBucketInfo->ParentBucketId;
             return cacheBucketHeader.ParentBucketId;
         }
         set
         {
-            if (value == cacheBucketHeader.ParentBucketId || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.ParentBucketId || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->ParentBucketId = value;
             cacheBucketHeader.ParentBucketId     = value;
         }
@@ -123,13 +125,13 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.ParentDeltaFileOffset;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.ParentDeltaFileOffset;
             cacheBucketHeader.ParentDeltaFileOffset = mappedFileBucketInfo->ParentDeltaFileOffset;
             return cacheBucketHeader.ParentDeltaFileOffset;
         }
         set
         {
-            if (value == cacheBucketHeader.ParentDeltaFileOffset || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.ParentDeltaFileOffset || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->ParentDeltaFileOffset = value;
             cacheBucketHeader.ParentDeltaFileOffset     = value;
         }
@@ -141,13 +143,13 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.BucketFlags;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.BucketFlags;
             cacheBucketHeader.BucketFlags = mappedFileBucketInfo->BucketFlags;
             return cacheBucketHeader.BucketFlags;
         }
         set
         {
-            if (value == cacheBucketHeader.BucketFlags || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.BucketFlags || !Writable || !CanAccessHeaderFromFileView) return;
             if (BucketContainerIndexEntry != null) BucketContainerIndexEntry->BucketFlags = value;
             mappedFileBucketInfo->BucketFlags = value;
             cacheBucketHeader.BucketFlags     = value;
@@ -160,7 +162,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo)
+            if (!CanAccessHeaderFromFileView)
                 return DateTime.FromBinary(cacheBucketHeader.PeriodStartTime * BucketHeader.LowestBucketGranularityTickDivisor);
             cacheBucketHeader.PeriodStartTime = mappedFileBucketInfo->PeriodStartTime;
             return DateTime.FromBinary(cacheBucketHeader.PeriodStartTime * BucketHeader.LowestBucketGranularityTickDivisor);
@@ -168,7 +170,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
         set
         {
-            if (value.Ticks == cacheBucketHeader.PeriodStartTime || !Writable || !CanUseWritableBufferInfo) return;
+            if (value.Ticks == cacheBucketHeader.PeriodStartTime || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->PeriodStartTime = (uint)(value.Ticks / BucketHeader.LowestBucketGranularityTickDivisor);
             cacheBucketHeader.PeriodStartTime     = (uint)(value.Ticks / BucketHeader.LowestBucketGranularityTickDivisor);
         }
@@ -178,14 +180,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.PreviousSiblingDeltaFileOffset;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.PreviousSiblingDeltaFileOffset;
             cacheBucketHeader.PreviousSiblingDeltaFileOffset = mappedFileBucketInfo->PreviousSiblingDeltaFileOffset;
             return cacheBucketHeader.PreviousSiblingDeltaFileOffset;
         }
 
         set
         {
-            if (value == cacheBucketHeader.PreviousSiblingDeltaFileOffset || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.PreviousSiblingDeltaFileOffset || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->PreviousSiblingDeltaFileOffset = value;
             cacheBucketHeader.PreviousSiblingDeltaFileOffset     = value;
         }
@@ -195,14 +197,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.NextSiblingBucketDeltaFileOffset;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.NextSiblingBucketDeltaFileOffset;
             cacheBucketHeader.NextSiblingBucketDeltaFileOffset = mappedFileBucketInfo->NextSiblingBucketDeltaFileOffset;
             return cacheBucketHeader.NextSiblingBucketDeltaFileOffset;
         }
 
         set
         {
-            if (value == cacheBucketHeader.NextSiblingBucketDeltaFileOffset || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.NextSiblingBucketDeltaFileOffset || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->NextSiblingBucketDeltaFileOffset = value;
             cacheBucketHeader.NextSiblingBucketDeltaFileOffset     = value;
         }
@@ -212,14 +214,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return DateTime.FromBinary(cacheBucketHeader.CreatedDateTime);
+            if (!CanAccessHeaderFromFileView) return DateTime.FromBinary(cacheBucketHeader.CreatedDateTime);
             cacheBucketHeader.CreatedDateTime = mappedFileBucketInfo->CreatedDateTime;
             return DateTime.FromBinary(cacheBucketHeader.CreatedDateTime);
         }
 
         set
         {
-            if (value.Ticks == cacheBucketHeader.CreatedDateTime || !Writable || !CanUseWritableBufferInfo) return;
+            if (value.Ticks == cacheBucketHeader.CreatedDateTime || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->CreatedDateTime = value.Ticks;
             cacheBucketHeader.CreatedDateTime     = value.Ticks;
         }
@@ -229,14 +231,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return DateTime.FromBinary(cacheBucketHeader.LastAmendedDateTime);
+            if (!CanAccessHeaderFromFileView) return DateTime.FromBinary(cacheBucketHeader.LastAmendedDateTime);
             cacheBucketHeader.LastAmendedDateTime = mappedFileBucketInfo->LastAmendedDateTime;
             return DateTime.FromBinary(cacheBucketHeader.LastAmendedDateTime);
         }
 
         set
         {
-            if (value.Ticks == cacheBucketHeader.LastAmendedDateTime || !Writable || !CanUseWritableBufferInfo) return;
+            if (value.Ticks == cacheBucketHeader.LastAmendedDateTime || !Writable || !CanAccessHeaderFromFileView) return;
             mappedFileBucketInfo->LastAmendedDateTime = value.Ticks;
             cacheBucketHeader.LastAmendedDateTime     = value.Ticks;
         }
@@ -246,14 +248,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.DataEntriesCount;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.DataEntriesCount;
             cacheBucketHeader.DataEntriesCount = mappedFileBucketInfo->DataEntriesCount;
             return cacheBucketHeader.DataEntriesCount;
         }
 
         set
         {
-            if (value == cacheBucketHeader.DataEntriesCount || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.DataEntriesCount || !Writable || !CanAccessHeaderFromFileView) return;
             if (BucketContainerIndexEntry != null)
             {
                 var deltaEntries = value - mappedFileBucketInfo->DataEntriesCount;
@@ -272,14 +274,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheBucketHeader.DataSizeBytes;
+            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.DataSizeBytes;
             cacheBucketHeader.DataSizeBytes = mappedFileBucketInfo->DataSizeBytes;
             return cacheBucketHeader.DataSizeBytes;
         }
 
         set
         {
-            if (value == cacheBucketHeader.DataSizeBytes || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheBucketHeader.DataSizeBytes || !Writable || !CanAccessHeaderFromFileView) return;
             if (BucketContainerIndexEntry != null)
             {
                 var deltaBytes = value - mappedFileBucketInfo->DataSizeBytes;
@@ -289,6 +291,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
             mappedFileBucketInfo->DataSizeBytes = value;
             cacheBucketHeader.DataSizeBytes     = value;
+            var additionalWriteSize = Writable ? 512 : 0;
+            BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(BucketDataStartFileOffset, (long)value + additionalWriteSize);
         }
     }
 
@@ -298,14 +302,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
         set
         {
-            if (value > BucketHeaderSizeBytes || !Writable || !CanUseWritableBufferInfo) return;
+            if (value > BucketHeaderSizeBytes || !Writable || !CanAccessHeaderFromFileView) return;
             if (BucketContainerIndexEntry == null) return;
             var additionalNonBucketDataSize = value - NonDataSizeBytes;
             BucketContainer.NonDataSizeBytes = additionalNonBucketDataSize;
         }
     }
 
-    public bool IsOpen => BucketAppenderFileView != null && BucketHeaderFileView != null;
+    public bool IsOpen => BucketAppenderDataReaderFileView != null && BucketHeaderFileView != null;
 
     public bool IsOpenForAppend => BucketFlags.HasBucketCurrentAppendingFlag();
 
@@ -313,9 +317,9 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     {
         get
         {
-            if (!IsOpenForAppend || BucketAppenderFileView == null) return null;
-            fileBuffer ??= new MemoryMappedFileBuffer(BucketAppenderFileView, false);
-            fileBuffer.SetFileWriterAt(BucketAppenderFileView, BucketDataStartFileOffset + (long)DataSizeBytes);
+            if (!IsOpenForAppend || BucketAppenderDataReaderFileView == null) return null;
+            fileBuffer ??= new MemoryMappedFileBuffer(BucketAppenderDataReaderFileView, false);
+            fileBuffer.SetFileWriterAt(BucketAppenderDataReaderFileView, BucketDataStartFileOffset + (long)DataSizeBytes);
             return fileBuffer;
         }
     }
@@ -325,7 +329,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     public void RefreshViews(ShiftableMemoryMappedFileView? usingMappedFileView = null)
     {
         var isWriter = Writable;
-        if (IsOpen) CloseFileView();
+        if (IsOpen) CloseBucketFileViews();
         OpenBucket(usingMappedFileView, isWriter);
     }
 
@@ -359,13 +363,16 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
         BucketHeaderFileView             =   alternativeHeaderAndDataFileView ?? SelectBucketHeaderFileView();
         alternativeHeaderAndDataFileView ??= BucketContainer.ContainingSession.ActiveBucketDataFileView;
         alternativeHeaderAndDataFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, 0, asWritable);
-        BucketAppenderFileView = alternativeHeaderAndDataFileView;
-        Writable               = asWritable;
+        BucketAppenderDataReaderFileView = alternativeHeaderAndDataFileView;
+        Writable                         = asWritable;
         BucketHeaderFileView.EnsureLowerViewContainsFileCursorOffset(FileCursorOffset, 0, asWritable);
         RequiredHeaderViewFileCursorOffset = BucketHeaderFileView.LowerViewFileCursorOffset;
         RequiredHeaderViewLocation         = BucketHeaderFileView.StartAddress;
-        mappedFileBucketInfo               = (BucketHeader*)BucketHeaderFileView.FileCursorBufferPointer(FileCursorOffset, shouldGrow: asWritable);
-        cacheBucketHeader                  = *mappedFileBucketInfo;
+        EnsureHeaderViewReferencesCorrectlyMapped();
+        if (BucketHeaderFileView.EnsureViewCoversFileCursorOffsetAndSize(FileCursorOffset, BucketHeaderSizeBytes))
+            EnsureHeaderViewReferencesCorrectlyMapped();
+        if (BucketHeaderFileView != BucketAppenderDataReaderFileView)
+            BucketAppenderDataReaderFileView.EnsureViewCoversFileCursorOffsetAndSize(BucketDataStartFileOffset, (long)DataSizeBytes);
         if (BucketId != 0) BucketContainerIndexEntry = BucketContainer.BucketIndexes.GetBucketIndexInfo(BucketId);
 
         return this;
@@ -397,18 +404,18 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public virtual void Dispose()
     {
-        CloseFileView();
+        CloseBucketFileViews();
     }
 
-    public virtual void CloseFileView()
+    public virtual void CloseBucketFileViews()
     {
         if (!IsOpen) return;
         if (Writable) BucketHeaderFileView!.FlushPtrDataToDisk(mappedFileBucketInfo, sizeof(BucketHeader));
-        BucketAppenderFileView    = null;
-        BucketHeaderFileView      = null;
-        mappedFileBucketInfo      = null;
-        BucketContainerIndexEntry = null;
-        Writable                  = false;
+        BucketAppenderDataReaderFileView = null;
+        BucketHeaderFileView             = null;
+        mappedFileBucketInfo             = null;
+        BucketContainerIndexEntry        = null;
+        Writable                         = false;
     }
 
     public virtual long CalculateBucketEndFileOffset() => BucketDataStartFileOffset + (long)DataSizeBytes;
@@ -417,7 +424,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
 
     public virtual void VisitChildrenCacheAndClose()
     {
-        CloseFileView();
+        CloseBucketFileViews();
     }
 
     public void SetEntrySerializer(IMessageSerializer useSerializer)
@@ -428,6 +435,13 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : IBucketNavigation<TBu
     public abstract StorageAttemptResult AppendEntry(TEntry entry);
 
     public bool BucketIntersects(PeriodRange? period = null) => period.IntersectsWith(TimeSeriesPeriod, PeriodStartTime);
+
+    protected virtual void EnsureHeaderViewReferencesCorrectlyMapped()
+    {
+        if (BucketHeaderFileView == null) return;
+        mappedFileBucketInfo = (BucketHeader*)BucketHeaderFileView!.FileCursorBufferPointer(FileCursorOffset, shouldGrow: Writable);
+        cacheBucketHeader    = *mappedFileBucketInfo;
+    }
 
     ~DataBucket()
     {

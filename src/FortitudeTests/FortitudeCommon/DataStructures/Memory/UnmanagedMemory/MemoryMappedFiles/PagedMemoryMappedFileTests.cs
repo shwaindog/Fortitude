@@ -22,6 +22,8 @@ public class PagedMemoryMappedFileTests
     [TestInitialize]
     public void Setup()
     {
+        PagedMemoryMappedFile.LogFailedMappingAttempts = true;
+
         newMemoryMappedFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
         memoryMappedFile        = new FileInfo(newMemoryMappedFilePath);
         if (memoryMappedFile.Exists) memoryMappedFile.Delete();
@@ -84,7 +86,7 @@ public class PagedMemoryMappedFileTests
     {
         const int writeCursorOffset    = 16_234;
         const int writeAndFindValue    = 89_234_123;
-        using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("onePageWrite", 1, 6, false);
+        using var onePageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("onePageWrite", 0, ushort.MaxValue * 2, 6, false);
 
         var isAvailable = onePageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
         Assert.IsTrue(isAvailable);
@@ -103,7 +105,7 @@ public class PagedMemoryMappedFileTests
         }
 
         onePageShiftableView.Dispose();
-        using var twoPageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("twoPageRead", 2, 6);
+        using var twoPageShiftableView = pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView("twoPageRead", 0, ushort.MaxValue * 4, 6);
         isAvailable = twoPageShiftableView.IsUpperViewAvailableForContiguousReadWrite;
         Assert.IsTrue(isAvailable);
         var assertedFoundValue = false;

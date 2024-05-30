@@ -69,7 +69,7 @@ public interface IBucket : IDisposable
     bool                 Intersects(DateTime? fromTime = null, DateTime? toTime = null);
     bool                 BucketIntersects(PeriodRange? period = null);
     StorageAttemptResult CheckTimeSupported(DateTime storageDateTime);
-    void                 CloseFileView();
+    void                 CloseBucketFileViews();
     IBucket              OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false);
     void                 VisitChildrenCacheAndClose();
 }
