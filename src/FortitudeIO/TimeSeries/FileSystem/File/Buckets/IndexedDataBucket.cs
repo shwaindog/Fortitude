@@ -45,9 +45,14 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         BucketFlags |= BucketFlags.HasBucketIndex;
 
-    protected override long EndOfBucketHeaderSectionOffset =>
-        base.EndOfBucketHeaderSectionOffset + sizeof(IndexedContainerHeaderExtension) + headerExtensionRealignmentDelta;
+    protected override long EndOfBucketHeaderSectionOffset => IndexHeaderSectionOffset + sizeof(IndexedContainerHeaderExtension);
 
+    private long IndexHeaderSectionOffset => FileCursorOffset + sizeof(BucketHeader) + headerExtensionRealignmentDelta;
+
+    protected virtual bool CanAccessIndexHeaderFromFileView =>
+        base.CanAccessHeaderFromFileView
+     && BucketHeaderFileView!.HighestFileCursor > EndOfBucketHeaderSectionOffset
+     && mappedIndexedContainerHeader != null;
 
     public override long BucketDataStartFileOffset => BucketIndexFileOffset + CalculateBucketIndexByteSize(IndexCount);
 
@@ -66,7 +71,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     {
         get
         {
-            if (!CanUseWritableBufferInfo && BucketIndexDictionary != null) return BucketIndexDictionary!;
+            if (!CanAccessIndexHeaderFromFileView && BucketIndexDictionary != null) return BucketIndexDictionary!;
             BucketIndexDictionary
                 ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset
                                             , IndexCount, !Writable);
@@ -78,7 +83,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return BucketIndexDictionary!;
+            if (!CanAccessIndexHeaderFromFileView) return BucketIndexDictionary!;
             BucketIndexDictionary
                 ??= new BucketIndexDictionary(SelectBucketHeaderAndIndexFileView(), BucketIndexFileOffset
                                             , IndexCount, !Writable);
@@ -90,16 +95,17 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     {
         get
         {
-            if (!CanUseWritableBufferInfo) return cacheIndexedContainerHeaderExtension.IndexCount;
+            if (!CanAccessIndexHeaderFromFileView) return cacheIndexedContainerHeaderExtension.IndexCount;
             cacheIndexedContainerHeaderExtension.IndexCount = mappedIndexedContainerHeader->IndexCount;
             return cacheIndexedContainerHeaderExtension.IndexCount;
         }
 
         set
         {
-            if (value == cacheIndexedContainerHeaderExtension.IndexCount || !Writable || !CanUseWritableBufferInfo) return;
+            if (value == cacheIndexedContainerHeaderExtension.IndexCount || !Writable || !CanAccessIndexHeaderFromFileView) return;
             mappedIndexedContainerHeader->IndexCount        = value;
             cacheIndexedContainerHeaderExtension.IndexCount = value;
+            BucketHeaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(FileCursorOffset, BucketHeaderSizeBytes);
         }
     }
 
@@ -107,14 +113,13 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
     {
         base.OpenBucket(alternativeHeaderAndDataFileView, asWritable);
         headerExtensionRealignmentDelta = (FileCursorOffset + sizeof(BucketHeader)) % 8 > 0 ? 8 - (FileCursorOffset + sizeof(BucketHeader)) % 8 : 0;
-        var headerExtensionRealignmentDeltaFileOffset = FileCursorOffset + sizeof(BucketHeader) + headerExtensionRealignmentDelta;
-        mappedIndexedContainerHeader
-            = (IndexedContainerHeaderExtension*)BucketHeaderFileView!.FileCursorBufferPointer(headerExtensionRealignmentDeltaFileOffset
-                                                                                            , shouldGrow: asWritable);
-
+        mappedIndexedContainerHeader = (IndexedContainerHeaderExtension*)BucketHeaderFileView!
+            .FileCursorBufferPointer(IndexHeaderSectionOffset, shouldGrow: Writable);
         cacheIndexedContainerHeaderExtension = *mappedIndexedContainerHeader;
         if (IndexCount > 0)
         {
+            if (BucketHeaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(FileCursorOffset, BucketHeaderSizeBytes))
+                EnsureHeaderViewReferencesCorrectlyMapped();
             if (BucketIndexDictionary != null)
                 BucketIndexDictionary.OpenWithFileView(BucketHeaderFileView!, !Writable);
             else
@@ -132,20 +137,30 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : DataBucket<TEn
         base.Dispose();
     }
 
-    public override void CloseFileView()
+    public override void CloseBucketFileViews()
     {
         if (Writable) BucketHeaderFileView!.FlushPtrDataToDisk(mappedIndexedContainerHeader, sizeof(IndexedContainerHeaderExtension));
         BucketIndexDictionary?.CacheAndCloseFileView();
-        base.CloseFileView();
+        base.CloseBucketFileViews();
     }
 
     public override void InitializeNewBucket(DateTime containingTime)
     {
         if (IndexCount <= 0) throw new Exception("IndexedDataBucket must have at least one sub-bucket configured");
         base.InitializeNewBucket(containingTime);
-        var ptr = BucketAppenderFileView!.FileCursorBufferPointer(BucketIndexFileOffset, shouldGrow: true);
+        var ptr = BucketAppenderDataReaderFileView!.FileCursorBufferPointer(BucketIndexFileOffset, shouldGrow: true);
         for (var i = 0; i < CalculateBucketIndexByteSize(IndexCount); i++)
             *ptr++ = 0; // maybe overwritting existing data so should zero out existing data
+    }
+
+    protected override void EnsureHeaderViewReferencesCorrectlyMapped()
+    {
+        if (BucketHeaderFileView == null) return;
+        base.EnsureHeaderViewReferencesCorrectlyMapped();
+        mappedIndexedContainerHeader
+            = (IndexedContainerHeaderExtension*)BucketHeaderFileView!
+                .FileCursorBufferPointer(IndexHeaderSectionOffset, shouldGrow: Writable);
+        cacheIndexedContainerHeaderExtension = *mappedIndexedContainerHeader;
     }
 
     public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null)

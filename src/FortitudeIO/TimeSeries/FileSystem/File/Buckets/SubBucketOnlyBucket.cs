@@ -48,7 +48,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
                     = subBucketFactory.OpenExistingBucket(BucketContainer,
                                                           FileCursorOffset + previousLastCreated.ParentOrFileOffset, Writable
                                                         , ContainingFile.ReadChildrenFileView);
-                currentlyOpenSubBucket.CloseFileView();
+                currentlyOpenSubBucket.CloseBucketFileViews();
             }
 
             return currentlyOpenSubBucket;
@@ -102,7 +102,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         get
         {
             if (!IsOpen || (Writable && cacheSubBuckets.Any())) return cacheSubBuckets;
-            if (!CanUseWritableBufferInfo) RefreshViews();
+            if (!CanAccessHeaderFromFileView) RefreshViews();
 
             cacheSubBuckets.Clear();
 
@@ -116,7 +116,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
                                                                                , FileCursorOffset + subBucketIndexOffset.ParentOrFileOffset, false
                                                                                , ContainingFile.ReadChildrenFileView);
                     cacheSubBuckets.Add(currentlyOpenSubBucket);
-                    currentlyOpenSubBucket.CloseFileView();
+                    currentlyOpenSubBucket.CloseBucketFileViews();
                 }
 
             return cacheSubBuckets;
@@ -129,10 +129,10 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         base.Dispose();
     }
 
-    public override void CloseFileView()
+    public override void CloseBucketFileViews()
     {
-        foreach (var childBuckets in cacheSubBuckets) childBuckets.CloseFileView();
-        base.CloseFileView();
+        foreach (var childBuckets in cacheSubBuckets) childBuckets.CloseBucketFileViews();
+        base.CloseBucketFileViews();
     }
 
     public override void VisitChildrenCacheAndClose()
@@ -143,7 +143,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
             subBucket.VisitChildrenCacheAndClose();
         }
 
-        CloseFileView();
+        CloseBucketFileViews();
     }
 
     public override uint CreateBucketId(uint previousHighestBucketId) => BucketId * 1000 + LastAddedBucketId + 1;

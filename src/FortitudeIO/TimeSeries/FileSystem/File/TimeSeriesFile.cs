@@ -84,7 +84,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
     public TimeSeriesFile(CreateFileParameters createParameters)
     {
         FileName                   = createParameters.FileNameResolver.FilePath(createParameters).FullName;
-        TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName, createParameters.InitialFileSizePages);
+        TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName, createParameters.InitialFileSize);
         var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
         var ptr            = headerFileView.StartAddress;
         FileVersion = StreamByteOps.ToUShort(ref ptr);
@@ -182,7 +182,7 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
         if (existingOpen) return null;
         IncrementSessionCount();
         writerSession?.ReopenSession(FileFlags.WriterOpened);
-        writerSession ??= new TimeSeriesFileSession<TBucket, TEntry>(this, true);
+        writerSession ??= new TimeSeriesFileSession<TBucket, TEntry>(this, true, ushort.MaxValue * 4);
         return writerSession;
     }
 

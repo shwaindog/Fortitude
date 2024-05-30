@@ -45,7 +45,7 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
 
     protected Level1QuoteStruct GetEntryAt(long fileCursorOffset)
     {
-        var ptr = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(fileCursorOffset);
+        var ptr = (Level1QuoteStruct*)BucketAppenderDataReaderFileView!.FileCursorBufferPointer(fileCursorOffset);
         return *ptr;
     }
 
@@ -58,7 +58,7 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         var checkWithinRange = CheckTimeSupported(entryStorageTime);
         if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return checkWithinRange;
         var writeFileOffset = BucketDataStartFileOffset + (long)DataSizeBytes;
-        var ptr             = (Level1QuoteStruct*)BucketAppenderFileView!.FileCursorBufferPointer(writeFileOffset, shouldGrow: true);
+        var ptr             = (Level1QuoteStruct*)BucketAppenderDataReaderFileView!.FileCursorBufferPointer(writeFileOffset, shouldGrow: true);
         *ptr             =  entry;
         DataSizeBytes    += (ulong)sizeof(Level1QuoteStruct);
         DataEntriesCount += 1;
