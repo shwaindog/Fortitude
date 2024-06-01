@@ -81,6 +81,8 @@ public unsafe class CircularReadWriteBuffer : IBuffer
         Dispose();
     }
 
+    public void DestroyBuffer() { }
+
     public nint BufferRelativeReadCursor  => (nint)(ReadCursor - bufferShifted);
     public nint BufferRelativeWriteCursor => (nint)(WriteCursor - bufferShifted);
 

@@ -1,6 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Runtime.InteropServices;
+using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 using static FortitudeIO.TimeSeries.FileSystem.File.Buckets.BucketHeader;
 
@@ -15,35 +19,34 @@ public struct BucketIndexInfo
     {
         if (bucketPeriodStart.Ticks % LowestBucketGranularityTickDivisor > 0)
             throw new ArgumentException(
-                $"To keep timeseries files efficient bucket start times be whole divisible by " +
-                $"{TimeSpan.FromTicks(LowestBucketGranularityTickDivisor).TotalMinutes} mins.");
-        BucketId = bucketId;
-        BucketPeriodStart = (uint)(bucketPeriodStart.Ticks / LowestBucketGranularityTickDivisor);
-        BucketFlags = bucketFlags;
-        BucketPeriod = bucketPeriod;
+                                        $"To keep timeseries files efficient bucket start times be whole divisible by " +
+                                        $"{TimeSpan.FromTicks(LowestBucketGranularityTickDivisor).TotalMinutes} mins.");
+        BucketId           = bucketId;
+        BucketPeriodStart  = (uint)(bucketPeriodStart.Ticks / LowestBucketGranularityTickDivisor);
+        BucketFlags        = bucketFlags;
+        BucketPeriod       = bucketPeriod;
         ParentOrFileOffset = parentOrFileOffset;
     }
 
-    public uint BucketId;
-    public uint NumEntries;
+    public  uint BucketId;
+    public  uint NumEntries;
     private uint BucketPeriodStart;
+
     public TimeSeriesPeriod BucketPeriod;
-    public BucketFlags BucketFlags;
-    public ulong DataSizeBytes;
+    public BucketFlags      BucketFlags;
+
     public long ParentOrFileOffset;
-    public ushort NumIndexEntries;
 
     public DateTime BucketStartTime
     {
-        get => DateTime.FromBinary(BucketPeriodStart * LowestBucketGranularityTickDivisor);
+        get => (BucketPeriodStart * LowestBucketGranularityTickDivisor).CappedTicksToDateTime();
         set => BucketPeriodStart = (uint)(value.Ticks / LowestBucketGranularityTickDivisor);
     }
 
     public override string ToString() =>
-        $"{nameof(BucketIndexInfo)}({nameof(BucketId)}: {BucketId}, {nameof(NumEntries)}: {NumEntries}, {nameof(BucketPeriod)}: {BucketPeriod}, " +
-        $"{nameof(BucketFlags)}: {BucketFlags}, {nameof(DataSizeBytes)}: {DataSizeBytes}, " +
-        $"{nameof(ParentOrFileOffset)}: {ParentOrFileOffset}, {nameof(NumIndexEntries)}: {NumIndexEntries}, " +
-        $"{nameof(BucketStartTime)}: {BucketStartTime})";
+        $"{nameof(BucketIndexInfo)}({nameof(BucketId)}: {BucketId}, {nameof(NumEntries)}: {NumEntries}, " +
+        $"{nameof(BucketPeriod)}: {BucketPeriod}, {nameof(BucketFlags)}: {BucketFlags}, " +
+        $"{nameof(ParentOrFileOffset)}: {ParentOrFileOffset}, {nameof(BucketStartTime)}: {BucketStartTime})";
 }
 
 public class BucketIndexEarliestEntryComparer : IComparer<BucketIndexInfo>
@@ -60,14 +63,14 @@ public static class BucketIndexExtensions
 {
     public static bool Intersects(this BucketIndexInfo bucketIndexInfo, DateTime? fromTime = null, DateTime? toTime = null) =>
         (bucketIndexInfo.BucketStartTime < toTime || (toTime == null && fromTime != null))
-        && (bucketIndexInfo.BucketPeriod.PeriodEnd(bucketIndexInfo.BucketStartTime) > fromTime || (fromTime == null && toTime != null));
+     && (bucketIndexInfo.BucketPeriod.PeriodEnd(bucketIndexInfo.BucketStartTime) > fromTime || (fromTime == null && toTime != null));
 
     public static bool Intersects(this BucketIndexInfo bucketIndexInfo, PeriodRange? periodRange)
     {
         if (periodRange == null) return true;
         var range = periodRange.Value;
         return (bucketIndexInfo.BucketStartTime < range.ToTime || (range.ToTime == null && range.FromTime != null))
-               && (bucketIndexInfo.BucketPeriod.PeriodEnd(bucketIndexInfo.BucketStartTime) > range.FromTime
-                   || (range.FromTime == null && range.ToTime != null));
+            && (bucketIndexInfo.BucketPeriod.PeriodEnd(bucketIndexInfo.BucketStartTime) > range.FromTime
+             || (range.FromTime == null && range.ToTime != null));
     }
 }

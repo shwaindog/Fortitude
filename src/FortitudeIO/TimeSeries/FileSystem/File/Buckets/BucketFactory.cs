@@ -84,7 +84,7 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
         var currentFileOffset = fileCursorPosition;
         if (!NoPatternOrPadding)
         {
-            var ptr = bucketView.FileCursorBufferPointer(fileCursorPosition, 0,true);
+            var ptr = bucketView.FileCursorBufferPointer(fileCursorPosition, 0, true);
             
             for (var i = currentFileOffset; i < SuffixPadding; i++)
             {

@@ -5,7 +5,6 @@
 
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
-using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
@@ -18,18 +17,20 @@ public struct BucketHeader
 {
     public static readonly long LowestBucketGranularityTickDivisor = TimeSpan.FromHours(1).Ticks;
 
-    public uint             BucketId;
-    public uint             ParentBucketId;
-    public BucketFlags      BucketFlags;
-    public TimeSeriesPeriod TimeSeriesPeriod;
     public long             ParentDeltaFileOffset;
     public long             PreviousSiblingDeltaFileOffset;
     public long             NextSiblingBucketDeltaFileOffset;
     public long             CreatedDateTime;
     public long             LastAmendedDateTime;
-    public ulong            DataSizeBytes;
-    public uint             DataEntriesCount;
+    public ulong            TotalFileDataSizeBytes;
+    public uint             TotalHeadersBytes;
+    public uint             TotalFileIndexBytes;
+    public uint             TotalDataEntriesCount;
     public uint             PeriodStartTime;
+    public uint             BucketId;
+    public uint             ParentBucketId;
+    public BucketFlags      BucketFlags;
+    public TimeSeriesPeriod TimeSeriesPeriod;
 }
 
 public enum StorageAttemptResult
@@ -60,10 +61,11 @@ public interface IBucket : IDisposable
     long                 NextSiblingBucketDeltaFileOffset     { get; }
     DateTime             CreatedDateTime                      { get; }
     DateTime             LastAmendedDateTime                  { get; }
-    uint                 DataEntriesCount                     { get; }
-    long                 BucketDataStartFileOffset            { get; }
-    ulong                DataSizeBytes                        { get; }
-    uint                 NonDataSizeBytes                     { get; }
+    uint                 TotalDataEntriesCount                { get; }
+    long                 EndAllHeadersSectionFileOffset       { get; }
+    ulong                TotalFileDataSizeBytes               { get; }
+    uint                 TotalHeadersSizeBytes                { get; }
+    uint                 TotalFileIndexSizeBytes              { get; }
     Type                 ExpectedEntryType                    { get; }
     void                 RefreshViews(ShiftableMemoryMappedFileView? usingMappedFileView = null);
     bool                 Intersects(DateTime? fromTime = null, DateTime? toTime = null);
@@ -76,8 +78,7 @@ public interface IBucket : IDisposable
 
 public interface IBucket<TEntry> : IBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
-    Func<TEntry>?       DefaultEntryFactory { get; }
-    IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null);
+    IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext);
 }
 
 public interface IMutableBucket : IBucket
@@ -92,10 +93,10 @@ public interface IMutableBucket : IBucket
     new long        ParentDeltaFileOffset                { get; set; }
     new long        PreviousSiblingBucketDeltaFileOffset { get; set; }
     new long        NextSiblingBucketDeltaFileOffset     { get; set; }
-    new uint        DataEntriesCount                     { get; set; }
-    new ulong       DataSizeBytes                        { get; set; }
-    new uint        NonDataSizeBytes                     { get; set; }
-    IBuffer?        DataWriterAtAppendLocation           { get; }
+    new uint        TotalDataEntriesCount                { get; set; }
+    new ulong       TotalFileDataSizeBytes               { get; set; }
+    new uint        TotalHeadersSizeBytes                { get; set; }
+    new uint        TotalFileIndexSizeBytes              { get; set; }
     uint            CreateBucketId(uint previousHighestBucketId);
     void            SetEntrySerializer(IMessageSerializer useSerializer);
     void            InitializeNewBucket(DateTime containingTime);

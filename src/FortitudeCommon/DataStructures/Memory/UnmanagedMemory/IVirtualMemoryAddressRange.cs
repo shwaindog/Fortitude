@@ -3,11 +3,11 @@
 
 namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
 
-public unsafe interface IVirtualMemoryAddressRange : IDisposable
+public unsafe interface IVirtualMemoryAddressRange : IDisposable, IGrowable<IVirtualMemoryAddressRange>
 {
     byte*              StartAddress { get; }
-    long               SizeBytes    { get; }
+    long               Length       { get; }
     byte*              EndAddress   { get; }
-    UnmanagedByteArray CreateUnmanagedByteArrayInThisView(long fileCursorPosition, int length);
+    UnmanagedByteArray CreateUnmanagedByteArrayInThisRange(long fileCursorPosition, int length);
     void               Flush();
 }

@@ -99,9 +99,17 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
                                                                        lowerViewContiguousChunk.StartAddress +
                                                                        HalfViewSizeBytes;
 
-    public UnmanagedByteArray CreateUnmanagedByteArrayInThisView(long viewOffset, int length)
+    public long DefaultGrowSize => HalfViewPageSize;
+
+    public IVirtualMemoryAddressRange GrowByDefaultSize()
     {
-        if (viewOffset < (nint)StartAddress || viewOffset + length > (nint)EndAddress)
+        ShiftFileUpByHalfOfViewSize(true);
+        return this;
+    }
+
+    public UnmanagedByteArray CreateUnmanagedByteArrayInThisRange(long viewOffset, int length)
+    {
+        if (viewOffset < 0 || viewOffset + length > Length)
             throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
         return new UnmanagedByteArray(this, viewOffset, length);
     }
@@ -113,7 +121,7 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
             ? upperViewContiguousChunk!.StartAddress + HalfViewSizeBytes
             : lowerViewContiguousChunk!.StartAddress + HalfViewSizeBytes;
 
-    public long SizeBytes => HalfViewSizeBytes + (IsUpperViewAvailableForContiguousReadWrite ? HalfViewSizeBytes : 0);
+    public long Length => HalfViewSizeBytes + (IsUpperViewAvailableForContiguousReadWrite ? HalfViewSizeBytes : 0);
 
     public void Dispose()
     {
@@ -128,9 +136,9 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
     public void Flush()
     {
         if (lowerViewContiguousChunk != null)
-            pagedMemoryMappedFile.Flush(lowerViewContiguousChunk, lowerViewContiguousChunk.StartFileCursorOffset, lowerViewContiguousChunk.SizeBytes);
+            pagedMemoryMappedFile.Flush(lowerViewContiguousChunk, lowerViewContiguousChunk.StartFileCursorOffset, lowerViewContiguousChunk.Length);
         if (upperViewContiguousChunk != null)
-            pagedMemoryMappedFile.Flush(upperViewContiguousChunk, upperViewContiguousChunk.StartFileCursorOffset, upperViewContiguousChunk.SizeBytes);
+            pagedMemoryMappedFile.Flush(upperViewContiguousChunk, upperViewContiguousChunk.StartFileCursorOffset, upperViewContiguousChunk.Length);
     }
 
     public ShiftableMemoryMappedFileView CreateEphemeralViewThatCanCover(string viewName, long fileCursorOffset, long sizeBytes) =>
@@ -239,6 +247,9 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
         return true;
     }
 
+    public byte* FixedFileCursorBufferPointer(long fileCursorOffset, long maxUpperChunkTolerance = ushort.MaxValue, bool shouldGrow = false) =>
+        StartAddress + fileCursorOffset - LowerViewFileCursorOffset;
+
     public byte* FileCursorBufferPointer(long fileCursorOffset, long maxUpperChunkTolerance = ushort.MaxValue, bool shouldGrow = false)
     {
         EnsureLowerViewContainsFileCursorOffset(fileCursorOffset, maxUpperChunkTolerance, shouldGrow);
@@ -255,10 +266,18 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
          && fileCursorOffset + minimumViewSize < HighestFileCursor)
             return false;
 
+        if ((upperViewContiguousChunk is not (EndOfFileEmptyChunk or null) || shouldGrow)
+         && fileCursorOffset >= upperViewContiguousChunk!.StartFileCursorOffset
+         && fileCursorOffset + minimumViewSize < HighestFileCursor + HalfViewPageSize)
+        {
+            ShiftFileUpByHalfOfViewSize(shouldGrow);
+            return true;
+        }
+
         var pageSize = PagedMemoryMappedFile.PageSize;
 
         var interimHalfMinimumViewSize = minimumViewSize / 2;
-        var safeHalfMinimumViewPages = Math.Max(1, (int)(interimHalfMinimumViewSize /
+        var safeHalfMinimumViewPages = Math.Max(HalfViewPageSize, (int)(interimHalfMinimumViewSize /
                                                     pageSize + (interimHalfMinimumViewSize % pageSize == 0 ? 0 : 1)));
 
         var fileCursorDeduction = fileCursorOffset % safeHalfMinimumViewPages * pageSize;

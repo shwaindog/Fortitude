@@ -100,11 +100,11 @@ public class LzmaEncoderTests
         var compressAndZeroFileView = compressAndZeroPagedMemoryMapFile.CreateMappedViewRegion("compressWholeFile", 0, 1, null);
         var compareFileView         = compareFileInfoMapFile.CreateMappedViewRegion("compareWholeFile", 0, 1, null);
 
-        var compressZeroPtr = compressAndZeroFileView.StartAddress;
-        var comparePtr      = compareFileView.StartAddress;
+        var compressZeroPtr = compressAndZeroFileView!.StartAddress;
+        var comparePtr      = compareFileView!.StartAddress;
         for (var i = 0; i < fileSize; i++) Assert.AreEqual(*comparePtr++, *compressZeroPtr++);
 
-        var rangeToCompressAndZero = compressAndZeroFileView.CreateUnmanagedByteArrayInThisView(startCompressZero, endCompressZero);
+        var rangeToCompressAndZero = compressAndZeroFileView.CreateUnmanagedByteArrayInThisRange(startCompressZero, endCompressZero);
         var rangeAsStream          = new ByteArrayMemoryStream(rangeToCompressAndZero, true);
 
         var compressedStream = MemoryUtils.CreateByteArrayMemoryStream(fileSize);
@@ -130,14 +130,14 @@ public class LzmaEncoderTests
         compressAndZeroPagedMemoryMapFile = new PagedMemoryMappedFile(compressAndZeroFileInfo.FullName);
         compressAndZeroFileView           = compressAndZeroPagedMemoryMapFile.CreateMappedViewRegion("compressWholeFile", 0, 1, null);
 
-        compressZeroPtr = compressAndZeroFileView.StartAddress;
+        compressZeroPtr = compressAndZeroFileView!.StartAddress;
         comparePtr      = compareFileView.StartAddress;
         for (var i = 0; i < startCompressZero; i++) Assert.AreEqual(*comparePtr++, *compressZeroPtr++);
 
         compressZeroPtr = compressAndZeroFileView.StartAddress;
         for (var i = startCompressZero; i < endCompressZero; i++) Assert.AreEqual(0, *(compressZeroPtr + i));
 
-        var rangeToRestore = compressAndZeroFileView.CreateUnmanagedByteArrayInThisView(startCompressZero, endCompressZero);
+        var rangeToRestore = compressAndZeroFileView.CreateUnmanagedByteArrayInThisRange(startCompressZero, endCompressZero);
         rangeAsStream    = new ByteArrayMemoryStream(rangeToRestore, true);
         compressedStream = compressedStream.ReopenStream();
         decoder.Decompress(compressedStream, rangeAsStream);

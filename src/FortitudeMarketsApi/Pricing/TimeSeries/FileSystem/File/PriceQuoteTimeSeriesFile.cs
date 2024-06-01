@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
@@ -17,14 +20,14 @@ public interface IPriceQuoteTimeSeriesFile : ITimeSeriesFile
 public interface IPriceQuoteTimeSeriesFile<TEntry> : IPriceQuoteTimeSeriesFile, ITimeSeriesEntryFile<TEntry>
     where TEntry : class, ITimeSeriesEntry<TEntry>, IVersionedMessage
 {
-    new IPriceQuoteFileHeader<TEntry> PriceQuoteFileHeader { get; set; }
+    new IPriceQuoteFileHeader PriceQuoteFileHeader { get; set; }
 }
 
 public struct CreateSourceTickerQuoteFile
 {
     public CreateSourceTickerQuoteFile(CreateFileParameters fileParameters, ISourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
-        FileParameters = fileParameters;
+        FileParameters        = fileParameters;
         SourceTickerQuoteInfo = sourceTickerQuoteInfo;
     }
 

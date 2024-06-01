@@ -9,7 +9,14 @@ using System.Collections;
 
 namespace FortitudeCommon.DataStructures.Memory;
 
-public interface IByteArray : IReadOnlyList<byte>, IDisposable
+public interface IGrowable<out T> where T : class
+{
+    long DefaultGrowSize { get; }
+
+    T GrowByDefaultSize();
+}
+
+public interface IByteArray : IReadOnlyList<byte>, IDisposable, IGrowable<IByteArray>
 {
     long Length { get; }
     byte this[long index] { get; set; }
@@ -48,6 +55,14 @@ public class ObjectByteArrayWrapper : IByteArray
         var replacementArray = new byte[newSize];
         Array.Copy(backingArray, replacementArray, newSize);
         backingArray = replacementArray;
+    }
+
+    public long DefaultGrowSize => Length;
+
+    public IByteArray GrowByDefaultSize()
+    {
+        SetLength(Length * 2);
+        return this;
     }
 
     public long     Length => backingArray.Length;

@@ -22,7 +22,7 @@ public class PagedMemoryMappedFileTests
     [TestInitialize]
     public void Setup()
     {
-        PagedMemoryMappedFile.LogFailedMappingAttempts = true;
+        PagedMemoryMappedFile.LogMappingMessages = true;
 
         newMemoryMappedFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
         memoryMappedFile        = new FileInfo(newMemoryMappedFilePath);

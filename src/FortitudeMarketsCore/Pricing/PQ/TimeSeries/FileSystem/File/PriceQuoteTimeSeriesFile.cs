@@ -24,17 +24,17 @@ public class PriceQuoteTimeSeriesFile<TBucket, TEntry> : TimeSeriesFile<TBucket,
         : base(pagedMemoryMappedFile, header)
     {
         Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
-        PriceQuoteFileHeader    = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
+        PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
     }
 
     public PriceQuoteTimeSeriesFile(CreateSourceTickerQuoteFile sourceTickerTimeSeriesFileParams) : base(sourceTickerTimeSeriesFileParams
              .FileParameters)
     {
         Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
-        PriceQuoteFileHeader    = (IPriceQuoteFileHeader<TEntry>)Header.SubHeader!;
+        PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
     }
 
     IPriceQuoteFileHeader IPriceQuoteTimeSeriesFile.PriceQuoteFileHeader => PriceQuoteFileHeader;
 
-    public IPriceQuoteFileHeader<TEntry> PriceQuoteFileHeader { get; set; }
+    public IPriceQuoteFileHeader PriceQuoteFileHeader { get; set; }
 }
