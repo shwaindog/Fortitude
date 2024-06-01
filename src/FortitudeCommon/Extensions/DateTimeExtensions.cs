@@ -1,12 +1,17 @@
-﻿namespace FortitudeCommon.Extensions;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+namespace FortitudeCommon.Extensions;
 
 public static class DateTimeExtensions
 {
-    private static long fiveMinuteTicks = TimeSpan.TicksPerMinute * 5;
-    private static long tenMinuteTicks = TimeSpan.TicksPerMinute * 10;
+    private static long MinTicks           = DateTime.MinValue.Ticks;
+    private static long MaxTicks           = DateTime.MaxValue.Ticks;
+    private static long fiveMinuteTicks    = TimeSpan.TicksPerMinute * 5;
+    private static long tenMinuteTicks     = TimeSpan.TicksPerMinute * 10;
     private static long fifteenMinuteTicks = TimeSpan.TicksPerMinute * 15;
-    private static long thirtyMinuteTicks = TimeSpan.TicksPerMinute * 30;
-    private static long fourHourTicks = TimeSpan.TicksPerHour * 4;
+    private static long thirtyMinuteTicks  = TimeSpan.TicksPerMinute * 30;
+    private static long fourHourTicks      = TimeSpan.TicksPerHour * 4;
 
     public static DateTime TruncToSecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerSecond));
 
@@ -30,14 +35,24 @@ public static class DateTimeExtensions
     {
         var currentDay = allTicks.Date;
         return currentDay.DayOfWeek switch
-        {
-            DayOfWeek.Monday => currentDay.AddDays(-1), DayOfWeek.Tuesday => currentDay.AddDays(-2), DayOfWeek.Wednesday => currentDay.AddDays(-3)
-            , DayOfWeek.Thursday => currentDay.AddDays(-4), DayOfWeek.Friday => currentDay.AddDays(-5), DayOfWeek.Saturday => currentDay.AddDays(-6)
-            , _ => currentDay
-        };
+               {
+                   DayOfWeek.Monday    => currentDay.AddDays(-1)
+                 , DayOfWeek.Tuesday   => currentDay.AddDays(-2)
+                 , DayOfWeek.Wednesday => currentDay.AddDays(-3)
+                 , DayOfWeek.Thursday  => currentDay.AddDays(-4)
+                 , DayOfWeek.Friday    => currentDay.AddDays(-5)
+                 , DayOfWeek.Saturday  => currentDay.AddDays(-6)
+                 , _                   => currentDay
+               };
     }
 
     public static DateTime TruncToMonthBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.Day);
 
     public static DateTime TruncToYearBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.DayOfYear);
+
+    public static DateTime CappedTicksToDateTime(this long ticks)
+    {
+        var cappedTicks = Math.Min(MaxTicks, Math.Max(MinTicks, ticks));
+        return DateTime.FromBinary(cappedTicks);
+    }
 }

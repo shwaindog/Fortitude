@@ -24,4 +24,5 @@ public unsafe interface IBuffer : IStream
     void  SetAllRead();
     void  TryHandleRemainingWriteBufferRunningLow();
     bool  HasStorageForBytes(int bytes);
+    void  DestroyBuffer();
 }

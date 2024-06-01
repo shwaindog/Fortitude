@@ -19,17 +19,21 @@ public interface ISubBucketContainerBucket<TEntry, TBucket, out TSubBucket> : II
     IEnumerable<TSubBucket> SubBuckets { get; }
 }
 
-public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : IndexedDataBucket<TEntry, TBucket>,
+public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : IndexedBucket<TEntry, TBucket>,
     ISubBucketContainerBucket<TEntry, TBucket, TSubBucket>, IMutableBucketContainer
     where TEntry : ITimeSeriesEntry<TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>
 {
-    private static readonly IFLogger                  Logger           = FLoggerFactory.Instance.GetLogger(typeof(SubBucketOnlyBucket<,,>));
-    private readonly        List<TSubBucket>          cacheSubBuckets  = new();
-    private readonly        BucketFactory<TSubBucket> subBucketFactory = new();
-    private                 TSubBucket?               currentlyOpenSubBucket;
-    private                 uint                      lastAddedIndexKey;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SubBucketOnlyBucket<,,>));
+
+    private readonly List<TSubBucket> cacheSubBuckets = new();
+
+    private readonly BucketFactory<TSubBucket> subBucketFactory = new();
+
+    private TSubBucket? currentlyOpenSubBucket;
+    private uint        lastAddedIndexKey;
+    private DateTime    nextFileIndexReadTime = DateTime.MinValue;
 
     protected SubBucketOnlyBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
       , ShiftableMemoryMappedFileView? alternativeFileView = null)
@@ -88,12 +92,14 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         var bucketIndexOffset
             = new BucketIndexInfo(newChild.BucketId, newChild.PeriodStartTime, newChild.BucketFlags, newChild.TimeSeriesPeriod
                                 , newChild.FileCursorOffset - FileCursorOffset);
-        // Logger.Info("BucketId {0} at {1} added child BucketId {2} at {3} with delta {4}", BucketId, FileCursorOffset, newChild.BucketId
-        //     , newChild.FileCursorOffset, newChild.FileCursorOffset - FileCursorOffset);
         lastAddedIndexKey = BucketIndexes.NextEmptyIndexKey;
         LastAddedBucketId = newChild.BucketId;
+        // Logger.Info("BucketId {0} at {1} added child BucketId {2} at {3} with key {4} and delta {5}", BucketId, FileCursorOffset, newChild.BucketId
+        //           , newChild.FileCursorOffset, lastAddedIndexKey, newChild.FileCursorOffset - FileCursorOffset);
         BucketIndexes.Add(lastAddedIndexKey, bucketIndexOffset);
         cacheSubBuckets.Add((TSubBucket)newChild);
+        IndexCount            = (ushort)cacheSubBuckets.Count;
+        nextFileIndexReadTime = DateTime.Now.AddMinutes(1);
     }
 
 
@@ -101,24 +107,25 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     {
         get
         {
-            if (!IsOpen || (Writable && cacheSubBuckets.Any())) return cacheSubBuckets;
+            if (!IsOpen || (cacheSubBuckets.Any() && nextFileIndexReadTime < DateTime.Now)) return cacheSubBuckets;
             if (!CanAccessHeaderFromFileView) RefreshViews();
 
+            nextFileIndexReadTime = DateTime.Now.AddMinutes(1);
             cacheSubBuckets.Clear();
 
             foreach (var subBucketIndexOffset in BucketIndexes.Values)
                 if (subBucketIndexOffset is not { BucketFlags: BucketFlags.None })
                 {
-                    // Logger.Info("BucketId {0} at {1} Attempting to open child BucketId {2} having offset {3} with at {4}", BucketId, FileCursorOffset
-                    //     , subBucketIndexOffset.BucketId, subBucketIndexOffset.ParentOrFileOffset
-                    //     , FileCursorOffset + subBucketIndexOffset.ParentOrFileOffset);
+                    // Logger.Info("BucketId {0} at {1} Attempting to open child BucketId {2} having offset {3} with at {4}",
+                    //             BucketId, FileCursorOffset, subBucketIndexOffset.BucketId,
+                    //             subBucketIndexOffset.ParentOrFileOffset,
+                    //             FileCursorOffset + subBucketIndexOffset.ParentOrFileOffset);
                     currentlyOpenSubBucket = subBucketFactory.OpenExistingBucket(this
                                                                                , FileCursorOffset + subBucketIndexOffset.ParentOrFileOffset, false
                                                                                , ContainingFile.ReadChildrenFileView);
                     cacheSubBuckets.Add(currentlyOpenSubBucket);
                     currentlyOpenSubBucket.CloseBucketFileViews();
                 }
-
             return cacheSubBuckets;
         }
     }
@@ -150,15 +157,15 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
 
     public override long CalculateBucketEndFileOffset() => SubBuckets.Max(sb => sb.CalculateBucketEndFileOffset());
 
-    public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext, long? fromFileCursorOffset = null) =>
+    public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext) =>
         SubBuckets.Where(sb => sb.BucketIntersects(readerContext.PeriodRange))
                   .SelectMany(subBucket =>
                   {
                       subBucket.RefreshViews();
-                      return subBucket.ReadEntries(readerContext, fromFileCursorOffset);
+                      return subBucket.ReadEntries(readerContext);
                   });
 
-    public override unsafe StorageAttemptResult AppendEntry(TEntry entry)
+    public override StorageAttemptResult AppendEntry(TEntry entry)
     {
         if (!Writable) return StorageAttemptResult.BucketClosedForAppend;
         var entryStorageTime = entry.StorageTime(StorageTimeResolver);
@@ -168,6 +175,13 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
         if (searchResult == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenSubBucket!.AppendEntry(entry);
         var parentCheckResult = CheckTimeSupported(entryStorageTime);
         if (parentCheckResult != StorageAttemptResult.PeriodRangeMatched) return parentCheckResult;
+
+        if (searchResult == StorageAttemptResult.NextBucketPeriod &&
+            (currentlyOpenSubBucket?.BucketFlags.HasBucketCurrentAppendingFlag() ?? false))
+        {
+            currentlyOpenSubBucket = currentlyOpenSubBucket.CloseAndCreateNextBucket()!;
+            return currentlyOpenSubBucket.AppendEntry(entry);
+        }
         foreach (var existingBucket in SubBuckets)
             if (existingBucket.CheckTimeSupported(entryStorageTime) == StorageAttemptResult.PeriodRangeMatched)
             {
@@ -175,19 +189,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
                 return existingBucket.AppendEntry(entry);
             }
 
-        if (searchResult == StorageAttemptResult.NextBucketPeriod &&
-            (currentlyOpenSubBucket?.BucketFlags.HasBucketCurrentAppendingFlag() ?? false))
-        {
-            currentlyOpenSubBucket                     =  currentlyOpenSubBucket.CloseAndCreateNextBucket()!;
-            BucketContainerIndexEntry->NumIndexEntries += 1;
-            return currentlyOpenSubBucket.AppendEntry(entry);
-        }
-
-        currentlyOpenSubBucket = subBucketFactory.CreateNewBucket(this, BucketDataStartFileOffset,
+        currentlyOpenSubBucket = subBucketFactory.CreateNewBucket(this, EndAllHeadersSectionFileOffset,
                                                                   entryStorageTime, true);
-        BucketContainerIndexEntry->NumIndexEntries = 1;
         return currentlyOpenSubBucket.AppendEntry(entry);
     }
-
-    protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => SelectBucketHeaderAndIndexFileView();
 }

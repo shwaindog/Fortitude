@@ -35,7 +35,7 @@ public class TimeSeriesFileTests
     [TestInitialize]
     public void Setup()
     {
-        PagedMemoryMappedFile.LogFailedMappingAttempts = true;
+        PagedMemoryMappedFile.LogMappingMessages = true;
         testTimeSeriesFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
         timeSeriesFile = new FileInfo(testTimeSeriesFilePath);
         createNewEntryFactory = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
@@ -56,9 +56,16 @@ public class TimeSeriesFileTests
     [TestCleanup]
     public void TearDown()
     {
-        readerSession?.Close();
-        writerSession.Close();
-        oneWeekFile.Close();
+        try
+        {
+            readerSession?.Close();
+            writerSession.Close();
+            oneWeekFile.Close();
+        }
+        catch (Exception ex)
+        {
+            Console.Out.WriteLine("Could not close all sessions. Got {0}", ex);
+        }
         var dirInfo = new DirectoryInfo(Environment.CurrentDirectory);
         foreach (var existingTimeSeriesFile in dirInfo.GetFiles("TimeSeriesFileTests_*"))
             try
@@ -84,17 +91,17 @@ public class TimeSeriesFileTests
             expectedDataSize += (ulong)sizeof(Level1QuoteStruct);
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
         }
-
-        Assert.AreEqual(expectedDataSize, oneWeekFile.Header.TotalDataSizeBytes);
+        oneWeekFile.AutoCloseOnZeroSessions = false;
+        writerSession.Close();
+        Assert.AreEqual(expectedDataSize, oneWeekFile.Header.TotalFileDataSizeBytes);
 
         readerSession = oneWeekFile.GetReaderSession();
-        writerSession.Close();
         var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
         var storedItems      = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
-        Assert.IsTrue(toPersistAndCheck.SequenceEqual(storedItems));
+        CompareExpectedToExtracted(toPersistAndCheck, storedItems);
         var newReaderSession = oneWeekFile.GetReaderSession();
         Assert.AreNotSame(readerSession, newReaderSession);
         var newEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
@@ -106,6 +113,21 @@ public class TimeSeriesFileTests
         Assert.AreEqual(toPersistAndCheck.Count, listResults.Count);
         Assert.IsTrue(toPersistAndCheck.SequenceEqual(listResults));
         newReaderSession.Close();
+    }
+
+    private void CompareExpectedToExtracted(List<Level1QuoteStruct> originalList, List<Level1QuoteStruct> toCompareList)
+    {
+        for (var i = 0; i < originalList.Count; i++)
+        {
+            var originalEntry = originalList[i];
+            var compareEntry  = toCompareList[i];
+            if (!Equals(originalEntry, compareEntry))
+            {
+                Logger.Warn("Entries at {0} differ test failed \noriginal {1}\n returned {2}", i, originalEntry, compareEntry);
+                FLoggerFactory.WaitUntilDrained();
+                Assert.Fail($"Entries at {i} differ test failed \noriginal {originalEntry}\n returned {compareEntry}");
+            }
+        }
     }
 
     [TestMethod]

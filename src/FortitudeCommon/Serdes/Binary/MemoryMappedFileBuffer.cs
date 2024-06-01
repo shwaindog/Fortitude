@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -10,20 +11,39 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.Serdes.Binary;
 
-public class MemoryMappedFileBuffer : IBuffer
+public interface IMemoryMappedFileBuffer : IBuffer, IGrowable<IBuffer>
 {
-    private static readonly IFLogger                       Logger = FLoggerFactory.Instance.GetLogger(typeof(MemoryMappedFileBuffer));
-    private readonly        bool                           shouldCloseView;
-    private                 int                            bufferAccessCounter;
-    private                 ShiftableMemoryMappedFileView? mappedFileShiftableView;
-    private                 nint                           originalBufferRelativeWriteCursor;
-    private                 long                           readCursor;
-    private                 long                           writeCursor;
+    void SetFileWriterAt(ShiftableMemoryMappedFileView fileShiftableView, long fileCursorOffset);
+    void ClearFileView();
+}
+
+public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
+{
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MemoryMappedFileBuffer));
+
+    private readonly bool shouldCloseView;
+
+    private int  bufferAccessCounter;
+    private bool isDestroyed;
+
+    private ShiftableMemoryMappedFileView? mappedFileShiftableView;
+
+    private nint originalBufferRelativeWriteCursor;
+    private long readCursor;
+    private long writeCursor;
 
     public MemoryMappedFileBuffer(ShiftableMemoryMappedFileView fileShiftableView, bool shouldCloseView = true)
     {
         mappedFileShiftableView = fileShiftableView;
         this.shouldCloseView    = shouldCloseView;
+    }
+
+    public long DefaultGrowSize => mappedFileShiftableView!.DefaultGrowSize;
+
+    public IBuffer GrowByDefaultSize()
+    {
+        mappedFileShiftableView!.GrowByDefaultSize();
+        return this;
     }
 
     public long ReadCursor
@@ -70,6 +90,17 @@ public class MemoryMappedFileBuffer : IBuffer
     public void Close()
     {
         Dispose();
+    }
+
+    public void DestroyBuffer()
+    {
+        if (isDestroyed) return;
+        isDestroyed = true;
+        if (shouldCloseView)
+        {
+            mappedFileShiftableView?.Dispose();
+            mappedFileShiftableView = null;
+        }
     }
 
     public unsafe byte* ReadBuffer
@@ -160,17 +191,15 @@ public class MemoryMappedFileBuffer : IBuffer
                 Position = (int)offset;
                 break;
             case SeekOrigin.End:
-                if (offset > Length)
-                    mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(offset, shouldGrow: true);
-                if (offset < 0)
+                if (offset > Length || offset < 0)
                     throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = Length - (int)offset;
                 break;
             default:
                 var proposedCursor = Position + (int)offset;
-                if (proposedCursor > Length || proposedCursor < 0)
+                if (proposedCursor > Length && proposedCursor < Length + mappedFileShiftableView!.HalfViewPageSize)
                     mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(proposedCursor, shouldGrow: true);
-                if (proposedCursor < 0)
+                if (proposedCursor < 0 || proposedCursor > Length)
                     throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = proposedCursor;
                 break;
@@ -240,6 +269,10 @@ public class MemoryMappedFileBuffer : IBuffer
 
     ~MemoryMappedFileBuffer()
     {
-        if (shouldCloseView) mappedFileShiftableView?.Dispose();
+        if (shouldCloseView)
+        {
+            mappedFileShiftableView?.Dispose();
+            mappedFileShiftableView = null;
+        }
     }
 }

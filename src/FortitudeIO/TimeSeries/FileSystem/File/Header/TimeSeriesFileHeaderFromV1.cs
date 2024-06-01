@@ -36,8 +36,9 @@ public interface ITimeSeriesFileHeader : IDisposable
     ulong LastWriterLastWriteOffset { get; }
     DateTime LastWriterWriteTime { get; }
     uint TotalEntries { get; }
-    ulong TotalDataSizeBytes { get; }
-    uint TotalNonDataSizeBytes { get; }
+    ulong TotalFileDataSizeBytes { get; }
+    uint TotalHeaderSizeBytes { get; }
+    uint TotalFileIndexSizeBytes { get; }
     ushort MaxHeaderTypeTextSizeBytes { get; }
     ushort MaxHeaderTextSizeBytes { get; }
     Type TimeSeriesFileType { get; }
@@ -80,8 +81,9 @@ public unsafe interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
     new ulong LastWriterLastWriteOffset { get; set; }
     new DateTime LastWriterWriteTime { get; set; }
     new uint TotalEntries { get; set; }
-    new ulong TotalDataSizeBytes { get; set; }
-    new uint TotalNonDataSizeBytes { get; set; }
+    new ulong TotalFileDataSizeBytes { get; set; }
+    new uint TotalFileIndexSizeBytes { get; set; }
+    new uint TotalHeaderSizeBytes { get; set; }
     new ushort MaxHeaderTypeTextSizeBytes { get; set; }
     new ushort MaxHeaderTextSizeBytes { get; set; }
     new Type TimeSeriesFileType { get; set; }
@@ -123,14 +125,15 @@ public struct TimeSeriesFileHeaderBodyV1
     public long FileStartPeriod;
     public ulong LastWriterLastWriteOffset;
     public long LastWriterWriteTime;
-    public ulong TotalDataSizeBytes;
+    public ulong TotalFileDataSizeBytes;
     public uint FileHeaderSize;
     public uint InternalIndexMaxSize;
     public uint HighestBucketId;
     public uint Buckets;
     public uint LastWriterBucket;
     public uint TotalEntries;
-    public uint TotalNonDataSizeBytes;
+    public uint TotalHeaderSizeBytes;
+    public uint TotalFileIndexSizeBytes;
     public uint FirstBucketFileStartOffset;
     public TimeSeriesEntryType TimeSeriesEntryTypeEnum;
     public ushort MaxHeaderTypeTextSizeBytes;                   // Default 511 bytes
@@ -228,7 +231,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         FileStartPeriod = createFileParameters.FilePeriod.ContainingPeriodBoundaryStart(createFileParameters.FileStartPeriod);
         TimeSeriesEntryType = createFileParameters.TimeSeriesEntryType;
 
-        TotalNonDataSizeBytes = FileHeaderSize + 2;
+        TotalHeaderSizeBytes = FileHeaderSize + 2;
         cacheV1HeaderBody = *writableV1HeaderBody;
     }
 
@@ -643,40 +646,59 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
-    public ulong TotalDataSizeBytes 
+    public ulong TotalFileDataSizeBytes 
     {
         get
         {
-            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalDataSizeBytes;
-            cacheV1HeaderBody.TotalDataSizeBytes = writableV1HeaderBody->TotalDataSizeBytes;
-            return cacheV1HeaderBody.TotalDataSizeBytes;
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalFileDataSizeBytes;
+            cacheV1HeaderBody.TotalFileDataSizeBytes = writableV1HeaderBody->TotalFileDataSizeBytes;
+            return cacheV1HeaderBody.TotalFileDataSizeBytes;
         }
         set
         {
-            if (cacheV1HeaderBody.TotalDataSizeBytes == value || headerMemoryMappedFileView == null) return;
+            if (cacheV1HeaderBody.TotalFileDataSizeBytes == value || headerMemoryMappedFileView == null) return;
             if (isWritable)
             {
-                writableV1HeaderBody->TotalDataSizeBytes = value;
-                cacheV1HeaderBody.TotalDataSizeBytes = value;
+                writableV1HeaderBody->TotalFileDataSizeBytes = value;
+                cacheV1HeaderBody.TotalFileDataSizeBytes = value;
             }
         }
     }
 
-    public uint TotalNonDataSizeBytes 
+    public uint TotalHeaderSizeBytes 
     {
         get
         {
-            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalNonDataSizeBytes;
-            cacheV1HeaderBody.TotalNonDataSizeBytes = writableV1HeaderBody->TotalNonDataSizeBytes;
-            return cacheV1HeaderBody.TotalNonDataSizeBytes;
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalHeaderSizeBytes;
+            cacheV1HeaderBody.TotalHeaderSizeBytes = writableV1HeaderBody->TotalHeaderSizeBytes;
+            return cacheV1HeaderBody.TotalHeaderSizeBytes;
         }
         set
         {
-            if (cacheV1HeaderBody.TotalNonDataSizeBytes == value || headerMemoryMappedFileView == null) return;
+            if (cacheV1HeaderBody.TotalHeaderSizeBytes == value || headerMemoryMappedFileView == null) return;
             if (isWritable)
             {
-                writableV1HeaderBody->TotalNonDataSizeBytes = value;
-                cacheV1HeaderBody.TotalNonDataSizeBytes = value;
+                writableV1HeaderBody->TotalHeaderSizeBytes = value;
+                cacheV1HeaderBody.TotalHeaderSizeBytes = value;
+            }
+        }
+    }
+
+    public uint TotalFileIndexSizeBytes 
+    {
+        get
+        {
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.TotalFileIndexSizeBytes;
+            cacheV1HeaderBody.TotalFileIndexSizeBytes = writableV1HeaderBody->TotalFileIndexSizeBytes;
+            return cacheV1HeaderBody.TotalFileIndexSizeBytes;
+        }
+        set
+        {
+            if (cacheV1HeaderBody.TotalFileIndexSizeBytes == value || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                writableV1HeaderBody->TotalFileIndexSizeBytes = value;
+                cacheV1HeaderBody.TotalFileIndexSizeBytes     = value;
             }
         }
     }

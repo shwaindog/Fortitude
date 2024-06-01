@@ -9,20 +9,24 @@ using System.Collections;
 
 namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
 
-public unsafe class UnmanagedByteArray : IByteArray
+public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
 {
-    private readonly long                        arrayOffset;
-    private          IVirtualMemoryAddressRange? mappedViewRegion;
+    private readonly long arrayOffset;
+    private readonly bool closeMemoryRegionOnDispose;
+
+    private IVirtualMemoryAddressRange? mappedViewRegion;
 
     private VirtualMemoryByteArrayEnumerator? reusableEnumerator;
 
-    public UnmanagedByteArray(IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset, long length)
+    public UnmanagedByteArray(IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset,
+        long length, bool closeMemoryRegionOnDispose = false)
     {
-        if (mappedViewRegion.SizeBytes < arrayOffset + length)
+        if (mappedViewRegion.Length < arrayOffset + length)
             throw new Exception("Memory mapped file view size does not match expected file position and/or size");
-        this.mappedViewRegion = mappedViewRegion;
-        this.arrayOffset      = arrayOffset;
-        Length                = length;
+        this.mappedViewRegion           = mappedViewRegion;
+        this.arrayOffset                = arrayOffset;
+        this.closeMemoryRegionOnDispose = closeMemoryRegionOnDispose;
+        Length                          = length;
     }
 
     public bool IsReadOnly => false;
@@ -60,7 +64,8 @@ public unsafe class UnmanagedByteArray : IByteArray
 
     public void SetLength(long newSize)
     {
-        if (mappedViewRegion!.SizeBytes < arrayOffset + newSize)
+        if (mappedViewRegion!.Length < arrayOffset + newSize) GrowByDefaultSize();
+        if (mappedViewRegion!.Length < arrayOffset + newSize)
             throw new Exception("Memory mapped file view size does not match expected file position and/or size");
         Length = (int)newSize;
     }
@@ -70,15 +75,39 @@ public unsafe class UnmanagedByteArray : IByteArray
         mappedViewRegion?.Flush();
     }
 
+    public long DefaultGrowSize => mappedViewRegion!.DefaultGrowSize;
+
+    public IByteArray GrowByDefaultSize()
+    {
+        mappedViewRegion = mappedViewRegion!.GrowByDefaultSize();
+        return this;
+    }
+
     public long Length { get; private set; }
 
     long IByteArray.Count => Length;
 
     public void Dispose()
     {
-        mappedViewRegion?.Dispose();
+        if (closeMemoryRegionOnDispose) mappedViewRegion?.Dispose();
         mappedViewRegion = null;
     }
+
+    IVirtualMemoryAddressRange IGrowable<IVirtualMemoryAddressRange>.GrowByDefaultSize()
+    {
+        var newRegion = mappedViewRegion!.GrowByDefaultSize();
+        if (newRegion != mappedViewRegion)
+        {
+            mappedViewRegion.Dispose();
+            mappedViewRegion = newRegion;
+        }
+        return this;
+    }
+
+    public byte* StartAddress => mappedViewRegion!.StartAddress + arrayOffset;
+    public byte* EndAddress   => StartAddress + Length;
+
+    public UnmanagedByteArray CreateUnmanagedByteArrayInThisRange(long fileCursorPosition, int length) => throw new NotImplementedException();
 
     public void Clear()
     {

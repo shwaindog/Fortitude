@@ -27,7 +27,7 @@ public struct PriceQuoteSubHeader
     public ushort               SourceTickerQuoteSubHeaderBytesOffset;
 }
 
-public unsafe class PriceQuoteFileSubHeader<TEntry> : IMutablePriceQuoteFileHeader<TEntry> where TEntry : class, ILevel0Quote, IVersionedMessage
+public unsafe class PriceQuoteFileSubHeader<TEntry> : IMutablePriceQuoteFileHeader where TEntry : class, ILevel0Quote, IVersionedMessage
 {
     private static   IRecycler                          recycler = new Recycler();
     private readonly MemoryMappedFileBuffer             memoryMappedFileBuffer;
@@ -53,6 +53,40 @@ public unsafe class PriceQuoteFileSubHeader<TEntry> : IMutablePriceQuoteFileHead
         messageBufferContext = new MessageBufferContext(memoryMappedFileBuffer);
         priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset = 100;
     }
+
+    public IMessageDeserializer<TEntry> DefaultMessageDeserializer
+    {
+        get
+        {
+            if (messageDeserializer == null)
+            {
+                var srcTkrQtInfo = SourceTickerQuoteInfo;
+                switch (srcTkrQtInfo.PublishedQuoteLevel)
+                {
+                    case QuoteLevel.Level0:
+                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel0Quote>(srcTkrQtInfo);
+                        break;
+                    case QuoteLevel.Level1:
+                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel1Quote>(srcTkrQtInfo);
+                        break;
+                    case QuoteLevel.Level2:
+                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel2Quote>(srcTkrQtInfo);
+                        break;
+                    default:
+                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel3Quote>(srcTkrQtInfo);
+                        break;
+                }
+            }
+
+            return (IMessageDeserializer<TEntry>)messageDeserializer;
+        }
+    }
+
+    public IMessageSerializer<TEntry> IndexEntryMessageSerializer =>
+        (IMessageSerializer<TEntry>)(indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorage));
+
+    public IMessageSerializer<TEntry> RepeatedEntryMessageSerializer =>
+        (IMessageSerializer<TEntry>)(repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorage));
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo
     {
@@ -93,42 +127,4 @@ public unsafe class PriceQuoteFileSubHeader<TEntry> : IMutablePriceQuoteFileHead
         priceQuoteSubHeader = (PriceQuoteSubHeader*)(memoryMappedFileView.LowerViewFileCursorOffset + subHeaderFileOffset);
         return true;
     }
-
-    IMessageDeserializer IPriceQuoteFileHeader.DefaultMessageDeserializer     => DefaultMessageDeserializer;
-    IMessageSerializer IPriceQuoteFileHeader.  IndexEntryMessageSerializer    => IndexEntryMessageSerializer;
-    IMessageSerializer IPriceQuoteFileHeader.  RepeatedEntryMessageSerializer => RepeatedEntryMessageSerializer;
-
-    public IMessageDeserializer<TEntry> DefaultMessageDeserializer
-    {
-        get
-        {
-            if (messageDeserializer == null)
-            {
-                var srcTkrQtInfo = SourceTickerQuoteInfo;
-                switch (srcTkrQtInfo.PublishedQuoteLevel)
-                {
-                    case QuoteLevel.Level0:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel0Quote>(srcTkrQtInfo);
-                        break;
-                    case QuoteLevel.Level1:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel1Quote>(srcTkrQtInfo);
-                        break;
-                    case QuoteLevel.Level2:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel2Quote>(srcTkrQtInfo);
-                        break;
-                    default:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel3Quote>(srcTkrQtInfo);
-                        break;
-                }
-            }
-
-            return (IMessageDeserializer<TEntry>)messageDeserializer;
-        }
-    }
-
-    public IMessageSerializer<TEntry> IndexEntryMessageSerializer =>
-        (IMessageSerializer<TEntry>)(indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorage));
-
-    public IMessageSerializer<TEntry> RepeatedEntryMessageSerializer =>
-        (IMessageSerializer<TEntry>)(repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorage));
 }

@@ -27,9 +27,9 @@ public static class MemoryUtils
         return ceiling;
     }
 
-    public static unsafe void* MemCpy(void* dest, void* src, ulong count) => OsDirectMemoryAccess.memcpy(dest, src, count);
+    public static unsafe void* MemCpy(void* dest, void* src, long count) => OsDirectMemoryAccess.memcpy(dest, src, (ulong)count);
 
-    public static unsafe IVirtualMemoryAddressRange AllocVirtualMemory(long size)
+    public static unsafe DisposableVirtualMemoryRange AllocVirtualMemory(long size)
     {
         var osDirectMemoryApi = OsDirectMemoryAccess;
         var numberOfPages     = Math.Max(1, (int)(size / osDirectMemoryApi.MinimumRequiredPageSize + 1));
@@ -38,10 +38,18 @@ public static class MemoryUtils
         return new DisposableVirtualMemoryRange(osDirectMemoryApi, (byte*)addressStart, numberOfPages);
     }
 
-    public static IByteArray CreateUnmanagedByteArray(long size)
+    public static unsafe DisposableVirtualMemoryRange ResizeVirtualMemory(DisposableVirtualMemoryRange existing, long newSize)
+    {
+        var newVirtualMemoryRange = AllocVirtualMemory(newSize);
+        var cappedCopySize        = Math.Min(existing.Length, newVirtualMemoryRange.Length);
+        MemCpy(newVirtualMemoryRange.StartAddress, existing.StartAddress, cappedCopySize);
+        return newVirtualMemoryRange;
+    }
+
+    public static UnmanagedByteArray CreateUnmanagedByteArray(long size)
     {
         var virtualMemoryRange = AllocVirtualMemory(size);
-        return new UnmanagedByteArray(virtualMemoryRange, 0, size);
+        return new UnmanagedByteArray(virtualMemoryRange, 0, size, true);
     }
 
     public static ByteArrayMemoryStream CreateByteArrayMemoryStream(long size, bool writable = true, bool closeByteArrayOnDispose = true) =>
