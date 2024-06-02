@@ -12,10 +12,13 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.Serdes.Binary;
 
-public interface IGrowableUnmanagedBuffer : IBuffer, IGrowable<IGrowableUnmanagedBuffer>
+public interface IGrowableUnmanagedBuffer : IFixedByteArrayBuffer, IGrowable<IGrowableUnmanagedBuffer>, IVirtualMemoryAddressRange
 {
-    IVirtualMemoryAddressRange BackingMemoryAddressRange   { get; }
-    int                        GrowRemainingBytesThreshold { get; set; }
+    new long                     Length                      { get; }
+    new long                     DefaultGrowSize             { get; }
+    int                          GrowRemainingBytesThreshold { get; set; }
+    new IGrowableUnmanagedBuffer GrowByDefaultSize();
+    new void                     Flush();
 }
 
 public class GrowableUnmanagedBuffer : FixedByteArrayBuffer, IGrowableUnmanagedBuffer
@@ -50,6 +53,14 @@ public class GrowableUnmanagedBuffer : FixedByteArrayBuffer, IGrowableUnmanagedB
     }
 
     public override long DefaultGrowSize => VirtualMemoryAddressRange!.DefaultGrowSize;
+
+    IVirtualMemoryAddressRange IGrowable<IVirtualMemoryAddressRange>.GrowByDefaultSize() => GrowByDefaultSize();
+
+    public unsafe byte* StartAddress => VirtualMemoryAddressRange!.StartAddress;
+    public unsafe byte* EndAddress   => VirtualMemoryAddressRange!.EndAddress;
+
+    public UnmanagedByteArray CreateUnmanagedByteArrayInThisRange(long fileCursorPosition, int length) =>
+        VirtualMemoryAddressRange!.CreateUnmanagedByteArrayInThisRange(fileCursorPosition, length);
 
     public override long WriteCursor
     {

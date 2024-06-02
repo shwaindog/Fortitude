@@ -46,7 +46,9 @@ public interface IMutableDataBucket<TEntry> : IBucket<TEntry>, IMutableBucket wh
 public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TBucket>, IDataBucket<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
+    private static readonly IFLogger     Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
+    private static          LzmaDecoder? lzmaDecoder;
+    private static          LzmaEncoder? lzmaEncoder;
 
     protected ShiftableMemoryMappedFileView? BucketAppenderDataReaderFileView;
     private   DataBucketHeader               cacheDataHeaderExtension;
@@ -82,17 +84,20 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             {
                 if (IsDataCompressed)
                 {
-                    var uncompressedSize  = Math.Max(ushort.MaxValue * 2, ExpandedDataSize + ushort.MaxValue);
-                    var uncompressedRange = MemoryUtils.CreateUnmanagedByteArray((long)uncompressedSize);
-                    var viewOffset        = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-                    var compressedRange
-                        = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
-                    var uncompressedStream = new ByteArrayMemoryStream(uncompressedRange, true, false);
-                    var compressedStream   = new ByteArrayMemoryStream(compressedRange, true);
-                    var lzmaDecoder        = new LzmaDecoder();
-                    lzmaDecoder.Decompress(compressedStream, uncompressedStream);
-                    writerBuffer = new GrowableUnmanagedBuffer(uncompressedRange);
-                    if ((long)ExpandedDataSize != uncompressedStream.Position) Debugger.Break();
+                    writerBuffer = ContainingFile.UncompressedBuffer;
+                    while (writerBuffer.Length < (long)ExpandedDataSize + ushort.MaxValue) writerBuffer = writerBuffer.GrowByDefaultSize();
+                    if (TotalFileDataSizeBytes > 0)
+                    {
+                        var uncompressedRange = (IByteArray)writerBuffer.BackingMemoryAddressRange;
+                        var viewOffset        = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
+                        var compressedRange
+                            = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
+                        var uncompressedStream = new ByteArrayMemoryStream(uncompressedRange, true, false);
+                        var compressedStream   = new ByteArrayMemoryStream(compressedRange, true);
+                        lzmaDecoder ??= new LzmaDecoder();
+                        lzmaDecoder.Decompress(compressedStream, uncompressedStream);
+                        if ((long)ExpandedDataSize != uncompressedStream.Position) Debugger.Break();
+                    }
                     writerBuffer.WriteCursor = (long)ExpandedDataSize;
                 }
                 else
@@ -142,6 +147,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         cacheDataHeaderExtension         =   *mappedDataHeader;
         alternativeHeaderAndDataFileView ??= BucketContainer.ContainingSession.ActiveBucketDataFileView;
         BucketAppenderDataReaderFileView =   alternativeHeaderAndDataFileView;
+        if (asWritable && ContainingFile.Header.FileFlags.HasWriteDataCompressedFlag() && ExpandedDataSize == 0)
+            BucketFlags |= BucketFlags.CompressedData;
         if (BucketHeaderFileView != BucketAppenderDataReaderFileView)
         {
             var requiredSize = IsDataCompressed ? TotalFileDataSizeBytes : ExpandedDataSize;
@@ -156,17 +163,24 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         if (!IsOpen) return;
         if (Writable)
         {
-            if (IsDataCompressed && writerBuffer is { BackingMemoryAddressRange: IByteArray byteArray })
+            if (IsDataCompressed && writerBuffer != null)
             {
-                var uncompressedStream = new ByteArrayMemoryStream(byteArray, true, false);
-                var viewOffset         = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-                var compressedRange    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize);
-                var compressedStream   = new ByteArrayMemoryStream(compressedRange, true, false);
-                var lzmaEncoder        = new LzmaEncoder();
-                compressionParams.DictionarySize = (int)ExpandedDataSize;
-                compressionParams.InputSize      = (int)ExpandedDataSize;
+                // var start                 = DateTime.Now;
+                var uncompressedByteArray = writerBuffer.BackingByteArray;
+                var originalByteArraySize = uncompressedByteArray.Length;
+                uncompressedByteArray.SetLength((long)ExpandedDataSize);
+                var uncompressedStream = new ByteArrayMemoryStream(uncompressedByteArray, true, false);
+                BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)ExpandedDataSize / 2, true);
+                var viewOffset       = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
+                var compressedRange  = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize / 2);
+                var compressedStream = new ByteArrayMemoryStream(compressedRange, true, false);
+                lzmaEncoder                      ??= new LzmaEncoder();
+                compressionParams.DictionarySize =   (int)ExpandedDataSize / 2;
+                compressionParams.InputSize      =   (int)ExpandedDataSize;
                 lzmaEncoder.Compress(compressionParams, uncompressedStream, compressedStream);
                 TotalFileDataSizeBytes = (ulong)compressedStream.Position;
+                uncompressedByteArray.SetLength(originalByteArraySize);
+                // Logger.Info("Bucket {0} took {1} ms to compress and write data", BucketId, (DateTime.Now - start).TotalMilliseconds);
             }
             else if (!IsDataCompressed && writerBuffer != null)
             {
@@ -202,17 +216,24 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         }
         if (IsDataCompressed)
         {
-            var uncompressedSize   = ExpandedDataSize;
-            var uncompressedRange  = MemoryUtils.CreateUnmanagedByteArray((long)uncompressedSize);
+            // var start            = DateTime.Now;
+            var uncompressedSize      = ExpandedDataSize;
+            var uncompressedBuffer    = ContainingFile.UncompressedBuffer;
+            var uncompressedByteArray = ContainingFile.UncompressedBuffer.BackingByteArray;
+            var originalLength        = uncompressedByteArray.Length;
+            uncompressedByteArray.SetLength((long)uncompressedSize);
+            BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
             var viewOffset         = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-            var compressedRange    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize);
-            var uncompressedStream = new ByteArrayMemoryStream(uncompressedRange, true, false);
+            var compressedRange    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
+            var uncompressedStream = new ByteArrayMemoryStream(uncompressedByteArray, true, false);
             var compressedStream   = new ByteArrayMemoryStream(compressedRange, true);
-            var lzmaDecoder        = new LzmaDecoder();
+            lzmaDecoder ??= new LzmaDecoder();
             lzmaDecoder.Decompress(compressedStream, uncompressedStream);
-            if ((long)ExpandedDataSize != uncompressedStream.Position) Debugger.Break();
-            readerBuffer             = new FixedByteArrayBuffer(uncompressedRange);
+            if ((long)uncompressedSize != uncompressedStream.Position) Debugger.Break();
+            readerBuffer             = new FixedByteArrayBuffer(uncompressedBuffer);
             readerBuffer.WriteCursor = uncompressedStream.Position;
+            uncompressedByteArray.SetLength(originalLength);
+            // Logger.Info("Bucket {0} took {1} ms to decompress and read compressed data", BucketId, (DateTime.Now - start).TotalMilliseconds);
         }
         else
         {

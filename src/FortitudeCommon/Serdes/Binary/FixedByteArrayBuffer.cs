@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -10,7 +11,13 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.Serdes.Binary;
 
-public unsafe class FixedByteArrayBuffer : IBuffer
+public interface IFixedByteArrayBuffer : IBuffer
+{
+    IByteArray                 BackingByteArray          { get; }
+    IVirtualMemoryAddressRange BackingMemoryAddressRange { get; }
+}
+
+public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(GrowableUnmanagedBuffer));
 
@@ -30,10 +37,12 @@ public unsafe class FixedByteArrayBuffer : IBuffer
         this.shouldCloseView      = shouldCloseView;
     }
 
-    public IVirtualMemoryAddressRange BackingMemoryAddressRange => VirtualMemoryAddressRange!;
-
 
     public virtual long DefaultGrowSize => 0;
+
+    public IByteArray BackingByteArray => (UnmanagedByteArray)VirtualMemoryAddressRange!;
+
+    public IVirtualMemoryAddressRange BackingMemoryAddressRange => VirtualMemoryAddressRange!;
 
     public long ReadCursor { get; set; }
 

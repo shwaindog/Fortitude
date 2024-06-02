@@ -20,35 +20,46 @@ namespace FortitudeTests.FortitudeIO.TimeSeries.FileSystem.File;
 [TestClass]
 public class TimeSeriesFileTests
 {
-    private static readonly IFLogger                 Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileTests));
-    private static          int                      newTestCount;
-    private                 Func<Level1QuoteStruct>? createNewEntryFactory;
-    private                 CreateFileParameters     createTestCreateFileParameters;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileTests));
+    private static          int      newTestCount;
+
+    private Func<Level1QuoteStruct>? createNewEntryFactory;
+    private CreateFileParameters     createTestCreateFileParameters;
 
     private TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>      oneWeekFile = null!;
     private IReaderFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>? readerSession;
-    private TestDirectoryFileNameResolver                                            testFileNameResolver   = null!;
-    private string                                                                   testTimeSeriesFilePath = null!;
-    private FileInfo                                                                 timeSeriesFile         = null!;
-    private IWriterFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>  writerSession          = null!;
+    private TestDirectoryFileNameResolver                                            testFileNameResolver = null!;
+
+    private string   testTimeSeriesFilePath = null!;
+    private FileInfo timeSeriesFile         = null!;
+
+    private IWriterFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct> writerSession = null!;
 
     [TestInitialize]
     public void Setup()
     {
         PagedMemoryMappedFile.LogMappingMessages = true;
+        CreateTimeSeriesFile();
+    }
+
+    private void CreateTimeSeriesFile(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader)
+    {
+        fileFlags |= FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader;
+
         testTimeSeriesFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
-        timeSeriesFile = new FileInfo(testTimeSeriesFilePath);
-        createNewEntryFactory = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
+        timeSeriesFile         = new FileInfo(testTimeSeriesFilePath);
+        createNewEntryFactory  = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         testFileNameResolver = new TestDirectoryFileNameResolver
         {
             TestTimeSeriesFile = timeSeriesFile
         };
-        createTestCreateFileParameters = new CreateFileParameters(testFileNameResolver,
-                                                                  "TestInstrumentName", "TestSourceName",
-                                                                  TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, TimeSeriesEntryType.Price, 7,
-                                                                  FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader, 6,
-                                                                  category: "TestInstrumentCategory");
+        createTestCreateFileParameters =
+            new CreateFileParameters(testFileNameResolver,
+                                     "TestInstrumentName", "TestSourceName",
+                                     TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, TimeSeriesEntryType.Price, 7,
+                                     fileFlags, 6,
+                                     category: "TestInstrumentCategory");
         oneWeekFile   = new TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>(createTestCreateFileParameters);
         writerSession = oneWeekFile.GetWriterSession()!;
     }
@@ -80,7 +91,81 @@ public class TimeSeriesFileTests
     }
 
     [TestMethod]
-    public unsafe void CreateNewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
+    public void CreateNew_TwoSmallCompressedPeriods_OriginalValuesAreReturned()
+    {
+        var toPersistAndCheck = GenerateRepeatableL1QuoteStructs(1, 10, 1, DayOfWeek.Wednesday).ToList();
+        toPersistAndCheck.AddRange(GenerateRepeatableL1QuoteStructs(1, 10, 1, DayOfWeek.Thursday));
+
+        writerSession.Close();
+        oneWeekFile.Close();
+
+        CreateTimeSeriesFile(FileFlags.WriteDataCompressed);
+
+        foreach (var firstPeriod in toPersistAndCheck)
+        {
+            var result = writerSession.AppendEntry(firstPeriod);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        }
+        oneWeekFile.AutoCloseOnZeroSessions = false;
+        writerSession.Close();
+
+        Assert.AreEqual((uint)toPersistAndCheck.Count, oneWeekFile.Header.TotalEntries);
+        readerSession = oneWeekFile.GetReaderSession();
+        var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
+        Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
+        Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
+        CompareExpectedToExtracted(toPersistAndCheck, storedItems);
+    }
+
+    // [TestMethod]
+    public void LongRunningCreateNew_TwoLargeCompressedPeriods_OriginalValuesAreReturned()
+    {
+        var toPersistAndCheck = GenerateRepeatableL1QuoteStructs(1, 8000, 1, DayOfWeek.Wednesday).ToList();
+        toPersistAndCheck.AddRange(GenerateRepeatableL1QuoteStructs(1, 8000, 1, DayOfWeek.Thursday));
+
+        writerSession.Close();
+        oneWeekFile.Close();
+
+        CreateTimeSeriesFile(FileFlags.WriteDataCompressed);
+
+        foreach (var firstPeriod in toPersistAndCheck)
+        {
+            var result = writerSession.AppendEntry(firstPeriod);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        }
+        oneWeekFile.AutoCloseOnZeroSessions = false;
+        writerSession.Close();
+
+        Assert.AreEqual((uint)toPersistAndCheck.Count, oneWeekFile.Header.TotalEntries);
+        readerSession = oneWeekFile.GetReaderSession();
+        var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
+        Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
+        Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
+        CompareExpectedToExtracted(toPersistAndCheck, storedItems);
+    }
+
+    // [TestMethod]
+    public void LongRunningCreateNewCompressedDataFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
+    {
+        writerSession.Close();
+        oneWeekFile.Close();
+
+        CreateTimeSeriesFile(FileFlags.WriteDataCompressed);
+
+        NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(46916);
+    }
+
+    [TestMethod]
+    public void CreateNewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
+    {
+        NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned();
+    }
+
+    public unsafe void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(ulong? overrideExpectedFileSize = null, ulong tolerance = 30)
     {
         var toPersistAndCheck = GenerateForEachDayAndHourOfCurrentWeek(0, 10).ToList();
 
@@ -93,7 +178,18 @@ public class TimeSeriesFileTests
         }
         oneWeekFile.AutoCloseOnZeroSessions = false;
         writerSession.Close();
-        Assert.AreEqual(expectedDataSize, oneWeekFile.Header.TotalFileDataSizeBytes);
+        if (overrideExpectedFileSize != null)
+        {
+            var lowerBound = overrideExpectedFileSize - tolerance;
+            var upperBound = overrideExpectedFileSize + tolerance;
+            Assert.IsTrue(oneWeekFile.Header.TotalFileDataSizeBytes > lowerBound && oneWeekFile.Header.TotalFileDataSizeBytes < upperBound,
+                          $"oneWeekFile.Header.TotalFileDataSizeBytes was {oneWeekFile.Header.TotalFileDataSizeBytes} " +
+                          $"and was expected to be between {lowerBound} and {upperBound}");
+        }
+        else
+        {
+            Assert.AreEqual(expectedDataSize, oneWeekFile.Header.TotalFileDataSizeBytes);
+        }
 
         readerSession = oneWeekFile.GetReaderSession();
         var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
@@ -224,8 +320,8 @@ public class TimeSeriesFileTests
         var generateDateHour = generateDate.Add(hourToGenerate);
 
         for (var i = start; i < start + amount; i++)
-            yield return new Level1QuoteStruct(generateDateHour + TimeSpan.FromSeconds(i), 1.2345m + i * 0.0001m,
-                                               generateDateHour + TimeSpan.FromSeconds(i) + TimeSpan.FromMilliseconds(i),
+            yield return new Level1QuoteStruct(generateDateHour + TimeSpan.FromMilliseconds(i), 1.2345m + i * 0.0001m,
+                                               generateDateHour + TimeSpan.FromMilliseconds(i) + TimeSpan.FromMilliseconds(i),
                                                1.2345m - i * 0.0002m, 1.2345m + i * 0.0002m, true);
     }
 

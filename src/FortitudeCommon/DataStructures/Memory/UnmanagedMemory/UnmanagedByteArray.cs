@@ -67,7 +67,7 @@ public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
         if (mappedViewRegion!.Length < arrayOffset + newSize) GrowByDefaultSize();
         if (mappedViewRegion!.Length < arrayOffset + newSize)
             throw new Exception("Memory mapped file view size does not match expected file position and/or size");
-        Length = (int)newSize;
+        Length = newSize;
     }
 
     public void Flush()
@@ -79,7 +79,10 @@ public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
 
     public IByteArray GrowByDefaultSize()
     {
+        var currentLength = Length;
+        var growSize      = DefaultGrowSize;
         mappedViewRegion = mappedViewRegion!.GrowByDefaultSize();
+        SetLength(currentLength + growSize);
         return this;
     }
 

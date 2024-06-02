@@ -21,15 +21,17 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     protected readonly IMutableBucketContainer BucketContainer;
     protected readonly IBucketTrackingSession  ContainingFile;
 
-    protected BucketIndexInfo*               BucketContainerIndexEntry;
-    private   BucketFactory<TBucket>?        bucketFactory;
+    protected BucketIndexInfo*        BucketContainerIndexEntry;
+    private   BucketFactory<TBucket>? bucketFactory;
+
     protected ShiftableMemoryMappedFileView? BucketHeaderFileView;
     private   BucketHeader                   cacheBucketHeader;
     protected IMessageSerializer?            EntrySerializer;
     protected BucketHeader*                  MappedFileBucketInfo;
-    protected long                           RequiredHeaderViewFileCursorOffset;
-    protected byte*                          RequiredHeaderViewLocation;
-    protected bool                           Writable;
+
+    protected long  RequiredHeaderViewFileCursorOffset;
+    protected byte* RequiredHeaderViewLocation;
+    protected bool  Writable;
 
     protected BucketBase(IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
@@ -59,12 +61,6 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         get => bucketFactory ??= new BucketFactory<TBucket>();
         set => bucketFactory = value;
     }
-
-    public TBucket? MoveNext =>
-        NextSiblingBucketDeltaFileOffset != 0
-            ? BucketFactory.OpenExistingBucket(BucketContainer.ContainingSession, FileCursorOffset + NextSiblingBucketDeltaFileOffset
-                                             , Writable)
-            : default;
 
     public virtual TBucket? CloseAndCreateNextBucket()
     {
@@ -100,38 +96,6 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
             if (value == cacheBucketHeader.BucketId || !Writable || !CanAccessHeaderFromFileView) return;
             MappedFileBucketInfo->BucketId = value;
             cacheBucketHeader.BucketId     = value;
-        }
-    }
-
-    public uint ParentBucketId
-    {
-        get
-        {
-            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.ParentBucketId;
-            cacheBucketHeader.ParentBucketId = MappedFileBucketInfo->ParentBucketId;
-            return cacheBucketHeader.ParentBucketId;
-        }
-        set
-        {
-            if (value == cacheBucketHeader.ParentBucketId || !Writable || !CanAccessHeaderFromFileView) return;
-            MappedFileBucketInfo->ParentBucketId = value;
-            cacheBucketHeader.ParentBucketId     = value;
-        }
-    }
-
-    public long ParentDeltaFileOffset
-    {
-        get
-        {
-            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.ParentDeltaFileOffset;
-            cacheBucketHeader.ParentDeltaFileOffset = MappedFileBucketInfo->ParentDeltaFileOffset;
-            return cacheBucketHeader.ParentDeltaFileOffset;
-        }
-        set
-        {
-            if (value == cacheBucketHeader.ParentDeltaFileOffset || !Writable || !CanAccessHeaderFromFileView) return;
-            MappedFileBucketInfo->ParentDeltaFileOffset = value;
-            cacheBucketHeader.ParentDeltaFileOffset     = value;
         }
     }
 
@@ -171,40 +135,6 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
             if (value.Ticks == cacheBucketHeader.PeriodStartTime || !Writable || !CanAccessHeaderFromFileView) return;
             MappedFileBucketInfo->PeriodStartTime = (uint)(value.Ticks / BucketHeader.LowestBucketGranularityTickDivisor);
             cacheBucketHeader.PeriodStartTime     = (uint)(value.Ticks / BucketHeader.LowestBucketGranularityTickDivisor);
-        }
-    }
-
-    public long PreviousSiblingBucketDeltaFileOffset
-    {
-        get
-        {
-            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.PreviousSiblingDeltaFileOffset;
-            cacheBucketHeader.PreviousSiblingDeltaFileOffset = MappedFileBucketInfo->PreviousSiblingDeltaFileOffset;
-            return cacheBucketHeader.PreviousSiblingDeltaFileOffset;
-        }
-
-        set
-        {
-            if (value == cacheBucketHeader.PreviousSiblingDeltaFileOffset || !Writable || !CanAccessHeaderFromFileView) return;
-            MappedFileBucketInfo->PreviousSiblingDeltaFileOffset = value;
-            cacheBucketHeader.PreviousSiblingDeltaFileOffset     = value;
-        }
-    }
-
-    public long NextSiblingBucketDeltaFileOffset
-    {
-        get
-        {
-            if (!CanAccessHeaderFromFileView) return cacheBucketHeader.NextSiblingBucketDeltaFileOffset;
-            cacheBucketHeader.NextSiblingBucketDeltaFileOffset = MappedFileBucketInfo->NextSiblingBucketDeltaFileOffset;
-            return cacheBucketHeader.NextSiblingBucketDeltaFileOffset;
-        }
-
-        set
-        {
-            if (value == cacheBucketHeader.NextSiblingBucketDeltaFileOffset || !Writable || !CanAccessHeaderFromFileView) return;
-            MappedFileBucketInfo->NextSiblingBucketDeltaFileOffset = value;
-            cacheBucketHeader.NextSiblingBucketDeltaFileOffset     = value;
         }
     }
 
@@ -393,8 +323,9 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
         if (BucketFactory.IsFileRootBucketType) BucketContainer.ContainingSession.Header.HighestBucketId = bucketId;
 
-        BucketId                                     = bucketId;
-        BucketFlags                                  = BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending;
+        BucketId    =  bucketId;
+        BucketFlags |= BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending;
+
         CreatedDateTime                              = DateTime.UtcNow;
         LastAmendedDateTime                          = DateTime.UtcNow;
         TotalDataEntriesCount                        = 0;
@@ -409,8 +340,6 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         var fileEndTime       = BucketContainer.TimeSeriesPeriod.PeriodEnd(BucketContainer.PeriodStartTime);
 
         if (fileEndTime == thisEndBucketTime) BucketFlags |= BucketFlags.IsLastPossibleSibling;
-        ParentBucketId        = 0;
-        ParentDeltaFileOffset = 0;
         BucketContainer.AddNewBucket(this);
         // during open
         BucketContainerIndexEntry               =  BucketContainer.BucketIndexes.GetBucketIndexInfo(BucketId);
