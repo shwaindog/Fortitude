@@ -41,6 +41,7 @@ public enum StorageAttemptResult
   , CalculateFilePeriod
   , BucketSearchRange
   , BucketClosedForAppend
+  , StorageSizeFailure
 }
 
 public interface IBucket : IDisposable
@@ -104,6 +105,6 @@ public interface IMutableBucket<TEntry> : IBucket<TEntry>, IMutableBucket where 
 
 public interface IBucketNavigation<TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket
 {
-    BucketFactory<TBucket> BucketFactory { get; set; }
-    TBucket?               CloseAndCreateNextBucket();
+    IBucketFactory<TBucket> BucketFactory { get; set; }
+    TBucket?                CloseAndCreateNextBucket();
 }

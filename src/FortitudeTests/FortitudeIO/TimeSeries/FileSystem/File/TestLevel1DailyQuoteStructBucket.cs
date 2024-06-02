@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
@@ -23,8 +22,4 @@ public class TestLevel1DailyQuoteStructBucket :
         IndexCount = 24;
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
-
-    public override Func<Level1QuoteStruct> DefaultEntryFactory =>
-        () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch,
-                                    0m, 0m, false);
 }

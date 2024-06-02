@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -8,19 +11,19 @@ using FortitudeMarketsApi.Pricing.TimeSeries;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>
+public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>, ITimeSeriesEntry<ILevel1Quote>
 {
-    DateTime AdapterReceivedTime { get; }
-    DateTime AdapterSentTime { get; }
-    DateTime SourceBidTime { get; }
-    decimal BidPriceTop { get; }
-    bool IsBidPriceTopUpdated { get; }
-    DateTime SourceAskTime { get; }
-    decimal AskPriceTop { get; }
-    bool IsAskPriceTopUpdated { get; }
-    bool Executable { get; }
-    IPricePeriodSummary? SummaryPeriod { get; }
-    new ILevel1Quote Clone();
+    DateTime             AdapterReceivedTime  { get; }
+    DateTime             AdapterSentTime      { get; }
+    DateTime             SourceBidTime        { get; }
+    decimal              BidPriceTop          { get; }
+    bool                 IsBidPriceTopUpdated { get; }
+    DateTime             SourceAskTime        { get; }
+    decimal              AskPriceTop          { get; }
+    bool                 IsAskPriceTopUpdated { get; }
+    bool                 Executable           { get; }
+    IPricePeriodSummary? SummaryPeriod        { get; }
+    new ILevel1Quote     Clone();
 }
 
 // last level of QuoteStructs as Level2+ has variable length data.
@@ -31,31 +34,31 @@ public struct Level1QuoteStruct : ITimeSeriesEntry<Level1QuoteStruct>
         DateTime? adapterReceiveTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null,
         DateTime? sourceAskTime = null)
     {
-        IsReplay = isReplay;
-        SourceTime = sourceTime;
-        ClientReceivedTime = clientReceivedTime;
-        SinglePrice = singlePrice;
-        BidPriceTop = bidPriceTop;
-        AskPriceTop = askPriceTop;
-        Executable = executable;
+        IsReplay            = isReplay;
+        SourceTime          = sourceTime;
+        ClientReceivedTime  = clientReceivedTime;
+        SinglePrice         = singlePrice;
+        BidPriceTop         = bidPriceTop;
+        AskPriceTop         = askPriceTop;
+        Executable          = executable;
         AdapterReceivedTime = adapterReceiveTime ?? DateTime.UnixEpoch;
-        AdapterSentTime = adapterSentTime ?? DateTime.UnixEpoch;
-        SourceBidTime = sourceBidTime ?? DateTime.UnixEpoch;
-        SourceAskTime = sourceAskTime ?? DateTime.UnixEpoch;
+        AdapterSentTime     = adapterSentTime ?? DateTime.UnixEpoch;
+        SourceBidTime       = sourceBidTime ?? DateTime.UnixEpoch;
+        SourceAskTime       = sourceAskTime ?? DateTime.UnixEpoch;
     }
 
     public DateTime SourceTime;
-    public decimal SinglePrice;
-    public bool IsReplay;
+    public decimal  SinglePrice;
+    public bool     IsReplay;
     public DateTime ClientReceivedTime;
 
     public DateTime AdapterReceivedTime;
     public DateTime AdapterSentTime;
     public DateTime SourceBidTime;
     public DateTime SourceAskTime;
-    public decimal BidPriceTop;
-    public decimal AskPriceTop;
-    public bool Executable;
+    public decimal  BidPriceTop;
+    public decimal  AskPriceTop;
+    public bool     Executable;
     public DateTime StorageTime(IStorageTimeResolver<Level1QuoteStruct>? resolver = null) => SourceTime;
 
     public override string ToString() =>

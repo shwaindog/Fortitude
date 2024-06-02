@@ -1,6 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -27,8 +31,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
         bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime, adapterReceivedTime,
-            adapterSentTime, sourceBidTime, 0m, isBidPriceTopChanged, sourceAskTime, 0m,
-            isAskPriceTopChanged, executable, periodSummary)
+               adapterSentTime, sourceBidTime, 0m, isBidPriceTopChanged, sourceAskTime, 0m,
+               isAskPriceTopChanged, executable, periodSummary)
     {
         if (bidBook is OrderBook mutBidOrderBook)
             BidBook = mutBidOrderBook;
@@ -69,12 +73,19 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
 
     public override QuoteLevel QuoteLevel => QuoteLevel.Level2;
 
-    public IMutableOrderBook BidBook { get; set; }
-    IOrderBook ILevel2Quote.BidBook => BidBook;
-    public bool IsBidBookChanged { get; set; }
-    public IMutableOrderBook AskBook { get; set; }
-    IOrderBook ILevel2Quote.AskBook => AskBook;
-    public bool IsAskBookChanged { get; set; }
+    public IMutableOrderBook BidBook          { get; set; }
+    IOrderBook ILevel2Quote. BidBook          => BidBook;
+    public bool              IsBidBookChanged { get; set; }
+    public IMutableOrderBook AskBook          { get; set; }
+    IOrderBook ILevel2Quote. AskBook          => AskBook;
+    public bool              IsAskBookChanged { get; set; }
+
+
+    public DateTime StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
+    }
 
     public override decimal BidPriceTop
     {
@@ -144,8 +155,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         if (!(other is ILevel2Quote otherL2)) return false;
         var baseIsSame = base.AreEquivalent(otherL2, exactTypes);
 
-        var bidBooksSame = BidBook?.AreEquivalent(otherL2.BidBook, exactTypes) ?? otherL2?.BidBook == null;
-        var askBooksSame = AskBook?.AreEquivalent(otherL2!.AskBook, exactTypes) ?? otherL2?.AskBook == null;
+        var bidBooksSame       = BidBook?.AreEquivalent(otherL2.BidBook, exactTypes) ?? otherL2?.BidBook == null;
+        var askBooksSame       = AskBook?.AreEquivalent(otherL2!.AskBook, exactTypes) ?? otherL2?.AskBook == null;
         var bidBookChangedSame = true;
         var askBookChangedSame = true;
         if (exactTypes)

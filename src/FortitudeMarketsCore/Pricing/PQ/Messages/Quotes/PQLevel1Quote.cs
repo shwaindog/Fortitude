@@ -1,7 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -15,15 +19,15 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
 {
     new IPQPricePeriodSummary? SummaryPeriod { get; set; }
-    new IPQLevel1Quote Clone();
+    new IPQLevel1Quote         Clone();
 }
 
 public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 {
     private DateTime adapterReceivedTime = DateTimeConstants.UnixEpoch;
-    private DateTime adapterSentTime = DateTimeConstants.UnixEpoch;
-    private decimal askPriceTop;
-    private decimal bidPriceTop;
+    private DateTime adapterSentTime     = DateTimeConstants.UnixEpoch;
+    private decimal  askPriceTop;
+    private decimal  bidPriceTop;
 
     private bool executable = true;
 
@@ -40,15 +44,15 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     {
         if (toClone is ILevel1Quote l1QToClone)
         {
-            adapterSentTime = l1QToClone.AdapterSentTime;
+            adapterSentTime     = l1QToClone.AdapterSentTime;
             adapterReceivedTime = l1QToClone.AdapterReceivedTime;
-            sourceAskTime = l1QToClone.SourceAskTime;
-            sourceBidTime = l1QToClone.SourceBidTime;
-            executable = l1QToClone.Executable;
-            bidPriceTop = l1QToClone.BidPriceTop;
-            askPriceTop = l1QToClone.AskPriceTop;
+            sourceAskTime       = l1QToClone.SourceAskTime;
+            sourceBidTime       = l1QToClone.SourceBidTime;
+            executable          = l1QToClone.Executable;
+            bidPriceTop         = l1QToClone.BidPriceTop;
+            askPriceTop         = l1QToClone.AskPriceTop;
             if (l1QToClone.SummaryPeriod is PQPricePeriodSummary)
-                SummaryPeriod = (PQPricePeriodSummary?)l1QToClone.SummaryPeriod?.Clone();
+                SummaryPeriod                                        = (PQPricePeriodSummary?)l1QToClone.SummaryPeriod?.Clone();
             else if (l1QToClone.SummaryPeriod != null) SummaryPeriod = new PQPricePeriodSummary(l1QToClone.SummaryPeriod);
         }
     }
@@ -59,7 +63,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag;
+                UpdatedFlags                                  |= QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag;
             else if (IsSourceAskTimeDateUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag;
         }
     }
@@ -83,7 +87,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag;
+                UpdatedFlags                                  |= QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag;
             else if (IsSourceBidTimeDateUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag;
         }
     }
@@ -155,7 +159,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.ExecutableUpdatedFlag;
+                UpdatedFlags                           |= QuoteFieldUpdatedFlags.ExecutableUpdatedFlag;
             else if (IsExecutableUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.ExecutableUpdatedFlag;
         }
     }
@@ -182,7 +186,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     {
         get =>
             new(Math.Max(base.SourceTime.Ticks,
-                Math.Max(sourceBidTime.Ticks, sourceAskTime.Ticks)));
+                         Math.Max(sourceBidTime.Ticks, sourceAskTime.Ticks)));
         set => base.SourceTime = value;
     }
 
@@ -192,9 +196,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value == sourceAskTime) return;
-            IsSourceAskTimeDateUpdated |= sourceAskTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch();
+            IsSourceAskTimeDateUpdated    |= sourceAskTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch();
             IsSourceAskTimeSubHourUpdated |= sourceAskTime.GetSubHourComponent() != value.GetSubHourComponent();
-            sourceAskTime = value;
+            sourceAskTime                 =  value;
         }
     }
 
@@ -204,9 +208,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value == sourceBidTime) return;
-            IsSourceBidTimeDateUpdated |= sourceBidTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch();
+            IsSourceBidTimeDateUpdated    |= sourceBidTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch();
             IsSourceBidTimeSubHourUpdated |= sourceBidTime.GetSubHourComponent() != value.GetSubHourComponent();
-            sourceBidTime = value;
+            sourceBidTime                 =  value;
         }
     }
 
@@ -217,9 +221,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         {
             if (value == adapterSentTime) return;
             IsAdapterSentTimeDateUpdated |= adapterSentTime.GetHoursFromUnixEpoch()
-                                            != value.GetHoursFromUnixEpoch();
+                                         != value.GetHoursFromUnixEpoch();
             IsAdapterSentTimeSubHourUpdated |= adapterSentTime.GetSubHourComponent()
-                                               != value.GetSubHourComponent();
+                                            != value.GetSubHourComponent();
             adapterSentTime = value;
         }
     }
@@ -231,9 +235,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         {
             if (adapterReceivedTime == value) return;
             IsAdapterReceivedTimeDateUpdated |= adapterReceivedTime.GetHoursFromUnixEpoch()
-                                                != value.GetHoursFromUnixEpoch();
+                                             != value.GetHoursFromUnixEpoch();
             IsAdapterReceivedTimeSubHourUpdated |= adapterReceivedTime.GetSubHourComponent()
-                                                   != value.GetSubHourComponent();
+                                                != value.GetSubHourComponent();
             adapterReceivedTime = value;
         }
     }
@@ -245,7 +249,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         {
             if (BidPriceTop == value) return;
             IsBidPriceTopUpdated = true;
-            bidPriceTop = value;
+            bidPriceTop          = value;
         }
     }
 
@@ -255,7 +259,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+                UpdatedFlags                            |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
             else if (IsBidPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
         }
     }
@@ -267,7 +271,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         {
             if (askPriceTop == value) return;
             IsAskPriceTopUpdated = true;
-            askPriceTop = value;
+            askPriceTop          = value;
         }
     }
 
@@ -277,7 +281,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+                UpdatedFlags                            |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
             else if (IsAskPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
         }
     }
@@ -289,7 +293,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         {
             if (value == executable) return;
             IsExecutableUpdated = true;
-            executable = value;
+            executable          = value;
         }
     }
 
@@ -317,10 +321,10 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     {
         executable = true;
 
-        adapterSentTime = DateTimeConstants.UnixEpoch;
+        adapterSentTime     = DateTimeConstants.UnixEpoch;
         adapterReceivedTime = DateTimeConstants.UnixEpoch;
-        sourceAskTime = DateTimeConstants.UnixEpoch;
-        sourceBidTime = DateTimeConstants.UnixEpoch;
+        sourceAskTime       = DateTimeConstants.UnixEpoch;
+        sourceBidTime       = DateTimeConstants.UnixEpoch;
 
         bidPriceTop = askPriceTop = 0m;
         base.ResetFields();
@@ -330,9 +334,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var precisionSettings = quotePublicationPrecisionSettings ?? PQSourceTickerQuoteInfo;
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly       = (messageFlags & PQMessageFlags.Complete) == 0;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
+                                                               precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
             yield return updatedField;
         if (!updatedOnly || IsSourceBidTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.SourceBidDateTime, sourceBidTime.GetHoursFromUnixEpoch());
@@ -352,7 +356,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
         if (!updatedOnly || IsAdapterReceivedTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.AdapterReceivedDateTime,
-                adapterReceivedTime.GetHoursFromUnixEpoch());
+                                           adapterReceivedTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsAdapterReceivedTimeSubHourUpdated)
         {
             var flag = adapterReceivedTime.GetSubHourComponent().BreakLongToByteAndUint(out var value);
@@ -362,7 +366,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         if (!IsReplay) AdapterSentTime = snapShotTime;
         if (!updatedOnly || IsAdapterSentTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.AdapterSentDateTime,
-                adapterSentTime.GetHoursFromUnixEpoch());
+                                           adapterSentTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsAdapterSentTimeSubHourUpdated)
         {
             var flag = adapterSentTime.GetSubHourComponent().BreakLongToByteAndUint(out var value);
@@ -370,11 +374,11 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         }
 
         foreach (var updatedField in GetDeltaUpdateTopBookPriceFields(snapShotTime, updatedOnly,
-                     precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
+                                                                      precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
             yield return updatedField;
         if (SummaryPeriod != null)
             foreach (var periodSummaryUpdates in SummaryPeriod.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                         precisionSettings))
+                                                                                    precisionSettings))
                 yield return periodSummaryUpdates;
     }
 
@@ -392,7 +396,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             case PQFieldKeys.SourceBidSubHourTime:
                 IsSourceBidTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSubHourComponent(ref sourceBidTime,
-                    pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
                 return 0;
             case PQFieldKeys.SourceAskDateTime:
                 IsSourceAskTimeDateUpdated = true;
@@ -401,7 +405,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             case PQFieldKeys.SourceAskSubHourTime:
                 IsSourceAskTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSubHourComponent(ref sourceAskTime,
-                    pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
                 return 0;
             case PQFieldKeys.AdapterReceivedDateTime:
                 IsAdapterReceivedTimeDateUpdated = true;
@@ -410,7 +414,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             case PQFieldKeys.AdapterReceivedSubHourTime:
                 IsAdapterReceivedTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSubHourComponent(ref adapterReceivedTime,
-                    pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
                 return 0;
             case PQFieldKeys.AdapterSentDateTime:
                 IsAdapterSentTimeDateUpdated = true;
@@ -419,7 +423,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             case PQFieldKeys.AdapterSentSubHourTime:
                 IsAdapterSentTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSubHourComponent(ref adapterSentTime,
-                    pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
                 return 0;
             case PQFieldKeys.LayerPriceOffset:
                 if (pqFieldUpdate.IsBid())
@@ -442,28 +446,28 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             var isFullReplace = copyMergeFlags.HasFullReplace();
             if (pq1.IsAdapterReceivedTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref adapterReceivedTime,
-                    pq1.adapterReceivedTime.GetHoursFromUnixEpoch());
+                                                           pq1.adapterReceivedTime.GetHoursFromUnixEpoch());
             if (pq1.IsAdapterReceivedTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref adapterReceivedTime,
-                    pq1.adapterReceivedTime.GetSubHourComponent());
+                                                         pq1.adapterReceivedTime.GetSubHourComponent());
             if (pq1.IsAdapterSentTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref adapterSentTime,
-                    pq1.adapterSentTime.GetHoursFromUnixEpoch());
+                                                           pq1.adapterSentTime.GetHoursFromUnixEpoch());
             if (pq1.IsAdapterSentTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref adapterSentTime,
-                    pq1.adapterSentTime.GetSubHourComponent());
+                                                         pq1.adapterSentTime.GetSubHourComponent());
             if (pq1.IsSourceBidTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceBidTime,
-                    pq1.sourceBidTime.GetHoursFromUnixEpoch());
+                                                           pq1.sourceBidTime.GetHoursFromUnixEpoch());
             if (pq1.IsSourceBidTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref sourceBidTime,
-                    pq1.sourceBidTime.GetSubHourComponent());
+                                                         pq1.sourceBidTime.GetSubHourComponent());
             if (pq1.IsSourceAskTimeDateUpdated || isFullReplace)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceAskTime,
-                    pq1.sourceAskTime.GetHoursFromUnixEpoch());
+                                                           pq1.sourceAskTime.GetHoursFromUnixEpoch());
             if (pq1.IsSourceAskTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref sourceAskTime,
-                    pq1.sourceAskTime.GetSubHourComponent());
+                                                         pq1.sourceAskTime.GetSubHourComponent());
             if (pq1 is not ILevel2Quote)
             {
                 if (pq1.IsBidPriceTopUpdated || isFullReplace) bidPriceTop = pq1.bidPriceTop;
@@ -477,9 +481,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         else if (source is ILevel1Quote l1Q) // normal copy
         {
             AdapterReceivedTime = l1Q.AdapterReceivedTime;
-            AdapterSentTime = l1Q.AdapterSentTime;
-            SourceBidTime = l1Q.SourceBidTime;
-            SourceAskTime = l1Q.SourceAskTime;
+            AdapterSentTime     = l1Q.AdapterSentTime;
+            SourceBidTime       = l1Q.SourceBidTime;
+            SourceAskTime       = l1Q.SourceAskTime;
             if (l1Q is not ILevel2Quote)
             {
                 BidPriceTop = l1Q.BidPriceTop;
@@ -488,7 +492,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
             IsAskPriceTopUpdated = l1Q.IsAskPriceTopUpdated;
             IsBidPriceTopUpdated = l1Q.IsBidPriceTopUpdated;
-            Executable = l1Q.Executable;
+            Executable           = l1Q.Executable;
             SummaryPeriod?.CopyFrom(new PQPricePeriodSummary(l1Q.SummaryPeriod!));
         }
 
@@ -505,21 +509,21 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     public override IPQLevel0Quote Clone() =>
         (IPQLevel0Quote?)Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
-        ?? new PQLevel1Quote(this);
+     ?? new PQLevel1Quote(this);
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {
         if (!(other is ILevel1Quote otherL1)) return false;
-        var baseSame = base.AreEquivalent(otherL1, exactTypes);
-        var adapterSentSame = adapterSentTime.Equals(otherL1.AdapterSentTime);
+        var baseSame            = base.AreEquivalent(otherL1, exactTypes);
+        var adapterSentSame     = adapterSentTime.Equals(otherL1.AdapterSentTime);
         var adapterReceivedSame = adapterReceivedTime.Equals(otherL1.AdapterReceivedTime);
-        var sourceAskTimeSame = sourceAskTime.Equals(otherL1.SourceAskTime);
-        var sourceBidTimeSame = sourceBidTime.Equals(otherL1.SourceBidTime);
-        var executableSame = executable == otherL1.Executable;
-        var bidPriceTopSame = BidPriceTop == otherL1.BidPriceTop;
-        var askPriceTopSame = AskPriceTop == otherL1.AskPriceTop;
-        var bidPriceTopChange = true;
-        var askPriceTopChange = true;
+        var sourceAskTimeSame   = sourceAskTime.Equals(otherL1.SourceAskTime);
+        var sourceBidTimeSame   = sourceBidTime.Equals(otherL1.SourceBidTime);
+        var executableSame      = executable == otherL1.Executable;
+        var bidPriceTopSame     = BidPriceTop == otherL1.BidPriceTop;
+        var askPriceTopSame     = AskPriceTop == otherL1.AskPriceTop;
+        var bidPriceTopChange   = true;
+        var askPriceTopChange   = true;
         if (exactTypes)
         {
             bidPriceTopChange = IsBidPriceTopUpdated == otherL1.IsBidPriceTopUpdated;
@@ -527,8 +531,14 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         }
 
         return baseSame && adapterSentSame && adapterReceivedSame && sourceAskTimeSame
-               && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame
-               && bidPriceTopChange && askPriceTopChange;
+            && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame
+            && bidPriceTopChange && askPriceTopChange;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     protected override bool IsBooleanFlagsChanged() => base.IsBooleanFlagsChanged() || IsExecutableUpdated;
@@ -550,10 +560,10 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     {
         if (!updatedOnly || IsBidPriceTopUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, BidPriceTop
-                , PQSourceTickerQuoteInfo!.PriceScalingPrecision);
+                                         , PQSourceTickerQuoteInfo!.PriceScalingPrecision);
         if (!updatedOnly || IsAskPriceTopUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, AskPriceTop, (byte)(PQFieldFlags.IsAskSideFlag
-                                                                                             | PQSourceTickerQuoteInfo!.PriceScalingPrecision));
+                                                                                           | PQSourceTickerQuoteInfo!.PriceScalingPrecision));
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ILevel0Quote?)obj, true);

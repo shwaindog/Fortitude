@@ -63,11 +63,13 @@ public interface IMutableTimeSeriesFile : ITimeSeriesFile
 public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, TEntry>, ITimeSeriesEntryFile<TEntry>, IMutableTimeSeriesFile
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
-    private IBucketIndexDictionary?                   fileBucketIndexOffsets;
-    private IReaderFileSession<TBucket, TEntry>?      infoSession;
-    private int                                       numberOfOpenSessions;
-    private List<IReaderFileSession<TBucket, TEntry>> readerSessions = new();
-    private IWriterFileSession<TBucket, TEntry>?      writerSession;
+    private readonly List<IReaderFileSession<TBucket, TEntry>> readerSessions = new();
+
+    protected IBucketFactory<TBucket>?             FileBucketFactory;
+    private   IBucketIndexDictionary?              fileBucketIndexOffsets;
+    private   IReaderFileSession<TBucket, TEntry>? infoSession;
+    private   int                                  numberOfOpenSessions;
+    private   IWriterFileSession<TBucket, TEntry>? writerSession;
 
     // derived classes should implement equivalent parameter constructor to be open with OpenExistingTimeSeriesFile(string filePath)
     public TimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
@@ -96,8 +98,14 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
             throw new Exception("Unsupported file version being loaded");
     }
 
-    internal PagedMemoryMappedFile?       TimeSeriesMemoryMappedFile { get; private set; }
-    public   IMutableTimeSeriesFileHeader Header                     { get; }
+    internal PagedMemoryMappedFile? TimeSeriesMemoryMappedFile { get; private set; }
+
+    public virtual IBucketFactory<TBucket> RootBucketFactory
+    {
+        get { return FileBucketFactory ??= new BucketFactory<TBucket>(true); }
+        set => FileBucketFactory = value;
+    }
+    public IMutableTimeSeriesFileHeader Header { get; }
 
     public IEnumerable<TEntry>? EntriesFor(PeriodRange? periodRange = null, int? remainingLimit = null)
     {

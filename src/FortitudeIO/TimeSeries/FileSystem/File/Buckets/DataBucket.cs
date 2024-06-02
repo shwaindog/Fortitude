@@ -84,7 +84,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             {
                 if (IsDataCompressed)
                 {
-                    writerBuffer = ContainingFile.UncompressedBuffer;
+                    writerBuffer = OwningSession.UncompressedBuffer;
                     while (writerBuffer.Length < (long)ExpandedDataSize + ushort.MaxValue) writerBuffer = writerBuffer.GrowByDefaultSize();
                     if (TotalFileDataSizeBytes > 0)
                     {
@@ -147,7 +147,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         cacheDataHeaderExtension         =   *mappedDataHeader;
         alternativeHeaderAndDataFileView ??= BucketContainer.ContainingSession.ActiveBucketDataFileView;
         BucketAppenderDataReaderFileView =   alternativeHeaderAndDataFileView;
-        if (asWritable && ContainingFile.Header.FileFlags.HasWriteDataCompressedFlag() && ExpandedDataSize == 0)
+        if (asWritable && OwningSession.FileHeader.FileFlags.HasWriteDataCompressedFlag() && ExpandedDataSize == 0)
             BucketFlags |= BucketFlags.CompressedData;
         if (BucketHeaderFileView != BucketAppenderDataReaderFileView)
         {
@@ -186,8 +186,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             {
                 TotalFileDataSizeBytes = ExpandedDataSize;
             }
-            if (ContainingFile.Header.FileSize < (ulong)StartOfDataSectionOffset + TotalFileDataSizeBytes)
-                ContainingFile.Header.FileSize = (ulong)StartOfDataSectionOffset + TotalFileDataSizeBytes;
+            if (OwningSession.FileHeader.FileSize < (ulong)StartOfDataSectionOffset + TotalFileDataSizeBytes)
+                OwningSession.FileHeader.FileSize = (ulong)StartOfDataSectionOffset + TotalFileDataSizeBytes;
             // if (writerBuffer is { BackingMemoryAddressRange: IByteArray toFlash })
             //     toFlash.Flush();
 
@@ -218,8 +218,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         {
             // var start            = DateTime.Now;
             var uncompressedSize      = ExpandedDataSize;
-            var uncompressedBuffer    = ContainingFile.UncompressedBuffer;
-            var uncompressedByteArray = ContainingFile.UncompressedBuffer.BackingByteArray;
+            var uncompressedBuffer    = OwningSession.UncompressedBuffer;
+            var uncompressedByteArray = OwningSession.UncompressedBuffer.BackingByteArray;
             var originalLength        = uncompressedByteArray.Length;
             uncompressedByteArray.SetLength((long)uncompressedSize);
             BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
@@ -270,7 +270,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
 
     public abstract StorageAttemptResult AppendEntry(IGrowableUnmanagedBuffer growableBuffer, TEntry entry);
 
-    protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => ContainingFile.ActiveBucketHeaderFileView;
+    protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => OwningSession.ActiveBucketHeaderFileView;
 }
 
 public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDataBucket<TEntry>
@@ -361,7 +361,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
 
     public abstract StorageAttemptResult AppendEntry(IGrowableUnmanagedBuffer growableBuffer, TEntry entry);
 
-    protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => ContainingFile.ActiveBucketHeaderFileView;
+    protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => OwningSession.ActiveBucketHeaderFileView;
 }
 
 public interface IMessageDataBucket<TEntry> : IDataBucket<TEntry>

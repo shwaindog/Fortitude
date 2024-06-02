@@ -19,10 +19,10 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
 
     protected readonly IMutableBucketContainer BucketContainer;
-    protected readonly IBucketTrackingSession  ContainingFile;
+    protected readonly IBucketTrackingSession  OwningSession;
 
-    protected BucketIndexInfo*        BucketContainerIndexEntry;
-    private   BucketFactory<TBucket>? bucketFactory;
+    protected BucketIndexInfo*         BucketContainerIndexEntry;
+    private   IBucketFactory<TBucket>? bucketFactory;
 
     protected ShiftableMemoryMappedFileView? BucketHeaderFileView;
     private   BucketHeader                   cacheBucketHeader;
@@ -36,9 +36,9 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     protected BucketBase(IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
     {
-        BucketContainer                    = bucketContainer;
-        ContainingFile                     = bucketContainer.ContainingSession;
-        ContainingFile.CurrentlyOpenBucket = this;
+        BucketContainer                   = bucketContainer;
+        OwningSession                     = bucketContainer.ContainingSession;
+        OwningSession.CurrentlyOpenBucket = this;
         var headerRealignmentDelta = bucketFileCursorOffset % 8 > 0 ? 8 - bucketFileCursorOffset % 8 : 0;
         FileCursorOffset = bucketFileCursorOffset + headerRealignmentDelta;
         // Logger.Debug("{0} at FileCursorOffset {1}", GetType().Name, FileCursorOffset);
@@ -54,9 +54,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
                && BucketHeaderFileView!.StartAddress == RequiredHeaderViewLocation
                && BucketHeaderFileView!.LowerViewFileCursorOffset == RequiredHeaderViewFileCursorOffset;
 
-    public virtual Func<TEntry>? DefaultEntryFactory => null;
-
-    public BucketFactory<TBucket> BucketFactory
+    public IBucketFactory<TBucket> BucketFactory
     {
         get => bucketFactory ??= new BucketFactory<TBucket>();
         set => bucketFactory = value;
@@ -69,7 +67,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         if (nextPeriodResult == StorageAttemptResult.NextBucketPeriod)
         {
             BucketFlags = BucketFlags.BucketClosedGracefully | BucketFlags.Unset(BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending);
-            var writeDelimiterView = ContainingFile.ActiveBucketDataFileView;
+            var writeDelimiterView = OwningSession.ActiveBucketDataFileView;
             CloseBucketFileViews();
             var bucketEndCursor = BucketFactory.AppendCloseBucketDelimiter(writeDelimiterView, CalculateBucketEndFileOffset());
             var nextBucket      = BucketFactory.CreateNewBucket(BucketContainer, bucketEndCursor, nextStartPeriod, true);
@@ -321,7 +319,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         PeriodStartTime = bucketStartTime;
         var bucketId = BucketContainer.CreateBucketId();
 
-        if (BucketFactory.IsFileRootBucketType) BucketContainer.ContainingSession.Header.HighestBucketId = bucketId;
+        if (BucketFactory.IsFileRootBucketType) BucketContainer.ContainingSession.FileHeader.HighestBucketId = bucketId;
 
         BucketId    =  bucketId;
         BucketFlags |= BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending;

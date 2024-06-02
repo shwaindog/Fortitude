@@ -47,3 +47,35 @@ public struct CreateFileParameters
     public ushort                     MaxStringSizeBytes            { get; set; }
     public ushort                     MaxTypeStringSizeBytes        { get; set; }
 }
+
+public static class CreateFileParametersExtensions
+{
+    public static CreateFileParameters SetFilePeriod(this CreateFileParameters input, TimeSeriesPeriod filePeriod)
+    {
+        var updated = input;
+        updated.FilePeriod = filePeriod;
+        return updated;
+    }
+
+    public static CreateFileParameters SetInternalIndexSize(this CreateFileParameters input, uint internalIndexSize)
+    {
+        var updated = input;
+        updated.InternalIndexSize =  internalIndexSize;
+        updated.InitialFileFlags  |= internalIndexSize > 0 ? FileFlags.HasExternalIndexFile : FileFlags.None;
+        return updated;
+    }
+
+    public static CreateFileParameters SetTimeSeriesEntryType(this CreateFileParameters input, TimeSeriesEntryType timeSeriesEntryType)
+    {
+        var updated = input;
+        updated.TimeSeriesEntryType = timeSeriesEntryType;
+        return updated;
+    }
+
+    public static CreateFileParameters SetInitialFileSize(this CreateFileParameters input, int initialFileSize)
+    {
+        var updated = input;
+        updated.InitialFileSize = initialFileSize;
+        return updated;
+    }
+}
