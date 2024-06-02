@@ -4,37 +4,41 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
-using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
+using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class PriceQuoteTimeSeriesFile<TBucket, TEntry> : TimeSeriesFile<TBucket, TEntry>, IPriceQuoteTimeSeriesFile<TEntry>
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
-    where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, IVersionedMessage
+public class PriceQuoteTimeSeriesFile<TBucket, TEntry> : TimeSeriesFile<TBucket, TEntry>, IPriceQuoteTimeSeriesFile
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket
+    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
 {
     public PriceQuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header)
     {
-        Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
+        Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader(view, offset, writable);
         PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
     }
 
-    public PriceQuoteTimeSeriesFile(CreateSourceTickerQuoteFile sourceTickerTimeSeriesFileParams) : base(sourceTickerTimeSeriesFileParams
-             .FileParameters)
+    public PriceQuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+        : base(sourceTickerTimeSeriesFileParams.CreateFileParameters)
     {
-        Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader<TEntry>(view, offset, writable);
+        Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader(sourceTickerTimeSeriesFileParams, view, offset, writable);
         PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
     }
 
-    IPriceQuoteFileHeader IPriceQuoteTimeSeriesFile.PriceQuoteFileHeader => PriceQuoteFileHeader;
+    public override IBucketFactory<TBucket> RootBucketFactory
+    {
+        get { return FileBucketFactory ??= new PriceQuoteBucketFactory<TBucket>(PriceQuoteFileHeader.SourceTickerQuoteInfo, true); }
+        set => FileBucketFactory = value;
+    }
 
-    public IPriceQuoteFileHeader PriceQuoteFileHeader { get; set; }
+    public IPriceQuoteFileHeader PriceQuoteFileHeader { get; }
 }

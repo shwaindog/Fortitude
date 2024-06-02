@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
@@ -35,7 +38,7 @@ internal class PQQuoteStorageDeserializer<T> : PQDeserializerBase<T> where T : c
 
     protected override bool ShouldPublish => true;
 
-    public override unsafe T Deserialize(ISerdeContext readContext)
+    public override T Deserialize(ISerdeContext readContext)
     {
         if ((readContext.Direction & ContextDirection.Read) == 0)
             throw new ArgumentException("Expected readContext to allow reading");
@@ -43,9 +46,9 @@ internal class PQQuoteStorageDeserializer<T> : PQDeserializerBase<T> where T : c
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext bufferContext)
         {
-            var sockBuffContext = bufferContext as SocketBufferReadContext;
+            var sockBuffContext                                           = bufferContext as SocketBufferReadContext;
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
-            var sequenceId = lastSequenceId + 1;
+            var sequenceId                                                = lastSequenceId + 1;
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
             lastSequenceId = PublishedQuote.PQSequenceId;
             PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);

@@ -3,7 +3,30 @@ using FortitudeCommon.Types;
 
 namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
-public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket
+public interface IBucketFactory<out TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket
+{
+    bool   IsFileRootBucketType { get; }
+    bool   NoPatternOrPadding   { get; set; }
+    byte[] BucketPrefixPattern  { get; set; }
+
+    byte[] BucketSuffixPattern { get; set; }
+
+    int PrefixMargin  { get; set; }
+    int PrefixPadding { get; set; }
+    int SuffixMargin  { get; set; }
+    int SuffixPadding { get; set; }
+
+    TBucket CreateNewBucket(IMutableBucketContainer bucketContainer,
+        long createStartingAtFileCursorOffset, DateTime containingTime, bool isWritable);
+
+    long AppendCloseBucketDelimiter(ShiftableMemoryMappedFileView bucketView, long fileCursorPosition);
+
+    TBucket OpenExistingBucket(IMutableBucketContainer bucketContainer,
+        long bucketFileCursorOffset, bool isWritable, ShiftableMemoryMappedFileView? alternativeMappedFileView = null);
+}
+
+
+public class BucketFactory<TBucket> : IBucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket
 {
     private static readonly Func<IMutableBucketContainer, long, bool, ShiftableMemoryMappedFileView?, TBucket> ParamConstructor = 
         ReflectionHelper.CtorBinder<IMutableBucketContainer, long, bool, ShiftableMemoryMappedFileView?, TBucket>();
@@ -46,8 +69,6 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
         get => !NoPatternOrPadding ? suffixPadding : 0;
         set => suffixPadding = value;
     }
-    public long BucketInfoStartFileOffset => PrefixMargin + BucketPrefixPattern.Length + PrefixPadding;
-    public long LastEntryBucketEndFileOffset => SuffixPadding + BucketSuffixPattern.Length + SuffixMargin;
 
     public unsafe TBucket CreateNewBucket(IMutableBucketContainer bucketContainer,
         long createStartingAtFileCursorOffset, DateTime containingTime, bool isWritable)
@@ -73,10 +94,16 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
             }
             currentFileOffset += PrefixPadding;
         }
-        var newBucket = ParamConstructor(bucketContainer, currentFileOffset, isWritable, null);
+        var newBucket = NewBucketObject(bucketContainer, currentFileOffset, isWritable);
         newBucket.BucketFactory = this;
         newBucket.InitializeNewBucket(containingTime);
         return newBucket;
+    }
+
+    protected virtual TBucket NewBucketObject(IMutableBucketContainer bucketContainer,
+        long currentFileOffset, bool isWritable, ShiftableMemoryMappedFileView? alternativeMappedFileView = null)
+    {
+        return ParamConstructor(bucketContainer, currentFileOffset, isWritable, null);
     }
 
     public unsafe long AppendCloseBucketDelimiter(ShiftableMemoryMappedFileView bucketView, long fileCursorPosition)
@@ -109,6 +136,6 @@ public class BucketFactory<TBucket> where TBucket : class, IBucketNavigation<TBu
     public TBucket OpenExistingBucket(IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool isWritable, ShiftableMemoryMappedFileView? alternativeMappedFileView = null)
     {
-        return ParamConstructor(bucketContainer, bucketFileCursorOffset, isWritable, alternativeMappedFileView);
+        return NewBucketObject(bucketContainer, bucketFileCursorOffset, isWritable, alternativeMappedFileView);
     }
 }

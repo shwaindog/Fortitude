@@ -1,7 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -25,8 +29,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
         bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false,
         IRecentlyTraded? recentlyTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime, adapterReceivedTime,
-            adapterSentTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, isAskPriceTopChanged, executable,
-            periodSummary, bidBook, isBidBookChanged, askBook, isAskBookChanged)
+               adapterSentTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, isAskPriceTopChanged, executable,
+               periodSummary, bidBook, isBidBookChanged, askBook, isAskBookChanged)
     {
         if (recentlyTraded is RecentlyTraded mutableRecentlyTraded)
             RecentlyTraded = mutableRecentlyTraded;
@@ -34,9 +38,9 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
             RecentlyTraded = new RecentlyTraded(recentlyTraded);
         else if (sourceTickerQuoteInfo.LastTradedFlags != LastTradedFlags.None)
             RecentlyTraded = new RecentlyTraded(sourceTickerQuoteInfo);
-        BatchId = batchId;
+        BatchId              = batchId;
         SourceQuoteReference = sourceQuoteRef;
-        ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
+        ValueDate            = valueDate ?? DateTimeConstants.UnixEpoch;
     }
 
     public Level3PriceQuote(ILevel0Quote toClone) : base(toClone)
@@ -48,9 +52,9 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
             else if (level3ToClone.RecentlyTraded != null)
                 RecentlyTraded = new RecentlyTraded(level3ToClone.RecentlyTraded);
 
-            BatchId = level3ToClone.BatchId;
+            BatchId              = level3ToClone.BatchId;
             SourceQuoteReference = level3ToClone.SourceQuoteReference;
-            ValueDate = level3ToClone.ValueDate;
+            ValueDate            = level3ToClone.ValueDate;
         }
     }
 
@@ -59,11 +63,18 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
     public IMutableRecentlyTraded? RecentlyTraded { get; set; }
 
     IRecentlyTraded? ILevel3Quote.RecentlyTraded => RecentlyTraded;
-    public uint BatchId { get; set; }
+    public uint                   BatchId        { get; set; }
 
     public uint SourceQuoteReference { get; set; }
 
     public DateTime ValueDate { get; set; } = DateTimeConstants.UnixEpoch;
+
+
+    public DateTime StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
+    }
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -83,9 +94,9 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
                 RecentlyTraded = null;
             }
 
-            BatchId = level3Quote.BatchId;
+            BatchId              = level3Quote.BatchId;
             SourceQuoteReference = level3Quote.SourceQuoteReference;
-            ValueDate = level3Quote.ValueDate;
+            ValueDate            = level3Quote.ValueDate;
         }
 
         return this;
@@ -105,12 +116,12 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
         if (!(other is ILevel3Quote otherL3)) return false;
         var baseIsSame = base.AreEquivalent(otherL3, exactTypes);
 
-        var lastTradesSame = exactTypes ?
-            Equals(RecentlyTraded, otherL3.RecentlyTraded) :
-            RecentlyTraded?.AreEquivalent(otherL3.RecentlyTraded) ?? otherL3.RecentlyTraded == null;
-        var batchIdSame = BatchId == otherL3.BatchId;
+        var lastTradesSame = exactTypes
+            ? Equals(RecentlyTraded, otherL3.RecentlyTraded)
+            : RecentlyTraded?.AreEquivalent(otherL3.RecentlyTraded) ?? otherL3.RecentlyTraded == null;
+        var batchIdSame          = BatchId == otherL3.BatchId;
         var sourceSequenceIdSame = SourceQuoteReference == otherL3.SourceQuoteReference;
-        var valueDateSame = ValueDate == otherL3.ValueDate;
+        var valueDateSame        = ValueDate == otherL3.ValueDate;
 
         return baseIsSame && lastTradesSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
     }

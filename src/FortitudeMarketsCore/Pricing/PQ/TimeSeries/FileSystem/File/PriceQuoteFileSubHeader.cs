@@ -6,19 +6,20 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
+
+public interface ISerializationPriceQuoteFileHeader : IPriceQuoteFileHeader
+{
+    PQSerializationFlags SerializationFlags { get; set; }
+}
 
 public struct PriceQuoteSubHeader
 {
@@ -27,21 +28,20 @@ public struct PriceQuoteSubHeader
     public ushort               SourceTickerQuoteSubHeaderBytesOffset;
 }
 
-public unsafe class PriceQuoteFileSubHeader<TEntry> : IMutablePriceQuoteFileHeader where TEntry : class, ILevel0Quote, IVersionedMessage
+public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
 {
-    private static   IRecycler                          recycler = new Recycler();
-    private readonly MemoryMappedFileBuffer             memoryMappedFileBuffer;
-    private readonly IMessageBufferContext              messageBufferContext;
-    private readonly SourceTickerQuoteInfoDeserializer  sourceTickerQuoteInfoDeserializer = new(recycler);
-    private readonly ushort                             subHeaderFileOffset;
-    private readonly bool                               writable;
-    private          ISourceTickerQuoteInfo?            cacheSourceTickerQuoteInfo;
-    private          IMessageSerializer<PQLevel0Quote>? indexEntrySerializer;
-    private          ShiftableMemoryMappedFileView?     memoryMappedFileView;
-    private          IMessageDeserializer?              messageDeserializer;
-    private          PriceQuoteSubHeader*               priceQuoteSubHeader;
-    private          IMessageSerializer<PQLevel0Quote>? repeatedEntrySerializer;
-    private          SourceTickerQuoteInfoSerializer?   sourceTickerQuoteInfoSerializer;
+    private static   IRecycler                         recycler = new Recycler();
+    private readonly MemoryMappedFileBuffer            memoryMappedFileBuffer;
+    private readonly IMessageBufferContext             messageBufferContext;
+    private readonly SourceTickerQuoteInfoDeserializer sourceTickerQuoteInfoDeserializer = new(recycler);
+    private readonly ushort                            subHeaderFileOffset;
+    private readonly bool                              writable;
+    private          ISourceTickerQuoteInfo?           cachedSourceTickerQuoteInfo;
+
+    private PriceQuoteSubHeader              cachePriceQuoteSubHeader;
+    private ShiftableMemoryMappedFileView?   memoryMappedFileView;
+    private PriceQuoteSubHeader*             priceQuoteSubHeader;
+    private SourceTickerQuoteInfoSerializer? sourceTickerQuoteInfoSerializer;
 
     public PriceQuoteFileSubHeader(ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
     {
@@ -54,45 +54,37 @@ public unsafe class PriceQuoteFileSubHeader<TEntry> : IMutablePriceQuoteFileHead
         priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset = 100;
     }
 
-    public IMessageDeserializer<TEntry> DefaultMessageDeserializer
+    public PriceQuoteFileSubHeader(PriceQuoteCreateFileParameters priceQuoteCreateFileParameters,
+        ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
+        : this(headerMappedFileView, subHeaderFileOffset, writable)
+    {
+        SourceTickerQuoteInfo = priceQuoteCreateFileParameters.SourceTickerQuoteInfo;
+        SerializationFlags    = priceQuoteCreateFileParameters.SerializationFlags;
+    }
+
+    public PQSerializationFlags SerializationFlags
     {
         get
         {
-            if (messageDeserializer == null)
-            {
-                var srcTkrQtInfo = SourceTickerQuoteInfo;
-                switch (srcTkrQtInfo.PublishedQuoteLevel)
-                {
-                    case QuoteLevel.Level0:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel0Quote>(srcTkrQtInfo);
-                        break;
-                    case QuoteLevel.Level1:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel1Quote>(srcTkrQtInfo);
-                        break;
-                    case QuoteLevel.Level2:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel2Quote>(srcTkrQtInfo);
-                        break;
-                    default:
-                        messageDeserializer = new PQQuoteStorageDeserializer<PQLevel3Quote>(srcTkrQtInfo);
-                        break;
-                }
-            }
+            if (memoryMappedFileView != null) return cachePriceQuoteSubHeader.SerializationFlags;
+            cachePriceQuoteSubHeader.SerializationFlags = priceQuoteSubHeader->SerializationFlags;
+            return cachePriceQuoteSubHeader.SerializationFlags;
+        }
 
-            return (IMessageDeserializer<TEntry>)messageDeserializer;
+        set
+        {
+            if (Equals(cachePriceQuoteSubHeader.SerializationFlags, value) || !writable || memoryMappedFileView == null) return;
+            priceQuoteSubHeader->SerializationFlags     = value;
+            cachePriceQuoteSubHeader.SerializationFlags = value;
         }
     }
 
-    public IMessageSerializer<TEntry> IndexEntryMessageSerializer =>
-        (IMessageSerializer<TEntry>)(indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorage));
-
-    public IMessageSerializer<TEntry> RepeatedEntryMessageSerializer =>
-        (IMessageSerializer<TEntry>)(repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorage));
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo
     {
         get
         {
-            if (cacheSourceTickerQuoteInfo != null) return cacheSourceTickerQuoteInfo;
+            if (memoryMappedFileView == null && cachedSourceTickerQuoteInfo != null) return cachedSourceTickerQuoteInfo;
             if (priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes == 0 || priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset > 0)
                 throw new Exception(
                                     "Expected PriceQuoteFileSubHeader to have a value for SourceTickerQuoteSerializedSizeBytes and SourceTickerQuoteSubHeaderBytesOffset");
@@ -100,12 +92,12 @@ public unsafe class PriceQuoteFileSubHeader<TEntry> : IMutablePriceQuoteFileHead
             messageBufferContext.EncodedBuffer!.ReadCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
             messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset
                                                                                   + priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes;
-            cacheSourceTickerQuoteInfo = sourceTickerQuoteInfoDeserializer.Deserialize(messageBufferContext);
-            return cacheSourceTickerQuoteInfo!;
+            cachedSourceTickerQuoteInfo = sourceTickerQuoteInfoDeserializer.Deserialize(messageBufferContext);
+            return cachedSourceTickerQuoteInfo!;
         }
         set
         {
-            if (Equals(cacheSourceTickerQuoteInfo, value) || !writable || memoryMappedFileView == null) return;
+            if (Equals(cachedSourceTickerQuoteInfo, value) || !writable || memoryMappedFileView == null) return;
             messageBufferContext.EncodedBuffer!.WriteCursor       = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
             messageBufferContext.EncodedBuffer.LimitNextSerialize = byte.MaxValue;
             sourceTickerQuoteInfoSerializer                       ??= new SourceTickerQuoteInfoSerializer();

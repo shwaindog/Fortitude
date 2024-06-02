@@ -14,8 +14,3 @@ public interface IPriceQuoteFileHeader : IFileSubHeader
 {
     ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; }
 }
-
-public interface IMutablePriceQuoteFileHeader : IPriceQuoteFileHeader
-{
-    new ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; }
-}

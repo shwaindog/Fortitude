@@ -1,7 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -23,15 +27,15 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         bool executable = false, IPricePeriodSummary? periodSummary = null)
         : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime)
     {
-        AdapterReceivedTime = adapterReceivedTime ?? DateTimeConstants.UnixEpoch;
-        AdapterSentTime = adapterSentTime ?? DateTimeConstants.UnixEpoch;
-        SourceBidTime = sourceBidTime ?? DateTimeConstants.UnixEpoch;
+        AdapterReceivedTime  = adapterReceivedTime ?? DateTimeConstants.UnixEpoch;
+        AdapterSentTime      = adapterSentTime ?? DateTimeConstants.UnixEpoch;
+        SourceBidTime        = sourceBidTime ?? DateTimeConstants.UnixEpoch;
         IsBidPriceTopUpdated = isBidPriceTopChanged;
-        SourceAskTime = sourceAskTime ?? DateTimeConstants.UnixEpoch;
+        SourceAskTime        = sourceAskTime ?? DateTimeConstants.UnixEpoch;
         IsAskPriceTopUpdated = isAskPriceTopChanged;
-        Executable = executable;
+        Executable           = executable;
         if (periodSummary is PricePeriodSummary periodSummaryInstance)
-            SummaryPeriod = periodSummaryInstance.Clone();
+            SummaryPeriod                             = periodSummaryInstance.Clone();
         else if (periodSummary != null) SummaryPeriod = new PricePeriodSummary(periodSummary);
         if (this is not ILevel2Quote)
         {
@@ -44,15 +48,15 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
     {
         if (toClone is ILevel1Quote lvl1Quote)
         {
-            AdapterReceivedTime = lvl1Quote.AdapterReceivedTime;
-            AdapterSentTime = lvl1Quote.AdapterSentTime;
-            SourceBidTime = lvl1Quote.SourceBidTime;
+            AdapterReceivedTime  = lvl1Quote.AdapterReceivedTime;
+            AdapterSentTime      = lvl1Quote.AdapterSentTime;
+            SourceBidTime        = lvl1Quote.SourceBidTime;
             IsBidPriceTopUpdated = lvl1Quote.IsBidPriceTopUpdated;
-            SourceAskTime = lvl1Quote.SourceAskTime;
+            SourceAskTime        = lvl1Quote.SourceAskTime;
             IsAskPriceTopUpdated = lvl1Quote.IsAskPriceTopUpdated;
-            Executable = lvl1Quote.Executable;
+            Executable           = lvl1Quote.Executable;
             if (lvl1Quote.SummaryPeriod is PricePeriodSummary periodSummary)
-                SummaryPeriod = periodSummary.Clone();
+                SummaryPeriod                                       = periodSummary.Clone();
             else if (lvl1Quote.SummaryPeriod != null) SummaryPeriod = new PricePeriodSummary(lvl1Quote.SummaryPeriod);
 
             if (this is not ILevel2Quote)
@@ -63,24 +67,30 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         }
     }
 
-    public override QuoteLevel QuoteLevel => QuoteLevel.Level1;
-    public DateTime AdapterReceivedTime { get; set; } = DateTimeConstants.UnixEpoch;
-    public DateTime AdapterSentTime { get; set; } = DateTimeConstants.UnixEpoch;
-    public DateTime SourceBidTime { get; set; } = DateTimeConstants.UnixEpoch;
-    public virtual decimal BidPriceTop { get; set; }
-    public bool IsBidPriceTopUpdated { get; set; }
-    public DateTime SourceAskTime { get; set; } = DateTimeConstants.UnixEpoch;
-    public virtual decimal AskPriceTop { get; set; }
-    public bool IsAskPriceTopUpdated { get; set; }
-    public bool Executable { get; set; }
-    public IMutablePricePeriodSummary? SummaryPeriod { get; set; }
-    IPricePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
+    public override QuoteLevel                  QuoteLevel           => QuoteLevel.Level1;
+    public          DateTime                    AdapterReceivedTime  { get; set; } = DateTimeConstants.UnixEpoch;
+    public          DateTime                    AdapterSentTime      { get; set; } = DateTimeConstants.UnixEpoch;
+    public          DateTime                    SourceBidTime        { get; set; } = DateTimeConstants.UnixEpoch;
+    public virtual  decimal                     BidPriceTop          { get; set; }
+    public          bool                        IsBidPriceTopUpdated { get; set; }
+    public          DateTime                    SourceAskTime        { get; set; } = DateTimeConstants.UnixEpoch;
+    public virtual  decimal                     AskPriceTop          { get; set; }
+    public          bool                        IsAskPriceTopUpdated { get; set; }
+    public          bool                        Executable           { get; set; }
+    public          IMutablePricePeriodSummary? SummaryPeriod        { get; set; }
+    IPricePeriodSummary? ILevel1Quote.          SummaryPeriod        => SummaryPeriod;
+
+    public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
+    }
 
     public override DateTime SourceTime
     {
         get =>
             new(Math.Max(base.SourceTime.Ticks,
-                Math.Max(SourceBidTime.Ticks, SourceAskTime.Ticks)));
+                         Math.Max(SourceBidTime.Ticks, SourceAskTime.Ticks)));
         set => base.SourceTime = value;
     }
 
@@ -90,15 +100,15 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
 
         if (source is ILevel1Quote level1Quote)
         {
-            AdapterReceivedTime = level1Quote.AdapterReceivedTime;
-            AdapterSentTime = level1Quote.AdapterSentTime;
-            SourceBidTime = level1Quote.SourceBidTime;
-            SourceAskTime = level1Quote.SourceAskTime;
-            BidPriceTop = level1Quote.BidPriceTop;
-            AskPriceTop = level1Quote.AskPriceTop;
+            AdapterReceivedTime  = level1Quote.AdapterReceivedTime;
+            AdapterSentTime      = level1Quote.AdapterSentTime;
+            SourceBidTime        = level1Quote.SourceBidTime;
+            SourceAskTime        = level1Quote.SourceAskTime;
+            BidPriceTop          = level1Quote.BidPriceTop;
+            AskPriceTop          = level1Quote.AskPriceTop;
             IsAskPriceTopUpdated = level1Quote.IsAskPriceTopUpdated;
             IsBidPriceTopUpdated = level1Quote.IsBidPriceTopUpdated;
-            Executable = level1Quote.Executable;
+            Executable           = level1Quote.Executable;
             if (level1Quote.SummaryPeriod != null)
             {
                 if (SummaryPeriod != null)
@@ -130,14 +140,14 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         var baseIsSame = base.AreEquivalent(otherL1, exactTypes);
 
         var adapterReceivedTimeSame = AdapterReceivedTime.Equals(otherL1.AdapterReceivedTime);
-        var adapterSentTimeSame = AdapterSentTime.Equals(otherL1.AdapterSentTime);
-        var sourceBidTimeSame = SourceBidTime.Equals(otherL1.SourceBidTime);
-        var bidPriceTopSame = BidPriceTop == otherL1.BidPriceTop;
-        var sourceAskTimeSame = SourceAskTime.Equals(otherL1.SourceAskTime);
-        var askPriceTopSame = AskPriceTop == otherL1.AskPriceTop;
-        var executableSame = Executable == otherL1.Executable;
+        var adapterSentTimeSame     = AdapterSentTime.Equals(otherL1.AdapterSentTime);
+        var sourceBidTimeSame       = SourceBidTime.Equals(otherL1.SourceBidTime);
+        var bidPriceTopSame         = BidPriceTop == otherL1.BidPriceTop;
+        var sourceAskTimeSame       = SourceAskTime.Equals(otherL1.SourceAskTime);
+        var askPriceTopSame         = AskPriceTop == otherL1.AskPriceTop;
+        var executableSame          = Executable == otherL1.Executable;
         var periodSummarySame = SummaryPeriod?.AreEquivalent(otherL1.SummaryPeriod, exactTypes)
-                                ?? otherL1.SummaryPeriod == null;
+                             ?? otherL1.SummaryPeriod == null;
         var isBidPriceTopChangedSame = IsBidPriceTopUpdated == otherL1.IsBidPriceTopUpdated;
         var isAskPriceTopChangedSame = IsAskPriceTopUpdated == otherL1.IsAskPriceTopUpdated;
 

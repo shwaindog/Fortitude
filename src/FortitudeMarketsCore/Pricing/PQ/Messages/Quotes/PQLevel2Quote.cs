@@ -1,10 +1,15 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 
@@ -14,8 +19,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote
 {
-    new IPQOrderBook BidBook { get; set; }
-    new IPQOrderBook AskBook { get; set; }
+    new IPQOrderBook   BidBook { get; set; }
+    new IPQOrderBook   AskBook { get; set; }
     new IPQLevel2Quote Clone();
 }
 
@@ -86,7 +91,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         get => base.HasUpdates || bidBook.HasUpdates || askBook.HasUpdates;
         set
         {
-            base.HasUpdates = value;
+            base.HasUpdates    = value;
             bidBook.HasUpdates = value;
             askBook.HasUpdates = value;
         }
@@ -133,7 +138,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         set
         {
             if (BidBook[0]!.Price == value) return;
-            BidBook[0]!.Price = value;
+            BidBook[0]!.Price    = value;
             IsBidPriceTopUpdated = true;
         }
     }
@@ -144,7 +149,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         set
         {
             if (AskBook[0]!.Price == value) return;
-            AskBook[0]!.Price = value;
+            AskBook[0]!.Price    = value;
             IsAskPriceTopUpdated = true;
         }
     }
@@ -161,16 +166,16 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     {
         quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                               quotePublicationPrecisionSetting))
             yield return updatedField;
         foreach (var bidFields in bidBook.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                               quotePublicationPrecisionSetting))
             yield return bidFields;
 
         foreach (var askField in askBook.GetDeltaUpdateFields(snapShotTime,
-                     messageFlags, quotePublicationPrecisionSetting))
+                                                              messageFlags, quotePublicationPrecisionSetting))
             yield return new PQFieldUpdate(askField.Id, askField.Value,
-                (byte)(askField.Flag | PQFieldFlags.IsAskSideFlag));
+                                           (byte)(askField.Flag | PQFieldFlags.IsAskSideFlag));
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -182,9 +187,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
              pqFieldUpdate.Id <= PQFieldKeys.SecondLayersRangeEnd))
         {
             // logger.Info("Received PQLevel2Quote Book pqFieldUpdate: {0}", pqFieldUpdate);
-            var result = pqFieldUpdate.IsBid() ?
-                bidBook.UpdateField(pqFieldUpdate) :
-                askBook.UpdateField(pqFieldUpdate);
+            var result = pqFieldUpdate.IsBid() ? bidBook.UpdateField(pqFieldUpdate) : askBook.UpdateField(pqFieldUpdate);
             if (pqFieldUpdate.Id == PQFieldKeys.LayerPriceOffset)
             {
                 if (pqFieldUpdate.IsBid())
@@ -219,6 +222,12 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         return false;
     }
 
+    public DateTime StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
+    }
+
     ILevel2Quote ICloneable<ILevel2Quote>.Clone() => (ILevel2Quote)Clone();
 
     ILevel2Quote ILevel2Quote.Clone() => (ILevel2Quote)Clone();
@@ -229,7 +238,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     public override IPQLevel0Quote Clone() =>
         (IPQLevel0Quote?)Recycler?.Borrow<PQLevel2Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
-        ?? new PQLevel2Quote(this);
+     ?? new PQLevel2Quote(this);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -260,9 +269,9 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {
         if (!(other is ILevel2Quote otherL2)) return false;
-        var baseSame = base.AreEquivalent(other, exactTypes);
-        var bidBooksSame = BidBook.AreEquivalent(otherL2.BidBook, exactTypes);
-        var askBookSame = AskBook.AreEquivalent(otherL2.AskBook, exactTypes);
+        var baseSame           = base.AreEquivalent(other, exactTypes);
+        var bidBooksSame       = BidBook.AreEquivalent(otherL2.BidBook, exactTypes);
+        var askBookSame        = AskBook.AreEquivalent(otherL2.AskBook, exactTypes);
         var bidBookChangedSame = true;
         var askBookChangedSame = true;
         if (exactTypes)
