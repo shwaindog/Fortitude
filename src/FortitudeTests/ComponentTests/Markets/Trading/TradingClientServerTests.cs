@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Monitoring.Alerting;
 using FortitudeCommon.Monitoring.Logging;
@@ -37,23 +40,24 @@ namespace FortitudeTests.ComponentTests.Markets.Trading;
 [NoMatchingProductionClass]
 public class TradingClientServerTests
 {
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
-    private OrxTradingClient orxClient = null!;
-    private OrxTradingServer? orxTradingServer;
-    private TradingServerConfig tradingServerConfig = null!;
+    private readonly IFLogger            logger    = FLoggerFactory.Instance.GetLogger(typeof(TradingClientServerTests));
+    private          OrxTradingClient    orxClient = null!;
+    private          OrxTradingServer?   orxTradingServer;
+    private          TradingServerConfig tradingServerConfig = null!;
 
     [TestInitialize]
     public void Setup()
     {
         logger.Info("Starting setup of TradingClientServerTests");
 
-        tradingServerConfig = new TradingServerConfig(
-            new NetworkTopicConnectionConfig("TestTradingServer", SocketConversationProtocol.TcpAcceptor
-                , new List<IEndpointConfig>
-                {
-                    new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                        , TestMachineConfig.TradingServerPort)
-                }), supportedVenueFeatures: VenueFeatures.Amends);
+        tradingServerConfig =
+            new TradingServerConfig(
+                                    new NetworkTopicConnectionConfig("TestTradingServer", SocketConversationProtocol.TcpAcceptor
+                                                                   , new List<IEndpointConfig>
+                                                                     {
+                                                                         new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                                                                                          , TestMachineConfig.TradingServerPort)
+                                                                     }), supportedVenueFeatures: VenueFeatures.Amends);
         logger.Info("Ended setup of TradingClientServerTests");
     }
 
@@ -69,32 +73,33 @@ public class TradingClientServerTests
     [TestCategory("Integration")]
     [TestCategory("LoopBackIPRequired")]
     [TestMethod]
+    [Timeout(30_000)]
     public void StartedTradingServer_ClientJoinsSendsOrder_ServerSendsConfirmation()
     {
-        var orxServer = OrxServerMessaging.BuildTcpResponder(tradingServerConfig.TradingServerConnectionConfig);
+        var orxServer                    = OrxServerMessaging.BuildTcpResponder(tradingServerConfig.TradingServerConnectionConfig);
         var clientOrderUpdatedResetEvent = new AutoResetEvent(false);
-        var serverAutoResetEvent = new AutoResetEvent(false);
+        var serverAutoResetEvent         = new AutoResetEvent(false);
         var serverResponseTradingHandler = new TradingFeedHandle
         {
             IsAvailable = true
         };
-        orxTradingServer = new OrxTradingServer(orxServer, serverResponseTradingHandler, true);
+        orxTradingServer                =  new OrxTradingServer(orxServer, serverResponseTradingHandler, true);
         orxTradingServer.OnAuthenticate += OrxTradingServer_OnAuthenticate;
 
         orxServer.Start();
 
-        var orderStatus = OrderStatus.New;
+        var     orderStatus             = OrderStatus.New;
         IOrder? clientLastOrderReceived = null;
 
         orxClient = new OrxTradingClient(tradingServerConfig.ToggleProtocolDirection()
-            , SingletonSocketDispatcherResolver.Instance
-            , "TradingClientServerTest",
-            new LoginCredentials("testLoginId", "testPassword"), "testAccount", true, new TradingFeedWatchdog(),
-            new LoggingAlertManager(), false);
+                                       , SingletonSocketDispatcherResolver.Instance
+                                       , "TradingClientServerTest",
+                                         new LoginCredentials("testLoginId", "testPassword"), "testAccount", true, new TradingFeedWatchdog(),
+                                         new LoggingAlertManager(), false);
         orxClient.OrderUpdate += orderUpdate =>
         {
             clientLastOrderReceived = new Order(orderUpdate.Order!);
-            orderStatus = orderUpdate.Order!.Status;
+            orderStatus             = orderUpdate.Order!.Status;
             logger.Info("****** ORDER UPDATED ******** orderStatus : {0} for order {1}", orderStatus, clientLastOrderReceived);
             // Console.WriteLine("orderStatus : {0}", orderStatus);
             clientOrderUpdatedResetEvent.Set();
@@ -102,21 +107,26 @@ public class TradingClientServerTests
 
         Thread.Sleep(500);
         Assert.IsTrue(orxClient.IsAvailable);
-        var orderId = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
-        var timeInForce = TimeInForce.GoodTillCancelled;
+        var orderId      = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
+        var timeInForce  = TimeInForce.GoodTillCancelled;
         var creationTime = new DateTime(2018, 3, 30, 2, 4, 11);
-        var orderSubmitRequest = new OrderSubmitRequest(new Order(orderId, timeInForce,
-                creationTime, OrderStatus.New, new SpotOrder(orderId, timeInForce, creationTime,
-                    OrderSide.Bid, "TestTicker", 1.23456m, 300_000L, OrderType.Limit, 100_000m, 0.00025m, 10_000m),
-                new DateTime(2018, 3, 30, 2, 18, 2), new Parties(null,
-                    new Party("TestPartyId", "TestPartyName", null, "MyClientPartyId",
-                        new BookingInfo("TestAccount", "TestSubAccount"))), new DateTime(2018, 3, 30, 2, 18, 2),
-                new VenueCriteria(new List<IVenue>() { new Venue(23, "TestVenue") },
-                    VenueSelectionMethod.Default), null, null, "", null),
-            1, new DateTime(2018, 3, 30, 2, 18, 2), new DateTime(2018, 3, 30, 2, 18, 2), "Tag")
-        {
-            AutoRecycleAtRefCountZero = false
-        };
+        var orderSubmitRequest =
+            new OrderSubmitRequest(new Order(orderId, timeInForce,
+                                             creationTime, OrderStatus.New, new SpotOrder(orderId, timeInForce, creationTime,
+                                                                                          OrderSide.Bid, "TestTicker", 1.23456m, 300_000L
+                                                                                        , OrderType.Limit, 100_000m
+                                                                                        , 0.00025m, 10_000m),
+                                             new DateTime(2018, 3, 30, 2, 18, 2), new Parties(null,
+                                                                                              new Party("TestPartyId", "TestPartyName", null
+                                                                                             , "MyClientPartyId",
+                                                                                               new BookingInfo("TestAccount", "TestSubAccount")))
+                                           , new DateTime(2018, 3, 30, 2, 18, 2),
+                                             new VenueCriteria(new List<IVenue>() { new Venue(23, "TestVenue") },
+                                                               VenueSelectionMethod.Default), null, null, "", null),
+                                   1, new DateTime(2018, 3, 30, 2, 18, 2), new DateTime(2018, 3, 30, 2, 18, 2), "Tag")
+            {
+                AutoRecycleAtRefCountZero = false
+            };
         orderSubmitRequest.IncrementRefCount();
         orxClient.SubmitOrderRequest(orderSubmitRequest);
 
@@ -141,24 +151,27 @@ public class TradingClientServerTests
             venueAutoResetEvent.Set();
         };
 
-        var serverVenueOrderUpdate = new VenueOrderUpdate(new VenueOrder(
-                new VenueOrderId("VenueOrderId23_0123", ""),
-                new OrderId(1234, "Test1234", 1, "1", null, "TrackingId1234"),
-                OrderStatus.New, new Venue(1234, "TestVenueName"), new DateTime(2018, 4, 4, 14, 49, 43),
-                new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(20), "TestTicker", 1.2345m, 100_000m),
-            new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(111),
-            new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(110),
-            new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(112))
-        {
-            AutoRecycleAtRefCountZero = false
-        };
+        var serverVenueOrderUpdate =
+            new VenueOrderUpdate(new VenueOrder(
+                                                new VenueOrderId("VenueOrderId23_0123", ""),
+                                                new OrderId(1234, "Test1234", 1, "1", null, "TrackingId1234"),
+                                                OrderStatus.New, new Venue(1234, "TestVenueName")
+                                              , new DateTime(2018, 4, 4, 14, 49, 43),
+                                                new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(20), "TestTicker"
+                                              , 1.2345m, 100_000m),
+                                 new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(111),
+                                 new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(110),
+                                 new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(112))
+            {
+                AutoRecycleAtRefCountZero = false
+            };
         serverVenueOrderUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnVenueOrder(serverVenueOrderUpdate);
         AwaitEvent(venueAutoResetEvent, 5_000, "Client Await VenueOrder Updated");
 
         Assert.IsNotNull(clientLastVenueOrderReceived);
         Assert.AreEqual((MutableString)"VenueOrderId23_0123"
-            , clientLastVenueOrderReceived.VenueOrderId!.VenueClientOrderId);
+                      , clientLastVenueOrderReceived.VenueOrderId!.VenueClientOrderId);
 
         IExecution? lastExecution = null;
 
@@ -170,16 +183,19 @@ public class TradingClientServerTests
             executionAutoResetEvent.Set();
         };
 
-        var serverExecutionUpdate = new ExecutionUpdate(new Execution(
-            new ExecutionId("ExecutionId", 123, ""),
-            new Venue(23, "TestVenue"), new VenueOrderId("VenueOrderId23_0123", ""), clientLastOrderReceived.OrderId,
-            new DateTime(2018, 3, 23, 20, 33, 1), 1.23456m, 10_000, 10_000, 1.23456m,
-            new Party("TestPartyId", "TestPartyName", null, "MyClientPartyId",
-                new BookingInfo("TestAccount", "TestSubAccount")), new DateTime(2018, 3, 26),
-            ExecutionType.CounterPartyGave, ExecutionStageType.Trade), ExecutionUpdateType.Created)
-        {
-            AutoRecycleAtRefCountZero = false
-        };
+        var serverExecutionUpdate =
+            new ExecutionUpdate(new Execution(new ExecutionId("ExecutionId", 123, ""),
+                                              new Venue(23, "TestVenue"), new VenueOrderId("VenueOrderId23_0123", "")
+                                            , clientLastOrderReceived.OrderId,
+                                              new DateTime(2018, 3, 23, 20, 33, 1), 1.23456m, 10_000, 10_000, 1.23456m,
+                                              new Party("TestPartyId", "TestPartyName", null, "MyClientPartyId",
+                                                        new BookingInfo("TestAccount", "TestSubAccount"))
+                                            , new DateTime(2018, 3, 26),
+                                              ExecutionType.CounterPartyGave, ExecutionStageType.Trade)
+                              , ExecutionUpdateType.Created)
+            {
+                AutoRecycleAtRefCountZero = false
+            };
         serverExecutionUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnExecution(serverExecutionUpdate);
 
@@ -215,14 +231,14 @@ public class TradingClientServerTests
         Assert.IsNotNull(clientLastOrderReceived);
         Assert.AreEqual(1_000_000, ((ISpotOrder)clientLastOrderReceived.Product!).Size);
 
-        clientEditOrder = clientLastOrderReceived;
+        clientEditOrder         = clientLastOrderReceived;
         clientLastOrderReceived = null;
 
         orxClient.CancelOrder(clientEditOrder);
 
         serverResponseOrder.Status = OrderStatus.Dead;
         var serverOrderUpdate = new OrderUpdate(serverResponseOrder,
-            OrderUpdateEventType.OrderDead, new DateTime(2018, 3, 30, 2, 35, 43));
+                                                OrderUpdateEventType.OrderDead, new DateTime(2018, 3, 30, 2, 35, 43));
         serverOrderUpdate.AutoRecycleAtRefCountZero = false;
         serverOrderUpdate.IncrementRefCount();
         serverResponseTradingHandler.OnOrderUpdate(serverOrderUpdate);
@@ -236,8 +252,8 @@ public class TradingClientServerTests
     private void AwaitEvent(AutoResetEvent waitOn, int timeout, string message)
     {
         var startWait = DateTime.Now;
-        var wasSet = waitOn.WaitOne(timeout);
-        var waitTime = DateTime.Now - startWait;
+        var wasSet    = waitOn.WaitOne(timeout);
+        var waitTime  = DateTime.Now - startWait;
         if (!wasSet) logger.Warn("Timed out waiting {0}ms on {1}", timeout, message);
         else if (waitTime > TimeSpan.FromMilliseconds(100)) logger.Warn("Waited {0}ms for {1}", waitTime.TotalMilliseconds, message);
     }
@@ -245,7 +261,7 @@ public class TradingClientServerTests
     private bool OrxTradingServer_OnAuthenticate(ISocketSessionContext clientSessionConnection, MutableString? usr,
         MutableString? pwd, out IUserData authData, out MutableString message)
     {
-        message = "All Good";
+        message  = "All Good";
         authData = new UserData((MutableString)"TestUser", new AuthenticationData(AuthenticationType.None, null));
         return true;
     }

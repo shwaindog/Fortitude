@@ -3,7 +3,9 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
@@ -69,6 +71,8 @@ public interface IBucketTrackingSession : IMutableBucketContainer
     ShiftableMemoryMappedFileView ActiveBucketHeaderFileView { get; }
     ShiftableMemoryMappedFileView AmendRelatedFileView       { get; }
     ShiftableMemoryMappedFileView ReadChildrenFileView       { get; }
+
+    GrowableUnmanagedBuffer UncompressedBuffer { get; }
 }
 
 public interface IReaderFileSession<TBucket, TEntry> : ITimeSeriesEntriesSession<TEntry>, ITimeSeriesBucketSession<TBucket>
@@ -93,13 +97,15 @@ public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket
     private readonly List<ShiftableMemoryMappedFileView> parentBucketsHeaderAndIndexViews = new();
     private readonly int                                 reserveMultiple;
     private readonly TimeSeriesFile<TBucket, TEntry>     timeSeriesFile;
-    private          ShiftableMemoryMappedFileView?      activeBucketHeaderView;
-    private          ShiftableMemoryMappedFileView?      amendOffsetView;
-    private          ShiftableMemoryMappedFileView?      bucketAppenderView;
-    private          TBucket?                            currentlyOpenBucket;
-    private          bool                                isWritable;
-    private          uint                                lastAddedIndexKey;
-    private          ShiftableMemoryMappedFileView?      readChildBucketsView;
+
+    private ShiftableMemoryMappedFileView? activeBucketHeaderView;
+    private ShiftableMemoryMappedFileView? amendOffsetView;
+    private ShiftableMemoryMappedFileView? bucketAppenderView;
+    private TBucket?                       currentlyOpenBucket;
+    private bool                           isWritable;
+    private uint                           lastAddedIndexKey;
+    private ShiftableMemoryMappedFileView? readChildBucketsView;
+    private GrowableUnmanagedBuffer?       uncompressedBuffer;
 
     public TimeSeriesFileSession(TimeSeriesFile<TBucket, TEntry> file, bool isWritable,
         int defaultViewSizeBytes = ushort.MaxValue * 2, int reserveMultiple = 2, int activeViewAdditionalMultiple = 2)
@@ -154,6 +160,11 @@ public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket
         readChildBucketsView ??= timeSeriesFile.TimeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView(
          "readChildBuckets", 0, defaultViewSizeBytes, reserveMultiple, false);
 
+
+    public GrowableUnmanagedBuffer UncompressedBuffer
+    {
+        get { return uncompressedBuffer ??= new GrowableUnmanagedBuffer(MemoryUtils.CreateUnmanagedByteArray((long)ushort.MaxValue * 20)); }
+    }
     public IMutableTimeSeriesFileHeader Header => timeSeriesFile.Header;
 
     public uint TotalDataEntriesCount
@@ -209,24 +220,6 @@ public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket
 
     public void AddNewBucket(IMutableBucket bucket)
     {
-        var previousLastCreatedBucketNullable = BucketIndexes.LastAddedBucketIndexInfo;
-        if (previousLastCreatedBucketNullable != null)
-        {
-            var previousLastCreated = previousLastCreatedBucketNullable.Value;
-            var previousFileFlags   = previousLastCreated.BucketFlags;
-            var previousLastBucket  = cacheBuckets.FirstOrDefault(b => b.BucketId == previousLastCreated.BucketId);
-            if (previousLastBucket != null)
-            {
-                previousLastBucket.OpenBucket(AmendRelatedFileView, true);
-                previousLastBucket.NextSiblingBucketDeltaFileOffset = bucket.FileCursorOffset - previousLastBucket.FileCursorOffset;
-                bucket.PreviousSiblingBucketDeltaFileOffset         = previousLastBucket.FileCursorOffset - bucket.FileCursorOffset;
-                previousFileFlags                                   = previousLastBucket.BucketFlags;
-            }
-
-            previousLastCreated.BucketFlags = previousFileFlags.Unset(BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending);
-            BucketIndexes.Add(lastAddedIndexKey, previousLastCreated);
-        }
-
         var bucketIndexOffset
             = new BucketIndexInfo(bucket.BucketId, bucket.PeriodStartTime, bucket.BucketFlags, bucket.TimeSeriesPeriod, bucket.FileCursorOffset);
         lastAddedIndexKey = BucketIndexes.NextEmptyIndexKey;

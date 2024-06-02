@@ -214,7 +214,7 @@ public class LzmaDecoder : ILzmaDecoder // ,System.IO.Stream
 
     private long Init(IStream inStream, IStream outStream)
     {
-        outWindow = new OutWindow();
+        outWindow ??= new OutWindow();
         outWindow.Init(outStream, solid);
         byte[] properties = new byte[5];
 

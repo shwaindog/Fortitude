@@ -94,10 +94,9 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
     public long LowerViewFileCursorOffset => lowerViewContiguousChunk?.StartFileCursorOffset ?? 0;
 
     public bool IsUpperViewAvailableForContiguousReadWrite =>
-        upperViewContiguousChunk is not null or EndOfFileEmptyChunk && lowerViewContiguousChunk != null
-                                                                    && upperViewContiguousChunk.StartAddress ==
-                                                                       lowerViewContiguousChunk.StartAddress +
-                                                                       HalfViewSizeBytes;
+        upperViewContiguousChunk is not (null or EndOfFileEmptyChunk) && lowerViewContiguousChunk != null
+                                                                      && upperViewContiguousChunk.StartAddress ==
+                                                                         lowerViewContiguousChunk.EndAddress;
 
     public long DefaultGrowSize => HalfViewPageSize;
 
@@ -290,6 +289,7 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
         }
 
         var fileCursorStartChunkNumber = (int)(fileCursorOffset / HalfViewSizeBytes);
+        if (shouldGrow) pagedMemoryMappedFile.GrowFileToEncompass(fileCursorStartChunkNumber + 1, halfViewNumberOfPages);
 
         foundTwoChunkVirtualMemoryRegion = FindFreeVirtualMemoryForView();
         AttemptRemapViewOnContiguousVirtualMemoryRegion(fileCursorStartChunkNumber);

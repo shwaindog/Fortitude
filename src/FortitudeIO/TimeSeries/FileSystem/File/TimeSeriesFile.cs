@@ -83,8 +83,10 @@ public unsafe class TimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile<TBucket, T
 
     public TimeSeriesFile(CreateFileParameters createParameters)
     {
-        FileName                   = createParameters.FileNameResolver.FilePath(createParameters).FullName;
+        FileName = createParameters.FileNameResolver.FilePath(createParameters).FullName;
+
         TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName, createParameters.InitialFileSize);
+
         var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
         var ptr            = headerFileView.StartAddress;
         FileVersion = StreamByteOps.ToUShort(ref ptr);

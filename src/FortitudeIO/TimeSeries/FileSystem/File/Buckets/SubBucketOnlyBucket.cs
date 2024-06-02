@@ -11,16 +11,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
-public interface ISubBucketContainerBucket<TEntry, TBucket, out TSubBucket> : IIndexedDataBucket
-    where TEntry : ITimeSeriesEntry<TEntry>
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
-    where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>
-{
-    IEnumerable<TSubBucket> SubBuckets { get; }
-}
-
-public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : IndexedBucket<TEntry, TBucket>,
-    ISubBucketContainerBucket<TEntry, TBucket, TSubBucket>, IMutableBucketContainer
+public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : IndexedBucket<TEntry, TBucket>, IMutableBucketContainer
     where TEntry : ITimeSeriesEntry<TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>
@@ -61,47 +52,6 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
 
     public uint LastAddedBucketId { get; private set; }
 
-    public int ContainerDepth => BucketContainer.ContainerDepth + 1;
-
-    public ShiftableMemoryMappedFileView ContainerIndexAndHeaderFileView(int depth, uint requiredViewSize) =>
-        ContainingFile.ContainerIndexAndHeaderFileView(depth, requiredViewSize);
-
-    public IBucketTrackingSession ContainingSession => ContainingFile;
-    public uint                   CreateBucketId()  => LastAddedBucketId <= 0 ? BucketId * 1000 + 1 : LastAddedBucketId + 1;
-
-    public void AddNewBucket(IMutableBucket newChild)
-    {
-        var previousLastCreatedSubBucketNullable = BucketIndexes.LastAddedBucketIndexInfo;
-        if (previousLastCreatedSubBucketNullable != null)
-        {
-            var previousLastCreated = previousLastCreatedSubBucketNullable.Value;
-            var previousFileFlags   = previousLastCreated.BucketFlags;
-            var previousLastBucket  = cacheSubBuckets.FirstOrDefault(b => b.BucketId == previousLastCreated.BucketId);
-            if (previousLastBucket != null)
-            {
-                previousLastBucket.OpenBucket(ContainingFile.AmendRelatedFileView, true);
-                previousLastBucket.NextSiblingBucketDeltaFileOffset = newChild.FileCursorOffset - previousLastBucket.FileCursorOffset;
-                newChild.PreviousSiblingBucketDeltaFileOffset       = previousLastBucket.FileCursorOffset - newChild.FileCursorOffset;
-                previousFileFlags                                   = previousLastBucket.BucketFlags;
-            }
-
-            previousLastCreated.BucketFlags = previousFileFlags.Unset(BucketFlags.IsHighestSibling | BucketFlags.BucketCurrentAppending);
-            BucketIndexes.Add(lastAddedIndexKey, previousLastCreated);
-        }
-
-        var bucketIndexOffset
-            = new BucketIndexInfo(newChild.BucketId, newChild.PeriodStartTime, newChild.BucketFlags, newChild.TimeSeriesPeriod
-                                , newChild.FileCursorOffset - FileCursorOffset);
-        lastAddedIndexKey = BucketIndexes.NextEmptyIndexKey;
-        LastAddedBucketId = newChild.BucketId;
-        // Logger.Info("BucketId {0} at {1} added child BucketId {2} at {3} with key {4} and delta {5}", BucketId, FileCursorOffset, newChild.BucketId
-        //           , newChild.FileCursorOffset, lastAddedIndexKey, newChild.FileCursorOffset - FileCursorOffset);
-        BucketIndexes.Add(lastAddedIndexKey, bucketIndexOffset);
-        cacheSubBuckets.Add((TSubBucket)newChild);
-        IndexCount            = (ushort)cacheSubBuckets.Count;
-        nextFileIndexReadTime = DateTime.Now.AddMinutes(1);
-    }
-
 
     public IEnumerable<TSubBucket> SubBuckets
     {
@@ -128,6 +78,29 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
                 }
             return cacheSubBuckets;
         }
+    }
+
+    public int ContainerDepth => BucketContainer.ContainerDepth + 1;
+
+    public ShiftableMemoryMappedFileView ContainerIndexAndHeaderFileView(int depth, uint requiredViewSize) =>
+        ContainingFile.ContainerIndexAndHeaderFileView(depth, requiredViewSize);
+
+    public IBucketTrackingSession ContainingSession => ContainingFile;
+    public uint                   CreateBucketId()  => LastAddedBucketId <= 0 ? BucketId * 1000 + 1 : LastAddedBucketId + 1;
+
+    public void AddNewBucket(IMutableBucket newChild)
+    {
+        var bucketIndexOffset
+            = new BucketIndexInfo(newChild.BucketId, newChild.PeriodStartTime, newChild.BucketFlags, newChild.TimeSeriesPeriod
+                                , newChild.FileCursorOffset - FileCursorOffset);
+        lastAddedIndexKey = BucketIndexes.NextEmptyIndexKey;
+        LastAddedBucketId = newChild.BucketId;
+        // Logger.Info("BucketId {0} at {1} added child BucketId {2} at {3} with key {4} and delta {5}", BucketId, FileCursorOffset, newChild.BucketId
+        //           , newChild.FileCursorOffset, lastAddedIndexKey, newChild.FileCursorOffset - FileCursorOffset);
+        BucketIndexes.Add(lastAddedIndexKey, bucketIndexOffset);
+        cacheSubBuckets.Add((TSubBucket)newChild);
+        IndexCount            = (ushort)cacheSubBuckets.Count;
+        nextFileIndexReadTime = DateTime.Now.AddMinutes(1);
     }
 
     public override void Dispose()
