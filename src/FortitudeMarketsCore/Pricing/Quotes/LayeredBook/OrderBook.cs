@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using System.Collections;
@@ -14,41 +17,42 @@ namespace FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 {
-    protected IList<IPriceVolumeLayer?> BookLayers;
+    private IList<IPriceVolumeLayer?> bookLayers;
 
     public OrderBook()
     {
-        BookSide = BookSide.Unknown;
-        BookLayers = new List<IPriceVolumeLayer?>();
+        BookSide   = BookSide.Unknown;
+        bookLayers = new List<IPriceVolumeLayer?>();
     }
 
-    public OrderBook(BookSide bookSide, LayerType? layerType = LayerType.PriceVolume)
+    public OrderBook(BookSide bookSide, LayerType layerType = LayerType.PriceVolume)
     {
-        BookSide = bookSide;
-        BookLayers = new List<IPriceVolumeLayer?>();
+        BookSide     = bookSide;
+        LayersOfType = layerType;
+        bookLayers   = new List<IPriceVolumeLayer?>();
     }
 
     public OrderBook(BookSide bookSide, int numBookLayers)
     {
-        BookSide = bookSide;
-        BookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
+        BookSide   = bookSide;
+        bookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
     }
 
     public OrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers)
     {
         BookSide = bookSide;
-        BookLayers = bookLayers
-            .Select(pvl => LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl)).Cast<IPriceVolumeLayer?>()
-            .ToList();
+        this.bookLayers = bookLayers
+                          .Select(pvl => LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl)).Cast<IPriceVolumeLayer?>()
+                          .ToList();
     }
 
     public OrderBook(IOrderBook toClone)
     {
-        BookSide = toClone.BookSide;
-        BookLayers = new List<IPriceVolumeLayer?>(toClone.Count());
+        BookSide     = toClone.BookSide;
+        bookLayers   = new List<IPriceVolumeLayer?>(toClone.Count());
         LayersOfType = toClone.LayersOfType;
         foreach (var priceVolumeLayer in toClone)
-            BookLayers.Add(LayerSelector.CreateExpectedImplementation(priceVolumeLayer.LayerType, priceVolumeLayer));
+            bookLayers.Add(LayerSelector.CreateExpectedImplementation(priceVolumeLayer.LayerType, priceVolumeLayer));
         Capacity = toClone.Capacity;
     }
 
@@ -57,9 +61,9 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         BookSide = bookSide;
 
         LayersOfType = sourceTickerQuoteInfo.LayerFlags.MostCompactLayerType();
-        BookLayers = new List<IPriceVolumeLayer?>(sourceTickerQuoteInfo.MaximumPublishedLayers);
+        bookLayers   = new List<IPriceVolumeLayer?>(sourceTickerQuoteInfo.MaximumPublishedLayers);
         for (var i = 0; i < sourceTickerQuoteInfo.MaximumPublishedLayers; i++)
-            BookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
+            bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
     }
 
     public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerQuoteInfo> LayerSelector { get; set; } =
@@ -71,30 +75,37 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public IMutablePriceVolumeLayer? this[int level]
     {
-        get => (IMutablePriceVolumeLayer?)BookLayers[level];
+        get => (IMutablePriceVolumeLayer?)bookLayers[level];
         set
         {
-            if (value == null && level == BookLayers.Count - 1)
+            if (value == null && level == bookLayers.Count - 1)
             {
-                BookLayers.RemoveAt(level);
+                bookLayers.RemoveAt(level);
                 return;
             }
 
-            BookLayers[level] = value!;
+            bookLayers[level] = value!;
         }
+    }
+
+    public int AppendEntryAtEnd()
+    {
+        var index = bookLayers.Count;
+        bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType));
+        return index;
     }
 
     public BookSide BookSide { get; }
 
-    IPriceVolumeLayer? IOrderBook.this[int level] => BookLayers[level];
+    IPriceVolumeLayer? IOrderBook.this[int level] => bookLayers[level];
 
     public int Count
     {
         get
         {
-            for (var i = BookLayers.Count - 1; i >= 0; i--)
+            for (var i = bookLayers.Count - 1; i >= 0; i--)
             {
-                var layerAtLevel = BookLayers[i];
+                var layerAtLevel = bookLayers[i];
                 if ((layerAtLevel?.Price ?? 0) > 0) return i + 1;
             }
 
@@ -104,24 +115,24 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public int Capacity
     {
-        get => BookLayers.Count;
+        get => bookLayers.Count;
         set
         {
             if (value > PQFieldKeys.SingleByteFieldIdMaxBookDepth)
                 throw new ArgumentException("Expected OrderBook Capacity to be less than or equal to " +
                                             PQFieldKeys.SingleByteFieldIdMaxBookDepth);
-            while (BookLayers.Count < value)
+            while (bookLayers.Count < value)
             {
                 var cloneFirstLayer = LayerSelector.CreateExpectedImplementation(LayersOfType);
                 cloneFirstLayer?.StateReset();
-                if (cloneFirstLayer != null) BookLayers.Add(cloneFirstLayer);
+                if (cloneFirstLayer != null) bookLayers.Add(cloneFirstLayer);
             }
         }
     }
 
     public override void StateReset()
     {
-        for (var i = 0; i < BookLayers.Count; i++) (BookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
+        for (var i = 0; i < bookLayers.Count; i++) (bookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
         base.StateReset();
     }
 
@@ -132,21 +143,21 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         for (var i = 0; i < sourceDeepestLayerSet; i++)
         {
             var sourceLayerToCopy = source[i];
-            if (i < BookLayers.Count)
+            if (i < bookLayers.Count)
             {
                 if (sourceLayerToCopy != null)
-                    BookLayers[i] = LayerSelector.UpgradeExistingLayer(BookLayers[i], LayersOfType, sourceLayerToCopy);
+                    bookLayers[i] = LayerSelector.UpgradeExistingLayer(bookLayers[i], LayersOfType, sourceLayerToCopy);
                 else
-                    (BookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
+                    (bookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
             }
             else
             {
-                BookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, sourceLayerToCopy));
+                bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, sourceLayerToCopy));
             }
         }
 
-        for (var i = sourceDeepestLayerSet; i < BookLayers.Count; i++)
-            (BookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
+        for (var i = sourceDeepestLayerSet; i < bookLayers.Count; i++)
+            (bookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
         return this;
     }
 
@@ -164,24 +175,24 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         if (exactTypes && other.GetType() != GetType()) return false;
 
         var countSame = Count == other.Count;
-        var bookLayersSame = countSame && (exactTypes ?
-            this.SequenceEqual(other) :
-            BookLayers.Zip(other, (thisLayer, otherLayer) => new { thisLayer, otherLayer })
-                .All(joined => joined.thisLayer != null && joined.thisLayer.AreEquivalent(joined.otherLayer)));
+        var bookLayersSame = countSame && (exactTypes
+            ? this.SequenceEqual(other)
+            : bookLayers.Zip(other, (thisLayer, otherLayer) => new { thisLayer, otherLayer })
+                        .All(joined => joined.thisLayer != null && joined.thisLayer.AreEquivalent(joined.otherLayer)));
         return countSame && bookLayersSame;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<IPriceVolumeLayer> GetEnumerator() => BookLayers.Take(Count).GetEnumerator()!;
+    public IEnumerator<IPriceVolumeLayer> GetEnumerator() => bookLayers.Take(Count).GetEnumerator()!;
 
     public override OrderBook Clone() => (OrderBook?)Recycler?.Borrow<OrderBook>().CopyFrom(this) ?? new OrderBook(this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrderBook?)obj, true);
 
-    public override int GetHashCode() => BookLayers?.GetHashCode() ?? 0;
+    public override int GetHashCode() => bookLayers?.GetHashCode() ?? 0;
 
     public override string ToString() =>
         $"OrderBook {{{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, " +
-        $"{nameof(BookLayers)}:[{string.Join(", ", BookLayers.Take(Count))}] }}";
+        $"{nameof(bookLayers)}:[{string.Join(", ", bookLayers.Take(Count))}] }}";
 }

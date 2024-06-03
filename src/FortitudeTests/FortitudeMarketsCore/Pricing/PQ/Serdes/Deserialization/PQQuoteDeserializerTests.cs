@@ -145,6 +145,7 @@ public class PQQuoteDeserializerTests
     }
 
     [TestMethod]
+    [Timeout(30_000)]
     public void InSyncDeserializer_DeserializeOutofOrderUpdateThenMissingIdUpdate_GoesOutOfSyncThenInSyncAgain()
     {
         AssertQuotesAreInSync(false);

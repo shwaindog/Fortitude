@@ -65,7 +65,6 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     private          BucketIndexInfo*                          firstEntryBufferPointer;
 
     private long  firstEntryFileOffset;
-    private long  headerRealignmentOffset;
     private uint  lastAddedEntryIndexKey = uint.MaxValue;
     private uint* lastAddedEntryIndexKeyBufferPtr;
     private uint  maxPossibleIndexEntries;
@@ -73,14 +72,13 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     private ShiftableMemoryMappedFileView? memoryMappedFileView;
 
     private long             requiredViewFileCursorOffset;
-    private long             requiredViewFileOffset;
     private byte*            requiredViewStartAddress;
     private BucketIndexList* writableV1IndexHeaderSectionV1;
 
     public BucketIndexDictionary(ShiftableMemoryMappedFileView memoryMappedFileView,
         long fileStartCursorOffset, uint maxPossibleIndexEntries, bool isReadOnly)
     {
-        headerRealignmentOffset = fileStartCursorOffset % IndexFileCursorAlignment > 0 ? 8 - fileStartCursorOffset % IndexFileCursorAlignment : 0;
+        var headerRealignmentOffset = fileStartCursorOffset % IndexFileCursorAlignment > 0 ? 8 - fileStartCursorOffset % IndexFileCursorAlignment : 0;
         internalIndexFileCursor = fileStartCursorOffset + headerRealignmentOffset;
         OpenWithFileView(memoryMappedFileView, isReadOnly);
         writableV1IndexHeaderSectionV1->MaxIndexSizeEntries = maxPossibleIndexEntries;
@@ -89,7 +87,8 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
 
     public bool IsFileViewOpen =>
         memoryMappedFileView != null && firstEntryBufferPointer != null &&
-        memoryMappedFileView.LowerViewFileCursorOffset == requiredViewFileCursorOffset;
+        memoryMappedFileView.LowerViewFileCursorOffset == requiredViewFileCursorOffset &&
+        memoryMappedFileView.StartAddress == requiredViewStartAddress;
 
     public bool IsFixedSize => true;
 
@@ -420,7 +419,7 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
 
     private void EnsureViewIsCorrect()
     {
-        if (memoryMappedFileView.LowerViewFileCursorOffset != requiredViewFileCursorOffset ||
+        if (memoryMappedFileView!.LowerViewFileCursorOffset != requiredViewFileCursorOffset ||
             memoryMappedFileView.StartAddress != requiredViewStartAddress)
             throw new ArgumentException("View has been moved and should not be accessed!");
         // Debugger.Break();
