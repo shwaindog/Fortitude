@@ -10,11 +10,11 @@ using FortitudeMarketsCore.Pricing.Quotes.Generators.MidPrice;
 
 namespace FortitudeMarketsCore.Pricing.Quotes.Generators;
 
-public abstract class Level1QuoteGeneratorBase<TQuote> : Level0QuoteGeneratorBase<TQuote> where TQuote : Level1PriceQuote
+public abstract class Level1QuoteGeneratorBase<TQuote> : Level0QuoteGeneratorBase<TQuote> where TQuote : IMutableLevel1Quote
 {
     protected Level1QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
 
-    public void PopulateQuote(Level1PriceQuote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableLevel1Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         base.PopulateQuote(populateQuote, previousCurrentMidPriceTime);
         populateQuote.Executable          = PseudoRandom.Next(0, 1000) < 995;

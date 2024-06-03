@@ -17,9 +17,10 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 [StructLayout(LayoutKind.Sequential, Pack = 8)]
 public struct BucketIndexList
 {
-    public uint            MaxIndexSizeEntries;
-    public int             IndexSHA256;
-    public uint            LastAddedBucketIndexInfoKey;
+    public uint MaxIndexSizeEntries;
+    public int  IndexSHA256;
+    public uint LastAddedBucketIndexInfoKey;
+
     public BucketIndexInfo FirstIndexInList;
 }
 
@@ -38,31 +39,36 @@ public unsafe interface IBucketIndexDictionary : IDictionary<uint, BucketIndexIn
     BucketIndexInfo? LastAddedBucketIndexInfo { get; }
     uint             NextEmptyIndexKey        { get; }
     new BucketIndexInfo this[uint key] { get; set; }
-    new ICollection<uint>                                Keys       { get; }
-    new ICollection<BucketIndexInfo>                     Values     { get; }
-    new int                                              Count      { get; }
-    new bool                                             IsReadOnly { get; }
-    new bool                                             ContainsKey(uint key);
-    new bool                                             TryGetValue(uint key, out BucketIndexInfo value);
-    new bool                                             Contains(KeyValuePair<uint, BucketIndexInfo> item);
-    new void                                             CopyTo(KeyValuePair<uint, BucketIndexInfo>[] array, int arrayIndex);
+    new ICollection<uint>            Keys   { get; }
+    new ICollection<BucketIndexInfo> Values { get; }
+
+    new int  Count      { get; }
+    new bool IsReadOnly { get; }
+    new bool ContainsKey(uint key);
+    new bool TryGetValue(uint key, out BucketIndexInfo value);
+    new bool Contains(KeyValuePair<uint, BucketIndexInfo> item);
+    new void CopyTo(KeyValuePair<uint, BucketIndexInfo>[] array, int arrayIndex);
+
     new IEnumerator<KeyValuePair<uint, BucketIndexInfo>> GetEnumerator();
-    BucketIndexInfo*                                     GetBucketIndexInfo(uint key);
-    void                                                 DumpIndexToLogs();
-    void                                                 FlushIndexToDisk();
+
+    BucketIndexInfo* GetBucketIndexInfo(uint key);
+    void             DumpIndexToLogs();
+    void             FlushIndexToDisk();
 }
 
 public unsafe class BucketIndexDictionary : IBucketIndexDictionary
 {
     private const long IndexFileCursorAlignment = 8;
 
-    private static readonly IFLogger  Logger   = FLoggerFactory.Instance.GetLogger(typeof(BucketIndexDictionary));
-    private static          IRecycler recycler = new Recycler();
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(BucketIndexDictionary));
+
+    private static IRecycler recycler = new Recycler();
 
     private readonly List<KeyValuePair<uint, BucketIndexInfo>> cacheBucketIndexInfos = new();
     private readonly long                                      internalIndexFileCursor;
-    private          BucketIndexInfo?                          cacheLastAddedEntry;
-    private          BucketIndexInfo*                          firstEntryBufferPointer;
+
+    private BucketIndexInfo? cacheLastAddedEntry;
+    private BucketIndexInfo* firstEntryBufferPointer;
 
     private long  firstEntryFileOffset;
     private uint  lastAddedEntryIndexKey = uint.MaxValue;

@@ -3,30 +3,27 @@
 
 #region
 
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.Book;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.MidPrice;
-using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.Quotes.Generators;
 
-public abstract class Level2QuoteGeneratorBase<TQuote> : Level1QuoteGeneratorBase<TQuote> where TQuote : Level2PriceQuote
+public abstract class Level2QuoteGeneratorBase<TQuote> : Level1QuoteGeneratorBase<TQuote> where TQuote : IMutableLevel2Quote
 {
-    private readonly BookGenerator<OrderBook> bookGenerator;
+    private readonly BookGenerator bookGenerator;
 
     protected Level2QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) =>
-        bookGenerator = new BookGenerator<OrderBook>(generateQuoteInfo.BookGenerationInfo, CreateOrderBook);
+        bookGenerator = new BookGenerator(generateQuoteInfo.BookGenerationInfo);
 
-    public OrderBook CreateOrderBook(BookSide bookSide, LayerType layerType) => new(bookSide, layerType);
-
-    public void PopulateQuote(Level2PriceQuote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableLevel2Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         base.PopulateQuote(populateQuote, previousCurrentMidPriceTime);
-        var bidAskBooks = bookGenerator.GenerateBidAskBooks(previousCurrentMidPriceTime);
-        populateQuote.BidBook = bidAskBooks.BidBook;
-        populateQuote.AskBook = bidAskBooks.AskBook;
+        bookGenerator.PopulateBidAskBooks(populateQuote, previousCurrentMidPriceTime);
+        populateQuote.IsAskBookChanged = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
+        populateQuote.IsBidBookChanged = (PreviousReturnedQuote?.BidPriceTop ?? 0) != populateQuote.BidPriceTop;
     }
 }
 

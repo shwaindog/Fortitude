@@ -3,19 +3,20 @@
 
 #region
 
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.MidPrice;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.Quotes.Generators;
 
-public abstract class Level0QuoteGeneratorBase<TQuote> : QuoteGenerator<TQuote> where TQuote : Level0PriceQuote
+public abstract class Level0QuoteGeneratorBase<TQuote> : QuoteGenerator<TQuote> where TQuote : IMutableLevel0Quote
 {
     protected DateTime AdapterReceivedDateTime;
     protected DateTime AdapterSentDateTime;
     protected Level0QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
 
-    public void PopulateQuote(Level0PriceQuote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableLevel0Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         var timeStampInfo  = GenerateQuoteInfo.TimeStampGenerationInfo;
         var lastSourceTime = PreviousReturnedQuote?.SourceTime ?? DateTime.MinValue;

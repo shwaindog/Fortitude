@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
@@ -13,8 +16,8 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySel
 [TestClass]
 public class LastTradeEntryFlagsSelectorTests
 {
-    private DummyLastTradeEntryFlagsSelector layerSelector = null!;
-    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private DummyLastTradeEntryFlagsSelector layerSelector         = null!;
+    private ISourceTickerQuoteInfo           sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -22,9 +25,10 @@ public class LastTradeEntryFlagsSelectorTests
         layerSelector = new DummyLastTradeEntryFlagsSelector();
 
         sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-            LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-                                                  LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+                                                          "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+                                                          LayerFlags.Volume | LayerFlags.Price
+                                                        , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
+                                                          LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
     }
 
     [TestMethod]
@@ -32,16 +36,16 @@ public class LastTradeEntryFlagsSelectorTests
     {
         var expectedSelectorCalled = "SelectSimpleLastTradeEntry";
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.None;
-        var selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        var selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
@@ -50,43 +54,43 @@ public class LastTradeEntryFlagsSelectorTests
     {
         var expectedSelectorCalled = "SelectLastPaidGivenTradeEntry";
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume;
-        var selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        var selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime |
                                                 LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume |
                                                 LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume |
                                                 LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume |
                                                 LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
@@ -96,64 +100,63 @@ public class LastTradeEntryFlagsSelectorTests
         var expectedSelectorCalled = "SelectTraderLastTradeEntry";
 
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName;
-        var selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        var selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                                 LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                                 LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled                        = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
                                                 LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
                                                 LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
                                                 LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
                                                 LastTradedFlags.LastTradedVolume;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
                                                 LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
                                                 LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
         sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
                                                 LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime |
                                                 LastTradedFlags.LastTradedPrice;
-        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo);
+        selectorCalled = layerSelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
-    internal class DummyLastTradeEntryFlagsSelector : LastTradeEntryFlagsSelector<string, ISourceTickerQuoteInfo>
+    internal class DummyLastTradeEntryFlagsSelector : LastTradeEntryFlagsSelector<string>
     {
-        protected override string SelectSimpleLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectSimpleLastTradeEntry);
+        protected override string SelectSimpleLastTradeEntry() => nameof(SelectSimpleLastTradeEntry);
 
-        protected override string SelectLastPaidGivenTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-            nameof(SelectLastPaidGivenTradeEntry);
+        protected override string SelectLastPaidGivenTradeEntry() => nameof(SelectLastPaidGivenTradeEntry);
 
-        protected override string SelectTraderLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectTraderLastTradeEntry);
+        protected override string SelectTraderLastTradeEntry() => nameof(SelectTraderLastTradeEntry);
 
         public override IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false) =>
             throw new NotImplementedException();

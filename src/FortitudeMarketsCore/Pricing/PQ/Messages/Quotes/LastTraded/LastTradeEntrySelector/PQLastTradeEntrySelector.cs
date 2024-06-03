@@ -1,10 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
 
@@ -12,16 +14,16 @@ using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded.LastTradeEntrySelector;
 
-public interface IPQLastTradeTypeSelector : ILastTradeEntryFlagsSelector<IPQRecentlyTradedFactory, IPQSourceTickerQuoteInfo>
-    , ISupportsPQNameIdLookupGenerator
+public interface IPQLastTradeTypeSelector : ILastTradeEntryFlagsSelector<IPQRecentlyTradedFactory>
+  , ISupportsPQNameIdLookupGenerator
 {
     bool TypeCanWholeyContain(Type copySourceType, Type copyDestinationType);
 
     IPQLastTrade? SelectLastTradeEntry(IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
-        , bool keepCloneState = false);
+      , bool keepCloneState = false);
 }
 
-public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyTradedFactory, IPQSourceTickerQuoteInfo>,
+public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyTradedFactory>,
     IPQLastTradeTypeSelector
 {
     public PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) => NameIdLookup = nameIdLookup;
@@ -46,7 +48,7 @@ public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyT
     }
 
     public IPQLastTrade? SelectLastTradeEntry(IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
-        , bool keepCloneState = false)
+      , bool keepCloneState = false)
     {
         if (desired == null) return original;
         if (original == null)
@@ -81,19 +83,12 @@ public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyT
         }
     }
 
-    protected override IPQRecentlyTradedFactory SelectSimpleLastTradeEntry(
-        IPQSourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-        new PQLastTradeFactory();
+    protected override IPQRecentlyTradedFactory SelectSimpleLastTradeEntry() => new PQLastTradeFactory();
 
-    protected override IPQRecentlyTradedFactory SelectLastPaidGivenTradeEntry(
-        IPQSourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-        new PQLastPaidGivenTradeFactory();
+    protected override IPQRecentlyTradedFactory SelectLastPaidGivenTradeEntry() => new PQLastPaidGivenTradeFactory();
 
-    protected override IPQRecentlyTradedFactory SelectTraderLastTradeEntry(
-        IPQSourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-        SelectTraderLastTradeEntry(sourceTickerQuoteInfo, NameIdLookup);
+    protected override IPQRecentlyTradedFactory SelectTraderLastTradeEntry() => SelectTraderLastTradeEntry(NameIdLookup);
 
-    protected IPQRecentlyTradedFactory SelectTraderLastTradeEntry(
-        IPQSourceTickerQuoteInfo sourceTickerQuoteInfo, IPQNameIdLookupGenerator nameIdLookupGenerator) =>
+    protected IPQRecentlyTradedFactory SelectTraderLastTradeEntry(IPQNameIdLookupGenerator nameIdLookupGenerator) =>
         new PQLastTraderPaidGivenTradeFactory(nameIdLookupGenerator);
 }
