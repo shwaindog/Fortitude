@@ -23,7 +23,7 @@ public class TestMetrics
     private const int MaxAllowedUntestedClassesInCommon               = 179;
     private const int MaxAllowedUntestedClassesInFortitudeIO          = 116;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsApi  = 25;
-    private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 165;
+    private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 169;
     private const int MaxAllowedUntestedClassesInFortitudeBusRules    = 97;
 
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses    = null!;

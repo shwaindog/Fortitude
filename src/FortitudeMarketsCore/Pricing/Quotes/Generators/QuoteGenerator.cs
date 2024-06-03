@@ -6,6 +6,7 @@
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.Book;
+using FortitudeMarketsCore.Pricing.Quotes.Generators.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.MidPrice;
 using MathNet.Numerics.Distributions;
 
@@ -35,12 +36,14 @@ public struct GenerateQuoteInfo
     public GenerateQuoteInfo(ISourceTickerQuoteInfo sourceTickerQuoteInfo,
         IMidPriceGenerator? midPriceGenerator = null,
         BookGenerationInfo? bookGenerationInfo = null,
-        TimeStampGenerationInfo? timeStampGenerationInfo = null)
+        TimeStampGenerationInfo? timeStampGenerationInfo = null,
+        GenerateLastTradeInfo? lastTradeInfo = null)
     {
         SourceTickerQuoteInfo   = sourceTickerQuoteInfo;
         MidPriceGenerator       = midPriceGenerator ?? new SyntheticRepeatableMidPriceGenerator(1.0m, DateTime.Now);
         BookGenerationInfo      = bookGenerationInfo ?? new BookGenerationInfo();
         TimeStampGenerationInfo = timeStampGenerationInfo ?? new TimeStampGenerationInfo();
+        LastTradeInfo           = lastTradeInfo ?? new GenerateLastTradeInfo();
     }
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo;
@@ -50,9 +53,11 @@ public struct GenerateQuoteInfo
     public BookGenerationInfo BookGenerationInfo;
 
     public TimeStampGenerationInfo TimeStampGenerationInfo;
+
+    public GenerateLastTradeInfo LastTradeInfo;
 }
 
-public interface IQuoteGenerator<TQuote> where TQuote : IMutableLevel0Quote
+public interface IQuoteGenerator<out TQuote> where TQuote : IMutableLevel0Quote
 {
     IEnumerable<TQuote> Quotes(DateTime startDateTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0);
 }

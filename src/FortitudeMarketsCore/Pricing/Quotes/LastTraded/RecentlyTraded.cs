@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
@@ -33,13 +36,13 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
     public RecentlyTraded(ISourceTickerQuoteInfo sourceTickerQuoteInfo)
     {
         LastTradesSupportFlags = sourceTickerQuoteInfo.LastTradedFlags;
-        LastTradesOfType = LastTradesSupportFlags.MostCompactLayerType();
-        LastTrades = new List<IMutableLastTrade?>(PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades);
+        LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
+        LastTrades             = new List<IMutableLastTrade?>(PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades);
         for (var i = 0; i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
-            LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo));
+            LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags));
     }
 
-    public static ILastTradeEntryFlagsSelector<IMutableLastTrade, ISourceTickerQuoteInfo>
+    public static ILastTradeEntryFlagsSelector<IMutableLastTrade>
         LastTradeEntrySelector { get; set; } = new RecentlyTradedLastTradeEntrySelector();
 
     public LastTradeType LastTradesOfType { get; }
@@ -104,6 +107,13 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
         }
     }
 
+    public int AppendEntryAtEnd()
+    {
+        var index = LastTrades.Count;
+        LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags));
+        return index;
+    }
+
     public override void StateReset()
     {
         LastTrades.Clear();
@@ -119,10 +129,10 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
     }
 
     public override IRecentlyTraded CopyFrom(IRecentlyTraded source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var currentDeepestLayerSet = Count;
-        var sourceDeepestLayerSet = source.Count;
+        var sourceDeepestLayerSet  = source.Count;
         for (var i = 0; i < sourceDeepestLayerSet; i++)
         {
             var sourceLayerToCopy = source[i];
@@ -157,11 +167,11 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var bookLayersSame = exactTypes ?
-            LastTrades.SequenceEqual(other) :
-            LastTrades.Zip(other, (thisLastTrade, otherLastTrade) => new { thisLastTrade, otherLastTrade })
-                .All(joined =>
-                    joined.thisLastTrade != null && joined.thisLastTrade.AreEquivalent(joined.otherLastTrade));
+        var bookLayersSame = exactTypes
+            ? LastTrades.SequenceEqual(other)
+            : LastTrades.Zip(other, (thisLastTrade, otherLastTrade) => new { thisLastTrade, otherLastTrade })
+                        .All(joined =>
+                                 joined.thisLastTrade != null && joined.thisLastTrade.AreEquivalent(joined.otherLastTrade));
         return bookLayersSame;
     }
 

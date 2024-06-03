@@ -1,19 +1,21 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+#region
+
 using FortitudeMarketsApi.Pricing.LastTraded;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
 
-public class RecentlyTradedLastTradeEntrySelector : LastTradeEntryFlagsSelector<IMutableLastTrade, ISourceTickerQuoteInfo>
+public class RecentlyTradedLastTradeEntrySelector : LastTradeEntryFlagsSelector<IMutableLastTrade>
 {
-    protected override IMutableLastTrade SelectSimpleLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new LastTrade();
+    protected override IMutableLastTrade SelectSimpleLastTradeEntry() => new LastTrade();
 
-    protected override IMutableLastTrade SelectLastPaidGivenTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new LastPaidGivenTrade();
+    protected override IMutableLastTrade SelectLastPaidGivenTradeEntry() => new LastPaidGivenTrade();
 
-    protected override IMutableLastTrade SelectTraderLastTradeEntry(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new LastTraderPaidGivenTrade();
+    protected override IMutableLastTrade SelectTraderLastTradeEntry() => new LastTraderPaidGivenTrade();
 
     public override IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false)
     {

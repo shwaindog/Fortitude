@@ -1,39 +1,43 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+#region
+
 using FortitudeMarketsApi.Pricing.LastTraded;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
 
-public interface ILastTradeEntryFlagsSelector<T, Tu> where T : class where Tu : ISourceTickerQuoteInfo
+public interface ILastTradeEntryFlagsSelector<out T> where T : class
 {
-    T? FindForLastTradeFlags(Tu? sourceTickerQuoteInfo);
+    T?                 FindForLastTradeFlags(LastTradedFlags lastTradedFlags);
     IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false);
 }
 
-public abstract class LastTradeEntryFlagsSelector<T, Tu> :
-    ILastTradeEntryFlagsSelector<T, Tu> where T : class where Tu : ISourceTickerQuoteInfo
+public abstract class LastTradeEntryFlagsSelector<T> : ILastTradeEntryFlagsSelector<T> where T : class
 {
-    public T? FindForLastTradeFlags(Tu? pqSourceTickerQuoteInfo)
+    public T? FindForLastTradeFlags(LastTradedFlags lastTradedFlags)
     {
-        var flags = pqSourceTickerQuoteInfo!.LastTradedFlags;
-        const LastTradedFlags lastTradeEntryFlags = LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
-        var testCondition = lastTradeEntryFlags;
+        var lastTradeType = lastTradedFlags.MostCompactLayerType();
 
-        var onlyPriceVolume = (flags & testCondition) == flags;
-        if (onlyPriceVolume) return SelectSimpleLastTradeEntry(pqSourceTickerQuoteInfo);
-
-        var notTraderName = (flags & ~LastTradedFlags.TraderName) == flags;
-        if (notTraderName) return SelectLastPaidGivenTradeEntry(pqSourceTickerQuoteInfo);
-
-        return SelectTraderLastTradeEntry(pqSourceTickerQuoteInfo);
+        switch (lastTradeType)
+        {
+            case LastTradeType.None:
+            case LastTradeType.Price:
+                return SelectSimpleLastTradeEntry();
+            case LastTradeType.PricePaidOrGivenVolume:
+                return SelectLastPaidGivenTradeEntry();
+            case LastTradeType.PriceLastTraderName:
+            case LastTradeType.PriceLastTraderPaidOrGivenVolume:
+            default:
+                return SelectTraderLastTradeEntry();
+        }
     }
 
     public abstract IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false);
 
-    protected abstract T SelectSimpleLastTradeEntry(Tu sourceTickerQuoteInfo);
-    protected abstract T SelectLastPaidGivenTradeEntry(Tu sourceTickerQuoteInfo);
-    protected abstract T SelectTraderLastTradeEntry(Tu sourceTickerQuoteInfo);
+    protected abstract T SelectSimpleLastTradeEntry();
+    protected abstract T SelectLastPaidGivenTradeEntry();
+    protected abstract T SelectTraderLastTradeEntry();
 }
