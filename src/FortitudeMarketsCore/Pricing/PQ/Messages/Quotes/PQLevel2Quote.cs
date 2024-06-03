@@ -34,8 +34,8 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
     public PQLevel2Quote()
     {
-        bidBook = new PQOrderBook(BookSide.BidBook);
-        askBook = new PQOrderBook(BookSide.AskBook);
+        bidBook = new PQOrderBook(BookSide.BidBook, LayerType.PriceVolume);
+        askBook = new PQOrderBook(BookSide.AskBook, LayerType.PriceVolume);
     }
 
     public PQLevel2Quote(ISourceTickerQuoteInfo sourceTickerInfo)
