@@ -66,6 +66,20 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
 
     public int InstanceNumber { get; } = Interlocked.Increment(ref lastInstanceNum);
 
+    
+    public bool ReadMessageHeader { get; set; }
+
+    
+    protected unsafe MessageHeader ReadHeader(ref byte* ptr)
+    {
+        var version      = *ptr++;
+        var messageFlags = *ptr++;
+        var messageId    = StreamByteOps.ToUInt(ref ptr);
+        var messageSize  = StreamByteOps.ToUInt(ref ptr);
+
+        return new MessageHeader(version, messageFlags, messageId, messageSize);
+    }
+
     public uint? RegisteredForMessageId { get; set; }
 
     public IOrxDeserializerLookup OrxDeserializerLookup { get; set; }
@@ -112,6 +126,12 @@ public class OrxByteDeserializer<Tm> : IOrxDeserializer where Tm : class, new()
         sockBuffContext?.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
         if (readContext is IMessageBufferContext messageBufferContext)
         {
+            if (ReadMessageHeader)
+            {
+                using var buffer       = messageBufferContext.EncodedBuffer!; 
+                var fixBufferPtr = buffer.ReadBuffer + buffer.BufferRelativeReadCursor;
+                messageBufferContext.MessageHeader = ReadHeader(ref fixBufferPtr);
+            }
             var messageVersion = messageBufferContext.MessageHeader.Version;
             var messageSize = messageBufferContext.MessageHeader.MessageSize;
             return (Tm)Deserialize(messageBufferContext.EncodedBuffer!, messageSize - MessageHeader.SerializationSize, messageVersion);

@@ -25,12 +25,13 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket<TEntry>
     where TSerializeType : PQLevel0Quote, new()
 {
-    private IBufferContext?    bufferContext;
-    private PQQuoteSerializer? indexEntrySerializer;
+    private IMessageBufferContext? bufferContext;
+    private PQQuoteSerializer?     indexEntrySerializer;
+    private TSerializeType?        lastEntryLevel0Quote;
 
-    private TSerializeType?                  lastEntryLevel0Quote;
     private IPQDeserializer<TSerializeType>? messageDeserializer;
-    private PQQuoteSerializer?               repeatedEntrySerializer;
+
+    private PQQuoteSerializer? repeatedEntrySerializer;
 
     protected PQDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
@@ -62,19 +63,20 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
     }
 
     public PQQuoteSerializer IndexEntryMessageSerializer =>
-        indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorage);
+        indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorageIncludeReceiverTimes);
 
     public PQQuoteSerializer RepeatedEntryMessageSerializer =>
-        repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorage);
+        repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorageIncludeReceiverTimes);
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; } = null!;
 
     public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext)
     {
-        bufferContext               ??= new BufferContext(readBuffer);
-        bufferContext.EncodedBuffer =   readBuffer;
+        bufferContext ??= new MessageBufferContext(readBuffer);
 
-        if (readBuffer.ReadCursor == 0) LastEntryQuote.StateReset();
+        bufferContext.EncodedBuffer = readBuffer;
+
+        if (readBuffer.ReadCursor == 0) DefaultMessageDeserializer.PublishedQuote.StateReset();
         return ReadEntries(bufferContext, readerContext, DefaultMessageDeserializer);
     }
 
@@ -88,7 +90,7 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
             entry.SourceTickerQuoteInfo.TickerId != SourceTickerQuoteInfo.TickerId)
             return StorageAttemptResult.EntryNotCompatible;
 
-        bufferContext               ??= new BufferContext(growableBuffer);
+        bufferContext               ??= new MessageBufferContext(growableBuffer);
         bufferContext.EncodedBuffer =   growableBuffer;
 
         var messageSerializer = RepeatedEntryMessageSerializer;
@@ -105,23 +107,26 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
         return AppendEntry(bufferContext, LastEntryQuote, messageSerializer);
     }
 
-    public virtual IEnumerable<TEntry> ReadEntries(IBufferContext buffer, IReaderContext<TEntry> readerContext
+    public virtual IEnumerable<TEntry> ReadEntries(IMessageBufferContext buffer, IReaderContext<TEntry> readerContext
       , IPQDeserializer<TSerializeType> bufferDeserializer)
     {
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)
         {
             bufferDeserializer.Deserialize(buffer);
+
             var toReturn = readerContext.GetNextEntryToPopulate;
             toReturn.CopyFrom(bufferDeserializer.PublishedQuote, CopyMergeFlags.FullReplace);
             if (readerContext.ProcessCandidateEntry(toReturn)) yield return toReturn;
         }
     }
 
-    public virtual StorageAttemptResult AppendEntry(IBufferContext bufferContext,
+    public virtual StorageAttemptResult AppendEntry(IMessageBufferContext bufferContext,
         TSerializeType lastEntryLevel, PQQuoteSerializer useSerializer)
     {
         useSerializer.Serialize(lastEntryLevel, bufferContext);
-        if (bufferContext.LastWriteLength > 0) return StorageAttemptResult.PeriodRangeMatched;
-        return StorageAttemptResult.StorageSizeFailure;
+        if (bufferContext.LastWriteLength <= 0) return StorageAttemptResult.StorageSizeFailure;
+        ExpandedDataSize      += (ulong)bufferContext.LastWriteLength;
+        TotalDataEntriesCount += 1;
+        return StorageAttemptResult.PeriodRangeMatched;
     }
 }

@@ -1,9 +1,13 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -14,6 +18,7 @@ public interface IPQSourceQuoteRefPriceVolumeLayer : IMutableSourceQuoteRefPrice
 
 {
     bool IsSourceQuoteReferenceUpdated { get; set; }
+
     new IPQSourceQuoteRefPriceVolumeLayer Clone();
 }
 
@@ -28,7 +33,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         SourceQuoteReference = quoteRef;
 
     public PQSourceQuoteRefPriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator nameIdLookupGenerator) : base(toClone
-        , nameIdLookupGenerator)
+   , nameIdLookupGenerator)
     {
         if (toClone is ISourceQuoteRefPriceVolumeLayer sourceQtRefPvLayer)
             SourceQuoteReference = sourceQtRefPvLayer.SourceQuoteReference;
@@ -38,7 +43,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     protected string PQSourceQuoteRefPriceVolumeLayerToStringMembers =>
         $"{PQSourcePriceVolumeLayerToStringMembers}, {nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}";
 
-    public override LayerType LayerType => LayerType.SourceQuoteRefPriceVolume;
+    public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
     public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
 
     public uint SourceQuoteReference
@@ -48,7 +53,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         {
             if (sourceQuoteReference == value) return;
             IsSourceQuoteReferenceUpdated = true;
-            sourceQuoteReference = value;
+            sourceQuoteReference          = value;
         }
     }
 
@@ -59,6 +64,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.SourceQuoteRefUpdatedFlag;
+
             else if (IsSourceQuoteReferenceUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.SourceQuoteRefUpdatedFlag;
         }
     }
@@ -81,22 +87,22 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         return 0;
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                                quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsSourceQuoteReferenceUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerSourceQuoteRefOffset, SourceQuoteReference);
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
-        var pqSourcePvl = source as IPQSourceQuoteRefPriceVolumeLayer;
+        var pqSourcePvl   = source as IPQSourceQuoteRefPriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is ISourceQuoteRefPriceVolumeLayer sqrpvl && pqSourcePvl == null)
             SourceQuoteReference = sqrpvl.SourceQuoteReference;
@@ -122,7 +128,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (!(other is ISourceQuoteRefPriceVolumeLayer sourceQtRefOther)) return false;
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame           = base.AreEquivalent(other, exactTypes);
         var sourceQuoteRefSame = SourceQuoteReference == sourceQtRefOther.SourceQuoteReference;
 
         return baseSame && sourceQuoteRefSame;

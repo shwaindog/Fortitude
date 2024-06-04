@@ -10,7 +10,7 @@ using MathNet.Numerics.Distributions;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.Quotes.Generators.Book;
+namespace FortitudeMarketsCore.Pricing.Quotes.Generators.LayeredBook;
 
 public interface IBookGenerator
 {
@@ -52,16 +52,23 @@ public struct BookGenerationInfo
     public decimal SpreadStandardDeviation = 0.0005m;
 
     public decimal TightestSpreadPips = 0.1m;
+
+    public GenerateBookLayerInfo GenerateBookLayerInfo = new();
 }
 
 public class BookGenerator : IBookGenerator
 {
-    private readonly BookGenerationInfo bookGenerationInfo;
+    private readonly BookGenerationInfo        bookGenerationInfo;
+    private readonly PriceVolumeLayerGenerator priceVolumeLayerGenerator;
 
     private Normal normalDist   = null!;
     private Random pseudoRandom = null!;
 
-    public BookGenerator(BookGenerationInfo bookGenerationInfo) => this.bookGenerationInfo = bookGenerationInfo;
+    public BookGenerator(BookGenerationInfo bookGenerationInfo)
+    {
+        this.bookGenerationInfo   = bookGenerationInfo;
+        priceVolumeLayerGenerator = new PriceVolumeLayerGenerator(bookGenerationInfo.GenerateBookLayerInfo);
+    }
 
     public void PopulateBidAskBooks(IMutableLevel2Quote level2Quote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
@@ -73,7 +80,9 @@ public class BookGenerator : IBookGenerator
         else
             pseudoRandom = new Random(prev.Mid.GetHashCode() ^ curr.Mid.GetHashCode());
 
-        normalDist = new Normal(0, 1, pseudoRandom);
+        normalDist                             = new Normal(0, 1, pseudoRandom);
+        priceVolumeLayerGenerator.PseudoRandom = pseudoRandom;
+        priceVolumeLayerGenerator.NormalDist   = normalDist;
         var topBidAskSpread = Math.Max(bookGenerationInfo.TightestSpreadPips,
                                        bookGenerationInfo.AverageSpreadPips +
                                        (decimal)normalDist.Sample() * bookGenerationInfo.SpreadStandardDeviation);
@@ -84,11 +93,11 @@ public class BookGenerator : IBookGenerator
         while (roundedTopAsk - roundedTopBid > bookGenerationInfo.TightestSpreadPips)
             roundedTopBid -= bookGenerationInfo.SmallestPriceLayerPips;
 
-        PopulateBook(level2Quote.BidBook, roundedTopBid);
-        PopulateBook(level2Quote.AskBook, roundedTopAsk);
+        PopulateBook(level2Quote.BidBook, roundedTopBid, previousCurrentMidPriceTime);
+        PopulateBook(level2Quote.AskBook, roundedTopAsk, previousCurrentMidPriceTime);
     }
 
-    public void PopulateBook(IMutableOrderBook newBook, decimal startingPrice)
+    public void PopulateBook(IMutableOrderBook newBook, decimal startingPrice, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         var incrementVolToMaxMid = (bookGenerationInfo.HighestLayerAverageVolume - bookGenerationInfo.AverageTopOfBookVolume) /
                                    Math.Max(1, bookGenerationInfo.HighestVolumeLayer);
@@ -106,7 +115,7 @@ public class BookGenerator : IBookGenerator
                 var entry = newBook[index]!;
                 entry.Price  = currLayerPrice;
                 entry.Volume = layerVol;
-                SetOtherLayerValues(entry);
+                SetOtherLayerValues(entry, i, previousCurrentMidPriceTime);
                 var priceDelta =
                     Math.Min(bookGenerationInfo.MaxPriceLayerPips,
                              Math.Ceiling(Math.Max(bookGenerationInfo.SmallestPriceLayerPips,
@@ -130,8 +139,8 @@ public class BookGenerator : IBookGenerator
         }
     }
 
-    public void SetOtherLayerValues(IPriceVolumeLayer bookLayer)
+    public void SetOtherLayerValues(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
-        // Todo implement
+        priceVolumeLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
     }
 }

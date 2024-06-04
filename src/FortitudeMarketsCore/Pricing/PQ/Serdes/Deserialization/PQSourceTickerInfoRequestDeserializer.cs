@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -27,9 +30,10 @@ public class PQSourceTickerInfoRequestDeserializer : MessageDeserializer<PQSourc
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext messageBufferContext)
         {
-            var deserializedSnapshotIdsRequest = recycler.Borrow<PQSourceTickerInfoRequest>();
-            using var fixedBuffer = messageBufferContext.EncodedBuffer!;
-            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            var       deserializedSnapshotIdsRequest                  = recycler.Borrow<PQSourceTickerInfoRequest>();
+            using var fixedBuffer                                     = messageBufferContext.EncodedBuffer!;
+            var       ptr                                             = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            if (ReadMessageHeader) messageBufferContext.MessageHeader = ReadHeader(ref ptr);
             deserializedSnapshotIdsRequest.RequestId = StreamByteOps.ToInt(ref ptr);
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;

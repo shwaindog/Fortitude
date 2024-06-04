@@ -1,8 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Types;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -21,5 +25,6 @@ public interface ISupportsPQNameIdLookupGenerator : IHasNameIdLookup
 public interface IPQSupportsStringUpdates<T> : ITracksChanges<T> where T : class
 {
     bool UpdateFieldString(PQFieldStringUpdate stringUpdate);
-    IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags);
+
+    IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags);
 }

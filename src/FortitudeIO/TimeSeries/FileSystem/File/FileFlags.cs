@@ -29,5 +29,7 @@ public static class FileFlagExtensions
     public static bool HasSubFileHeaderFileFlag(this FileFlags flags)      => (flags & FileFlags.HasSubFileHeader) > 0;
     public static bool HasWriteDataCompressedFlag(this FileFlags flags)    => (flags & FileFlags.WriteDataCompressed) > 0;
 
+    public static FileFlags Set(this FileFlags flags, FileFlags toSet) => flags | toSet;
+
     public static FileFlags Unset(this FileFlags flags, FileFlags toUnset) => flags & ~toUnset;
 }

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
@@ -11,6 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
@@ -20,26 +24,27 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.Layered
 [TestClass]
 public class PQOrderBookTests
 {
-    private const int MaxNumberOfLayers = 19; // test being less than max.
-    private const int MaxNumberOfTraders = 3; // not too many traders.
-    private PQOrderBook allFieldsFullyPopulatedOrderBook = null!;
-    private IList<IPQSourceQuoteRefTraderValueDatePriceVolumeLayer> allFieldsLayers = null!;
-    private List<IReadOnlyList<IPQPriceVolumeLayer?>> allPopulatedLayers = null!;
+    private const int MaxNumberOfLayers  = 19; // test being less than max.
+    private const int MaxNumberOfTraders = 3;  // not too many traders.
 
-    private List<PQOrderBook> allPopulatedOrderBooks = null!;
-    private PQNameIdLookupGenerator nameIdLookupGenerator = null!;
+    private PQOrderBook                                             allFieldsFullyPopulatedOrderBook = null!;
+    private IList<IPQSourceQuoteRefTraderValueDatePriceVolumeLayer> allFieldsLayers                  = null!;
+    private List<IReadOnlyList<IPQPriceVolumeLayer?>>               allPopulatedLayers               = null!;
+
+    private List<PQOrderBook>       allPopulatedOrderBooks       = null!;
+    private PQNameIdLookupGenerator nameIdLookupGenerator        = null!;
     private PQSourceTickerQuoteInfo publicationPrecisionSettings = null!;
 
-    private PQOrderBook simpleFullyPopulatedOrderBook = null!;
-    private IList<IPQPriceVolumeLayer> simpleLayers = null!;
-    private PQOrderBook sourceFullyPopulatedOrderBook = null!;
-    private IList<IPQSourcePriceVolumeLayer> sourceLayers = null!;
-    private PQOrderBook sourceQtRefFullyPopulatedOrderBook = null!;
-    private IList<IPQSourceQuoteRefPriceVolumeLayer> sourceQtRefLayers = null!;
-    private PQOrderBook traderFullyPopulatedOrderBook = null!;
-    private IList<IPQTraderPriceVolumeLayer> traderLayers = null!;
-    private PQOrderBook valueDateFullyPopulatedOrderBook = null!;
-    private IList<IPQValueDatePriceVolumeLayer> valueDateLayers = null!;
+    private PQOrderBook                              simpleFullyPopulatedOrderBook      = null!;
+    private IList<IPQPriceVolumeLayer>               simpleLayers                       = null!;
+    private PQOrderBook                              sourceFullyPopulatedOrderBook      = null!;
+    private IList<IPQSourcePriceVolumeLayer>         sourceLayers                       = null!;
+    private PQOrderBook                              sourceQtRefFullyPopulatedOrderBook = null!;
+    private IList<IPQSourceQuoteRefPriceVolumeLayer> sourceQtRefLayers                  = null!;
+    private PQOrderBook                              traderFullyPopulatedOrderBook      = null!;
+    private IList<IPQTraderPriceVolumeLayer>         traderLayers                       = null!;
+    private PQOrderBook                              valueDateFullyPopulatedOrderBook   = null!;
+    private IList<IPQValueDatePriceVolumeLayer>      valueDateLayers                    = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -47,19 +52,18 @@ public class PQOrderBookTests
         nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
         nameIdLookupGenerator.GetOrAddId(TraderPriceVolumeLayer.TraderCountTraderName);
 
-
-        simpleLayers = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
-        sourceLayers = new List<IPQSourcePriceVolumeLayer>(MaxNumberOfLayers);
+        simpleLayers      = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
+        sourceLayers      = new List<IPQSourcePriceVolumeLayer>(MaxNumberOfLayers);
         sourceQtRefLayers = new List<IPQSourceQuoteRefPriceVolumeLayer>(MaxNumberOfLayers);
-        valueDateLayers = new List<IPQValueDatePriceVolumeLayer>(MaxNumberOfLayers);
-        traderLayers = new List<IPQTraderPriceVolumeLayer>(MaxNumberOfLayers);
-        allFieldsLayers = new List<IPQSourceQuoteRefTraderValueDatePriceVolumeLayer>(MaxNumberOfLayers);
+        valueDateLayers   = new List<IPQValueDatePriceVolumeLayer>(MaxNumberOfLayers);
+        traderLayers      = new List<IPQTraderPriceVolumeLayer>(MaxNumberOfLayers);
+        allFieldsLayers   = new List<IPQSourceQuoteRefTraderValueDatePriceVolumeLayer>(MaxNumberOfLayers);
 
         allPopulatedLayers = new List<IReadOnlyList<IPQPriceVolumeLayer?>>
         {
             (IReadOnlyList<IPQPriceVolumeLayer>)simpleLayers, (IReadOnlyList<IPQPriceVolumeLayer>)sourceLayers
-            , (IReadOnlyList<IPQPriceVolumeLayer>)sourceQtRefLayers, (IReadOnlyList<IPQPriceVolumeLayer>)valueDateLayers
-            , (IReadOnlyList<IPQPriceVolumeLayer>)traderLayers, (IReadOnlyList<IPQPriceVolumeLayer>)allFieldsLayers
+          , (IReadOnlyList<IPQPriceVolumeLayer>)sourceQtRefLayers, (IReadOnlyList<IPQPriceVolumeLayer>)valueDateLayers
+          , (IReadOnlyList<IPQPriceVolumeLayer>)traderLayers, (IReadOnlyList<IPQPriceVolumeLayer>)allFieldsLayers
         };
 
         for (var i = 0; i < MaxNumberOfLayers; i++)
@@ -67,16 +71,16 @@ public class PQOrderBookTests
             simpleLayers.Add(new PQPriceVolumeLayer(1.234567m, 40_000_000m));
             var sourcePvl =
                 new PQSourcePriceVolumeLayer(nameIdLookupGenerator, 1.234567m, 40_000_000m,
-                    "TestSourceName", true);
+                                             "TestSourceName", true);
             sourceLayers.Add(sourcePvl);
             var srcQtRefPvl = new PQSourceQuoteRefPriceVolumeLayer(nameIdLookupGenerator, 1.234567m, 40_000_000m,
-                "TestSourceName", true, 12345678u);
+                                                                   "TestSourceName", true, 12345678u);
             sourceQtRefLayers.Add(srcQtRefPvl);
             valueDateLayers.Add(new PQValueDatePriceVolumeLayer(1.234567m, 40_000_000m,
-                new DateTime(2017, 12, 09, 14, 0, 0)));
+                                                                new DateTime(2017, 12, 09, 14, 0, 0)));
             var allFieldsPvL = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(nameIdLookupGenerator,
-                1.234567m, 40_000_000m, new DateTime(2017, 12, 09, 14, 0, 0),
-                "TestSourceName", true, 12345678u);
+                                                                                   1.234567m, 40_000_000m, new DateTime(2017, 12, 09, 14, 0, 0),
+                                                                                   "TestSourceName", true, 12345678u);
             allFieldsLayers.Add(allFieldsPvL);
             var traderPvL = new PQTraderPriceVolumeLayer(nameIdLookupGenerator, 1.234567m, 40_000_000m);
             traderLayers.Add(traderPvL);
@@ -87,23 +91,26 @@ public class PQOrderBookTests
             }
         }
 
-        simpleFullyPopulatedOrderBook = new PQOrderBook(BookSide.BidBook, simpleLayers);
-        sourceFullyPopulatedOrderBook = new PQOrderBook(BookSide.AskBook, sourceLayers);
+        simpleFullyPopulatedOrderBook      = new PQOrderBook(BookSide.BidBook, simpleLayers);
+        sourceFullyPopulatedOrderBook      = new PQOrderBook(BookSide.AskBook, sourceLayers);
         sourceQtRefFullyPopulatedOrderBook = new PQOrderBook(BookSide.BidBook, sourceQtRefLayers);
-        traderFullyPopulatedOrderBook = new PQOrderBook(BookSide.AskBook, traderLayers);
-        valueDateFullyPopulatedOrderBook = new PQOrderBook(BookSide.BidBook, valueDateLayers);
+        traderFullyPopulatedOrderBook      = new PQOrderBook(BookSide.AskBook, traderLayers);
+        valueDateFullyPopulatedOrderBook   = new PQOrderBook(BookSide.BidBook, valueDateLayers);
 
         allFieldsFullyPopulatedOrderBook = new PQOrderBook(BookSide.AskBook, allFieldsLayers);
 
         allPopulatedOrderBooks = new List<PQOrderBook>
         {
             simpleFullyPopulatedOrderBook, sourceFullyPopulatedOrderBook, sourceQtRefFullyPopulatedOrderBook
-            , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
+          , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
         };
-        publicationPrecisionSettings = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(
-            ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, MaxNumberOfLayers, 0.00001m, 30000m, 50000000m, 1000m, 1,
-            LayerFlags.Volume | LayerFlags.Price, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-                                                  LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
+        publicationPrecisionSettings =
+            new PQSourceTickerQuoteInfo
+                (new SourceTickerQuoteInfo
+                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker"
+                   , QuoteLevel.Level3, MaxNumberOfLayers, 0.00001m, 30000m, 50000000m, 1000m, 1
+                   , LayerFlags.Volume | LayerFlags.Price
+                   , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
     }
 
     [TestMethod]
@@ -112,25 +119,24 @@ public class PQOrderBookTests
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
         var orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQPriceVolumeLayer));
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.SourceName | LayerFlags.Executable;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable;
         orderBook = new PQOrderBook(BookSide.AskBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQSourcePriceVolumeLayer));
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.SourceName | LayerFlags.Executable |
-                                                  LayerFlags.SourceQuoteReference;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable | LayerFlags.SourceQuoteReference;
         orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQSourceQuoteRefPriceVolumeLayer));
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.ValueDate;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.ValueDate;
         orderBook = new PQOrderBook(BookSide.AskBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQValueDatePriceVolumeLayer));
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.TraderName | LayerFlags.TraderCount |
-                                                  LayerFlags.TraderSize;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize;
         orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQTraderPriceVolumeLayer));
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price.AllFlags();
+
         orderBook = new PQOrderBook(BookSide.AskBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
     }
@@ -174,34 +180,34 @@ public class PQOrderBookTests
     public void PQOrderBook_InitializedFromOrderBook_ConvertsLayers()
     {
         var nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        var pqorderBook = new PQOrderBook(nonPqOrderBook);
+        var pqorderBook    = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQPriceVolumeLayer));
 
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.SourceName | LayerFlags.Executable;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable;
         nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
-        pqorderBook = new PQOrderBook(nonPqOrderBook);
+        pqorderBook    = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourcePriceVolumeLayer));
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.SourceName | LayerFlags.Executable |
-                                                  LayerFlags.SourceQuoteReference;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable | LayerFlags.SourceQuoteReference;
         nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        pqorderBook = new PQOrderBook(nonPqOrderBook);
+        pqorderBook    = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourceQuoteRefPriceVolumeLayer));
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.ValueDate;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.ValueDate;
         nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
-        pqorderBook = new PQOrderBook(nonPqOrderBook);
+        pqorderBook    = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQValueDatePriceVolumeLayer));
-        publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                                  LayerFlags.TraderName | LayerFlags.TraderCount |
-                                                  LayerFlags.TraderSize;
+        publicationPrecisionSettings.LayerFlags =
+            LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize;
         nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        pqorderBook = new PQOrderBook(nonPqOrderBook);
+        pqorderBook    = new PQOrderBook(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQTraderPriceVolumeLayer));
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price.AllFlags();
+
         nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
-        pqorderBook = new PQOrderBook(nonPqOrderBook);
+        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer));
     }
 
@@ -211,7 +217,7 @@ public class PQOrderBookTests
         for (var i = 0; i < allPopulatedOrderBooks.Count; i++)
         {
             var populatedOrderBook = allPopulatedOrderBooks[i];
-            var populatedLayers = allPopulatedLayers[i];
+            var populatedLayers    = allPopulatedLayers[i];
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.AllLayers.Count);
             for (var j = 0; j < MaxNumberOfTraders; j++) Assert.AreSame(populatedLayers[j], populatedOrderBook[j]);
         }
@@ -223,7 +229,7 @@ public class PQOrderBookTests
         for (var i = 0; i < allPopulatedOrderBooks.Count; i++)
         {
             var populatedOrderBook = allPopulatedOrderBooks[i];
-            var clonedOrderBook = new PQOrderBook(populatedOrderBook);
+            var clonedOrderBook    = new PQOrderBook(populatedOrderBook);
             Assert.AreEqual(MaxNumberOfLayers, clonedOrderBook.AllLayers.Count);
             for (var j = 0; j < MaxNumberOfTraders; j++) Assert.AreNotSame(populatedOrderBook[j], clonedOrderBook[j]);
         }
@@ -242,8 +248,9 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
             for (var i = 0; i < MaxNumberOfLayers; i++)
             {
-                var layer = ((IOrderBook)populatedOrderBook)[i];
+                var layer       = ((IOrderBook)populatedOrderBook)[i];
                 var clonedLayer = (IPQPriceVolumeLayer)layer!.Clone();
+
                 populatedOrderBook[i] = clonedLayer;
                 Assert.AreNotSame(layer, ((IMutableOrderBook)populatedOrderBook)[i]);
                 Assert.AreSame(clonedLayer, populatedOrderBook[i]);
@@ -262,7 +269,8 @@ public class PQOrderBookTests
             for (var i = 0; i < allPopulatedLayers.Count; i++)
             {
                 var originalLayers = populatedOrderBook.AllLayers;
-                var index = (i + 2) % allPopulatedLayers.Count;
+                var index          = (i + 2) % allPopulatedLayers.Count;
+
                 var newReplacementLayerList = allPopulatedLayers[index].ToList()!;
                 populatedOrderBook.AllLayers = newReplacementLayerList;
                 Assert.AreNotSame(originalLayers, populatedOrderBook.AllLayers);
@@ -327,7 +335,7 @@ public class PQOrderBookTests
                 {
                     srcPvl.SourceName = "newSourceName";
                     Assert.IsTrue(populatedOrderBook.HasUpdates);
-                    srcPvl.IsSourceNameUpdated = false;
+                    srcPvl.IsSourceNameUpdated     = false;
                     srcPvl.NameIdLookup.HasUpdates = false;
                     Assert.IsFalse(populatedOrderBook.HasUpdates);
                 }
@@ -355,7 +363,7 @@ public class PQOrderBookTests
                         traderLayerInfo.TraderName = "NewTraderName" + i;
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
                         traderLayerInfo.IsTraderNameUpdated = false;
-                        traderPvl.NameIdLookup.HasUpdates = false;
+                        traderPvl.NameIdLookup.HasUpdates   = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
                         traderLayerInfo.TraderVolume = 3_000m;
@@ -385,8 +393,9 @@ public class PQOrderBookTests
     {
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
-            var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update).ToList();
+            var pqFieldUpdates =
+                populatedOrderBook.GetDeltaUpdateFields
+                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update).ToList();
             AssertContainsAllOrderBookFields(pqFieldUpdates, populatedOrderBook);
         }
     }
@@ -397,9 +406,10 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
             populatedOrderBook.HasUpdates = false;
-            var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                    new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot, publicationPrecisionSettings)
-                .ToList();
+            var pqFieldUpdates =
+                populatedOrderBook.GetDeltaUpdateFields
+                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot
+                   , publicationPrecisionSettings).ToList();
             AssertContainsAllOrderBookFields(pqFieldUpdates, populatedOrderBook);
         }
     }
@@ -410,10 +420,12 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
             populatedOrderBook.HasUpdates = false;
-            var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
-            var pqStringUpdates = populatedOrderBook.GetStringUpdates(
-                new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
+            var pqFieldUpdates =
+                populatedOrderBook.GetDeltaUpdateFields
+                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+            var pqStringUpdates =
+                populatedOrderBook.GetStringUpdates
+                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -424,10 +436,14 @@ public class PQOrderBookTests
     {
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
-            var pqFieldUpdates = populatedOrderBook.GetDeltaUpdateFields(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
-            var pqStringUpdates = populatedOrderBook.GetStringUpdates(
-                new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
+            var pqFieldUpdates =
+                populatedOrderBook.GetDeltaUpdateFields
+                    (new DateTime(2017, 11, 04, 13, 33, 3)
+                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+            var pqStringUpdates =
+                populatedOrderBook.GetStringUpdates
+                    (new DateTime(2017, 11, 04, 13, 33, 3)
+                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
             var newEmpty = CreateNewEmpty(populatedOrderBook);
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
@@ -469,7 +485,7 @@ public class PQOrderBookTests
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
         clonePopulated[clonePopulated.Count - 1] = null;
         clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[5] = null;
+        clonePopulated[5]                        = null;
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
         var notEmpty = new PQOrderBook(simpleFullyPopulatedOrderBook);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
@@ -536,7 +552,7 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
             var nonPQOrderBook = new OrderBook(populatedOrderBook);
-            var newEmpty = CreateNewEmpty(populatedOrderBook);
+            var newEmpty       = CreateNewEmpty(populatedOrderBook);
             newEmpty.CopyFrom(nonPQOrderBook);
             Assert.AreEqual(populatedOrderBook, newEmpty);
         }
@@ -551,11 +567,11 @@ public class PQOrderBookTests
         {
             var emptyOriginalTypeOrderBook = CreateNewEmpty(originalTypeOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo(emptyOriginalTypeOrderBook, originalTypeOrderBook,
-                originalTypeOrderBook[0]!.GetType(), false);
+                                                    originalTypeOrderBook[0]!.GetType(), false);
             emptyOriginalTypeOrderBook.CopyFrom(otherOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo(emptyOriginalTypeOrderBook, otherOrderBook,
-                GetExpectedType(originalTypeOrderBook[0]!.LayerType,
-                    otherOrderBook[0]!.LayerType));
+                                                    GetExpectedType(originalTypeOrderBook[0]!.LayerType,
+                                                                    otherOrderBook[0]!.LayerType));
         }
     }
 
@@ -568,12 +584,12 @@ public class PQOrderBookTests
         {
             var clonedPopulatedOrderBook = (PQOrderBook)originalTypeOrderBook.Clone();
             AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalTypeOrderBook,
-                originalTypeOrderBook[0]!.GetType(), false);
+                                                    originalTypeOrderBook[0]!.GetType(), false);
             clonedPopulatedOrderBook.CopyFrom(otherOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, otherOrderBook,
-                GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
+                                                    GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
             AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalTypeOrderBook,
-                GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
+                                                    GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
         }
     }
 
@@ -599,9 +615,9 @@ public class PQOrderBookTests
         {
             var fullyPopulatedClone = (PQOrderBook)((ICloneable)populatedOrderBook).Clone();
             AssertAreEquivalentMeetsExpectedExactComparisonType(true, populatedOrderBook,
-                fullyPopulatedClone);
+                                                                fullyPopulatedClone);
             AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedOrderBook,
-                fullyPopulatedClone);
+                                                                fullyPopulatedClone);
         }
     }
 
@@ -634,6 +650,7 @@ public class PQOrderBookTests
         foreach (var populatedQuote in allPopulatedOrderBooks)
         {
             var q = populatedQuote;
+
             var toString = q.ToString();
 
             Assert.IsTrue(toString.Contains(q.GetType().Name));
@@ -667,44 +684,48 @@ public class PQOrderBookTests
     {
         if (original.GetType() == typeof(PQOrderBook))
             Assert.AreEqual(!exactComparison,
-                changingOrderBook.AreEquivalent(new OrderBook(original), exactComparison));
+                            changingOrderBook.AreEquivalent(new OrderBook(original), exactComparison));
 
         Assert.AreEqual(original.AllLayers.Count, changingOrderBook.AllLayers.Count);
+
         var originalLayers = original.AllLayers;
         var changingLayers = changingOrderBook.AllLayers;
 
         for (var i = 0; i < originalLayers.Count; i++)
         {
-            PQPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-                exactComparison, (PQPriceVolumeLayer)originalLayers[i]!,
-                (PQPriceVolumeLayer)changingLayers[i]!, original,
-                changingOrderBook, originalQuote!, changingQuote!);
+            PQPriceVolumeLayerTests
+                .AssertAreEquivalentMeetsExpectedExactComparisonType
+                    (exactComparison, (PQPriceVolumeLayer)originalLayers[i]!,
+                     (PQPriceVolumeLayer)changingLayers[i]!, original,
+                     changingOrderBook, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQSourcePriceVolumeLayer)
-                PQSourcePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-                    exactComparison, (PQSourcePriceVolumeLayer)originalLayers[i]!,
-                    (PQSourcePriceVolumeLayer)changingLayers[i]!, original,
-                    changingOrderBook, originalQuote!, changingQuote!);
+                PQSourcePriceVolumeLayerTests
+                    .AssertAreEquivalentMeetsExpectedExactComparisonType
+                        (exactComparison, (PQSourcePriceVolumeLayer)originalLayers[i]!,
+                         (PQSourcePriceVolumeLayer)changingLayers[i]!, original,
+                         changingOrderBook, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQSourceQuoteRefPriceVolumeLayer)
                 PQSourceQuoteRefPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-                    exactComparison, (PQSourceQuoteRefPriceVolumeLayer)originalLayers[i]!,
-                    (PQSourceQuoteRefPriceVolumeLayer)changingLayers[i]!, original,
-                    changingOrderBook, originalQuote!, changingQuote!);
+                 exactComparison, (PQSourceQuoteRefPriceVolumeLayer)originalLayers[i]!,
+                 (PQSourceQuoteRefPriceVolumeLayer)changingLayers[i]!, original,
+                 changingOrderBook, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQValueDatePriceVolumeLayer)
                 PQValueDatePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-                    exactComparison, (PQValueDatePriceVolumeLayer)originalLayers[i]!,
-                    (PQValueDatePriceVolumeLayer)changingLayers[i]!, original,
-                    changingOrderBook, originalQuote!, changingQuote);
+                 exactComparison, (PQValueDatePriceVolumeLayer)originalLayers[i]!,
+                 (PQValueDatePriceVolumeLayer)changingLayers[i]!, original,
+                 changingOrderBook, originalQuote!, changingQuote);
             if (originalLayers[i] is PQTraderPriceVolumeLayer)
-                PQTraderPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-                    exactComparison, (PQTraderPriceVolumeLayer)originalLayers[i]!,
-                    (PQTraderPriceVolumeLayer)changingLayers[i]!, original,
-                    changingOrderBook, originalQuote, changingQuote);
+                PQTraderPriceVolumeLayerTests
+                    .AssertAreEquivalentMeetsExpectedExactComparisonType
+                        (exactComparison, (PQTraderPriceVolumeLayer)originalLayers[i]!,
+                         (PQTraderPriceVolumeLayer)changingLayers[i]!, original,
+                         changingOrderBook, originalQuote, changingQuote);
             if (originalLayers[i] is PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
                 PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
-                    .AssertAreEquivalentMeetsExpectedExactComparisonType(
-                        exactComparison, (PQSourceQuoteRefTraderValueDatePriceVolumeLayer)originalLayers[i]!,
-                        (PQSourceQuoteRefTraderValueDatePriceVolumeLayer)changingLayers[i]!, original,
-                        changingOrderBook, originalQuote, changingQuote);
+                    .AssertAreEquivalentMeetsExpectedExactComparisonType
+                        (exactComparison, (PQSourceQuoteRefTraderValueDatePriceVolumeLayer)originalLayers[i]!,
+                         (PQSourceQuoteRefTraderValueDatePriceVolumeLayer)changingLayers[i]!, original
+                       , changingOrderBook, originalQuote, changingQuote);
         }
     }
 
@@ -716,40 +737,43 @@ public class PQOrderBookTests
             var pvl = orderBook[i];
 
             Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LayerPriceOffset + i), pvl!.Price, 1),
-                PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                    (byte)(PQFieldKeys.LayerPriceOffset + i), 1), $"For layer {pvl.GetType().Name} level {i}");
+                            PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                                                        (byte)(PQFieldKeys.LayerPriceOffset + i), 1)
+                          , $"For layer {pvl.GetType().Name} level {i}");
             Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.LayerVolumeOffset + i), pvl.Volume, 6),
-                PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                    (ushort)(PQFieldKeys.LayerVolumeOffset + i), 6),
-                $"For bidlayer {pvl.GetType().Name} level {i}");
+                            PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                                                        (ushort)(PQFieldKeys.LayerVolumeOffset + i), 6),
+                            $"For bidlayer {pvl.GetType().Name} level {i}");
 
             if (pvl is IPQSourcePriceVolumeLayer srcPvl)
             {
                 var srcId = PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                    (byte)(PQFieldKeys.LayerSourceIdOffset + i));
+                                                                        (byte)(PQFieldKeys.LayerSourceIdOffset + i));
 
                 var nameIdLookup = srcPvl.NameIdLookup;
+
                 Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LayerSourceIdOffset + i),
-                    nameIdLookup[srcPvl.SourceName!]), srcId);
+                                                  nameIdLookup[srcPvl.SourceName!]), srcId);
             }
 
             if (pvl is IPQSourceQuoteRefPriceVolumeLayer srcQtRefPvl)
             {
                 var srcQtRef = PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                    (byte)(PQFieldKeys.LayerSourceQuoteRefOffset + i));
+                                                                           (byte)(PQFieldKeys.LayerSourceQuoteRefOffset + i));
 
                 Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LayerSourceQuoteRefOffset + i),
-                    srcQtRefPvl.SourceQuoteReference), srcQtRef);
+                                                  srcQtRefPvl.SourceQuoteReference), srcQtRef);
             }
 
             if (pvl is IPQValueDatePriceVolumeLayer valueDatePvl)
             {
                 var valueDate = PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                    (ushort)(PQFieldKeys.LayerDateOffset + i));
+                                                                            (ushort)(PQFieldKeys.LayerDateOffset + i));
 
                 var dateAsHoursFromEpoch = valueDatePvl.ValueDate.GetHoursFromUnixEpoch();
+
                 Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.LayerDateOffset + i),
-                    dateAsHoursFromEpoch, PQFieldFlags.IsExtendedFieldId), valueDate);
+                                                  dateAsHoursFromEpoch, PQFieldFlags.IsExtendedFieldId), valueDate);
             }
 
             if (pvl is IPQTraderPriceVolumeLayer bidTrdPvl)
@@ -763,69 +787,88 @@ public class PQOrderBookTests
     private Type GetExpectedType(LayerType originalType, LayerType copyType)
     {
         return originalType switch
-        {
-            LayerType.PriceVolume => copyType switch
-            {
-                LayerType.PriceVolume => typeof(PQPriceVolumeLayer)
-                , LayerType.SourcePriceVolume => typeof(PQSourcePriceVolumeLayer)
-                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
-                , LayerType.TraderPriceVolume => typeof(PQTraderPriceVolumeLayer)
-                , LayerType.ValueDatePriceVolume => typeof(PQValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , _ => throw new NotImplementedException()
-            }
-            , LayerType.SourcePriceVolume => copyType switch
-            {
-                LayerType.PriceVolume => typeof(PQSourcePriceVolumeLayer)
-                , LayerType.SourcePriceVolume => typeof(PQSourcePriceVolumeLayer)
-                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
-                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , _ => throw new NotImplementedException()
-            }
-            , LayerType.SourceQuoteRefPriceVolume => copyType switch
-            {
-                LayerType.PriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
-                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
-                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
-                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , _ => throw new NotImplementedException()
-            }
-            , LayerType.ValueDatePriceVolume => copyType switch
-            {
-                LayerType.PriceVolume => typeof(PQValueDatePriceVolumeLayer)
-                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.ValueDatePriceVolume => typeof(PQValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , _ => throw new NotImplementedException()
-            }
-            , LayerType.TraderPriceVolume => copyType switch
-            {
-                LayerType.PriceVolume => typeof(PQTraderPriceVolumeLayer)
-                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.TraderPriceVolume => typeof(PQTraderPriceVolumeLayer)
-                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , _ => throw new NotImplementedException()
-            }
-            , LayerType.SourceQuoteRefTraderValueDatePriceVolume => copyType switch
-            {
-                LayerType.PriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.TraderPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.ValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , LayerType.SourceQuoteRefTraderValueDatePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
-                , _ => throw new NotImplementedException()
-            }
-            , _ => throw new NotImplementedException()
-        };
+               {
+                   LayerType.PriceVolume =>
+                       copyType switch
+                       {
+                           LayerType.PriceVolume               => typeof(PQPriceVolumeLayer)
+                         , LayerType.SourcePriceVolume         => typeof(PQSourcePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                         , LayerType.TraderPriceVolume         => typeof(PQTraderPriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume      => typeof(PQValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefTraderValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , _ => throw new NotImplementedException()
+                       }
+                 , LayerType.SourcePriceVolume =>
+                       copyType switch
+                       {
+                           LayerType.PriceVolume               => typeof(PQSourcePriceVolumeLayer)
+                         , LayerType.SourcePriceVolume         => typeof(PQSourcePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                         , LayerType.TraderPriceVolume         => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume      => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefTraderValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , _ => throw new NotImplementedException()
+                       }
+                 , LayerType.SourceQuoteRefPriceVolume =>
+                       copyType switch
+                       {
+                           LayerType.PriceVolume               => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                         , LayerType.SourcePriceVolume         => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefPriceVolumeLayer)
+                         , LayerType.TraderPriceVolume         => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefTraderValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , _ => throw new NotImplementedException()
+                       }
+                 , LayerType.ValueDatePriceVolume =>
+                       copyType switch
+                       {
+                           LayerType.PriceVolume       => typeof(PQValueDatePriceVolumeLayer)
+                         , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.TraderPriceVolume    => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume => typeof(PQValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefTraderValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , _ => throw new NotImplementedException()
+                       }
+                 , LayerType.TraderPriceVolume =>
+                       copyType switch
+                       {
+                           LayerType.PriceVolume               => typeof(PQTraderPriceVolumeLayer)
+                         , LayerType.SourcePriceVolume         => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.TraderPriceVolume         => typeof(PQTraderPriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume      => typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefTraderValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , _ => throw new NotImplementedException()
+                       }
+                 , LayerType.SourceQuoteRefTraderValueDatePriceVolume =>
+                       copyType switch
+                       {
+                           LayerType.PriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourcePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.TraderPriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , LayerType.SourceQuoteRefTraderValueDatePriceVolume =>
+                               typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer)
+                         , _ => throw new NotImplementedException()
+                       }
+                 , _ => throw new NotImplementedException()
+               };
     }
 
     private void AssertAllLayersAreOfTypeAndEquivalentTo(PQOrderBook upgradedOrderBook,
@@ -841,7 +884,7 @@ public class PQOrderBookTests
             Assert.IsInstanceOfType(upgradedLayer, expectedType);
             if (compareForEquivalence)
                 Assert.IsTrue(copyFromLayer!.AreEquivalent(upgradedLayer, exactlyEquals),
-                    $"Expected {copyFromLayer} to be equivalent to {upgradedLayer} when exactlyEquals {exactlyEquals}");
+                              $"Expected {copyFromLayer} to be equivalent to {upgradedLayer} when exactlyEquals {exactlyEquals}");
         }
     }
 
@@ -865,21 +908,24 @@ public class PQOrderBookTests
     {
         for (var j = 0; j < traderPvl.Count; j++)
         {
-            var trdLayerInfo = traderPvl[j];
+            var trdLayerInfo  = traderPvl[j];
             var fieldPosIndex = (uint)j << 24;
 
-            var traderId = PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                (byte)(PQFieldKeys.LayerTraderIdOffset + bookIndex), fieldPosIndex, 0xFF80_0000);
+            var traderId = PQLevel2QuoteTests
+                .ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerTraderIdOffset + bookIndex),
+                                          fieldPosIndex, 0xFF80_0000);
 
-            var traderVolume = PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                (byte)(PQFieldKeys.LayerTraderVolumeOffset + bookIndex), fieldPosIndex, 0xFF80_0000, 10);
+            var traderVolume = PQLevel2QuoteTests
+                .ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerTraderVolumeOffset + bookIndex),
+                                          fieldPosIndex, 0xFF80_0000, 10);
 
             Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LayerTraderIdOffset + bookIndex),
-                fieldPosIndex | (uint)nameIdLookup[trdLayerInfo!.TraderName!]), traderId);
+                                              fieldPosIndex | (uint)nameIdLookup[trdLayerInfo!.TraderName!]), traderId);
 
             var value = PQScaling.AutoScale(trdLayerInfo.TraderVolume, 6, out var flag);
+
             Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LayerTraderVolumeOffset + bookIndex),
-                value | fieldPosIndex, flag), traderVolume);
+                                              value | fieldPosIndex, flag), traderVolume);
         }
     }
 }

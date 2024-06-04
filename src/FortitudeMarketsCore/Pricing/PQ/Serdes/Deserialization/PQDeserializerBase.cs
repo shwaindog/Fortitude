@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Reactive.Disposables;
 using FortitudeCommon.Chronometry;
@@ -23,7 +26,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
     where T : class, IPQLevel0Quote
 {
     private const byte SupportFromVersion = 1;
-    private const byte SupportToVersion = 1;
+    private const byte SupportToVersion   = 1;
 
     private readonly PQSerializationFlags serializationFlags;
 
@@ -35,21 +38,21 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
     {
         this.serializationFlags = serializationFlags;
-        Identifier = tickerPricingSubscriptionConfig;
-        QuoteFactory = sqi => ConcreteFinder.GetConcreteMapping<T>(sqi);
-        PublishedQuote = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
+        Identifier              = tickerPricingSubscriptionConfig;
+        QuoteFactory            = sqi => ConcreteFinder.GetConcreteMapping<T>(sqi);
+        PublishedQuote          = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
     }
 
 
     protected PQDeserializerBase(PQDeserializerBase<T> toClone) : base(toClone)
     {
         serializationFlags = toClone.serializationFlags;
-        Identifier = toClone.Identifier;
-        ReceivedUpdate = toClone.ReceivedUpdate;
-        SyncOk = toClone.SyncOk;
-        OutOfSync = toClone.OutOfSync;
-        QuoteFactory = toClone.QuoteFactory;
-        PublishedQuote = (T)toClone.PublishedQuote.Clone();
+        Identifier         = toClone.Identifier;
+        ReceivedUpdate     = toClone.ReceivedUpdate;
+        SyncOk             = toClone.SyncOk;
+        OutOfSync          = toClone.OutOfSync;
+        QuoteFactory       = toClone.QuoteFactory;
+        PublishedQuote     = (T)toClone.PublishedQuote.Clone();
     }
 
     protected byte StorageVersion { get; set; }
@@ -57,9 +60,10 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
     public static IPQImplementationFactory ConcreteFinder { get; set; } = new PQImplementationFactory();
 
     protected virtual bool ShouldPublish => PublishedQuote.HasUpdates;
+
     public ISourceTickerQuoteInfo Identifier { get; }
-    public IPQDeserializer? Previous { get; set; }
-    public IPQDeserializer? Next { get; set; }
+    public IPQDeserializer?       Previous   { get; set; }
+    public IPQDeserializer?       Next       { get; set; }
 
 
     public event Action<IPQDeserializer>? ReceivedUpdate;
@@ -116,24 +120,28 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
 
     public virtual bool CheckResync(DateTime utcNow) => false;
 
-    public unsafe void UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
+    public unsafe int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
         if (readContext is SocketBufferReadContext sockBuffContext)
         {
-            ent.ClientReceivedTime = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
+            ent.ClientReceivedTime  = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
             ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
-            ent.ProcessedTime = sockBuffContext?.DeserializerTime ?? DateTime.Now;
+            ent.ProcessedTime       = sockBuffContext?.DeserializerTime ?? DateTime.Now;
         }
 
         using var fixedBuffer = readContext.EncodedBuffer!;
-        var fptr = fixedBuffer.ReadBuffer;
+
+        var fptr   = fixedBuffer.ReadBuffer;
         var offset = readContext.EncodedBuffer!.BufferRelativeReadCursor;
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");
-        var storageFlags = StorageFlags.IncludesSequenceId;
-        byte version;
+        var   storageFlags = StorageFlags.IncludesSequenceId;
+        byte  version;
         byte* end;
-        uint msgSize;
-        var ptr = fptr + offset;
+        uint  msgSize;
+
+        var startAddress = fptr + offset;
+        var ptr          = startAddress;
+
         if (serializationFlags != PQSerializationFlags.ForSocketPublish)
         {
             storageFlags = (StorageFlags)(*ptr++);
@@ -143,14 +151,14 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
                 uint firstByte = *ptr++;
                 if (BitConverter.IsLittleEndian)
                 {
-                    msgSize = firstByte << 16;
-                    msgSize |= StreamByteOps.ToUShort(ref ptr);
+                    msgSize =   StreamByteOps.ToUShort(ref ptr);
+                    msgSize <<= 8;
+                    msgSize |=  firstByte;
                 }
                 else
                 {
-                    msgSize = StreamByteOps.ToUShort(ref ptr);
-                    msgSize <<= 8;
-                    msgSize |= firstByte;
+                    msgSize =  firstByte << 16;
+                    msgSize |= StreamByteOps.ToUShort(ref ptr);
                 }
             }
             else if ((storageFlags & StorageFlags.OneByteMessageSize) > 0)
@@ -163,19 +171,19 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
             }
 
             version = StorageVersion;
-            end = ptr + msgSize;
+            end     = startAddress + msgSize;
         }
         else
         {
             msgSize = readContext.MessageHeader.MessageSize;
             version = readContext.MessageHeader.Version;
-            end = ptr + msgSize - PQQuoteMessageHeader.HeaderSize;
+            end     = startAddress + msgSize - PQQuoteMessageHeader.HeaderSize;
         }
 
         if (version < SupportFromVersion || version > SupportToVersion)
         {
             logger.Warn("Received unsupported message version {0} will skip processing", version);
-            return;
+            return (int)msgSize;
         }
 
         if (serializationFlags == PQSerializationFlags.ForSocketPublish || (storageFlags & StorageFlags.IncludesSequenceId) > 0)
@@ -184,7 +192,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
 
         while (ptr < end)
         {
-            var flags = *ptr++;
+            var    flags = *ptr++;
             ushort id;
             if ((flags & PQFieldFlags.IsExtendedFieldId) == 0)
                 id = *ptr++;
@@ -197,9 +205,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
             var stringUpdate = new PQStringUpdate
             {
                 DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
-                , Command = (pqFieldUpdate.Flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ?
-                    CrudCommand.Upsert :
-                    CrudCommand.Delete
+              , Command      = (pqFieldUpdate.Flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ? CrudCommand.Upsert : CrudCommand.Delete
             };
             var fieldStringUpdate = new PQFieldStringUpdate
             {
@@ -210,6 +216,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
         }
         // logger.Info("Deserialized Quote {0}: SequenceId:{1} on Deserializer.InstanceNum {2}",
         //     ent.GetType().Name, ent.PQSequenceId, InstanceNumber);
+        return (int)msgSize;
     }
 
     public void PushQuoteToSubscribers(PQSyncStatus syncStatus,
@@ -250,7 +257,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
 
     private static IPerfLoggerPool PublishPQQuoteDeserializerLatencyTraceLoggerPool =
         PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool("clientCallback",
-            TimeSpan.FromMilliseconds(10), typeof(UserCallback));
+                                                                    TimeSpan.FromMilliseconds(10), typeof(UserCallback));
     // ReSharper restore InconsistentNaming
     // ReSharper restore StaticMemberInGenericType
     // ReSharper restore FieldCanBeMadeReadOnly.Local

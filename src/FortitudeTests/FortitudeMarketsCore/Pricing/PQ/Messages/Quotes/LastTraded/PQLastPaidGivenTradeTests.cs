@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
@@ -7,6 +10,7 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
@@ -16,16 +20,17 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTra
 [TestClass]
 public class PQLastPaidGivenTradeTests
 {
-    private PQLastPaidGivenTrade emptyLt = null!;
+    private PQLastPaidGivenTrade emptyLt     = null!;
     private PQLastPaidGivenTrade populatedLt = null!;
+
     private DateTime testDateTime;
 
     [TestInitialize]
     public void SetUp()
     {
-        emptyLt = new PQLastPaidGivenTrade();
+        emptyLt      = new PQLastPaidGivenTrade();
         testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
-        populatedLt = new PQLastPaidGivenTrade(4.2949_672m, testDateTime, 42_949_672.95m, true, true);
+        populatedLt  = new PQLastPaidGivenTrade(4.2949_672m, testDateTime, 42_949_672.95m, true, true);
     }
 
     [TestMethod]
@@ -74,7 +79,7 @@ public class PQLastPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
 
-        var nonPQLt = new LastPaidGivenTrade(1.23456m, testDateTime, 42_949_672.95m, true, true);
+        var nonPQLt           = new LastPaidGivenTrade(1.23456m, testDateTime, 42_949_672.95m, true, true);
         var fromNonPqInstance = new PQLastPaidGivenTrade(nonPQLt);
         Assert.AreEqual(1.23456m, fromNonPqInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromNonPqInstance.TradeTime);
@@ -202,37 +207,37 @@ public class PQLastPaidGivenTradeTests
         Assert.IsFalse(emptyLt.IsTradeVolumeUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.AreEqual(0m, emptyLt.TradeVolume);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         const decimal expectedVolume = 42_949_672.95m;
         emptyLt.TradeVolume = expectedVolume;
         Assert.IsTrue(emptyLt.IsTradeVolumeUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(expectedVolume, emptyLt.TradeVolume);
-        var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
+        var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset,
-            expectedVolume, 6);
+                                                    expectedVolume, 6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.IsTradeVolumeUpdated = false;
         Assert.IsFalse(emptyLt.IsTradeVolumeUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         const decimal nextExpectedVolume = 0.11m;
         emptyLt.TradeVolume = nextExpectedVolume;
         Assert.IsTrue(emptyLt.IsTradeVolumeUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(nextExpectedVolume, emptyLt.TradeVolume);
-        sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
+        sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset, nextExpectedVolume, 6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.HasUpdates = false;
-        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
+        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id == PQFieldKeys.LastTradeVolumeOffset
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -250,25 +255,25 @@ public class PQLastPaidGivenTradeTests
         Assert.IsFalse(emptyLt.IsWasGivenUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.IsFalse(emptyLt.WasGiven);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         emptyLt.WasGiven = true;
         Assert.IsTrue(emptyLt.IsWasGivenUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.IsTrue(emptyLt.WasGiven);
-        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
+        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset, 0,
-            PQFieldFlags.IsGivenFlag | 6);
+                                                   PQFieldFlags.IsGivenFlag | 6);
         Assert.AreEqual(expectedLayerField, sourceLayerUpdates[0]);
 
         emptyLt.IsWasGivenUpdated = false;
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         emptyLt.IsWasGivenUpdated = true;
         sourceLayerUpdates =
-            (from update in emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
+            (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                 where update.Id == PQFieldKeys.LastTradeVolumeOffset
                 select update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
@@ -287,25 +292,25 @@ public class PQLastPaidGivenTradeTests
         Assert.IsFalse(emptyLt.IsWasPaidUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.IsFalse(emptyLt.WasPaid);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         emptyLt.WasPaid = true;
         Assert.IsTrue(emptyLt.IsWasPaidUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.IsTrue(emptyLt.WasPaid);
-        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
+        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset, 0,
-            PQFieldFlags.IsPaidFlag | 6);
+                                                   PQFieldFlags.IsPaidFlag | 6);
         Assert.AreEqual(expectedLayerField, sourceLayerUpdates[0]);
 
         emptyLt.IsWasPaidUpdated = false;
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         emptyLt.IsWasPaidUpdated = true;
         sourceLayerUpdates =
-            (from update in emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
+            (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                 where update.Id == PQFieldKeys.LastTradeVolumeOffset
                 select update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
@@ -387,7 +392,7 @@ public class PQLastPaidGivenTradeTests
     public void PopulatedLtWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllPvlFields()
     {
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
+                                                              new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Update).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -396,7 +401,7 @@ public class PQLastPaidGivenTradeTests
     {
         populatedLt.HasUpdates = false;
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
+                                                              new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -405,7 +410,7 @@ public class PQLastPaidGivenTradeTests
     {
         populatedLt.HasUpdates = false;
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
+                                                              new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
@@ -413,7 +418,8 @@ public class PQLastPaidGivenTradeTests
     public void PopulatedLt_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewLt_CopiesAllFieldsToNewLt()
     {
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
+                                                              new DateTime(2017, 11, 04, 13, 33, 3)
+                                                            , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQLastPaidGivenTrade();
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         Assert.AreEqual(populatedLt, newEmpty);
@@ -474,9 +480,9 @@ public class PQLastPaidGivenTradeTests
     {
         var fullyPopulatedClone = (PQLastPaidGivenTrade)((ICloneable)populatedLt).Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType(true, populatedLt,
-            fullyPopulatedClone);
+                                                            fullyPopulatedClone);
         AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedLt,
-            fullyPopulatedClone);
+                                                            fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -512,14 +518,14 @@ public class PQLastPaidGivenTradeTests
     {
         PQLastTradeTests.AssertContainsAllLtFields(checkFieldUpdates, lt);
 
-        byte noVal = 0;
-        var expectedFlag = lt.WasGiven ? PQFieldFlags.IsGivenFlag : noVal;
+        byte noVal        = 0;
+        var  expectedFlag = lt.WasGiven ? PQFieldFlags.IsGivenFlag : noVal;
         expectedFlag |= lt.WasPaid ? PQFieldFlags.IsPaidFlag : noVal;
         expectedFlag |= (byte)(expectedFlag | 6);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset,
-                lt.TradeVolume, expectedFlag), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                PQFieldKeys.LastTradeVolumeOffset, expectedFlag), $"For asklayer {lt.GetType().Name}");
+                                          lt.TradeVolume, expectedFlag), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                         PQFieldKeys.LastTradeVolumeOffset, expectedFlag), $"For asklayer {lt.GetType().Name}");
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
@@ -530,97 +536,98 @@ public class PQLastPaidGivenTradeTests
         if (original == null || changingLastPaidGivenTrade == null) return;
 
         PQLastTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison, original,
-            changingLastPaidGivenTrade, originalRecentlyTraded, changingRecentlyTraded, originalQuote,
-            changingQuote);
+                                                                             changingLastPaidGivenTrade, originalRecentlyTraded
+                                                                           , changingRecentlyTraded, originalQuote,
+                                                                             changingQuote);
 
         if (original.GetType() == typeof(PQLastPaidGivenTrade))
             Assert.AreEqual(!exactComparison, changingLastPaidGivenTrade.AreEquivalent(
-                new LastPaidGivenTrade(original), exactComparison));
+                                                                                       new LastPaidGivenTrade(original), exactComparison));
 
         changingLastPaidGivenTrade.TradeVolume = 1_234_567m;
         Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsFalse(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                           originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastPaidGivenTrade.TradeVolume = original.TradeVolume;
         Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastPaidGivenTrade.WasGiven = !changingLastPaidGivenTrade.WasGiven;
         Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsFalse(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                           originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingLastPaidGivenTrade.WasGiven = original.WasGiven;
+        changingLastPaidGivenTrade.WasGiven          = original.WasGiven;
         changingLastPaidGivenTrade.IsWasGivenUpdated = original.IsWasGivenUpdated;
         Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastPaidGivenTrade.WasPaid = !changingLastPaidGivenTrade.WasPaid;
         Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsFalse(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                           originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingLastPaidGivenTrade.WasPaid = original.WasPaid;
+        changingLastPaidGivenTrade.WasPaid          = original.WasPaid;
         changingLastPaidGivenTrade.IsWasPaidUpdated = original.IsWasPaidUpdated;
         Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastPaidGivenTrade.IsTradeVolumeUpdated = !changingLastPaidGivenTrade.IsTradeVolumeUpdated;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.AreEqual(!exactComparison,
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                            originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null)
             Assert.AreEqual(!exactComparison,
-                originalQuote.AreEquivalent(changingQuote, exactComparison));
+                            originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastPaidGivenTrade.IsTradeVolumeUpdated = original.IsTradeVolumeUpdated;
         Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastPaidGivenTrade.IsWasGivenUpdated = !changingLastPaidGivenTrade.IsWasGivenUpdated;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.AreEqual(!exactComparison,
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                            originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null)
             Assert.AreEqual(!exactComparison,
-                originalQuote.AreEquivalent(changingQuote, exactComparison));
+                            originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastPaidGivenTrade.IsWasGivenUpdated = original.IsWasGivenUpdated;
         Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastPaidGivenTrade.IsWasPaidUpdated = !changingLastPaidGivenTrade.IsWasPaidUpdated;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.AreEqual(!exactComparison,
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                            originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null)
             Assert.AreEqual(!exactComparison,
-                originalQuote.AreEquivalent(changingQuote, exactComparison));
+                            originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastPaidGivenTrade.IsWasPaidUpdated = original.IsWasPaidUpdated;
         Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

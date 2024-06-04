@@ -10,6 +10,7 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
 #endregion
@@ -259,7 +260,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags                            |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+
             else if (IsBidPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
         }
     }
@@ -281,7 +283,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags                            |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+
             else if (IsAskPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
         }
     }
@@ -330,11 +333,11 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var precisionSettings = quotePublicationPrecisionSettings ?? PQSourceTickerQuoteInfo;
-        var updatedOnly       = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly       = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                precisionSettings).Where(pqfield => pqfield.Flag != PQFieldKeys.SinglePrice))
             yield return updatedField;

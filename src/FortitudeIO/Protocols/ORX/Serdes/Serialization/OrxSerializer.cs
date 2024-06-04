@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -18,6 +21,8 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
 
     public MarshalType MarshalType => MarshalType.Binary;
 
+    public bool AddMessageHeader { get; set; } = true;
+
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
         Serialize((Tm)message, (ISerdeContext)writeContext);
@@ -31,7 +36,7 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
         {
             var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
             bufferContext.EncodedBuffer!.WriteCursor += writeLength;
-            bufferContext.LastWriteLength = writeLength;
+            bufferContext.LastWriteLength            =  writeLength;
         }
         else
         {
@@ -45,11 +50,13 @@ public sealed class OrxSerializer<Tm> : OrxByteSerializer<Tm>, IMessageSerialize
         if (OrxMessageHeader.HeaderSize <= buffer.RemainingStorage)
         {
             var size = Serialize(msg, buffer, OrxMessageHeader.HeaderSize) + OrxMessageHeader.HeaderSize;
-            if (size >= OrxMessageHeader.HeaderSize)
+            if (size >= OrxMessageHeader.HeaderSize && AddMessageHeader)
             {
                 using var fixedBuffer = buffer;
+
                 var fptr = fixedBuffer.WriteBuffer;
-                var ptr = fptr;
+                var ptr  = fptr;
+
                 *ptr++ = msg.Version;
                 *ptr++ = 0;
                 StreamByteOps.ToBytes(ref ptr, Id);

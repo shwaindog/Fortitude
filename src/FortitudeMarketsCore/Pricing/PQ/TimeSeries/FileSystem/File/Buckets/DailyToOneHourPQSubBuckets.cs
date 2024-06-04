@@ -18,7 +18,8 @@ public class DailyToOneHourPQLevel0QuoteSubBuckets<TEntry> : PriceQuoteSubBucket
 {
     public DailyToOneHourPQLevel0QuoteSubBuckets(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
-        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
+        IndexCount = 24;
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }
@@ -29,7 +30,8 @@ public class DailyToOneHourPQLevel1QuoteSubBuckets<TEntry> : PriceQuoteSubBucket
 {
     public DailyToOneHourPQLevel1QuoteSubBuckets(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
-        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
+        IndexCount = 24;
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }
@@ -40,7 +42,8 @@ public class DailyToOneHourPQLevel2QuoteSubBuckets<TEntry> : PriceQuoteSubBucket
 {
     public DailyToOneHourPQLevel2QuoteSubBuckets(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
-        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
+        IndexCount = 24;
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }
@@ -51,7 +54,8 @@ public class DailyToOneHourPQLevel3QuoteSubBuckets<TEntry> : PriceQuoteSubBucket
 {
     public DailyToOneHourPQLevel3QuoteSubBuckets(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
-        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
+        IndexCount = 24;
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }

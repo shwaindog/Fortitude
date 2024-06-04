@@ -136,7 +136,7 @@ public struct TimeSeriesFileHeaderBodyV1
     public uint TotalFileIndexSizeBytes;
     public uint FirstBucketFileStartOffset;
     public TimeSeriesEntryType TimeSeriesEntryTypeEnum;
-    public ushort MaxHeaderTypeTextSizeBytes;                   // Default 511 bytes
+    public ushort MaxHeaderTypeTextSizeBytes;                   // Default 1023 bytes
     public ushort MaxHeaderTextSizeBytes;                       // Default 255 bytes
     public ushort TimeSeriesFileTypeTextFileStartOffset;        // 1 TypeString
     public ushort EntryTypeTextFileStartOffset;                 // 2 TypeString
@@ -263,16 +263,20 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         cacheV1HeaderBody = *writableV1HeaderBody;
     }
 
-    public static TimeSeriesFileHeaderFromV1 NewFileCreateHeader<TBucket, TEntry>(TimeSeriesFile<TBucket, TEntry> timeSeriesFile,
+    public static TimeSeriesFileHeaderFromV1 NewFileCreateHeader<TFile, TBucket, TEntry>(TimeSeriesFile<TFile, TBucket, TEntry> timeSeriesFile,
         ShiftableMemoryMappedFileView memoryMappedFileView, 
         CreateFileParameters createFileParameters)
-        where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+        where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
+        where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> 
+        where TEntry : ITimeSeriesEntry<TEntry>
     {
-        return new TimeSeriesFileHeaderFromV1(memoryMappedFileView, timeSeriesFile.GetType(), typeof(TBucket), typeof(TEntry), createFileParameters);
+        return new TimeSeriesFileHeaderFromV1(memoryMappedFileView, typeof(TFile), typeof(TBucket), typeof(TEntry), createFileParameters);
     }
 
-    public ushort EndOfHeaderBodyFileOffset => (ushort)(2 + sizeof(TimeSeriesFileHeaderBodyV1));
-    public ushort EndOfSubHeaderFileOffset => (ushort)(EndOfHeaderBodyFileOffset + SubHeaderReservedSpaceSizeBytes);
+    public ushort EndOfHeaderBodyFileOffset  => (ushort)(2 + sizeof(TimeSeriesFileHeaderBodyV1));
+    public ushort StartOfSubHeaderFileOffset => (ushort)(EndOfHeaderBodyFileOffset);
+    public ushort EndOfSubHeaderFileOffset   => (ushort)(EndOfHeaderBodyFileOffset + SubHeaderReservedSpaceSizeBytes);
+
     public ushort StartOfTypeStringStorageFileOffset => EndOfSubHeaderFileOffset;
     public ushort EndOfTypeStringStorageFileOffset =>  (ushort)(StartOfTypeStringStorageFileOffset + 
                                                                 StringSizeBytesStorage(MaxHeaderTypeTextSizeBytes)*HeaderTypeStringCount);
@@ -724,28 +728,38 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 
     public ushort MaxHeaderTypeTextSizeBytes
     {
-        get => cacheV1HeaderBody.MaxHeaderTypeTextSizeBytes;
+        get
+        {
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.MaxHeaderTypeTextSizeBytes;
+            cacheV1HeaderBody.MaxHeaderTypeTextSizeBytes = writableV1HeaderBody->MaxHeaderTypeTextSizeBytes;
+            return cacheV1HeaderBody.MaxHeaderTypeTextSizeBytes;
+        }
         set
         {
             if (cacheV1HeaderBody.MaxHeaderTypeTextSizeBytes == value || headerMemoryMappedFileView == null) return;
             if (isWritable)
             {
                 writableV1HeaderBody->MaxHeaderTypeTextSizeBytes = value;
-                cacheV1HeaderBody.MaxHeaderTypeTextSizeBytes = value;
+                cacheV1HeaderBody.MaxHeaderTypeTextSizeBytes     = value;
             }
         }
     }
 
     public ushort MaxHeaderTextSizeBytes
     {
-        get => cacheV1HeaderBody.MaxHeaderTextSizeBytes;
+        get
+        {
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.MaxHeaderTextSizeBytes;
+            cacheV1HeaderBody.MaxHeaderTextSizeBytes = writableV1HeaderBody->MaxHeaderTextSizeBytes;
+            return cacheV1HeaderBody.MaxHeaderTextSizeBytes;
+        }
         set
         {
             if (cacheV1HeaderBody.MaxHeaderTextSizeBytes == value || headerMemoryMappedFileView == null) return;
             if (isWritable)
             {
                 writableV1HeaderBody->MaxHeaderTextSizeBytes = value;
-                cacheV1HeaderBody.MaxHeaderTextSizeBytes = value;
+                cacheV1HeaderBody.MaxHeaderTextSizeBytes     = value;
             }
         }
     }
@@ -1023,7 +1037,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         {
             if (headerMemoryMappedFileView != null && subHeader == null && FileFlags.HasSubFileHeaderFileFlag() && SubHeaderFactory != null)
             {
-                subHeader = SubHeaderFactory(headerMemoryMappedFileView!, EndOfSubHeaderFileOffset, isWritable);
+                subHeader = SubHeaderFactory(headerMemoryMappedFileView!, StartOfSubHeaderFileOffset, isWritable);
             }
             return subHeader;
         }

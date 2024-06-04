@@ -1,9 +1,13 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -12,6 +16,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 public interface IPQValueDatePriceVolumeLayer : IMutableValueDatePriceVolumeLayer, IPQPriceVolumeLayer
 {
     bool IsValueDateUpdated { get; set; }
+
     new IPQValueDatePriceVolumeLayer Clone();
 }
 
@@ -32,8 +37,8 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     }
 
     protected string PQValueDatePriceVolumeLayerToStringMembers => $"{PQPriceVolumeLayerToStringMembers}, {nameof(ValueDate)}: {ValueDate}";
-    public override LayerType LayerType => LayerType.ValueDatePriceVolume;
 
+    public override LayerType  LayerType          => LayerType.ValueDatePriceVolume;
     public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
 
     public DateTime ValueDate
@@ -43,7 +48,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         {
             if (valueDate == value) return;
             IsValueDateUpdated = true;
-            valueDate = value;
+            valueDate          = value;
         }
     }
 
@@ -54,6 +59,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
+
             else if (IsValueDateUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
         }
     }
@@ -66,16 +72,16 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                                quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsValueDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerDateOffset, valueDate.GetHoursFromUnixEpoch(),
-                PQFieldFlags.IsExtendedFieldId);
+                                           PQFieldFlags.IsExtendedFieldId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -90,10 +96,10 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
-        var pqValueDate = source as IPQValueDatePriceVolumeLayer;
+        var pqValueDate   = source as IPQValueDatePriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is IValueDatePriceVolumeLayer vlDtPvLayer && pqValueDate == null)
             ValueDate = vlDtPvLayer.ValueDate;
@@ -119,7 +125,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     {
         if (!(other is IValueDatePriceVolumeLayer valueDateOther)) return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame      = base.AreEquivalent(other, exactTypes);
         var valueDateSame = ValueDate == valueDateOther.ValueDate;
 
         return baseSame && valueDateSame;

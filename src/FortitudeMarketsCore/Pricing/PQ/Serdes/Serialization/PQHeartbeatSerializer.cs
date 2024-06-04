@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -14,9 +17,12 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuotesMessage>
 {
-    private const int HeaderSize = 2 * sizeof(byte) + sizeof(uint);
+    private const int HeaderSize    = 2 * sizeof(byte) + sizeof(uint);
     private const int HeartbeatSize = 2 * sizeof(uint);
+
     public MarshalType MarshalType => MarshalType.Binary;
+
+    public bool AddMessageHeader { get; set; } = true;
 
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
@@ -31,7 +37,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
         {
             var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
             bufferContext.EncodedBuffer!.WriteCursor += writeLength;
-            bufferContext.LastWriteLength = writeLength;
+            bufferContext.LastWriteLength            =  writeLength;
         }
         else
         {
@@ -43,17 +49,23 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
     {
         using var fixedBuffer = buffer;
         if (HeaderSize > buffer.RemainingStorage) return -1;
-        var ptr = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+
+        var ptr          = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
         var messageStart = ptr;
-        var end = ptr + buffer.RemainingStorage;
+        var end          = ptr + buffer.RemainingStorage;
         if (message is IEnumerable<IPQLevel0Quote> quotes)
             foreach (var quote in quotes)
             {
-                *ptr++ = message.Version;
-                *ptr++ = (byte)PQMessageFlags.None;
-                StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.Id);
-                var messageSize = ptr;
-                ptr += sizeof(uint);
+                byte* messageSize = null;
+                if (AddMessageHeader)
+                {
+                    *ptr++ = message.Version;
+                    *ptr++ = (byte)PQMessageFlags.None;
+                    StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.Id);
+                    messageSize = ptr;
+
+                    ptr += sizeof(uint);
+                }
                 quote.Lock.Acquire();
                 try
                 {
@@ -66,8 +78,9 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
 
                 if (ptr + HeartbeatSize > end) return -1;
 
-                StreamByteOps.ToBytes(ref messageSize
-                    , PQQuoteMessageHeader.HeaderSize + sizeof(uint)); // just a heartbeat header
+                if (AddMessageHeader)
+                    StreamByteOps.ToBytes(ref messageSize
+                                        , PQQuoteMessageHeader.HeaderSize + sizeof(uint)); // just a heartbeat header
             }
 
         message.DecrementRefCount();

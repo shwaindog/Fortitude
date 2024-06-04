@@ -13,6 +13,7 @@ using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -174,10 +175,10 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
 
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime,
@@ -224,7 +225,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
     }
 
     public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        PQMessageFlags messageFlags)
+        StorageFlags messageFlags)
     {
         foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
             yield return pqFieldStringUpdate;

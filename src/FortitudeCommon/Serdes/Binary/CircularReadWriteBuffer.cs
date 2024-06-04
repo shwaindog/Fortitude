@@ -16,6 +16,7 @@ public unsafe class CircularReadWriteBuffer : IBuffer
     private long      bufferShifted;
     private GCHandle? handle;
     private int       pinCount;
+    private long      readCursor;
     private bool      shouldUnpin = true;
     private long      writeCursor;
 
@@ -86,7 +87,15 @@ public unsafe class CircularReadWriteBuffer : IBuffer
     public nint BufferRelativeReadCursor  => (nint)(ReadCursor - bufferShifted);
     public nint BufferRelativeWriteCursor => (nint)(WriteCursor - bufferShifted);
 
-    public long ReadCursor { get; set; }
+    public long ReadCursor
+    {
+        get => readCursor;
+        set
+        {
+            LimitNextDeserialize = null;
+            readCursor           = value;
+        }
+    }
 
     public long WriteCursor
     {
@@ -100,9 +109,11 @@ public unsafe class CircularReadWriteBuffer : IBuffer
 
     public bool AllRead => ReadCursor == WriteCursor;
 
-    public long UnreadBytesRemaining => WriteCursor - ReadCursor;
+    public long UnreadBytesRemaining => Math.Min(LimitNextDeserialize ?? WriteCursor - ReadCursor, WriteCursor - ReadCursor);
 
     public long? LimitNextSerialize { get; set; }
+
+    public long? LimitNextDeserialize { get; set; }
 
     public void Flush() { }
 
@@ -185,7 +196,8 @@ public unsafe class CircularReadWriteBuffer : IBuffer
 
     public bool HasStorageForBytes(int bytes) => BufferRelativeWriteCursor + bytes <= Buffer.Length;
 
-    public long RemainingStorage => LimitNextSerialize ?? Buffer.Length - BufferRelativeWriteCursor;
+    public long RemainingStorage =>
+        Math.Min(LimitNextSerialize ?? Buffer.Length - BufferRelativeWriteCursor, Buffer.Length - BufferRelativeWriteCursor);
 
     public long Length => Buffer.Length;
 

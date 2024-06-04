@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
@@ -7,6 +10,7 @@ using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
@@ -18,19 +22,21 @@ public interface IPQTraderPriceVolumeLayer : IMutableTraderPriceVolumeLayer, IPQ
 {
     new IPQTraderLayerInfo? this[int index] { get; set; }
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
-    new IPQTraderPriceVolumeLayer Clone();
+
+    new IPQTraderPriceVolumeLayer       Clone();
     new IEnumerator<IPQTraderLayerInfo> GetEnumerator();
 }
 
 public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolumeLayer
 {
-    private const int PositionShift = 24;
-    private const int IsTraderCountFlag = 0x00800000;
-    private const uint TraderInfoIdentifierMask = 0x007FFFFF;
-    private const int TraderInfoMaxSignifcanDigits = 6;
-    public const string TraderCountTraderName = TraderPriceVolumeLayer.TraderCountTraderName;
+    private const int    PositionShift                = 24;
+    private const int    IsTraderCountFlag            = 0x00800000;
+    private const uint   TraderInfoIdentifierMask     = 0x007FFFFF;
+    private const int    TraderInfoMaxSignifcanDigits = 6;
+    public const  string TraderCountTraderName        = TraderPriceVolumeLayer.TraderCountTraderName;
+
     protected readonly IList<IPQTraderLayerInfo?> TraderDetails = new List<IPQTraderLayerInfo?>();
-    private IPQNameIdLookupGenerator nameIdLookup = null!;
+    private            IPQNameIdLookupGenerator   nameIdLookup  = null!;
 
     public PQTraderPriceVolumeLayer(IPQNameIdLookupGenerator initialDictionary) => NameIdLookup = initialDictionary;
 
@@ -49,7 +55,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
     protected string PQTraderPriceVolumeLayerToStringMembers =>
         $"{PQPriceVolumeLayerToStringMembers}, {nameof(TraderDetails)}: [{string.Join(", ", TraderDetails)}]";
 
-    public override LayerType LayerType => LayerType.TraderPriceVolume;
+    public override LayerType  LayerType          => LayerType.TraderPriceVolume;
     public override LayerFlags SupportsLayerFlags => LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize | base.SupportsLayerFlags;
 
     IMutableTraderLayerInfo? IMutableTraderPriceVolumeLayer.this[int i]
@@ -167,25 +173,25 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         foreach (var pqTraderLayerInfo in TraderDetails) pqTraderLayerInfo?.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                                quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (IsTraderCountOnly)
         {
             if (!updatedOnly || TraderDetails.Any(tli => tli?.HasUpdates ?? false))
                 yield return new PQFieldUpdate(PQFieldKeys.LayerTraderIdOffset,
-                    IsTraderCountFlag | Count);
+                                               IsTraderCountFlag | Count);
         }
         else
         {
             var numberOfTraderInfos = Math.Min(byte.MaxValue + 1, TraderDetails.Count);
             for (byte i = 0; i < numberOfTraderInfos; i++)
             {
-                var tli = TraderDetails[i];
+                var tli             = TraderDetails[i];
                 var traderPosOffset = (uint)i << PositionShift;
                 if (tli != null && (!updatedOnly || tli.IsTraderNameUpdated))
                 {
@@ -211,9 +217,9 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
             pqFieldUpdate.Id < PQFieldKeys.LayerTraderIdOffset +
             PQFieldKeys.SingleByteFieldIdMaxBookDepth)
         {
-            var index = pqFieldUpdate.Value >> PositionShift;
+            var index           = pqFieldUpdate.Value >> PositionShift;
             var traderCountOrId = (int)(pqFieldUpdate.Value & TraderInfoIdentifierMask);
-            var isTraderCount = (pqFieldUpdate.Value & IsTraderCountFlag) == IsTraderCountFlag;
+            var isTraderCount   = (pqFieldUpdate.Value & IsTraderCountFlag) == IsTraderCountFlag;
 
             if (isTraderCount)
                 SetTradersCountOnly(traderCountOrId);
@@ -236,11 +242,11 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
     }
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        PQMessageFlags messageFlags)
+        StorageFlags messageFlags)
     {
         if (NameIdLookup is IPQNameIdLookupGenerator pqNameIdLookupGenerator)
             foreach (var stringUpdate in pqNameIdLookupGenerator.GetStringUpdates(snapShotTime,
-                         messageFlags))
+                                                                                  messageFlags))
                 yield return stringUpdate;
     }
 
@@ -295,7 +301,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
                 if (TraderDetails[i] is { } currTraderDets)
                 {
                     currTraderDets.NameIdLookup = NameIdLookup;
-                    currTraderDets.HasUpdates = false;
+                    currTraderDets.HasUpdates   = false;
                 }
             }
         }
@@ -316,10 +322,10 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (!(other is ITraderPriceVolumeLayer traderPvLayer)) return false;
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame  = base.AreEquivalent(other, exactTypes);
         var countSame = Count == traderPvLayer.Count;
         var traderDetailsSame = TraderDetails.Zip(traderPvLayer, (ftd, std) =>
-            ftd != null && ftd.AreEquivalent(std, exactTypes)).All(same => same);
+                                                      ftd != null && ftd.AreEquivalent(std, exactTypes)).All(same => same);
 
         return baseSame && countSame && traderDetailsSame;
     }
@@ -359,7 +365,9 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
     {
         for (var i = TraderDetails.Count; i <= index; i++) TraderDetails.Add(new PQTraderLayerInfo(NameIdLookup));
         var traderLayer = TraderDetails[index]!;
+
         traderLayer.NameIdLookup = NameIdLookup;
+
         TraderDetails[index]!.TraderNameId = traderNameId;
     }
 

@@ -27,9 +27,10 @@ public class RequesterNameMessageDeserializer : MessageDeserializer<RequesterNam
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext messageBufferContext)
         {
-            var deserializedRequesterNameMessage = recycler.Borrow<RequesterNameMessage>();
-            var fixedBuffer                      = messageBufferContext.EncodedBuffer!;
-            var ptr                              = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            var deserializedRequesterNameMessage                      = recycler.Borrow<RequesterNameMessage>();
+            var fixedBuffer                                           = messageBufferContext.EncodedBuffer!;
+            var ptr                                                   = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            if (ReadMessageHeader) messageBufferContext.MessageHeader = ReadHeader(ref ptr);
             deserializedRequesterNameMessage.RequesterConnectionName = StreamByteOps.ToStringWithSizeHeader(ref ptr)!;
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;

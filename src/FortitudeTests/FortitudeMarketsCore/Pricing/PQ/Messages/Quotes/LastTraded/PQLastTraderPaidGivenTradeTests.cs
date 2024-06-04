@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
@@ -8,6 +11,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
@@ -18,19 +22,20 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTra
 public class PQLastTraderPaidGivenTradeTests
 {
     private const string WellKnownTraderName = "TestTraderName";
-    private PQLastTraderPaidGivenTrade emptyLt = null!;
-    private IPQNameIdLookupGenerator emptyNameIdLookup = null!;
-    private IPQNameIdLookupGenerator nameIdLookup = null!;
-    private PQLastTraderPaidGivenTrade populatedLt = null!;
-    private DateTime testDateTime;
+
+    private PQLastTraderPaidGivenTrade emptyLt           = null!;
+    private IPQNameIdLookupGenerator   emptyNameIdLookup = null!;
+    private IPQNameIdLookupGenerator   nameIdLookup      = null!;
+    private PQLastTraderPaidGivenTrade populatedLt       = null!;
+    private DateTime                   testDateTime;
 
     [TestInitialize]
     public void SetUp()
     {
         emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
-        nameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
-        emptyLt = new PQLastTraderPaidGivenTrade(emptyNameIdLookup.Clone());
-        testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
+        nameIdLookup      = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        emptyLt           = new PQLastTraderPaidGivenTrade(emptyNameIdLookup.Clone());
+        testDateTime      = new DateTime(2017, 12, 17, 16, 11, 52);
         populatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 4.2949_672m, testDateTime, 42_949_672.95m, true, true)
         {
             TraderName = WellKnownTraderName
@@ -41,7 +46,7 @@ public class PQLastTraderPaidGivenTradeTests
     public void NewLt_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
         var newLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
-            true, true)
+                                                   true, true)
         {
             TraderName = WellKnownTraderName
         };
@@ -77,11 +82,11 @@ public class PQLastTraderPaidGivenTradeTests
     [TestMethod]
     public void NewLt_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName
-        };
+        var newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName
+            };
         var fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -98,7 +103,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
         var nonPQLt = new LastTraderPaidGivenTrade(1.23456m, testDateTime, 42_949_672.95m, true, true,
-            WellKnownTraderName);
+                                                   WellKnownTraderName);
         var fromNonPqInstance = new PQLastTraderPaidGivenTrade(nonPQLt, emptyNameIdLookup.Clone());
         Assert.AreEqual(1.23456m, fromNonPqInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromNonPqInstance.TradeTime);
@@ -133,11 +138,11 @@ public class PQLastTraderPaidGivenTradeTests
     [TestMethod]
     public void NewLt_NewFromCloneInstance_WhenOneFieldNonDefaultIsNotUpdatedNewInstanceCopies()
     {
-        var newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName, IsTradePriceUpdated = false
-        };
+        var newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName, IsTradePriceUpdated = false
+            };
         var fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -153,11 +158,11 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName, IsTradeTimeDateUpdated = false
-        };
+        newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName, IsTradeTimeDateUpdated = false
+            };
         fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -173,11 +178,11 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName, IsTradeTimeSubHourUpdated = false
-        };
+        newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName, IsTradeTimeSubHourUpdated = false
+            };
         fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -193,11 +198,11 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName, IsTradeVolumeUpdated = false
-        };
+        newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName, IsTradeVolumeUpdated = false
+            };
         fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -213,11 +218,11 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName, IsWasGivenUpdated = false
-        };
+        newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName, IsWasGivenUpdated = false
+            };
         fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -233,11 +238,11 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName, IsWasPaidUpdated = false
-        };
+        newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName, IsWasPaidUpdated = false
+            };
         fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -253,11 +258,11 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsFalse(fromPQInstance.IsWasPaidUpdated);
         Assert.IsTrue(fromPQInstance.IsTraderNameUpdated);
 
-        newPopulatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m,
-            true, true)
-        {
-            TraderName = WellKnownTraderName, IsTraderNameUpdated = false
-        };
+        newPopulatedLt =
+            new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m, true, true)
+            {
+                TraderName = WellKnownTraderName, IsTraderNameUpdated = false
+            };
         fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -280,18 +285,17 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsFalse(emptyLt.IsTraderNameUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.AreEqual(null, emptyLt.TraderName);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         emptyLt.TraderName = WellKnownTraderName;
         Assert.IsTrue(emptyLt.IsTraderNameUpdated);
         Assert.AreEqual(emptyNameIdLookup[WellKnownTraderName], emptyLt.TraderId);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(WellKnownTraderName, emptyLt.TraderName);
-        var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
+        var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset,
-            emptyLt.TraderId);
+        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, emptyLt.TraderId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.IsTraderNameUpdated = false;
@@ -299,42 +303,42 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(emptyLt.HasUpdates);
         emptyLt.NameIdLookup.HasUpdates = false;
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         var nextExpectedTraderName = "AnotherTraderName";
         emptyLt.TraderName = nextExpectedTraderName;
         Assert.IsTrue(emptyLt.IsTraderNameUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(nextExpectedTraderName, emptyLt.TraderName);
-        sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
+        sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var stringUpdates = emptyLt.GetStringUpdates(testDateTime, PQMessageFlags.Update)
-            .ToList();
+        var stringUpdates = emptyLt.GetStringUpdates(testDateTime, StorageFlags.Update)
+                                   .ToList();
         Assert.AreEqual(1, stringUpdates.Count);
         expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset,
-            emptyLt.TraderId);
+                                                emptyLt.TraderId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
         var expectedStringUpdates = new PQFieldStringUpdate
         {
             Field = new PQFieldUpdate(
-                PQFieldKeys.LastTraderDictionaryUpsertCommand, 0u, PQFieldFlags.IsUpsert)
-            , StringUpdate = new PQStringUpdate
+                                      PQFieldKeys.LastTraderDictionaryUpsertCommand, 0u, PQFieldFlags.IsUpsert)
+          , StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = emptyLt.NameIdLookup[emptyLt.TraderName]
-                , Value = emptyLt.TraderName
+              , Value   = emptyLt.TraderName
             }
         };
         Assert.AreEqual(expectedStringUpdates, stringUpdates[0]);
 
         emptyLt.HasUpdates = false;
-        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
+        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id == PQFieldKeys.LastTraderIdOffset
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         var newEmptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
-        var newEmpty = new PQLastTraderPaidGivenTrade(newEmptyNameIdLookup);
+        var newEmpty             = new PQLastTraderPaidGivenTrade(newEmptyNameIdLookup);
         newEmpty.UpdateField(sourceUpdates[0]);
         newEmpty.UpdateFieldString(stringUpdates[0]);
         Assert.AreEqual(nextExpectedTraderName, newEmpty.TraderName);
@@ -414,8 +418,8 @@ public class PQLastTraderPaidGivenTradeTests
     [TestMethod]
     public void PopulatedLtWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllPvlFields()
     {
-        var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
+        var pqFieldUpdates =
+            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Update).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -423,8 +427,8 @@ public class PQLastTraderPaidGivenTradeTests
     public void PopulatedLtWithNoUpdates_GetDeltaUpdateFieldsAsSnapshot_ReturnsAllPvlFields()
     {
         populatedLt.HasUpdates = false;
-        var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
+        var pqFieldUpdates =
+            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -432,18 +436,20 @@ public class PQLastTraderPaidGivenTradeTests
     public void PopulatedLtWithNoUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsNoUpdates()
     {
         populatedLt.HasUpdates = false;
-        var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
+        var pqFieldUpdates =
+            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
     [TestMethod]
     public void PopulatedLt_GetDeltaUpdatesUpdateReplayThenUpdateFieldNewLt_CopiesAllFieldsToNewLt()
     {
-        var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
-        var pqStringUpdates = populatedLt.GetStringUpdates(
-            new DateTime(2017, 11, 04, 13, 33, 3), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
+        var pqFieldUpdates =
+            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 11, 04, 13, 33, 3)
+                                           , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+        var pqStringUpdates =
+            populatedLt.GetStringUpdates(new DateTime(2017, 11, 04, 13, 33, 3)
+                                       , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQLastTraderPaidGivenTrade(nameIdLookup);
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);
@@ -519,9 +525,9 @@ public class PQLastTraderPaidGivenTradeTests
     {
         var fullyPopulatedClone = (PQLastTraderPaidGivenTrade)((ICloneable)populatedLt).Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType(true, populatedLt,
-            fullyPopulatedClone);
+                                                            fullyPopulatedClone);
         AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedLt,
-            fullyPopulatedClone);
+                                                            fullyPopulatedClone);
     }
 
     public static void AssertContainsAllLtFields(IList<PQFieldUpdate> checkFieldUpdates,
@@ -530,8 +536,8 @@ public class PQLastTraderPaidGivenTradeTests
         PQLastPaidGivenTradeTests.AssertContainsAllLtFields(checkFieldUpdates, lt);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, lt.TraderId),
-            PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                PQFieldKeys.LastTraderIdOffset), $"For asklayer {lt.GetType().Name}");
+                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                                                    PQFieldKeys.LastTraderIdOffset), $"For asklayer {lt.GetType().Name}");
     }
 
     [TestMethod]
@@ -571,40 +577,42 @@ public class PQLastTraderPaidGivenTradeTests
         if (original == null) return;
 
 
-        PQLastPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison, original,
-            changingLastTraderPaidGivenTrade, originalRecentlyTraded, changingRecentlyTraded, originalQuote
-            , changingQuote);
+        PQLastPaidGivenTradeTests
+            .AssertAreEquivalentMeetsExpectedExactComparisonType
+                (exactComparison, original, changingLastTraderPaidGivenTrade, originalRecentlyTraded
+               , changingRecentlyTraded, originalQuote, changingQuote);
 
         if (original.GetType() == typeof(PQLastTraderPaidGivenTrade))
-            Assert.AreEqual(!exactComparison, changingLastTraderPaidGivenTrade!.AreEquivalent(
-                new LastTraderPaidGivenTrade(original), exactComparison));
+            Assert.AreEqual(!exactComparison,
+                            changingLastTraderPaidGivenTrade!.AreEquivalent
+                                (new LastTraderPaidGivenTrade(original), exactComparison));
 
         changingLastTraderPaidGivenTrade!.TraderName = "Changed Trader Name";
         Assert.IsFalse(original.AreEquivalent(changingLastTraderPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsFalse(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                           originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastTraderPaidGivenTrade.TraderName = original.TraderName;
         Assert.IsTrue(changingLastTraderPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastTraderPaidGivenTrade.IsTraderNameUpdated = !changingLastTraderPaidGivenTrade.IsTraderNameUpdated;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLastTraderPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.AreEqual(!exactComparison,
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                            originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null)
             Assert.AreEqual(!exactComparison,
-                originalQuote.AreEquivalent(changingQuote, exactComparison));
+                            originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastTraderPaidGivenTrade.IsTraderNameUpdated = original.IsTraderNameUpdated;
         Assert.IsTrue(changingLastTraderPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                          originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

@@ -31,21 +31,24 @@ public struct CreateFileParameters
         MaxTypeStringSizeBytes = maxTypeStringSizeBytes;
     }
 
-    public IDirectoryFileNameResolver FileNameResolver              { get; set; }
-    public string                     InstrumentName                { get; set; }
-    public string?                    Category                      { get; set; }
-    public string                     SourceName                    { get; set; }
-    public string?                    OriginSourceText              { get; set; }
-    public string?                    ExternalIndexFileRelativePath { get; set; }
-    public string?                    AnnotationFileRelativePath    { get; set; }
-    public TimeSeriesEntryType        TimeSeriesEntryType           { get; set; }
-    public TimeSeriesPeriod           FilePeriod                    { get; set; }
-    public DateTime                   FileStartPeriod               { get; set; }
-    public uint                       InternalIndexSize             { get; set; }
-    public FileFlags                  InitialFileFlags              { get; set; }
-    public int                        InitialFileSize               { get; set; }
-    public ushort                     MaxStringSizeBytes            { get; set; }
-    public ushort                     MaxTypeStringSizeBytes        { get; set; }
+    public IDirectoryFileNameResolver FileNameResolver { get; set; }
+
+    public string  InstrumentName                { get; set; }
+    public string? Category                      { get; set; }
+    public string  SourceName                    { get; set; }
+    public string? OriginSourceText              { get; set; }
+    public string? ExternalIndexFileRelativePath { get; set; }
+    public string? AnnotationFileRelativePath    { get; set; }
+
+    public TimeSeriesEntryType TimeSeriesEntryType { get; set; }
+    public TimeSeriesPeriod    FilePeriod          { get; set; }
+    public DateTime            FileStartPeriod     { get; set; }
+
+    public uint      InternalIndexSize      { get; set; }
+    public FileFlags InitialFileFlags       { get; set; }
+    public int       InitialFileSize        { get; set; }
+    public ushort    MaxStringSizeBytes     { get; set; }
+    public ushort    MaxTypeStringSizeBytes { get; set; }
 }
 
 public static class CreateFileParametersExtensions

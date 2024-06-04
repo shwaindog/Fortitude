@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -31,7 +34,9 @@ internal class SourceTickerQuoteInfoDeserializer : MessageDeserializer<ISourceTi
         {
             var deserializedSourceTickerQuoteInfo = recycler.Borrow<SourceTickerQuoteInfo>();
             using var fixedBuffer = messageBufferContext.EncodedBuffer!;
+            fixedBuffer.LimitNextDeserialize = byte.MaxValue;
             var currPtr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            if (ReadMessageHeader) messageBufferContext.MessageHeader = ReadHeader(ref currPtr);
             deserializedSourceTickerQuoteInfo.SourceId = StreamByteOps.ToUShort(ref currPtr);
             deserializedSourceTickerQuoteInfo.TickerId = StreamByteOps.ToUShort(ref currPtr);
             deserializedSourceTickerQuoteInfo.PublishedQuoteLevel = (QuoteLevel)(*currPtr++);

@@ -27,6 +27,14 @@ public struct PriceQuoteCreateFileParameters
         SerializationFlags    = serializationFlags;
     }
 
+    public PriceQuoteCreateFileParameters(ISourceTickerQuoteInfo sourceTickerQuoteInfo, CreateFileParameters createFileParameters,
+        PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage)
+    {
+        CreateFileParameters  = createFileParameters;
+        SourceTickerQuoteInfo = sourceTickerQuoteInfo;
+        SerializationFlags    = serializationFlags;
+    }
+
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo;
 
     public PQSerializationFlags SerializationFlags;

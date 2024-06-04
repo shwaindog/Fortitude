@@ -51,7 +51,8 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
         get => readCursor;
         set
         {
-            readCursor = value;
+            LimitNextDeserialize = null;
+            readCursor           = value;
             if (bufferAccessCounter <= 1)
             {
                 var moved = mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(readCursor, shouldGrow: true) ?? false;
@@ -60,7 +61,7 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
         }
     }
 
-    public long UnreadBytesRemaining => writeCursor - readCursor;
+    public long UnreadBytesRemaining => Math.Min(LimitNextDeserialize ?? writeCursor - readCursor, writeCursor - readCursor);
 
     public long WriteCursor
     {
@@ -78,9 +79,13 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
         }
     }
 
-    public long RemainingStorage => LimitNextSerialize ?? mappedFileShiftableView?.HighestFileCursor - writeCursor ?? 0;
+    public long RemainingStorage =>
+        Math.Min(LimitNextSerialize ?? mappedFileShiftableView?.HighestFileCursor - writeCursor ?? 0
+               , mappedFileShiftableView?.HighestFileCursor - writeCursor ?? 0);
 
     public long? LimitNextSerialize { get; set; }
+
+    public long? LimitNextDeserialize { get; set; }
 
     public void Dispose()
     {

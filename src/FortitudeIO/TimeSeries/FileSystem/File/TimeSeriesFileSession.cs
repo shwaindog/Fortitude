@@ -75,24 +75,31 @@ public interface IBucketTrackingSession : IMutableBucketContainer
 public interface IReaderFileSession<TBucket, TEntry> : ITimeSeriesEntriesSession<TEntry>, ITimeSeriesBucketSession<TBucket>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
-    void                   VisitChildrenCacheAndClose();
-    IReaderContext<TEntry> GetAllEntriesReader(Func<TEntry>? createNew = null);
-    IReaderContext<TEntry> GetEntriesBetweenReader(PeriodRange? periodRange, Func<TEntry>? createNew = null);
+    void VisitChildrenCacheAndClose();
+
+    IReaderContext<TEntry> GetAllEntriesReader(EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , Func<TEntry>? createNew = null);
+
+    IReaderContext<TEntry> GetEntriesBetweenReader(PeriodRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        Func<TEntry>? createNew = null);
 }
 
 public interface IWriterFileSession<TBucket, TEntry> : IMutableTimeSeriesEntriesSession<TEntry>, IMutableTimeSeriesBucketSession<TBucket>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry> { }
 
-public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket, TEntry>, IWriterFileSession<TBucket, TEntry>
+public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IReaderFileSession<TBucket, TEntry>, IWriterFileSession<TBucket, TEntry>
   , IBucketTrackingSession
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+    where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>
 {
-    private readonly int                                 activeViewAdditionalMultiple;
-    private readonly List<TBucket>                       cacheBuckets = new();
-    private readonly int                                 defaultViewSizeBytes;
-    private readonly List<ShiftableMemoryMappedFileView> parentBucketsHeaderAndIndexViews = new();
-    private readonly int                                 reserveMultiple;
-    private readonly TimeSeriesFile<TBucket, TEntry>     timeSeriesFile;
+    private readonly int                                    activeViewAdditionalMultiple;
+    private readonly List<TBucket>                          cacheBuckets = new();
+    private readonly int                                    defaultViewSizeBytes;
+    private readonly List<ShiftableMemoryMappedFileView>    parentBucketsHeaderAndIndexViews = new();
+    private readonly int                                    reserveMultiple;
+    private readonly TimeSeriesFile<TFile, TBucket, TEntry> timeSeriesFile;
 
     private ShiftableMemoryMappedFileView? activeBucketHeaderView;
     private ShiftableMemoryMappedFileView? amendOffsetView;
@@ -103,7 +110,7 @@ public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket
     private ShiftableMemoryMappedFileView? readChildBucketsView;
     private GrowableUnmanagedBuffer?       uncompressedBuffer;
 
-    public TimeSeriesFileSession(TimeSeriesFile<TBucket, TEntry> file, bool isWritable,
+    public TimeSeriesFileSession(TimeSeriesFile<TFile, TBucket, TEntry> file, bool isWritable,
         int defaultViewSizeBytes = ushort.MaxValue * 2, int reserveMultiple = 2, int activeViewAdditionalMultiple = 2)
     {
         timeSeriesFile                    = file;
@@ -229,10 +236,14 @@ public class TimeSeriesFileSession<TBucket, TEntry> : IReaderFileSession<TBucket
         cacheBuckets.Add((TBucket)bucket);
     }
 
-    public IReaderContext<TEntry> GetAllEntriesReader(Func<TEntry>? createNew = null) => new TimeSeriesFileReaderContext<TEntry>(this, createNew);
+    public IReaderContext<TEntry> GetAllEntriesReader(EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        Func<TEntry>? createNew = null) =>
+        new TimeSeriesFileReaderContext<TEntry>(this, entryResultSourcing, createNew);
 
-    public IReaderContext<TEntry> GetEntriesBetweenReader(PeriodRange? periodRange, Func<TEntry>? createNew = null) =>
-        new TimeSeriesFileReaderContext<TEntry>(this, createNew)
+    public IReaderContext<TEntry> GetEntriesBetweenReader(PeriodRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        Func<TEntry>? createNew = null) =>
+        new TimeSeriesFileReaderContext<TEntry>(this, entryResultSourcing, createNew)
         {
             PeriodRange = periodRange
         };

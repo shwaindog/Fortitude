@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -16,6 +19,8 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
 {
     public MarshalType MarshalType => MarshalType.Binary;
 
+    public bool AddMessageHeader { get; set; } = true;
+
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
         Serialize((ISourceTickerQuoteInfo)message, (ISerdeContext)writeContext);
@@ -27,7 +32,7 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            var writeLength                                               = Serialize(bufferContext.EncodedBuffer!, obj);
             if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
@@ -39,17 +44,26 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
 
     public unsafe int Serialize(IBuffer buffer, ISourceTickerQuoteInfo message)
     {
+        buffer.LimitNextSerialize = byte.MaxValue;
+
         using var fixedBuffer = buffer;
+
         var remainingBytes = buffer.RemainingStorage;
         if (MessageHeader.SerializationSize > remainingBytes) return -1;
-        var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
-        var currPtr = writeStart;
-        *currPtr++ = message.Version;
-        *currPtr++ = (byte)PQMessageFlags.None; // header flags
-        StreamByteOps.ToBytes(ref currPtr, message.MessageId);
-        var messageSize = currPtr;
+
+        var   writeStart  = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+        var   currPtr     = writeStart;
+        byte* messageSize = null;
+
+        if (AddMessageHeader)
+        {
+            *currPtr++ = message.Version;
+            *currPtr++ = (byte)PQMessageFlags.None; // header flags
+            StreamByteOps.ToBytes(ref currPtr, message.MessageId);
+            messageSize =  currPtr;
+            currPtr     += sizeof(uint);
+        }
         remainingBytes -= MessageHeader.SerializationSize;
-        remainingBytes -= 10;
 
         StreamByteOps.ToBytes(ref currPtr, message.SourceId);
         StreamByteOps.ToBytes(ref currPtr, message.TickerId);
@@ -65,7 +79,7 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
         StreamByteOps.ToBytesWithAutoSizeHeader(ref currPtr, message.Source, remainingBytes);
         StreamByteOps.ToBytesWithAutoSizeHeader(ref currPtr, message.Ticker, remainingBytes);
         var amtWritten = currPtr - writeStart;
-        StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+        if (AddMessageHeader) StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
         message.DecrementRefCount();
         return (int)amtWritten;
     }

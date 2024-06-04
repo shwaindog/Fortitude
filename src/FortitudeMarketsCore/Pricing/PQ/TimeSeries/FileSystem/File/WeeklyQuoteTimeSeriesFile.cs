@@ -13,48 +13,52 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class OneWeekDailyHourlyLevel0QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<DailyToOneHourPQLevel0QuoteSubBuckets<ILevel0Quote>, ILevel0Quote>
+public class WeeklyLevel0QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel0QuoteTimeSeriesFile,
+    DailyToOneHourPQLevel0QuoteSubBuckets<ILevel0Quote>, ILevel0Quote>
 {
-    public OneWeekDailyHourlyLevel0QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public WeeklyLevel0QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public OneWeekDailyHourlyLevel0QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel0QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
                                                .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 }
 
-public class OneWeekDailyHourlyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<DailyToOneHourPQLevel1QuoteSubBuckets<ILevel1Quote>, ILevel1Quote>
+public class WeeklyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel1QuoteTimeSeriesFile,
+    DailyToOneHourPQLevel1QuoteSubBuckets<ILevel1Quote>, ILevel1Quote>
 {
-    public OneWeekDailyHourlyLevel1QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public WeeklyLevel1QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public OneWeekDailyHourlyLevel1QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel1QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
                                                .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 }
 
-public class OneWeekDailyHourlyLevel2QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<DailyToOneHourPQLevel2QuoteSubBuckets<ILevel2Quote>, ILevel2Quote>
+public class WeeklyLevel2QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel2QuoteTimeSeriesFile,
+    DailyToOneHourPQLevel2QuoteSubBuckets<ILevel2Quote>, ILevel2Quote>
 {
-    public OneWeekDailyHourlyLevel2QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public WeeklyLevel2QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public OneWeekDailyHourlyLevel2QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel2QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
                                                .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 }
 
-public class OneWeekDailyHourlyLevel3QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<DailyToOneHourPQLevel3QuoteSubBuckets<ILevel3Quote>, ILevel3Quote>
+public class WeeklyLevel3QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel3QuoteTimeSeriesFile,
+    DailyToOneHourPQLevel3QuoteSubBuckets<ILevel3Quote>, ILevel3Quote>
 {
-    public OneWeekDailyHourlyLevel3QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public WeeklyLevel3QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public OneWeekDailyHourlyLevel3QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel3QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
                                                .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
                                                .SetInternalIndexSize(7)

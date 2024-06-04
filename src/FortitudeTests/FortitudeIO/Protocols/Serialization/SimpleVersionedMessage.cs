@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -21,17 +24,17 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
         CopyFrom(toClone);
     }
 
-    public int Payload { get; set; }
-    public double Payload2 { get; set; }
-    public uint MessageId { get; set; } = 2345;
-    public byte Version { get; set; } = 2;
+    public int    Payload   { get; set; }
+    public double Payload2  { get; set; }
+    public uint   MessageId { get; set; } = 2345;
+    public byte   Version   { get; set; } = 2;
 
     public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is SimpleVersionedMessage simpleVersionedMessage)
         {
-            Payload = simpleVersionedMessage.Payload;
+            Payload  = simpleVersionedMessage.Payload;
             Payload2 = simpleVersionedMessage.Payload2;
         }
 
@@ -47,14 +50,14 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
         {
             if (readContext is IMessageBufferContext messageBufferContext)
             {
-                var simpleMessage = new SimpleVersionedMessage();
-                using var fixedBuffer = messageBufferContext.EncodedBuffer!;
-                var readOffset = fixedBuffer.BufferRelativeReadCursor;
-                var version = messageBufferContext.MessageHeader.Version;
-                var messageSize = messageBufferContext.MessageHeader.MessageSize;
+                var       simpleMessage = new SimpleVersionedMessage();
+                using var fixedBuffer   = messageBufferContext.EncodedBuffer!;
+                var       readOffset    = fixedBuffer.BufferRelativeReadCursor;
+                var       version       = messageBufferContext.MessageHeader.Version;
+                var       messageSize   = messageBufferContext.MessageHeader.MessageSize;
 
                 simpleMessage.MessageId = messageBufferContext.MessageHeader.MessageId;
-                simpleMessage.Version = messageBufferContext.MessageHeader.Version;
+                simpleMessage.Version   = messageBufferContext.MessageHeader.Version;
                 if (version == 1 || messageSize == 14)
                 {
                     var currPtr = fixedBuffer.ReadBuffer + readOffset;
@@ -81,6 +84,8 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
     {
         public MarshalType MarshalType => MarshalType.Binary;
 
+        public bool AddMessageHeader { get; set; } = true; // ignored for this Serializer
+
         public void Serialize(IVersionedMessage message, IBufferContext writeContext)
         {
             Serialize((SimpleVersionedMessage)message, (ISerdeContext)writeContext);
@@ -94,7 +99,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
             {
                 var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
                 bufferContext.EncodedBuffer!.WriteCursor += writeLength;
-                bufferContext.LastWriteLength = writeLength;
+                bufferContext.LastWriteLength            =  writeLength;
             }
             else
             {
@@ -104,9 +109,9 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
 
         public unsafe int Serialize(IBuffer buffer, IVersionedMessage message)
         {
-            var simpleVersionedMsg = (SimpleVersionedMessage)message;
-            using var fixedBuffer = buffer;
-            var currPtr = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
+            var       simpleVersionedMsg = (SimpleVersionedMessage)message;
+            using var fixedBuffer        = buffer;
+            var       currPtr            = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
             *currPtr++ = message.Version;
             *currPtr++ = 0;
             StreamByteOps.ToBytes(ref currPtr, message.MessageId);

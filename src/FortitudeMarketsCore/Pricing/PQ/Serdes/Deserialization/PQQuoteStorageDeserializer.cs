@@ -29,7 +29,7 @@ internal class PQQuoteStorageDeserializer<T> : PQDeserializerBase<T> where T : c
         byte storageVersion = 1)
         : base(identifier, serializationFlags)
     {
-        if (!string.IsNullOrEmpty(identifier.Ticker))
+        if (string.IsNullOrEmpty(identifier.Ticker))
             throw new ArgumentException("Expected no ticker to be specified.");
         StorageVersion = storageVersion;
     }
@@ -49,8 +49,10 @@ internal class PQQuoteStorageDeserializer<T> : PQDeserializerBase<T> where T : c
             var sockBuffContext                                           = bufferContext as SocketBufferReadContext;
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
             var sequenceId                                                = lastSequenceId + 1;
-            UpdateQuote(bufferContext, PublishedQuote, sequenceId);
-            lastSequenceId = PublishedQuote.PQSequenceId;
+            var read                                                      = UpdateQuote(bufferContext, PublishedQuote, sequenceId);
+            bufferContext.LastReadLength            =  read;
+            bufferContext.EncodedBuffer!.ReadCursor += read;
+            lastSequenceId                          =  PublishedQuote.PQSequenceId;
             PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             return PublishedQuote;
         }

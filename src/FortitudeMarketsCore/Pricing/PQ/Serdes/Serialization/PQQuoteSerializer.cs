@@ -28,13 +28,13 @@ public enum PQSerializationFlags
 public enum StorageFlags
 {
     // Start From PQMessageFlags
-    None                = 0
-  , Complete            = 1
-  , Snapshot            = 3
-  , Update              = 4
-  , CompleteUpdate      = 5
-  , Replay              = 8
-  , NoChangeOrHeartbeat = 16
+    None                 = 0
+  , Complete             = 1
+  , Snapshot             = 3
+  , Update               = 4
+  , CompleteUpdate       = 5
+  , IncludeReceiverTimes = 8
+  , NoChangeOrHeartbeat  = 16
     // end from PQMessageFlags
   , OneByteMessageSize   = 32
   , TwoByteMessageSize   = 64
@@ -63,6 +63,8 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 
     public MarshalType MarshalType => MarshalType.Binary;
 
+    public bool AddMessageHeader { get; set; } = true;
+
     void IMessageSerializer.Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
         Serialize((PQLevel0Quote)message, writeContext);
@@ -87,12 +89,12 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
     public unsafe int Serialize(IBuffer buffer, IVersionedMessage message)
     {
         if (!(message is IPQLevel0Quote pqL0Quote)) return FinishProcessingMessageReturnValue(message, -1);
-        var resolvedFlags = pqL0Quote.OverrideSerializationFlags ?? messageFlags;
+        var resolvedFlags = (StorageFlags)(byte)(pqL0Quote.OverrideSerializationFlags ?? messageFlags);
         resolvedFlags |= serializationFlags == PQSerializationFlags.ForStorageIncludeReceiverTimes
-            ? PQMessageFlags.IncludeReceiverTimes
-            : PQMessageFlags.None;
+            ? StorageFlags.IncludeReceiverTimes
+            : StorageFlags.None;
         var resolvedStorageFlags = (StorageFlags)(byte)resolvedFlags;
-        var publishAll           = (resolvedFlags & PQMessageFlags.Complete) > 0;
+        var publishAll           = (resolvedFlags & StorageFlags.Complete) > 0;
         pqL0Quote.OverrideSerializationFlags = null;
         using var fixedBuffer = buffer;
         if ((publishAll ? sizeof(uint) : 0) + PQQuoteMessageHeader.HeaderSize > buffer.RemainingStorage)
@@ -115,8 +117,9 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             if (serializationFlags == PQSerializationFlags.ForSocketPublish)
                 StreamByteOps.ToBytes(ref currentPtr, pqL0Quote.SourceTickerQuoteInfo!.Id);
 
-            var messageSizePtr  = currentPtr;
-            var sequenceIdBytes = 4;
+            var messageSizePtr   = currentPtr;
+            var messageSizeBytes = 4;
+            var sequenceIdBytes  = 4;
             if (serializationFlags == PQSerializationFlags.ForSocketPublish)
             {
                 currentPtr += 4;
@@ -126,7 +129,8 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 sequenceIdBytes      =  pqL0Quote.PQSequenceId == previousSerializedSequenceId + 1 && !publishAll ? 0 : 4;
                 resolvedStorageFlags |= sequenceIdBytes > 0 ? StorageFlags.IncludesSequenceId : StorageFlags.None;
                 resolvedStorageFlags |= StorageFlags.ThreeByteMessageSize;
-                currentPtr           += 3;
+                messageSizeBytes     =  3;
+                currentPtr           += messageSizeBytes;
             }
             else
             {
@@ -138,14 +142,17 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 switch (totalBytes)
                 {
                     case < byte.MaxValue:
+                        messageSizeBytes = 1;
                         currentPtr++;
                         resolvedStorageFlags |= StorageFlags.OneByteMessageSize;
                         break;
                     case < ushort.MaxValue:
+                        messageSizeBytes     =  2;
                         currentPtr           += 2;
                         resolvedStorageFlags |= StorageFlags.TwoByteMessageSize;
                         break;
                     default:
+                        messageSizeBytes     =  3;
                         currentPtr           += 3;
                         resolvedStorageFlags |= StorageFlags.ThreeByteMessageSize;
                         break;
@@ -189,7 +196,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 
             if (sequenceIdBytes > 0)
             {
-                var isSnapshot = (resolvedFlags & PQMessageFlags.Snapshot) > 0;
+                var isSnapshot = (resolvedFlags & StorageFlags.Snapshot) > 0;
                 if (isSnapshot)
                 {
                     previousSerializedSequenceId = pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId;
@@ -219,7 +226,25 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             //              $"{level0Quote.SourceTickerQuoteInfo.Ticker}:" +
             //              $"{level0Quote.PQSequenceId}-> wrote {written} bytes for " +
             //              $"{resolvedFlags}.  ThreadName {Thread.CurrentThread.Name}");
-            StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
+            if (messageSizeBytes > 3)
+            {
+                StreamByteOps.ToBytes(ref messageSizePtr, (uint)written);
+            }
+            else if (messageSizeBytes > 2)
+            {
+                var littleByte = (byte)(written & 0xFF);
+                *messageSizePtr++ = littleByte;
+                var largestTwoByte = (ushort)(written >> 8);
+                StreamByteOps.ToBytes(ref messageSizePtr, largestTwoByte);
+            }
+            else if (messageSizeBytes > 1)
+            {
+                StreamByteOps.ToBytes(ref messageSizePtr, (ushort)written);
+            }
+            else
+            {
+                *messageSizePtr = (byte)(written & 0xFF);
+            }
             return FinishProcessingMessageReturnValue(message, written);
         }
         finally

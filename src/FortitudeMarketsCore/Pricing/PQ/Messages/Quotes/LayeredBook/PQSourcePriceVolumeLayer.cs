@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
@@ -6,6 +9,7 @@ using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -14,9 +18,10 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 public interface IPQSourcePriceVolumeLayer : IMutableSourcePriceVolumeLayer, IPQPriceVolumeLayer,
     IPQSupportsStringUpdates<IPriceVolumeLayer>, ISupportsPQNameIdLookupGenerator
 {
-    ushort SourceId { get; set; }
-    bool IsSourceNameUpdated { get; set; }
-    bool IsExecutableUpdated { get; set; }
+    ushort SourceId            { get; set; }
+    bool   IsSourceNameUpdated { get; set; }
+    bool   IsExecutableUpdated { get; set; }
+
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
     new IPQSourcePriceVolumeLayer Clone();
@@ -25,17 +30,18 @@ public interface IPQSourcePriceVolumeLayer : IMutableSourcePriceVolumeLayer, IPQ
 public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolumeLayer
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQSourcePriceVolumeLayer));
-    protected LayerBooleanFlags LayerBooleanFlags;
-    private IPQNameIdLookupGenerator nameIdLookup = null!;
-    private ushort sourceId;
+
+    protected LayerBooleanFlags        LayerBooleanFlags;
+    private   IPQNameIdLookupGenerator nameIdLookup = null!;
+    private   ushort                   sourceId;
 
     public PQSourcePriceVolumeLayer(IPQNameIdLookupGenerator sourceIdToNameIdLookup, decimal price = 0m, decimal volume = 0m,
         string? sourceName = null, bool executable = false)
         : base(price, volume)
     {
         NameIdLookup = sourceIdToNameIdLookup;
-        SourceName = sourceName;
-        Executable = executable;
+        SourceName   = sourceName;
+        Executable   = executable;
     }
 
     public PQSourcePriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator nameIdLookupGenerator) : base(toClone)
@@ -43,8 +49,8 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         NameIdLookup = nameIdLookupGenerator;
         if (toClone is IPQSourcePriceVolumeLayer pqSourcePvToClone)
         {
-            SourceId = (ushort)NameIdLookup.GetOrAddId(pqSourcePvToClone.SourceName);
-            Executable = pqSourcePvToClone.Executable;
+            SourceId            = (ushort)NameIdLookup.GetOrAddId(pqSourcePvToClone.SourceName);
+            Executable          = pqSourcePvToClone.Executable;
             IsSourceNameUpdated = pqSourcePvToClone.IsSourceNameUpdated;
             IsExecutableUpdated = pqSourcePvToClone.IsExecutableUpdated;
         }
@@ -61,7 +67,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         $"{PQPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, " +
         $"{nameof(Executable)}: {Executable}";
 
-    public override LayerType LayerType => LayerType.SourcePriceVolume;
+    public override LayerType  LayerType          => LayerType.SourcePriceVolume;
     public override LayerFlags SupportsLayerFlags => LayerFlags.SourceName | LayerFlags.Executable | base.SupportsLayerFlags;
 
     public ushort SourceId
@@ -71,7 +77,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         {
             if (SourceId == value) return;
             IsSourceNameUpdated = true;
-            sourceId = value;
+            sourceId            = value;
         }
     }
 
@@ -82,6 +88,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.SourceNameUpdatedFlag;
+
             else if (IsSourceNameUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.SourceNameUpdatedFlag;
         }
     }
@@ -108,6 +115,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
             IsExecutableUpdated = true;
             if (value)
                 LayerBooleanFlags |= LayerBooleanFlags.IsExecutableFlag;
+
             else if (Executable) LayerBooleanFlags ^= LayerBooleanFlags.IsExecutableFlag;
         }
     }
@@ -119,6 +127,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.ExecutableUpdatedFlag;
+
             else if (IsExecutableUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.ExecutableUpdatedFlag;
         }
     }
@@ -131,7 +140,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         set
         {
             if (nameIdLookup == value) return;
-            string? cacheSourceName = null;
+            string? cacheSourceName           = null;
             if (sourceId > 0) cacheSourceName = SourceName;
             nameIdLookup = value;
             if (sourceId > 0) sourceId = (ushort)nameIdLookup.GetOrAddId(cacheSourceName);
@@ -142,7 +151,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
 
     public override void StateReset()
     {
-        SourceId = 0;
+        SourceId   = 0;
         Executable = false;
         base.StateReset();
     }
@@ -153,22 +162,22 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         set
         {
             NameIdLookup.HasUpdates = value;
-            base.HasUpdates = value;
+            base.HasUpdates         = value;
         }
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                                quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsSourceNameUpdated) yield return new PQFieldUpdate(PQFieldKeys.LayerSourceIdOffset, SourceId);
 
         if (!updatedOnly || IsExecutableUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerBooleanFlagsOffset,
-                Executable ? PQFieldFlags.LayerExecutableFlag : 0);
+                                           Executable ? PQFieldFlags.LayerExecutableFlag : 0);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -191,7 +200,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }
@@ -203,7 +212,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var pqspvl = source as IPQSourcePriceVolumeLayer;
@@ -214,8 +223,8 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
         else if (pqspvl != null)
         {
-            var isFullReplace = copyMergeFlags.HasFullReplace();
-            if (pqspvl.IsSourceNameUpdated || isFullReplace) SourceId = (ushort)NameIdLookup.GetOrAddId(pqspvl.SourceName);
+            var isFullReplace                                           = copyMergeFlags.HasFullReplace();
+            if (pqspvl.IsSourceNameUpdated || isFullReplace) SourceId   = (ushort)NameIdLookup.GetOrAddId(pqspvl.SourceName);
             if (pqspvl.IsExecutableUpdated || isFullReplace) Executable = pqspvl.Executable;
         }
 
@@ -235,9 +244,9 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (!(other is ISourcePriceVolumeLayer sourceOther)) return false;
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame             = base.AreEquivalent(other, exactTypes);
         var sourceExecutableSame = Executable == sourceOther.Executable;
-        var sourceNameSame = SourceName == sourceOther.SourceName;
+        var sourceNameSame       = SourceName == sourceOther.SourceName;
 
         return baseSame && sourceExecutableSame && sourceNameSame;
     }

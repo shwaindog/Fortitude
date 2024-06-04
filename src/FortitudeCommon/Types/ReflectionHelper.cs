@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.ComponentModel;
 using System.Diagnostics;
@@ -15,16 +18,24 @@ namespace FortitudeCommon.Types;
 /// </summary>
 public static class ReflectionHelper
 {
-    public static Func<TClass> DefaultCtorFunc<TClass>() =>
-        Expression.Lambda<Func<TClass>>(
-            Expression.New(typeof(TClass).GetConstructor(Type.EmptyTypes)!)).Compile();
+    public static Func<TClass> DefaultCtorFunc<TClass>()
+    {
+        var typeOf = typeof(TClass);
+
+        var constructorInfo          = typeof(TClass).GetConstructor(Type.EmptyTypes)!;
+        var constructorNewExpression = Expression.New(constructorInfo);
+
+        return Expression.Lambda<Func<TClass>>(constructorNewExpression).Compile();
+    }
 
     public static Func<TParam, TClass> CtorBinder<TParam, TClass>()
     {
         var ctorParam = Expression.Parameter(typeof(TParam), "Param");
+
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam) })!;
+
         return Expression.Lambda<Func<TParam, TClass>>(
-            Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
+                                                       Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
     }
 
     public static Func<TParam, TClassBaseType> CtorDerivedBinder<TParam, TClassBaseType>(Type classDerivedType)
@@ -33,27 +44,31 @@ public static class ReflectionHelper
         var constructorInfo
             = classDerivedType.GetConstructor(new[] { typeof(TParam) })!;
         return Expression.Lambda<Func<TParam, TClassBaseType>>(
-            Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
+                                                               Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
     }
 
     public static Func<TParam1, TParam2, TClass> CtorBinder<TParam1, TParam2, TClass>()
     {
         var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
         var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
+
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!;
+
         return Expression.Lambda<Func<TParam1, TParam2, TClass>>(
-            Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
-            , ctorParam2).Compile();
+                                                                 Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
+                                                               , ctorParam2).Compile();
     }
 
     public static Func<TParam1, TParam2, TClassBaseType> CtorDerivedBinder<TParam1, TParam2, TClassBaseType>(Type classDerivedType)
     {
         var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
         var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
+
         var constructorInfo = classDerivedType.GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!;
+
         return Expression.Lambda<Func<TParam1, TParam2, TClassBaseType>>(
-            Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
-            , ctorParam2).Compile();
+                                                                         Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
+                                                                       , ctorParam2).Compile();
     }
 
     public static Func<TParam1, TParam2, TParam3, TClass> CtorBinder<TParam1, TParam2, TParam3, TClass>()
@@ -61,10 +76,12 @@ public static class ReflectionHelper
         var ctorParam1 = Expression.Parameter(typeof(TParam1), "Param1");
         var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
         var ctorParam3 = Expression.Parameter(typeof(TParam3), "Param3");
+
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3) })!;
+
         return Expression.Lambda<Func<TParam1, TParam2, TParam3, TClass>>(
-            Expression.New(constructorInfo, ctorParam1, ctorParam2
-                , ctorParam3), ctorParam1, ctorParam2, ctorParam3).Compile();
+                                                                          Expression.New(constructorInfo, ctorParam1, ctorParam2
+                                                                                       , ctorParam3), ctorParam1, ctorParam2, ctorParam3).Compile();
     }
 
     public static Func<TParam1, TParam2, TParam3, TParam4, TClass> CtorBinder<TParam1, TParam2, TParam3, TParam4, TClass>()
@@ -74,11 +91,14 @@ public static class ReflectionHelper
         var ctorParam2 = Expression.Parameter(typeof(TParam2), "Param2");
         var ctorParam3 = Expression.Parameter(typeof(TParam3), "Param3");
         var ctorParam4 = Expression.Parameter(typeof(TParam4), "Param4");
+
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3), typeof(TParam4) })!;
+
         return Expression.Lambda<Func<TParam1, TParam2, TParam3, TParam4, TClass>>(
-                Expression.New(constructorInfo
-                    , ctorParam1, ctorParam2, ctorParam3, ctorParam4), ctorParam1, ctorParam2, ctorParam3, ctorParam4)
-            .Compile();
+                                                                                   Expression.New(constructorInfo
+                                                                                                , ctorParam1, ctorParam2, ctorParam3, ctorParam4)
+                                                                                 , ctorParam1, ctorParam2, ctorParam3, ctorParam4)
+                         .Compile();
     }
 
     /// <summary>
@@ -86,7 +106,7 @@ public static class ReflectionHelper
     ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="object"></param>
+    /// <param name="obj"></param>
     /// <param name="memberName"></param>
     /// <param name="ignoreComposedMemberNull">
     ///     Don't throw an exception if an intermediate is <see langword="null" />. For
@@ -94,18 +114,19 @@ public static class ReflectionHelper
     ///     <see langword="null" />.
     /// </param>
     /// <returns></returns>
-    public static T? GetProperty<T>(object? @object, string memberName, bool ignoreComposedMemberNull)
+    public static T? GetProperty<T>(object? obj, string memberName, bool ignoreComposedMemberNull)
     {
-        if (@object == null)
+        if (obj == null)
             return default;
 
         var properties = memberName.Split('.');
 
-        var current = @object;
+        var current = obj;
 
         for (var i = 0; i < properties.Length; i++)
         {
             var prop = properties[i];
+
             object? newCurrent = null;
 
             if (current == null)
@@ -167,27 +188,30 @@ public static class ReflectionHelper
     ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="object"></param>
+    /// <param name="obj"></param>
     /// <param name="memberName"></param>
     /// <returns></returns>
-    public static T? GetProperty<T>(object @object, string memberName) => GetProperty<T>(@object, memberName, false);
+    public static T? GetProperty<T>(object obj, string memberName) => GetProperty<T>(obj, memberName, false);
 
     /// <summary>
     ///     Gets a member from an object
     ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
     /// </summary>
-    /// <param name="object"></param>
+    /// <param name="obj"></param>
     /// <param name="memberName"></param>
     /// <returns></returns>
-    public static PropertyInfo? GetProperty(object @object, string memberName)
+    public static PropertyInfo? GetProperty(object obj, string memberName)
     {
         var properties = memberName.Split('.');
 
         PropertyInfo? currentPropertyInfo = null;
-        var current = @object;
+
+        var current = obj;
+
         for (var i = 0; i < properties.Length; i++)
         {
             var prop = properties[i];
+
             object? currentValue = null;
 
             if (current == null)
@@ -207,7 +231,7 @@ public static class ReflectionHelper
                 foreach (var pi in current.GetType().GetProperties())
                     if (pi.Name == prop)
                     {
-                        currentValue = pi.GetValue(current, null);
+                        currentValue        = pi.GetValue(current, null);
                         currentPropertyInfo = pi;
                         break;
                     }
@@ -226,10 +250,10 @@ public static class ReflectionHelper
     ///     Gets the value of a property of an object
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="object"></param>
+    /// <param name="obj"></param>
     /// <param name="property"></param>
     /// <returns></returns>
-    public static T? GetProperty<T>(object @object, PropertyInfo property) => (T?)property.GetValue(@object, null);
+    public static T? GetProperty<T>(object obj, PropertyInfo property) => (T?)property.GetValue(obj, null);
 
     /// <summary>
     ///     Return all the properties of a given type of an object
@@ -248,7 +272,7 @@ public static class ReflectionHelper
     public static List<T> GetFields<T>(object @object)
     {
         var fieldsType = typeof(T);
-        var fields = new List<T>();
+        var fields     = new List<T>();
 
         if (@object == null)
             return fields;
@@ -280,15 +304,15 @@ public static class ReflectionHelper
     {
         var fullConfiguredType = parameterlessGenericType.MakeGenericType(genericArgs);
         return Activator.CreateInstance(fullConfiguredType, BindingFlags.CreateInstance,
-            null, constructorArgs, CultureInfo.CurrentCulture)!;
+                                        null, constructorArgs, CultureInfo.CurrentCulture)!;
     }
 
     public static Delegate CreateEmptyConstructorFactoryAsFuncType(Type withParameterlessConstructor)
     {
-        var typeConstant = Expression.Constant(withParameterlessConstructor);
-        var constructor = withParameterlessConstructor.GetConstructor(Array.Empty<Type>());
+        var typeConstant    = Expression.Constant(withParameterlessConstructor);
+        var constructor     = withParameterlessConstructor.GetConstructor(Array.Empty<Type>());
         var callConstructor = Expression.New(constructor!);
-        var funcType = Expression.GetFuncType(withParameterlessConstructor);
+        var funcType        = Expression.GetFuncType(withParameterlessConstructor);
         return Expression.Lambda(funcType, callConstructor).Compile();
     }
 
@@ -374,7 +398,7 @@ public static class ReflectionHelper
     /// <returns></returns>
     public static string GetCallingMethodName(int frameIndex, bool removeGetSetPrefix)
     {
-        var trace = new StackTrace();
+        var trace      = new StackTrace();
         var methodName = trace.GetFrame(frameIndex)!.GetMethod()!.Name;
 
         if (removeGetSetPrefix)
@@ -391,7 +415,7 @@ public static class ReflectionHelper
     public static T? GetEnumerationAttribute<T>(object enumeration) where T : Attribute
     {
         var sourceType = enumeration.GetType();
-        var fields = sourceType.GetFields().Where(field => field.IsLiteral);
+        var fields     = sourceType.GetFields().Where(field => field.IsLiteral);
 
         foreach (var field in fields)
         {
@@ -429,7 +453,7 @@ public static class ReflectionHelper
     private static List<T> GetProperties<T>(object @object, bool recursive, ICollection<object> alreadyBrowsed)
     {
         var propertiesType = typeof(T);
-        var properties = new List<T>();
+        var properties     = new List<T>();
 
         if (!recursive)
         {

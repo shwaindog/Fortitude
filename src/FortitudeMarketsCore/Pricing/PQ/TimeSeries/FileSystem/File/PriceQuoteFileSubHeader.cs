@@ -24,20 +24,25 @@ public interface ISerializationPriceQuoteFileHeader : IPriceQuoteFileHeader
 public struct PriceQuoteSubHeader
 {
     public PQSerializationFlags SerializationFlags;
-    public ushort               SourceTickerQuoteSerializedSizeBytes;
-    public ushort               SourceTickerQuoteSubHeaderBytesOffset;
+
+    public ushort SourceTickerQuoteSerializedSizeBytes;
+    public ushort SourceTickerQuoteSubHeaderBytesOffset;
 }
 
 public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
 {
-    private static   IRecycler                         recycler = new Recycler();
-    private readonly MemoryMappedFileBuffer            memoryMappedFileBuffer;
-    private readonly IMessageBufferContext             messageBufferContext;
-    private readonly SourceTickerQuoteInfoDeserializer sourceTickerQuoteInfoDeserializer = new(recycler);
-    private readonly ushort                            subHeaderFileOffset;
-    private readonly bool                              writable;
-    private          ISourceTickerQuoteInfo?           cachedSourceTickerQuoteInfo;
+    private static IRecycler recycler = new Recycler();
 
+    private readonly MemoryMappedFileBuffer memoryMappedFileBuffer;
+    private readonly IMessageBufferContext  messageBufferContext;
+    private readonly SourceTickerQuoteInfoDeserializer sourceTickerQuoteInfoDeserializer = new(recycler)
+    {
+        ReadMessageHeader = false
+    };
+    private readonly ushort subHeaderFileOffset;
+    private readonly bool   writable;
+
+    private ISourceTickerQuoteInfo?          cachedSourceTickerQuoteInfo;
     private PriceQuoteSubHeader              cachePriceQuoteSubHeader;
     private ShiftableMemoryMappedFileView?   memoryMappedFileView;
     private PriceQuoteSubHeader*             priceQuoteSubHeader;
@@ -45,12 +50,13 @@ public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
 
     public PriceQuoteFileSubHeader(ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
     {
-        memoryMappedFileView = headerMappedFileView;
+        memoryMappedFileView     = headerMappedFileView;
         this.subHeaderFileOffset = subHeaderFileOffset;
-        this.writable = writable;
-        priceQuoteSubHeader = (PriceQuoteSubHeader*)(memoryMappedFileView.LowerViewFileCursorOffset + subHeaderFileOffset);
-        memoryMappedFileBuffer = new MemoryMappedFileBuffer(memoryMappedFileView, false);
-        messageBufferContext = new MessageBufferContext(memoryMappedFileBuffer);
+        this.writable            = writable;
+        priceQuoteSubHeader      = (PriceQuoteSubHeader*)(memoryMappedFileView.StartAddress + subHeaderFileOffset);
+        memoryMappedFileBuffer   = new MemoryMappedFileBuffer(memoryMappedFileView, false);
+        messageBufferContext     = new MessageBufferContext(memoryMappedFileBuffer);
+
         priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset = 100;
     }
 
@@ -85,24 +91,30 @@ public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
         get
         {
             if (memoryMappedFileView == null && cachedSourceTickerQuoteInfo != null) return cachedSourceTickerQuoteInfo;
-            if (priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes == 0 || priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset > 0)
+            if (priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes == 0 || priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset == 0)
                 throw new Exception(
                                     "Expected PriceQuoteFileSubHeader to have a value for SourceTickerQuoteSerializedSizeBytes and SourceTickerQuoteSubHeaderBytesOffset");
 
             messageBufferContext.EncodedBuffer!.ReadCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
             messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset
                                                                                   + priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes;
+
             cachedSourceTickerQuoteInfo = sourceTickerQuoteInfoDeserializer.Deserialize(messageBufferContext);
             return cachedSourceTickerQuoteInfo!;
         }
         set
         {
-            if (Equals(cachedSourceTickerQuoteInfo, value) || !writable || memoryMappedFileView == null) return;
-            messageBufferContext.EncodedBuffer!.WriteCursor       = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
-            messageBufferContext.EncodedBuffer.LimitNextSerialize = byte.MaxValue;
-            sourceTickerQuoteInfoSerializer                       ??= new SourceTickerQuoteInfoSerializer();
+            if (Equals(cachedSourceTickerQuoteInfo, value) || (!writable &&
+                                                               cachedSourceTickerQuoteInfo != null) || memoryMappedFileView == null) return;
+            messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
+
+            sourceTickerQuoteInfoSerializer ??= new SourceTickerQuoteInfoSerializer
+            {
+                AddMessageHeader = false
+            };
             var serializedSize = sourceTickerQuoteInfoSerializer.Serialize(messageBufferContext.EncodedBuffer, value);
             priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes = (ushort)serializedSize;
+            cachedSourceTickerQuoteInfo                               = value;
         }
     }
 
