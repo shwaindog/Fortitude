@@ -16,7 +16,8 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class PriceQuoteTimeSeriesFile<TBucket, TEntry> : TimeSeriesFile<TBucket, TEntry>, IPriceQuoteTimeSeriesFile
+public class PriceQuoteTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<TFile, TBucket, TEntry>, IPriceQuoteTimeSeriesFile
+    where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
 {
@@ -30,8 +31,11 @@ public class PriceQuoteTimeSeriesFile<TBucket, TEntry> : TimeSeriesFile<TBucket,
     public PriceQuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.CreateFileParameters)
     {
-        Header.SubHeaderFactory = (view, offset, writable) => new PriceQuoteFileSubHeader(sourceTickerTimeSeriesFileParams, view, offset, writable);
-        PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
+        Header.FileFlags        |= FileFlags.HasSubFileHeader;
+        Header.SubHeaderFactory =  (view, offset, writable) => new PriceQuoteFileSubHeader(sourceTickerTimeSeriesFileParams, view, offset, writable);
+        PriceQuoteFileHeader    =  (IPriceQuoteFileHeader)Header.SubHeader!;
+
+        var sourceTickerQuoteInfo = PriceQuoteFileHeader.SourceTickerQuoteInfo;
     }
 
     public override IBucketFactory<TBucket> RootBucketFactory

@@ -34,6 +34,8 @@ public struct MidPriceTime
 
 public interface IMidPriceGenerator
 {
+    DateTime     StartTime            { get; set; }
+    decimal      StartPrice           { get; set; }
     int          RoundAtDecimalPlaces { get; set; }
     MidPriceTime PriceAt(DateTime atTime, int sequenceNumber = 0);
 
@@ -45,7 +47,10 @@ public interface IMidPriceGenerator
 
 public abstract class MidPriceGenerator : IMidPriceGenerator
 {
-    public int RoundAtDecimalPlaces { get; set; }
+    public int      RoundAtDecimalPlaces { get; set; }
+    public DateTime StartTime            { get; set; }
+
+    public decimal StartPrice { get; set; }
 
     public abstract MidPriceTime PriceAt(DateTime atTime, int sequenceNumber = 0);
 

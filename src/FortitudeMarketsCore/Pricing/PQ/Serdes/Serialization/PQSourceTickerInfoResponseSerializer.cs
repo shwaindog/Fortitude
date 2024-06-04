@@ -1,10 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
-using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
@@ -18,6 +20,8 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
 {
     public MarshalType MarshalType => MarshalType.Binary;
 
+    public bool AddMessageHeader { get; set; } = true;
+
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
         Serialize((PQSourceTickerInfoResponse)message, (ISerdeContext)writeContext);
@@ -29,7 +33,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+            var writeLength                                               = Serialize(bufferContext.EncodedBuffer!, obj);
             if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }
@@ -42,16 +46,25 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
     public unsafe int Serialize(IBuffer buffer, PQSourceTickerInfoResponse message)
     {
         var quoteInfos = message.SourceTickerQuoteInfos;
+
         using var fixedBuffer = buffer;
+
         var remainingBytes = buffer.RemainingStorage;
+
         if (MessageHeader.SerializationSize + quoteInfos.Count * sizeof(uint) > remainingBytes) return -1;
+
         var writeStart = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
-        var currPtr = writeStart;
-        *currPtr++ = message.Version;
-        *currPtr++ = (byte)PQMessageFlags.None; // header flags
-        StreamByteOps.ToBytes(ref currPtr, message.MessageId);
-        var messageSize = currPtr;
-        currPtr += OrxConstants.UInt32Sz;
+        var currPtr    = writeStart;
+
+        byte* messageSize = null;
+        if (AddMessageHeader)
+        {
+            *currPtr++ = message.Version;
+            *currPtr++ = (byte)PQMessageFlags.None; // header flags
+            StreamByteOps.ToBytes(ref currPtr, message.MessageId);
+            messageSize =  currPtr;
+            currPtr     += sizeof(uint);
+        }
         remainingBytes -= MessageHeader.SerializationSize;
         StreamByteOps.ToBytes(ref currPtr, message.RequestId);
         StreamByteOps.ToBytes(ref currPtr, message.ResponseId);
@@ -59,14 +72,14 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         remainingBytes -= 10;
         for (var i = 0; i < quoteInfos.Count; i++)
         {
-            var toSerialize = quoteInfos[i];
+            var toSerialize  = quoteInfos[i];
             var bytesWritten = Serialize(currPtr, toSerialize, remainingBytes);
-            currPtr += bytesWritten;
+            currPtr        += bytesWritten;
             remainingBytes -= bytesWritten;
         }
 
         var amtWritten = currPtr - writeStart;
-        StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
+        if (AddMessageHeader) StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
         message.DecrementRefCount();
         return (int)amtWritten;
     }

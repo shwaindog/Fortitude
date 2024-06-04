@@ -10,6 +10,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
+using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 using FortitudeMarketsApi.Pricing.Quotes;
 
@@ -26,7 +27,7 @@ public class TimeSeriesFileTests
     private Func<Level1QuoteStruct>? createNewEntryFactory;
     private CreateFileParameters     createTestCreateFileParameters;
 
-    private TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>      oneWeekFile = null!;
+    private TestWeeklyLevel1StructsTimeSeriesFile                                    oneWeekFile = null!;
     private IReaderFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>? readerSession;
     private TestDirectoryFileNameResolver                                            testFileNameResolver = null!;
 
@@ -60,7 +61,7 @@ public class TimeSeriesFileTests
                                      TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, TimeSeriesEntryType.Price, 7,
                                      fileFlags, 6,
                                      category: "TestInstrumentCategory");
-        oneWeekFile   = new TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>(createTestCreateFileParameters);
+        oneWeekFile   = new TestWeeklyLevel1StructsTimeSeriesFile(createTestCreateFileParameters);
         writerSession = oneWeekFile.GetWriterSession()!;
     }
 
@@ -111,7 +112,7 @@ public class TimeSeriesFileTests
 
         Assert.AreEqual((uint)toPersistAndCheck.Count, oneWeekFile.Header.TotalEntries);
         readerSession = oneWeekFile.GetReaderSession();
-        var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        var allEntriesReader = readerSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, createNewEntryFactory);
         var storedItems      = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
@@ -140,7 +141,7 @@ public class TimeSeriesFileTests
 
         Assert.AreEqual((uint)toPersistAndCheck.Count, oneWeekFile.Header.TotalEntries);
         readerSession = oneWeekFile.GetReaderSession();
-        var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        var allEntriesReader = readerSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, createNewEntryFactory);
         var storedItems      = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
@@ -192,7 +193,7 @@ public class TimeSeriesFileTests
         }
 
         readerSession = oneWeekFile.GetReaderSession();
-        var allEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        var allEntriesReader = readerSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, createNewEntryFactory);
         var storedItems      = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
@@ -200,7 +201,7 @@ public class TimeSeriesFileTests
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
         var newReaderSession = oneWeekFile.GetReaderSession();
         Assert.AreNotSame(readerSession, newReaderSession);
-        var newEntriesReader = readerSession.GetAllEntriesReader(createNewEntryFactory);
+        var newEntriesReader = readerSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, createNewEntryFactory);
         newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;
         newEntriesReader.RunReader();
         var listResults = newEntriesReader.ResultList;
@@ -249,11 +250,10 @@ public class TimeSeriesFileTests
         Assert.AreEqual(TimeSeriesEntryType.Price, header.TimeSeriesEntryType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
-        Assert.AreEqual(typeof(TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>), header.TimeSeriesFileType);
+        Assert.AreEqual(typeof(TestWeeklyLevel1StructsTimeSeriesFile), header.TimeSeriesFileType);
         oneWeekFile.Close();
-        oneWeekFile = (TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>)
-            TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>.OpenExistingTimeSeriesFile(testTimeSeriesFilePath);
-        header = oneWeekFile.Header;
+        oneWeekFile = TestWeeklyLevel1StructsTimeSeriesFile.OpenExistingTimeSeriesFile(testTimeSeriesFilePath);
+        header      = oneWeekFile.Header;
         Assert.AreEqual(truncated, header.AnnotationFileRelativePath);
         Assert.AreEqual(truncated, header.ExternalIndexFileRelativePath);
         Assert.AreEqual(truncated, header.OriginSourceText);
@@ -265,7 +265,7 @@ public class TimeSeriesFileTests
         Assert.AreEqual(TimeSeriesEntryType.Price, header.TimeSeriesEntryType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
-        Assert.AreEqual(typeof(TimeSeriesFile<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>), header.TimeSeriesFileType);
+        Assert.AreEqual(typeof(TestWeeklyLevel1StructsTimeSeriesFile), header.TimeSeriesFileType);
     }
 
     [TestMethod]
@@ -331,5 +331,15 @@ public class TimeSeriesFileTests
         Interlocked.Increment(ref newTestCount);
         var nowString = now.ToString("yyyy-MM-dd_HH-mm-ss_fff");
         return "TimeSeriesFileTests_" + nowString + "_" + newTestCount + ".bin";
+    }
+
+
+    private class TestWeeklyLevel1StructsTimeSeriesFile : TimeSeriesFile<TestWeeklyLevel1StructsTimeSeriesFile, TestLevel1DailyQuoteStructBucket,
+        Level1QuoteStruct>
+    {
+        public TestWeeklyLevel1StructsTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header) :
+            base(pagedMemoryMappedFile, header) { }
+
+        public TestWeeklyLevel1StructsTimeSeriesFile(CreateFileParameters createParameters) : base(createParameters) { }
     }
 }

@@ -130,10 +130,10 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
     {
         if (IsFileViewOpen)
         {
-            FlushIndexToDisk();
+            cacheLastAddedEntry = lastAddedEntryIndexKey != uint.MaxValue ? this[lastAddedEntryIndexKey] : default(BucketIndexInfo?);
+            if (!IsReadOnly) FlushIndexToDisk();
             cacheBucketIndexInfos.Clear();
             cacheBucketIndexInfos.AddRange(this);
-            cacheLastAddedEntry = lastAddedEntryIndexKey != uint.MaxValue ? this[lastAddedEntryIndexKey] : default(BucketIndexInfo?);
         }
 
         IsReadOnly                      = true;

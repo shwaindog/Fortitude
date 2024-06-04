@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
@@ -13,15 +16,15 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 public interface IPQQuoteDeserializer<T> : IPQDeserializer<T> where T : class, IPQLevel0Quote, new()
 {
     bool AllowUpdatesCatchup { get; }
-    uint SyncRetryMs { get; }
+    uint SyncRetryMs         { get; }
 
-    void UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId);
+    int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId);
 
     void PushQuoteToSubscribers(PQSyncStatus syncStatus,
         IPerfLogger? detectionToPublishLatencyTraceLogger = null);
 
     void ClearSyncRing();
-    T ClaimSyncSlotEntry();
+    T    ClaimSyncSlotEntry();
     void SwitchSyncState(QuoteSyncState newState);
     bool Synchronize(out uint misMatchedSeqId);
 }

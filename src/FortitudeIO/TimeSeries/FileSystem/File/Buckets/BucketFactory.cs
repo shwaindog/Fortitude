@@ -31,10 +31,10 @@ public class BucketFactory<TBucket> : IBucketFactory<TBucket> where TBucket : cl
     private static readonly Func<IMutableBucketContainer, long, bool, ShiftableMemoryMappedFileView?, TBucket> ParamConstructor = 
         ReflectionHelper.CtorBinder<IMutableBucketContainer, long, bool, ShiftableMemoryMappedFileView?, TBucket>();
     
-    private int prefixMargin = 32;
-    private int prefixPadding = 21;
-    private int suffixMargin = 32;
-    private int suffixPadding = 1024;
+    private int prefixMargin = 2;
+    private int prefixPadding = 4;
+    private int suffixMargin = 8;
+    private int suffixPadding = 128;
 
     public BucketFactory(bool isFileRootBucketType = false)
     {
@@ -77,7 +77,7 @@ public class BucketFactory<TBucket> : IBucketFactory<TBucket> where TBucket : cl
         var ptr = bucketContainer.ContainingSession.ActiveBucketDataFileView.FileCursorBufferPointer(createStartingAtFileCursorOffset, 0, isWritable);
         if (!NoPatternOrPadding)
         {
-            for (var i = currentFileOffset; i < PrefixMargin; i++)
+            for (var i = 0; i < PrefixMargin; i++)
             {
                 *ptr++ = 0;
             }
@@ -88,7 +88,7 @@ public class BucketFactory<TBucket> : IBucketFactory<TBucket> where TBucket : cl
                 *ptr++ = prefixPattern[i];
             }
             currentFileOffset += prefixPattern.Length;
-            for (var i = currentFileOffset; i < PrefixPadding; i++)
+            for (var i = 0; i < PrefixPadding; i++)
             {
                 *ptr++ = 0;
             }
@@ -113,7 +113,7 @@ public class BucketFactory<TBucket> : IBucketFactory<TBucket> where TBucket : cl
         {
             var ptr = bucketView.FileCursorBufferPointer(fileCursorPosition, 0, true);
             
-            for (var i = currentFileOffset; i < SuffixPadding; i++)
+            for (var i = 0; i < SuffixPadding; i++)
             {
                 *ptr++ = 0;
             }
@@ -124,7 +124,7 @@ public class BucketFactory<TBucket> : IBucketFactory<TBucket> where TBucket : cl
                 *ptr++ = suffixPattern[i];
             }
             currentFileOffset += suffixPattern.Length;
-            for (var i = currentFileOffset; i < SuffixMargin; i++)
+            for (var i = 0; i < SuffixMargin; i++)
             {
                 *ptr++ = 0;
             }

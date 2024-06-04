@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
@@ -5,6 +8,7 @@ using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -15,6 +19,7 @@ public interface IPQSourceQuoteRefTraderValueDatePriceVolumeLayer : IPQTraderPri
     IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer
 {
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
+
     new IPQSourceQuoteRefTraderValueDatePriceVolumeLayer Clone();
 }
 
@@ -22,8 +27,9 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
     IPQSourceQuoteRefTraderValueDatePriceVolumeLayer
 {
     protected LayerBooleanFlags LayerBooleanFlags;
-    private ushort sourceId;
-    private uint sourceQuoteReference;
+
+    private ushort   sourceId;
+    private uint     sourceQuoteReference;
     private DateTime valueDate = DateTimeConstants.UnixEpoch;
 
     public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
@@ -36,9 +42,10 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         : base(nameIdLookup, price, volume)
     {
         NameIdLookup = nameIdLookup;
-        ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
-        SourceName = sourceName;
-        Executable = executable;
+        ValueDate    = valueDate ?? DateTimeConstants.UnixEpoch;
+        SourceName   = sourceName;
+        Executable   = executable;
+
         SourceQuoteReference = sourceQuoteReference;
     }
 
@@ -77,7 +84,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         {
             if (valueDate == value) return;
             IsValueDateUpdated = true;
-            valueDate = value;
+            valueDate          = value;
         }
     }
 
@@ -88,6 +95,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
+
             else if (IsValueDateUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
         }
     }
@@ -99,7 +107,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         {
             if (sourceQuoteReference == value) return;
             IsSourceQuoteReferenceUpdated = true;
-            sourceQuoteReference = value;
+            sourceQuoteReference          = value;
         }
     }
 
@@ -110,6 +118,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.SourceQuoteRefUpdatedFlag;
+
             else if (IsSourceQuoteReferenceUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.SourceQuoteRefUpdatedFlag;
         }
     }
@@ -121,7 +130,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         {
             if (SourceId == value) return;
             IsSourceNameUpdated = true;
-            sourceId = value;
+            sourceId            = value;
         }
     }
 
@@ -132,6 +141,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.SourceNameUpdatedFlag;
+
             else if (IsSourceNameUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.SourceNameUpdatedFlag;
         }
     }
@@ -158,6 +168,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
             IsExecutableUpdated = true;
             if (value)
                 LayerBooleanFlags |= LayerBooleanFlags.IsExecutableFlag;
+
             else if (Executable) LayerBooleanFlags ^= LayerBooleanFlags.IsExecutableFlag;
         }
     }
@@ -169,6 +180,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         {
             if (value)
                 UpdatedFlags |= LayerFieldUpdatedFlags.ExecutableUpdatedFlag;
+
             else if (IsExecutableUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.ExecutableUpdatedFlag;
         }
     }
@@ -179,7 +191,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         set
         {
             if (base.NameIdLookup == value) return;
-            string? cacheSourceName = null;
+            string? cacheSourceName           = null;
             if (sourceId > 0) cacheSourceName = SourceName;
             base.NameIdLookup = value;
             if (sourceId > 0) sourceId = (ushort)base.NameIdLookup.GetOrAddId(cacheSourceName);
@@ -195,35 +207,37 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         get => base.HasUpdates || NameIdLookup!.HasUpdates;
         set
         {
-            base.HasUpdates = value;
+            base.HasUpdates          = value;
             NameIdLookup!.HasUpdates = value;
         }
     }
 
     public override void StateReset()
     {
-        ValueDate = DateTimeConstants.UnixEpoch;
+        ValueDate  = DateTimeConstants.UnixEpoch;
         SourceName = null;
         Executable = false;
+
         SourceQuoteReference = 0u;
+
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                                quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsValueDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerDateOffset, valueDate.GetHoursFromUnixEpoch(),
-                PQFieldFlags.IsExtendedFieldId);
+                                           PQFieldFlags.IsExtendedFieldId);
         if (!updatedOnly || IsSourceNameUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerSourceIdOffset, SourceId);
         if (!updatedOnly || IsExecutableUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerBooleanFlagsOffset,
-                Executable ? PQFieldFlags.LayerExecutableFlag : 0);
+                                           Executable ? PQFieldFlags.LayerExecutableFlag : 0);
         if (!updatedOnly || IsSourceQuoteReferenceUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LayerSourceQuoteRefOffset, sourceQuoteReference);
     }
@@ -263,7 +277,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
         foreach (var baseUpdates in base.GetStringUpdates(snapShotTime, messageFlags)) yield return baseUpdates;
         if (NameIdLookup is IPQNameIdLookupGenerator pqNameIdLookupGenerator)
@@ -280,7 +294,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
         var isFullReplace = copyMergeFlags.HasFullReplace();
@@ -306,7 +320,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
                 break;
             case IPQSourcePriceVolumeLayer pqSourcePvLayer:
                 NameIdLookup.CopyFrom(pqSourcePvLayer.NameIdLookup);
-                if (pqSourcePvLayer.IsSourceNameUpdated || isFullReplace) SourceId = (ushort)NameIdLookup.GetOrAddId(pqSourcePvLayer.SourceName);
+                if (pqSourcePvLayer.IsSourceNameUpdated || isFullReplace) SourceId   = (ushort)NameIdLookup.GetOrAddId(pqSourcePvLayer.SourceName);
                 if (pqSourcePvLayer.IsExecutableUpdated || isFullReplace) Executable = pqSourcePvLayer.Executable;
                 SetFlagsSame(pqSourcePvLayer);
                 break;
@@ -315,14 +329,17 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
                 SetFlagsSame(pqValueDate);
                 break;
             case ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlPvLayer:
-                ValueDate = srcQtRefTrdrVlPvLayer.ValueDate;
+
+                ValueDate  = srcQtRefTrdrVlPvLayer.ValueDate;
                 SourceName = srcQtRefTrdrVlPvLayer.SourceName;
                 Executable = srcQtRefTrdrVlPvLayer.Executable;
+
                 SourceQuoteReference = srcQtRefTrdrVlPvLayer.SourceQuoteReference;
                 break;
             case ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer:
                 SourceName = srcQtRefPvLayer.SourceName;
                 Executable = srcQtRefPvLayer.Executable;
+
                 SourceQuoteReference = srcQtRefPvLayer.SourceQuoteReference;
                 break;
             case ISourcePriceVolumeLayer srcPvLayer:
@@ -391,11 +408,11 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         if (!(other is IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPvLayer))
             return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
-        var valueDateSame = ValueDate == srcQtRefTrdrVlDtPvLayer.ValueDate;
+        var baseSame           = base.AreEquivalent(other, exactTypes);
+        var valueDateSame      = ValueDate == srcQtRefTrdrVlDtPvLayer.ValueDate;
         var sourceQuoteRefSame = SourceQuoteReference == srcQtRefTrdrVlDtPvLayer.SourceQuoteReference;
-        var sourceNameSame = SourceName == srcQtRefTrdrVlDtPvLayer.SourceName;
-        var executableSame = Executable == srcQtRefTrdrVlDtPvLayer.Executable;
+        var sourceNameSame     = SourceName == srcQtRefTrdrVlDtPvLayer.SourceName;
+        var executableSame     = Executable == srcQtRefTrdrVlDtPvLayer.Executable;
 
         return baseSame && valueDateSame && sourceQuoteRefSame && sourceNameSame && executableSame;
     }

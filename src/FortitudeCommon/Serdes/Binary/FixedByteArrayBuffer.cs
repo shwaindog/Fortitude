@@ -26,6 +26,7 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
     protected int BufferAccessCounter;
 
     private bool isDestroyed;
+    private long ReadCursorPos;
 
     protected IVirtualMemoryAddressRange? VirtualMemoryAddressRange;
 
@@ -44,9 +45,17 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
 
     public IVirtualMemoryAddressRange BackingMemoryAddressRange => VirtualMemoryAddressRange!;
 
-    public long ReadCursor { get; set; }
+    public long ReadCursor
+    {
+        get => ReadCursorPos;
+        set
+        {
+            LimitNextDeserialize = null;
+            ReadCursorPos        = value;
+        }
+    }
 
-    public long UnreadBytesRemaining => WriteCursorPos - ReadCursor;
+    public long UnreadBytesRemaining => Math.Min(LimitNextDeserialize ?? WriteCursorPos - ReadCursor, WriteCursorPos - ReadCursor);
 
     public virtual long WriteCursor
     {
@@ -58,9 +67,11 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
         }
     }
 
-    public long RemainingStorage => LimitNextSerialize ?? Length - WriteCursorPos;
+    public long RemainingStorage => Math.Min(LimitNextSerialize ?? Length - WriteCursorPos, Length - WriteCursorPos);
 
     public long? LimitNextSerialize { get; set; }
+
+    public long? LimitNextDeserialize { get; set; }
 
     public void Dispose()
     {

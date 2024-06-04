@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -27,10 +30,16 @@ public class PQSnapshotIdsRequestDeserializer : MessageDeserializer<PQSnapshotId
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedSnapshotIdsRequest = recycler.Borrow<PQSnapshotIdsRequest>();
+
             using var fixedBuffer = messageBufferContext.EncodedBuffer!;
+
             var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+
+            if (ReadMessageHeader) messageBufferContext.MessageHeader = ReadHeader(ref ptr);
+
             var requestsCount = StreamByteOps.ToUShort(ref ptr);
-            var streamIDs = new uint[requestsCount];
+            var streamIDs     = new uint[requestsCount];
+
             for (var i = 0; i < streamIDs.Length; i++) deserializedSnapshotIdsRequest.RequestSourceTickerIds.Add(StreamByteOps.ToUInt(ref ptr));
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;

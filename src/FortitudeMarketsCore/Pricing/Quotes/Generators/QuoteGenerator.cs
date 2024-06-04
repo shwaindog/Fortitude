@@ -5,8 +5,8 @@
 
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Quotes.Generators.Book;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.LastTraded;
+using FortitudeMarketsCore.Pricing.Quotes.Generators.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.MidPrice;
 using MathNet.Numerics.Distributions;
 
@@ -46,6 +46,12 @@ public struct GenerateQuoteInfo
         LastTradeInfo           = lastTradeInfo ?? new GenerateLastTradeInfo();
     }
 
+    public DateTime SingleQuoteStartTime = DateTime.Now;
+
+    public TimeSpan SingleQuoteNextQuoteIncrement = TimeSpan.FromMilliseconds(1);
+
+    public int SingleQuoteStartSequenceNumber = 0;
+
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo;
 
     public IMidPriceGenerator MidPriceGenerator;
@@ -59,18 +65,45 @@ public struct GenerateQuoteInfo
 
 public interface IQuoteGenerator<out TQuote> where TQuote : IMutableLevel0Quote
 {
+    TQuote Next { get; }
+
     IEnumerable<TQuote> Quotes(DateTime startDateTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0);
 }
 
 public abstract class QuoteGenerator<TQuote> : IQuoteGenerator<TQuote> where TQuote : IMutableLevel0Quote
 {
     protected readonly GenerateQuoteInfo GenerateQuoteInfo;
+    private            int               nextSingleQuoteSequenceNumber;
 
-    protected Normal  NormalDist = null!;
-    protected TQuote? PreviousReturnedQuote;
-    protected Random  PseudoRandom = null!;
+    private DateTime nextSingleQuoteStartTime;
 
-    protected QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) => GenerateQuoteInfo = generateQuoteInfo;
+    protected Normal   NormalDist = null!;
+    protected TQuote?  PreviousReturnedQuote;
+    protected Random   PseudoRandom = null!;
+    private   TimeSpan singleQuoteInterval;
+
+    protected QuoteGenerator(GenerateQuoteInfo generateQuoteInfo)
+    {
+        GenerateQuoteInfo             = generateQuoteInfo;
+        nextSingleQuoteStartTime      = generateQuoteInfo.SingleQuoteStartTime;
+        singleQuoteInterval           = generateQuoteInfo.SingleQuoteNextQuoteIncrement;
+        nextSingleQuoteSequenceNumber = generateQuoteInfo.SingleQuoteStartSequenceNumber;
+    }
+
+    public TQuote Next
+    {
+        get
+        {
+            var prevCurrMid = GenerateQuoteInfo.MidPriceGenerator
+                                               .PreviousCurrentPrices(nextSingleQuoteStartTime, singleQuoteInterval, 1
+                                                                    , nextSingleQuoteSequenceNumber++)
+                                               .First();
+            PseudoRandom          = new Random(prevCurrMid.PreviousMid.Mid.GetHashCode() ^ prevCurrMid.CurrentMid.Mid.GetHashCode());
+            NormalDist            = new Normal(0, 1, PseudoRandom);
+            PreviousReturnedQuote = BuildQuote(prevCurrMid);
+            return PreviousReturnedQuote;
+        }
+    }
 
     public IEnumerable<TQuote> Quotes(DateTime startingFromTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0)
     {

@@ -392,11 +392,6 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         RequiredHeaderViewLocation         = BucketHeaderFileView.StartAddress;
     }
 
-    ~BucketBase()
-    {
-        Dispose();
-    }
-
     protected virtual ShiftableMemoryMappedFileView SelectBucketHeaderFileView() =>
         BucketContainer.ContainerIndexAndHeaderFileView(BucketContainer.ContainerDepth + 1, BucketHeaderSizeBytes);
 }

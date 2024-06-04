@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
@@ -5,6 +8,7 @@ using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -13,9 +17,10 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 public interface IPQLastTraderPaidGivenTrade : IPQLastPaidGivenTrade, IMutableLastTraderPaidGivenTrade,
     IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator
 {
-    int TraderId { get; set; }
+    int  TraderId            { get; set; }
     bool IsTraderNameUpdated { get; set; }
-    new IPQNameIdLookupGenerator NameIdLookup { get; set; }
+
+    new IPQNameIdLookupGenerator    NameIdLookup { get; set; }
     new IPQLastTraderPaidGivenTrade Clone();
 }
 
@@ -28,10 +33,10 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
     public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup, decimal tradePrice = 0m, DateTime? tradeTime = null,
         decimal tradeVolume = 0m, bool wasPaid = false, bool wasGiven = false, string? traderName = null)
         : base(tradePrice, tradeTime,
-            tradeVolume, wasPaid, wasGiven)
+               tradeVolume, wasPaid, wasGiven)
     {
         NameIdLookup = traderIdToNameLookup;
-        TraderName = traderName;
+        TraderName   = traderName;
     }
 
     public PQLastTraderPaidGivenTrade(ILastTrade toClone, IPQNameIdLookupGenerator traderIdToNameLookup) : base(toClone)
@@ -39,7 +44,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         NameIdLookup = traderIdToNameLookup;
         if (toClone is PQLastTraderPaidGivenTrade pqltpgt)
         {
-            TraderId = pqltpgt.TraderId;
+            TraderId            = pqltpgt.TraderId;
             IsTraderNameUpdated = pqltpgt.IsTraderNameUpdated;
         }
 
@@ -48,7 +53,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
     protected string PQLastTraderPaidGivenTradeToStringMembers => $"{PQLastPaidGivenTradeToStringMembers}, {nameof(TraderName)}: {TraderName}";
 
-    public override LastTradeType LastTradeType => LastTradeType.PriceLastTraderPaidOrGivenVolume;
+    public override LastTradeType   LastTradeType           => LastTradeType.PriceLastTraderPaidOrGivenVolume;
     public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
 
     public int TraderId
@@ -58,7 +63,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         {
             if (value == traderId) return;
             IsTraderNameUpdated = true;
-            traderId = value;
+            traderId            = value;
         }
     }
 
@@ -90,7 +95,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         set
         {
             if (value)
-                UpdatedFlags |= LastTradeUpdated.TraderNameUpdated;
+                UpdatedFlags                           |= LastTradeUpdated.TraderNameUpdated;
             else if (IsTraderNameUpdated) UpdatedFlags ^= LastTradeUpdated.TraderNameUpdated;
         }
     }
@@ -101,8 +106,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         set
         {
             NameIdLookup.HasUpdates = value;
-            IsTraderNameUpdated = value;
-            base.HasUpdates = value;
+            IsTraderNameUpdated     = value;
+            base.HasUpdates         = value;
         }
     }
 
@@ -118,12 +123,12 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                                   quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
         if (!updatedOnly || IsTraderNameUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, traderId);
@@ -144,10 +149,10 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
     }
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        PQMessageFlags messageFlags)
+        StorageFlags messageFlags)
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime,
-                     messageFlags))
+                                                                   messageFlags))
             yield return stringUpdate;
     }
 
@@ -189,7 +194,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
     {
         if (!(other is ILastTraderPaidGivenTrade pqLastTraderPaidGivenTrade)) return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame       = base.AreEquivalent(other, exactTypes);
         var traderNameSame = TraderName == pqLastTraderPaidGivenTrade.TraderName;
         return baseSame && traderNameSame;
     }

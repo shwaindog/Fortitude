@@ -4,7 +4,7 @@
 #region
 
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Quotes.Generators.Book;
+using FortitudeMarketsCore.Pricing.Quotes.Generators.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.MidPrice;
 
 #endregion

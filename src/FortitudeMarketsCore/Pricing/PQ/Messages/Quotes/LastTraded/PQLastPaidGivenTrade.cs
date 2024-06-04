@@ -1,8 +1,12 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -10,18 +14,19 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 
 public interface IPQLastPaidGivenTrade : IPQLastTrade, IMutableLastPaidGivenTrade
 {
-    bool IsWasPaidUpdated { get; set; }
-    bool IsWasGivenUpdated { get; set; }
+    bool IsWasPaidUpdated     { get; set; }
+    bool IsWasGivenUpdated    { get; set; }
     bool IsTradeVolumeUpdated { get; set; }
+
     new IPQLastPaidGivenTrade Clone();
 }
 
 [Flags]
 public enum LastTradeBooleanFlags : byte
 {
-    None = 0x00
-    , WasGiven = 0x01
-    , WasPaid = 0x02
+    None     = 0x00
+  , WasGiven = 0x01
+  , WasPaid  = 0x02
 }
 
 public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
@@ -34,8 +39,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         bool wasPaid = false, bool wasGiven = false) : base(tradePrice, tradeTime)
     {
         TradeVolume = tradeVolume;
-        WasPaid = wasPaid;
-        WasGiven = wasGiven;
+        WasPaid     = wasPaid;
+        WasGiven    = wasGiven;
     }
 
     public PQLastPaidGivenTrade(ILastTrade toClone) : base(toClone)
@@ -43,15 +48,15 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         if (toClone is ILastPaidGivenTrade lastPaidGivenTrade)
         {
             TradeVolume = lastPaidGivenTrade.TradeVolume;
-            WasPaid = lastPaidGivenTrade.WasPaid;
-            WasGiven = lastPaidGivenTrade.WasGiven;
+            WasPaid     = lastPaidGivenTrade.WasPaid;
+            WasGiven    = lastPaidGivenTrade.WasGiven;
         }
 
         if (toClone is IPQLastPaidGivenTrade pqLastPaidGivenTrade)
         {
             IsTradeVolumeUpdated = pqLastPaidGivenTrade.IsTradeVolumeUpdated;
-            IsWasGivenUpdated = pqLastPaidGivenTrade.IsWasGivenUpdated;
-            IsWasPaidUpdated = pqLastPaidGivenTrade.IsWasPaidUpdated;
+            IsWasGivenUpdated    = pqLastPaidGivenTrade.IsWasGivenUpdated;
+            IsWasPaidUpdated     = pqLastPaidGivenTrade.IsWasPaidUpdated;
         }
 
         if (toClone is PQLastPaidGivenTrade pqLastPaidGiven) UpdatedFlags = pqLastPaidGiven.UpdatedFlags;
@@ -75,6 +80,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
             IsWasPaidUpdated = true;
             if (value)
                 LastTradeBooleanFlags |= LastTradeBooleanFlags.WasPaid;
+
             else if (WasPaid) LastTradeBooleanFlags ^= LastTradeBooleanFlags.WasPaid;
         }
     }
@@ -86,6 +92,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         {
             if (value)
                 UpdatedFlags |= LastTradeUpdated.WasPaidUpdated;
+
             else if (IsWasPaidUpdated) UpdatedFlags ^= LastTradeUpdated.WasPaidUpdated;
         }
     }
@@ -99,6 +106,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
             IsWasGivenUpdated = true;
             if (value)
                 LastTradeBooleanFlags |= LastTradeBooleanFlags.WasGiven;
+
             else if (WasGiven) LastTradeBooleanFlags ^= LastTradeBooleanFlags.WasGiven;
         }
     }
@@ -110,6 +118,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         {
             if (value)
                 UpdatedFlags |= LastTradeUpdated.WasGivenUpdated;
+
             else if (IsWasGivenUpdated) UpdatedFlags ^= LastTradeUpdated.WasGivenUpdated;
         }
     }
@@ -121,7 +130,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         {
             if (tradeVolume == value) return;
             IsTradeVolumeUpdated = true;
-            tradeVolume = value;
+            tradeVolume          = value;
         }
     }
 
@@ -132,6 +141,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         {
             if (value)
                 UpdatedFlags |= LastTradeUpdated.VolumeUpdated;
+
             else if (IsTradeVolumeUpdated) UpdatedFlags ^= LastTradeUpdated.VolumeUpdated;
         }
     }
@@ -145,23 +155,23 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     public override void StateReset()
     {
-        WasGiven = WasPaid = false;
+        WasGiven    = WasPaid = false;
         TradeVolume = 0m;
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                     quotePublicationPrecisionSetting))
+                                                                   quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
         var flagModifier = (byte)((WasGiven ? PQFieldFlags.IsGivenFlag : 0)
-                                  | (WasPaid ? PQFieldFlags.IsPaidFlag : 0));
+                                | (WasPaid ? PQFieldFlags.IsPaidFlag : 0));
         if (!updatedOnly || IsTradeVolumeUpdated || IsWasGivenUpdated || IsWasPaidUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset, TradeVolume,
-                (byte)((quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? 6) | flagModifier));
+                                           (byte)((quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? 6) | flagModifier));
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -172,8 +182,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
             PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades)
         {
             TradeVolume = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
-            WasGiven = (pqFieldUpdate.Flag & PQFieldFlags.IsGivenFlag) == PQFieldFlags.IsGivenFlag;
-            WasPaid = (pqFieldUpdate.Flag & PQFieldFlags.IsPaidFlag) == PQFieldFlags.IsPaidFlag;
+            WasGiven    = (pqFieldUpdate.Flag & PQFieldFlags.IsGivenFlag) == PQFieldFlags.IsGivenFlag;
+            WasPaid     = (pqFieldUpdate.Flag & PQFieldFlags.IsPaidFlag) == PQFieldFlags.IsPaidFlag;
             return 0;
         }
 
@@ -188,15 +198,16 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         if (pqlpgt == null && source is ILastPaidGivenTrade lpgt)
         {
             TradeVolume = lpgt.TradeVolume;
-            WasGiven = lpgt.WasGiven;
-            WasPaid = lpgt.WasPaid;
+            WasGiven    = lpgt.WasGiven;
+            WasPaid     = lpgt.WasPaid;
         }
         else if (pqlpgt != null)
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
+
             if (pqlpgt.IsTradeVolumeUpdated || isFullReplace) tradeVolume = pqlpgt.tradeVolume;
-            if (pqlpgt.IsWasPaidUpdated || isFullReplace) WasPaid = pqlpgt.WasPaid;
-            if (pqlpgt.IsWasGivenUpdated || isFullReplace) WasGiven = pqlpgt.WasGiven;
+            if (pqlpgt.IsWasPaidUpdated || isFullReplace) WasPaid         = pqlpgt.WasPaid;
+            if (pqlpgt.IsWasGivenUpdated || isFullReplace) WasGiven       = pqlpgt.WasGiven;
 
             UpdatedFlags = pqlpgt.UpdatedFlags;
         }
@@ -217,8 +228,10 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         if (!(other is ILastPaidGivenTrade pqLastPaidGivenTrader)) return false;
 
         var baseSame = base.AreEquivalent(other, exactTypes);
+
         var traderVolumeSame = tradeVolume == pqLastPaidGivenTrader.TradeVolume;
-        var wasPaidSame = WasPaid == pqLastPaidGivenTrader.WasPaid;
+
+        var wasPaidSame  = WasPaid == pqLastPaidGivenTrader.WasPaid;
         var wasGivenSame = WasGiven == pqLastPaidGivenTrader.WasGiven;
         return baseSame && traderVolumeSame && wasPaidSame && wasGivenSame;
     }

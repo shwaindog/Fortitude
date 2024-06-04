@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
@@ -17,6 +20,12 @@ public sealed class OrxDeserializer<Tm> : MessageDeserializer<Tm> where Tm : cla
         orxByteDeserializer = new OrxByteDeserializer<Tm>(new OrxDeserializerLookup(recyclingFactory));
 
     public OrxDeserializer(OrxDeserializer<Tm> toClone) : base(toClone) => orxByteDeserializer = toClone.orxByteDeserializer;
+
+    public override bool ReadMessageHeader
+    {
+        get => orxByteDeserializer.ReadMessageHeader;
+        set => orxByteDeserializer.ReadMessageHeader = value;
+    }
 
     public override Tm Deserialize(ISerdeContext readContext)
     {

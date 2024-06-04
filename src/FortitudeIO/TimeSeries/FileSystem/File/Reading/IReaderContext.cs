@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
@@ -14,83 +17,88 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 public enum ReaderOptions
 {
-    None = 0
-    , ReadFastAsPossible = 1
-    , AtEntryStorageTime = 2
-    , ConsumerControlled = 4
+    None               = 0
+  , ReadFastAsPossible = 1
+  , AtEntryStorageTime = 2
+  , ConsumerControlled = 4
 }
 
 public enum EntryResultSourcing
 {
     ReuseSingletonObject = 0
-    , FromFactoryFuncUnlimited
-    , FromFactoryFuncLimited
-    , FromBlockingQueue
-    , NewEachEntryUnlimited
-    , NewEachEntryLimited
+  , FromFactoryFuncUnlimited
+  , FromFactoryFuncLimited
+  , FromBlockingQueue
+  , NewEachEntryUnlimited
+  , NewEachEntryLimited
 }
 
 public interface IReaderContext<TEntry>
 {
-    IMessageDeserializer? BucketDeserializer { get; set; }
-    IMessageSerializer? ResultWriter { get; set; }
-    IMessageBufferContext? ResultBuffer { get; set; }
-    IObserver<TEntry>? ResultObserver { get; set; }
-    IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
-    TEntry PopulateEntrySingleton { get; set; }
-    bool ContinueSearching { get; }
-    Func<TEntry>? SourceEntryFactory { get; set; }
-    List<TEntry> ResultList { get; }
-    Action<TEntry>? CallbackAction { get; set; }
-    TEntry? FirstResult { get; set; }
-    TEntry? LastResult { get; set; }
-    TEntry GetNextEntryToPopulate { get; }
-    IEnumerable<TEntry> ResultEnumerable { get; }
-    IEnumerable<List<TEntry>> BatchedResultEnumerable { get; }
-    IBlockingQueue<TEntry>? PublishEntriesQueue { get; set; }
-    IBlockingQueue<TEntry>? SourceEntriesQueue { get; set; }
-    PeriodRange? PeriodRange { get; set; }
-    ReaderOptions ReaderOptions { get; set; }
-    ResultFlags ResultPublishFlags { get; set; }
-    EntryResultSourcing EntrySourcing { get; set; }
-    int MaxResults { get; set; }
-    int BatchLimit { get; set; }
-    TimeSeriesPeriod SamplePeriod { get; set; }
-    int MaxUnconsumedLimit { get; set; }
-    int CountMatch { get; set; }
-    int CountProcessed { get; set; }
-    int CountBucketsVisited { get; set; }
-    void FinishedConsumingEntry(TEntry entry);
-    bool ProcessCandidateEntry(TEntry entry);
+    IMessageDeserializer?         BucketDeserializer      { get; set; }
+    IMessageSerializer?           ResultWriter            { get; set; }
+    IMessageBufferContext?        ResultBuffer            { get; set; }
+    IObserver<TEntry>?            ResultObserver          { get; set; }
+    IStorageTimeResolver<TEntry>? StorageTimeResolver     { get; set; }
+    Func<TEntry>?                 SourceEntryFactory      { get; set; }
+    List<TEntry>                  ResultList              { get; }
+    Action<TEntry>?               CallbackAction          { get; set; }
+    IEnumerable<TEntry>           ResultEnumerable        { get; }
+    IEnumerable<List<TEntry>>     BatchedResultEnumerable { get; }
+    IBlockingQueue<TEntry>?       PublishEntriesQueue     { get; set; }
+    IBlockingQueue<TEntry>?       SourceEntriesQueue      { get; set; }
+    PeriodRange?                  PeriodRange             { get; set; }
+    ReaderOptions                 ReaderOptions           { get; set; }
+    ResultFlags                   ResultPublishFlags      { get; set; }
+    EntryResultSourcing           EntrySourcing           { get; set; }
+    TimeSeriesPeriod              SamplePeriod            { get; set; }
+
+    TEntry  PopulateEntrySingleton { get; set; }
+    TEntry? FirstResult            { get; set; }
+    TEntry? LastResult             { get; set; }
+    TEntry  GetNextEntryToPopulate { get; }
+    bool    ContinueSearching      { get; }
+    int     MaxResults             { get; set; }
+    int     BatchLimit             { get; set; }
+    int     MaxUnconsumedLimit     { get; set; }
+    int     CountMatch             { get; set; }
+    int     CountProcessed         { get; set; }
+    int     CountBucketsVisited    { get; set; }
+    void    FinishedConsumingEntry(TEntry entry);
+    bool    ProcessCandidateEntry(TEntry entry);
 
     void RunReader();
 }
 
 public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
-    private readonly Func<TEntry> createNew;
+    private readonly Func<TEntry>                      createNew;
     private readonly ITimeSeriesEntriesSession<TEntry> entriesFile;
+
     private Action<TEntry>? callbackAction;
-    private DateTime lastSamplePeriodStart;
-    private int maxUnconsumedLimit;
+    private DateTime        lastSamplePeriodStart;
+    private int             maxUnconsumedLimit;
 
     private Semaphore? maxUnconsumedSemaphore;
-    private TEntry? populateEntrySingleton;
+    private TEntry?    populateEntrySingleton;
 
-    public TimeSeriesFileReaderContext(ITimeSeriesEntriesSession<TEntry> entriesFile, Func<TEntry>? createNew = null)
+    public TimeSeriesFileReaderContext(ITimeSeriesEntriesSession<TEntry> entriesFile,
+        EntryResultSourcing defaultEntryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        Func<TEntry>? createNew = null)
     {
         this.entriesFile = entriesFile;
-        this.createNew = createNew ?? ReflectionHelper.DefaultCtorFunc<TEntry>();
+        EntrySourcing    = defaultEntryResultSourcing;
+        this.createNew   = SourceEntryFactory = createNew ?? ReflectionHelper.DefaultCtorFunc<TEntry>();
     }
 
-    public IMessageDeserializer? BucketDeserializer { get; set; }
-    public IMessageSerializer? ResultWriter { get; set; }
-    public IMessageBufferContext? ResultBuffer { get; set; }
-    public IObserver<TEntry>? ResultObserver { get; set; }
-    public Func<TEntry>? SourceEntryFactory { get; set; }
-    public List<TEntry> ResultList { get; } = new();
-    public TEntry? FirstResult { get; set; }
-    public TEntry? LastResult { get; set; }
+    public IMessageDeserializer?  BucketDeserializer { get; set; }
+    public IMessageSerializer?    ResultWriter       { get; set; }
+    public IMessageBufferContext? ResultBuffer       { get; set; }
+    public IObserver<TEntry>?     ResultObserver     { get; set; }
+    public Func<TEntry>?          SourceEntryFactory { get; set; }
+    public List<TEntry>           ResultList         { get; } = new();
+    public TEntry?                FirstResult        { get; set; }
+    public TEntry?                LastResult         { get; set; }
 
     public TEntry PopulateEntrySingleton
     {
@@ -106,7 +114,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         {
             switch (EntrySourcing)
             {
-                case EntryResultSourcing.ReuseSingletonObject: return PopulateEntrySingleton!;
+                case EntryResultSourcing.ReuseSingletonObject:     return PopulateEntrySingleton!;
                 case EntryResultSourcing.FromFactoryFuncUnlimited: return SourceEntryFactory!();
                 case EntryResultSourcing.FromFactoryFuncLimited:
                     maxUnconsumedSemaphore!.WaitOne();
@@ -144,7 +152,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         set
         {
             if (value != null) ResultPublishFlags |= RunCallback;
-            else ResultPublishFlags = ResultPublishFlags.Unset(RunCallback);
+            else ResultPublishFlags               =  ResultPublishFlags.Unset(RunCallback);
             callbackAction = value;
         }
     }
@@ -155,10 +163,11 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         foreach (var subscribePullResult in entriesFile.StartReaderContext(this)) processedCount++;
     }
 
-    public int CountMatch { get; set; }
-    public int CountProcessed { get; set; }
-    public int CountBucketsVisited { get; set; }
-    public bool ContinueSearching { get; private set; } = true;
+    public int  CountMatch          { get; set; }
+    public int  CountProcessed      { get; set; }
+    public int  CountBucketsVisited { get; set; }
+    public bool ContinueSearching   { get; private set; } = true;
+
     public IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
 
     public bool ProcessCandidateEntry(TEntry entry)
@@ -181,15 +190,15 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
 
         CountMatch++;
         FirstResult ??= entry;
-        LastResult = entry;
+        LastResult  =   entry;
 
         var shouldIncludeThis = true;
         if (ResultPublishFlags.HasSampleResultsFlag())
         {
-            var entryStorageTime = entry.StorageTime(StorageTimeResolver);
+            var entryStorageTime    = entry.StorageTime(StorageTimeResolver);
             var thisTimePeriodStart = SamplePeriod.ContainingPeriodBoundaryStart(entryStorageTime);
             shouldIncludeThis = SamplePeriod is TimeSeriesPeriod.None or TimeSeriesPeriod.ConsumerConflated
-                                || thisTimePeriodStart != lastSamplePeriodStart;
+                             || thisTimePeriodStart != lastSamplePeriodStart;
             lastSamplePeriodStart = thisTimePeriodStart;
         }
 
@@ -215,7 +224,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
                 }
 
         if (ResultPublishFlags.HasNoneOf(CountOnly | AsManyAsPossible | CaptureLastResult)
-            && ResultPublishFlags.HasCaptureFirstResultFlag())
+         && ResultPublishFlags.HasCaptureFirstResultFlag())
             ContinueSearching = false;
         return shouldIncludeThis && ResultPublishFlags.HasAsEnumerableFlag();
     }
@@ -225,10 +234,13 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         get
         {
             FirstResult = default;
-            LastResult = default;
+            LastResult  = default;
+
             ResultPublishFlags |= AsEnumerable;
             ResultPublishFlags |= MaxResults > 0 ? LimitCount : None;
+
             CountMatch = 0;
+
             if (ReaderOptions is ReaderOptions.ConsumerControlled or ReaderOptions.AtEntryStorageTime)
             {
                 foreach (var timeSeriesEntry in entriesFile.StartReaderContext(this)) yield return timeSeriesEntry;
@@ -248,10 +260,12 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         get
         {
             FirstResult = default;
-            LastResult = default;
-            ReaderOptions = ReaderOptions.ReadFastAsPossible;
+            LastResult  = default;
+
+            ReaderOptions      = ReaderOptions.ReadFastAsPossible;
             ResultPublishFlags = AsEnumerable;
             ResultPublishFlags = ResultPublishFlags.Unset(CopyToList);
+
             foreach (var timeSeriesEntry in entriesFile.StartReaderContext(this))
             {
                 ResultList.Add(timeSeriesEntry);
@@ -267,10 +281,11 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
     }
 
     public IBlockingQueue<TEntry>? PublishEntriesQueue { get; set; }
-    public IBlockingQueue<TEntry>? SourceEntriesQueue { get; set; }
-    public PeriodRange? PeriodRange { get; set; }
-    public ReaderOptions ReaderOptions { get; set; }
-    public ResultFlags ResultPublishFlags { get; set; }
+    public IBlockingQueue<TEntry>? SourceEntriesQueue  { get; set; }
+
+    public PeriodRange?  PeriodRange        { get; set; }
+    public ReaderOptions ReaderOptions      { get; set; }
+    public ResultFlags   ResultPublishFlags { get; set; }
 
     public EntryResultSourcing EntrySourcing { get; set; }
 
@@ -280,7 +295,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         set
         {
             maxUnconsumedSemaphore = value == 0 ? null : new Semaphore(0, value);
-            maxUnconsumedLimit = value;
+            maxUnconsumedLimit     = value;
         }
     }
 
@@ -290,16 +305,16 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
     protected bool CheckPeriodRange(TEntry candidateEntry)
     {
         if (PeriodRange == null) return true;
-        var range = PeriodRange.Value;
+        var range            = PeriodRange.Value;
         var entryStorageTime = candidateEntry.StorageTime(StorageTimeResolver);
         return (entryStorageTime < range.ToTime || (range.ToTime == null && range.FromTime != null))
-               && (entryStorageTime > range.FromTime || (range.FromTime == null && range.ToTime != null));
+            && (entryStorageTime > range.FromTime || (range.FromTime == null && range.ToTime != null));
     }
 
     protected bool CheckExceededPeriodRangeTime(TEntry candidateEntry)
     {
         if (PeriodRange == null) return false;
-        var range = PeriodRange.Value;
+        var range            = PeriodRange.Value;
         var entryStorageTime = candidateEntry.StorageTime(StorageTimeResolver);
         return entryStorageTime > range.ToTime && range.ToTime != null;
     }
