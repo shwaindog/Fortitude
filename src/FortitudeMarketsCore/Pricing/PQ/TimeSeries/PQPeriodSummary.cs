@@ -64,6 +64,30 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         set => timeSeriesPeriod = value;
     }
 
+    public bool IsEmpty
+    {
+        get
+        {
+            var pricesAreAllZero = StartBidPrice == decimal.Zero && StartAskPrice == decimal.Zero && HighestBidPrice == decimal.Zero &&
+                                   HighestAskPrice == decimal.Zero && LowestBidPrice == decimal.Zero && LowestAskPrice == decimal.Zero &&
+                                   EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero;
+            var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
+            var summaryPeriodNone      = SummaryPeriod == TimeSeriesPeriod.None;
+            var startEndTimeUnixEpoch  = SummaryStartTime == DateTimeConstants.UnixEpoch && SummaryEndTime == DateTimeConstants.UnixEpoch;
+            return pricesAreAllZero && tickCountAndVolumeZero && summaryPeriodNone && startEndTimeUnixEpoch;
+        }
+        set
+        {
+            if (!value) return;
+            StartBidPrice    = StartAskPrice  = HighestBidPrice = HighestAskPrice = decimal.Zero;
+            LowestBidPrice   = LowestAskPrice = EndBidPrice     = EndAskPrice     = decimal.Zero;
+            TickCount        = 0;
+            PeriodVolume     = 0;
+            SummaryPeriod    = TimeSeriesPeriod.None;
+            SummaryStartTime = SummaryEndTime = DateTimeConstants.UnixEpoch;
+        }
+    }
+
     public DateTime SummaryStartTime
     {
         get => startTime;

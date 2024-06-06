@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
@@ -51,9 +54,13 @@ public class PricingClientServerPubSubscribeTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServerL2QuoteServerSetup = new LocalHostPQServerLevel2QuoteTestSetup();
+        pqServerL2QuoteServerSetup.InitializeLevel2QuoteConfig();
+
+        var pqServerL2QuoteServerConfig = pqServerL2QuoteServerSetup.DefaultServerMarketsConfig.ShiftPortsBy(20);
+        var pricingClientConfig         = pqServerL2QuoteServerConfig.ToggleProtocolDirection("PQClient_Level2");
 
         var autoResetEvent = new AutoResetEvent(false);
-        var pqPublisher = pqServerL2QuoteServerSetup.CreatePQPublisher();
+        var pqPublisher = pqServerL2QuoteServerSetup.CreatePQPublisher(pqServerL2QuoteServerConfig.Find(LocalHostPQTestSetupCommon.ExchangeName));
         var sourcePriceQuote = pqServerL2QuoteServerSetup.Level2PriceQuote;
 
         Logger.Info("Started PQServer");
@@ -63,7 +70,7 @@ public class PricingClientServerPubSubscribeTests
         // setup listener after publish means first message will be missed and snapshot will be required.
         ILevel2Quote? alwaysUpdatedQuote = null;
 
-        var pqClient = pqClientSetup.CreatePQClient();
+        var pqClient               = pqClientSetup.CreatePQClient(pricingClientConfig);
         var availableSourceTickers = pqClient.RequestSourceTickerForSource(LocalHostPQTestSetupCommon.ExchangeName);
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
@@ -73,17 +80,17 @@ public class PricingClientServerPubSubscribeTests
         };
         autoResetEvent.WaitOne(3_000);
         var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(pqServerL2QuoteServerSetup.FirstTickerQuoteInfo, 0);
-        var updateNonEmpty = true;
+        var updateNonEmpty     = true;
         streamSubscription!.Subscribe(
-            pQuote =>
-            {
-                // Logger.Info("Client Received pQuote {0}", pQuote);
-                if (updateNonEmpty || pQuote.SinglePrice == 0)
-                    alwaysUpdatedQuote = pQuote.ToL2PriceQuote();
-                else
-                    Logger.Info("Skipping non-empty");
-                if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
-            });
+                                      pQuote =>
+                                      {
+                                          // Logger.Info("Client Received pQuote {0}", pQuote);
+                                          if (updateNonEmpty || pQuote.SinglePrice == 0)
+                                              alwaysUpdatedQuote = pQuote.ToL2PriceQuote();
+                                          else
+                                              Logger.Info("Skipping non-empty");
+                                          if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
+                                      });
         Logger.Info("Started PQClient and subscribed");
 
         pqPublisher.PublishQuoteUpdateAs(sourcePriceQuote, PQMessageFlags.CompleteUpdate);
@@ -93,7 +100,7 @@ public class PricingClientServerPubSubscribeTests
                count++ < 200) // depending on pub subscribe first quote may be empty
         {
             if (count % 20 == 0) Logger.Info("Awaiting first non-empty quote as alwaysUpdateQuote is {0}.", alwaysUpdatedQuote);
-            autoResetEvent.WaitOne(50);
+            autoResetEvent.WaitOne(200);
         }
 
         Assert.IsNotNull(alwaysUpdatedQuote);
@@ -101,18 +108,19 @@ public class PricingClientServerPubSubscribeTests
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
         Logger.Info("First diff.");
         Logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
+        FLoggerFactory.WaitUntilDrained();
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
 
         updateNonEmpty = false;
         ResetL2QuoteLayers(sourcePriceQuote);
 
         NonPublicInvocator.SetAutoPropertyInstanceField(sourcePriceQuote,
-            (Level2PriceQuote pq) => pq.AdapterSentTime, new DateTime(2015, 08, 15, 11, 36, 13));
+                                                        (Level2PriceQuote pq) => pq.AdapterSentTime, new DateTime(2015, 08, 15, 11, 36, 13));
         // adapter becomes sourceTime on Send
         Logger.Info("About to publish second empty quote. {0}", sourcePriceQuote);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
         alwaysUpdatedQuote = null;
-        count = 0;
+        count              = 0;
         while ((alwaysUpdatedQuote == null || alwaysUpdatedQuote!.SinglePrice != 0m) &&
                count++ < 200) // depending on pub subscribe first quote may be empty
         {
@@ -135,13 +143,13 @@ public class PricingClientServerPubSubscribeTests
     private static void SetExpectedDiffFieldsToSame(ILevel2Quote destinationSnapshot, ILevel2Quote sourcePriceQuote)
     {
         NonPublicInvocator.SetAutoPropertyInstanceField(destinationSnapshot,
-            (Level2PriceQuote pq) => pq.AdapterSentTime, sourcePriceQuote.AdapterSentTime);
+                                                        (Level2PriceQuote pq) => pq.AdapterSentTime, sourcePriceQuote.AdapterSentTime);
         NonPublicInvocator.SetAutoPropertyInstanceField(destinationSnapshot,
-            (Level2PriceQuote pq) => pq.ClientReceivedTime, sourcePriceQuote.ClientReceivedTime);
+                                                        (Level2PriceQuote pq) => pq.ClientReceivedTime, sourcePriceQuote.ClientReceivedTime);
         NonPublicInvocator.SetAutoPropertyInstanceField(destinationSnapshot,
-            (Level2PriceQuote pq) => pq.IsAskPriceTopUpdated, sourcePriceQuote.IsAskPriceTopUpdated);
+                                                        (Level2PriceQuote pq) => pq.IsAskPriceTopUpdated, sourcePriceQuote.IsAskPriceTopUpdated);
         NonPublicInvocator.SetAutoPropertyInstanceField(destinationSnapshot,
-            (Level2PriceQuote pq) => pq.IsBidPriceTopUpdated, sourcePriceQuote.IsBidPriceTopUpdated);
+                                                        (Level2PriceQuote pq) => pq.IsBidPriceTopUpdated, sourcePriceQuote.IsBidPriceTopUpdated);
     }
 
     [TestCategory("Integration")]
@@ -150,22 +158,26 @@ public class PricingClientServerPubSubscribeTests
     public void Lvl3TraderLayerQuoteFullDepthLastTraderTrade_SyncViaUpdateAndResets_PublishesAllFieldsAndResets()
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize,
-            LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
-            LastTradedFlags.LastTradedTime);
+              LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
+              LastTradedFlags.LastTradedTime);
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.
         var pqServerL3QuoteServerSetup = new LocalHostPQServerLevel3QuoteTestSetup();
         pqServerL3QuoteServerSetup.InitializeLevel3QuoteConfig();
-        var marketsServerConfig = pqServerL3QuoteServerSetup.DefaultServerMarketsConfig.ShiftPortsBy(2);
-        var marketsClinetConfig = marketsServerConfig.ToggleProtocolDirection("PQClient_Level3");
-        var autoResetEvent = new AutoResetEvent(false);
+
+        var pricingServerConfig = pqServerL3QuoteServerSetup.DefaultServerMarketsConfig.ShiftPortsBy(2);
+        var pricingClientConfig = pricingServerConfig.ToggleProtocolDirection("PQClient_Level3");
+        var autoResetEvent      = new AutoResetEvent(false);
+
         ILevel3Quote? alwaysUpdatedQuote = null;
-        var clientConnectionConfig = marketsClinetConfig.Find(LocalHostPQTestSetupCommon.ExchangeName);
+
+        var clientConnectionConfig = pricingClientConfig.Find(LocalHostPQTestSetupCommon.ExchangeName);
+
         clientConnectionConfig!.SourceTickerConfig = null;
 
-        var pqClient = pqClientSetup.CreatePQClient(marketsClinetConfig);
+        var pqClient = pqClientSetup.CreatePQClient(pricingClientConfig);
 
 
-        var pqPublisher = pqServerL3QuoteServerSetup.CreatePQPublisher(marketsServerConfig.Find(LocalHostPQTestSetupCommon.ExchangeName));
+        var pqPublisher            = pqServerL3QuoteServerSetup.CreatePQPublisher(pricingServerConfig.Find(LocalHostPQTestSetupCommon.ExchangeName));
         var availableSourceTickers = pqClient.RequestSourceTickerForSource(LocalHostPQTestSetupCommon.ExchangeName);
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
@@ -175,17 +187,17 @@ public class PricingClientServerPubSubscribeTests
         };
 
         var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(pqServerL3QuoteServerSetup.FirstTickerQuoteInfo, 0);
-        var updateNonEmpty = true;
+        var updateNonEmpty     = true;
         streamSubscription!.Subscribe(
-            pQuote =>
-            {
-                Logger.Info("Client Received pQuote {0}", pQuote);
-                if (updateNonEmpty || pQuote.SinglePrice == 0)
-                    alwaysUpdatedQuote = pQuote.ToL3PriceQuote();
-                else
-                    Logger.Info("Skipping non-empty");
-                if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
-            });
+                                      pQuote =>
+                                      {
+                                          Logger.Info("Client Received pQuote {0}", pQuote);
+                                          if (updateNonEmpty || pQuote.SinglePrice == 0)
+                                              alwaysUpdatedQuote = pQuote.ToL3PriceQuote();
+                                          else
+                                              Logger.Info("Skipping non-empty");
+                                          if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
+                                      });
         var sourcePriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(pqServerL3QuoteServerSetup.FirstTickerQuoteInfo);
         pqPublisher.PublishQuoteUpdateAs(sourcePriceQuote, PQMessageFlags.CompleteUpdate);
         var count = 0;
@@ -237,6 +249,6 @@ public class PricingClientServerPubSubscribeTests
         ((IMutableLevel2Quote)level2PriceQuote).IsBidBookChanged = true;
         ((OrderBook)level2PriceQuote.AskBook).StateReset();
         ((IMutableLevel2Quote)level2PriceQuote).IsAskBookChanged = true;
-        level2PriceQuote.SinglePrice = 0m;
+        level2PriceQuote.SinglePrice                             = 0m;
     }
 }

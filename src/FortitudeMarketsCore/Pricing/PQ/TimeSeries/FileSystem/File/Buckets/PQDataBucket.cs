@@ -102,6 +102,7 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
         }
         else
         {
+            LastEntryQuote.HasUpdates = false;
             LastEntryQuote.CopyFrom(entry);
         }
         return AppendEntry(bufferContext, LastEntryQuote, messageSerializer);
@@ -112,8 +113,8 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
     {
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)
         {
+            bufferDeserializer.PublishedQuote.HasUpdates = false;
             bufferDeserializer.Deserialize(buffer);
-
             var toReturn = readerContext.GetNextEntryToPopulate;
             toReturn.CopyFrom(bufferDeserializer.PublishedQuote, CopyMergeFlags.FullReplace);
             if (readerContext.ProcessCandidateEntry(toReturn)) yield return toReturn;

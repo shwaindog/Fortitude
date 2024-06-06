@@ -1098,7 +1098,7 @@ public class PQLevel2QuoteTests
                 populatedL2Quote
                     .GetDeltaUpdateFields
                         (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
-            AssertContainsAllLevel2Fields(pqFieldUpdates, populatedL2Quote);
+            AssertContainsAllLevel2Fields(pqFieldUpdates, populatedL2Quote, PQBooleanValuesExtensions.AllSet);
         }
     }
 
@@ -1117,7 +1117,7 @@ public class PQLevel2QuoteTests
             traderDetailsFullyPopulatedLevel2Quote
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
-        AssertContainsAllLevel2Fields(pqFieldUpdates, traderDetailsFullyPopulatedLevel2Quote);
+        AssertContainsAllLevel2Fields(pqFieldUpdates, traderDetailsFullyPopulatedLevel2Quote, PQBooleanValuesExtensions.AllSet);
     }
 
     [TestMethod]
@@ -1321,7 +1321,7 @@ public class PQLevel2QuoteTests
     }
 
     public static void AssertContainsAllLevel2Fields(IList<PQFieldUpdate> checkFieldUpdates,
-        PQLevel2Quote l2Q, uint expectedBooleanFlags = 3)
+        PQLevel2Quote l2Q, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllExceptExecutableUpdated)
     {
         PQLevel1QuoteTests.AssertContainsAllLevel1Fields(checkFieldUpdates, l2Q, expectedBooleanFlags);
 

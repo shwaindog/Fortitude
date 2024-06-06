@@ -215,11 +215,14 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 
             var written = (int)(currentPtr - writeStart);
 
-            if ((resolvedStorageFlags & StorageFlags.OneByteMessageSize) > 0 && written > byte.MaxValue)
+            if ((resolvedStorageFlags & (StorageFlags.OneByteMessageSize | StorageFlags.ThreeByteMessageSize)) ==
+                StorageFlags.OneByteMessageSize && written > byte.MaxValue)
                 throw new Exception($"Expected bytes written to be less than {byte.MaxValue}");
-            if ((resolvedStorageFlags & StorageFlags.TwoByteMessageSize) > 0 && written > ushort.MaxValue)
+            if ((resolvedStorageFlags & (StorageFlags.TwoByteMessageSize | StorageFlags.ThreeByteMessageSize)) ==
+                StorageFlags.TwoByteMessageSize && written > ushort.MaxValue)
                 throw new Exception($"Expected bytes written to be less than {ushort.MaxValue}");
-            if ((resolvedStorageFlags & StorageFlags.ThreeByteMessageSize) > 0 && written > 0x00FF_FFFF)
+            if ((resolvedStorageFlags & StorageFlags.ThreeByteMessageSize) ==
+                StorageFlags.ThreeByteMessageSize && written > 0x00FF_FFFF)
                 throw new Exception($"Expected bytes written to be less than {0x00FF_FFFF}");
             // var level0Quote = (PQLevel0Quote)message;
             // logger.Debug($"{TimeContext.LocalTimeNow:O} {level0Quote.SourceTickerQuoteInfo.Source}-" +

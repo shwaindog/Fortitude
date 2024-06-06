@@ -133,8 +133,11 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         {
             BidBook.CopyFrom(level2Quote.BidBook);
             AskBook.CopyFrom(level2Quote.AskBook);
-            IsBidBookChanged = level2Quote.IsBidBookChanged;
-            IsAskBookChanged = level2Quote.IsAskBookChanged;
+        }
+        if (source is ILevel1Quote level1Quote)
+        {
+            IsBidPriceTopUpdated = level1Quote.IsBidPriceTopUpdated;
+            IsBidPriceTopUpdated = level1Quote.IsBidPriceTopUpdated;
         }
 
         return this;

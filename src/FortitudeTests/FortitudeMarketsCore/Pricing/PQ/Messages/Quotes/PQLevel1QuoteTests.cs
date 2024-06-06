@@ -21,6 +21,7 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
+using static FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates.PQBooleanValues;
 
 #endregion
 
@@ -313,29 +314,38 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(emptyQuote.IsBidPriceTopUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedBidPriceTop, emptyQuote.BidPriceTop);
-        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
-        Assert.AreEqual(3, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.BidAskTopOfBookPrice, expectedBidPriceTop, 1);
-        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[2]);
+        var sourceUpdatesWithUpdated = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        Assert.AreEqual(4, sourceUpdatesWithUpdated.Count);
+        var expectedTopOfBookUpdatedFieldUpdate =
+            new PQFieldUpdate
+                (PQFieldKeys.QuoteBooleanFlags
+               , (uint)(IsBidPriceTopUpdatedChangedFlag | IsBidPriceTopUpdatedSetFlag | IsExecutableSetFlag));
+        Assert.AreEqual(expectedTopOfBookUpdatedFieldUpdate, sourceUpdatesWithUpdated[0]);
+        var expectedTopOfBookPriceFieldUpdate = new PQFieldUpdate(PQFieldKeys.BidAskTopOfBookPrice, expectedBidPriceTop, 1);
+        Assert.AreEqual(expectedTopOfBookPriceFieldUpdate, sourceUpdatesWithUpdated[3]);
 
         emptyQuote.IsBidPriceTopUpdated = false;
         Assert.IsFalse(emptyQuote.IsBidPriceTopUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
+        emptyQuote.IsBidPriceTopUpdatedChanged     = false;
+        emptyQuote.IsBidPriceTopChanged            = false;
         emptyQuote.IsAdapterSentTimeDateUpdated    = false;
         emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
+        var sourceUpdatesWithoutUpdated = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id == PQFieldKeys.BidAskTopOfBookPrice
                && update.Flag == 1
             select update).ToList();
-        Assert.AreEqual(1, sourceUpdates.Count);
-        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+        Assert.AreEqual(1, sourceUpdatesWithoutUpdated.Count);
+        Assert.AreEqual(expectedTopOfBookPriceFieldUpdate, sourceUpdatesWithoutUpdated[0]);
 
         var newEmpty = new PQLevel1Quote(sourceTickerQuoteInfo);
-        newEmpty.UpdateField(sourceUpdates[0]);
+        newEmpty.UpdateField(sourceUpdatesWithoutUpdated[0]);
         Assert.AreEqual(expectedBidPriceTop, newEmpty.BidPriceTop);
+        Assert.IsFalse(newEmpty.IsBidPriceTopUpdated);
+        newEmpty.UpdateField(expectedTopOfBookUpdatedFieldUpdate);
         Assert.IsTrue(newEmpty.IsBidPriceTopUpdated);
     }
 
@@ -352,30 +362,40 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(emptyQuote.IsAskPriceTopUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedAskPriceTop, emptyQuote.AskPriceTop);
-        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
-        Assert.AreEqual(3, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.BidAskTopOfBookPrice, expectedAskPriceTop,
-                                                    1 | PQFieldFlags.IsAskSideFlag);
-        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[2]);
+        var sourceUpdatesWithUpdated = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        Assert.AreEqual(4, sourceUpdatesWithUpdated.Count);
+        var expectedTopOfBookUpdatedFieldUpdate =
+            new PQFieldUpdate
+                (PQFieldKeys.QuoteBooleanFlags
+               , (uint)(IsAskPriceTopUpdatedChangedFlag | IsAskPriceTopUpdatedSetFlag | IsExecutableSetFlag));
+        Assert.AreEqual(expectedTopOfBookUpdatedFieldUpdate, sourceUpdatesWithUpdated[0]);
+        var expectedTopOfBookPriceFieldUpdate = new PQFieldUpdate(PQFieldKeys.BidAskTopOfBookPrice, expectedAskPriceTop,
+                                                                  1 | PQFieldFlags.IsAskSideFlag);
+        Assert.AreEqual(expectedTopOfBookPriceFieldUpdate, sourceUpdatesWithUpdated[3]);
 
         emptyQuote.IsAskPriceTopUpdated = false;
         Assert.IsFalse(emptyQuote.IsAskPriceTopUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
+
+        emptyQuote.IsAskPriceTopUpdatedChanged     = false;
+        emptyQuote.IsAskPriceTopChanged            = false;
         emptyQuote.IsAdapterSentTimeDateUpdated    = false;
         emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
+        var sourceUpdatesWithoutUpdated = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id == PQFieldKeys.BidAskTopOfBookPrice
                && update.Flag == (1 | PQFieldFlags.IsAskSideFlag)
             select update).ToList();
-        Assert.AreEqual(1, sourceUpdates.Count);
-        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+        Assert.AreEqual(1, sourceUpdatesWithoutUpdated.Count);
+        Assert.AreEqual(expectedTopOfBookPriceFieldUpdate, sourceUpdatesWithoutUpdated[0]);
 
         var newEmpty = new PQLevel1Quote(sourceTickerQuoteInfo);
-        newEmpty.UpdateField(sourceUpdates[0]);
+        newEmpty.UpdateField(sourceUpdatesWithoutUpdated[0]);
         Assert.AreEqual(expectedAskPriceTop, newEmpty.AskPriceTop);
+        Assert.IsFalse(newEmpty.IsAskPriceTopUpdated);
+        newEmpty.UpdateField(expectedTopOfBookUpdatedFieldUpdate);
         Assert.IsTrue(newEmpty.IsAskPriceTopUpdated);
     }
 
@@ -394,7 +414,7 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(expectedExecutable, emptyQuote.Executable);
         var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(3, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, 0);
+        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)IsExecutableUpdatedFlag);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyQuote.IsExecutableUpdated = false;
@@ -411,7 +431,8 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(true, emptyQuote.Executable);
         sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, PQBooleanValues.IsExecutableFlag);
+        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags
+                                              , (uint)(IsExecutableUpdatedFlag | IsExecutableSetFlag));
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
@@ -485,7 +506,10 @@ public class PQLevel1QuoteTests
         var pqFieldUpdates = fullyPopulatedPqLevel1Quote.GetDeltaUpdateFields(
                                                                               new DateTime(2017, 11, 04, 15, 33, 5)
                                                                             , StorageFlags.Snapshot).ToList();
-        AssertContainsAllLevel1Fields(pqFieldUpdates, fullyPopulatedPqLevel1Quote);
+        AssertContainsAllLevel1Fields
+            (pqFieldUpdates, fullyPopulatedPqLevel1Quote,
+             PQBooleanValuesExtensions.AllExceptExecutableUpdated
+                                      .Unset(IsReplayUpdatedFlag | IsBidPriceTopUpdatedChangedFlag | IsAskPriceTopUpdatedChangedFlag));
     }
 
     [TestMethod]
@@ -664,12 +688,12 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(changingLevel1Quote.AreEquivalent(original, exactComparison));
 
         changingLevel1Quote.IsAskPriceTopUpdated = !changingLevel1Quote.IsAskPriceTopUpdated;
-        Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLevel1Quote, exactComparison));
+        Assert.IsFalse(original.AreEquivalent(changingLevel1Quote, exactComparison));
         changingLevel1Quote.IsAskPriceTopUpdated = original.IsAskPriceTopUpdated;
         Assert.IsTrue(changingLevel1Quote.AreEquivalent(original, exactComparison));
 
         changingLevel1Quote.IsBidPriceTopUpdated = !changingLevel1Quote.IsBidPriceTopUpdated;
-        Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLevel1Quote, exactComparison));
+        Assert.IsFalse(original.AreEquivalent(changingLevel1Quote, exactComparison));
         changingLevel1Quote.IsBidPriceTopUpdated = original.IsBidPriceTopUpdated;
         Assert.IsTrue(changingLevel1Quote.AreEquivalent(original, exactComparison));
 
@@ -680,7 +704,7 @@ public class PQLevel1QuoteTests
     }
 
     public static void AssertContainsAllLevel1Fields(IList<PQFieldUpdate> checkFieldUpdates,
-        PQLevel1Quote l1Q, uint expectedBooleanFlags = 3)
+        PQLevel1Quote l1Q, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllExceptExecutableUpdated)
     {
         PQPricePeriodSummaryTests.AssertPeriodSummaryContainsAllFields(checkFieldUpdates, l1Q.SummaryPeriod!);
 
@@ -737,14 +761,29 @@ public class PQLevel1QuoteTests
         ILevel1Quote ILevel1Quote.              Clone()       => this;
         ILevel1Quote ICloneable<ILevel1Quote>.  Clone()       => this;
 
-        public DateTime AdapterSentTime      { get; set; }
-        public DateTime SourceBidTime        { get; set; }
-        public decimal  BidPriceTop          { get; set; }
-        public bool     IsBidPriceTopUpdated { get; set; }
-        public DateTime SourceAskTime        { get; set; }
-        public decimal  AskPriceTop          { get; set; }
-        public bool     IsAskPriceTopUpdated { get; set; }
-        public bool     Executable           { get; set; }
+        public DateTime AdapterSentTime { get; set; }
+        public DateTime SourceBidTime   { get; set; }
+        public decimal  BidPriceTop     { get; set; }
+        public DateTime SourceAskTime   { get; set; }
+        public decimal  AskPriceTop     { get; set; }
+
+        public bool Executable           { get; set; }
+        public bool IsAskPriceTopUpdated { get; set; }
+        public bool IsBidPriceTopUpdated { get; set; }
+
+        public bool IsBidPriceTopUpdatedChanged         { get; set; }
+        public bool IsAskPriceTopUpdatedChanged         { get; set; }
+        public bool IsSourceAskTimeDateUpdated          { get; set; }
+        public bool IsSourceAskTimeSubHourUpdated       { get; set; }
+        public bool IsSourceBidTimeDateUpdated          { get; set; }
+        public bool IsSourceBidTimeSubHourUpdated       { get; set; }
+        public bool IsAdapterSentTimeDateUpdated        { get; set; }
+        public bool IsAdapterSentTimeSubHourUpdated     { get; set; }
+        public bool IsAdapterReceivedTimeDateUpdated    { get; set; }
+        public bool IsAdapterReceivedTimeSubHourUpdated { get; set; }
+        public bool IsBidPriceTopChanged                { get; set; }
+        public bool IsAskPriceTopChanged                { get; set; }
+        public bool IsExecutableUpdated                 { get; set; }
 
         public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
         {
