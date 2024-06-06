@@ -198,25 +198,32 @@ public class PQLevel0QuoteTests
         Assert.IsTrue(emptyQuote.IsReplayUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedReplay, emptyQuote.IsReplay);
-        var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
-        Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, 1);
-        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+        var sourceUpdatesWithUpdated = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        Assert.AreEqual(1, sourceUpdatesWithUpdated.Count);
+        var expectedFieldUpdateWithUpdated
+            = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)(PQBooleanValues.IsReplayUpdatedFlag | PQBooleanValues.IsReplaySetFlag));
+        Assert.AreEqual(expectedFieldUpdateWithUpdated, sourceUpdatesWithUpdated[0]);
 
         emptyQuote.IsReplayUpdated = false;
         Assert.IsFalse(emptyQuote.IsSinglePriceUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
+        var sourceUpdatesNotUpdated = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id == PQFieldKeys.QuoteBooleanFlags
             select update).ToList();
-        Assert.AreEqual(1, sourceUpdates.Count);
-        Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+        Assert.AreEqual(1, sourceUpdatesNotUpdated.Count);
+        var expectedFieldUpdateWithoutUpdated
+            = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)PQBooleanValues.IsReplaySetFlag);
+        Assert.AreEqual(expectedFieldUpdateWithoutUpdated, sourceUpdatesNotUpdated[0]);
 
         var newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
-        newEmpty.UpdateField(sourceUpdates[0]);
-        Assert.AreEqual(expectedReplay, newEmpty.IsReplay);
+        newEmpty.UpdateField(sourceUpdatesNotUpdated[0]);
+        Assert.AreEqual(false, newEmpty.IsReplay);
+        Assert.IsFalse(newEmpty.IsReplayUpdated);
+        newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
+        newEmpty.UpdateField(sourceUpdatesWithUpdated[0]);
+        Assert.AreEqual(true, newEmpty.IsReplay);
         Assert.IsTrue(newEmpty.IsReplayUpdated);
     }
 
@@ -261,7 +268,7 @@ public class PQLevel0QuoteTests
         var pqFieldUpdates =
             fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Snapshot).ToList();
-        AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote);
+        AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote, PQBooleanValues.IsReplaySetFlag);
     }
 
     [TestMethod]
@@ -494,7 +501,7 @@ public class PQLevel0QuoteTests
     }
 
     public static void AssertContainsAllLevel0Fields(IList<PQFieldUpdate> checkFieldUpdates,
-        PQLevel0Quote originalQuote, uint expectedBooleanFlags = 1)
+        PQLevel0Quote originalQuote, PQBooleanValues expectedBooleanFlags = PQBooleanValues.IsReplayUpdatedFlag | PQBooleanValues.IsReplaySetFlag)
     {
         PQSourceTickerQuoteInfoTests.AssertSourceTickerInfoContainsAllFields(checkFieldUpdates,
                                                                              originalQuote.SourceTickerQuoteInfo!);
@@ -508,7 +515,7 @@ public class PQLevel0QuoteTests
         var flag = sourceTime.GetSubHourComponent().BreakLongToByteAndUint(out var value);
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceSentSubHourTime, value, flag),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.SourceSentSubHourTime));
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, expectedBooleanFlags),
+        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)expectedBooleanFlags),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.QuoteBooleanFlags));
     }
 

@@ -54,11 +54,19 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         {
             bidBook = l2QToClone.BidBook.Clone();
             askBook = l2QToClone.AskBook.Clone();
+
+            IsBidPriceTopUpdated        = l2QToClone.IsBidPriceTopUpdated;
+            IsAskPriceTopUpdated        = l2QToClone.IsAskPriceTopUpdated;
+            IsBidPriceTopUpdatedChanged = l2QToClone.IsBidPriceTopUpdated;
+            IsAskPriceTopUpdatedChanged = l2QToClone.IsAskPriceTopUpdated;
         }
         else if (toClone is ILevel2Quote l2Q)
         {
             bidBook = new PQOrderBook(l2Q.BidBook);
             askBook = new PQOrderBook(l2Q.AskBook);
+
+            IsBidPriceTopUpdated = l2Q.IsBidPriceTopUpdated;
+            IsAskPriceTopUpdated = l2Q.IsAskPriceTopUpdated;
         }
         else
         {
@@ -248,6 +256,18 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         if (!(source is ILevel2Quote l2Q)) return this;
         bidBook.CopyFrom(l2Q.BidBook, copyMergeFlags);
         askBook.CopyFrom(l2Q.AskBook, copyMergeFlags);
+        if (source is IPQLevel1Quote pq1)
+        {
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+
+            if (pq1.IsBidPriceTopUpdatedChanged || isFullReplace) IsAskPriceTopUpdated = pq1.IsAskPriceTopUpdated;
+            if (pq1.IsAskPriceTopUpdatedChanged || isFullReplace) IsBidPriceTopUpdated = pq1.IsBidPriceTopUpdated;
+        }
+        else
+        {
+            IsAskPriceTopUpdated = l2Q.IsAskPriceTopUpdated;
+            IsBidPriceTopUpdated = l2Q.IsBidPriceTopUpdated;
+        }
         return this;
     }
 

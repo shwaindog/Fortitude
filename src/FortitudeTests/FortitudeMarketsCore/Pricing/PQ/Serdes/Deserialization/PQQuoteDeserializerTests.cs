@@ -51,11 +51,12 @@ public class PQQuoteDeserializerTests
     private bool l3QuoteIsInSync;
     private bool l3QuoteSame;
 
-    private Mock<IPerfLogger>               moqDispatchPerfLogger = null!;
-    private Mock<IObserver<IPQLevel0Quote>> moqL0QObserver        = null!;
-    private Mock<IObserver<IPQLevel1Quote>> moqL1QObserver        = null!;
-    private Mock<IObserver<IPQLevel2Quote>> moqL2QObserver        = null!;
-    private Mock<IObserver<IPQLevel3Quote>> moqL3QObserver        = null!;
+    private Mock<IPerfLogger> moqDispatchPerfLogger = null!;
+
+    private Mock<IObserver<IPQLevel0Quote>> moqL0QObserver = null!;
+    private Mock<IObserver<IPQLevel1Quote>> moqL1QObserver = null!;
+    private Mock<IObserver<IPQLevel2Quote>> moqL2QObserver = null!;
+    private Mock<IObserver<IPQLevel3Quote>> moqL3QObserver = null!;
 
     private PQQuoteDeserializer<PQLevel0Quote> pqLevel0QuoteDeserializer = null!;
     private PQQuoteDeserializer<PQLevel1Quote> pqLevel1QuoteDeserializer = null!;

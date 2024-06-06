@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Linq.Expressions;
 using System.Text;
@@ -18,9 +21,9 @@ namespace FortitudeMarketsApi.Pricing;
 
 public static class QuoteExtensionMethods
 {
-    private const int PropertyNamePadding = -21;
-    private const int secondLineIndexAdditionalPadding = 4;
-    private static readonly int secondLinePadding = Math.Abs(PropertyNamePadding) + 1;
+    private const           int PropertyNamePadding              = -21;
+    private const           int secondLineIndexAdditionalPadding = 4;
+    private static readonly int secondLinePadding                = Math.Abs(PropertyNamePadding) + 1;
 
     public static string DiffQuotes(this ILevel0Quote? q1, ILevel0Quote? q2, bool exactValues = false)
     {
@@ -97,15 +100,15 @@ public static class QuoteExtensionMethods
         Expression<Func<T, string>> property, bool makeThisCheck = true) where T : ILevel0Quote
     {
         var evaluator = property.Compile();
-        var q1Value = evaluator(q1);
-        var q2Value = evaluator(q2);
+        var q1Value   = evaluator(q1);
+        var q2Value   = evaluator(q2);
         if (makeThisCheck && q1Value != q2Value)
         {
             var propertyName = property.GetPropertyName();
             sb.Append($"{propertyName,PropertyNamePadding}:q1={(q1Value != null ? "\"" : "")}" +
                       $"{q1Value ?? "null"}{(q1Value != null ? "\"" : "")}\n")
-                .Insert(sb.Length, " ", secondLinePadding).Append($"q2={(q2Value != null ? "\"" : "")}" +
-                                                                  $"{q2Value ?? "null"}{(q2Value != null ? "\"" : "")}\n");
+              .Insert(sb.Length, " ", secondLinePadding).Append($"q2={(q2Value != null ? "\"" : "")}" +
+                                                                $"{q2Value ?? "null"}{(q2Value != null ? "\"" : "")}\n");
         }
 
         return sb;
@@ -114,15 +117,15 @@ public static class QuoteExtensionMethods
     private static StringBuilder AddIfDifferent<T>(this StringBuilder sb, T? q1, T? q2,
         Expression<Func<T, DateTime>> property, bool makeThisCheck = true) where T : ILevel0Quote
     {
-        var evaluator = property.Compile();
-        DateTime? q1Value = q1 != null ? evaluator(q1) : null;
-        DateTime? q2Value = q2 != null ? evaluator(q2) : null;
+        var       evaluator = property.Compile();
+        DateTime? q1Value   = q1 != null ? evaluator(q1) : null;
+        DateTime? q2Value   = q2 != null ? evaluator(q2) : null;
         if (makeThisCheck && q1Value != q2Value)
         {
             var propertyName = property.GetPropertyName();
             sb.Append($"{propertyName,PropertyNamePadding}:q1={q1Value:O}\n")
-                .Insert(sb.Length, " ", secondLinePadding)
-                .Append($"q2={q2Value:O}\n");
+              .Insert(sb.Length, " ", secondLinePadding)
+              .Append($"q2={q2Value:O}\n");
         }
 
         return sb;
@@ -131,14 +134,14 @@ public static class QuoteExtensionMethods
     private static StringBuilder AddIfDifferent<T>(this StringBuilder sb, T? q1, T? q2,
         Expression<Func<T, decimal>> property, bool makeThisCheck = true) where T : ILevel0Quote
     {
-        var evaluator = property.Compile();
-        decimal? q1Value = q1 != null ? evaluator(q1) : null;
-        decimal? q2Value = q2 != null ? evaluator(q2) : null;
+        var      evaluator = property.Compile();
+        decimal? q1Value   = q1 != null ? evaluator(q1) : null;
+        decimal? q2Value   = q2 != null ? evaluator(q2) : null;
         if (makeThisCheck && q1Value != q2Value)
         {
             var propertyName = property.GetPropertyName();
             sb.Append($"{propertyName,PropertyNamePadding}:q1={q1Value:N5}\n")
-                .Insert(sb.Length, " ", secondLinePadding).Append($"q2={q2Value:N5}\n");
+              .Insert(sb.Length, " ", secondLinePadding).Append($"q2={q2Value:N5}\n");
         }
 
         return sb;
@@ -147,14 +150,14 @@ public static class QuoteExtensionMethods
     private static StringBuilder AddIfDifferent<T>(this StringBuilder sb, T? q1, T? q2,
         Expression<Func<T, bool>> property, bool makeThisCheck = true) where T : ILevel0Quote
     {
-        var evaluator = property.Compile();
-        bool? q1Value = q1 != null ? evaluator(q1) : null;
-        bool? q2Value = q2 != null ? evaluator(q2) : null;
+        var   evaluator = property.Compile();
+        bool? q1Value   = q1 != null ? evaluator(q1) : null;
+        bool? q2Value   = q2 != null ? evaluator(q2) : null;
         if (makeThisCheck && q1Value != q2Value)
         {
             var propertyName = property.GetPropertyName();
             sb.Append($"{propertyName,PropertyNamePadding}:q1={q1Value}\n")
-                .Insert(sb.Length, " ", secondLinePadding).Append($" q2={q2Value}\n");
+              .Insert(sb.Length, " ", secondLinePadding).Append($" q2={q2Value}\n");
         }
 
         return sb;
@@ -163,15 +166,15 @@ public static class QuoteExtensionMethods
     private static StringBuilder AddIfDifferent<T>(this StringBuilder sb, T? q1, T? q2,
         Expression<Func<T, ISourceTickerQuoteInfo>> property, bool exactValue = false) where T : ILevel0Quote
     {
-        var evaluator = property.Compile();
-        var q1Value = q1 != null ? evaluator(q1) : null;
-        var q2Value = q2 != null ? evaluator(q2) : null;
+        var evaluator    = property.Compile();
+        var q1Value      = q1 != null ? evaluator(q1) : null;
+        var q2Value      = q2 != null ? evaluator(q2) : null;
         var propertyName = property.GetPropertyName();
         if (q1Value == null && q2Value == null) return sb;
         if ((q1Value != null && q2Value == null) || q1Value == null) //not requiring && q2Value != null
             sb.Append($"{propertyName,PropertyNamePadding}:q1={(q1Value != null ? "not null" : "null")}\n")
-                .Insert(sb.Length, " ", secondLinePadding)
-                .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
+              .Insert(sb.Length, " ", secondLinePadding)
+              .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
         if (q1Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ1)
             areSame = comparableQ1.AreEquivalent(q2Value, exactValue);
@@ -179,22 +182,23 @@ public static class QuoteExtensionMethods
             areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")
-                .Insert(sb.Length, " ", secondLinePadding).Append("q2=").Append(q2Value).Append("\n");
+              .Insert(sb.Length, " ", secondLinePadding).Append("q2=").Append(q2Value).Append("\n");
         return sb;
     }
 
     private static StringBuilder AddIfDifferent<T>(this StringBuilder sb, T? q1, T? q2,
         Expression<Func<T, IPricePeriodSummary>> property, bool exactValue = false) where T : ILevel0Quote
     {
-        var evaluator = property.Compile();
-        var q1Value = q1 != null ? evaluator(q1) : null;
-        var q2Value = q2 != null ? evaluator(q2) : null;
+        var evaluator    = property.Compile();
+        var q1Value      = q1 != null ? evaluator(q1) : null;
+        var q2Value      = q2 != null ? evaluator(q2) : null;
         var propertyName = property.GetPropertyName();
-        if (q1Value == null && q2Value == null) return sb;
-        if ((q1Value != null && q2Value == null) || q1Value == null) //not requiring && q2Value != null
+        if ((q1Value == null || q1Value.IsEmpty) && (q2Value == null || q2Value.IsEmpty)) return sb;
+        if ((q1Value is { IsEmpty: false } && q2Value == null)
+         || (q1Value == null && q2Value is { IsEmpty: false })) //not requiring && q2Value != null
             sb.Append($"{propertyName,PropertyNamePadding}:q1={(q1Value != null ? "not null" : "null")}\n")
-                .Insert(sb.Length, " ", secondLinePadding)
-                .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
+              .Insert(sb.Length, " ", secondLinePadding)
+              .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
         if (q1Value is IInterfacesComparable<IPricePeriodSummary> comparableQ1)
             areSame = comparableQ1.AreEquivalent(q2Value, exactValue);
@@ -202,24 +206,24 @@ public static class QuoteExtensionMethods
             areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")
-                .Insert(sb.Length, " ", secondLinePadding).Append("q2=").Append(q2Value).Append("\n");
+              .Insert(sb.Length, " ", secondLinePadding).Append("q2=").Append(q2Value).Append("\n");
         return sb;
     }
 
     private static StringBuilder AddIfDifferent(this StringBuilder sb,
         ILevel2Quote? q1, ILevel2Quote? q2, Expression<Func<ILevel2Quote, IOrderBook>> property)
     {
-        var evaluator = property.Compile();
-        var q1Value = q1 != null ? evaluator(q1) : null;
-        var q2Value = q2 != null ? evaluator(q2) : null;
+        var evaluator    = property.Compile();
+        var q1Value      = q1 != null ? evaluator(q1) : null;
+        var q2Value      = q2 != null ? evaluator(q2) : null;
         var propertyName = property.GetPropertyName();
         if (q1Value == null && q2Value == null) return sb;
         if ((q1Value != null && q2Value == null) || q1Value == null) //not requiring && q2Value != null
             sb.Append($"{propertyName,PropertyNamePadding}:q1={(q1Value != null ? "not null" : "null")}\n")
-                .Insert(sb.Length, " ", secondLinePadding)
-                .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
+              .Insert(sb.Length, " ", secondLinePadding)
+              .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var maxLayers = Math.Max(q1Value?.Capacity ?? int.MinValue,
-            q2Value?.Capacity ?? int.MinValue);
+                                 q2Value?.Capacity ?? int.MinValue);
         for (var i = 0; i < maxLayers; i++)
         {
             var l1 = i < (q1Value?.Capacity ?? int.MinValue) ? q1Value?[i] : null;
@@ -237,14 +241,14 @@ public static class QuoteExtensionMethods
         if ((l1 == null && l2 != null) || (l1 != null && l2 == null)
                                        || (l1 != null && !l1.Equals(l2)) || (l2 != null && !l2.Equals(l1)))
             sb.Append($"{propertyName,PropertyNamePadding + secondLineIndexAdditionalPadding}[{level,2}]:l1=")
-                .Append(l1?.ToString() ?? "null").Append("\n")
-                .Insert(sb.Length, " ", secondLinePadding).Append("l2=")
-                .Append(l2?.ToString() ?? "null").Append("\n");
+              .Append(l1?.ToString() ?? "null").Append("\n")
+              .Insert(sb.Length, " ", secondLinePadding).Append("l2=")
+              .Append(l2?.ToString() ?? "null").Append("\n");
         return sb;
     }
 
     public static string DiffPriceVolumeLayer(string propertyName, IPriceVolumeLayer? l1, IPriceVolumeLayer? l2
-        , int level)
+      , int level)
     {
         var sb = new StringBuilder();
         AddIfDifferent(sb, propertyName, level, l1, l2);
@@ -254,15 +258,15 @@ public static class QuoteExtensionMethods
     private static StringBuilder AddIfDifferent(this StringBuilder sb,
         ILevel3Quote? q1, ILevel3Quote? q2, Expression<Func<ILevel3Quote, IRecentlyTraded>> property)
     {
-        var evaluator = property.Compile();
-        var q1Value = q1 != null ? evaluator(q1) : null;
-        var q2Value = q2 != null ? evaluator(q2) : null;
+        var evaluator    = property.Compile();
+        var q1Value      = q1 != null ? evaluator(q1) : null;
+        var q2Value      = q2 != null ? evaluator(q2) : null;
         var propertyName = property.GetPropertyName();
         if (q1Value == null && q2Value == null) return sb;
         if ((q1Value != null && q2Value == null) || q1Value == null) //not requiring && q2Value != null
             sb.Append($"{propertyName,PropertyNamePadding}:q1={(q1Value != null ? "not null" : "null")}\n")
-                .Insert(sb.Length, " ", secondLinePadding)
-                .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
+              .Insert(sb.Length, " ", secondLinePadding)
+              .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var maxLayers = Math.Max(q1Value?.Count ?? int.MinValue, q2Value?.Count ?? int.MinValue);
         for (var i = 0; i < maxLayers; i++)
         {
@@ -278,11 +282,11 @@ public static class QuoteExtensionMethods
         ILastTrade? lt1, ILastTrade? lt2)
     {
         if ((lt1 == null && lt2 != null) || (lt1 != null && lt2 == null) || (lt1 != null && (!lt1.Equals(lt2)
-                                                                                             || !lt2.Equals(lt1))))
+                                                                                          || !lt2.Equals(lt1))))
             sb.Append($"{propertyName,PropertyNamePadding + secondLineIndexAdditionalPadding}[{level,2}]:" +
                       $"lt1={lt1?.ToString() ?? "null"}\n")
-                .Insert(sb.Length, " ", secondLinePadding)
-                .Append($"lt2={lt2?.ToString() ?? "null"}\n");
+              .Insert(sb.Length, " ", secondLinePadding)
+              .Append($"lt2={lt2?.ToString() ?? "null"}\n");
 
         return sb;
     }
@@ -290,14 +294,14 @@ public static class QuoteExtensionMethods
     private static StringBuilder AddIfDifferent(this StringBuilder sb,
         ILevel3Quote? q1, ILevel3Quote? q2, Expression<Func<ILevel3Quote, uint>> property)
     {
-        var evaluator = property.Compile();
-        uint? q1Value = q1 != null ? evaluator(q1) : null;
-        uint? q2Value = q2 != null ? evaluator(q2) : null;
+        var   evaluator = property.Compile();
+        uint? q1Value   = q1 != null ? evaluator(q1) : null;
+        uint? q2Value   = q2 != null ? evaluator(q2) : null;
         if (q1Value != q2Value)
         {
             var propertyName = property.GetPropertyName();
             sb.Append($"{propertyName,PropertyNamePadding}:q1={q1Value}\n")
-                .Insert(sb.Length, " ", secondLinePadding).Append($" q2={q2Value}\n");
+              .Insert(sb.Length, " ", secondLinePadding).Append($" q2={q2Value}\n");
         }
 
         return sb;

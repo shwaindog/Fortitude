@@ -3,6 +3,7 @@
 
 #region
 
+using System.Diagnostics;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -19,6 +20,22 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
 {
+    bool IsSourceAskTimeDateUpdated          { get; }
+    bool IsSourceAskTimeSubHourUpdated       { get; }
+    bool IsSourceBidTimeDateUpdated          { get; }
+    bool IsSourceBidTimeSubHourUpdated       { get; }
+    bool IsAdapterSentTimeDateUpdated        { get; }
+    bool IsAdapterSentTimeSubHourUpdated     { get; }
+    bool IsAdapterReceivedTimeDateUpdated    { get; }
+    bool IsAdapterReceivedTimeSubHourUpdated { get; }
+
+    bool IsBidPriceTopUpdatedChanged { get; }
+    bool IsAskPriceTopUpdatedChanged { get; }
+
+    bool IsBidPriceTopChanged { get; }
+    bool IsAskPriceTopChanged { get; }
+    bool IsExecutableUpdated  { get; }
+
     new IPQPricePeriodSummary? SummaryPeriod { get; set; }
     new IPQLevel1Quote         Clone();
 }
@@ -30,16 +47,14 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     private decimal  askPriceTop;
     private decimal  bidPriceTop;
 
-    private bool executable = true;
-
     protected DateTime sourceAskTime = DateTimeConstants.UnixEpoch;
     protected DateTime sourceBidTime = DateTimeConstants.UnixEpoch;
 
-    public PQLevel1Quote() { }
+    public PQLevel1Quote() => BooleanFields |= PQBooleanValues.IsExecutableSetFlag;
 
     public PQLevel1Quote(ISourceTickerQuoteInfo sourceTickerInfo)
         : base(sourceTickerInfo) =>
-        SummaryPeriod = new PQPricePeriodSummary();
+        BooleanFields |= PQBooleanValues.IsExecutableSetFlag;
 
     public PQLevel1Quote(ILevel0Quote toClone) : base(toClone)
     {
@@ -49,14 +64,52 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             adapterReceivedTime = l1QToClone.AdapterReceivedTime;
             sourceAskTime       = l1QToClone.SourceAskTime;
             sourceBidTime       = l1QToClone.SourceBidTime;
-            executable          = l1QToClone.Executable;
-            bidPriceTop         = l1QToClone.BidPriceTop;
-            askPriceTop         = l1QToClone.AskPriceTop;
-            if (l1QToClone.SummaryPeriod is PQPricePeriodSummary)
-                SummaryPeriod                                        = (PQPricePeriodSummary?)l1QToClone.SummaryPeriod?.Clone();
-            else if (l1QToClone.SummaryPeriod != null) SummaryPeriod = new PQPricePeriodSummary(l1QToClone.SummaryPeriod);
+            Executable          = l1QToClone.Executable;
+            if (this is not ILevel2Quote)
+            {
+                bidPriceTop          = l1QToClone.BidPriceTop;
+                askPriceTop          = l1QToClone.AskPriceTop;
+                IsBidPriceTopUpdated = l1QToClone.IsBidPriceTopUpdated;
+                IsAskPriceTopUpdated = l1QToClone.IsAskPriceTopUpdated;
+            }
+            if (l1QToClone.SummaryPeriod is { IsEmpty: false })
+                SummaryPeriod = new PQPricePeriodSummary(l1QToClone.SummaryPeriod);
+            if (toClone is IPQLevel1Quote ipqL1)
+            {
+                IsExecutableUpdated         = ipqL1.IsExecutableUpdated;
+                IsBidPriceTopUpdatedChanged = ipqL1.IsBidPriceTopUpdatedChanged;
+                IsAskPriceTopUpdatedChanged = ipqL1.IsAskPriceTopUpdatedChanged;
+                IsBidPriceTopChanged        = ipqL1.IsBidPriceTopChanged;
+                IsAskPriceTopChanged        = ipqL1.IsAskPriceTopChanged;
+
+                IsSourceAskTimeDateUpdated          = ipqL1.IsSourceAskTimeDateUpdated;
+                IsSourceAskTimeSubHourUpdated       = ipqL1.IsSourceAskTimeSubHourUpdated;
+                IsSourceBidTimeDateUpdated          = ipqL1.IsSourceBidTimeDateUpdated;
+                IsSourceBidTimeSubHourUpdated       = ipqL1.IsSourceBidTimeSubHourUpdated;
+                IsAdapterSentTimeDateUpdated        = ipqL1.IsAdapterSentTimeDateUpdated;
+                IsAdapterSentTimeSubHourUpdated     = ipqL1.IsAdapterSentTimeSubHourUpdated;
+                IsAdapterReceivedTimeDateUpdated    = ipqL1.IsAdapterReceivedTimeDateUpdated;
+                IsAdapterReceivedTimeSubHourUpdated = ipqL1.IsAdapterReceivedTimeSubHourUpdated;
+            }
         }
     }
+
+    protected string Level1ToStringMembers =>
+        $"{Level0ToStringMembers}, {nameof(IsSourceAskTimeDateUpdated)}: {IsSourceAskTimeDateUpdated}, " +
+        $"{nameof(IsSourceAskTimeSubHourUpdated)}: {IsSourceAskTimeSubHourUpdated}, " +
+        $"{nameof(IsSourceBidTimeDateUpdated)}: {IsSourceBidTimeDateUpdated}, " +
+        $"{nameof(IsSourceBidTimeSubHourUpdated)}: {IsSourceBidTimeSubHourUpdated}, " +
+        $"{nameof(IsAdapterSentTimeDateUpdated)}: {IsAdapterSentTimeDateUpdated}, " +
+        $"{nameof(IsAdapterSentTimeSubHourUpdated)}: {IsAdapterSentTimeSubHourUpdated}, " +
+        $"{nameof(IsAdapterReceivedTimeDateUpdated)}: {IsAdapterReceivedTimeDateUpdated}, " +
+        $"{nameof(IsAdapterReceivedTimeSubHourUpdated)}: {IsAdapterReceivedTimeSubHourUpdated}, " +
+        $"{nameof(IsExecutableUpdated)}: {IsExecutableUpdated}, {nameof(SourceTime)}: {SourceTime}, " +
+        $"{nameof(SourceAskTime)}: {SourceAskTime}, {nameof(SourceBidTime)}: {SourceBidTime}, " +
+        $"{nameof(AdapterSentTime)}: {AdapterSentTime}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime}, " +
+        $"{nameof(BidPriceTop)}: {BidPriceTop}, {nameof(IsBidPriceTopChanged)}: {IsBidPriceTopChanged}, " +
+        $"{nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(AskPriceTop)}: {AskPriceTop}, " +
+        $"{nameof(IsAskPriceTopChanged)}: {IsAskPriceTopChanged}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
+        $"{nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: {SummaryPeriod}";
 
     public bool IsSourceAskTimeDateUpdated
     {
@@ -160,26 +213,59 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         set
         {
             if (value)
-                UpdatedFlags                           |= QuoteFieldUpdatedFlags.ExecutableUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.ExecutableUpdatedFlag;
+
             else if (IsExecutableUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.ExecutableUpdatedFlag;
         }
     }
 
-    protected string Level1ToStringMembers =>
-        $"{Level0ToStringMembers}, {nameof(IsSourceAskTimeDateUpdated)}: {IsSourceAskTimeDateUpdated}, " +
-        $"{nameof(IsSourceAskTimeSubHourUpdated)}: {IsSourceAskTimeSubHourUpdated}, " +
-        $"{nameof(IsSourceBidTimeDateUpdated)}: {IsSourceBidTimeDateUpdated}, " +
-        $"{nameof(IsSourceBidTimeSubHourUpdated)}: {IsSourceBidTimeSubHourUpdated}, " +
-        $"{nameof(IsAdapterSentTimeDateUpdated)}: {IsAdapterSentTimeDateUpdated}, " +
-        $"{nameof(IsAdapterSentTimeSubHourUpdated)}: {IsAdapterSentTimeSubHourUpdated}, " +
-        $"{nameof(IsAdapterReceivedTimeDateUpdated)}: {IsAdapterReceivedTimeDateUpdated}, " +
-        $"{nameof(IsAdapterReceivedTimeSubHourUpdated)}: {IsAdapterReceivedTimeSubHourUpdated}, " +
-        $"{nameof(IsExecutableUpdated)}: {IsExecutableUpdated}, {nameof(SourceTime)}: {SourceTime}, " +
-        $"{nameof(SourceAskTime)}: {SourceAskTime}, {nameof(SourceBidTime)}: {SourceBidTime}, " +
-        $"{nameof(AdapterSentTime)}: {AdapterSentTime}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime}, " +
-        $"{nameof(BidPriceTop)}: {BidPriceTop}, {nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, " +
-        $"{nameof(AskPriceTop)}: {AskPriceTop}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
-        $"{nameof(Executable)}: {Executable}";
+    public bool IsBidPriceTopChanged
+    {
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+
+            else if (IsBidPriceTopChanged) UpdatedFlags ^= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+        }
+    }
+
+    public bool IsAskPriceTopChanged
+    {
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+
+            else if (IsAskPriceTopChanged) UpdatedFlags ^= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+        }
+    }
+
+    public bool IsBidPriceTopUpdatedChanged
+    {
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.PreviousQuoteBidTopUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= QuoteFieldUpdatedFlags.PreviousQuoteBidTopUpdatedFlag;
+
+            else if (IsBidPriceTopUpdatedChanged) UpdatedFlags ^= QuoteFieldUpdatedFlags.PreviousQuoteBidTopUpdatedFlag;
+        }
+    }
+
+    public bool IsAskPriceTopUpdatedChanged
+    {
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.PreviousQuoteAskTopUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= QuoteFieldUpdatedFlags.PreviousQuoteAskTopUpdatedFlag;
+
+            else if (IsAskPriceTopUpdatedChanged) UpdatedFlags ^= QuoteFieldUpdatedFlags.PreviousQuoteAskTopUpdatedFlag;
+        }
+    }
 
     public override QuoteLevel QuoteLevel => QuoteLevel.Level1;
 
@@ -250,19 +336,22 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         {
             if (BidPriceTop == value) return;
             IsBidPriceTopUpdated = true;
+            IsBidPriceTopChanged = true;
             bidPriceTop          = value;
         }
     }
 
     public bool IsBidPriceTopUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag) > 0;
+        get => (BooleanFields & PQBooleanValues.IsBidPriceTopUpdatedSetFlag) > 0;
         set
         {
+            if (IsBidPriceTopUpdated == value) return;
+            IsBidPriceTopUpdatedChanged = true;
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+                BooleanFields |= PQBooleanValues.IsBidPriceTopUpdatedSetFlag;
 
-            else if (IsBidPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+            else if (IsBidPriceTopUpdated) BooleanFields ^= PQBooleanValues.IsBidPriceTopUpdatedSetFlag;
         }
     }
 
@@ -273,30 +362,36 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         {
             if (askPriceTop == value) return;
             IsAskPriceTopUpdated = true;
+            IsAskPriceTopChanged = true;
             askPriceTop          = value;
         }
     }
 
     public bool IsAskPriceTopUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag) > 0;
+        get => (BooleanFields & PQBooleanValues.IsAskPriceTopUpdatedSetFlag) > 0;
         set
         {
+            if (IsAskPriceTopUpdated == value) return;
+            IsAskPriceTopUpdatedChanged = true;
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+                BooleanFields |= PQBooleanValues.IsAskPriceTopUpdatedSetFlag;
 
-            else if (IsAskPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+            else if (IsAskPriceTopUpdated) BooleanFields ^= PQBooleanValues.IsAskPriceTopUpdatedSetFlag;
         }
     }
 
     public bool Executable
     {
-        get => executable;
+        get => (BooleanFields & PQBooleanValues.IsExecutableSetFlag) > 0;
         set
         {
-            if (value == executable) return;
+            if (Executable == value) return;
             IsExecutableUpdated = true;
-            executable          = value;
+            if (value)
+                BooleanFields |= PQBooleanValues.IsExecutableSetFlag;
+
+            else if (Executable) BooleanFields ^= PQBooleanValues.IsExecutableSetFlag;
         }
     }
 
@@ -322,14 +417,18 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     public override void ResetFields()
     {
-        executable = true;
+        BooleanFields = PQBooleanValues.IsExecutableSetFlag;
 
         adapterSentTime     = DateTimeConstants.UnixEpoch;
         adapterReceivedTime = DateTimeConstants.UnixEpoch;
         sourceAskTime       = DateTimeConstants.UnixEpoch;
         sourceBidTime       = DateTimeConstants.UnixEpoch;
 
+        IsBidPriceTopUpdated = IsAskPriceTopUpdated = false;
+
         bidPriceTop = askPriceTop = 0m;
+
+        if (SummaryPeriod != null) SummaryPeriod.IsEmpty = true;
         base.ResetFields();
     }
 
@@ -389,7 +488,10 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
     {
         if (pqFieldUpdate.Id >= PQFieldKeys.PeriodStartDateTime &&
             pqFieldUpdate.Id <= PQFieldKeys.PeriodVolumeUpperBytes)
-            return SummaryPeriod?.UpdateField(pqFieldUpdate) ?? -1;
+        {
+            SummaryPeriod ??= new PQPricePeriodSummary();
+            return SummaryPeriod.UpdateField(pqFieldUpdate);
+        }
         switch (pqFieldUpdate.Id)
         {
             case PQFieldKeys.SourceBidDateTime:
@@ -430,9 +532,21 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
                 return 0;
             case PQFieldKeys.LayerPriceOffset:
                 if (pqFieldUpdate.IsBid())
-                    BidPriceTop = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                {
+                    var previousBidPriceTopUpdatedChanged = IsBidPriceTopUpdatedChanged;
+                    var previousBidPriceTopUpdated        = IsBidPriceTopUpdated;
+                    BidPriceTop                 = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    IsBidPriceTopUpdated        = previousBidPriceTopUpdated;
+                    IsBidPriceTopUpdatedChanged = previousBidPriceTopUpdatedChanged;
+                }
                 else
-                    AskPriceTop = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                {
+                    var previousAskPriceTopUpdatedChanged = IsAskPriceTopUpdatedChanged;
+                    var previousAskPriceTopUpdated        = IsAskPriceTopUpdated;
+                    AskPriceTop                 = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    IsAskPriceTopUpdated        = previousAskPriceTopUpdated;
+                    IsAskPriceTopUpdatedChanged = previousAskPriceTopUpdatedChanged;
+                }
                 return 0;
             default:
                 return base.UpdateField(pqFieldUpdate);
@@ -471,13 +585,26 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             if (pq1.IsSourceAskTimeSubHourUpdated || isFullReplace)
                 PQFieldConverters.UpdateSubHourComponent(ref sourceAskTime,
                                                          pq1.sourceAskTime.GetSubHourComponent());
-            if (pq1 is not ILevel2Quote)
+            if (this is not ILevel2Quote)
             {
-                if (pq1.IsBidPriceTopUpdated || isFullReplace) bidPriceTop = pq1.bidPriceTop;
-                if (pq1.IsAskPriceTopUpdated || isFullReplace) askPriceTop = pq1.askPriceTop;
+                if (pq1.IsBidPriceTopChanged || isFullReplace) bidPriceTop = pq1.bidPriceTop;
+                if (pq1.IsAskPriceTopChanged || isFullReplace) askPriceTop = pq1.askPriceTop;
+
+                if (pq1.IsBidPriceTopUpdatedChanged || isFullReplace) IsBidPriceTopUpdated = pq1.IsBidPriceTopUpdated;
+                if (pq1.IsAskPriceTopUpdatedChanged || isFullReplace) IsAskPriceTopUpdated = pq1.IsAskPriceTopUpdated;
             }
 
-            if (pq1.IsExecutableUpdated || isFullReplace) executable = pq1.executable;
+            if (pq1.IsExecutableUpdated || isFullReplace) Executable = pq1.Executable;
+
+            if (pq1.SummaryPeriod is { IsEmpty: false, HasUpdates: true })
+            {
+                SummaryPeriod ??= new PQPricePeriodSummary();
+                SummaryPeriod.CopyFrom(pq1.SummaryPeriod);
+            }
+            else if (SummaryPeriod is { IsEmpty: false } && pq1.SummaryPeriod is { HasUpdates: true })
+            {
+                SummaryPeriod.IsEmpty = true;
+            }
             // ensure flags still match source
             UpdatedFlags = pq1.UpdatedFlags;
         }
@@ -487,7 +614,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             AdapterSentTime     = l1Q.AdapterSentTime;
             SourceBidTime       = l1Q.SourceBidTime;
             SourceAskTime       = l1Q.SourceAskTime;
-            if (l1Q is not ILevel2Quote)
+            if (this is not ILevel2Quote)
             {
                 BidPriceTop = l1Q.BidPriceTop;
                 AskPriceTop = l1Q.AskPriceTop;
@@ -496,7 +623,16 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             IsAskPriceTopUpdated = l1Q.IsAskPriceTopUpdated;
             IsBidPriceTopUpdated = l1Q.IsBidPriceTopUpdated;
             Executable           = l1Q.Executable;
-            SummaryPeriod?.CopyFrom(new PQPricePeriodSummary(l1Q.SummaryPeriod!));
+
+            if (l1Q.SummaryPeriod is { IsEmpty: false })
+            {
+                SummaryPeriod ??= new PQPricePeriodSummary();
+                SummaryPeriod.CopyFrom(l1Q.SummaryPeriod);
+            }
+            else if (SummaryPeriod is { IsEmpty: false })
+            {
+                SummaryPeriod.IsEmpty = true;
+            }
         }
 
         return this;
@@ -522,20 +658,24 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         var adapterReceivedSame = adapterReceivedTime.Equals(otherL1.AdapterReceivedTime);
         var sourceAskTimeSame   = sourceAskTime.Equals(otherL1.SourceAskTime);
         var sourceBidTimeSame   = sourceBidTime.Equals(otherL1.SourceBidTime);
-        var executableSame      = executable == otherL1.Executable;
+        var executableSame      = Executable == otherL1.Executable;
         var bidPriceTopSame     = BidPriceTop == otherL1.BidPriceTop;
         var askPriceTopSame     = AskPriceTop == otherL1.AskPriceTop;
-        var bidPriceTopChange   = true;
-        var askPriceTopChange   = true;
-        if (exactTypes)
-        {
-            bidPriceTopChange = IsBidPriceTopUpdated == otherL1.IsBidPriceTopUpdated;
-            askPriceTopChange = IsBidPriceTopUpdated == otherL1.IsBidPriceTopUpdated;
-        }
+        var bidPriceTopChange   = IsBidPriceTopUpdated == otherL1.IsBidPriceTopUpdated;
+        var askPriceTopChange   = IsAskPriceTopUpdated == otherL1.IsAskPriceTopUpdated;
+        var periodSummarySame
+            = ((SummaryPeriod == null || SummaryPeriod.IsEmpty) && (otherL1.SummaryPeriod == null || otherL1.SummaryPeriod.IsEmpty)) ||
+              (SummaryPeriod?.AreEquivalent(otherL1.SummaryPeriod, exactTypes) ?? otherL1.SummaryPeriod == null);
 
-        return baseSame && adapterSentSame && adapterReceivedSame && sourceAskTimeSame
-            && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame
-            && bidPriceTopChange && askPriceTopChange;
+        var isExecutableUpdatedSame = true;
+
+        if (exactTypes && otherL1 is IPQLevel1Quote pqL1) isExecutableUpdatedSame = IsExecutableUpdated == pqL1.IsExecutableUpdated;
+
+        var allAreSame = baseSame && adapterSentSame && adapterReceivedSame && sourceAskTimeSame
+                      && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame
+                      && bidPriceTopChange && askPriceTopChange && periodSummarySame && isExecutableUpdatedSame;
+        if (!allAreSame) Debugger.Break();
+        return allAreSame;
     }
 
     public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
@@ -544,27 +684,38 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         return resolver.ResolveStorageTime(this);
     }
 
-    protected override bool IsBooleanFlagsChanged() => base.IsBooleanFlagsChanged() || IsExecutableUpdated;
+    protected override bool IsBooleanFlagsChanged() =>
+        base.IsBooleanFlagsChanged() || IsExecutableUpdated || IsBidPriceTopUpdatedChanged || IsAskPriceTopUpdatedChanged;
 
-    protected override uint GenerateBooleanFlags()
+    protected override PQBooleanValues GenerateBooleanFlags()
     {
         var resultSoFar = base.GenerateBooleanFlags();
-        return resultSoFar | (Executable ? (uint)PQBooleanValues.IsExecutableFlag : 0);
+        return resultSoFar | (IsExecutableUpdated ? PQBooleanValues.IsExecutableUpdatedFlag : PQBooleanValues.None)
+                           | (Executable ? PQBooleanValues.IsExecutableSetFlag : PQBooleanValues.None)
+                           | (IsBidPriceTopUpdatedChanged ? PQBooleanValues.IsBidPriceTopUpdatedChangedFlag : PQBooleanValues.None)
+                           | (IsBidPriceTopUpdated ? PQBooleanValues.IsBidPriceTopUpdatedSetFlag : PQBooleanValues.None)
+                           | (IsAskPriceTopUpdatedChanged ? PQBooleanValues.IsAskPriceTopUpdatedChangedFlag : PQBooleanValues.None)
+                           | (IsAskPriceTopUpdated ? PQBooleanValues.IsAskPriceTopUpdatedSetFlag : PQBooleanValues.None);
     }
 
-    protected override void SetBooleanFields(uint booleanFlags)
+    protected override void SetBooleanFields(PQBooleanValues booleanFlags)
     {
         base.SetBooleanFields(booleanFlags);
-        Executable = (booleanFlags & PQBooleanValues.IsExecutableFlag) == PQBooleanValues.IsExecutableFlag;
+        IsExecutableUpdated = (booleanFlags & PQBooleanValues.IsExecutableUpdatedFlag) > 0;
+        if (IsExecutableUpdated) Executable = (booleanFlags & PQBooleanValues.IsExecutableSetFlag) > 0;
+        IsBidPriceTopUpdatedChanged = (booleanFlags & PQBooleanValues.IsBidPriceTopUpdatedChangedFlag) > 0;
+        if (IsBidPriceTopUpdatedChanged) IsBidPriceTopUpdated = (booleanFlags & PQBooleanValues.IsBidPriceTopUpdatedSetFlag) > 0;
+        IsAskPriceTopUpdatedChanged = (booleanFlags & PQBooleanValues.IsAskPriceTopUpdatedChangedFlag) > 0;
+        if (IsAskPriceTopUpdatedChanged) IsAskPriceTopUpdated = (booleanFlags & PQBooleanValues.IsAskPriceTopUpdatedSetFlag) > 0;
     }
 
     protected virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields(DateTime snapShotTime,
         bool updatedOnly, IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        if (!updatedOnly || IsBidPriceTopUpdated)
+        if (!updatedOnly || IsBidPriceTopChanged)
             yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, BidPriceTop
                                          , PQSourceTickerQuoteInfo!.PriceScalingPrecision);
-        if (!updatedOnly || IsAskPriceTopUpdated)
+        if (!updatedOnly || IsAskPriceTopChanged)
             yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, AskPriceTop, (byte)(PQFieldFlags.IsAskSideFlag
                                                                                            | PQSourceTickerQuoteInfo!.PriceScalingPrecision));
     }
@@ -580,7 +731,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
             hashCode = (hashCode * 397) ^ adapterReceivedTime.GetHashCode();
             hashCode = (hashCode * 397) ^ sourceAskTime.GetHashCode();
             hashCode = (hashCode * 397) ^ sourceBidTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ executable.GetHashCode();
+            hashCode = (hashCode * 397) ^ Executable.GetHashCode();
             hashCode = (hashCode * 397) ^ bidPriceTop.GetHashCode();
             hashCode = (hashCode * 397) ^ askPriceTop.GetHashCode();
             return hashCode;

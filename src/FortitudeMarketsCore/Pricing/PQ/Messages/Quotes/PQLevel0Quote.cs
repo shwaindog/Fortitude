@@ -62,9 +62,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     protected readonly ISyncLock SyncLock = new SpinLockLight();
 
-    protected byte     BooleanFields;
-    private   DateTime clientReceivedTime = DateTimeConstants.UnixEpoch;
-    private   DateTime dispatchedTime     = DateTimeConstants.UnixEpoch;
+    protected PQBooleanValues BooleanFields;
+    private   DateTime        clientReceivedTime = DateTimeConstants.UnixEpoch;
+    private   DateTime        dispatchedTime     = DateTimeConstants.UnixEpoch;
 
     protected PQSourceTickerQuoteInfo? PQSourceTickerQuoteInfo;
 
@@ -378,14 +378,15 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public bool IsReplay
     {
-        get => (BooleanFields & PQBooleanValues.IsReplayFlag) > 0;
+        get => (BooleanFields & PQBooleanValues.IsReplaySetFlag) > 0;
         set
         {
             if (IsReplay == value) return;
             IsReplayUpdated = true;
             if (value)
-                BooleanFields                |= PQBooleanValues.IsReplayFlag;
-            else if (IsReplay) BooleanFields ^= PQBooleanValues.IsReplayFlag;
+                BooleanFields |= PQBooleanValues.IsReplaySetFlag;
+
+            else if (IsReplay) BooleanFields ^= PQBooleanValues.IsReplaySetFlag;
         }
     }
 
@@ -422,7 +423,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         processedTime       = DateTimeConstants.UnixEpoch;
         dispatchedTime      = DateTimeConstants.UnixEpoch;
         clientReceivedTime  = DateTimeConstants.UnixEpoch;
-        DispatchedTime      = LastPublicationTime = ProcessedTime = SocketReceivingTime = DateTime.MinValue;
+        LastPublicationTime = DateTimeConstants.UnixEpoch;
         PQSyncStatus        = PQSyncStatus.OutOfSync;
         IsReplay            = false;
         UpdatedFlags        = QuoteFieldUpdatedFlags.None;
@@ -449,7 +450,10 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             yield return new PQFieldUpdate(PQFieldKeys.SourceSentSubHourTime, lower4Bytes, fifthByte);
         }
         if (!updatedOnly || IsBooleanFlagsChanged())
-            yield return new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, GenerateBooleanFlags());
+        {
+            var booleanFields = GenerateBooleanFlags();
+            yield return new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)booleanFields);
+        }
 
         if (!updatedOnly || IsSyncStatusUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)PQSyncStatus);
@@ -520,7 +524,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                                                          pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
                 return 0;
             case PQFieldKeys.QuoteBooleanFlags:
-                SetBooleanFields(pqFieldUpdate.Value);
+                SetBooleanFields((PQBooleanValues)pqFieldUpdate.Value);
                 return 0;
             case PQFieldKeys.PQSyncStatus:
                 PQSyncStatus = (PQSyncStatus)pqFieldUpdate.Value;
@@ -737,11 +741,14 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     protected virtual bool IsBooleanFlagsChanged() => IsReplayUpdated;
 
-    protected virtual uint GenerateBooleanFlags() => IsReplay ? (uint)PQBooleanValues.IsReplayFlag : 0;
+    protected virtual PQBooleanValues GenerateBooleanFlags() =>
+        (IsReplayUpdated ? PQBooleanValues.IsReplayUpdatedFlag : 0)
+      | (IsReplay ? PQBooleanValues.IsReplaySetFlag : 0);
 
-    protected virtual void SetBooleanFields(uint booleanFlags)
+    protected virtual void SetBooleanFields(PQBooleanValues booleanFlags)
     {
-        IsReplay = (booleanFlags & PQBooleanValues.IsReplayFlag) == PQBooleanValues.IsReplayFlag;
+        IsReplayUpdated = (booleanFlags & PQBooleanValues.IsReplayUpdatedFlag) > 0;
+        if (IsReplayUpdated) IsReplay = (booleanFlags & PQBooleanValues.IsReplaySetFlag) == PQBooleanValues.IsReplaySetFlag;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((PQLevel0Quote?)obj, true);

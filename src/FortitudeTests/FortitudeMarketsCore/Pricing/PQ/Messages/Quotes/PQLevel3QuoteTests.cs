@@ -742,7 +742,7 @@ public class PQLevel3QuoteTests
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
-            AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote);
+            AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote, PQBooleanValuesExtensions.AllSet);
         }
     }
 
@@ -964,7 +964,7 @@ public class PQLevel3QuoteTests
     }
 
     public static void AssertContainsAllLevel3Fields(IList<PQFieldUpdate> checkFieldUpdates,
-        PQLevel3Quote l3Q, uint expectedBooleanFlags = 3)
+        PQLevel3Quote l3Q, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllExceptExecutableUpdated)
     {
         PQLevel2QuoteTests.AssertContainsAllLevel2Fields(checkFieldUpdates, l3Q, expectedBooleanFlags);
 
