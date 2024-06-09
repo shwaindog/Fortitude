@@ -199,7 +199,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
             else
                 id = StreamByteOps.ToUShort(ref ptr);
             var pqFieldUpdate = new PQFieldUpdate(id, StreamByteOps.ToUInt(ref ptr), flags);
-            // logger.Info("Received PQDeserializerBase<> received pqFieldUpdate: {0}", pqFieldUpdate);
+            // logger.Info("de-{0}-{1}", sequenceId, pqFieldUpdate);
             var moreBytes = ent.UpdateField(pqFieldUpdate);
             if (moreBytes <= 0 || ptr + moreBytes + 4 > end) continue;
             var stringUpdate = new PQStringUpdate
@@ -211,7 +211,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
             {
                 Field = pqFieldUpdate, StringUpdate = stringUpdate
             };
-            // logger.Info("Received PQFieldStringUpdate: {0}", fieldStringUpdate);
+            // logger.Info("de-{1}-{0}", fieldStringUpdate);
             ent.UpdateFieldString(fieldStringUpdate);
         }
         // logger.Info("Deserialized Quote {0}: SequenceId:{1} on Deserializer.InstanceNum {2}",

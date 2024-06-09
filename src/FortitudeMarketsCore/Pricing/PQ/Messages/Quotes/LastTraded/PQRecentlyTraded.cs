@@ -212,6 +212,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
     public override IRecentlyTraded CopyFrom(IRecentlyTraded source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        if (source is PQRecentlyTraded sourceRecentlyTraded) NameIdLookup.CopyFrom(sourceRecentlyTraded.NameIdLookup, copyMergeFlags);
         if (lastTrades.Count < source.Capacity)
             for (var i = Count; i < source.Capacity; i++)
             {
@@ -248,7 +249,9 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
             destinationLayer?.CopyFrom(sourceLayer!, copyMergeFlags);
         }
 
-        for (var i = source.Capacity; i < lastTrades.Count; i++) lastTrades[i]?.StateReset();
+        for (var i = source.Capacity; i < lastTrades.Count; i++)
+            if (lastTrades[i] is IMutableLastTrade mutableLastTrade)
+                mutableLastTrade.IsEmpty = true;
         return this;
     }
 

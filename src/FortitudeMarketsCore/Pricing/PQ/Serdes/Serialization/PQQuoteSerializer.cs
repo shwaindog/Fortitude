@@ -76,9 +76,9 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
-            bufferContext.EncodedBuffer!.WriteCursor += writeLength;
-            bufferContext.LastWriteLength            =  writeLength;
+            var writeLength                                               = Serialize(bufferContext.EncodedBuffer!, obj);
+            if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
+            bufferContext.LastWriteLength = writeLength;
         }
         else
         {
@@ -120,13 +120,14 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             var messageSizePtr   = currentPtr;
             var messageSizeBytes = 4;
             var sequenceIdBytes  = 4;
+            var sequenceId       = previousSerializedSequenceId + 1;
             if (serializationFlags == PQSerializationFlags.ForSocketPublish)
             {
                 currentPtr += 4;
             }
             else if (stringUpdatesToSerialize.Any())
             {
-                sequenceIdBytes      =  pqL0Quote.PQSequenceId == previousSerializedSequenceId + 1 && !publishAll ? 0 : 4;
+                sequenceIdBytes      =  pqL0Quote.PQSequenceId == sequenceId && !publishAll ? 0 : 4;
                 resolvedStorageFlags |= sequenceIdBytes > 0 ? StorageFlags.IncludesSequenceId : StorageFlags.None;
                 resolvedStorageFlags |= StorageFlags.ThreeByteMessageSize;
                 messageSizeBytes     =  3;
@@ -134,7 +135,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             }
             else
             {
-                sequenceIdBytes      =  pqL0Quote.PQSequenceId == previousSerializedSequenceId + 1 && !publishAll ? 0 : 4;
+                sequenceIdBytes      =  pqL0Quote.PQSequenceId == sequenceId && !publishAll ? 0 : 4;
                 resolvedStorageFlags |= sequenceIdBytes > 0 ? StorageFlags.IncludesSequenceId : StorageFlags.None;
                 var countSingleByteIdUpdates = fieldsToSerialize.Count(fu => (fu.Flag & PQFieldFlags.IsExtendedFieldId) == 0);
                 var countTwoByteIdUpdates    = fieldsToSerialize.Count(fu => (fu.Flag & PQFieldFlags.IsExtendedFieldId) > 0);
@@ -159,12 +160,29 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 }
             }
 
-            var sequenceIdptr = currentPtr;
-            currentPtr += sequenceIdBytes;
+            if (sequenceIdBytes > 0)
+            {
+                var isSnapshot = (resolvedFlags & StorageFlags.Snapshot) > 0;
+                if (isSnapshot)
+                {
+                    sequenceId = pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId;
+                    StreamByteOps.ToBytes(ref currentPtr, sequenceId);
+                }
+                else
+                {
+                    sequenceId = unchecked(++pqL0Quote.PQSequenceId);
+                    StreamByteOps.ToBytes(ref currentPtr, sequenceId);
+                }
+            }
+            else
+            {
+                pqL0Quote.PQSequenceId++;
+            }
+
 
             foreach (var field in fieldsToSerialize)
             {
-                // logger.Info("Writing field {0}", field);
+                // logger.Info("se-{0}-{1}", sequenceId, field);
 
                 if (currentPtr + FieldSize > end) return FinishProcessingMessageReturnValue(message, -1);
                 *currentPtr++ = field.Flag;
@@ -191,27 +209,18 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
                 var bytesUsed = StreamByteOps.ToBytes(ref currentPtr,
                                                       fieldStringUpdate.StringUpdate.Value, (int)(end - currentPtr));
                 StreamByteOps.ToBytes(ref stringSizePtr, (uint)bytesUsed);
-                // logger.Info("Writing string update {0} and Value = {1}", fieldStringUpdate, bytesUsed);
+                // var sizeUpdatedField = fieldStringUpdate.Field;
+                // sizeUpdatedField.Value = (uint)bytesUsed;
+                // var finalStringUpdate = fieldStringUpdate;
+                // finalStringUpdate.Field = sizeUpdatedField;
+                // logger.Info("se-{0}-{1}, size-{2}", sequenceId, finalStringUpdate, bytesUsed);
             }
 
-            if (sequenceIdBytes > 0)
-            {
-                var isSnapshot = (resolvedFlags & StorageFlags.Snapshot) > 0;
-                if (isSnapshot)
-                {
-                    previousSerializedSequenceId = pqL0Quote.PQSequenceId == uint.MaxValue ? 0 : pqL0Quote.PQSequenceId;
-                    StreamByteOps.ToBytes(ref sequenceIdptr, previousSerializedSequenceId);
-                }
-                else
-                {
-                    previousSerializedSequenceId = unchecked(++pqL0Quote.PQSequenceId);
-                    StreamByteOps.ToBytes(ref sequenceIdptr, previousSerializedSequenceId);
-                }
-            }
 
             *flagsPtr = serializationFlags == PQSerializationFlags.ForSocketPublish ? (byte)resolvedFlags : (byte)resolvedStorageFlags;
 
-            pqL0Quote.HasUpdates = false;
+            pqL0Quote.HasUpdates         = false;
+            previousSerializedSequenceId = sequenceId;
 
             var written = (int)(currentPtr - writeStart);
 

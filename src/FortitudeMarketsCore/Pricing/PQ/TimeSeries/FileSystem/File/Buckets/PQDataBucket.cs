@@ -8,6 +8,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -27,7 +28,6 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
 {
     private IMessageBufferContext? bufferContext;
     private PQQuoteSerializer?     indexEntrySerializer;
-    private TSerializeType?        lastEntryLevel0Quote;
 
     private IPQDeserializer<TSerializeType>? messageDeserializer;
 
@@ -51,17 +51,6 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
         }
     }
 
-    public TSerializeType LastEntryQuote
-    {
-        get
-        {
-            return lastEntryLevel0Quote ??= new TSerializeType()
-            {
-                SourceTickerQuoteInfo = SourceTickerQuoteInfo
-            };
-        }
-    }
-
     public PQQuoteSerializer IndexEntryMessageSerializer =>
         indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorageIncludeReceiverTimes);
 
@@ -76,43 +65,44 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
 
         bufferContext.EncodedBuffer = readBuffer;
 
-        if (readBuffer.ReadCursor == 0) DefaultMessageDeserializer.PublishedQuote.StateReset();
+        if (readBuffer.ReadCursor == 0) DefaultMessageDeserializer.PublishedQuote.ResetFields();
         return ReadEntries(bufferContext, readerContext, DefaultMessageDeserializer);
     }
 
-    public override StorageAttemptResult AppendEntry(IGrowableUnmanagedBuffer growableBuffer, TEntry entry)
+    public override AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext, AppendResult appendResult)
     {
-        if (!Writable || !IsOpen || !BucketFlags.HasBucketCurrentAppendingFlag()) return StorageAttemptResult.BucketClosedForAppend;
-        var entryStorageTime = entry.StorageTime(StorageTimeResolver);
-        var checkWithinRange = CheckTimeSupported(entryStorageTime);
-        if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return checkWithinRange;
+        var pqContext = entryContext as IPQAppendContext<TEntry, TSerializeType>;
+        var entry     = entryContext.CurrentEntry;
         if (entry.SourceTickerQuoteInfo!.SourceId != SourceTickerQuoteInfo.SourceId ||
-            entry.SourceTickerQuoteInfo.TickerId != SourceTickerQuoteInfo.TickerId)
-            return StorageAttemptResult.EntryNotCompatible;
+            entry.SourceTickerQuoteInfo.TickerId != SourceTickerQuoteInfo.TickerId || pqContext == null)
+            return new AppendResult(StorageAttemptResult.EntryNotCompatible);
 
-        bufferContext               ??= new MessageBufferContext(growableBuffer);
-        bufferContext.EncodedBuffer =   growableBuffer;
+        bufferContext ??= new MessageBufferContext(writeBuffer);
+
+        bufferContext.EncodedBuffer = writeBuffer;
 
         var messageSerializer = RepeatedEntryMessageSerializer;
-        if (growableBuffer.WriteCursor == 0)
+        var lastEntryQuote    = pqContext.SerializeEntry;
+        lastEntryQuote.HasUpdates = false;
+        if (writeBuffer.WriteCursor == 0)
         {
-            LastEntryQuote.StateReset();
-            LastEntryQuote.CopyFrom(entry, CopyMergeFlags.FullReplace);
+            lastEntryQuote.CopyFrom(entry, CopyMergeFlags.FullReplace);
             messageSerializer = IndexEntryMessageSerializer;
         }
         else
         {
-            LastEntryQuote.HasUpdates = false;
-            LastEntryQuote.CopyFrom(entry);
+            lastEntryQuote.CopyFrom(entry);
         }
-        return AppendEntry(bufferContext, LastEntryQuote, messageSerializer);
+        return AppendEntry(bufferContext, lastEntryQuote, messageSerializer, appendResult);
     }
 
     public virtual IEnumerable<TEntry> ReadEntries(IMessageBufferContext buffer, IReaderContext<TEntry> readerContext
       , IPQDeserializer<TSerializeType> bufferDeserializer)
     {
+        var entryCount = 0;
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)
         {
+            entryCount++;
             bufferDeserializer.PublishedQuote.HasUpdates = false;
             bufferDeserializer.Deserialize(buffer);
             var toReturn = readerContext.GetNextEntryToPopulate;
@@ -121,13 +111,15 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
         }
     }
 
-    public virtual StorageAttemptResult AppendEntry(IMessageBufferContext bufferContext,
-        TSerializeType lastEntryLevel, PQQuoteSerializer useSerializer)
+    public virtual AppendResult AppendEntry(IMessageBufferContext bufferContext,
+        TSerializeType lastEntryLevel, PQQuoteSerializer useSerializer, AppendResult appendResult)
     {
         useSerializer.Serialize(lastEntryLevel, bufferContext);
-        if (bufferContext.LastWriteLength <= 0) return StorageAttemptResult.StorageSizeFailure;
+        if (bufferContext.LastWriteLength <= 0) return new AppendResult(StorageAttemptResult.StorageSizeFailure);
+        appendResult.SerializedSize = bufferContext.LastWriteLength;
+
         ExpandedDataSize      += (ulong)bufferContext.LastWriteLength;
         TotalDataEntriesCount += 1;
-        return StorageAttemptResult.PeriodRangeMatched;
+        return appendResult;
     }
 }

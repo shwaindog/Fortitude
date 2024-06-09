@@ -151,7 +151,7 @@ public class PQValueDatePriceVolumeLayerTests
         var sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LayerDateOffset,
+        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset,
                                                     expectedDateTime.GetHoursFromUnixEpoch(), PQFieldFlags.IsExtendedFieldId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
@@ -167,12 +167,12 @@ public class PQValueDatePriceVolumeLayerTests
         Assert.AreEqual(nextExpectedValueDate, emptyPvl.ValueDate);
         sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LayerDateOffset,
+        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset,
                                                 nextExpectedValueDate.GetHoursFromUnixEpoch(), PQFieldFlags.IsExtendedFieldId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.LayerDateOffset
+            where update.Id == PQFieldKeys.FirstLayerDateOffset
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -330,9 +330,9 @@ public class PQValueDatePriceVolumeLayerTests
     {
         PQPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
 
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerDateOffset, pvl.ValueDate.GetHoursFromUnixEpoch(),
+        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset, pvl.ValueDate.GetHoursFromUnixEpoch(),
                                           PQFieldFlags.IsExtendedFieldId), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                         PQFieldKeys.LayerDateOffset, PQFieldFlags.IsExtendedFieldId), $"For {pvl.GetType().Name} ");
+                         PQFieldKeys.FirstLayerDateOffset, PQFieldFlags.IsExtendedFieldId), $"For {pvl.GetType().Name} ");
     }
 
 

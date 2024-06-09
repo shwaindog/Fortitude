@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Data;
 using FortitudeCommon.Types;
@@ -21,8 +24,7 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
             LargestAddedId = Cache.Keys.Max();
     }
 
-    public NameIdLookupGenerator(IDictionary<int, string> copyDict) : base(copyDict) =>
-        LargestAddedId = Cache.Keys.Max();
+    public NameIdLookupGenerator(IDictionary<int, string> copyDict) : base(copyDict) => LargestAddedId = Cache.Keys.Max();
 
     public override int this[string? name] => GetOrAddId(name);
 
@@ -35,7 +37,7 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         return newId;
     }
 
-    public void AppendNewNames(IEnumerable<System.Collections.Generic.KeyValuePair<int, string>> existingPairs)
+    public void AppendNewNames(IEnumerable<KeyValuePair<int, string>> existingPairs)
     {
         foreach (var existingPair in existingPairs) SetIdToName(existingPair.Key, existingPair.Value);
     }
@@ -62,7 +64,7 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
                 LargestAddedId == nameIdLookupGen.LargestAddedId) return this;
             foreach (var kvp in nameIdLookupGen.Cache)
             {
-                Cache[kvp.Key] = kvp.Value;
+                Cache[kvp.Key]           = kvp.Value;
                 ReverseLookup[kvp.Value] = kvp.Key;
             }
 
@@ -91,7 +93,7 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         if (!(other is INameIdLookupGenerator)) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame      = base.AreEquivalent(other, exactTypes);
         var largestIdSame = true;
         if (exactTypes)
         {

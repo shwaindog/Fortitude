@@ -168,7 +168,9 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
             askBookChangedSame = IsAskBookChanged == otherL2.IsAskBookChanged;
         }
 
-        return baseIsSame && bidBooksSame && bidBookChangedSame && askBooksSame && askBookChangedSame;
+        var allAreSame = baseIsSame && bidBooksSame && bidBookChangedSame && askBooksSame && askBookChangedSame;
+        // if (!allAreSame) Debugger.Break();
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel2Quote, true);

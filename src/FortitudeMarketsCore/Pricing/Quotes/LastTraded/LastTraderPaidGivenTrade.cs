@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Types;
@@ -22,11 +25,21 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
             TraderName = lastTraderPaidGivenTrade.TraderName;
     }
 
-    public override LastTradeType LastTradeType => LastTradeType.PriceLastTraderPaidOrGivenVolume;
+    public override LastTradeType   LastTradeType           => LastTradeType.PriceLastTraderPaidOrGivenVolume;
     public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
 
     public string? TraderName { get; set; }
-    public override bool IsEmpty => base.IsEmpty && TraderName == null;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && TraderName == null;
+        set
+        {
+            if (!value) return;
+            TraderName = null;
+
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
@@ -55,7 +68,7 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
     {
         if (!(other is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade)) return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame       = base.AreEquivalent(other, exactTypes);
         var traderNameSame = TraderName == lastTraderPaidGivenTrade.TraderName;
 
         return baseSame && traderNameSame;

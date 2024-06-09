@@ -44,8 +44,8 @@ public class BucketFactory<TBucket> : IBucketFactory<TBucket> where TBucket : cl
     public bool IsFileRootBucketType { get; }
 
     public bool NoPatternOrPadding { get; set; }
-    public byte[] BucketPrefixPattern { get; set; } = [ 0xB, 0xA, 0xD, 0xB, 0x0, 0x0, 0xB, 0x5, 0xD, 0xA, 0xD];
-    public byte[] BucketSuffixPattern { get; set; } = [ 0xD, 0xA, 0xD, 0xB, 0x0, 0x0, 0xB, 0x5, 0xB, 0xA, 0xD];
+    public byte[] BucketPrefixPattern { get; set; } = [ 0xBA, 0xDB, 0x00, 0xB5, 0xDA, 0xD0];
+    public byte[] BucketSuffixPattern { get; set; } = [ 0xDA, 0xDB, 0x00, 0xB5, 0xBA, 0xD0];
     public int PrefixMargin
     {
         get => !NoPatternOrPadding ? prefixMargin : 0;

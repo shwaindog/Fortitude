@@ -414,7 +414,8 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(expectedExecutable, emptyQuote.Executable);
         var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(3, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)IsExecutableUpdatedFlag);
+        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags,
+                                                    (uint)IsExecutableUpdatedFlag);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyQuote.IsExecutableUpdated = false;
@@ -434,6 +435,8 @@ public class PQLevel1QuoteTests
         expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags
                                               , (uint)(IsExecutableUpdatedFlag | IsExecutableSetFlag));
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
+        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags
+                                              , (uint)(IsExecutableUpdatedFlag | IsExecutableSetFlag | PQBooleanValuesExtensions.AllUpdated));
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id == PQFieldKeys.QuoteBooleanFlags
@@ -507,9 +510,7 @@ public class PQLevel1QuoteTests
                                                                               new DateTime(2017, 11, 04, 15, 33, 5)
                                                                             , StorageFlags.Snapshot).ToList();
         AssertContainsAllLevel1Fields
-            (pqFieldUpdates, fullyPopulatedPqLevel1Quote,
-             PQBooleanValuesExtensions.AllExceptExecutableUpdated
-                                      .Unset(IsReplayUpdatedFlag | IsBidPriceTopUpdatedChangedFlag | IsAskPriceTopUpdatedChangedFlag));
+            (pqFieldUpdates, fullyPopulatedPqLevel1Quote, PQBooleanValuesExtensions.AllFields);
     }
 
     [TestMethod]
@@ -540,7 +541,7 @@ public class PQLevel1QuoteTests
     public void FullyPopulatedQuote_CopyFromToEmptyQuote_QuotesEqualEachOther()
     {
         emptyQuote = new PQLevel1Quote(blankSourceTickerQuoteInfo);
-        emptyQuote.CopyFrom(fullyPopulatedPqLevel1Quote);
+        emptyQuote.CopyFrom(fullyPopulatedPqLevel1Quote, CopyMergeFlags.FullReplace);
 
         Assert.AreEqual(fullyPopulatedPqLevel1Quote, emptyQuote);
     }
@@ -562,10 +563,13 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterSentTime);
+        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ClientReceivedTime);
+        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.DispatchedTime);
+        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ProcessedTime);
+        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SocketReceivingTime);
         Assert.AreEqual(0m, emptyQuote.BidPriceTop);
         Assert.AreEqual(0m, emptyQuote.AskPriceTop);
         Assert.IsTrue(emptyQuote.Executable);
-        Assert.AreEqual(fullyPopulatedPqLevel1Quote.ClientReceivedTime, emptyQuote.ClientReceivedTime);
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.IsReplayUpdated);

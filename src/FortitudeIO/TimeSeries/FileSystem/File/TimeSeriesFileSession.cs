@@ -6,6 +6,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
@@ -42,7 +43,7 @@ public interface ITimeSeriesEntriesSession<TEntry> : ITimeSeriesFileSession
 
 public interface IMutableTimeSeriesEntriesSession<TEntry> : ITimeSeriesEntriesSession<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
-    StorageAttemptResult AppendEntry(TEntry entry);
+    AppendResult AppendEntry(TEntry entry);
 }
 
 public interface IMutableBucketContainer
@@ -69,7 +70,7 @@ public interface IBucketTrackingSession : IMutableBucketContainer
     ShiftableMemoryMappedFileView ActiveBucketHeaderFileView { get; }
     ShiftableMemoryMappedFileView ReadChildrenFileView       { get; }
 
-    GrowableUnmanagedBuffer UncompressedBuffer { get; }
+    FixedByteArrayBuffer UncompressedBuffer { get; }
 }
 
 public interface IReaderFileSession<TBucket, TEntry> : ITimeSeriesEntriesSession<TEntry>, ITimeSeriesBucketSession<TBucket>
@@ -103,12 +104,14 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IReaderFileSession<
 
     private ShiftableMemoryMappedFileView? activeBucketHeaderView;
     private ShiftableMemoryMappedFileView? amendOffsetView;
-    private ShiftableMemoryMappedFileView? bucketAppenderView;
-    private TBucket?                       currentlyOpenBucket;
-    private bool                           isWritable;
-    private uint                           lastAddedIndexKey;
-    private ShiftableMemoryMappedFileView? readChildBucketsView;
-    private GrowableUnmanagedBuffer?       uncompressedBuffer;
+
+    private ISessionAppendContext<TEntry, TBucket>? appendContext;
+    private ShiftableMemoryMappedFileView?          bucketAppenderView;
+    private TBucket?                                currentlyOpenBucket;
+    private bool                                    isWritable;
+    private uint                                    lastAddedIndexKey;
+    private ShiftableMemoryMappedFileView?          readChildBucketsView;
+    private FixedByteArrayBuffer?                   uncompressedBuffer;
 
     public TimeSeriesFileSession(TimeSeriesFile<TFile, TBucket, TEntry> file, bool isWritable,
         int defaultViewSizeBytes = ushort.MaxValue * 2, int reserveMultiple = 2, int activeViewAdditionalMultiple = 2)
@@ -119,21 +122,6 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IReaderFileSession<
         this.defaultViewSizeBytes         = Math.Max(ushort.MaxValue * 2, defaultViewSizeBytes);
         IsWritable                        = isWritable;
         IsOpen                            = true;
-    }
-
-    public TBucket? LastAddedBucket
-    {
-        get
-        {
-            var previousLastCreatedBucketNullable = BucketIndexes.LastAddedBucketIndexInfo;
-            if (previousLastCreatedBucketNullable != null)
-            {
-                var previousLastCreated = previousLastCreatedBucketNullable.Value;
-                CurrentlyOpenBucket = FileBucketFactory.OpenExistingBucket(this, previousLastCreated.ParentOrFileOffset, false);
-            }
-
-            return currentlyOpenBucket;
-        }
     }
 
     protected virtual IBucketFactory<TBucket> FileBucketFactory => timeSeriesFile.RootBucketFactory;
@@ -170,9 +158,9 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IReaderFileSession<
          "readChildBuckets", 0, defaultViewSizeBytes, reserveMultiple, false);
 
 
-    public GrowableUnmanagedBuffer UncompressedBuffer
+    public FixedByteArrayBuffer UncompressedBuffer
     {
-        get { return uncompressedBuffer ??= new GrowableUnmanagedBuffer(MemoryUtils.CreateUnmanagedByteArray((long)ushort.MaxValue * 20)); }
+        get { return uncompressedBuffer ??= new FixedByteArrayBuffer(MemoryUtils.CreateUnmanagedByteArray((long)ushort.MaxValue * 400)); }
     }
     public IMutableTimeSeriesFileHeader FileHeader => timeSeriesFile.Header;
 
@@ -281,6 +269,8 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IReaderFileSession<
         parentBucketsHeaderAndIndexViews.Clear();
         activeBucketHeaderView?.Dispose();
         activeBucketHeaderView = null;
+        uncompressedBuffer?.BackingMemoryAddressRange.Dispose();
+        uncompressedBuffer = null;
         bucketAppenderView?.Dispose();
         bucketAppenderView = null;
         amendOffsetView?.Dispose();
@@ -336,29 +326,10 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IReaderFileSession<
         Close();
     }
 
-    public StorageAttemptResult AppendEntry(TEntry entry)
-    {
-        if (!IsWritable) return StorageAttemptResult.BucketClosedForAppend;
-        var entryTime = entry.StorageTime();
-        var bucketMatch = CurrentlyOpenBucket?.CheckTimeSupported(entryTime) ?? LastAddedBucket?.CheckTimeSupported(entryTime)
-         ?? StorageAttemptResult.NoBucketChecked;
-        if (bucketMatch == StorageAttemptResult.BucketClosedForAppend) return bucketMatch;
-        if (bucketMatch == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket!.AppendEntry(entry);
-        if (bucketMatch == StorageAttemptResult.NextBucketPeriod)
-        {
-            CurrentlyOpenBucket = currentlyOpenBucket!.CloseAndCreateNextBucket();
-            return currentlyOpenBucket?.AppendEntry(entry) ?? StorageAttemptResult.NextFilePeriod;
-        }
-
-        var searchedBucket = GetOrCreateBucketFor(entryTime);
-        if (searchedBucket == null) return StorageAttemptResult.NextFilePeriod;
-        return searchedBucket.AppendEntry(entry);
-    }
-
     public TBucket? GetOrCreateBucketFor(DateTime storageDateTime)
     {
         var searchResult = CurrentlyOpenBucket?.CheckTimeSupported(storageDateTime)
-                        ?? LastAddedBucket?.CheckTimeSupported(storageDateTime) ?? StorageAttemptResult.NoBucketChecked;
+                        ?? appendContext?.LastAddedRootBucket?.CheckTimeSupported(storageDateTime) ?? StorageAttemptResult.NoBucketChecked;
 
         if (searchResult == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket;
         if (searchResult == StorageAttemptResult.NextFilePeriod)
@@ -386,8 +357,31 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IReaderFileSession<
         return currentlyOpenBucket;
     }
 
-    ~TimeSeriesFileSession()
+    public AppendResult AppendEntry(TEntry entry)
     {
-        Dispose();
+        if (!IsWritable) return new AppendResult(StorageAttemptResult.BucketClosedForAppend);
+
+        appendContext ??= timeSeriesFile.CreateAppendContext();
+
+        appendContext.PreviousEntry = appendContext.CurrentEntry;
+        appendContext.CurrentEntry  = entry;
+        appendContext.StorageTime   = entry.StorageTime(timeSeriesFile.StorageTimeResolver);
+
+        var bucketMatch = CurrentlyOpenBucket?.CheckTimeSupported(appendContext.StorageTime)
+                       ?? appendContext?.LastAddedRootBucket?.CheckTimeSupported(appendContext.StorageTime)
+                       ?? StorageAttemptResult.NoBucketChecked;
+        if (bucketMatch == StorageAttemptResult.BucketClosedForAppend) return new AppendResult(bucketMatch);
+        if (bucketMatch == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket!.AppendEntry(appendContext!);
+        if (bucketMatch == StorageAttemptResult.NextBucketPeriod)
+        {
+            CurrentlyOpenBucket                = currentlyOpenBucket!.CloseAndCreateNextBucket();
+            appendContext!.LastAddedRootBucket = currentlyOpenBucket;
+            return currentlyOpenBucket?.AppendEntry(appendContext) ?? new AppendResult(StorageAttemptResult.NextFilePeriod);
+        }
+
+        var searchedBucket = GetOrCreateBucketFor(appendContext!.StorageTime);
+        if (searchedBucket == null) return new AppendResult(StorageAttemptResult.NextFilePeriod);
+        appendContext.LastAddedRootBucket = searchedBucket;
+        return searchedBucket.AppendEntry(appendContext);
     }
 }

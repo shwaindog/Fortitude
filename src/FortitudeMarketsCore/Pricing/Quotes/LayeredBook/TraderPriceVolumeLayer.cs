@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using System.Collections;
@@ -11,7 +14,7 @@ namespace FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolumeLayer
 {
-    public const string TraderCountTraderName = "Only Trader Count Provided";
+    public const string TraderCountOnlyName = "TraderCountOnly";
 
     public TraderPriceVolumeLayer() => TraderDetails = new List<IMutableTraderLayerInfo?>();
 
@@ -24,9 +27,9 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         {
             TraderDetails = new List<IMutableTraderLayerInfo?>(trdToClone.Count);
             foreach (var traderLayerInfo in trdToClone.Where(tli => tli != null))
-                TraderDetails.Add(traderLayerInfo is TraderLayerInfo ?
-                    (IMutableTraderLayerInfo)traderLayerInfo.Clone() :
-                    new TraderLayerInfo(traderLayerInfo.TraderName, traderLayerInfo.TraderVolume));
+                TraderDetails.Add(traderLayerInfo is TraderLayerInfo
+                                      ? (IMutableTraderLayerInfo)traderLayerInfo.Clone()
+                                      : new TraderLayerInfo(traderLayerInfo.TraderName, traderLayerInfo.TraderVolume));
         }
         else
         {
@@ -34,7 +37,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         }
     }
 
-    protected IList<IMutableTraderLayerInfo?> TraderDetails { get; }
+    protected       IList<IMutableTraderLayerInfo?> TraderDetails { get; }
     public override LayerType LayerType => LayerType.TraderPriceVolume;
     public override LayerFlags SupportsLayerFlags => LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize | base.SupportsLayerFlags;
 
@@ -70,7 +73,18 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         }
     }
 
-    public override bool IsEmpty => base.IsEmpty && TraderDetails.All(tli => tli?.IsEmpty ?? true);
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && TraderDetails.All(tli => tli?.IsEmpty ?? true);
+        set
+        {
+            if (!value) return;
+            foreach (var traderLayerInfo in TraderDetails)
+                if (traderLayerInfo != null)
+                    traderLayerInfo.IsEmpty = true;
+            base.IsEmpty = true;
+        }
+    }
 
     public bool IsTraderCountOnly
     {
@@ -78,7 +92,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         {
             return TraderDetails
                 .All(mutableTraderLayerInfo => (mutableTraderLayerInfo?.IsEmpty ?? true)
-                                               || mutableTraderLayerInfo.TraderName == TraderCountTraderName);
+                                            || mutableTraderLayerInfo.TraderName == TraderCountOnlyName);
         }
     }
 
@@ -95,7 +109,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
             var entryToUpdate = TraderDetails[indexToUpdate];
             if (entryToUpdate != null)
             {
-                entryToUpdate.TraderName = traderName;
+                entryToUpdate.TraderName   = traderName;
                 entryToUpdate.TraderVolume = volume;
             }
         }
@@ -116,7 +130,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
             var traderInfo = this[i];
             if (traderInfo != null)
             {
-                traderInfo.TraderName = TraderCountTraderName;
+                traderInfo.TraderName   = TraderCountOnlyName;
                 traderInfo.TraderVolume = 0m;
             }
         }
@@ -129,7 +143,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IMutableTraderPriceVolumeLayer sourceTraderPriceVolumeLayer)
@@ -167,8 +181,8 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         if (!(other is ITraderPriceVolumeLayer otherTvl)) return false;
         var baseSame = base.AreEquivalent(other, exactTypes);
         var traderDetailsSame = TraderDetails.Zip(otherTvl,
-                (ftd, std) => ftd != null && ftd.AreEquivalent(std, exactTypes))
-            .All(same => same);
+                                                  (ftd, std) => ftd != null && ftd.AreEquivalent(std, exactTypes))
+                                             .All(same => same);
         return baseSame && traderDetailsSame;
     }
 

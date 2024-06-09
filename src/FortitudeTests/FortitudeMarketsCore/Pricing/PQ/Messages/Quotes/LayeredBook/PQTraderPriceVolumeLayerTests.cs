@@ -498,7 +498,7 @@ public class PQTraderPriceVolumeLayerTests
         Assert.IsFalse(copyPopulated.IsTraderCountOnly);
         copyPopulated.StateReset();
         Assert.AreEqual(0, copyPopulated.Count);
-        Assert.IsTrue(copyPopulated.IsTraderCountOnly);
+        Assert.IsFalse(copyPopulated.IsTraderCountOnly);
         copyPopulated.SetTradersCountOnly(50);
         Assert.AreEqual(50, copyPopulated.Count);
         Assert.IsTrue(copyPopulated.IsTraderCountOnly);
@@ -512,7 +512,7 @@ public class PQTraderPriceVolumeLayerTests
     }
 
     [TestMethod]
-    public void PopulatedPvl_Reset_ReturnsReturnsLayerToEmpty()
+    public void PopulatedPvl_IsEmptyTrue_ReturnsReturnsLayerToEmpty()
     {
         Assert.IsFalse(populatedPvl.IsEmpty);
         Assert.AreNotEqual(0m, populatedPvl.Price);
@@ -530,7 +530,7 @@ public class PQTraderPriceVolumeLayerTests
 
         Assert.AreEqual(populatedNumberOfTraders, populatedPvl.Count);
         Assert.IsFalse(populatedPvl.IsEmpty);
-        populatedPvl.StateReset();
+        populatedPvl.IsEmpty = true;
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);
@@ -861,7 +861,7 @@ public class PQTraderPriceVolumeLayerTests
         {
             var traderLayerInfo = pvl[i];
             var indexShifted    = (uint)i << 24;
-            if (traderLayerInfo!.TraderName == PQTraderPriceVolumeLayer.TraderCountTraderName)
+            if (traderLayerInfo!.TraderName == PQTraderPriceVolumeLayer.TraderCountOnlyName)
             {
                 Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerTraderIdOffset,
                                                   0x0080_0000 | pvl.Count),

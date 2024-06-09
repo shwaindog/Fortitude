@@ -53,21 +53,26 @@ public struct BookGenerationInfo
 
     public decimal TightestSpreadPips = 0.1m;
 
+    public bool AllowEmptySlotGaps = true;
+
     public GenerateBookLayerInfo GenerateBookLayerInfo = new();
 }
 
 public class BookGenerator : IBookGenerator
 {
-    private readonly BookGenerationInfo        bookGenerationInfo;
-    private readonly PriceVolumeLayerGenerator priceVolumeLayerGenerator;
+    private readonly IPriceVolumeLayerGenerator askLayerGenerator;
+    private readonly IPriceVolumeLayerGenerator bidLayerGenerator;
+    private readonly BookGenerationInfo         bookGenerationInfo;
 
     private Normal normalDist   = null!;
     private Random pseudoRandom = null!;
 
     public BookGenerator(BookGenerationInfo bookGenerationInfo)
     {
-        this.bookGenerationInfo   = bookGenerationInfo;
-        priceVolumeLayerGenerator = new PriceVolumeLayerGenerator(bookGenerationInfo.GenerateBookLayerInfo);
+        this.bookGenerationInfo = bookGenerationInfo;
+
+        bidLayerGenerator = CreatedPriceVolumeLayerGenerator(BookSide.BidBook, bookGenerationInfo.GenerateBookLayerInfo);
+        askLayerGenerator = CreatedPriceVolumeLayerGenerator(BookSide.AskBook, bookGenerationInfo.GenerateBookLayerInfo);
     }
 
     public void PopulateBidAskBooks(IMutableLevel2Quote level2Quote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
@@ -80,9 +85,11 @@ public class BookGenerator : IBookGenerator
         else
             pseudoRandom = new Random(prev.Mid.GetHashCode() ^ curr.Mid.GetHashCode());
 
-        normalDist                             = new Normal(0, 1, pseudoRandom);
-        priceVolumeLayerGenerator.PseudoRandom = pseudoRandom;
-        priceVolumeLayerGenerator.NormalDist   = normalDist;
+        normalDist                     = new Normal(0, 1, pseudoRandom);
+        bidLayerGenerator.PseudoRandom = pseudoRandom;
+        bidLayerGenerator.NormalDist   = normalDist;
+        askLayerGenerator.PseudoRandom = pseudoRandom;
+        askLayerGenerator.NormalDist   = normalDist;
         var topBidAskSpread = Math.Max(bookGenerationInfo.TightestSpreadPips,
                                        bookGenerationInfo.AverageSpreadPips +
                                        (decimal)normalDist.Sample() * bookGenerationInfo.SpreadStandardDeviation);
@@ -93,29 +100,43 @@ public class BookGenerator : IBookGenerator
         while (roundedTopAsk - roundedTopBid > bookGenerationInfo.TightestSpreadPips)
             roundedTopBid -= bookGenerationInfo.SmallestPriceLayerPips;
 
-        PopulateBook(level2Quote.BidBook, roundedTopBid, previousCurrentMidPriceTime);
-        PopulateBook(level2Quote.AskBook, roundedTopAsk, previousCurrentMidPriceTime);
+        var maxLayersToGenerate = Math.Min(level2Quote.SourceTickerQuoteInfo!.MaximumPublishedLayers, bookGenerationInfo.NumberOfBookLayers);
+        PopulateBook(level2Quote.BidBook, roundedTopBid, maxLayersToGenerate, previousCurrentMidPriceTime);
+        PopulateBook(level2Quote.AskBook, roundedTopAsk, maxLayersToGenerate, previousCurrentMidPriceTime);
     }
 
-    public void PopulateBook(IMutableOrderBook newBook, decimal startingPrice, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    protected virtual IPriceVolumeLayerGenerator CreatedPriceVolumeLayerGenerator(BookSide side, GenerateBookLayerInfo generateLayerInfo) =>
+        new PriceVolumeLayerGenerator(generateLayerInfo);
+
+
+    public virtual void InitializeBook(IMutableOrderBook newBook) { }
+
+    public void PopulateBook(IMutableOrderBook newBook, decimal startingPrice, int maxLayersToGenerate
+      , PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
+        InitializeBook(newBook);
         var incrementVolToMaxMid = (bookGenerationInfo.HighestLayerAverageVolume - bookGenerationInfo.AverageTopOfBookVolume) /
                                    Math.Max(1, bookGenerationInfo.HighestVolumeLayer);
         var volumeMid          = bookGenerationInfo.AverageTopOfBookVolume;
         var volumeStdDeviation = bookGenerationInfo.MaxVolumeVariance / 3;
         var currLayerPrice     = startingPrice;
         var missedCount        = 0;
-        for (var i = 0; i < bookGenerationInfo.NumberOfBookLayers; i++)
+
+        for (var i = 0; i < maxLayersToGenerate; i++)
         {
             var layerVol = (long)Math.Ceiling((volumeMid + (decimal)normalDist.Sample() * volumeStdDeviation) / bookGenerationInfo.VolumeRounding) *
                            bookGenerationInfo.VolumeRounding;
             if (layerVol > 0)
             {
-                var index = newBook.AppendEntryAtEnd();
-                var entry = newBook[index]!;
+                missedCount = 0;
+                while (newBook.Capacity <= i) newBook.AppendEntryAtEnd();
+                var entry = newBook[i]!;
                 entry.Price  = currLayerPrice;
                 entry.Volume = layerVol;
-                SetOtherLayerValues(entry, i, previousCurrentMidPriceTime);
+                if (newBook.BookSide == BookSide.BidBook)
+                    SetBidLayerValues(entry, i, previousCurrentMidPriceTime);
+                else
+                    SetAskLayerValues(entry, i, previousCurrentMidPriceTime);
                 var priceDelta =
                     Math.Min(bookGenerationInfo.MaxPriceLayerPips,
                              Math.Ceiling(Math.Max(bookGenerationInfo.SmallestPriceLayerPips,
@@ -128,6 +149,7 @@ public class BookGenerator : IBookGenerator
             }
             else
             {
+                if (!bookGenerationInfo.AllowEmptySlotGaps) i--;
                 if (++missedCount > 3) break;
             }
             if (i < bookGenerationInfo.HighestVolumeLayer)
@@ -139,8 +161,13 @@ public class BookGenerator : IBookGenerator
         }
     }
 
-    public void SetOtherLayerValues(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void SetBidLayerValues(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
-        priceVolumeLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
+        bidLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
+    }
+
+    public void SetAskLayerValues(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    {
+        askLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
     }
 }

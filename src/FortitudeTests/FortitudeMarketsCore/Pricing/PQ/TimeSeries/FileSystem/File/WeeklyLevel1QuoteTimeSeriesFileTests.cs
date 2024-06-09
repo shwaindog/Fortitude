@@ -55,7 +55,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         PagedMemoryMappedFile.LogMappingMessages = true;
         level1SrcTkrQtInfo =
             new SourceTickerQuoteInfo
-                (19, "OneWeekDailyHourlyPriceQuoteTimeSeriesFileTests", 79, "PersistTest",
+                (19, "WeeklyLevel1QuoteTimeSeriesFileTests", 79, "PersistTest",
                  QuoteLevel.Level1, 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None);
         // level2SrcTkrQtInfo =
         //     new SourceTickerQuoteInfo
@@ -160,7 +160,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         foreach (var firstPeriod in toPersistAndCheck)
         {
             var result = level1SessionWriter.AppendEntry(firstPeriod);
-            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level1OneWeekFile.AutoCloseOnZeroSessions = false;
         level1SessionWriter.Close();
@@ -214,7 +214,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         foreach (var level1QuoteStruct in toPersistAndCheck)
         {
             var result = level1SessionWriter.AppendEntry(level1QuoteStruct);
-            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level1OneWeekFile.AutoCloseOnZeroSessions = false;
         level1SessionWriter.Close();
@@ -309,7 +309,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         var nextWeekQuote = (IMutableLevel1Quote)singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
         var result = level1SessionWriter.AppendEntry(nextWeekQuote);
-        Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result);
+        Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result.StorageAttemptResult);
     }
 
     [TestMethod]
@@ -325,10 +325,10 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         var wednesdayQuote = wednesdayQuotes.First();
         var thursdayQuote  = thursdayQuotes.First();
         var result         = level1SessionWriter.AppendEntry(wednesdayQuote);
-        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         result = level1SessionWriter.AppendEntry(thursdayQuote);
-        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         result = level1SessionWriter.AppendEntry(wednesdayQuote);
-        Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result);
+        Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result.StorageAttemptResult);
     }
 }

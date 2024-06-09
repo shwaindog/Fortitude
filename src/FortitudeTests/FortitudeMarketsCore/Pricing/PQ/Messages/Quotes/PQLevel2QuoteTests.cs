@@ -753,11 +753,11 @@ public class PQLevel2QuoteTests
                                                        .ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             var hoursSinceUnixEpoch = expectedValueDate.GetHoursFromUnixEpoch();
-            var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerDateOffset,
+            var expectedLayerField = new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset,
                                                        hoursSinceUnixEpoch, PQFieldFlags.IsExtendedFieldId);
             var expectedSideAdjustedLayerField =
                 new PQFieldUpdate
-                    ((ushort)(PQFieldKeys.LayerDateOffset + indexFromTop),
+                    ((ushort)(PQFieldKeys.FirstLayerDateOffset + indexFromTop),
                      expectedLayerField.Value, (byte)((isBid ? 0 : PQFieldFlags.IsAskSideFlag) | PQFieldFlags.IsExtendedFieldId));
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
             Assert.AreEqual(expectedSideAdjustedLayerField, quoteUpdates[2]);
@@ -773,7 +773,7 @@ public class PQLevel2QuoteTests
             srcQtRefPriceVolumeLayer.IsValueDateUpdated = true;
             quoteUpdates =
                 (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                    where update.Id == PQFieldKeys.LayerDateOffset + indexFromTop
+                    where update.Id == PQFieldKeys.FirstLayerDateOffset + indexFromTop
                     select update).ToList();
             Assert.AreEqual(1, quoteUpdates.Count);
             Assert.AreEqual(expectedSideAdjustedLayerField, quoteUpdates[0]);
@@ -808,7 +808,7 @@ public class PQLevel2QuoteTests
 
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
 
-            Assert.IsTrue(traderPriceVolumeLayer.IsTraderCountOnly);
+            Assert.IsFalse(traderPriceVolumeLayer.IsTraderCountOnly);
             Assert.IsFalse(traderPriceVolumeLayer.HasUpdates);
             Assert.AreEqual(0, traderPriceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
             Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
@@ -1098,7 +1098,7 @@ public class PQLevel2QuoteTests
                 populatedL2Quote
                     .GetDeltaUpdateFields
                         (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
-            AssertContainsAllLevel2Fields(pqFieldUpdates, populatedL2Quote, PQBooleanValuesExtensions.AllSet);
+            AssertContainsAllLevel2Fields(pqFieldUpdates, populatedL2Quote, PQBooleanValuesExtensions.AllFields);
         }
     }
 
@@ -1117,7 +1117,7 @@ public class PQLevel2QuoteTests
             traderDetailsFullyPopulatedLevel2Quote
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
-        AssertContainsAllLevel2Fields(pqFieldUpdates, traderDetailsFullyPopulatedLevel2Quote, PQBooleanValuesExtensions.AllSet);
+        AssertContainsAllLevel2Fields(pqFieldUpdates, traderDetailsFullyPopulatedLevel2Quote, PQBooleanValuesExtensions.AllFields);
     }
 
     [TestMethod]
@@ -1177,7 +1177,7 @@ public class PQLevel2QuoteTests
                 = new PQSourceTickerQuoteInfo(populatedL2Quote.SourceTickerQuoteInfo!);
             var newEmpty = new PQLevel2Quote(emptyQuoteSourceTickerQuoteInfo);
             newEmpty.CopyFrom(populatedL2Quote);
-            Assert.AreEqual(populatedL2Quote, newEmpty);
+            Assert.AreEqual(populatedL2Quote, newEmpty, populatedL2Quote.DiffQuotes(newEmpty));
         }
     }
 
@@ -1201,10 +1201,13 @@ public class PQLevel2QuoteTests
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterSentTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ClientReceivedTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ProcessedTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.DispatchedTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SocketReceivingTime);
             Assert.AreEqual(0m, emptyQuote.BidPriceTop);
             Assert.AreEqual(0m, emptyQuote.AskPriceTop);
             Assert.IsTrue(emptyQuote.Executable);
-            Assert.AreEqual(populatedL2Quote.ClientReceivedTime, emptyQuote.ClientReceivedTime);
             Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
             Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
             Assert.IsFalse(emptyQuote.IsReplayUpdated);
@@ -1484,17 +1487,17 @@ public class PQLevel2QuoteTests
     {
         var bidValueDate =
             PQLevel0QuoteTests.ExtractFieldUpdateWithId
-                (checkFieldUpdates, (ushort)(PQFieldKeys.LayerDateOffset + i), PQFieldFlags.IsExtendedFieldId);
+                (checkFieldUpdates, (ushort)(PQFieldKeys.FirstLayerDateOffset + i), PQFieldFlags.IsExtendedFieldId);
         var askValueDate =
             PQLevel0QuoteTests.ExtractFieldUpdateWithId
-                (checkFieldUpdates, (ushort)(PQFieldKeys.LayerDateOffset + i)
+                (checkFieldUpdates, (ushort)(PQFieldKeys.FirstLayerDateOffset + i)
                , PQFieldFlags.IsAskSideFlag | PQFieldFlags.IsExtendedFieldId);
 
         var dateAsHoursFromEpoch = bidValueDatePvl.ValueDate.GetHoursFromUnixEpoch();
-        Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.LayerDateOffset + i),
+        Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.FirstLayerDateOffset + i),
                                           dateAsHoursFromEpoch, PQFieldFlags.IsExtendedFieldId), bidValueDate);
         dateAsHoursFromEpoch = askValueDatePvl.ValueDate.GetHoursFromUnixEpoch();
-        Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.LayerDateOffset + i),
+        Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.FirstLayerDateOffset + i),
                                           dateAsHoursFromEpoch, PQFieldFlags.IsAskSideFlag | PQFieldFlags.IsExtendedFieldId), askValueDate);
     }
 
@@ -1506,7 +1509,7 @@ public class PQLevel2QuoteTests
             var trdLayerInfo  = traderPvl[j]!;
             var fieldPosIndex = (uint)j << 24;
 
-            if (trdLayerInfo.TraderName == PQTraderPriceVolumeLayer.TraderCountTraderName)
+            if (trdLayerInfo.TraderName == PQTraderPriceVolumeLayer.TraderCountOnlyName)
             {
                 Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.LayerTraderIdOffset + bookIndex),
                                                   0x0080_0000 | traderPvl.Count, isAskSide ? PQFieldFlags.IsAskSideFlag : (byte)0),

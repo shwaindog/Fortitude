@@ -271,11 +271,15 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
                 recentlyTraded = pql3Q.RecentlyTraded.Clone();
             else if (pql3Q.RecentlyTraded != null)
                 recentlyTraded?.CopyFrom(pql3Q.RecentlyTraded, copyMergeFlags);
-            if (pql3Q.IsBatchIdUpdated || copyMergeFlags.HasFullReplace()) BatchId                           = pql3Q.batchId;
-            if (pql3Q.IsSourceQuoteReferenceUpdated || copyMergeFlags.HasFullReplace()) SourceQuoteReference = pql3Q.sourceQuoteRef;
-            if (pql3Q.IsValueDateUpdated || copyMergeFlags.HasFullReplace()) ValueDate                       = pql3Q.ValueDate;
+
+            var hasFullReplace = copyMergeFlags.HasFullReplace();
+
+            if (pql3Q.IsBatchIdUpdated || hasFullReplace) BatchId                           = pql3Q.batchId;
+            if (pql3Q.IsSourceQuoteReferenceUpdated || hasFullReplace) SourceQuoteReference = pql3Q.sourceQuoteRef;
+            if (pql3Q.IsValueDateUpdated || hasFullReplace) ValueDate                       = pql3Q.ValueDate;
             // ensure flags still match source
-            UpdatedFlags = pql3Q.UpdatedFlags;
+
+            if (hasFullReplace) UpdatedFlags = pql3Q.UpdatedFlags;
         }
 
         return this;

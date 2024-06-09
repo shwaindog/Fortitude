@@ -120,7 +120,16 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         set => IsTradePriceUpdated = IsTradeTimeDateUpdated = IsTradeTimeSubHourUpdated = value;
     }
 
-    public virtual bool IsEmpty => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
+    public virtual bool IsEmpty
+    {
+        get => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
+        set
+        {
+            if (!value) return;
+            TradeTime  = DateTimeConstants.UnixEpoch;
+            TradePrice = 0m;
+        }
+    }
 
     public override void StateReset()
     {
@@ -193,7 +202,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             if (pqlt.IsTradeTimeDateUpdated || pqlt.IsTradeTimeSubHourUpdated || isFullReplace) TradeTime = pqlt.TradeTime;
 
             if (pqlt.IsTradePriceUpdated || isFullReplace) TradePrice = pqlt.TradePrice;
-            UpdatedFlags = pqlt.UpdatedFlags;
+            if (isFullReplace) UpdatedFlags                           = pqlt.UpdatedFlags;
         }
         else
         {

@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
@@ -19,7 +22,9 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
     {
         SourceName = sourceName;
         Executable = executable;
+
         SourceQuoteReference = quoteRef;
+
         ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
     }
 
@@ -30,13 +35,16 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         {
             SourceName = srcQtRefTrdrVlDtPriceVolumeLayer.SourceName;
             Executable = srcQtRefTrdrVlDtPriceVolumeLayer.Executable;
+
             SourceQuoteReference = srcQtRefTrdrVlDtPriceVolumeLayer.SourceQuoteReference;
+
             ValueDate = srcQtRefTrdrVlDtPriceVolumeLayer.ValueDate;
         }
         else if (toClone is ISourceQuoteRefPriceVolumeLayer srcQtRefPriceVolumeLayer)
         {
             SourceName = srcQtRefPriceVolumeLayer.SourceName;
             Executable = srcQtRefPriceVolumeLayer.Executable;
+
             SourceQuoteReference = srcQtRefPriceVolumeLayer.SourceQuoteReference;
         }
         else if (toClone is ISourcePriceVolumeLayer srcPriceVolumeLayer)
@@ -56,39 +64,58 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         LayerFlags.SourceQuoteReference | LayerFlags.SourceName
                                         | LayerFlags.Executable | LayerFlags.ValueDate | base.SupportsLayerFlags;
 
-    public string? SourceName { get; set; }
-    public bool Executable { get; set; }
-    public DateTime ValueDate { get; set; }
+    public string?  SourceName { get; set; }
+    public bool     Executable { get; set; }
+    public DateTime ValueDate  { get; set; }
+
     public uint SourceQuoteReference { get; set; }
 
-    public override bool IsEmpty =>
-        base.IsEmpty && SourceName == null && !Executable
-        && ValueDate == DateTimeConstants.UnixEpoch && SourceQuoteReference == 0;
+    public override bool IsEmpty
+    {
+        get =>
+            base.IsEmpty && SourceName == null && !Executable
+         && ValueDate == DateTimeConstants.UnixEpoch && SourceQuoteReference == 0;
+        set
+        {
+            if (!value) return;
+
+            SourceName = null;
+            Executable = false;
+            ValueDate  = DateTimeConstants.UnixEpoch;
+
+            SourceQuoteReference = 0;
+
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
         base.StateReset();
-        SourceName = null;
-        Executable = false;
-        ValueDate = DateTimeConstants.UnixEpoch;
+        SourceName           = null;
+        Executable           = false;
+        ValueDate            = DateTimeConstants.UnixEpoch;
         SourceQuoteReference = 0;
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer)
         {
             SourceName = srcQtRefTrdrVlDtPriceVolumeLayer.SourceName;
             Executable = srcQtRefTrdrVlDtPriceVolumeLayer.Executable;
+
             SourceQuoteReference = srcQtRefTrdrVlDtPriceVolumeLayer.SourceQuoteReference;
+
             ValueDate = srcQtRefTrdrVlDtPriceVolumeLayer.ValueDate;
         }
         else if (source is ISourceQuoteRefPriceVolumeLayer srcQtRefPriceVolumeLayer)
         {
             SourceName = srcQtRefPriceVolumeLayer.SourceName;
             Executable = srcQtRefPriceVolumeLayer.Executable;
+
             SourceQuoteReference = srcQtRefPriceVolumeLayer.SourceQuoteReference;
         }
         else if (source is ISourcePriceVolumeLayer srcPriceVolumeLayer)
@@ -149,13 +176,15 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
     {
         if (!(other is ISourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPvLayer)) return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
-        var sourceNameSame = SourceName == srcQtRefTrdrVlDtPvLayer.SourceName;
-        var executableSame = Executable == srcQtRefTrdrVlDtPvLayer.Executable;
+        var baseSame                 = base.AreEquivalent(other, exactTypes);
+        var sourceNameSame           = SourceName == srcQtRefTrdrVlDtPvLayer.SourceName;
+        var executableSame           = Executable == srcQtRefTrdrVlDtPvLayer.Executable;
         var sourceQuoteReferenceSame = SourceQuoteReference == srcQtRefTrdrVlDtPvLayer.SourceQuoteReference;
-        var valueDateSame = ValueDate == srcQtRefTrdrVlDtPvLayer.ValueDate;
+        var valueDateSame            = ValueDate == srcQtRefTrdrVlDtPvLayer.ValueDate;
 
-        return baseSame && sourceNameSame && executableSame && sourceQuoteReferenceSame && valueDateSame;
+        var allAreSame = baseSame && sourceNameSame && executableSame && sourceQuoteReferenceSame && valueDateSame;
+        // if (!allAreSame) Debugger.Break();
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);

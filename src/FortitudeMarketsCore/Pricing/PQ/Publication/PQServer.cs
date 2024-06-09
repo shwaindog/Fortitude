@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
@@ -24,7 +27,7 @@ public interface IPQServer<T> : IDisposable where T : IPQLevel0Quote
 {
     bool IsStarted { get; }
     void StartServices();
-    T? Register(string ticker);
+    T?   Register(string ticker);
     void Unregister(T quote);
     void Publish(T quote);
     void SetNextSequenceNumberToZero(string ticker);
@@ -34,15 +37,16 @@ public interface IPQServer<T> : IDisposable where T : IPQLevel0Quote
 public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServer<T>));
-    private readonly ISocketDispatcherResolver dispatcherResolver;
-    private readonly IMap<uint, T> entities = new ConcurrentMap<uint, T>();
-    private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
-    private readonly ISyncLock heartBeatSync = new YieldLockLight();
-    private readonly IMarketConnectionConfig marketConnectionConfig;
 
-    private readonly IPricingServerConfig pricingServerConfig;
+    private readonly ISocketDispatcherResolver         dispatcherResolver;
+    private readonly IMap<uint, T>                     entities        = new ConcurrentMap<uint, T>();
+    private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
+    private readonly ISyncLock                         heartBeatSync   = new YieldLockLight();
+
+    private readonly IMarketConnectionConfig         marketConnectionConfig;
+    private readonly IPricingServerConfig            pricingServerConfig;
     private readonly Func<ISourceTickerQuoteInfo, T> quoteFactory;
-    private readonly IPQServerHeartBeatSender serverHeartBeatSender;
+    private readonly IPQServerHeartBeatSender        serverHeartBeatSender;
 
     private readonly Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer>
         snapShotServerFactory;
@@ -51,7 +55,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         updateServerFactory;
 
     private IPQSnapshotServer? snapshotServer;
-    private IPQUpdateServer? updateServer;
+    private IPQUpdateServer?   updateServer;
 
     public PQServer(IMarketConnectionConfig marketConnectionConfig,
         IPQServerHeartBeatSender serverHeartBeatSender,
@@ -60,14 +64,15 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory,
         Func<ISourceTickerQuoteInfo, T>? quoteFactory = null)
     {
-        this.quoteFactory = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerQuoteInfo, T>();
-        dispatcherResolver = socketDispatcherResolver;
+        this.quoteFactory           = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerQuoteInfo, T>();
+        dispatcherResolver          = socketDispatcherResolver;
         this.marketConnectionConfig = marketConnectionConfig;
-        pricingServerConfig = marketConnectionConfig.PricingServerConfig!;
-        this.serverHeartBeatSender = serverHeartBeatSender;
-        this.snapShotServerFactory = snapShotServerFactory;
-        this.updateServerFactory = updateServerFactory;
-        serverHeartBeatSender.ServerLinkedLock = heartBeatSync;
+        pricingServerConfig         = marketConnectionConfig.PricingServerConfig!;
+        this.serverHeartBeatSender  = serverHeartBeatSender;
+        this.snapShotServerFactory  = snapShotServerFactory;
+        this.updateServerFactory    = updateServerFactory;
+
+        serverHeartBeatSender.ServerLinkedLock   = heartBeatSync;
         serverHeartBeatSender.ServerLinkedQuotes = heartbeatQuotes;
     }
 
@@ -77,13 +82,13 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         if (tickerInfo != null)
             if (!entities.TryGetValue(tickerInfo.Id, out var ent))
             {
-                ent = quoteFactory(tickerInfo);
+                ent              = quoteFactory(tickerInfo);
                 ent.PQSequenceId = uint.MaxValue;
                 entities.Add(tickerInfo.Id, ent);
                 // publish identical quote leaving next quote to also be zero.
                 var quote = quoteFactory(tickerInfo);
                 quote.PQSequenceId = uint.MaxValue;
-                quote.HasUpdates = true;
+                quote.HasUpdates   = true;
                 Publish(quote);
 
                 if (!serverHeartBeatSender.HasStarted) serverHeartBeatSender.StartSendingHeartBeats();
@@ -143,6 +148,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
             {
                 ent.Lock.Release();
             }
+            if (ent.PQSequenceId == uint.MaxValue) ent.HasUpdates = true;
 
             if (ent.HasUpdates)
             {
@@ -227,20 +233,20 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         if (!IsStarted)
         {
             snapshotServer = snapShotServerFactory(pricingServerConfig.SnapshotConnectionConfig!
-                , dispatcherResolver);
-            snapshotServer.OnSnapshotRequest += OnSnapshotContextRequest;
+                                                 , dispatcherResolver);
+            snapshotServer.OnSnapshotRequest               += OnSnapshotContextRequest;
             snapshotServer.ReceivedSourceTickerInfoRequest += OnReceivedSourceTickerInfoRequest;
             snapshotServer.Start();
             updateServer = updateServerFactory(pricingServerConfig.UpdateConnectionConfig!
-                , dispatcherResolver);
+                                             , dispatcherResolver);
             updateServer.Start();
             serverHeartBeatSender.UpdateServer = updateServer;
-            IsStarted = true;
+            IsStarted                          = true;
         }
     }
 
     private void OnReceivedSourceTickerInfoRequest(PQSourceTickerInfoRequest sourceTickerInfoRequest
-        , IConversationRequester clientConversationRequester)
+      , IConversationRequester clientConversationRequester)
     {
         var response = new PQSourceTickerInfoResponse(marketConnectionConfig.AllSourceTickerInfos);
         response.RequestId = sourceTickerInfoRequest.RequestId;

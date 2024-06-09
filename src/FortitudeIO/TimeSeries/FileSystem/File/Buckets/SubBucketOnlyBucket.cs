@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 #endregion
@@ -143,32 +144,32 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
                       return subBucket.ReadEntries(readerContext);
                   });
 
-    public override StorageAttemptResult AppendEntry(TEntry entry)
+    public override AppendResult AppendEntry(IAppendContext<TEntry> entryContext)
     {
-        if (!Writable) return StorageAttemptResult.BucketClosedForAppend;
-        var entryStorageTime = entry.StorageTime(StorageTimeResolver);
+        if (!Writable) return new AppendResult(StorageAttemptResult.BucketClosedForAppend);
+        var entryStorageTime = entryContext.StorageTime;
         var searchResult = currentlyOpenSubBucket?.CheckTimeSupported(entryStorageTime) ??
                            LastAddedSubBucket?.CheckTimeSupported(entryStorageTime) ?? StorageAttemptResult.NoBucketChecked;
-        if (searchResult == StorageAttemptResult.BucketClosedForAppend) return searchResult;
-        if (searchResult == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenSubBucket!.AppendEntry(entry);
+        if (searchResult == StorageAttemptResult.BucketClosedForAppend) return new AppendResult(searchResult);
+        if (searchResult == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenSubBucket!.AppendEntry(entryContext);
         var parentCheckResult = CheckTimeSupported(entryStorageTime);
-        if (parentCheckResult != StorageAttemptResult.PeriodRangeMatched) return parentCheckResult;
+        if (parentCheckResult != StorageAttemptResult.PeriodRangeMatched) return new AppendResult(parentCheckResult);
 
         if (searchResult == StorageAttemptResult.NextBucketPeriod &&
             (currentlyOpenSubBucket?.BucketFlags.HasBucketCurrentAppendingFlag() ?? false))
         {
             currentlyOpenSubBucket = currentlyOpenSubBucket.CloseAndCreateNextBucket()!;
-            return currentlyOpenSubBucket.AppendEntry(entry);
+            return currentlyOpenSubBucket.AppendEntry(entryContext);
         }
         foreach (var existingBucket in SubBuckets)
             if (existingBucket.CheckTimeSupported(entryStorageTime) == StorageAttemptResult.PeriodRangeMatched)
             {
                 currentlyOpenSubBucket = (TSubBucket)existingBucket.OpenBucket(OwningSession.ActiveBucketDataFileView, true);
-                return existingBucket.AppendEntry(entry);
+                return existingBucket.AppendEntry(entryContext);
             }
 
         currentlyOpenSubBucket = SubBucketFactory.CreateNewBucket(this, EndAllHeadersSectionFileOffset,
                                                                   entryStorageTime, true);
-        return currentlyOpenSubBucket.AppendEntry(entry);
+        return currentlyOpenSubBucket.AppendEntry(entryContext);
     }
 }

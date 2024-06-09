@@ -8,6 +8,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -51,23 +52,20 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         return *ptr;
     }
 
-    public override StorageAttemptResult AppendEntry(IGrowableUnmanagedBuffer growableBuffer, Level1QuoteStruct entry)
+    public override AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer,
+        IAppendContext<Level1QuoteStruct> entryContext, AppendResult appendResult)
     {
-        if (!Writable || !IsOpen || !BucketFlags.HasBucketCurrentAppendingFlag()) return StorageAttemptResult.BucketClosedForAppend;
-        var entryStorageTime = entry.StorageTime(StorageTimeResolver);
-        var checkWithinRange = CheckTimeSupported(entryStorageTime);
-        if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return checkWithinRange;
-
         // var writeCursor = growableBuffer.WriteCursor;
         // var writeEntry  = writeCursor / sizeof(Level1QuoteStruct);
-        var ptr = (Level1QuoteStruct*)(growableBuffer.WriteBuffer + growableBuffer.BufferRelativeWriteCursor);
-        *ptr = entry;
+        var ptr = (Level1QuoteStruct*)(writeBuffer.WriteBuffer + writeBuffer.BufferRelativeWriteCursor);
+        *ptr = entryContext.CurrentEntry;
 
-        growableBuffer.WriteCursor += sizeof(Level1QuoteStruct);
-        ExpandedDataSize           += (ulong)sizeof(Level1QuoteStruct);
-        TotalDataEntriesCount      += 1;
+        appendResult.SerializedSize =  sizeof(Level1QuoteStruct);
+        writeBuffer.WriteCursor     += sizeof(Level1QuoteStruct);
+        ExpandedDataSize            += (ulong)sizeof(Level1QuoteStruct);
+        TotalDataEntriesCount       += 1;
         // Logger.Info("Bucket {0} with StartTime {1} wrote EntryNumber: {2} for DataSize {3} at {4} {5:X} - {6}  ",
         //             BucketId, PeriodStartTime, writeEntry, sizeof(Level1QuoteStruct), writeCursor, (nint)ptr, *ptr);
-        return StorageAttemptResult.PeriodRangeMatched;
+        return appendResult;
     }
 }

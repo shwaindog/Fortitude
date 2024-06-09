@@ -100,22 +100,23 @@ public abstract class QuoteGenerator<TQuote> : IQuoteGenerator<TQuote> where TQu
                                                .First();
             PseudoRandom          = new Random(prevCurrMid.PreviousMid.Mid.GetHashCode() ^ prevCurrMid.CurrentMid.Mid.GetHashCode());
             NormalDist            = new Normal(0, 1, PseudoRandom);
-            PreviousReturnedQuote = BuildQuote(prevCurrMid);
+            PreviousReturnedQuote = BuildQuote(prevCurrMid, nextSingleQuoteSequenceNumber);
             return PreviousReturnedQuote;
         }
     }
 
     public IEnumerable<TQuote> Quotes(DateTime startingFromTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0)
     {
+        var currentSeqNum = sequenceNumber;
         foreach (var prevCurrMids in GenerateQuoteInfo.MidPriceGenerator
                                                       .PreviousCurrentPrices(startingFromTime, averageInterval, numToGenerate, sequenceNumber))
         {
             PseudoRandom          = new Random(prevCurrMids.PreviousMid.Mid.GetHashCode() ^ prevCurrMids.CurrentMid.Mid.GetHashCode());
             NormalDist            = new Normal(0, 1, PseudoRandom);
-            PreviousReturnedQuote = BuildQuote(prevCurrMids);
+            PreviousReturnedQuote = BuildQuote(prevCurrMids, currentSeqNum++);
             yield return PreviousReturnedQuote;
         }
     }
 
-    public abstract TQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
+    public abstract TQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber);
 }

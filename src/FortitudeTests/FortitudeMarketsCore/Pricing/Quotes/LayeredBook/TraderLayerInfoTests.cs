@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -15,25 +18,26 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 public class TraderLayerInfoTests
 {
     private const string TraderName = "TestTraderName";
-    private TraderLayerInfo emptyTli = null!;
+
+    private TraderLayerInfo          emptyTli              = null!;
     private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
-    private TraderLayerInfo populatedTli = null!;
+    private TraderLayerInfo          populatedTli          = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
-        emptyTli = new TraderLayerInfo();
-        populatedTli = new TraderLayerInfo(TraderName, 42_111_222m);
+        emptyTli              = new TraderLayerInfo();
+        populatedTli          = new TraderLayerInfo(TraderName, 42_111_222m);
     }
 
     [TestMethod]
     public void NewTli_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
         var newExpectedTraderName = "DiffTraderName";
-        var newTli = new TraderLayerInfo(newExpectedTraderName, 2_333_444m);
+        var newTli                = new TraderLayerInfo(newExpectedTraderName, 2_333_440m);
         Assert.AreEqual(newExpectedTraderName, newTli.TraderName);
-        Assert.AreEqual(2_333_444m, newTli.TraderVolume);
+        Assert.AreEqual(2_333_440m, newTli.TraderVolume);
 
         Assert.IsNull(emptyTli.TraderName);
         Assert.AreEqual(0m, emptyTli.TraderVolume);
@@ -47,8 +51,8 @@ public class TraderLayerInfoTests
         Assert.AreEqual(populatedTli.TraderVolume, fromPQInstance.TraderVolume);
 
         var newExpectedTraderName = "NonPQTraderName";
-        var pqTli = new PQTraderLayerInfo(nameIdLookupGenerator.Clone(), newExpectedTraderName, 222_444);
-        var fromNonPqInstance = new TraderLayerInfo(pqTli);
+        var pqTli                 = new PQTraderLayerInfo(nameIdLookupGenerator.Clone(), newExpectedTraderName, 222_444);
+        var fromNonPqInstance     = new TraderLayerInfo(pqTli);
         Assert.AreEqual(newExpectedTraderName, fromNonPqInstance.TraderName);
         Assert.AreEqual(222_444, fromNonPqInstance.TraderVolume);
 
@@ -105,7 +109,7 @@ public class TraderLayerInfoTests
     {
         var fullyPopulatedClone = ((IMutableTraderLayerInfo)populatedTli).Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedTli,
-            fullyPopulatedClone);
+                                                            fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -143,38 +147,38 @@ public class TraderLayerInfoTests
         Assert.IsFalse(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsFalse(
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                           originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.IsFalse(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                           originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingTraderLayerInfo.TraderName = original.TraderName;
         Assert.IsTrue(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsTrue(
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                          originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.IsTrue(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                          originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingTraderLayerInfo.TraderVolume = 8_765_432;
         Assert.IsFalse(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsFalse(
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                           originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.IsFalse(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                           originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingTraderLayerInfo.TraderVolume = original.TraderVolume;
         Assert.IsTrue(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsTrue(
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                          originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.IsTrue(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                          originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

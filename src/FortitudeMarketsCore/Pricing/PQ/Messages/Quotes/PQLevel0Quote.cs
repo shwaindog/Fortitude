@@ -451,7 +451,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         }
         if (!updatedOnly || IsBooleanFlagsChanged())
         {
-            var booleanFields = GenerateBooleanFlags();
+            var booleanFields = GenerateBooleanFlags(!updatedOnly);
             yield return new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)booleanFields);
         }
 
@@ -598,29 +598,65 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             // only copy if changed
             var isFullReplace = copyMergeFlags.HasFullReplace();
             if (ipq0.IsSourceTimeDateUpdated || isFullReplace)
+            {
+                var originalSourceTime = sourceTime;
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceTime, ipq0.SourceTime.GetHoursFromUnixEpoch());
+                IsSourceTimeDateUpdated = originalSourceTime != sourceTime;
+            }
             if (ipq0.IsSourceTimeSubHourUpdated || isFullReplace)
+            {
+                var originalSourceTime = sourceTime;
                 PQFieldConverters.UpdateSubHourComponent(ref sourceTime, ipq0.SourceTime.GetSubHourComponent());
-
+                IsSourceTimeSubHourUpdated = originalSourceTime != sourceTime;
+            }
             if (ipq0.IsSocketReceivedTimeDateUpdated || isFullReplace)
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref socketReceivingTime, ipq0.ProcessedTime.GetHoursFromUnixEpoch());
+            {
+                var originalSocketReceivingTime = socketReceivingTime;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref socketReceivingTime, ipq0.SocketReceivingTime.GetHoursFromUnixEpoch());
+                IsSocketReceivedTimeDateUpdated = originalSocketReceivingTime != socketReceivingTime;
+            }
             if (ipq0.IsSocketReceivedTimeSubHourUpdated || isFullReplace)
-                PQFieldConverters.UpdateSubHourComponent(ref socketReceivingTime, ipq0.ProcessedTime.GetSubHourComponent());
-
+            {
+                var originalSocketReceivingTime = socketReceivingTime;
+                PQFieldConverters.UpdateSubHourComponent(ref socketReceivingTime, ipq0.SocketReceivingTime.GetSubHourComponent());
+                IsSocketReceivedTimeSubHourUpdated = originalSocketReceivingTime != socketReceivingTime;
+            }
             if (ipq0.IsProcessedTimeDateUpdated || isFullReplace)
+            {
+                var originalProcessedTime = processedTime;
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref processedTime, ipq0.ProcessedTime.GetHoursFromUnixEpoch());
+                IsProcessedTimeDateUpdated = originalProcessedTime != processedTime;
+            }
             if (ipq0.IsProcessedTimeSubHourUpdated || isFullReplace)
+            {
+                var originalProcessedTime = processedTime;
                 PQFieldConverters.UpdateSubHourComponent(ref processedTime, ipq0.ProcessedTime.GetSubHourComponent());
-
+                IsProcessedTimeSubHourUpdated = originalProcessedTime != processedTime;
+            }
             if (ipq0.IsDispatchedTimeDateUpdated || isFullReplace)
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref dispatchedTime, ipq0.ProcessedTime.GetHoursFromUnixEpoch());
+            {
+                var originalDispatchedTime = dispatchedTime;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref dispatchedTime, ipq0.DispatchedTime.GetHoursFromUnixEpoch());
+                IsDispatchedTimeDateUpdated = originalDispatchedTime != dispatchedTime;
+            }
             if (ipq0.IsDispatchedTimeSubHourUpdated || isFullReplace)
-                PQFieldConverters.UpdateSubHourComponent(ref dispatchedTime, ipq0.ProcessedTime.GetSubHourComponent());
-
+            {
+                var originalDispatchedTime = dispatchedTime;
+                PQFieldConverters.UpdateSubHourComponent(ref dispatchedTime, ipq0.DispatchedTime.GetSubHourComponent());
+                IsDispatchedTimeSubHourUpdated = originalDispatchedTime != dispatchedTime;
+            }
             if (ipq0.IsClientReceivedTimeDateUpdated || isFullReplace)
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref clientReceivedTime, ipq0.ProcessedTime.GetHoursFromUnixEpoch());
+            {
+                var originalClientReceivedTime = clientReceivedTime;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref clientReceivedTime, ipq0.ClientReceivedTime.GetHoursFromUnixEpoch());
+                IsClientReceivedTimeDateUpdated = originalClientReceivedTime != clientReceivedTime;
+            }
             if (ipq0.IsClientReceivedTimeSubHourUpdated || isFullReplace)
-                PQFieldConverters.UpdateSubHourComponent(ref clientReceivedTime, ipq0.ProcessedTime.GetSubHourComponent());
+            {
+                var originalClientReceivedTime = clientReceivedTime;
+                PQFieldConverters.UpdateSubHourComponent(ref clientReceivedTime, ipq0.ClientReceivedTime.GetSubHourComponent());
+                IsClientReceivedTimeSubHourUpdated = originalClientReceivedTime != clientReceivedTime;
+            }
 
             if (ipq0.IsReplayUpdated || isFullReplace) IsReplay         = ipq0.IsReplay;
             if (ipq0.IsSinglePriceUpdated || isFullReplace) SinglePrice = ipq0.SinglePrice;
@@ -629,27 +665,31 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
             OverrideSerializationFlags = ipq0.OverrideSerializationFlags;
 
-            PQSequenceId        = ipq0.PQSequenceId;
-            SocketReceivingTime = ipq0.SocketReceivingTime;
-            DispatchedTime      = ipq0.DispatchedTime;
-            ProcessedTime       = ipq0.ProcessedTime;
-            ClientReceivedTime  = ipq0.ClientReceivedTime;
+            PQSequenceId = ipq0.PQSequenceId;
 
             if (source is PQLevel0Quote pq0)
             {
-                UpdatedFlags        = pq0.UpdatedFlags;
                 LastPublicationTime = pq0.LastPublicationTime;
+                if (isFullReplace) UpdatedFlags = pq0.UpdatedFlags;
             }
         }
         else
         {
             OverrideSerializationFlags = null;
 
-            ClientReceivedTime    = source.ClientReceivedTime;
-            SourceTickerQuoteInfo = source.SourceTickerQuoteInfo;
-            SourceTime            = source.SourceTime;
-            IsReplay              = source.IsReplay;
-            SinglePrice           = source.SinglePrice;
+            ClientReceivedTime = source.ClientReceivedTime;
+            if (source.SourceTickerQuoteInfo != null)
+            {
+                SourceTickerQuoteInfo ??= new PQSourceTickerQuoteInfo(source.SourceTickerQuoteInfo);
+                SourceTickerQuoteInfo.CopyFrom(source.SourceTickerQuoteInfo);
+            }
+            else
+            {
+                SourceTickerQuoteInfo?.StateReset();
+            }
+            SourceTime  = source.SourceTime;
+            IsReplay    = source.IsReplay;
+            SinglePrice = source.SinglePrice;
         }
 
         return this;
@@ -715,9 +755,11 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             booleanFieldsSame = BooleanFields == pqLevel0Quote.BooleanFields;
         }
 
-        return clientReceivedSame && isReplaySame && tickerQuoteInfoSame && singlePriceSame && sourceTimeSame
-            && updatedFlagsSame && booleanFieldsSame && dispatchTimeSame && processingTimeSame && lastPubTimeSame
-            && socketReceivingTimeSame && sequenceIdSame && publicationStatusSame;
+        var allAreSame = clientReceivedSame && isReplaySame && tickerQuoteInfoSame && singlePriceSame && sourceTimeSame
+                      && updatedFlagsSame && booleanFieldsSame && dispatchTimeSame && processingTimeSame && lastPubTimeSame
+                      && socketReceivingTimeSame && sequenceIdSame && publicationStatusSame;
+        // if (!allAreSame) Debugger.Break();
+        return allAreSame;
     }
 
     public virtual PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)
@@ -741,8 +783,8 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     protected virtual bool IsBooleanFlagsChanged() => IsReplayUpdated;
 
-    protected virtual PQBooleanValues GenerateBooleanFlags() =>
-        (IsReplayUpdated ? PQBooleanValues.IsReplayUpdatedFlag : 0)
+    protected virtual PQBooleanValues GenerateBooleanFlags(bool fullUpdate) =>
+        (IsReplayUpdated || fullUpdate ? PQBooleanValues.IsReplayUpdatedFlag : 0)
       | (IsReplay ? PQBooleanValues.IsReplaySetFlag : 0);
 
     protected virtual void SetBooleanFields(PQBooleanValues booleanFlags)

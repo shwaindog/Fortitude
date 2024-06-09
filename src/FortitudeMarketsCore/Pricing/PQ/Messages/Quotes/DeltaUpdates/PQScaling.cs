@@ -1,19 +1,36 @@
-﻿namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public static class PQScaling
 {
-    private const byte FactorMask = 0x0F;
+    private const  byte FactorMask   = 0x0F;
     internal const byte NegativeMask = 0x10;
 
     private static readonly decimal[] Factors =
     {
-        0m, 0.0000001m, 0.000001m, 0.00001m, 0.0001m, 0.001m, 0.01m, 0.1m, 1m, 10m, 100m, 1000m, 10000m, 100000m
-        , 1000000m, 10000000m
+        0m
+      , 0.0000001m
+      , 0.000001m
+      , 0.00001m
+      , 0.0001m
+      , 0.001m
+      , 0.01m
+      , 0.1m
+      , 1m
+      , 10m
+      , 100m
+      , 1000m
+      , 10000m
+      , 100000m
+      , 1000000m
+      , 10000000m
     };
 
     public static byte FindFlagForDecimalPlacesShift(int numberOfDecimalPlaces)
     {
-        if (numberOfDecimalPlaces > 7) numberOfDecimalPlaces = 7;
+        if (numberOfDecimalPlaces > 7) numberOfDecimalPlaces  = 7;
         if (numberOfDecimalPlaces < -7) numberOfDecimalPlaces = -7;
         return (byte)(8 - numberOfDecimalPlaces);
     }
@@ -28,17 +45,13 @@ public static class PQScaling
         var abs = Math.Abs(value);
         var beforeDecimalPoint = abs < 1 ? 0 : (int)(Math.Log10(decimal.ToDouble(abs)) + 1);
         var totalSignificantDigits = afterDecimalPoint + beforeDecimalPoint;
-        var rounded = totalSignificantDigits > maxNumberOfSignificantDigits ?
-            decimal.Round(value, maxNumberOfSignificantDigits) :
-            value;
-        var decimalPointDelta = totalSignificantDigits < maxNumberOfSignificantDigits ?
-            0 :
-            totalSignificantDigits - maxNumberOfSignificantDigits;
+        var rounded = totalSignificantDigits > maxNumberOfSignificantDigits ? decimal.Round(value, maxNumberOfSignificantDigits) : value;
+        var decimalPointDelta = totalSignificantDigits < maxNumberOfSignificantDigits ? 0 : totalSignificantDigits - maxNumberOfSignificantDigits;
         afterDecimalPoint -= decimalPointDelta;
 
-        flagSelected = beforeDecimalPoint < maxNumberOfSignificantDigits ?
-            FindFlagForDecimalPlacesShift(afterDecimalPoint) :
-            FindFlagForDecimalPlacesShift(maxNumberOfSignificantDigits - beforeDecimalPoint);
+        flagSelected = beforeDecimalPoint < maxNumberOfSignificantDigits
+            ? FindFlagForDecimalPlacesShift(afterDecimalPoint)
+            : FindFlagForDecimalPlacesShift(maxNumberOfSignificantDigits - beforeDecimalPoint);
 
         flagSelected |= (byte)(value < 0 ? NegativeMask : 0);
         return Scale(rounded, (byte)(flagSelected & 0x1F));

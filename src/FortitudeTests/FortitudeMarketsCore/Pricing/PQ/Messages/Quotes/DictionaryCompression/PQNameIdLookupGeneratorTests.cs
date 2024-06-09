@@ -242,9 +242,9 @@ public class PQNameIdLookupGeneratorTests
 
         firstGeneratorSubKey1.GetOrAddId("FourthItem");
 
-        Assert.AreEqual(3, secondGeneratorSubKey1.Count);
+        secondGeneratorSubKey1.Clear();
 
-        secondGeneratorSubKey1.CopyFrom(firstGeneratorSubKey1, CopyMergeFlags.AppendMissing);
+        secondGeneratorSubKey1.CopyFrom(firstGeneratorSubKey1);
 
         Assert.AreEqual(1, secondGeneratorSubKey1.Count);
     }
@@ -252,7 +252,7 @@ public class PQNameIdLookupGeneratorTests
     [TestMethod]
     public void UpdatedPQLookupGenerator_CopyFrom_CopyKeepsUpdatedTracking()
     {
-        firstGeneratorSubKey1.HasUpdates = false;
+        firstGeneratorSubKey1.Clear();
         Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
 
         firstGeneratorSubKey1.GetOrAddId("FourthItem");
@@ -260,7 +260,7 @@ public class PQNameIdLookupGeneratorTests
         var originalUpdate = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
 
         var empty = new PQNameIdLookupGenerator(1);
-        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.AppendMissing);
+        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1);
         var copyUpdate = empty.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
 
@@ -304,12 +304,12 @@ public class PQNameIdLookupGeneratorTests
         Assert.AreEqual("SecondItem", secondGeneratorSubKey1.GetName(2));
         Assert.AreEqual("ThirdItem", secondGeneratorSubKey1.GetName(3));
 
-        secondGeneratorSubKey1.CopyFrom(populatedIdLookupGenerator, CopyMergeFlags.AppendMissing);
+        secondGeneratorSubKey1.CopyFrom(populatedIdLookupGenerator);
 
-        Assert.AreEqual(2, secondGeneratorSubKey1.Count);
-        Assert.IsNull(secondGeneratorSubKey1.GetName(1));
-        Assert.IsNull(secondGeneratorSubKey1.GetName(2));
-        Assert.IsNull(secondGeneratorSubKey1.GetName(3));
+        Assert.AreEqual(5, secondGeneratorSubKey1.Count);
+        Assert.AreEqual("FirstItem", secondGeneratorSubKey1.GetName(1));
+        Assert.AreEqual("SecondItem", secondGeneratorSubKey1.GetName(2));
+        Assert.AreEqual("ThirdItem", secondGeneratorSubKey1.GetName(3));
         Assert.AreEqual("FifthItem", secondGeneratorSubKey1.GetName(5));
         Assert.AreEqual("SixthItem", secondGeneratorSubKey1.GetName(6));
     }

@@ -115,7 +115,18 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
     public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
-    public override bool IsEmpty => base.IsEmpty && TraderName == null;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && TraderName == null;
+        set
+        {
+            if (!value) return;
+
+            TraderName = null;
+
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {

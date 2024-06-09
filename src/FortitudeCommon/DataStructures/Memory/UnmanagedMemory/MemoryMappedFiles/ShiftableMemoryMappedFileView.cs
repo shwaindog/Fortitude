@@ -276,11 +276,18 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
         var pageSize = PagedMemoryMappedFile.PageSize;
 
         var interimHalfMinimumViewSize = minimumViewSize / 2;
-        var safeHalfMinimumViewPages = Math.Max(HalfViewPageSize, (int)(interimHalfMinimumViewSize /
-                                                    pageSize + (interimHalfMinimumViewSize % pageSize == 0 ? 0 : 1)));
+        var safeHalfMinimumViewPages =
+            MemoryUtils.CeilingNextPowerOfTwo
+                (Math.Max(HalfViewPageSize, (int)(interimHalfMinimumViewSize /
+                              pageSize + (interimHalfMinimumViewSize % pageSize == 0 ? 0 : 1))));
 
-        var fileCursorDeduction = fileCursorOffset % safeHalfMinimumViewPages * pageSize;
-        if (safeHalfMinimumViewPages * pageSize - fileCursorDeduction < interimHalfMinimumViewSize + 1) safeHalfMinimumViewPages++;
+        var fileCursorDeduction = fileCursorOffset % (safeHalfMinimumViewPages * pageSize);
+        while (2 * safeHalfMinimumViewPages * pageSize - fileCursorDeduction < minimumViewSize)
+        {
+            safeHalfMinimumViewPages++;
+            safeHalfMinimumViewPages = MemoryUtils.CeilingNextPowerOfTwo(safeHalfMinimumViewPages);
+            fileCursorDeduction      = fileCursorOffset % (safeHalfMinimumViewPages * pageSize);
+        }
         var halfViewNumberOfPages = MemoryUtils.CeilingNextPowerOfTwo(safeHalfMinimumViewPages);
         if (HalfViewPageSize < halfViewNumberOfPages)
         {

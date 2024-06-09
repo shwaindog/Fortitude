@@ -50,7 +50,7 @@ public class PQOrderBookTests
     public void SetUp()
     {
         nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
-        nameIdLookupGenerator.GetOrAddId(TraderPriceVolumeLayer.TraderCountTraderName);
+        nameIdLookupGenerator.GetOrAddId(TraderPriceVolumeLayer.TraderCountOnlyName);
 
         simpleLayers      = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
         sourceLayers      = new List<IPQSourcePriceVolumeLayer>(MaxNumberOfLayers);
@@ -768,11 +768,11 @@ public class PQOrderBookTests
             if (pvl is IPQValueDatePriceVolumeLayer valueDatePvl)
             {
                 var valueDate = PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                            (ushort)(PQFieldKeys.LayerDateOffset + i));
+                                                                            (ushort)(PQFieldKeys.FirstLayerDateOffset + i));
 
                 var dateAsHoursFromEpoch = valueDatePvl.ValueDate.GetHoursFromUnixEpoch();
 
-                Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.LayerDateOffset + i),
+                Assert.AreEqual(new PQFieldUpdate((ushort)(PQFieldKeys.FirstLayerDateOffset + i),
                                                   dateAsHoursFromEpoch, PQFieldFlags.IsExtendedFieldId), valueDate);
             }
 

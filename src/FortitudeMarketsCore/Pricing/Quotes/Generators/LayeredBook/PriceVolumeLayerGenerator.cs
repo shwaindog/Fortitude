@@ -23,12 +23,20 @@ public struct GenerateBookLayerInfo
     public double ExecutableProbability = 0.99;
 }
 
-public class PriceVolumeLayerGenerator
+public interface IPriceVolumeLayerGenerator
+{
+    void   PopulatePriceVolumeLayer(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
+    Normal NormalDist   { get; set; }
+    Random PseudoRandom { get; set; }
+}
+
+
+public class PriceVolumeLayerGenerator : IPriceVolumeLayerGenerator
 {
     private readonly GenerateBookLayerInfo generateLayerInfo;
 
-    internal Normal NormalDist   { get; set; } = null!;
-    internal Random PseudoRandom { get; set; } = null!;
+    public Normal NormalDist   { get; set; } = null!;
+    public Random PseudoRandom { get; set; } = null!;
 
     public PriceVolumeLayerGenerator(GenerateBookLayerInfo generateLayerInfo)
     {
@@ -66,16 +74,26 @@ public class PriceVolumeLayerGenerator
         PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         var index = PseudoRandom.Next(0, generateLayerInfo.CandidateValueDateAddDays.Length);
-        var date = previousCurrentMidPriceTime.CurrentMid.Time.AddDays(generateLayerInfo.CandidateValueDateAddDays[index]);
+        var date = previousCurrentMidPriceTime.CurrentMid.Time.AddDays(generateLayerInfo.CandidateValueDateAddDays[index]).Date;
         valueDatePriceVolumeLayer.ValueDate = date;
     }
 
     protected virtual void PopulateSourceName(IMutableSourcePriceVolumeLayer sourcePriceVolumeLayer, int depth, 
         PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
-        sourcePriceVolumeLayer.Executable = PseudoRandom.NextDouble() < generateLayerInfo.ExecutableProbability;
+        SetExecutable(sourcePriceVolumeLayer, PseudoRandom.NextDouble() < generateLayerInfo.ExecutableProbability);
         var sourceNumber = PseudoRandom.Next(1, generateLayerInfo.MaxNumberOfSourceNames + 1);
-        sourcePriceVolumeLayer.SourceName = $"SourceName_{sourceNumber}";
+        SetSourceName(sourcePriceVolumeLayer, $"SourceName_{sourceNumber}");
+    }
+
+    protected virtual void SetExecutable(IMutableSourcePriceVolumeLayer sourcePvL, bool executable)
+    {
+        sourcePvL.Executable = executable;
+    }
+
+    protected virtual void SetSourceName(IMutableSourcePriceVolumeLayer sourcePvL, string name)
+    {
+        sourcePvL.SourceName = name;
     }
 
     protected virtual void PopulateSourceQuoteRef(IMutableSourceQuoteRefPriceVolumeLayer sourceQuoteRefPriceVolumeLayer, int depth, 
@@ -90,19 +108,24 @@ public class PriceVolumeLayerGenerator
     {
         var numberOfTradersOnLayer = Math.Min(generateLayerInfo.MaxNumberOfUniqueTraderName,  Math.Max(0, generateLayerInfo.AverageTradersPerLayer + 
                           (int)(NormalDist.Sample() * generateLayerInfo.TradersPerLayerStandardDeviation)));
-
         if (generateLayerInfo.IsTraderCountOnly)
         {
             traderPriceVolumeLayer.SetTradersCountOnly(numberOfTradersOnLayer);
             return;
         }
+        if (numberOfTradersOnLayer == 0) return;
         var traderVolume = traderPriceVolumeLayer.Volume / numberOfTradersOnLayer;
         for (int i = 0; i < numberOfTradersOnLayer; i++)
         {
             var traderNum = PseudoRandom.Next(0, generateLayerInfo.MaxNumberOfUniqueTraderName);
-            traderPriceVolumeLayer[i]!.TraderName = $"TraderName_{traderNum}";
+            SetTraderName(traderPriceVolumeLayer[i]!, $"TraderName_{traderNum}");
             traderPriceVolumeLayer[i]!.TraderVolume = traderVolume;
         }
+    }
+
+    protected virtual void SetTraderName(IMutableTraderLayerInfo traderLayerInfo, string name)
+    {
+        traderLayerInfo.TraderName = name;
     }
 
     protected virtual void PopulateSourceQuoteRefTraderPriceVolume(IMutableSourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer, 
