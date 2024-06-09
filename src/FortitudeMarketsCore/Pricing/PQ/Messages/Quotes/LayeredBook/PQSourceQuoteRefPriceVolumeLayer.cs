@@ -111,7 +111,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source);
+        base.CopyFrom(source, copyMergeFlags);
         var pqSourcePvl   = source as IPQSourceQuoteRefPriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is ISourceQuoteRefPriceVolumeLayer sqrpvl && pqSourcePvl == null)
