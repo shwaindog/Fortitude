@@ -108,7 +108,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source);
+        base.CopyFrom(source, copyMergeFlags);
         var pqValueDate   = source as IPQValueDatePriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is IValueDatePriceVolumeLayer vlDtPvLayer && pqValueDate == null)

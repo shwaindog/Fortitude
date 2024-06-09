@@ -169,7 +169,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             if (IsDataCompressed && writerBuffer != null)
             {
                 // var start                 = DateTime.Now;
-                var safeCompressionBufferSize = Math.Max((long)ExpandedDataSize / 2, 1_024);
+                var safeCompressionBufferSize = Math.Max((long)ExpandedDataSize / 2, 2_048);
                 var uncompressedByteArray     = writerBuffer.BackingByteArray;
                 var originalByteArraySize     = uncompressedByteArray.Length;
                 uncompressedByteArray.SetLength((long)ExpandedDataSize);
@@ -222,7 +222,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         if (IsDataCompressed)
         {
             // var start            = DateTime.Now;
-            var uncompressionBufferSize = Math.Max(ExpandedDataSize, 1_024);
+            var uncompressionBufferSize = Math.Max(ExpandedDataSize, 2_048);
             var uncompressedBuffer      = OwningSession.UncompressedBuffer;
             var originalLength          = uncompressedBuffer.Length;
             uncompressedBuffer.SetLength((long)uncompressionBufferSize);

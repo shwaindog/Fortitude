@@ -280,8 +280,9 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         base.CopyFrom(source, copyMergeFlags);
         var sourceTraderLayers = 0;
 
-        var pqtpvl = source as PQTraderPriceVolumeLayer;
-        var tpvl   = source as ITraderPriceVolumeLayer;
+        var isFullReplace = copyMergeFlags.HasFullReplace();
+        var pqtpvl        = source as PQTraderPriceVolumeLayer;
+        var tpvl          = source as ITraderPriceVolumeLayer;
         if (tpvl != null && pqtpvl == null)
         {
             var i = 0;
@@ -295,7 +296,6 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         else if (pqtpvl != null)
         {
             NameIdLookup.CopyFrom(pqtpvl.NameIdLookup);
-            var isFullReplace = copyMergeFlags.HasFullReplace();
             sourceTraderLayers = pqtpvl.Count;
             for (var i = 0; i < sourceTraderLayers; i++)
             {
@@ -313,6 +313,8 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
             for (var i = sourceTraderLayers; i < TraderDetails.Count; i++)
                 if (TraderDetails[i] is { } makeEmpty)
                     makeEmpty.IsEmpty = true;
+
+        if (pqtpvl != null && isFullReplace) SetFlagsSame(source);
 
         return this;
     }
