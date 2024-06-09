@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
@@ -17,35 +20,44 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
 
     public LastTrade(decimal tradePrice = 0m, DateTime? tradeDateTime = null)
     {
-        TradeTime = tradeDateTime ?? DateTimeConstants.UnixEpoch;
+        TradeTime  = tradeDateTime ?? DateTimeConstants.UnixEpoch;
         TradePrice = tradePrice;
     }
 
     public LastTrade(ILastTrade toClone)
     {
-        TradeTime = toClone.TradeTime;
+        TradeTime  = toClone.TradeTime;
         TradePrice = toClone.TradePrice;
     }
 
-    public virtual LastTradeType LastTradeType => LastTradeType.Price;
+    public virtual LastTradeType   LastTradeType           => LastTradeType.Price;
     public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
 
     public DateTime TradeTime { get; set; }
 
     public virtual decimal TradePrice { get; set; }
 
-    public virtual bool IsEmpty => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
+    public virtual bool IsEmpty
+    {
+        get => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
+        set
+        {
+            if (!value) return;
+            TradeTime  = DateTimeConstants.UnixEpoch;
+            TradePrice = 0m;
+        }
+    }
 
     public override void StateReset()
     {
-        TradeTime = DateTimeConstants.UnixEpoch;
+        TradeTime  = DateTimeConstants.UnixEpoch;
         TradePrice = 0m;
         base.StateReset();
     }
 
     public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        TradeTime = source.TradeTime;
+        TradeTime  = source.TradeTime;
         TradePrice = source.TradePrice;
         return this;
     }
@@ -61,7 +73,7 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
-        var tradeDateSame = TradeTime.Equals(other.TradeTime);
+        var tradeDateSame  = TradeTime.Equals(other.TradeTime);
         var tradePriceSame = TradePrice == other.TradePrice;
 
         return tradeDateSame && tradePriceSame;

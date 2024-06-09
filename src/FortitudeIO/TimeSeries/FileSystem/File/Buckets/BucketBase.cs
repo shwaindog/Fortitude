@@ -7,6 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 #endregion
@@ -371,7 +372,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         EntrySerializer = useSerializer;
     }
 
-    public abstract StorageAttemptResult AppendEntry(TEntry entry);
+    public abstract AppendResult AppendEntry(IAppendContext<TEntry> entry);
 
     public bool BucketIntersects(PeriodRange? period = null) => period.IntersectsWith(TimeSeriesPeriod, PeriodStartTime);
 

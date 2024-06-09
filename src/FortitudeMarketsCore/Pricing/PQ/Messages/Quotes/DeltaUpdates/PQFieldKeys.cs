@@ -77,15 +77,15 @@ public static class PQFieldKeys
     public const byte ShiftBookByLayers                = 48; // 0x30
     public const byte SourceQuoteReference             = 49; // 0x31
 
-    public const byte FirstLayersRangeStart     = 50;  // 0x32
-    public const byte LayerPriceOffset          = 50;  // 0x32
-    public const byte LayerVolumeOffset         = 70;  // 0x46
-    public const byte LayerTraderIdOffset       = 90;  // 0x5A
-    public const byte LayerTraderVolumeOffset   = 110; // 0x6E
-    public const byte LayerSourceIdOffset       = 130; // 0x82
-    public const byte LayerSourceQuoteRefOffset = 150; // 0x96
-    public const byte LayerBooleanFlagsOffset   = 170; // 0xAA
-    public const byte FirstLayersRangeEnd       = 189; // 0xBD
+    public const byte LayerPriceOffset          = 50;               // 0x32
+    public const byte FirstLayersRangeStart     = LayerPriceOffset; // 0x32
+    public const byte LayerVolumeOffset         = 70;               // 0x46
+    public const byte LayerTraderIdOffset       = 90;               // 0x5A
+    public const byte LayerTraderVolumeOffset   = 110;              // 0x6E
+    public const byte LayerSourceIdOffset       = 130;              // 0x82
+    public const byte LayerSourceQuoteRefOffset = 150;              // 0x96
+    public const byte LayerBooleanFlagsOffset   = 170;              // 0xAA
+    public const byte FirstLayersRangeEnd       = 190;              // 0xBD
 
     // Level 3 Fields
     // recently traded info first 10 layers
@@ -106,9 +106,36 @@ public static class PQFieldKeys
 
     public const ushort ReservedExtendedStart = 256;
 
-    public const ushort SecondLayersRangeStart = 270;
-    public const ushort LayerDateOffset        = 270;
-    public const ushort SecondLayersRangeEnd   = 469;
+    public const ushort FirstLayerExtendedRangeStart     = 266;
+    public const ushort FirstLayerEnumValueOffset        = FirstLayerExtendedRangeStart;
+    public const ushort FirstLayerDateOffset             = 286;
+    public const ushort SecondLayersRangeStart           = 306;
+    public const ushort FirstLayerExtendedRangeEnd       = SecondLayersRangeStart;
+    public const ushort FirstToSecondLayersOffset        = 256;
+    public const ushort SecondLayerPriceOffset           = SecondLayersRangeStart;
+    public const ushort SecondLayerVolumeOffset          = 326;
+    public const ushort SecondLayerTraderIdOffset        = 346;
+    public const ushort SecondLayerTraderVolumeOffset    = 366;
+    public const ushort SecondLayerSourceIdOffset        = 386;
+    public const ushort SecondLayerSourceQuoteRefOffset  = 406;
+    public const ushort SecondLayerBooleanFlagsOffset    = 426;
+    public const ushort SecondLastTradedRangeStart       = 446;
+    public const ushort SecondLastTradePriceOffset       = 446;
+    public const ushort SecondLastTradeVolumeOffset      = 456;
+    public const ushort SecondLastTradeTimeHourOffset    = 466;
+    public const ushort SecondLastTradeTimeSubHourOffset = 476;
+    public const ushort SecondLastTraderIdOffset         = 486;
+    public const ushort SecondLayersRangeEnd             = 495;
+
+    public const ushort SecondLayerExtendedRangeStart = 522;
+    public const ushort SecondEnumValueOffset         = SecondLayerExtendedRangeStart;
+    public const ushort SecondLayerDateOffset         = 542;
+    public const ushort ThirdLayersRangeStart         = 562;
+    public const ushort SecondLayerExtendedRangeEnd   = ThirdLayersRangeStart;
+    public const ushort FirstToThirdLayersOffset      = 512;
+    // repeat above if required
+    public const ushort AllLayersRangeEnd = 562;
+
 
     public const ushort ReservedExtendedEnd = 999;
 }

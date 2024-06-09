@@ -190,20 +190,17 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         if (pqFieldUpdate.Id == PQFieldKeys.LayerNameDictionaryUpsertCommand) return (int)pqFieldUpdate.Value;
-        if ((pqFieldUpdate.Id >= PQFieldKeys.FirstLayersRangeStart &&
-             pqFieldUpdate.Id <= PQFieldKeys.FirstLayersRangeEnd) ||
-            (pqFieldUpdate.Id >= PQFieldKeys.SecondLayersRangeStart &&
-             pqFieldUpdate.Id <= PQFieldKeys.SecondLayersRangeEnd))
+        if (pqFieldUpdate.Id is >= PQFieldKeys.FirstLayersRangeStart and <= PQFieldKeys.AllLayersRangeEnd)
         {
             // logger.Info("Received PQLevel2Quote Book pqFieldUpdate: {0}", pqFieldUpdate);
             var result = pqFieldUpdate.IsBid() ? bidBook.UpdateField(pqFieldUpdate) : askBook.UpdateField(pqFieldUpdate);
-            if (pqFieldUpdate.Id == PQFieldKeys.LayerPriceOffset)
-            {
-                if (pqFieldUpdate.IsBid())
-                    IsBidPriceTopUpdated = true;
-                else
-                    IsAskPriceTopUpdated = true;
-            }
+            // if (pqFieldUpdate.Id == PQFieldKeys.LayerPriceOffset)
+            // {
+            //     if (pqFieldUpdate.IsBid())
+            //         IsBidPriceTopUpdated = true;
+            //     else
+            //         IsAskPriceTopUpdated = true;
+            // }
 
             return result;
         }
@@ -260,8 +257,10 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pq1.IsBidPriceTopUpdatedChanged || isFullReplace) IsAskPriceTopUpdated = pq1.IsAskPriceTopUpdated;
-            if (pq1.IsAskPriceTopUpdatedChanged || isFullReplace) IsBidPriceTopUpdated = pq1.IsBidPriceTopUpdated;
+            if (pq1.IsBidPriceTopUpdatedChanged || isFullReplace) IsBidPriceTopUpdated = pq1.IsBidPriceTopUpdated;
+            if (pq1.IsAskPriceTopUpdatedChanged || isFullReplace) IsAskPriceTopUpdated = pq1.IsAskPriceTopUpdated;
+
+            if (isFullReplace && pq1 is PQLevel2Quote pq2) UpdatedFlags = pq2.UpdatedFlags;
         }
         else
         {
@@ -301,7 +300,9 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
             askBookChangedSame = IsAskBookChanged == otherL2.IsAskBookChanged;
         }
 
-        return baseSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
+        var allAreSame = baseSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
+        // if (!allAreSame) Debugger.Break();
+        return allAreSame;
     }
 
     public override PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)

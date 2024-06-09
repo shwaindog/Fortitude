@@ -147,7 +147,17 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
-    public override bool IsEmpty => base.IsEmpty && SourceId == 0 && !Executable;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && SourceId == 0 && !Executable;
+        set
+        {
+            if (!value) return;
+            SourceId     = 0;
+            Executable   = false;
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
@@ -223,9 +233,12 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
         else if (pqspvl != null)
         {
-            var isFullReplace                                           = copyMergeFlags.HasFullReplace();
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+
             if (pqspvl.IsSourceNameUpdated || isFullReplace) SourceId   = (ushort)NameIdLookup.GetOrAddId(pqspvl.SourceName);
             if (pqspvl.IsExecutableUpdated || isFullReplace) Executable = pqspvl.Executable;
+
+            if (isFullReplace) SetFlagsSame(pqspvl);
         }
 
         return this;

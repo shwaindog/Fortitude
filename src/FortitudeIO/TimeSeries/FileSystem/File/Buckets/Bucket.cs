@@ -6,6 +6,7 @@
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 #endregion
@@ -100,7 +101,7 @@ public interface IMutableBucket : IBucket
 public interface IMutableBucket<TEntry> : IBucket<TEntry>, IMutableBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
     IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
-    StorageAttemptResult          AppendEntry(TEntry entry);
+    AppendResult                  AppendEntry(IAppendContext<TEntry> entry);
 }
 
 public interface IBucketNavigation<TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket

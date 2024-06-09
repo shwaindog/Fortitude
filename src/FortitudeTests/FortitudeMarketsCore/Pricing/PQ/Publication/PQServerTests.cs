@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
@@ -28,28 +31,32 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
 public class PQServerTests
 {
     private const string ExchangeName = "ComponentTestExchange";
-    private const ushort ExchangeId = 1;
-    private const string TestTicker1 = "EUR/USD";
-    private const string TestTicker2 = "USD/JPY";
-    private const string TestTicker3 = "GBP/USD";
-    private const ushort TickerId1 = 1;
-    private const ushort TickerId2 = 2;
-    private const ushort TickerId3 = 3;
+    private const ushort ExchangeId   = 1;
+    private const string TestTicker1  = "EUR/USD";
+    private const string TestTicker2  = "USD/JPY";
+    private const string TestTicker3  = "GBP/USD";
+    private const ushort TickerId1    = 1;
+    private const ushort TickerId2    = 2;
+    private const ushort TickerId3    = 3;
+
     private IMarketConnectionConfig marketConnectionConfig = null!;
-    private Mock<IPQServerHeartBeatSender> moqHeartBeatSender = null!;
-    private Mock<IPQSnapshotServer> moqSnapshotService = null!;
-    private Mock<ISocketDispatcher> moqSocketDispatcher = null!;
+
+    private Mock<IPQServerHeartBeatSender>  moqHeartBeatSender          = null!;
+    private Mock<IPQSnapshotServer>         moqSnapshotService          = null!;
+    private Mock<ISocketDispatcher>         moqSocketDispatcher         = null!;
     private Mock<ISocketDispatcherListener> moqSocketDispatcherListener = null!;
     private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
-    private Mock<ISocketDispatcherSender> moqSocketDispatcherSender = null!;
-    private Mock<IPQUpdateServer> moqUpdateService = null!;
+    private Mock<ISocketDispatcherSender>   moqSocketDispatcherSender   = null!;
+    private Mock<IPQUpdateServer>           moqUpdateService            = null!;
+
     private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> pqSnapshotFactory = null!;
-    private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> pqUpdateFactory = null!;
-    private IPricingServerConfig pricingServerConfig = null!;
-    private ITickerConfig sourceTickerConfig1 = null!;
-    private ITickerConfig sourceTickerConfig2 = null!;
-    private ITickerConfig sourceTickerConfig3 = null!;
-    private ISourceTickersConfig sourceTickerConfigs = null!;
+    private Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer>   pqUpdateFactory   = null!;
+
+    private IPricingServerConfig   pricingServerConfig    = null!;
+    private ITickerConfig          sourceTickerConfig1    = null!;
+    private ITickerConfig          sourceTickerConfig2    = null!;
+    private ITickerConfig          sourceTickerConfig3    = null!;
+    private ISourceTickersConfig   sourceTickerConfigs    = null!;
     private ISourceTickerQuoteInfo sourceTickerQuoteInfo1 = null!;
     private ISourceTickerQuoteInfo sourceTickerQuoteInfo2 = null!;
     private ISourceTickerQuoteInfo sourceTickerQuoteInfo3 = null!;
@@ -57,53 +64,60 @@ public class PQServerTests
     public void Setup(LayerFlags layerDetails, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
         sourceTickerConfig1 =
-            new TickerConfig(TickerId1, TestTicker1, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails
-                , 20
-                , lastTradedFlags);
+            new TickerConfig(TickerId1, TestTicker1, TickerAvailability.AllEnabled, QuoteLevel.Level3,
+                             0.00001m, 0.1m, 100, 0.1m, 250,
+                             layerDetails, 20, lastTradedFlags);
         sourceTickerConfig2 =
-            new TickerConfig(TickerId2, TestTicker2, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails
-                , 20
-                , lastTradedFlags);
+            new TickerConfig(TickerId2, TestTicker2, TickerAvailability.AllEnabled, QuoteLevel.Level3,
+                             0.00001m, 0.1m, 100, 0.1m, 250,
+                             layerDetails, 20, lastTradedFlags);
         sourceTickerConfig3 =
-            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.AllEnabled, QuoteLevel.Level3, 0.00001m, 0.1m, 100, 0.1m, 250, layerDetails
-                , 20
-                , lastTradedFlags);
+            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.AllEnabled, QuoteLevel.Level3,
+                             0.00001m, 0.1m, 100, 0.1m, 250,
+                             layerDetails, 20, lastTradedFlags);
         sourceTickerConfigs = new SourceTickersConfig(sourceTickerConfig1, sourceTickerConfig2, sourceTickerConfig3);
-        pricingServerConfig = new PricingServerConfig(
-            new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor, new[]
-            {
-                new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                    , TestMachineConfig.ServerSnapshotPort)
-            })
-            , new NetworkTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher, new[]
-            {
-                new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort
-                    , TestMachineConfig.NetworkSubAddress)
-            }, connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast));
+        pricingServerConfig =
+            new PricingServerConfig
+                (new NetworkTopicConnectionConfig
+                     ("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor
+                    , new[]
+                      {
+                          new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                                           , TestMachineConfig.ServerSnapshotPort)
+                      })
+               , new NetworkTopicConnectionConfig
+                     ("TestUpdateServer", SocketConversationProtocol.UdpPublisher
+                    , new[]
+                      {
+                          new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                                           , TestMachineConfig.ServerUpdatePort
+                                           , TestMachineConfig.NetworkSubAddress)
+                      }
+                    , connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast));
         marketConnectionConfig
             = new MarketConnectionConfig(ExchangeId, ExchangeName, MarketConnectionType.Pricing, sourceTickerConfigs, pricingServerConfig);
         sourceTickerQuoteInfo1 = marketConnectionConfig.GetSourceTickerInfo(TestTicker1)!;
         sourceTickerQuoteInfo2 = marketConnectionConfig.GetSourceTickerInfo(TestTicker2)!;
         sourceTickerQuoteInfo3 = marketConnectionConfig.GetSourceTickerInfo(TestTicker3)!;
 
-        moqHeartBeatSender = new Mock<IPQServerHeartBeatSender>();
+        moqHeartBeatSender          = new Mock<IPQServerHeartBeatSender>();
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
         moqSocketDispatcherListener = new Mock<ISocketDispatcherListener>();
-        moqSocketDispatcherSender = new Mock<ISocketDispatcherSender>();
-        moqSocketDispatcher = new Mock<ISocketDispatcher>();
+        moqSocketDispatcherSender   = new Mock<ISocketDispatcherSender>();
+        moqSocketDispatcher         = new Mock<ISocketDispatcher>();
         moqSocketDispatcherResolver.Setup(sdr => sdr.Resolve(It.IsAny<INetworkTopicConnectionConfig>()))
-            .Returns(moqSocketDispatcher.Object);
+                                   .Returns(moqSocketDispatcher.Object);
         moqSocketDispatcher.SetupProperty(sd => sd.Listener, moqSocketDispatcherListener.Object);
         moqSocketDispatcher.SetupProperty(sd => sd.Sender, moqSocketDispatcherSender.Object);
 
         moqSnapshotService = new Mock<IPQSnapshotServer>();
-        moqUpdateService = new Mock<IPQUpdateServer>();
+        moqUpdateService   = new Mock<IPQUpdateServer>();
         moqSnapshotService.Setup(sss => sss.Start()).Verifiable();
 
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
         pqSnapshotFactory = (_, _) => moqSnapshotService.Object;
-        pqUpdateFactory = (_, _) => moqUpdateService.Object;
+        pqUpdateFactory   = (_, _) => moqUpdateService.Object;
     }
 
     [TestMethod]
@@ -111,8 +125,9 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel0Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+        var pqServer = new PQServer<PQLevel0Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -128,7 +143,7 @@ public class PQServerTests
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
         var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+                                                   moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -164,8 +179,9 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+        var pqServer = new PQServer<PQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -182,8 +198,9 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+        var pqServer = new PQServer<PQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -200,8 +217,9 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+        var pqServer = new PQServer<PQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -219,8 +237,9 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+        var pqServer = new PQServer<PQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -236,8 +255,9 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+        var pqServer = new PQServer<PQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -251,18 +271,19 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel0Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+        var pqServer = new PQServer<IPQLevel0Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel0Quote(info));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel0Quote>();
-        var isInQuoteSyncLock = false;
-        var moqSyncLock = new Mock<ISyncLock>();
+        var isInQuoteSyncLock           = false;
+        var moqSyncLock                 = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => { isInQuoteSyncLock = true; }).Verifiable();
 
         var moqRegisteredPqLevel0Quote = new Mock<IPQLevel0Quote>();
         moqRegisteredPqLevel0Quote.SetupGet(l0Q => l0Q.Lock).Returns(moqSyncLock.Object).Verifiable();
-        moqRegisteredPqLevel0Quote.SetupGet(l0Q => l0Q.PQSequenceId)
-            .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(10u).Verifiable();
+        moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.PQSequenceId, 10u);
 
         // can't use moq because of property redefinition not handled properly
         var stubLevel1Quote = new PQLevel0QuoteTests.DummyPQLevel0Quote
@@ -270,10 +291,10 @@ public class PQServerTests
             SourceTickerQuoteInfo = sourceTickerQuoteInfo1, HasUpdates = true
         };
         moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default))
-            .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(moqRegisteredPqLevel0Quote.Object)
-            .Verifiable();
+                                  .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(moqRegisteredPqLevel0Quote.Object)
+                                  .Verifiable();
         moqRegisteredPqLevel0Quote.SetupSet(l0Q => l0Q.PQSequenceId = 10)
-            .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Verifiable();
+                                  .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Verifiable();
         moqSyncLock.Setup(sl => sl.Release()).Callback(() => { isInQuoteSyncLock = false; }).Verifiable();
 
         replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);
@@ -293,12 +314,14 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel0Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+        var pqServer = new PQServer<IPQLevel0Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel0Quote(info));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel0Quote>();
-        var isInHeartBeatSyncLock = false;
-        var moqQuoteSyncLock = new Mock<ISyncLock>();
+        var isInHeartBeatSyncLock       = false;
+        var moqQuoteSyncLock            = new Mock<ISyncLock>();
         moqQuoteSyncLock.Setup(sl => sl.Acquire());
         var ticker1RegisteredPqLevel0Quote = new PQLevel0Quote(sourceTickerQuoteInfo1);
 
@@ -315,13 +338,13 @@ public class PQServerTests
         var moqHeartBeatSyncLock = new Mock<ISyncLock>();
 
         moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
-            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
+                            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
         moqHeartBeatSyncLock.Setup(sl => sl.Release())
-            .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
+                            .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
 
-        var heartBeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
-        var initialLastLvl0Quote = new PQLevel0QuoteTests.DummyPQLevel0Quote();
+        var heartBeatQuotes        = new DoublyLinkedList<IPQLevel0Quote>();
+        var initialLastLvl0Quote   = new PQLevel0QuoteTests.DummyPQLevel0Quote();
         var initialMiddleLvl0Quote = new PQLevel0QuoteTests.DummyPQLevel0Quote();
         heartBeatQuotes.AddLast(initialLastLvl0Quote);
         heartBeatQuotes.AddFirst(initialMiddleLvl0Quote);
@@ -341,11 +364,13 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel0Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+        var pqServer = new PQServer<IPQLevel0Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel0Quote(info));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel0Quote>();
-        var moqQuoteSyncLock = new Mock<ISyncLock>();
+        var moqQuoteSyncLock            = new Mock<ISyncLock>();
         moqQuoteSyncLock.Setup(sl => sl.Acquire());
         var moqRegisteredPqLevel0Quote = new Mock<IPQLevel0Quote>();
         moqRegisteredPqLevel0Quote.SetupGet(l0Q => l0Q.Lock).Returns(moqQuoteSyncLock.Object).Verifiable();
@@ -363,22 +388,22 @@ public class PQServerTests
 
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
         var isInHeartBeatSyncLock = false;
-        var moqHeartBeatSyncLock = new Mock<ISyncLock>();
+        var moqHeartBeatSyncLock  = new Mock<ISyncLock>();
         moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
-            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
+                            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
         moqHeartBeatSyncLock.Setup(sl => sl.Release())
-            .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
+                            .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         moqRegisteredPqLevel0Quote.SetupSet(rpql0Q => rpql0Q.LastPublicationTime = It.IsAny<DateTime>())
-            .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
+                                  .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
 
         var moqHeartBeatQuotes = new Mock<IDoublyLinkedList<IPQLevel0Quote>>();
         moqHeartBeatQuotes.Setup(hbq => hbq.Remove(moqRegisteredPqLevel0Quote.Object))
-            .Callback(() => { Assert.IsTrue(isInHeartBeatSyncLock); })
-            .Returns(moqRegisteredPqLevel0Quote.Object).Verifiable();
+                          .Callback(() => { Assert.IsTrue(isInHeartBeatSyncLock); })
+                          .Returns(moqRegisteredPqLevel0Quote.Object).Verifiable();
         moqHeartBeatQuotes.Setup(hbq => hbq.AddLast(moqRegisteredPqLevel0Quote.Object))
-            .Callback(() => { Assert.IsTrue(isInHeartBeatSyncLock); })
-            .Returns(moqRegisteredPqLevel0Quote.Object).Verifiable();
+                          .Callback(() => { Assert.IsTrue(isInHeartBeatSyncLock); })
+                          .Returns(moqRegisteredPqLevel0Quote.Object).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartbeatQuotes", moqHeartBeatQuotes.Object);
 
         Assert.IsFalse(isInHeartBeatSyncLock);
@@ -395,8 +420,10 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel0Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+        var pqServer = new PQServer<IPQLevel0Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel0Quote(info));
 
 
         // can't use moq because of property hiding/redefinition not handled properly
@@ -414,13 +441,15 @@ public class PQServerTests
 
         moqUpdateService.SetupGet(us => us.IsStarted).Returns(false).Verifiable();
 
-        var pqServer = new PQServer<IPQLevel0Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel0Quote(info));
+        var pqServer = new PQServer<IPQLevel0Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel0Quote(info));
 
         pqServer.StartServices();
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel0Quote>();
-        var moqSyncLock = new Mock<ISyncLock>();
+        var moqSyncLock                 = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire());
 
         var moqRegisteredPqLevel0Quote = new Mock<IPQLevel0Quote>();
@@ -462,10 +491,11 @@ public class PQServerTests
 
         var moqConversationRequester = new Mock<IConversationRequester>();
         moqSnapshotService.SetupAdd(sss => sss.OnSnapshotRequest += (ssc, id) =>
-            moqSnapshotService.Object.Send(moqConversationRequester.Object, moqlevel0Quote.Object));
+                                        moqSnapshotService.Object.Send(moqConversationRequester.Object, moqlevel0Quote.Object));
 
-        var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+        var pqServer = new PQServer<PQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
@@ -474,7 +504,7 @@ public class PQServerTests
         pqServer.Register(TestTicker3);
 
         moqSnapshotService.Raise(sss => sss.OnSnapshotRequest += null, moqConvoRequester.Object
-            , new PQSnapshotIdsRequest(new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id }));
+                               , new PQSnapshotIdsRequest(new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id }));
 
         moqConvoRequester.Verify();
     }
@@ -484,13 +514,15 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+        var pqServer = new PQServer<IPQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel1Quote>();
-        var moqSyncLock = new Mock<ISyncLock>();
+        var moqSyncLock                 = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire());
 
         var moqRegisteredPqLevel0Quote = new Mock<IPQLevel1Quote>();
@@ -523,8 +555,10 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+        var pqServer = new PQServer<IPQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
 
@@ -558,8 +592,10 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+        var pqServer = new PQServer<IPQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
 
@@ -595,8 +631,10 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+        var pqServer = new PQServer<IPQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel1Quote(info));
 
         pqServer.StartServices();
         Assert.IsTrue(pqServer.IsStarted);
@@ -623,19 +661,21 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory, info => new PQLevel1Quote(info));
+        var pqServer = new PQServer<IPQLevel1Quote>
+            (marketConnectionConfig, moqHeartBeatSender.Object,
+             moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
+           , info => new PQLevel1Quote(info));
         pqServer.StartServices();
 
         var isInHeartBeatSyncLock = false;
-        var moqHeartBeatSyncLock = new Mock<ISyncLock>();
-        var moqHeartBeatQuotes = new Mock<IDoublyLinkedList<IPQLevel0Quote>>();
+        var moqHeartBeatSyncLock  = new Mock<ISyncLock>();
+        var moqHeartBeatQuotes    = new Mock<IDoublyLinkedList<IPQLevel0Quote>>();
         moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
-            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
+                            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
         moqHeartBeatSyncLock.Setup(sl => sl.Release())
-            .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
+                            .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         moqHeartBeatQuotes.Setup(rpql0Q => rpql0Q.Clear())
-            .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
+                          .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
         NonPublicInvocator.SetInstanceField(pqServer, "heartbeatQuotes", moqHeartBeatQuotes.Object);
 
@@ -653,7 +693,7 @@ public class PQServerTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServer = new PQServer<T>(marketConnectionConfig, moqHeartBeatSender.Object,
-            moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
+                                       moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
         pqServer.StartServices();
         var pqLevelTQuote = pqServer.Register(sourceTickerConfig1.Ticker);
         Assert.IsNotNull(pqLevelTQuote);

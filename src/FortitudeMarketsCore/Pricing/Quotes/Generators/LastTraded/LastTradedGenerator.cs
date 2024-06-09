@@ -90,6 +90,7 @@ public class LastTradedGenerator : ILastTradedGenerator
       , PreviousCurrentMidPriceTime previousCurrentMid)
     {
         var recentlyTraded = level3Quote.RecentlyTraded!;
+        InitializeRecentlyTraded(recentlyTraded);
 
         for (var i = 0; i < numberOfTrades && i < GenerateLastTradeInfo.MaxNumberOfLastTrade; i++)
         {
@@ -101,6 +102,8 @@ public class LastTradedGenerator : ILastTradedGenerator
             PopulateLastTradePriceAndTime(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);
         }
     }
+
+    protected virtual void InitializeRecentlyTraded(IRecentlyTraded recentlyTraded) { }
 
     protected virtual void PopulateLastTradePriceAndTime(IMutableLastTrade lastTrade, bool isBidTrade,
         IMutableLevel3Quote level3Quote, PreviousCurrentMidPriceTime previousCurrentMid)
@@ -184,8 +187,13 @@ public class LastTradedGenerator : ILastTradedGenerator
 
             var traderNum = PseudoRandom.Next(1, GenerateLastTradeInfo.MaxDifferentTraderNames + 1);
 
-            lastTradInfo.TraderName = $"TraderName_{traderNum}";
+            SetTraderName(lastTradInfo, $"TraderName_{traderNum}");
             PopulateLastPaidGivenVolume(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);
         }
+    }
+
+    protected virtual void SetTraderName(IMutableLastTraderPaidGivenTrade lastTraderPaidGivenTrade, string traderName)
+    {
+        lastTraderPaidGivenTrade.TraderName = traderName;
     }
 }

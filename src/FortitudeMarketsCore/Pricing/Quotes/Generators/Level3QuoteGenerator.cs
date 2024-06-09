@@ -13,22 +13,25 @@ namespace FortitudeMarketsCore.Pricing.Quotes.Generators;
 
 public abstract class Level3QuoteGeneratorBase<TQuote> : Level2QuoteGeneratorBase<TQuote> where TQuote : IMutableLevel3Quote
 {
-    protected readonly LastTradedGenerator LastTradedGenerator;
+    protected readonly ILastTradedGenerator LastTradedGenerator;
 
     protected Level3QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) =>
-        LastTradedGenerator = new LastTradedGenerator(generateQuoteInfo.LastTradeInfo, NormalDist, PseudoRandom);
+        LastTradedGenerator = CreateLastTradedGenerator(generateQuoteInfo.LastTradeInfo);
 
     public void PopulateQuote(IMutableLevel3Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         base.PopulateQuote(populateQuote, previousCurrentMidPriceTime);
     }
+
+    protected virtual ILastTradedGenerator CreateLastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) =>
+        new LastTradedGenerator(generateLastTradeInfo, NormalDist, PseudoRandom);
 }
 
 public class Level3QuoteGenerator : Level3QuoteGeneratorBase<Level3PriceQuote>
 {
     public Level3QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
 
-    public override Level3PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public override Level3PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
     {
         var toPopulate = new Level3PriceQuote(GenerateQuoteInfo.SourceTickerQuoteInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);

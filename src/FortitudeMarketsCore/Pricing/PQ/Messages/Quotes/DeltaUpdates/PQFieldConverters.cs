@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
@@ -16,8 +19,8 @@ public static class PQFieldConverters
     {
         updateDatePart =
             new DateTime(
-                DateTimeConstants.UnixEpochTicks + hoursFromUnixEpoch * TimeSpan.TicksPerHour +
-                updateDatePart.Ticks % TimeSpan.TicksPerHour, DateTimeKind.Utc);
+                         DateTimeConstants.UnixEpochTicks + hoursFromUnixEpoch * TimeSpan.TicksPerHour +
+                         updateDatePart.Ticks % TimeSpan.TicksPerHour, DateTimeKind.Utc);
     }
 
     public static void UpdateSubHourComponent(ref DateTime updateSubHour, long tensOfNanos)
@@ -43,7 +46,7 @@ public static class PQFieldConverters
     public static byte BreakLongToByteAndUint(this long breakThis, out uint lowestBytes)
     {
         lowestBytes = (uint)breakThis;
-        breakThis = breakThis >> 32;
+        breakThis   = breakThis >> 32;
         return (byte)breakThis;
     }
 }

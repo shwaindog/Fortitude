@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -14,21 +17,30 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
 
     public PriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
     {
-        Price = price;
+        Price  = price;
         Volume = volume;
     }
 
     public PriceVolumeLayer(IPriceVolumeLayer toClone)
     {
-        Price = toClone.Price;
+        Price  = toClone.Price;
         Volume = toClone.Volume;
     }
 
-    public decimal Price { get; set; }
+    public decimal Price  { get; set; }
     public decimal Volume { get; set; }
-    public virtual bool IsEmpty => Price == 0m && Volume == 0m;
 
-    public virtual LayerType LayerType => LayerType.PriceVolume;
+    public virtual bool IsEmpty
+    {
+        get => Price == 0m && Volume == 0m;
+        set
+        {
+            if (!value) return;
+            Price = Volume = 0m;
+        }
+    }
+
+    public virtual LayerType  LayerType          => LayerType.PriceVolume;
     public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
 
     public override void StateReset()
@@ -38,9 +50,9 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        Price = source.Price;
+        Price  = source.Price;
         Volume = source.Volume;
         return this;
     }
@@ -53,7 +65,7 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var priceSame = Price == other.Price;
+        var priceSame  = Price == other.Price;
         var volumeSame = Volume == other.Volume;
 
         return priceSame && volumeSame;

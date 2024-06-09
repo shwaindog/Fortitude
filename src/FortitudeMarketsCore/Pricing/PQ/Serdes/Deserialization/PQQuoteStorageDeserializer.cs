@@ -46,13 +46,18 @@ internal class PQQuoteStorageDeserializer<T> : PQDeserializerBase<T> where T : c
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext bufferContext)
         {
-            var sockBuffContext                                           = bufferContext as SocketBufferReadContext;
+            var sockBuffContext = bufferContext as SocketBufferReadContext;
+
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
-            var sequenceId                                                = lastSequenceId + 1;
-            var read                                                      = UpdateQuote(bufferContext, PublishedQuote, sequenceId);
+
+            var sequenceId = lastSequenceId + 1;
+            var read       = UpdateQuote(bufferContext, PublishedQuote, sequenceId);
+
             bufferContext.LastReadLength            =  read;
             bufferContext.EncodedBuffer!.ReadCursor += read;
-            lastSequenceId                          =  PublishedQuote.PQSequenceId;
+
+            lastSequenceId = PublishedQuote.PQSequenceId;
+
             PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             return PublishedQuote;
         }

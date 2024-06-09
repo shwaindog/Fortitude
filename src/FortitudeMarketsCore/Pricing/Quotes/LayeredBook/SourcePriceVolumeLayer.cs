@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -28,14 +31,24 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         }
     }
 
-    public override LayerType LayerType => LayerType.SourcePriceVolume;
+    public override LayerType  LayerType          => LayerType.SourcePriceVolume;
     public override LayerFlags SupportsLayerFlags => LayerFlags.SourceName | LayerFlags.Executable | base.SupportsLayerFlags;
 
     public string? SourceName { get; set; }
 
     public bool Executable { get; set; }
 
-    public override bool IsEmpty => base.IsEmpty && SourceName == null;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && SourceName == null && !Executable;
+        set
+        {
+            if (!value) return;
+            Executable   = false;
+            SourceName   = null;
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
@@ -45,7 +58,7 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ISourcePriceVolumeLayer sourceSourcePriceVolumeLayer)
@@ -69,7 +82,7 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
     {
         if (!(other is ISourcePriceVolumeLayer otherISourcePvLayer)) return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
+        var baseSame       = base.AreEquivalent(other, exactTypes);
         var executableSame = Executable == otherISourcePvLayer.Executable;
         var sourceNameSame = string.Equals(SourceName, otherISourcePvLayer.SourceName);
 

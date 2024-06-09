@@ -505,9 +505,9 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
     {
         var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
 
-        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, Id);
         if (!updatedOnly || IsPublishedQuoteLevelUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.PublishQuoteLevelType, (byte)PublishedQuoteLevel);
+        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, Id);
         if (!updatedOnly || IsRoundingPrecisionUpdated)
         {
             var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(RoundingPrecision)[3])[2];

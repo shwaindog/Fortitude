@@ -151,7 +151,19 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         set => base.HasUpdates = IsTradeVolumeUpdated = IsWasGivenUpdated = IsWasPaidUpdated = value;
     }
 
-    public override bool IsEmpty => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
+        set
+        {
+            if (!value) return;
+            WasPaid  = false;
+            WasGiven = false;
+
+            TradeVolume  = 0m;
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {

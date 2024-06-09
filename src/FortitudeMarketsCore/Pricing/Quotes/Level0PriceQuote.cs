@@ -93,12 +93,16 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
         var srcTickersAreEquivalent =
             SourceTickerQuoteInfo?.AreEquivalent(other.SourceTickerQuoteInfo, exactTypes)
          ?? other.SourceTickerQuoteInfo == null;
+
         var sourceTimesSame        = SourceTime.Equals(other.SourceTime);
         var replayIsSame           = IsReplay == other.IsReplay;
         var singlePriceSame        = SinglePrice == other.SinglePrice;
         var clientReceivedTimeSame = ClientReceivedTime.Equals(other.ClientReceivedTime);
-        return srcTickersAreEquivalent && sourceTimesSame && replayIsSame && singlePriceSame
-            && clientReceivedTimeSame;
+
+        var allEquivalent = srcTickersAreEquivalent && sourceTimesSame && replayIsSame && singlePriceSame
+                         && clientReceivedTimeSame;
+        // if (!allEquivalent) Debugger.Break();
+        return allEquivalent;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel0Quote, true);

@@ -64,7 +64,16 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         }
     }
 
-    public override bool IsEmpty => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
+        set
+        {
+            if (!value) return;
+            ValueDate    = DateTimeConstants.UnixEpoch;
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
@@ -80,18 +89,19 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsValueDateUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.LayerDateOffset, valueDate.GetHoursFromUnixEpoch(),
+            yield return new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset, valueDate.GetHoursFromUnixEpoch(),
                                            PQFieldFlags.IsExtendedFieldId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id < PQFieldKeys.LayerDateOffset || pqFieldUpdate.Id >=
-            PQFieldKeys.LayerDateOffset + PQFieldKeys.SingleByteFieldIdMaxBookDepth)
+        if (pqFieldUpdate.Id < PQFieldKeys.FirstLayerDateOffset || pqFieldUpdate.Id >=
+            PQFieldKeys.FirstLayerDateOffset + PQFieldKeys.SingleByteFieldIdMaxBookDepth)
             return base.UpdateField(pqFieldUpdate);
+        var originalValueDate = valueDate;
         PQFieldConverters.UpdateHoursFromUnixEpoch(ref valueDate, pqFieldUpdate.Value);
-        IsValueDateUpdated = true;
+        IsValueDateUpdated = originalValueDate != valueDate;
         return 0;
     }
 
@@ -102,10 +112,15 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         var pqValueDate   = source as IPQValueDatePriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is IValueDatePriceVolumeLayer vlDtPvLayer && pqValueDate == null)
+        {
             ValueDate = vlDtPvLayer.ValueDate;
+        }
         else if (pqValueDate != null)
+        {
             if (pqValueDate.IsValueDateUpdated || isFullReplace)
                 ValueDate = pqValueDate.ValueDate;
+            if (isFullReplace) SetFlagsSame(pqValueDate);
+        }
         return this;
     }
 

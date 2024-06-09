@@ -3,7 +3,6 @@
 
 #region
 
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Compression.Lzma;
@@ -12,6 +11,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
 
 #endregion
@@ -58,7 +58,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
     private DataBucketHeader*     mappedDataHeader;
     private FixedByteArrayBuffer? readerBuffer;
 
-    private IGrowableUnmanagedBuffer? writerBuffer;
+    private IFixedByteArrayBuffer? writerBuffer;
 
     protected DataBucket(IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
@@ -75,7 +75,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
     internal long StartDataBucketHeaderSectionOffset => EndOfBaseBucketHeaderSectionOffset + dataBucketHeaderExtensionRealignmentDelta;
     internal long StartOfDataSectionOffset           => EndAllHeadersSectionFileOffset;
 
-    public IGrowableUnmanagedBuffer? DataWriterAtAppendLocation
+    public IFixedByteArrayBuffer? DataWriterAtAppendLocation
     {
         get
         {
@@ -86,7 +86,6 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
                 if (IsDataCompressed)
                 {
                     writerBuffer = OwningSession.UncompressedBuffer;
-                    while (writerBuffer.Length < (long)ExpandedDataSize + ushort.MaxValue) writerBuffer = writerBuffer.GrowByDefaultSize();
                     if (TotalFileDataSizeBytes > 0)
                     {
                         var uncompressedRange = (IByteArray)writerBuffer.BackingMemoryAddressRange;
@@ -97,17 +96,20 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
                         var compressedStream   = new ByteArrayMemoryStream(compressedRange, true);
                         lzmaDecoder ??= new LzmaDecoder();
                         lzmaDecoder.Decompress(compressedStream, uncompressedStream);
-                        if ((long)ExpandedDataSize != uncompressedStream.Position) Debugger.Break();
                     }
-                    writerBuffer.WriteCursor = (long)ExpandedDataSize;
+                    writerBuffer.SetLength(writerBuffer.BackingMemoryAddressRange.Length);
                 }
                 else
                 {
+                    BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, ushort.MaxValue * 4);
                     var viewOffset            = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-                    var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, ushort.MaxValue);
-                    writerBuffer             = new GrowableUnmanagedBuffer(uncompressedFileRange);
-                    writerBuffer.WriteCursor = (long)ExpandedDataSize;
+                    var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, ushort.MaxValue * 4);
+                    writerBuffer = new GrowableUnmanagedBuffer(uncompressedFileRange)
+                    {
+                        GrowRemainingBytesThreshold = ushort.MaxValue * Math.Max(1, BucketAppenderDataReaderFileView.HalfViewPageSize / 2)
+                    };
                 }
+                writerBuffer.WriteCursor = (long)ExpandedDataSize;
             }
             return writerBuffer;
         }
@@ -222,24 +224,23 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             // var start            = DateTime.Now;
             var uncompressionBufferSize = Math.Max(ExpandedDataSize, 1_024);
             var uncompressedBuffer      = OwningSession.UncompressedBuffer;
-            var uncompressedByteArray   = OwningSession.UncompressedBuffer.BackingByteArray;
-            var originalLength          = uncompressedByteArray.Length;
-            uncompressedByteArray.SetLength((long)uncompressionBufferSize);
+            var originalLength          = uncompressedBuffer.Length;
+            uncompressedBuffer.SetLength((long)uncompressionBufferSize);
             BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
             var viewOffset         = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
             var compressedRange    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
-            var uncompressedStream = new ByteArrayMemoryStream(uncompressedByteArray, true, false);
+            var uncompressedStream = new ByteArrayMemoryStream(uncompressedBuffer.BackingByteArray, true, false);
             var compressedStream   = new ByteArrayMemoryStream(compressedRange, true, false);
             lzmaDecoder ??= new LzmaDecoder();
             lzmaDecoder.Decompress(compressedStream, uncompressedStream);
-            if ((long)uncompressionBufferSize != uncompressedStream.Position) Debugger.Break();
-            readerBuffer             = new FixedByteArrayBuffer(uncompressedBuffer);
+            readerBuffer             = uncompressedBuffer;
             readerBuffer.WriteCursor = uncompressedStream.Position;
-            uncompressedByteArray.SetLength(originalLength);
+            uncompressedBuffer.SetLength(originalLength);
             // Logger.Info("Bucket {0} took {1} ms to decompress and read compressed data", BucketId, (DateTime.Now - start).TotalMilliseconds);
         }
         else
         {
+            BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (int)ExpandedDataSize);
             var viewOffset            = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
             var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize);
             readerBuffer             = new FixedByteArrayBuffer(uncompressedFileRange);
@@ -249,6 +250,10 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         {
             var dataStartDelta = atFileCursorOffset.Value - (StartOfDataSectionOffset - FileCursorOffset);
             readerBuffer.ReadCursor = dataStartDelta;
+        }
+        else
+        {
+            readerBuffer.ReadCursor = 0;
         }
         return readerBuffer;
     }
@@ -269,9 +274,22 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         return ReadEntries(reader, readerContext);
     }
 
-    public override StorageAttemptResult AppendEntry(TEntry entry) => AppendEntry(DataWriterAtAppendLocation!, entry);
+    public override AppendResult AppendEntry(IAppendContext<TEntry> entryContext)
+    {
+        if (!Writable || !IsOpen || !BucketFlags.HasBucketCurrentAppendingFlag()) return new AppendResult(StorageAttemptResult.BucketClosedForAppend);
+        var entryStorageTime = entryContext.StorageTime;
+        var checkWithinRange = CheckTimeSupported(entryStorageTime);
+        if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return new AppendResult(checkWithinRange);
+        entryContext.LastAddedLeafBucket = this;
+        var dataWriter = DataWriterAtAppendLocation!;
+        var appendResult = new AppendResult(StorageAttemptResult.PeriodRangeMatched)
+        {
+            BucketId = BucketId, FileOffset = dataWriter.WriteCursor, StorageTime = entryContext.StorageTime
+        };
+        return AppendEntry(DataWriterAtAppendLocation!, entryContext, appendResult);
+    }
 
-    public abstract StorageAttemptResult AppendEntry(IGrowableUnmanagedBuffer growableBuffer, TEntry entry);
+    public abstract AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext, AppendResult appendResult);
 
     protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => OwningSession.ActiveBucketHeaderFileView;
 }
@@ -298,9 +316,10 @@ public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDa
         // should never be called;
         Enumerable.Empty<TEntry>();
 
-    public override StorageAttemptResult AppendEntry(IGrowableUnmanagedBuffer growableBuffer, TEntry entry) =>
+    public override AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext
+      , AppendResult appendResult) =>
         // should never be called;
-        StorageAttemptResult.NoBucketChecked;
+        new(StorageAttemptResult.NoBucketChecked);
 }
 
 public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<TEntry, TBucket>, IDataBucket
@@ -314,7 +333,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
 
     protected long EndOfDataBucketHeaderSectionOffset => dualMappedBucket!.StartDataBucketHeaderSectionOffset + sizeof(DataBucketHeader);
 
-    public IGrowableUnmanagedBuffer? DataWriterAtAppendLocation => dualMappedBucket!.DataWriterAtAppendLocation;
+    public IFixedByteArrayBuffer? DataWriterAtAppendLocation => dualMappedBucket!.DataWriterAtAppendLocation;
 
     public bool IsDataCompressed => BucketFlags.HasCompressedDataFlag();
 
@@ -360,9 +379,22 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
 
     public abstract IEnumerable<TEntry> ReadEntries(IBuffer buffer, IReaderContext<TEntry> readerContext);
 
-    public override StorageAttemptResult AppendEntry(TEntry entry) => AppendEntry(DataWriterAtAppendLocation!, entry);
+    public override AppendResult AppendEntry(IAppendContext<TEntry> entryContext)
+    {
+        if (!Writable || !IsOpen || !BucketFlags.HasBucketCurrentAppendingFlag()) return new AppendResult(StorageAttemptResult.BucketClosedForAppend);
+        var entryStorageTime = entryContext.StorageTime;
+        var checkWithinRange = CheckTimeSupported(entryStorageTime);
+        if (checkWithinRange != StorageAttemptResult.PeriodRangeMatched) return new AppendResult(checkWithinRange);
+        entryContext.LastAddedLeafBucket = this;
+        var dataWriter = dualMappedBucket!.DataWriterAtAppendLocation!;
+        var appendResult = new AppendResult(StorageAttemptResult.PeriodRangeMatched)
+        {
+            BucketId = BucketId, FileOffset = dataWriter.WriteCursor, StorageTime = entryContext.StorageTime
+        };
+        return AppendEntry(DataWriterAtAppendLocation!, entryContext, appendResult);
+    }
 
-    public abstract StorageAttemptResult AppendEntry(IGrowableUnmanagedBuffer growableBuffer, TEntry entry);
+    public abstract AppendResult AppendEntry(IFixedByteArrayBuffer growableBuffer, IAppendContext<TEntry> entryContext, AppendResult appendResult);
 
     protected override ShiftableMemoryMappedFileView SelectBucketHeaderFileView() => OwningSession.ActiveBucketHeaderFileView;
 }

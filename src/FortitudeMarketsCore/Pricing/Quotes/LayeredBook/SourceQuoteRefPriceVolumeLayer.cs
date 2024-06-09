@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -22,11 +25,21 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
             SourceQuoteReference = srcQtRefPvLayer.SourceQuoteReference;
     }
 
-    public override LayerType LayerType => LayerType.SourceQuoteRefPriceVolume;
+    public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
     public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
 
     public uint SourceQuoteReference { get; set; }
-    public override bool IsEmpty => base.IsEmpty && SourceQuoteReference == 0u;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && SourceQuoteReference == 0u;
+        set
+        {
+            if (!value) return;
+            SourceQuoteReference = 0;
+
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
@@ -35,7 +48,7 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ISourceQuoteRefPriceVolumeLayer sourceSourcePriceVolumeLayer)
@@ -58,7 +71,7 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (!(other is ISourceQuoteRefPriceVolumeLayer otherISourcePvLayer)) return false;
-        var baseSame = base.AreEquivalent(otherISourcePvLayer, exactTypes);
+        var baseSame     = base.AreEquivalent(otherISourcePvLayer, exactTypes);
         var quoteRefSame = SourceQuoteReference == otherISourcePvLayer.SourceQuoteReference;
 
         return baseSame && quoteRefSame;

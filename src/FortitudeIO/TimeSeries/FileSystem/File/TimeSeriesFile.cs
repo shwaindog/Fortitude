@@ -6,6 +6,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Reading;
@@ -71,12 +72,14 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
 
 {
     private readonly List<IReaderFileSession<TBucket, TEntry>> readerSessions = new();
+    protected        IStorageTimeResolver<TEntry>?             EntryStorageTimeResolver;
 
-    protected IBucketFactory<TBucket>?             FileBucketFactory;
-    private   IBucketIndexDictionary?              fileBucketIndexOffsets;
-    private   IReaderFileSession<TBucket, TEntry>? infoSession;
-    private   int                                  numberOfOpenSessions;
-    private   IWriterFileSession<TBucket, TEntry>? writerSession;
+    protected IBucketFactory<TBucket>? FileBucketFactory;
+
+    private IBucketIndexDictionary?              fileBucketIndexOffsets;
+    private IReaderFileSession<TBucket, TEntry>? infoSession;
+    private int                                  numberOfOpenSessions;
+    private IWriterFileSession<TBucket, TEntry>? writerSession;
 
     // derived classes should implement equivalent parameter constructor to be open with OpenExistingTimeSeriesFile(string filePath)
     public TimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
@@ -112,7 +115,9 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         get { return FileBucketFactory ??= new BucketFactory<TBucket>(true); }
         set => FileBucketFactory = value;
     }
-    public IMutableTimeSeriesFileHeader Header { get; }
+
+    public virtual IStorageTimeResolver<TEntry>? StorageTimeResolver => null!;
+    public         IMutableTimeSeriesFileHeader  Header              { get; }
 
     public Func<TEntry>? DefaultEntryFactory { get; set; }
 
@@ -240,6 +245,8 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
 
         return infoSession;
     }
+
+    public virtual ISessionAppendContext<TEntry, TBucket> CreateAppendContext() => new AppendContext<TEntry, TBucket>();
 
     public static TFile OpenExistingTimeSeriesFile(string filePath)
     {

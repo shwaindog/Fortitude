@@ -101,7 +101,15 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : LayerFieldUpdatedFlags.None;
     }
 
-    public virtual bool IsEmpty => Price == 0m && Volume == 0m;
+    public virtual bool IsEmpty
+    {
+        get => Price == 0m && Volume == 0m;
+        set
+        {
+            if (!value) return;
+            Price = Volume = 0m;
+        }
+    }
 
     public override void StateReset()
     {
@@ -160,6 +168,8 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
             if (pqpvl.IsPriceUpdated || isFullReplace) Price = pqpvl.Price;
 
             if (pqpvl.IsVolumeUpdated || isFullReplace) Volume = pqpvl.Volume;
+
+            if (isFullReplace) UpdatedFlags = pqpvl.UpdatedFlags;
         }
 
         return this;

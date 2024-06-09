@@ -48,7 +48,7 @@ public class Level1QuoteGenerator : Level1QuoteGeneratorBase<Level1PriceQuote>
 {
     public Level1QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
 
-    public override Level1PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public override Level1PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
     {
         var toPopulate = new Level1PriceQuote(GenerateQuoteInfo.SourceTickerQuoteInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);

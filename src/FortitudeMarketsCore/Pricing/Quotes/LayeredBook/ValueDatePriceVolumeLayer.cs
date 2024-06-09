@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
@@ -29,7 +32,17 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
     public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
 
     public DateTime ValueDate { get; set; }
-    public override bool IsEmpty => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
+        set
+        {
+            if (!value) return;
+            ValueDate = DateTimeConstants.UnixEpoch;
+
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
@@ -38,7 +51,7 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IValueDatePriceVolumeLayer sourceSourcePriceVolumeLayer)
@@ -59,7 +72,7 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (!(other is IValueDatePriceVolumeLayer otherValueDatePvLayer)) return false;
-        var baseSame = base.AreEquivalent(otherValueDatePvLayer, exactTypes);
+        var baseSame      = base.AreEquivalent(otherValueDatePvLayer, exactTypes);
         var valueDateSame = Equals(ValueDate, otherValueDatePvLayer.ValueDate);
 
         return baseSame && valueDateSame;

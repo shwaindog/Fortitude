@@ -742,7 +742,7 @@ public class PQLevel3QuoteTests
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
-            AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote, PQBooleanValuesExtensions.AllSet);
+            AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote, PQBooleanValuesExtensions.AllFields);
         }
     }
 
@@ -828,10 +828,13 @@ public class PQLevel3QuoteTests
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterSentTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ClientReceivedTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ProcessedTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.DispatchedTime);
+            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SocketReceivingTime);
             Assert.AreEqual(0m, emptyQuote.BidPriceTop);
             Assert.AreEqual(0m, emptyQuote.AskPriceTop);
             Assert.IsTrue(emptyQuote.Executable);
-            Assert.AreEqual(pqLevel3Quote.ClientReceivedTime, emptyQuote.ClientReceivedTime);
             Assert.IsFalse(emptyQuote.IsBatchIdUpdated);
             Assert.IsFalse(emptyQuote.IsSourceQuoteReferenceUpdated);
             Assert.IsFalse(emptyQuote.IsValueDateUpdated);

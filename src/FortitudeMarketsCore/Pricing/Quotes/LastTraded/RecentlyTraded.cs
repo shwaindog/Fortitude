@@ -138,7 +138,7 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
             var sourceLayerToCopy = source[i];
             if (i < LastTrades.Count)
             {
-                if (!(LastTrades[i] is IMutableLastTrade mutableLayer))
+                if (!(LastTrades[i] is { } mutableLayer))
                     LastTrades[i] = LastTradeEntrySelector.ConvertToExpectedImplementation(sourceLayerToCopy, true);
                 else if (sourceLayerToCopy != null)
                     mutableLayer.CopyFrom(source[i]!);
@@ -152,7 +152,8 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
         }
 
         for (var i = Math.Min(currentDeepestLayerSet, LastTrades.Count) - 1; i >= sourceDeepestLayerSet; i--)
-            LastTrades[i]?.StateReset();
+            if (LastTrades[i] is { } mutableLastTrade)
+                mutableLastTrade.IsEmpty = true;
         return this;
     }
 

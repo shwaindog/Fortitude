@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -17,27 +20,28 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.Layered
 public class PQTraderLayerInfoTests
 {
     private const string TraderName = "TestTraderName";
+
     private IPQNameIdLookupGenerator emptyNameIdLookup = null!;
-    private IPQTraderLayerInfo emptyTli = null!;
-    private IPQNameIdLookupGenerator nameIdLookup = null!;
-    private IPQTraderLayerInfo populatedTli = null!;
+    private IPQTraderLayerInfo       emptyTli          = null!;
+    private IPQNameIdLookupGenerator nameIdLookup      = null!;
+    private IPQTraderLayerInfo       populatedTli      = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
-        nameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
-        emptyTli = new PQTraderLayerInfo(emptyNameIdLookup.Clone());
-        populatedTli = new PQTraderLayerInfo(nameIdLookup, TraderName, 42_111_222m);
+        nameIdLookup      = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        emptyTli          = new PQTraderLayerInfo(emptyNameIdLookup.Clone());
+        populatedTli      = new PQTraderLayerInfo(nameIdLookup, TraderName, 42_111_222m);
     }
 
     [TestMethod]
     public void NewTli_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
         var newExpectedTraderName = "DiffTraderName";
-        var newTli = new PQTraderLayerInfo(nameIdLookup, newExpectedTraderName, 2_333_444m);
+        var newTli                = new PQTraderLayerInfo(nameIdLookup, newExpectedTraderName, 2_333_444m);
         Assert.AreEqual(newExpectedTraderName, newTli.TraderName);
-        Assert.AreEqual(2_333_444m, newTli.TraderVolume);
+        Assert.AreEqual(2_333_440m, newTli.TraderVolume);
         Assert.IsNotNull(newTli.NameIdLookup);
         Assert.IsTrue(newTli.IsTraderNameUpdated);
         Assert.IsTrue(newTli.IsTraderVolumeUpdated);
@@ -61,8 +65,8 @@ public class PQTraderLayerInfoTests
         Assert.IsTrue(fromPQInstance.IsTraderVolumeUpdated);
 
         var newExpectedTraderName = "NonPQTraderName";
-        var nonPQTli = new TraderLayerInfo(newExpectedTraderName, 222_444);
-        var fromNonPqInstance = new PQTraderLayerInfo(nonPQTli, emptyNameIdLookup.Clone());
+        var nonPQTli              = new TraderLayerInfo(newExpectedTraderName, 222_444);
+        var fromNonPqInstance     = new PQTraderLayerInfo(nonPQTli, emptyNameIdLookup.Clone());
         Assert.AreEqual(newExpectedTraderName, fromNonPqInstance.TraderName);
         Assert.AreEqual(222_444, fromNonPqInstance.TraderVolume);
         Assert.IsTrue(fromNonPqInstance.IsTraderNameUpdated);
@@ -157,7 +161,7 @@ public class PQTraderLayerInfoTests
 
         Assert.AreEqual(emptyTli, newEmptyTli);
 
-        var expectedTraderVolume = 4_294_967_296;
+        var expectedTraderVolume = 4_294_967_280;
         emptyTli.TraderVolume = expectedTraderVolume;
 
         Assert.AreEqual(expectedTraderVolume, emptyTli.TraderVolume);
@@ -193,7 +197,7 @@ public class PQTraderLayerInfoTests
         Assert.IsTrue(populatedTli.IsTraderNameUpdated);
         Assert.IsTrue(populatedTli.IsTraderVolumeUpdated);
         Assert.IsFalse(populatedTli.IsEmpty);
-        populatedTli.StateReset();
+        populatedTli.IsEmpty = true;
         Assert.IsTrue(populatedTli.IsEmpty);
         Assert.IsNull(populatedTli.TraderName);
         Assert.AreEqual(0m, populatedTli.TraderVolume);
@@ -230,10 +234,10 @@ public class PQTraderLayerInfoTests
     public void FullyPopulatedTliCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
         var fullyPopulatedClone = (PQTraderLayerInfo)((ICloneable)populatedTli).Clone();
-        AssertAreEquivalentMeetsExpectedExactComparisonType(true, populatedTli,
-            fullyPopulatedClone);
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedTli,
-            fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (true, populatedTli, fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, populatedTli, fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -280,52 +284,52 @@ public class PQTraderLayerInfoTests
 
         if (original.GetType() == typeof(PQTraderLayerInfo))
             Assert.AreEqual(!exactComparison, original.AreEquivalent(
-                new TraderLayerInfo(changingTraderLayerInfo), exactComparison));
+                                                                     new TraderLayerInfo(changingTraderLayerInfo), exactComparison));
 
-        TraderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-            original, changingTraderLayerInfo, originalTraderPriceVolumeLayer, changingTraderPriceVolumeLayer,
-            originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+        TraderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, original, changingTraderLayerInfo, originalTraderPriceVolumeLayer
+           , changingTraderPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         changingTraderLayerInfo.IsTraderNameUpdated = !changingTraderLayerInfo.IsTraderNameUpdated;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.AreEqual(!exactComparison,
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                            originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.AreEqual(!exactComparison,
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                            originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null)
             Assert.AreEqual(!exactComparison,
-                originalQuote.AreEquivalent(changingQuote, exactComparison));
+                            originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingTraderLayerInfo.IsTraderNameUpdated = original.IsTraderNameUpdated;
         Assert.IsTrue(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsTrue(
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                          originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.IsTrue(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                          originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingTraderLayerInfo.IsTraderVolumeUpdated = !changingTraderLayerInfo.IsTraderVolumeUpdated;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.AreEqual(!exactComparison,
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                            originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.AreEqual(!exactComparison,
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                            originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null)
             Assert.AreEqual(!exactComparison,
-                originalQuote.AreEquivalent(changingQuote, exactComparison));
+                            originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingTraderLayerInfo.IsTraderVolumeUpdated = original.IsTraderVolumeUpdated;
         Assert.IsTrue(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsTrue(
-                originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
+                          originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
             Assert.IsTrue(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                          originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

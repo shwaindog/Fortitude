@@ -34,6 +34,10 @@ public static class PQBooleanValuesExtensions
         PQBooleanValues.IsReplaySetFlag | PQBooleanValues.IsExecutableSetFlag
                                         | PQBooleanValues.IsBidPriceTopUpdatedSetFlag | PQBooleanValues.IsAskPriceTopUpdatedSetFlag;
 
+    public const PQBooleanValues AllUpdated =
+        PQBooleanValues.IsReplayUpdatedFlag | PQBooleanValues.IsExecutableUpdatedFlag
+                                            | PQBooleanValues.IsBidPriceTopUpdatedChangedFlag | PQBooleanValues.IsAskPriceTopUpdatedChangedFlag;
+
     public static PQBooleanValues Set(this PQBooleanValues flags, PQBooleanValues toSet)     => flags | toSet;
     public static PQBooleanValues Unset(this PQBooleanValues flags, PQBooleanValues toUnset) => flags & ~toUnset;
 }

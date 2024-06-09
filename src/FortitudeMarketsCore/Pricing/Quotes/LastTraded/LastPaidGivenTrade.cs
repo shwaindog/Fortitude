@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Types;
@@ -14,8 +17,8 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     public LastPaidGivenTrade(decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m,
         bool wasPaid = false, bool wasGiven = false) : base(tradePrice, tradeDateTime)
     {
-        WasPaid = wasPaid;
-        WasGiven = wasGiven;
+        WasPaid     = wasPaid;
+        WasGiven    = wasGiven;
         TradeVolume = tradeVolume;
     }
 
@@ -23,8 +26,8 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     {
         if (toClone is ILastPaidGivenTrade lastPaidGivenTrade)
         {
-            WasPaid = lastPaidGivenTrade.WasPaid;
-            WasGiven = lastPaidGivenTrade.WasGiven;
+            WasPaid     = lastPaidGivenTrade.WasPaid;
+            WasGiven    = lastPaidGivenTrade.WasGiven;
             TradeVolume = lastPaidGivenTrade.TradeVolume;
         }
     }
@@ -34,15 +37,27 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     public override LastTradedFlags SupportsLastTradedFlags =>
         LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
 
-    public bool WasPaid { get; set; }
-    public bool WasGiven { get; set; }
+    public bool    WasPaid     { get; set; }
+    public bool    WasGiven    { get; set; }
     public decimal TradeVolume { get; set; }
-    public override bool IsEmpty => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
+        set
+        {
+            if (!value) return;
+            WasPaid  = false;
+            WasGiven = false;
+
+            TradeVolume  = 0m;
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
         TradeVolume = 0;
-        WasPaid = WasGiven = false;
+        WasPaid     = WasGiven = false;
         base.StateReset();
     }
 
@@ -52,8 +67,8 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         if (source is ILastPaidGivenTrade lastPaidGivenTrade)
         {
             TradeVolume = lastPaidGivenTrade.TradeVolume;
-            WasPaid = lastPaidGivenTrade.WasPaid;
-            WasGiven = lastPaidGivenTrade.WasGiven;
+            WasPaid     = lastPaidGivenTrade.WasPaid;
+            WasGiven    = lastPaidGivenTrade.WasGiven;
         }
 
         return this;
@@ -70,9 +85,9 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     {
         if (!(other is ILastPaidGivenTrade lastPaidGivenTrade)) return false;
 
-        var baseSame = base.AreEquivalent(other, exactTypes);
-        var wasPaidSame = WasPaid == lastPaidGivenTrade.WasPaid;
-        var wasGivenSame = WasGiven == lastPaidGivenTrade.WasGiven;
+        var baseSame        = base.AreEquivalent(other, exactTypes);
+        var wasPaidSame     = WasPaid == lastPaidGivenTrade.WasPaid;
+        var wasGivenSame    = WasGiven == lastPaidGivenTrade.WasGiven;
         var tradeVolumeSame = TradeVolume == lastPaidGivenTrade.TradeVolume;
 
         return baseSame && wasPaidSame && wasGivenSame && tradeVolumeSame;

@@ -69,7 +69,17 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         }
     }
 
-    public override bool IsEmpty => base.IsEmpty && SourceQuoteReference == 0;
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && SourceQuoteReference == 0;
+        set
+        {
+            if (!value) return;
+            SourceQuoteReference = 0;
+
+            base.IsEmpty = true;
+        }
+    }
 
     public override void StateReset()
     {
@@ -105,10 +115,16 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         var pqSourcePvl   = source as IPQSourceQuoteRefPriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is ISourceQuoteRefPriceVolumeLayer sqrpvl && pqSourcePvl == null)
+        {
             SourceQuoteReference = sqrpvl.SourceQuoteReference;
+        }
         else if (pqSourcePvl != null)
+        {
             if (pqSourcePvl.IsSourceNameUpdated || isFullReplace)
                 SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
+            if (isFullReplace) SetFlagsSame(pqSourcePvl);
+        }
+
         return this;
     }
 

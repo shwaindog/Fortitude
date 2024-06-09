@@ -214,15 +214,11 @@ public class PQLevel0QuoteTests
             select update).ToList();
         Assert.AreEqual(1, sourceUpdatesNotUpdated.Count);
         var expectedFieldUpdateWithoutUpdated
-            = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)PQBooleanValues.IsReplaySetFlag);
+            = new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)(PQBooleanValues.IsReplaySetFlag | PQBooleanValues.IsReplayUpdatedFlag));
         Assert.AreEqual(expectedFieldUpdateWithoutUpdated, sourceUpdatesNotUpdated[0]);
 
         var newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
         newEmpty.UpdateField(sourceUpdatesNotUpdated[0]);
-        Assert.AreEqual(false, newEmpty.IsReplay);
-        Assert.IsFalse(newEmpty.IsReplayUpdated);
-        newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
-        newEmpty.UpdateField(sourceUpdatesWithUpdated[0]);
         Assert.AreEqual(true, newEmpty.IsReplay);
         Assert.IsTrue(newEmpty.IsReplayUpdated);
     }
@@ -268,7 +264,7 @@ public class PQLevel0QuoteTests
         var pqFieldUpdates =
             fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Snapshot).ToList();
-        AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote, PQBooleanValues.IsReplaySetFlag);
+        AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote);
     }
 
     [TestMethod]
@@ -363,9 +359,9 @@ public class PQLevel0QuoteTests
 
         fullyPopulatedPqLevel0Quote.HasUpdates = false;
         emptyQuote.CopyFrom(fullyPopulatedPqLevel0Quote);
-        Assert.AreEqual(fullyPopulatedPqLevel0Quote.ClientReceivedTime, emptyQuote.ClientReceivedTime);
         Assert.AreEqual(fullyPopulatedPqLevel0Quote.PQSequenceId, emptyQuote.PQSequenceId);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ClientReceivedTime);
         Assert.IsTrue(
                       fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);

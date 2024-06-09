@@ -1,50 +1,59 @@
-﻿namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
+
+using static FortitudeCommon.Extensions.NumberFormattingExtensions;
+
+#endregion
+
+namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public struct PQFieldUpdate
 {
     public ushort Id;
-    public byte Flag;
-    public uint Value;
+    public byte   Flag;
+    public uint   Value;
 
     public PQFieldUpdate(ushort id, uint value, byte flag = 0)
     {
-        Id = id;
-        Flag = flag;
+        Id    = id;
+        Flag  = flag;
         Value = value;
     }
 
     public PQFieldUpdate(byte id, uint value, byte flag = 0)
     {
-        Id = id;
-        Flag = flag;
+        Id    = id;
+        Flag  = flag;
         Value = value;
     }
 
     public PQFieldUpdate(ushort id, long value, byte flag = 0)
     {
-        Id = id;
-        Flag = flag;
+        Id    = id;
+        Flag  = flag;
         Value = (uint)(int)value;
     }
 
     public PQFieldUpdate(byte id, long value, byte flag = 0)
     {
-        Id = id;
-        Flag = flag;
+        Id    = id;
+        Flag  = flag;
         Value = (uint)(int)value;
     }
 
     public PQFieldUpdate(ushort id, decimal value, byte factor)
     {
-        Id = id;
-        Flag = value < 0 ? (byte)(factor | PQScaling.NegativeMask) : factor;
+        Id    = id;
+        Flag  = value < 0 ? (byte)(factor | PQScaling.NegativeMask) : factor;
         Value = PQScaling.Scale(value, (byte)(Flag & 0x1F));
     }
 
     public PQFieldUpdate(byte id, decimal value, byte factor)
     {
-        Id = id;
-        Flag = value < 0 ? (byte)(factor | PQScaling.NegativeMask) : factor;
+        Id    = id;
+        Flag  = value < 0 ? (byte)(factor | PQScaling.NegativeMask) : factor;
         Value = PQScaling.Scale(value, (byte)(Flag & 0x1F));
     }
 
@@ -69,12 +78,12 @@ public struct PQFieldUpdate
         }
     }
 
-    public override string ToString() => $"PQFieldUpdate{{{nameof(Id)}: {Id}, {nameof(Flag)}: 0x{Flag:x2}, {nameof(Value)}: {Value} }}";
+    public override string ToString() => $"PQFieldUpdate{{{nameof(Id)}: {Id}, {nameof(Flag)}: 0x{Flag:x2}, {nameof(Value)}: 0x{Value.ToHex2()} }}";
 }
 
 public struct PQFieldStringUpdate
 {
-    public PQFieldUpdate Field;
+    public PQFieldUpdate  Field;
     public PQStringUpdate StringUpdate;
 
     public bool Equals(PQFieldStringUpdate other) => Field.Equals(other.Field) && StringUpdate.Equals(other.StringUpdate);
@@ -105,9 +114,9 @@ public struct PQFieldStringUpdate
 
 public struct PQStringUpdate
 {
-    public int DictionaryId;
+    public int         DictionaryId;
     public CrudCommand Command;
-    public string Value;
+    public string      Value;
 
     public bool Equals(PQStringUpdate other) => DictionaryId == other.DictionaryId && Command == other.Command && string.Equals(Value, other.Value);
 
@@ -136,6 +145,6 @@ public struct PQStringUpdate
 public enum CrudCommand : byte
 {
     None
-    , Upsert // Insert or update
-    , Delete
+  , Upsert // Insert or update
+  , Delete
 }

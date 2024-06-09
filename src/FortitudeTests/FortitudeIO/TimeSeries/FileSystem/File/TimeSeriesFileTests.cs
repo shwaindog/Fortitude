@@ -105,7 +105,7 @@ public class TimeSeriesFileTests
         foreach (var firstPeriod in toPersistAndCheck)
         {
             var result = writerSession.AppendEntry(firstPeriod);
-            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         oneWeekFile.AutoCloseOnZeroSessions = false;
         writerSession.Close();
@@ -134,7 +134,7 @@ public class TimeSeriesFileTests
         foreach (var firstPeriod in toPersistAndCheck)
         {
             var result = writerSession.AppendEntry(firstPeriod);
-            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         oneWeekFile.AutoCloseOnZeroSessions = false;
         writerSession.Close();
@@ -166,7 +166,7 @@ public class TimeSeriesFileTests
         NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned();
     }
 
-    public unsafe void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(ulong? overrideExpectedFileSize = null, ulong tolerance = 30)
+    public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(ulong? overrideExpectedFileSize = null, ulong tolerance = 30)
     {
         var toPersistAndCheck = GenerateForEachDayAndHourOfCurrentWeek(0, 10).ToList();
 
@@ -174,8 +174,8 @@ public class TimeSeriesFileTests
         foreach (var level1QuoteStruct in toPersistAndCheck)
         {
             var result = writerSession.AppendEntry(level1QuoteStruct);
-            expectedDataSize += (ulong)sizeof(Level1QuoteStruct);
-            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+            expectedDataSize += (ulong)(result.SerializedSize ?? 0);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         oneWeekFile.AutoCloseOnZeroSessions = false;
         writerSession.Close();
@@ -276,7 +276,7 @@ public class TimeSeriesFileTests
         var nextWeekQuote           = singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
         var result = writerSession.AppendEntry(nextWeekQuote);
-        Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result);
+        Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result.StorageAttemptResult);
     }
 
     [TestMethod]
@@ -287,11 +287,11 @@ public class TimeSeriesFileTests
         var wednesdayQuote  = wednesdayQuotes.First();
         var thursdayQuote   = thursdayQuotes.First();
         var result          = writerSession.AppendEntry(wednesdayQuote);
-        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         result = writerSession.AppendEntry(thursdayQuote);
-        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         result = writerSession.AppendEntry(wednesdayQuote);
-        Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result);
+        Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result.StorageAttemptResult);
     }
 
     public IEnumerable<Level1QuoteStruct> GenerateForEachDayAndHourOfCurrentWeek(int start, int amount)

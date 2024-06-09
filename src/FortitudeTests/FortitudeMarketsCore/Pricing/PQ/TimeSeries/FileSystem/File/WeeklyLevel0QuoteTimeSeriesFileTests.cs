@@ -44,12 +44,6 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
 
     private SourceTickerQuoteInfo  level0SrcTkrQtInfo     = null!;
     private PQLevel0QuoteGenerator pqLevel0QuoteGenerator = null!;
-    // private Level1QuoteGenerator  level1QuoteGenerator;
-    // private SourceTickerQuoteInfo level1SrcTkrQtInfo;
-    // private Level2QuoteGenerator  level2QuoteGenerator;
-    // private SourceTickerQuoteInfo level2SrcTkrQtInfo;
-    // private Level3QuoteGenerator  level3QuoteGenerator;
-    // private SourceTickerQuoteInfo level3SrcTkrQtInfo;
 
     [TestInitialize]
     public void Setup()
@@ -57,23 +51,8 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         PagedMemoryMappedFile.LogMappingMessages = true;
         level0SrcTkrQtInfo =
             new SourceTickerQuoteInfo
-                (19, "OneWeekDailyHourlyPriceQuoteTimeSeriesFileTests", 79, "PersistTest",
+                (19, "WeeklyLevel0QuoteTimeSeriesFileTests", 79, "PersistTest",
                  QuoteLevel.Level0, 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None);
-        // level1SrcTkrQtInfo =
-        //     new SourceTickerQuoteInfo
-        //         (19, "OneWeekDailyHourlyPriceQuoteTimeSeriesFileTests", 79, "PersistTest",
-        //          QuoteLevel.Level1, 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None);
-        // level2SrcTkrQtInfo =
-        //     new SourceTickerQuoteInfo
-        //         (19, "OneWeekDailyHourlyPriceQuoteTimeSeriesFileTests", 79, "PersistTest",
-        //          QuoteLevel.Level2, 17, layerFlags: LayerFlags.TraderName | LayerFlags.SourceQuoteReference,
-        //          lastTradedFlags: LastTradedFlags.None);
-        // level3SrcTkrQtInfo =
-        //     new SourceTickerQuoteInfo
-        //         (19, "OneWeekDailyHourlyPriceQuoteTimeSeriesFileTests", 79, "PersistTest",
-        //          QuoteLevel.Level3, 17, layerFlags: LayerFlags.TraderName | LayerFlags.SourceQuoteReference,
-        //          lastTradedFlags: LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven);
-
 
         var dateToGenerate   = DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
@@ -86,9 +65,6 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
 
         level0QuoteGenerator   = new Level0QuoteGenerator(generateQuoteInfo);
         pqLevel0QuoteGenerator = new PQLevel0QuoteGenerator(generateQuoteInfo);
-        // level1QuoteGenerator = new Level1QuoteGenerator(generateQuoteInfo);
-        // level2QuoteGenerator = new Level2QuoteGenerator(generateQuoteInfo);
-        // level3QuoteGenerator = new Level3QuoteGenerator(generateQuoteInfo);
     }
 
     private void CreateLevel0File(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader)
@@ -166,7 +142,7 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         foreach (var firstPeriod in toPersistAndCheck)
         {
             var result = level0SessionWriter.AppendEntry(firstPeriod);
-            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level0OneWeekFile.AutoCloseOnZeroSessions = false;
         level0SessionWriter.Close();
@@ -220,7 +196,7 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         foreach (var level1QuoteStruct in toPersistAndCheck)
         {
             var result = level0SessionWriter.AppendEntry(level1QuoteStruct);
-            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level0OneWeekFile.AutoCloseOnZeroSessions = false;
         level0SessionWriter.Close();
@@ -315,7 +291,7 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         var nextWeekQuote = (IMutableLevel0Quote)singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
         var result = level0SessionWriter.AppendEntry(nextWeekQuote);
-        Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result);
+        Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result.StorageAttemptResult);
     }
 
     [TestMethod]
@@ -331,10 +307,10 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         var wednesdayQuote = wednesdayQuotes.First();
         var thursdayQuote  = thursdayQuotes.First();
         var result         = level0SessionWriter.AppendEntry(wednesdayQuote);
-        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         result = level0SessionWriter.AppendEntry(thursdayQuote);
-        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result);
+        Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         result = level0SessionWriter.AppendEntry(wednesdayQuote);
-        Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result);
+        Assert.AreEqual(StorageAttemptResult.BucketClosedForAppend, result.StorageAttemptResult);
     }
 }
