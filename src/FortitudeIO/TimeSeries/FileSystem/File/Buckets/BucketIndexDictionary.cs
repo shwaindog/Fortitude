@@ -428,7 +428,6 @@ public unsafe class BucketIndexDictionary : IBucketIndexDictionary
         if (memoryMappedFileView!.LowerViewFileCursorOffset != requiredViewFileCursorOffset ||
             memoryMappedFileView.StartAddress != requiredViewStartAddress)
             throw new ArgumentException("View has been moved and should not be accessed!");
-        // Debugger.Break();
     }
 
     public static uint CalculateDictionarySizeInBytes(uint maxEntries, long proposedStartPosition)

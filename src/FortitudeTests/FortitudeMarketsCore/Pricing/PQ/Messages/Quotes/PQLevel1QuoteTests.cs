@@ -677,12 +677,14 @@ public class PQLevel1QuoteTests
 
         changingLevel1Quote.BidPriceTop = 9.8765432m;
         Assert.IsFalse(original.AreEquivalent(changingLevel1Quote, exactComparison));
-        changingLevel1Quote.BidPriceTop = original.BidPriceTop;
+        changingLevel1Quote.BidPriceTop          = original.BidPriceTop;
+        changingLevel1Quote.IsBidPriceTopUpdated = original.IsBidPriceTopUpdated;
         Assert.IsTrue(changingLevel1Quote.AreEquivalent(original, exactComparison));
 
         changingLevel1Quote.AskPriceTop = 9.8765432m;
         Assert.IsFalse(changingLevel1Quote.AreEquivalent(original, exactComparison));
-        changingLevel1Quote.AskPriceTop = original.AskPriceTop;
+        changingLevel1Quote.AskPriceTop          = original.AskPriceTop;
+        changingLevel1Quote.IsAskPriceTopUpdated = original.IsAskPriceTopUpdated;
         Assert.IsTrue(original.AreEquivalent(changingLevel1Quote, exactComparison));
 
         changingLevel1Quote.Executable = !changingLevel1Quote.Executable;

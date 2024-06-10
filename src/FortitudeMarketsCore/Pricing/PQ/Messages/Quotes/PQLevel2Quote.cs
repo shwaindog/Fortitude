@@ -253,19 +253,15 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         if (!(source is ILevel2Quote l2Q)) return this;
         bidBook.CopyFrom(l2Q.BidBook, copyMergeFlags);
         askBook.CopyFrom(l2Q.AskBook, copyMergeFlags);
+        IsBidPriceTopUpdated = l2Q.IsBidPriceTopUpdated;
+        IsAskPriceTopUpdated = l2Q.IsAskPriceTopUpdated;
         if (source is IPQLevel1Quote pq1)
         {
-            var isFullReplace = copyMergeFlags.HasFullReplace();
+            IsBidPriceTopUpdatedChanged = pq1.IsBidPriceTopUpdatedChanged;
+            IsAskPriceTopUpdatedChanged = pq1.IsAskPriceTopUpdatedChanged;
 
-            if (pq1.IsBidPriceTopUpdatedChanged || isFullReplace) IsBidPriceTopUpdated = pq1.IsBidPriceTopUpdated;
-            if (pq1.IsAskPriceTopUpdatedChanged || isFullReplace) IsAskPriceTopUpdated = pq1.IsAskPriceTopUpdated;
-
+            var isFullReplace                                           = copyMergeFlags.HasFullReplace();
             if (isFullReplace && pq1 is PQLevel2Quote pq2) UpdatedFlags = pq2.UpdatedFlags;
-        }
-        else
-        {
-            IsAskPriceTopUpdated = l2Q.IsAskPriceTopUpdated;
-            IsBidPriceTopUpdated = l2Q.IsBidPriceTopUpdated;
         }
         return this;
     }
@@ -301,7 +297,6 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         }
 
         var allAreSame = baseSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

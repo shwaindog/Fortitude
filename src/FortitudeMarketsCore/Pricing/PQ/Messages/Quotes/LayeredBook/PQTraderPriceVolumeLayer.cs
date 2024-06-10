@@ -338,7 +338,6 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
                                                       ftd != null && ftd.AreEquivalent(std, exactTypes)).All(same => same);
 
         var allAreSame = baseSame && countSame && traderDetailsSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

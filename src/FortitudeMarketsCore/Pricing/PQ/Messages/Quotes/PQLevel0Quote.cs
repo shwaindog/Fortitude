@@ -758,7 +758,6 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         var allAreSame = clientReceivedSame && isReplaySame && tickerQuoteInfoSame && singlePriceSame && sourceTimeSame
                       && updatedFlagsSame && booleanFieldsSame && dispatchTimeSame && processingTimeSame && lastPubTimeSame
                       && socketReceivingTimeSame && sequenceIdSame && publicationStatusSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

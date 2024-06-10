@@ -18,7 +18,7 @@ public struct GenerateLastTradeInfo
 
     public bool GenerateLastTrades = true;
 
-    public double AverageLastTradeOneProbability = 0.10;
+    public double AverageLastTradeProbability = 0.10;
 
     public double LastTradedWasBidProbability = 0.5;
 
@@ -40,30 +40,31 @@ public class LastTradedGenerator : ILastTradedGenerator
 {
     protected readonly GenerateLastTradeInfo GenerateLastTradeInfo;
 
-    protected readonly Normal NormalDist;
-    protected readonly Random PseudoRandom;
-    private            int    askCount;
-    private            int    bidCount;
+    private int    askCount;
+    private int    bidCount;
+    private Normal normalDist   = null!;
+    private Random pseudoRandom = null!;
 
-    public LastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo, Normal normalDist, Random pseudoRandom)
-    {
-        GenerateLastTradeInfo = generateLastTradeInfo;
-        NormalDist            = normalDist;
-        PseudoRandom          = pseudoRandom;
-    }
+    public LastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) => GenerateLastTradeInfo = generateLastTradeInfo;
 
     public void PopulateLevel3LastTraded(IMutableLevel3Quote level3Quote, PreviousCurrentMidPriceTime previousCurrentMid)
     {
         if (!GenerateLastTradeInfo.GenerateLastTrades) return;
+        var prev = previousCurrentMid.PreviousMid;
+        var curr = previousCurrentMid.CurrentMid;
         bidCount = 0;
         askCount = 0;
-        var generateThisQuote = PseudoRandom.NextDouble() < GenerateLastTradeInfo.AverageLastTradeOneProbability;
+
+        pseudoRandom = new Random(prev.Mid.GetHashCode() ^ curr.Mid.GetHashCode());
+        normalDist   = new Normal(0, 1, pseudoRandom);
+
+        var generateThisQuote = pseudoRandom.NextDouble() < GenerateLastTradeInfo.AverageLastTradeProbability;
         if (!generateThisQuote) return;
-        var numberOfLastTrades = Math.Min(GenerateLastTradeInfo.MaxNumberOfLastTrade,
-                                          Math.Max(0,
-                                                   (int)(GenerateLastTradeInfo.AverageNumberOfLastTrades +
-                                                         NormalDist.Sample() *
-                                                         GenerateLastTradeInfo.TradeCountStdDeviation)));
+        var numberOfLastTrades =
+            Math.Min
+                (GenerateLastTradeInfo.MaxNumberOfLastTrade,
+                 Math.Max(0, (int)(GenerateLastTradeInfo.AverageNumberOfLastTrades
+                                 + normalDist.Sample() * GenerateLastTradeInfo.TradeCountStdDeviation)));
         if (numberOfLastTrades == 0) return;
 
         var lastTradeType = level3Quote.RecentlyTraded!.LastTradesOfType;
@@ -98,7 +99,7 @@ public class LastTradedGenerator : ILastTradedGenerator
             if (currentLastTradeCount >= GenerateLastTradeInfo.MaxNumberOfLastTrade || currentLastTradeCount >= i) break;
             var index        = recentlyTraded.AppendEntryAtEnd();
             var lastTradInfo = recentlyTraded[index]!;
-            var isBidTrade   = PseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
+            var isBidTrade   = pseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
             PopulateLastTradePriceAndTime(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);
         }
     }
@@ -139,7 +140,7 @@ public class LastTradedGenerator : ILastTradedGenerator
             if (currentLastTradeCount >= GenerateLastTradeInfo.MaxNumberOfLastTrade || currentLastTradeCount >= i) break;
             var index        = recentlyTraded.AppendEntryAtEnd();
             var lastTradInfo = (IMutableLastPaidGivenTrade)recentlyTraded[index]!;
-            var isBidTrade   = PseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
+            var isBidTrade   = pseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
             PopulateLastPaidGivenVolume(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);
         }
     }
@@ -183,9 +184,9 @@ public class LastTradedGenerator : ILastTradedGenerator
             if (currentLastTradeCount >= GenerateLastTradeInfo.MaxNumberOfLastTrade || currentLastTradeCount >= i) break;
             var index        = recentlyTraded.AppendEntryAtEnd();
             var lastTradInfo = (IMutableLastTraderPaidGivenTrade)recentlyTraded[index]!;
-            var isBidTrade   = PseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
+            var isBidTrade   = pseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
 
-            var traderNum = PseudoRandom.Next(1, GenerateLastTradeInfo.MaxDifferentTraderNames + 1);
+            var traderNum = pseudoRandom.Next(1, GenerateLastTradeInfo.MaxDifferentTraderNames + 1);
 
             SetTraderName(lastTradInfo, $"TraderName_{traderNum}");
             PopulateLastPaidGivenVolume(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);

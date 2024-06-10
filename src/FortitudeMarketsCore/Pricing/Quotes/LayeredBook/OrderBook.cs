@@ -185,7 +185,6 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
                         .All(joined => joined.thisLayer != null
                                     && joined.thisLayer.AreEquivalent(joined.otherLayer)));
         var allAreSame = countSame && bookLayersSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

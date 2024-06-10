@@ -375,7 +375,6 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         if (other is IMutableOrderBook mutableOrderBook) deepestPossibleSame = Capacity == mutableOrderBook.Capacity;
 
         var allAreSame = deepestPossibleSame && deepestPricedSame && bookLayersSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

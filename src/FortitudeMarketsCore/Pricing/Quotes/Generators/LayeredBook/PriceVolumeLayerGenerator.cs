@@ -28,6 +28,9 @@ public interface IPriceVolumeLayerGenerator
     void   PopulatePriceVolumeLayer(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
     Normal NormalDist   { get; set; }
     Random PseudoRandom { get; set; }
+
+    DateTime GenerateValueDate(PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
+    uint GenerateQuoteRef(PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
 }
 
 
@@ -73,9 +76,15 @@ public class PriceVolumeLayerGenerator : IPriceVolumeLayerGenerator
     protected virtual void PopulateValueDate(IMutableValueDatePriceVolumeLayer valueDatePriceVolumeLayer, int depth, 
         PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
-        var index = PseudoRandom.Next(0, generateLayerInfo.CandidateValueDateAddDays.Length);
-        var date = previousCurrentMidPriceTime.CurrentMid.Time.AddDays(generateLayerInfo.CandidateValueDateAddDays[index]).Date;
+        var date = GenerateValueDate(previousCurrentMidPriceTime);
         valueDatePriceVolumeLayer.ValueDate = date;
+    }
+
+    public DateTime GenerateValueDate(PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    {
+        var index = PseudoRandom.Next(0, generateLayerInfo.CandidateValueDateAddDays.Length);
+        var date  = previousCurrentMidPriceTime.CurrentMid.Time.AddDays(generateLayerInfo.CandidateValueDateAddDays[index]).Date;
+        return date;
     }
 
     protected virtual void PopulateSourceName(IMutableSourcePriceVolumeLayer sourcePriceVolumeLayer, int depth, 
@@ -99,8 +108,13 @@ public class PriceVolumeLayerGenerator : IPriceVolumeLayerGenerator
     protected virtual void PopulateSourceQuoteRef(IMutableSourceQuoteRefPriceVolumeLayer sourceQuoteRefPriceVolumeLayer, int depth, 
         PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
-        sourceQuoteRefPriceVolumeLayer.SourceQuoteReference = (uint)previousCurrentMidPriceTime.CurrentMid.Time.Ticks & 0xFFFF_FFFF;
+        sourceQuoteRefPriceVolumeLayer.SourceQuoteReference = GenerateQuoteRef(previousCurrentMidPriceTime);
         PopulateSourceName(sourceQuoteRefPriceVolumeLayer, depth, previousCurrentMidPriceTime);
+    }
+
+    public uint GenerateQuoteRef(PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    {
+        return (uint)((previousCurrentMidPriceTime.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond)  & 0xFFFF_FFFF);
     }
 
     protected virtual void PopulateTraderPriceVolume(IMutableTraderPriceVolumeLayer traderPriceVolumeLayer, int depth, 

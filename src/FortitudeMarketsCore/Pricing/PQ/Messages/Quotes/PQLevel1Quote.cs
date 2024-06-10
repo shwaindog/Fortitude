@@ -705,7 +705,6 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         var allAreSame = baseSame && adapterSentSame && adapterReceivedSame && sourceAskTimeSame
                       && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame
                       && bidPriceTopChange && askPriceTopChange && periodSummarySame && isExecutableUpdatedSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

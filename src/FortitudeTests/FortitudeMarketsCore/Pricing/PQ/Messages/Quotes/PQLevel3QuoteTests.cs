@@ -729,7 +729,17 @@ public class PQLevel3QuoteTests
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update).ToList();
-            AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote);
+            AssertContainsAllLevel3Fields
+                (pqFieldUpdates, populatedL3Quote,
+                 PQBooleanValuesExtensions
+                     .AllExceptExecutableUpdated
+                     .Unset
+                         ((populatedL3Quote.IsBidPriceTopUpdated
+                              ? PQBooleanValues.None
+                              : PQBooleanValues.IsBidPriceTopUpdatedSetFlag)
+                        | (populatedL3Quote.IsAskPriceTopUpdated
+                              ? PQBooleanValues.None
+                              : PQBooleanValues.IsAskPriceTopUpdatedSetFlag)));
         }
     }
 
@@ -742,7 +752,17 @@ public class PQLevel3QuoteTests
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
-            AssertContainsAllLevel3Fields(pqFieldUpdates, populatedL3Quote, PQBooleanValuesExtensions.AllFields);
+            AssertContainsAllLevel3Fields
+                (pqFieldUpdates, populatedL3Quote,
+                 PQBooleanValuesExtensions
+                     .AllFields
+                     .Unset
+                         ((populatedL3Quote.IsBidPriceTopUpdated
+                              ? PQBooleanValues.None
+                              : PQBooleanValues.IsBidPriceTopUpdatedSetFlag)
+                        | (populatedL3Quote.IsAskPriceTopUpdated
+                              ? PQBooleanValues.None
+                              : PQBooleanValues.IsAskPriceTopUpdatedSetFlag)));
         }
     }
 
@@ -851,8 +871,8 @@ public class PQLevel3QuoteTests
             Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeSubHourUpdated);
             Assert.IsFalse(emptyQuote.IsAdapterSentTimeDateUpdated);
             Assert.IsFalse(emptyQuote.IsAdapterSentTimeSubHourUpdated);
-            Assert.IsFalse(emptyQuote.IsBidPriceTopUpdated);
-            Assert.IsFalse(emptyQuote.IsAskPriceTopUpdated);
+            Assert.AreEqual(pqLevel3Quote.IsBidPriceTopUpdated, emptyQuote.IsBidPriceTopUpdated);
+            Assert.AreEqual(pqLevel3Quote.IsAskPriceTopUpdated, emptyQuote.IsAskPriceTopUpdated);
             Assert.IsFalse(emptyQuote.IsExecutableUpdated);
             foreach (var pvl in emptyQuote.BidBook) PQLevel2QuoteTests.AssertAreDefaultValues(pvl);
             foreach (var pvl in emptyQuote.AskBook) PQLevel2QuoteTests.AssertAreDefaultValues(pvl);
@@ -882,10 +902,8 @@ public class PQLevel3QuoteTests
         {
             var clonedQuote = ((ICloneable<ILevel0Quote>)populatedL3Quote).Clone();
             Assert.AreNotSame(clonedQuote, populatedL3Quote);
-            if (!clonedQuote.Equals(populatedL3Quote))
-                Console.Out.WriteLine("clonedQuote differences are \n '"
-                                    + clonedQuote.DiffQuotes(populatedL3Quote) + "'");
-            Assert.AreEqual(populatedL3Quote, clonedQuote);
+            Assert.AreEqual(populatedL3Quote, clonedQuote, "clonedQuote differences are \n '"
+                                                         + clonedQuote.DiffQuotes(populatedL3Quote) + "'");
 
             var cloned2 = (PQLevel3Quote)((ICloneable)populatedL3Quote).Clone();
             Assert.AreNotSame(cloned2, populatedL3Quote);

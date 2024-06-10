@@ -46,28 +46,16 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     private SourceTickerQuoteInfo  level2SrcTkrQtInfo     = null!;
     private PQLevel2QuoteGenerator pqLevel2QuoteGenerator = null!;
     private DateTime               startOfWeek;
-    // private Level3QuoteGenerator  level3QuoteGenerator;
-    // private SourceTickerQuoteInfo level3SrcTkrQtInfo;
 
     [TestInitialize]
     public void Setup()
     {
         PagedMemoryMappedFile.LogMappingMessages = true;
-        // level3SrcTkrQtInfo =
-        //     new SourceTickerQuoteInfo
-        //         (19, "OneWeekDailyHourlyPriceQuoteTimeSeriesFileTests", 79, "PersistTest",
-        //          QuoteLevel.Level3, 17, layerFlags: LayerFlags.TraderName | LayerFlags.SourceQuoteReference,
-        //          lastTradedFlags: LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven);
-
 
         var dateToGenerate   = DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         startOfWeek = dateToGenerate.AddDays(dayDiff);
-
-        // Level2QuoteGenerator = new Level2QuoteGenerator(generateQuoteInfo);
-        // level2QuoteGenerator = new Level2QuoteGenerator(generateQuoteInfo);
-        // level3QuoteGenerator = new Level3QuoteGenerator(generateQuoteInfo);
     }
 
     private void CreateLevel2File(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader,

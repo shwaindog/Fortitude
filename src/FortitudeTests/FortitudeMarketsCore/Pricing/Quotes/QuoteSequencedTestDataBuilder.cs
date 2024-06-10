@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -15,64 +18,66 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 
 public class QuoteSequencedTestDataBuilder
 {
-    public void InitializeQuotes(IList<IPQLevel0Quote> initializeQuotes, uint batchId)
+    private decimal lastAskTop = 0;
+    private decimal lastBidTop = 0;
+
+    public void InitializeQuotes(IEnumerable<IMutableLevel0Quote> initializeQuotes, uint batchId)
     {
-        foreach (var quote in initializeQuotes)
-        {
-            SetupLevel0Quote(quote, batchId);
-            SetupLevel1Quote(quote as IMutableLevel1Quote, batchId);
-            SetupLevel2Quote(quote as IMutableLevel2Quote, batchId);
-            SetupLevel3Quote(quote as IMutableLevel3Quote, batchId);
-        }
+        foreach (var quote in initializeQuotes) InitializeQuote(quote, batchId);
     }
 
-    public void InitializeQuote(IMutableLevel0Quote initializeQuotes, uint batchId)
+    public void InitializeQuote(IMutableLevel0Quote initializeQuote, uint batchId)
     {
-        SetupLevel0Quote(initializeQuotes, batchId);
-        SetupLevel1Quote(initializeQuotes as IMutableLevel1Quote, batchId);
-        SetupLevel2Quote(initializeQuotes as IMutableLevel2Quote, batchId);
-        SetupLevel3Quote(initializeQuotes as IMutableLevel3Quote, batchId);
+        SetupLevel0Quote(initializeQuote, batchId);
+        SetupLevel1Quote(initializeQuote as IMutableLevel1Quote, batchId);
+        SetupLevel2Quote(initializeQuote as IMutableLevel2Quote, batchId);
+        SetupLevel3Quote(initializeQuote as IMutableLevel3Quote, batchId);
+        if (initializeQuote is IMutableLevel1Quote l1Quote)
+        {
+            lastBidTop = l1Quote.BidPriceTop;
+            lastAskTop = l1Quote.AskPriceTop;
+        }
     }
 
     public void InitalizePeriodSummary(IMutablePricePeriodSummary pricePeriodSummary, uint batchId)
     {
         pricePeriodSummary.SummaryStartTime = new DateTime(2017, 11, 18, 20, 09, 11);
-        pricePeriodSummary.StartBidPrice = 0.79324m;
-        pricePeriodSummary.StartAskPrice = 0.79334m;
-        pricePeriodSummary.HighestBidPrice = 0.79354m;
-        pricePeriodSummary.HighestAskPrice = 0.79364m;
-        pricePeriodSummary.LowestBidPrice = 0.79304m;
-        pricePeriodSummary.LowestAskPrice = 0.79314m;
-        pricePeriodSummary.EndBidPrice = 0.79334m;
-        pricePeriodSummary.EndAskPrice = 0.79344m;
-        pricePeriodSummary.TickCount = 10;
-        pricePeriodSummary.PeriodVolume = 400_000_000_000_000;
-        pricePeriodSummary.SummaryEndTime = new DateTime(2017, 11, 18, 20, 09, 12);
+        pricePeriodSummary.StartBidPrice    = 0.79324m;
+        pricePeriodSummary.StartAskPrice    = 0.79334m;
+        pricePeriodSummary.HighestBidPrice  = 0.79354m;
+        pricePeriodSummary.HighestAskPrice  = 0.79364m;
+        pricePeriodSummary.LowestBidPrice   = 0.79304m;
+        pricePeriodSummary.LowestAskPrice   = 0.79314m;
+        pricePeriodSummary.EndBidPrice      = 0.79334m;
+        pricePeriodSummary.EndAskPrice      = 0.79344m;
+        pricePeriodSummary.TickCount        = 10;
+        pricePeriodSummary.PeriodVolume     = 400_000_000_000_000;
+        pricePeriodSummary.SummaryEndTime   = new DateTime(2017, 11, 18, 20, 09, 12);
     }
 
     private void SetupLevel3Quote(IMutableLevel3Quote? pqLevel3Quote, uint batchId)
     {
         if (pqLevel3Quote == null) return;
-        pqLevel3Quote.BatchId = batchId;
+        pqLevel3Quote.BatchId              = batchId;
         pqLevel3Quote.SourceQuoteReference = batchId;
-        pqLevel3Quote.ValueDate = new DateTime(2018, 1, 1, 14, 0, 0).AddHours(batchId);
+        pqLevel3Quote.ValueDate            = new DateTime(2018, 1, 1, 14, 0, 0).AddHours(batchId);
 
         var toggleGivenBool = false;
-        var togglePaidBool = true;
+        var togglePaidBool  = true;
         if (pqLevel3Quote.RecentlyTraded == null) return;
         for (var i = 0; i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
         {
-            var tradePriceDelta = 0.00001m * i;
+            var tradePriceDelta  = 0.00001m * i;
             var tradeVolumeDelta = batchId * 10000 + 10000m * i;
 
             pqLevel3Quote.RecentlyTraded[i]!.TradePrice = 0.76591m + batchId * 0.00001m + tradePriceDelta;
-            pqLevel3Quote.RecentlyTraded[i]!.TradeTime = new DateTime(2017, 07, 02, 13, 40, 11);
+            pqLevel3Quote.RecentlyTraded[i]!.TradeTime  = new DateTime(2017, 07, 02, 13, 40, 11);
 
             if (pqLevel3Quote.RecentlyTraded[i] is IPQLastPaidGivenTrade lastPaidGivenTrade)
             {
                 lastPaidGivenTrade.TradeVolume = 2000000 + tradeVolumeDelta;
-                lastPaidGivenTrade.WasGiven = toggleGivenBool = !toggleGivenBool;
-                lastPaidGivenTrade.WasPaid = togglePaidBool = !togglePaidBool;
+                lastPaidGivenTrade.WasGiven    = toggleGivenBool = !toggleGivenBool;
+                lastPaidGivenTrade.WasPaid     = togglePaidBool  = !togglePaidBool;
             }
 
             if (pqLevel3Quote.RecentlyTraded[i] is IPQLastTraderPaidGivenTrade lastTraderTrade)
@@ -87,13 +92,13 @@ public class QuoteSequencedTestDataBuilder
         Assert.IsTrue(numLayers >= 20);
         for (var i = 0; i < numLayers; i++)
         {
-            var deltaPrice = 0.00001m * i;
+            var deltaPrice  = 0.00001m * i;
             var deltaVolume = batchId * 10000 + 10000m * i;
-            var mutableBid = level2Quote.BidBook[i]!;
-            var mutableAsk = level2Quote.AskBook[i]!;
-            mutableBid.Price = 0.791905m + batchId * 0.00001m - deltaPrice;
+            var mutableBid  = level2Quote.BidBook[i]!;
+            var mutableAsk  = level2Quote.AskBook[i]!;
+            mutableBid.Price  = 0.791905m + batchId * 0.00001m - deltaPrice;
             mutableBid.Volume = 30000 + deltaVolume;
-            mutableAsk.Price = 0.791906m + batchId * 0.00001m + deltaPrice;
+            mutableAsk.Price  = 0.791906m + batchId * 0.00001m + deltaPrice;
             mutableAsk.Volume = 30000 + deltaVolume;
 
             if (mutableBid is IMutableSourcePriceVolumeLayer mutableBidPriceVal)
@@ -113,6 +118,8 @@ public class QuoteSequencedTestDataBuilder
             if (mutableAsk is IMutableTraderPriceVolumeLayer mutableAskTrader)
                 SetupTraderDetailsOnLayer(mutableAskTrader, false, batchId);
         }
+        level2Quote.IsBidPriceTopUpdated = lastBidTop != level2Quote.BidPriceTop;
+        level2Quote.IsAskPriceTopUpdated = lastAskTop != level2Quote.AskPriceTop;
     }
 
     private void SetupValueDateOnLayer(IMutableValueDatePriceVolumeLayer layer, bool isBidBook, uint batchId)
@@ -126,7 +133,7 @@ public class QuoteSequencedTestDataBuilder
         if (layer == null) return;
         for (var i = 0; i < 2; i++)
         {
-            layer[i]!.TraderName = (isBidBook ? "B" : "A") + "TN" + (batchId * 5 + i);
+            layer[i]!.TraderName   = (isBidBook ? "B" : "A") + "TN" + (batchId * 5 + i);
             layer[i]!.TraderVolume = batchId * 25600 + i * 100;
         }
     }
@@ -147,15 +154,20 @@ public class QuoteSequencedTestDataBuilder
     private void SetupLevel1Quote(IMutableLevel1Quote? level1Quote, uint batchId)
     {
         if (level1Quote == null) return;
-        level1Quote.IsReplay = true;
+        level1Quote.IsReplay   = true;
         level1Quote.Executable = true;
         var sequenceIdTimeSpan = TimeSpan.FromSeconds(batchId * 10);
-        level1Quote.SourceAskTime = new DateTime(2017, 07, 16, 15, 49, 10).Add(sequenceIdTimeSpan);
-        level1Quote.SourceBidTime = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
+
+        level1Quote.SourceAskTime       = new DateTime(2017, 07, 16, 15, 49, 10).Add(sequenceIdTimeSpan);
+        level1Quote.SourceBidTime       = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
         level1Quote.AdapterReceivedTime = new DateTime(2017, 07, 16, 15, 49, 30).Add(sequenceIdTimeSpan);
-        level1Quote.AdapterSentTime = new DateTime(2017, 07, 16, 15, 49, 40).Add(sequenceIdTimeSpan);
-        level1Quote.BidPriceTop = 0.79324m + batchId * 0.00001m;
-        level1Quote.AskPriceTop = 0.79326m + batchId * 0.00001m;
+        level1Quote.AdapterSentTime     = new DateTime(2017, 07, 16, 15, 49, 40).Add(sequenceIdTimeSpan);
+        level1Quote.BidPriceTop         = 0.79324m + batchId * 0.00001m;
+        level1Quote.AskPriceTop         = 0.79326m + batchId * 0.00001m;
+
+        level1Quote.IsBidPriceTopUpdated = lastBidTop != level1Quote.BidPriceTop;
+        level1Quote.IsAskPriceTopUpdated = lastAskTop != level1Quote.AskPriceTop;
+
         switch (level1Quote.SummaryPeriod)
         {
             case null when level1Quote is PQLevel1Quote:
@@ -171,14 +183,14 @@ public class QuoteSequencedTestDataBuilder
 
     private void SetupLevel0Quote(IMutableLevel0Quote level0Quote, uint batchId)
     {
-        level0Quote.SinglePrice = 0.78568m + batchId * 0.00001m;
-        level0Quote.SourceTime = new DateTime(2017, 07, 16, 15, 46, 00).Add(TimeSpan.FromSeconds(batchId * 10));
-        level0Quote.IsReplay = true;
+        level0Quote.SinglePrice        = 0.78568m + batchId * 0.00001m;
+        level0Quote.SourceTime         = new DateTime(2017, 07, 16, 15, 46, 00).Add(TimeSpan.FromSeconds(batchId * 10));
+        level0Quote.IsReplay           = true;
         level0Quote.ClientReceivedTime = level0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 10));
         if (level0Quote is IPQLevel0Quote pqLevel0Quote)
         {
-            pqLevel0Quote.PQSyncStatus = PQSyncStatus.Good;
-            pqLevel0Quote.PQSequenceId = batchId;
+            pqLevel0Quote.PQSyncStatus   = PQSyncStatus.Good;
+            pqLevel0Quote.PQSequenceId   = batchId;
             pqLevel0Quote.DispatchedTime = pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
             pqLevel0Quote.SocketReceivingTime =
                 pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 12));

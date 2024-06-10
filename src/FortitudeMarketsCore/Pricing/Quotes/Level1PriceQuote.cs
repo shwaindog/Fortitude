@@ -157,7 +157,6 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
         var isEquivalent = baseIsSame && adapterReceivedTimeSame && adapterSentTimeSame && sourceBidTimeSame &&
                            bidPriceTopSame && isBidPriceTopChangedSame && sourceAskTimeSame && askPriceTopSame &&
                            isAskPriceTopChangedSame && executableSame && periodSummarySame;
-        // if (!isEquivalent) Debugger.Break();
         return isEquivalent;
     }
 

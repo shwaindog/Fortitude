@@ -31,8 +31,8 @@ public interface IPQLevel3Quote : IPQLevel2Quote, IMutableLevel3Quote
 public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));
-    private                 uint     batchId;
 
+    private uint               batchId;
     private IPQRecentlyTraded? recentlyTraded;
     private uint               sourceQuoteRef;
     private DateTime           valueDate = DateTimeConstants.UnixEpoch;
@@ -62,6 +62,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
             IsBatchIdUpdated              = pql3QToClone.IsBatchIdUpdated;
             IsSourceQuoteReferenceUpdated = pql3QToClone.IsSourceQuoteReferenceUpdated;
             IsValueDateUpdated            = pql3QToClone.IsSourceQuoteReferenceUpdated;
+
+            UpdatedFlags = pql3QToClone.UpdatedFlags;
         }
     }
 
@@ -90,7 +92,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         set
         {
             if (value)
-                UpdatedFlags                        |= QuoteFieldUpdatedFlags.BatchIdeUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.BatchIdeUpdatedFlag;
+
             else if (IsBatchIdUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.BatchIdeUpdatedFlag;
         }
     }
@@ -113,6 +116,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         {
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.SourceQuoteReferenceUpdatedFlag;
+
             else if (IsSourceQuoteReferenceUpdated)
                 UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceQuoteReferenceUpdatedFlag;
         }
@@ -135,7 +139,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         set
         {
             if (value)
-                UpdatedFlags                          |= QuoteFieldUpdatedFlags.ValueDateUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.ValueDateUpdatedFlag;
+
             else if (IsValueDateUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.ValueDateUpdatedFlag;
         }
     }
@@ -169,9 +174,9 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
     public override void ResetFields()
     {
         recentlyTraded?.StateReset();
-        BatchId              = SourceQuoteReference = 0;
-        SourceQuoteReference = 0u;
-        ValueDate            = DateTimeConstants.UnixEpoch;
+
+        BatchId   = SourceQuoteReference = 0;
+        ValueDate = DateTimeConstants.UnixEpoch;
         base.ResetFields();
     }
 
@@ -319,7 +324,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         var batchIdSame          = batchId == otherL3.BatchId;
         var sourceSequenceIdSame = sourceQuoteRef == otherL3.SourceQuoteReference;
         var valueDateSame        = ValueDate == otherL3.ValueDate;
-        return baseSame && recentlyTradedSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
+        var allAreSame           = baseSame && recentlyTradedSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel0Quote, true);

@@ -183,7 +183,6 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         var valueDateSame            = ValueDate == srcQtRefTrdrVlDtPvLayer.ValueDate;
 
         var allAreSame = baseSame && sourceNameSame && executableSame && sourceQuoteReferenceSame && valueDateSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

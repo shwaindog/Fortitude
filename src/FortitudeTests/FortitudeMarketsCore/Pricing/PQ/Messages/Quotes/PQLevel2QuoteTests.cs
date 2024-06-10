@@ -1221,8 +1221,8 @@ public class PQLevel2QuoteTests
             Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeSubHourUpdated);
             Assert.IsFalse(emptyQuote.IsAdapterSentTimeDateUpdated);
             Assert.IsFalse(emptyQuote.IsAdapterSentTimeSubHourUpdated);
-            Assert.IsFalse(emptyQuote.IsBidPriceTopUpdated);
-            Assert.IsFalse(emptyQuote.IsAskPriceTopUpdated);
+            Assert.AreEqual(populatedL2Quote.IsBidPriceTopUpdated, emptyQuote.IsBidPriceTopUpdated);
+            Assert.AreEqual(populatedL2Quote.IsAskPriceTopUpdated, emptyQuote.IsAskPriceTopUpdated);
             Assert.IsFalse(emptyQuote.IsExecutableUpdated);
             foreach (var pvl in emptyQuote.BidBook) AssertAreDefaultValues(pvl);
             foreach (var pvl in emptyQuote.AskBook) AssertAreDefaultValues(pvl);

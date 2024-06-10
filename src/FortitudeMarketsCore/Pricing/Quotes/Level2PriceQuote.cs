@@ -169,7 +169,6 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         }
 
         var allAreSame = baseIsSame && bidBooksSame && bidBookChangedSame && askBooksSame && askBookChangedSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 
