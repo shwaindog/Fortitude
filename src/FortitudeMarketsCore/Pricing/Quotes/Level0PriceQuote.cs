@@ -101,7 +101,6 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
 
         var allEquivalent = srcTickersAreEquivalent && sourceTimesSame && replayIsSame && singlePriceSame
                          && clientReceivedTimeSame;
-        // if (!allEquivalent) Debugger.Break();
         return allEquivalent;
     }
 

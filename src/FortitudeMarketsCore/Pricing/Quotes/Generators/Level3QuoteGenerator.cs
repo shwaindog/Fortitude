@@ -18,13 +18,17 @@ public abstract class Level3QuoteGeneratorBase<TQuote> : Level2QuoteGeneratorBas
     protected Level3QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) =>
         LastTradedGenerator = CreateLastTradedGenerator(generateQuoteInfo.LastTradeInfo);
 
-    public void PopulateQuote(IMutableLevel3Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableLevel3Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMid)
     {
-        base.PopulateQuote(populateQuote, previousCurrentMidPriceTime);
+        base.PopulateQuote(populateQuote, previousCurrentMid);
+        LastTradedGenerator.PopulateLevel3LastTraded(populateQuote, previousCurrentMid);
+        populateQuote.ValueDate            = BookGenerator.BidLayerGenerator.GenerateValueDate(previousCurrentMid);
+        populateQuote.SourceQuoteReference = BookGenerator.BidLayerGenerator.GenerateQuoteRef(previousCurrentMid);
+        populateQuote.BatchId              = BookGenerator.BidLayerGenerator.GenerateQuoteRef(previousCurrentMid) + 1000;
     }
 
     protected virtual ILastTradedGenerator CreateLastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) =>
-        new LastTradedGenerator(generateLastTradeInfo, NormalDist, PseudoRandom);
+        new LastTradedGenerator(generateLastTradeInfo);
 }
 
 public class Level3QuoteGenerator : Level3QuoteGeneratorBase<Level3PriceQuote>
@@ -35,7 +39,6 @@ public class Level3QuoteGenerator : Level3QuoteGeneratorBase<Level3PriceQuote>
     {
         var toPopulate = new Level3PriceQuote(GenerateQuoteInfo.SourceTickerQuoteInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);
-        LastTradedGenerator.PopulateLevel3LastTraded(toPopulate, previousCurrentMidPriceTime);
         return toPopulate;
     }
 }

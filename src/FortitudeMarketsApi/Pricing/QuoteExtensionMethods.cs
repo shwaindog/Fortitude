@@ -72,8 +72,8 @@ public static class QuoteExtensionMethods
         }
         else if (l2q1 != null) //no need for && l2q2 != null
         {
-            sb.AddIfDifferent(l2q1, l2q2, q => q.BidBook);
-            sb.AddIfDifferent(l2q1, l2q2, q => q.AskBook);
+            sb.AddIfDifferent(l2q1, l2q2, q => q.BidBook, exactValues);
+            sb.AddIfDifferent(l2q1, l2q2, q => q.AskBook, exactValues);
         }
 
         var l3q1 = q1 as ILevel3Quote;
@@ -211,7 +211,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent(this StringBuilder sb,
-        ILevel2Quote? q1, ILevel2Quote? q2, Expression<Func<ILevel2Quote, IOrderBook>> property)
+        ILevel2Quote? q1, ILevel2Quote? q2, Expression<Func<ILevel2Quote, IOrderBook>> property, bool exactTypes = true)
     {
         var evaluator    = property.Compile();
         var q1Value      = q1 != null ? evaluator(q1) : null;
@@ -228,7 +228,7 @@ public static class QuoteExtensionMethods
         {
             var l1 = i < (q1Value?.Capacity ?? int.MinValue) ? q1Value?[i] : null;
             var l2 = i < (q2Value?.Capacity ?? int.MinValue) ? q2Value?[i] : null;
-            sb.AddIfDifferent(propertyName, i, l1, l2);
+            sb.AddIfDifferent(propertyName, i, l1, l2, exactTypes);
         }
 
         return sb;
@@ -236,10 +236,10 @@ public static class QuoteExtensionMethods
 
 
     private static StringBuilder AddIfDifferent(this StringBuilder sb, string propertyName, int level,
-        IPriceVolumeLayer? l1, IPriceVolumeLayer? l2)
+        IPriceVolumeLayer? l1, IPriceVolumeLayer? l2, bool exactTypes = true)
     {
         if ((l1 == null && l2 != null) || (l1 != null && l2 == null)
-                                       || (l1 != null && !l1.Equals(l2)) || (l2 != null && !l2.Equals(l1)))
+                                       || (l1 != null && !l1.AreEquivalent(l2, exactTypes)) || (l2 != null && !l2.AreEquivalent(l1, exactTypes)))
             sb.Append($"{propertyName,PropertyNamePadding + secondLineIndexAdditionalPadding}[{level,2}]:l1=")
               .Append(l1?.ToString() ?? "null").Append("\n")
               .Insert(sb.Length, " ", secondLinePadding).Append("l2=")

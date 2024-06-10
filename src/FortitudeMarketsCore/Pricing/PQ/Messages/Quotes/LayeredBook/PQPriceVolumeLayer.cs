@@ -197,7 +197,8 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
             flagsSame = UpdatedFlags == pqOther.UpdatedFlags;
         }
 
-        return priceSame && volumeSame && flagsSame;
+        var allAreSame = priceSame && volumeSame && flagsSame;
+        return allAreSame;
     }
 
     protected void SetFlagsSame(IPriceVolumeLayer toCopyFlags)

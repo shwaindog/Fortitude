@@ -4,8 +4,10 @@
 #region
 
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.Generators.LastTraded;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.Generators.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.Generators;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.LastTraded;
+using FortitudeMarketsCore.Pricing.Quotes.Generators.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.Generators.MidPrice;
 
 #endregion
@@ -20,10 +22,15 @@ public class PQLevel3QuoteGenerator : Level3QuoteGeneratorBase<PQLevel3Quote>
     {
         var toPopulate = new PQLevel3Quote(GenerateQuoteInfo.SourceTickerQuoteInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);
+        toPopulate.IsAskPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsAskPriceTopUpdated ?? false) != toPopulate.IsAskPriceTopUpdated;
+        toPopulate.IsBidPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsBidPriceTopUpdated ?? false) != toPopulate.IsBidPriceTopUpdated;
+
         toPopulate.PQSequenceId = (uint)sequenceNumber;
         return toPopulate;
     }
 
+    protected override IBookGenerator CreateBookGenerator(BookGenerationInfo bookGenerationInfo) => new PQBookGenerator(bookGenerationInfo);
+
     protected override ILastTradedGenerator CreateLastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) =>
-        new PQLastTradedGenerator(generateLastTradeInfo, NormalDist, PseudoRandom);
+        new PQLastTradedGenerator(generateLastTradeInfo);
 }

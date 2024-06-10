@@ -34,17 +34,11 @@ public class PQPriceVolumeLayerGenerator : PriceVolumeLayerGenerator
     {
         var id = consistentNameIdGenerator.GetOrAddId(name);
         traderLayerInfo.TraderName = name;
-        // if (traderLayerInfo is IPQTraderLayerInfo pqTraderLayerInfo)
-        //     if (pqTraderLayerInfo.TraderNameId != id)
-        //         Debugger.Break();
     }
 
     protected override void SetSourceName(IMutableSourcePriceVolumeLayer sourcePvL, string name)
     {
         var id = consistentNameIdGenerator.GetOrAddId(name);
         sourcePvL.SourceName = name;
-        // if (sourcePvL is IPQSourcePriceVolumeLayer pqSourceLayer)
-        //     if (pqSourceLayer.SourceId != id)
-        //         Debugger.Break();
     }
 }

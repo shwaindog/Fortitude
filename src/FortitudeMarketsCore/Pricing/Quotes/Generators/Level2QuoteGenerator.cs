@@ -13,17 +13,17 @@ namespace FortitudeMarketsCore.Pricing.Quotes.Generators;
 
 public abstract class Level2QuoteGeneratorBase<TQuote> : Level1QuoteGeneratorBase<TQuote> where TQuote : IMutableLevel2Quote
 {
-    private readonly IBookGenerator bookGenerator;
+    protected readonly IBookGenerator BookGenerator;
 
     protected Level2QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) =>
-        bookGenerator = CreateBookGenerator(generateQuoteInfo.BookGenerationInfo);
+        BookGenerator = CreateBookGenerator(generateQuoteInfo.BookGenerationInfo);
 
     protected virtual IBookGenerator CreateBookGenerator(BookGenerationInfo bookGenerationInfo) => new BookGenerator(bookGenerationInfo);
 
     public void PopulateQuote(IMutableLevel2Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         base.PopulateQuote(populateQuote, previousCurrentMidPriceTime);
-        bookGenerator.PopulateBidAskBooks(populateQuote, previousCurrentMidPriceTime);
+        BookGenerator.PopulateBidAskBooks(populateQuote, previousCurrentMidPriceTime);
         populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
         populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.BidPriceTop ?? 0) != populateQuote.BidPriceTop;
     }

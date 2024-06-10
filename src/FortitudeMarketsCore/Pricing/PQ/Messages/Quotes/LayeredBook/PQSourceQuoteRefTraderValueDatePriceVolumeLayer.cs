@@ -428,7 +428,6 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         var executableSame     = Executable == srcQtRefTrdrVlDtPvLayer.Executable;
 
         var allAreSame = baseSame && valueDateSame && sourceQuoteRefSame && sourceNameSame && executableSame;
-        // if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

@@ -14,7 +14,9 @@ namespace FortitudeMarketsCore.Pricing.Quotes.Generators.LayeredBook;
 
 public interface IBookGenerator
 {
-    void PopulateBidAskBooks(IMutableLevel2Quote level2Quote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
+    IPriceVolumeLayerGenerator BidLayerGenerator { get; }
+    IPriceVolumeLayerGenerator AskLayerGenerator { get; }
+    void                       PopulateBidAskBooks(IMutableLevel2Quote level2Quote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
 }
 
 public struct BookGenerationInfo
@@ -60,9 +62,7 @@ public struct BookGenerationInfo
 
 public class BookGenerator : IBookGenerator
 {
-    private readonly IPriceVolumeLayerGenerator askLayerGenerator;
-    private readonly IPriceVolumeLayerGenerator bidLayerGenerator;
-    private readonly BookGenerationInfo         bookGenerationInfo;
+    private readonly BookGenerationInfo bookGenerationInfo;
 
     private Normal normalDist   = null!;
     private Random pseudoRandom = null!;
@@ -71,9 +71,15 @@ public class BookGenerator : IBookGenerator
     {
         this.bookGenerationInfo = bookGenerationInfo;
 
-        bidLayerGenerator = CreatedPriceVolumeLayerGenerator(BookSide.BidBook, bookGenerationInfo.GenerateBookLayerInfo);
-        askLayerGenerator = CreatedPriceVolumeLayerGenerator(BookSide.AskBook, bookGenerationInfo.GenerateBookLayerInfo);
+        BidLayerGenerator = CreatedPriceVolumeLayerGenerator(BookSide.BidBook, bookGenerationInfo.GenerateBookLayerInfo);
+        AskLayerGenerator = CreatedPriceVolumeLayerGenerator(BookSide.AskBook, bookGenerationInfo.GenerateBookLayerInfo);
     }
+
+    public BookGenerationInfo BookGenerationInfo => bookGenerationInfo;
+
+    public IPriceVolumeLayerGenerator BidLayerGenerator { get; }
+
+    public IPriceVolumeLayerGenerator AskLayerGenerator { get; }
 
     public void PopulateBidAskBooks(IMutableLevel2Quote level2Quote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
@@ -86,10 +92,10 @@ public class BookGenerator : IBookGenerator
             pseudoRandom = new Random(prev.Mid.GetHashCode() ^ curr.Mid.GetHashCode());
 
         normalDist                     = new Normal(0, 1, pseudoRandom);
-        bidLayerGenerator.PseudoRandom = pseudoRandom;
-        bidLayerGenerator.NormalDist   = normalDist;
-        askLayerGenerator.PseudoRandom = pseudoRandom;
-        askLayerGenerator.NormalDist   = normalDist;
+        BidLayerGenerator.PseudoRandom = pseudoRandom;
+        BidLayerGenerator.NormalDist   = normalDist;
+        AskLayerGenerator.PseudoRandom = pseudoRandom;
+        AskLayerGenerator.NormalDist   = normalDist;
         var topBidAskSpread = Math.Max(bookGenerationInfo.TightestSpreadPips,
                                        bookGenerationInfo.AverageSpreadPips +
                                        (decimal)normalDist.Sample() * bookGenerationInfo.SpreadStandardDeviation);
@@ -163,11 +169,11 @@ public class BookGenerator : IBookGenerator
 
     public void SetBidLayerValues(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
-        bidLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
+        BidLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
     }
 
     public void SetAskLayerValues(IPriceVolumeLayer bookLayer, int depth, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
-        askLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
+        AskLayerGenerator.PopulatePriceVolumeLayer(bookLayer, depth, previousCurrentMidPriceTime);
     }
 }

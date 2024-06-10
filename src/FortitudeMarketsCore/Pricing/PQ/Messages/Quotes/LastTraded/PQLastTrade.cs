@@ -236,7 +236,8 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             updatesSame = UpdatedFlags == pqLastTrade.UpdatedFlags;
         }
 
-        return tradeDateSame && tradePriceSame && updatesSame;
+        var allAreSame = tradeDateSame && tradePriceSame && updatesSame;
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ILastTrade?)obj, true);
