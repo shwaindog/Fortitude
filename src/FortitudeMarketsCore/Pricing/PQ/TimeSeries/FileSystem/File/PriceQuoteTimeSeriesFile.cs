@@ -28,8 +28,8 @@ public class PriceQuoteTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<T
         PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
     }
 
-    public PriceQuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.CreateFileParameters)
+    public PriceQuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+        : base(sourceTickerTimeSeriesFileParams.TimeSeriesFileParameters)
     {
         Header.FileFlags        |= FileFlags.HasSubFileHeader;
         Header.SubHeaderFactory =  (view, offset, writable) => new PriceQuoteFileSubHeader(sourceTickerTimeSeriesFileParams, view, offset, writable);

@@ -5,8 +5,9 @@
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries.FileSystem.File.Appending;
-using FortitudeIO.TimeSeries.FileSystem.File.Reading;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
 #endregion
 

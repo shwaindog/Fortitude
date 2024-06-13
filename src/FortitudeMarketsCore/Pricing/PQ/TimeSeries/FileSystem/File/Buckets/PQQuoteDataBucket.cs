@@ -7,10 +7,10 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem.File;
-using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
-using FortitudeIO.TimeSeries.FileSystem.File.Reading;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -21,7 +21,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket<TEntry, TBucket>, IPriceQuoteBucket<TEntry>
+public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataBucket<TEntry, TBucket>, IPriceQuoteBucket<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket<TEntry>
     where TSerializeType : PQLevel0Quote, new()
@@ -29,15 +29,15 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
     private IMessageBufferContext? bufferContext;
     private PQQuoteSerializer?     indexEntrySerializer;
 
-    private IPQDeserializer<TSerializeType>? messageDeserializer;
+    private IPQQuoteDeserializer<TSerializeType>? messageDeserializer;
 
     private PQQuoteSerializer? repeatedEntrySerializer;
 
-    protected PQDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
+    protected PQQuoteDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
-    public IPQDeserializer<TSerializeType> DefaultMessageDeserializer
+    public IPQQuoteDeserializer<TSerializeType> DefaultMessageDeserializer
     {
         get
         {
@@ -97,7 +97,7 @@ public abstract class PQDataBucket<TEntry, TBucket, TSerializeType> : DataBucket
     }
 
     public virtual IEnumerable<TEntry> ReadEntries(IMessageBufferContext buffer, IReaderContext<TEntry> readerContext
-      , IPQDeserializer<TSerializeType> bufferDeserializer)
+      , IPQQuoteDeserializer<TSerializeType> bufferDeserializer)
     {
         var entryCount = 0;
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)

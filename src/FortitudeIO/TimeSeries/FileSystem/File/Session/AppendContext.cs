@@ -7,18 +7,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 #endregion
 
-namespace FortitudeIO.TimeSeries.FileSystem.File.Appending;
-
-public struct AppendResult
-{
-    public AppendResult(StorageAttemptResult storageAttemptResult) => StorageAttemptResult = storageAttemptResult;
-    public int?  SerializedSize { get; set; }
-    public uint? BucketId       { get; set; }
-    public long? FileOffset     { get; set; }
-
-    public DateTime             StorageTime          { get; set; }
-    public StorageAttemptResult StorageAttemptResult { get; set; }
-}
+namespace FortitudeIO.TimeSeries.FileSystem.File.Session;
 
 public interface IAppendContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Text;
 
@@ -8,8 +11,8 @@ namespace FortitudeCommon.Extensions;
 
 public static class StringExtensions
 {
-    public const char MatchAnyChar = '*';
-    public const string MatchAny = "*";
+    public const char   MatchAnyChar = '*';
+    public const string MatchAny     = "*";
 
     public static bool MatchesPatternQuery(this string subject, string? query)
     {
@@ -41,6 +44,15 @@ public static class StringExtensions
     public static bool IsNullOrEmpty(this string? value) => string.IsNullOrEmpty(value);
     public static bool IsEmptyString(this object? value) => Equals(value, string.Empty);
 
+
+    public static int? SafeExtractInt(this string value)
+    {
+        var sb = new StringBuilder();
+        foreach (var charInString in value)
+            if (charInString is >= '0' and <= '9')
+                sb.Append(charInString);
+        return int.TryParse(sb.ToString(), out var result) ? result : null;
+    }
 
     public static string CharIndexPosListedSizeString(this int size)
     {

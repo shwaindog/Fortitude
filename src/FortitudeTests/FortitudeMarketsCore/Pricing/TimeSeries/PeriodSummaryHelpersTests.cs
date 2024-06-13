@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsCore.Pricing.TimeSeries;
@@ -14,6 +17,7 @@ public class PeriodSummaryHelpersTests
     public void UnknownTimeFrameVariousStartEndTimes_TimeFrame_CalculatedCorrectly()
     {
         var t = new DateTime(2018, 2, 7, 22, 35, 10);
+
         var calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.None, t, t.AddSeconds(1));
         Assert.AreEqual(TimeSeriesPeriod.OneSecond, calculatePeriodSummary.CalcTimeFrame());
         calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.None, t, t.AddMinutes(1));
@@ -39,8 +43,8 @@ public class PeriodSummaryHelpersTests
         calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.None, t, t.AddDays(30));
         Assert.AreEqual(TimeSeriesPeriod.OneMonth, calculatePeriodSummary.CalcTimeFrame());
         calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.None, t, t.AddSeconds(2));
-        Assert.AreEqual(TimeSeriesPeriod.ConsumerConflated, calculatePeriodSummary.CalcTimeFrame());
+        Assert.AreEqual(TimeSeriesPeriod.None, calculatePeriodSummary.CalcTimeFrame());
         calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.None, t, t.AddMilliseconds(10));
-        Assert.AreEqual(TimeSeriesPeriod.ConsumerConflated, calculatePeriodSummary.CalcTimeFrame());
+        Assert.AreEqual(TimeSeriesPeriod.None, calculatePeriodSummary.CalcTimeFrame());
     }
 }

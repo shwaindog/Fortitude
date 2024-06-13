@@ -4,8 +4,8 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
-using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 #endregion

@@ -13,7 +13,9 @@ public static class DateTimeExtensions
     private static long thirtyMinuteTicks  = TimeSpan.TicksPerMinute * 30;
     private static long fourHourTicks      = TimeSpan.TicksPerHour * 4;
 
-    public static DateTime TruncToSecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerSecond));
+    public static DateTime TruncToSecondBoundary(this DateTime allTicks)   => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerSecond));
+    public static DateTime TruncTo15SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 15 * TimeSpan.TicksPerSecond));
+    public static DateTime TruncTo30SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 30 * TimeSpan.TicksPerSecond));
 
     public static DateTime TruncToMinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerMinute));
 
@@ -49,6 +51,9 @@ public static class DateTimeExtensions
     public static DateTime TruncToMonthBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.Day);
 
     public static DateTime TruncToYearBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.DayOfYear);
+
+    public static DateTime TruncToDecadeBoundary(this DateTime allTicks) =>
+        allTicks.TruncToYearBoundary().AddYears(-(allTicks.TruncToYearBoundary().Year % 10));
 
     public static DateTime CappedTicksToDateTime(this long ticks)
     {

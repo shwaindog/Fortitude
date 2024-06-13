@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.ComponentModel;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -15,15 +18,16 @@ public class DeserializeStateTransitionFactoryTests
 {
     private DeserializeStateTransitionFactory<PQLevel0Quote> deserializeStateTransitionFactory = null!;
 
-    private Mock<IPQQuoteDeserializer<PQLevel0Quote>> deserialzer = null!;
+    private Mock<IPQQuotePublishingDeserializer<PQLevel0Quote>> deserialzer = null!;
 
     private InitializationState<PQLevel0Quote> initializationState = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        deserialzer = new Mock<IPQQuoteDeserializer<PQLevel0Quote>>();
+        deserialzer         = new Mock<IPQQuotePublishingDeserializer<PQLevel0Quote>>();
         initializationState = new InitializationState<PQLevel0Quote>(deserialzer.Object);
+
         deserializeStateTransitionFactory = new DeserializeStateTransitionFactory<PQLevel0Quote>();
     }
 

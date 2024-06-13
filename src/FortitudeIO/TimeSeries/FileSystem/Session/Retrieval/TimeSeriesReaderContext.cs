@@ -9,11 +9,11 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using static FortitudeIO.TimeSeries.FileSystem.File.Reading.ResultFlags;
+using static FortitudeIO.TimeSeries.FileSystem.Session.Retrieval.ResultFlags;
 
 #endregion
 
-namespace FortitudeIO.TimeSeries.FileSystem.File.Reading;
+namespace FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
 public enum ReaderOptions
 {
@@ -47,7 +47,7 @@ public interface IReaderContext<TEntry>
     IEnumerable<List<TEntry>>     BatchedResultEnumerable { get; }
     IBlockingQueue<TEntry>?       PublishEntriesQueue     { get; set; }
     IBlockingQueue<TEntry>?       SourceEntriesQueue      { get; set; }
-    PeriodRange?                  PeriodRange             { get; set; }
+    TimeRange?                    PeriodRange             { get; set; }
     ReaderOptions                 ReaderOptions           { get; set; }
     ResultFlags                   ResultPublishFlags      { get; set; }
     EntryResultSourcing           EntrySourcing           { get; set; }
@@ -70,10 +70,10 @@ public interface IReaderContext<TEntry>
     void RunReader();
 }
 
-public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
-    private readonly Func<TEntry>                      createNew;
-    private readonly ITimeSeriesEntriesSession<TEntry> entriesFile;
+    private readonly Func<TEntry>           createNew;
+    private readonly IReaderSession<TEntry> readerSession;
 
     private Action<TEntry>? callbackAction;
     private DateTime        lastSamplePeriodStart;
@@ -82,13 +82,13 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
     private Semaphore? maxUnconsumedSemaphore;
     private TEntry?    populateEntrySingleton;
 
-    public TimeSeriesFileReaderContext(ITimeSeriesEntriesSession<TEntry> entriesFile,
+    public TimeSeriesReaderContext(IReaderSession<TEntry> readerSession,
         EntryResultSourcing defaultEntryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null)
     {
-        this.entriesFile = entriesFile;
-        EntrySourcing    = defaultEntryResultSourcing;
-        this.createNew   = SourceEntryFactory = createNew ?? ReflectionHelper.DefaultCtorFunc<TEntry>();
+        this.readerSession = readerSession;
+        EntrySourcing      = defaultEntryResultSourcing;
+        this.createNew     = SourceEntryFactory = createNew ?? ReflectionHelper.DefaultCtorFunc<TEntry>();
     }
 
     public IMessageDeserializer?  BucketDeserializer { get; set; }
@@ -160,7 +160,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
     public void RunReader()
     {
         var processedCount = 0;
-        foreach (var subscribePullResult in entriesFile.StartReaderContext(this)) processedCount++;
+        foreach (var subscribePullResult in readerSession.StartReaderContext(this)) processedCount++;
     }
 
     public int  CountMatch          { get; set; }
@@ -197,7 +197,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
         {
             var entryStorageTime    = entry.StorageTime(StorageTimeResolver);
             var thisTimePeriodStart = SamplePeriod.ContainingPeriodBoundaryStart(entryStorageTime);
-            shouldIncludeThis = SamplePeriod is TimeSeriesPeriod.None or TimeSeriesPeriod.ConsumerConflated
+            shouldIncludeThis = SamplePeriod is TimeSeriesPeriod.None
                              || thisTimePeriodStart != lastSamplePeriodStart;
             lastSamplePeriodStart = thisTimePeriodStart;
         }
@@ -243,13 +243,13 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
 
             if (ReaderOptions is ReaderOptions.ConsumerControlled or ReaderOptions.AtEntryStorageTime)
             {
-                foreach (var timeSeriesEntry in entriesFile.StartReaderContext(this)) yield return timeSeriesEntry;
+                foreach (var timeSeriesEntry in readerSession.StartReaderContext(this)) yield return timeSeriesEntry;
             }
             else
             {
                 ResultPublishFlags = ResultPublishFlags.Unset(CopyToList);
                 ResultList.Clear();
-                ResultList.AddRange(entriesFile.StartReaderContext(this));
+                ResultList.AddRange(readerSession.StartReaderContext(this));
                 foreach (var timeSeriesEntry in ResultList) yield return timeSeriesEntry;
             }
         }
@@ -266,7 +266,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
             ResultPublishFlags = AsEnumerable;
             ResultPublishFlags = ResultPublishFlags.Unset(CopyToList);
 
-            foreach (var timeSeriesEntry in entriesFile.StartReaderContext(this))
+            foreach (var timeSeriesEntry in readerSession.StartReaderContext(this))
             {
                 ResultList.Add(timeSeriesEntry);
                 if (ResultList.Count >= BatchLimit)
@@ -283,7 +283,7 @@ public class TimeSeriesFileReaderContext<TEntry> : IReaderContext<TEntry> where 
     public IBlockingQueue<TEntry>? PublishEntriesQueue { get; set; }
     public IBlockingQueue<TEntry>? SourceEntriesQueue  { get; set; }
 
-    public PeriodRange?  PeriodRange        { get; set; }
+    public TimeRange?    PeriodRange        { get; set; }
     public ReaderOptions ReaderOptions      { get; set; }
     public ResultFlags   ResultPublishFlags { get; set; }
 

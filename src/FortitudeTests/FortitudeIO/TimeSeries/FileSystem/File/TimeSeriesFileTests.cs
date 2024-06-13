@@ -11,7 +11,8 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
-using FortitudeIO.TimeSeries.FileSystem.File.Reading;
+using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
@@ -22,19 +23,19 @@ namespace FortitudeTests.FortitudeIO.TimeSeries.FileSystem.File;
 public class TimeSeriesFileTests
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileTests));
-    private static          int      newTestCount;
+
+    private static int newTestCount;
 
     private Func<Level1QuoteStruct>? createNewEntryFactory;
-    private CreateFileParameters     createTestCreateFileParameters;
 
-    private TestWeeklyLevel1StructsTimeSeriesFile                                    oneWeekFile = null!;
-    private IReaderFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct>? readerSession;
-    private TestDirectoryFileNameResolver                                            testFileNameResolver = null!;
+    private TestWeeklyLevel1StructsTimeSeriesFile oneWeekFile = null!;
+    private IReaderSession<Level1QuoteStruct>?    readerSession;
+    private TimeSeriesFileParameters              testTimeSeriesFileParameters;
 
     private string   testTimeSeriesFilePath = null!;
     private FileInfo timeSeriesFile         = null!;
 
-    private IWriterFileSession<TestLevel1DailyQuoteStructBucket, Level1QuoteStruct> writerSession = null!;
+    private IWriterSession<Level1QuoteStruct> writerSession = null!;
 
     [TestInitialize]
     public void Setup()
@@ -51,17 +52,12 @@ public class TimeSeriesFileTests
         timeSeriesFile         = new FileInfo(testTimeSeriesFilePath);
         createNewEntryFactory  = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
-        testFileNameResolver = new TestDirectoryFileNameResolver
-        {
-            TestTimeSeriesFile = timeSeriesFile
-        };
-        createTestCreateFileParameters =
-            new CreateFileParameters(testFileNameResolver,
-                                     "TestInstrumentName", "TestSourceName",
-                                     TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, TimeSeriesEntryType.Price, 7,
-                                     fileFlags, 6,
-                                     category: "TestInstrumentCategory");
-        oneWeekFile   = new TestWeeklyLevel1StructsTimeSeriesFile(createTestCreateFileParameters);
+        testTimeSeriesFileParameters =
+            new TimeSeriesFileParameters(timeSeriesFile,
+                                         new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, TimeSeriesPeriod.Tick
+                                                      , "TestInstrumentCategory"),
+                                         TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
+        oneWeekFile   = new TestWeeklyLevel1StructsTimeSeriesFile(testTimeSeriesFileParameters);
         writerSession = oneWeekFile.GetWriterSession()!;
     }
 
@@ -247,7 +243,7 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.InstrumentName);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
-        Assert.AreEqual(TimeSeriesEntryType.Price, header.TimeSeriesEntryType);
+        Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
         Assert.AreEqual(typeof(TestWeeklyLevel1StructsTimeSeriesFile), header.TimeSeriesFileType);
@@ -262,7 +258,7 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.InstrumentName);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
-        Assert.AreEqual(TimeSeriesEntryType.Price, header.TimeSeriesEntryType);
+        Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
         Assert.AreEqual(typeof(TestWeeklyLevel1StructsTimeSeriesFile), header.TimeSeriesFileType);
@@ -271,7 +267,7 @@ public class TimeSeriesFileTests
     [TestMethod]
     public void CreateNewFile_BeyondFileTime_ReturnsFileRangeNotSupported()
     {
-        Assert.AreEqual(TimeSeriesEntryType.Price, oneWeekFile.TimeSeriesEntryType);
+        Assert.AreEqual(InstrumentType.Price, oneWeekFile.InstrumentType);
         var singleQuoteMiddleOfWeek = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Wednesday);
         var nextWeekQuote           = singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
@@ -340,6 +336,6 @@ public class TimeSeriesFileTests
         public TestWeeklyLevel1StructsTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header) :
             base(pagedMemoryMappedFile, header) { }
 
-        public TestWeeklyLevel1StructsTimeSeriesFile(CreateFileParameters createParameters) : base(createParameters) { }
+        public TestWeeklyLevel1StructsTimeSeriesFile(TimeSeriesFileParameters timeSeriesParameters) : base(timeSeriesParameters) { }
     }
 }

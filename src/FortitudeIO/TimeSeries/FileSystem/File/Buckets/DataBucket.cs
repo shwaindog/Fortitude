@@ -11,8 +11,9 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.TimeSeries.FileSystem.File.Appending;
-using FortitudeIO.TimeSeries.FileSystem.File.Reading;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
 #endregion
 
@@ -141,6 +142,59 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         }
     }
 
+    public abstract IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext);
+
+    public IBuffer ResolveDataReader(long? atFileCursorOffset = null)
+    {
+        if (readerBuffer != null)
+        {
+            if (atFileCursorOffset != null)
+            {
+                var dataStartDelta = atFileCursorOffset.Value - (StartOfDataSectionOffset - FileCursorOffset);
+                readerBuffer.ReadCursor  = dataStartDelta;
+                readerBuffer.WriteCursor = (long)ExpandedDataSize;
+            }
+            return readerBuffer;
+        }
+        if (IsDataCompressed)
+        {
+            // var start            = DateTime.Now;
+            var uncompressionBufferSize = Math.Max(ExpandedDataSize, 2_048);
+            var uncompressedBuffer      = OwningSession.UncompressedBuffer;
+            var originalLength          = uncompressedBuffer.Length;
+            uncompressedBuffer.SetLength((long)uncompressionBufferSize);
+            BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
+            var viewOffset         = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
+            var compressedRange    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
+            var uncompressedStream = new ByteArrayMemoryStream(uncompressedBuffer.BackingByteArray, true, false);
+            var compressedStream   = new ByteArrayMemoryStream(compressedRange, true, false);
+            lzmaDecoder ??= new LzmaDecoder();
+            lzmaDecoder.Decompress(compressedStream, uncompressedStream);
+            readerBuffer             = uncompressedBuffer;
+            readerBuffer.WriteCursor = uncompressedStream.Position;
+            uncompressedBuffer.SetLength(originalLength);
+            // Logger.Info("Bucket {0} took {1} ms to decompress and read compressed data", BucketId, (DateTime.Now - start).TotalMilliseconds);
+        }
+        else
+        {
+            BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (int)ExpandedDataSize);
+            var viewOffset            = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
+            var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize);
+            readerBuffer             = new FixedByteArrayBuffer(uncompressedFileRange);
+            readerBuffer.WriteCursor = (long)ExpandedDataSize;
+        }
+        if (atFileCursorOffset != null)
+        {
+            var dataStartDelta = atFileCursorOffset.Value - (StartOfDataSectionOffset - FileCursorOffset);
+            readerBuffer.ReadCursor = dataStartDelta;
+        }
+        else
+        {
+            readerBuffer.ReadCursor = 0;
+        }
+        return readerBuffer;
+    }
+
     public override IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false)
     {
         base.OpenBucket(alternativeHeaderAndDataFileView, asWritable);
@@ -203,59 +257,6 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         readerBuffer                     = null;
         BucketAppenderDataReaderFileView = null;
         base.CloseBucketFileViews();
-    }
-
-    public abstract IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext);
-
-    public IBuffer ResolveDataReader(long? atFileCursorOffset = null)
-    {
-        if (readerBuffer != null)
-        {
-            if (atFileCursorOffset != null)
-            {
-                var dataStartDelta = atFileCursorOffset.Value - (StartOfDataSectionOffset - FileCursorOffset);
-                readerBuffer.ReadCursor  = dataStartDelta;
-                readerBuffer.WriteCursor = (long)ExpandedDataSize;
-            }
-            return readerBuffer;
-        }
-        if (IsDataCompressed)
-        {
-            // var start            = DateTime.Now;
-            var uncompressionBufferSize = Math.Max(ExpandedDataSize, 2_048);
-            var uncompressedBuffer      = OwningSession.UncompressedBuffer;
-            var originalLength          = uncompressedBuffer.Length;
-            uncompressedBuffer.SetLength((long)uncompressionBufferSize);
-            BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
-            var viewOffset         = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-            var compressedRange    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
-            var uncompressedStream = new ByteArrayMemoryStream(uncompressedBuffer.BackingByteArray, true, false);
-            var compressedStream   = new ByteArrayMemoryStream(compressedRange, true, false);
-            lzmaDecoder ??= new LzmaDecoder();
-            lzmaDecoder.Decompress(compressedStream, uncompressedStream);
-            readerBuffer             = uncompressedBuffer;
-            readerBuffer.WriteCursor = uncompressedStream.Position;
-            uncompressedBuffer.SetLength(originalLength);
-            // Logger.Info("Bucket {0} took {1} ms to decompress and read compressed data", BucketId, (DateTime.Now - start).TotalMilliseconds);
-        }
-        else
-        {
-            BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (int)ExpandedDataSize);
-            var viewOffset            = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-            var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize);
-            readerBuffer             = new FixedByteArrayBuffer(uncompressedFileRange);
-            readerBuffer.WriteCursor = (long)ExpandedDataSize;
-        }
-        if (atFileCursorOffset != null)
-        {
-            var dataStartDelta = atFileCursorOffset.Value - (StartOfDataSectionOffset - FileCursorOffset);
-            readerBuffer.ReadCursor = dataStartDelta;
-        }
-        else
-        {
-            readerBuffer.ReadCursor = 0;
-        }
-        return readerBuffer;
     }
 
 
@@ -343,6 +344,8 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
         set => dualMappedBucket!.ExpandedDataSize = value;
     }
 
+    public IBuffer ResolveDataReader(long? atFileCursorOffset = null) => dualMappedBucket!.ResolveDataReader(atFileCursorOffset);
+
     public override IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false)
     {
         base.OpenBucket(alternativeHeaderAndDataFileView, asWritable);
@@ -362,8 +365,6 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
         dualMappedBucket!.CloseBucketFileViews();
         base.CloseBucketFileViews();
     }
-
-    public IBuffer ResolveDataReader(long? atFileCursorOffset = null) => dualMappedBucket!.ResolveDataReader(atFileCursorOffset);
 
     public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext)
     {

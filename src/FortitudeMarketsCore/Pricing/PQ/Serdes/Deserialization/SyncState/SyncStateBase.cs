@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Monitoring.Logging;
@@ -16,15 +19,15 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
     protected const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.ffffff";
 
     protected static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SyncStateBase<>));
-    protected int LogCounter;
+    protected        int      LogCounter;
 
-    internal SyncStateBase(IPQQuoteDeserializer<T> linkedDeserializer, QuoteSyncState state)
+    internal SyncStateBase(IPQQuotePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
     {
         LinkedDeserializer = linkedDeserializer;
-        State = state;
+        State              = state;
     }
 
-    public IPQQuoteDeserializer<T> LinkedDeserializer { get; }
+    public IPQQuotePublishingDeserializer<T> LinkedDeserializer { get; }
 
     public QuoteSyncState State { get; protected set; }
 
@@ -34,10 +37,10 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
 
     public virtual void ProcessInState(IMessageBufferContext bufferContext)
     {
-        var msgFlags = (PQMessageFlags)bufferContext.MessageHeader.Flags;
+        var msgFlags   = (PQMessageFlags)bufferContext.MessageHeader.Flags;
         var sequenceId = bufferContext.ReadCurrentMessageSequenceId();
         if ((msgFlags & PQMessageFlags.Snapshot) > 0
-            && sequenceId != LinkedDeserializer.PublishedQuote.PQSequenceId + 1 &&
+         && sequenceId != LinkedDeserializer.PublishedQuote.PQSequenceId + 1 &&
             (sequenceId != 0 || LinkedDeserializer.PublishedQuote.PQSequenceId == 0))
             ProcessSnapshot(bufferContext);
         else
@@ -60,13 +63,13 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
         if (sequenceId > LinkedDeserializer.PublishedQuote.PQSequenceId + 1)
         {
             Logger.Info("Received snapshot for {0} with sequence id {1} that is infront of update stream {2}",
-                LinkedDeserializer.Identifier, sequenceId, LinkedDeserializer.PublishedQuote.PQSequenceId);
+                        LinkedDeserializer.Identifier, sequenceId, LinkedDeserializer.PublishedQuote.PQSequenceId);
             LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
         }
         else
         {
             Logger.Info("Received unexpected or no longer required snapshot for stream {0}",
-                LinkedDeserializer.Identifier);
+                        LinkedDeserializer.Identifier);
         }
     }
 
@@ -84,14 +87,14 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
                 if (bufferContext is SocketBufferReadContext sockBuffContext)
                     Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, " +
                                 "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
-                        LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
-                        sequenceId, sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
-                        sockBuffContext.DeserializerTime.ToString(DateTimeFormat),
-                        sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
+                                LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
+                                sequenceId, sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
+                                sockBuffContext.DeserializerTime.ToString(DateTimeFormat),
+                                sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
                 else
                     Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3} ",
-                        LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
-                        sequenceId);
+                                LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
+                                sequenceId);
             }
 
             LogCounter++;
@@ -99,7 +102,7 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
     }
 
     protected void PublishQuoteRunAction(PQSyncStatus syncStatus, IPerfLogger? dispatchLatencyLogger,
-        Action<IPQDeserializer> syncStateAction)
+        Action<IPQQuoteDeserializer> syncStateAction)
     {
         LinkedDeserializer.PushQuoteToSubscribers(syncStatus, dispatchLatencyLogger);
         syncStateAction?.Invoke(LinkedDeserializer);

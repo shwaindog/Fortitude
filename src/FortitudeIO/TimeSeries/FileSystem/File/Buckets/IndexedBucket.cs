@@ -5,6 +5,7 @@
 
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
 
 #endregion
 
@@ -19,10 +20,11 @@ public struct IndexedContainerHeaderExtension
 
 public interface IIndexedDataBucket : IBucket
 {
-    bool                           IndexCompressed       { get; }
-    ushort                         IndexCount            { get; }
-    long                           BucketIndexFileOffset { get; }
-    IReadonlyBucketIndexDictionary BucketIndexes         { get; }
+    bool   IndexCompressed       { get; }
+    ushort IndexCount            { get; }
+    long   BucketIndexFileOffset { get; }
+
+    IReadonlyBucketIndexDictionary BucketIndexes { get; }
 }
 
 public interface IMutableIndexedDataBucket : IIndexedDataBucket, IMutableBucket
@@ -104,6 +106,13 @@ public abstract unsafe class IndexedBucket<TEntry, TBucket> : BucketBase<TEntry,
         }
     }
 
+    public override void Dispose()
+    {
+        if (Writable) BucketHeaderFileView!.FlushPtrDataToDisk(mappedIndexedContainerHeader, sizeof(IndexedContainerHeaderExtension));
+        BucketIndexDictionary?.CacheAndCloseFileView();
+        base.Dispose();
+    }
+
     public override IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false)
     {
         base.OpenBucket(alternativeHeaderAndDataFileView, asWritable);
@@ -123,13 +132,6 @@ public abstract unsafe class IndexedBucket<TEntry, TBucket> : BucketBase<TEntry,
         }
 
         return this;
-    }
-
-    public override void Dispose()
-    {
-        if (Writable) BucketHeaderFileView!.FlushPtrDataToDisk(mappedIndexedContainerHeader, sizeof(IndexedContainerHeaderExtension));
-        BucketIndexDictionary?.CacheAndCloseFileView();
-        base.Dispose();
     }
 
     public override void CloseBucketFileViews()

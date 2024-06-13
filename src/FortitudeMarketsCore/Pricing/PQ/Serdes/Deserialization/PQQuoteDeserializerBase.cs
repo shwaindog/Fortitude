@@ -22,7 +22,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeserializer<T>
+public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQuoteDeserializer<T>
     where T : class, IPQLevel0Quote
 {
     private const byte SupportFromVersion = 1;
@@ -34,7 +34,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
 
     protected Func<ISourceTickerQuoteInfo, T> QuoteFactory;
 
-    protected PQDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig,
+    protected PQQuoteDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
     {
         this.serializationFlags = serializationFlags;
@@ -43,8 +43,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
         PublishedQuote          = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
     }
 
-
-    protected PQDeserializerBase(PQDeserializerBase<T> toClone) : base(toClone)
+    protected PQQuoteDeserializerBase(PQQuoteDeserializerBase<T> toClone) : base(toClone)
     {
         serializationFlags = toClone.serializationFlags;
         Identifier         = toClone.Identifier;
@@ -61,34 +60,39 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
 
     protected virtual bool ShouldPublish => PublishedQuote.HasUpdates;
 
+    public T PublishedQuote { get; protected set; }
+
     public ISourceTickerQuoteInfo Identifier { get; }
-    public IPQDeserializer?       Previous   { get; set; }
-    public IPQDeserializer?       Next       { get; set; }
+    public IPQQuoteDeserializer?  Previous   { get; set; }
+    public IPQQuoteDeserializer?  Next       { get; set; }
 
 
-    public event Action<IPQDeserializer>? ReceivedUpdate;
-    public event Action<IPQDeserializer>? SyncOk;
-    public event Action<IPQDeserializer>? OutOfSync;
+    public event Action<IPQQuoteDeserializer>? ReceivedUpdate;
+    public event Action<IPQQuoteDeserializer>? SyncOk;
+    public event Action<IPQQuoteDeserializer>? OutOfSync;
 
-    public void OnReceivedUpdate(IPQDeserializer quoteDeserializer)
+
+    public void OnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer)
     {
         var onReceivedUpdate = ReceivedUpdate;
         onReceivedUpdate?.Invoke(quoteDeserializer);
     }
 
-    public void OnSyncOk(IPQDeserializer quoteDeserializer)
+    public void OnSyncOk(IPQQuoteDeserializer quoteDeserializer)
     {
         var onSyncOk = SyncOk;
         onSyncOk?.Invoke(quoteDeserializer);
     }
 
-    public void OnOutOfSync(IPQDeserializer quoteDeserializer)
+    public void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
     {
         var onOutOfSync = OutOfSync;
         onOutOfSync?.Invoke(quoteDeserializer);
     }
 
-    public T PublishedQuote { get; protected set; }
+    public virtual bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => false;
+
+    public virtual bool CheckResync(DateTime utcNow) => false;
 
     public IDisposable Subscribe(IObserver<T> observer)
     {
@@ -115,10 +119,6 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
             }
         });
     }
-
-    public virtual bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => false;
-
-    public virtual bool CheckResync(DateTime utcNow) => false;
 
     public unsafe int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
@@ -253,7 +253,7 @@ public abstract class PQDeserializerBase<T> : MessageDeserializer<T>, IPQDeseria
     // ReSharper disable FieldCanBeMadeReadOnly.Local
     // ReSharper disable StaticMemberInGenericType
     // ReSharper disable InconsistentNaming
-    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQDeserializerBase<>));
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializerBase<>));
 
     private static IPerfLoggerPool PublishPQQuoteDeserializerLatencyTraceLoggerPool =
         PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool("clientCallback",

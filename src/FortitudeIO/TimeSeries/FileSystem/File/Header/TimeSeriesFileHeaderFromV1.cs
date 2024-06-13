@@ -15,7 +15,7 @@ public interface ITimeSeriesFileHeader : IDisposable
     bool HasSubHeader { get; }
     ushort HeaderVersion { get; }
     FileFlags FileFlags { get; }
-    TimeSeriesEntryType TimeSeriesEntryType { get; }
+    InstrumentType InstrumentType { get; }
     bool WriterOpen { get; }
     bool HasInternalIndex { get; }
     bool HasExternalBucketIndex { get; }
@@ -64,7 +64,7 @@ public unsafe interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
 {
     new ushort HeaderVersion { get; set; }
     new FileFlags FileFlags { get; set; }
-    new TimeSeriesEntryType TimeSeriesEntryType { get; set; }
+    new InstrumentType InstrumentType { get; set; }
     new uint InternalIndexMaxSize { get; set; }
     new uint FileHeaderSize { get; set; }
     new ulong FileSize { get; set; }
@@ -135,7 +135,7 @@ public struct TimeSeriesFileHeaderBodyV1
     public uint TotalHeaderSizeBytes;
     public uint TotalFileIndexSizeBytes;
     public uint FirstBucketFileStartOffset;
-    public TimeSeriesEntryType TimeSeriesEntryTypeEnum;
+    public InstrumentType InstrumentTypeEnum;
     public ushort MaxHeaderTypeTextSizeBytes;                   // Default 1023 bytes
     public ushort MaxHeaderTextSizeBytes;                       // Default 255 bytes
     public ushort TimeSeriesFileTypeTextFileStartOffset;        // 1 TypeString
@@ -189,16 +189,16 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 
     public TimeSeriesFileHeaderFromV1(ShiftableMemoryMappedFileView memoryMappedFileView, 
         Type fileType, Type bucketType, Type entryType, 
-        CreateFileParameters createFileParameters)
+        TimeSeriesFileParameters timeSeriesFileParameters)
     {
         headerMemoryMappedFileView = memoryMappedFileView;
         isWritable = true;
         HeaderVersion = NewFileDefaultVersion;
         writableV1HeaderBody = (TimeSeriesFileHeaderBodyV1*)(memoryMappedFileView.StartAddress + 2);
-        FileFlags = FileFlags.WriterOpened | createFileParameters.InitialFileFlags;
-        InternalIndexMaxSize = createFileParameters.InternalIndexSize;
-        MaxHeaderTypeTextSizeBytes = createFileParameters.MaxTypeStringSizeBytes;
-        MaxHeaderTextSizeBytes = createFileParameters.MaxStringSizeBytes;
+        FileFlags = FileFlags.WriterOpened | timeSeriesFileParameters.InitialFileFlags;
+        InternalIndexMaxSize = timeSeriesFileParameters.InternalIndexSize;
+        MaxHeaderTypeTextSizeBytes = timeSeriesFileParameters.MaxTypeStringSizeBytes;
+        MaxHeaderTextSizeBytes = timeSeriesFileParameters.MaxStringSizeBytes;
         // ReSharper disable once VirtualMemberCallInConstructor
         FileHeaderSize = (uint)(EndOfHeaderSectionFileOffset - 2);
         if(FileFlags.HasInternalIndexInHeaderFlag() && InternalIndexMaxSize > 0)
@@ -213,23 +213,27 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         BucketType = bucketType;
         EntryType = entryType;
         
-        stringSizeHeaderSize = StreamByteOps.StringAutoHeaderSize(MaxHeaderTextSizeBytes);
-        writableV1HeaderBody->InstrumentNameTextFileStartOffset = CalculateStringStart(0);
-        writableV1HeaderBody->SourceNameTextFileStartOffset = CalculateStringStart(1);
-        writableV1HeaderBody->CategoryTextFileStartOffset = CalculateStringStart(2);
-        writableV1HeaderBody->OriginSourceTextFileStartOffset = CalculateStringStart(3);
-        writableV1HeaderBody->ExternalIndexFileRelativePathFileStartOffset = CalculateStringStart(4);
-        writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset = CalculateStringStart(5);
-        InstrumentName = createFileParameters.InstrumentName;
-        SourceName = createFileParameters.SourceName;
-        Category = createFileParameters.Category;
-        OriginSourceText = createFileParameters.OriginSourceText;
-        ExternalIndexFileRelativePath = createFileParameters.ExternalIndexFileRelativePath;
-        AnnotationFileRelativePath = createFileParameters.AnnotationFileRelativePath;
+        stringSizeHeaderSize                                               = StreamByteOps.StringAutoHeaderSize(MaxHeaderTextSizeBytes);
 
-        FilePeriod = createFileParameters.FilePeriod;
-        FileStartPeriod = createFileParameters.FilePeriod.ContainingPeriodBoundaryStart(createFileParameters.FileStartPeriod);
-        TimeSeriesEntryType = createFileParameters.TimeSeriesEntryType;
+        writableV1HeaderBody->InstrumentNameTextFileStartOffset            = CalculateStringStart(0);
+        writableV1HeaderBody->SourceNameTextFileStartOffset                = CalculateStringStart(1);
+        writableV1HeaderBody->CategoryTextFileStartOffset                  = CalculateStringStart(2);
+        writableV1HeaderBody->OriginSourceTextFileStartOffset              = CalculateStringStart(3);
+
+        writableV1HeaderBody->ExternalIndexFileRelativePathFileStartOffset = CalculateStringStart(4);
+        writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset    = CalculateStringStart(5);
+
+        InstrumentName                = timeSeriesFileParameters.Instrument.InstrumentName;
+        SourceName                    = timeSeriesFileParameters.Instrument.SourceName;
+        Category                      = timeSeriesFileParameters.Instrument.Category;
+        OriginSourceText              = timeSeriesFileParameters.OriginSourceText;
+
+        ExternalIndexFileRelativePath = timeSeriesFileParameters.ExternalIndexFileRelativePath;
+        AnnotationFileRelativePath    = timeSeriesFileParameters.AnnotationFileRelativePath;
+
+        FilePeriod = timeSeriesFileParameters.FilePeriod;
+        FileStartPeriod = timeSeriesFileParameters.FilePeriod.ContainingPeriodBoundaryStart(timeSeriesFileParameters.FileStartPeriod);
+        InstrumentType = timeSeriesFileParameters.Instrument.TimeSeriesType;
 
         TotalHeaderSizeBytes = FileHeaderSize + 2;
         cacheV1HeaderBody = *writableV1HeaderBody;
@@ -265,12 +269,12 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 
     public static TimeSeriesFileHeaderFromV1 NewFileCreateHeader<TFile, TBucket, TEntry>(TimeSeriesFile<TFile, TBucket, TEntry> timeSeriesFile,
         ShiftableMemoryMappedFileView memoryMappedFileView, 
-        CreateFileParameters createFileParameters)
+        TimeSeriesFileParameters timeSeriesFileParameters)
         where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
         where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> 
         where TEntry : ITimeSeriesEntry<TEntry>
     {
-        return new TimeSeriesFileHeaderFromV1(memoryMappedFileView, typeof(TFile), typeof(TBucket), typeof(TEntry), createFileParameters);
+        return new TimeSeriesFileHeaderFromV1(memoryMappedFileView, typeof(TFile), typeof(TBucket), typeof(TEntry), timeSeriesFileParameters);
     }
 
     public ushort EndOfHeaderBodyFileOffset  => (ushort)(2 + sizeof(TimeSeriesFileHeaderBodyV1));
@@ -340,16 +344,16 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     public bool HasInternalIndex => FileFlags.HasInternalIndexInHeaderFlag() && InternalIndexMaxSize > 0;
     public bool HasExternalBucketIndex => FileFlags.HasExternalIndexFileFlag();
 
-    public TimeSeriesEntryType TimeSeriesEntryType 
+    public InstrumentType InstrumentType 
     {
-        get => cacheV1HeaderBody.TimeSeriesEntryTypeEnum;
+        get => cacheV1HeaderBody.InstrumentTypeEnum;
         set
         {
-            if (cacheV1HeaderBody.TimeSeriesEntryTypeEnum == value || headerMemoryMappedFileView == null) return;
+            if (cacheV1HeaderBody.InstrumentTypeEnum == value || headerMemoryMappedFileView == null) return;
             if (isWritable)
             {
-                writableV1HeaderBody->TimeSeriesEntryTypeEnum = value;
-                cacheV1HeaderBody.TimeSeriesEntryTypeEnum = value;
+                writableV1HeaderBody->InstrumentTypeEnum = value;
+                cacheV1HeaderBody.InstrumentTypeEnum = value;
             }
         }
     }
