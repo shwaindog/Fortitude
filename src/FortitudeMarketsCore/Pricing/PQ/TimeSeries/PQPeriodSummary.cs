@@ -16,9 +16,31 @@ using FortitudeMarketsCore.Pricing.TimeSeries;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
+public interface IPQPricePeriodSummary : IMutablePricePeriodSummary, IPQSupportsFieldUpdates<IPricePeriodSummary>
+{
+    bool IsStartTimeDateUpdated          { get; set; }
+    bool IsStartTimeSubHourUpdated       { get; set; }
+    bool IsEndTimeDateUpdated            { get; set; }
+    bool IsEndTimeSubHourUpdated         { get; set; }
+    bool IsStartBidPriceUpdated          { get; set; }
+    bool IsStartAskPriceUpdated          { get; set; }
+    bool IsHighestBidPriceUpdated        { get; set; }
+    bool IsHighestAskPriceUpdated        { get; set; }
+    bool IsLowestBidPriceUpdated         { get; set; }
+    bool IsLowestAskPriceUpdated         { get; set; }
+    bool IsEndBidPriceUpdated            { get; set; }
+    bool IsEndAskPriceUpdated            { get; set; }
+    bool IsTickCountUpdated              { get; set; }
+    bool IsPeriodVolumeLowerBytesUpdated { get; set; }
+    bool IsPeriodVolumeUpperBytesUpdated { get; set; }
+    bool IsAverageBidPriceUpdated        { get; set; }
+    bool IsAverageAskPriceUpdated        { get; set; }
+}
+
 public class PQPricePeriodSummary : IPQPricePeriodSummary
 {
-    private decimal  averageMidPrice;
+    private decimal  averageAskPrice;
+    private decimal  averageBidPrice;
     private decimal  endAskPrice;
     private decimal  endBidPrice;
     private DateTime endTime = DateTimeConstants.UnixEpoch;
@@ -52,6 +74,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         EndAskPrice      = toClone.EndAskPrice;
         TickCount        = toClone.TickCount;
         PeriodVolume     = toClone.PeriodVolume;
+        AverageBidPrice  = toClone.AverageBidPrice;
+        AverageAskPrice  = toClone.AverageBidPrice;
     }
 
     public TimeSeriesPeriod SummaryPeriod
@@ -70,7 +94,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         {
             var pricesAreAllZero = StartBidPrice == decimal.Zero && StartAskPrice == decimal.Zero && HighestBidPrice == decimal.Zero &&
                                    HighestAskPrice == decimal.Zero && LowestBidPrice == decimal.Zero && LowestAskPrice == decimal.Zero &&
-                                   EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero;
+                                   EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
+                                   AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
             var summaryPeriodNone      = SummaryPeriod == TimeSeriesPeriod.None;
             var startEndTimeUnixEpoch  = SummaryStartTime == DateTimeConstants.UnixEpoch && SummaryEndTime == DateTimeConstants.UnixEpoch;
@@ -79,8 +104,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         set
         {
             if (!value) return;
-            StartBidPrice    = StartAskPrice  = HighestBidPrice = HighestAskPrice = decimal.Zero;
-            LowestBidPrice   = LowestAskPrice = EndBidPrice     = EndAskPrice     = decimal.Zero;
+            StartBidPrice    = StartAskPrice  = HighestBidPrice = HighestAskPrice = AverageBidPrice = decimal.Zero;
+            LowestBidPrice   = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
             TickCount        = 0;
             PeriodVolume     = 0;
             SummaryPeriod    = TimeSeriesPeriod.None;
@@ -160,14 +185,27 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         }
     }
 
-    public decimal AverageMidPrice
+    public decimal AverageBidPrice
     {
-        get => averageMidPrice;
+        get => averageBidPrice;
         set
         {
-            if (averageMidPrice == value) return;
-            IsAverageMidPriceUpdated = true;
-            averageMidPrice          = value;
+            if (averageBidPrice == value) return;
+
+            IsAverageBidPriceUpdated = true;
+            averageBidPrice          = value;
+        }
+    }
+    public decimal AverageAskPrice
+    {
+        get => averageAskPrice;
+        set
+        {
+            if (averageAskPrice == value) return;
+
+            IsAverageAskPriceUpdated = true;
+
+            averageAskPrice = value;
         }
     }
 
@@ -355,15 +393,27 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         }
     }
 
-    public bool IsAverageMidPriceUpdated
+    public bool IsAverageBidPriceUpdated
     {
-        get => (updatedFlags & PeriodSummaryUpdatedFlags.AverageMidPriceFlag) > 0;
+        get => (updatedFlags & PeriodSummaryUpdatedFlags.AverageBidPriceFlag) > 0;
         set
         {
             if (value)
-                updatedFlags |= PeriodSummaryUpdatedFlags.AverageMidPriceFlag;
+                updatedFlags |= PeriodSummaryUpdatedFlags.AverageBidPriceFlag;
 
-            else if (IsEndAskPriceUpdated) updatedFlags ^= PeriodSummaryUpdatedFlags.AverageMidPriceFlag;
+            else if (IsEndAskPriceUpdated) updatedFlags ^= PeriodSummaryUpdatedFlags.AverageBidPriceFlag;
+        }
+    }
+
+    public bool IsAverageAskPriceUpdated
+    {
+        get => (updatedFlags & PeriodSummaryUpdatedFlags.AverageAskPriceFlag) > 0;
+        set
+        {
+            if (value)
+                updatedFlags |= PeriodSummaryUpdatedFlags.AverageAskPriceFlag;
+
+            else if (IsEndAskPriceUpdated) updatedFlags ^= PeriodSummaryUpdatedFlags.AverageAskPriceFlag;
         }
     }
 
@@ -489,6 +539,13 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
             var upperBytes = (uint)(PeriodVolume >> 32);
             yield return new PQFieldUpdate(PQFieldKeys.PeriodVolumeUpperBytes, upperBytes);
         }
+
+        if (!updatedOnly || IsAverageBidPriceUpdated)
+            yield return new PQFieldUpdate(PQFieldKeys.PeriodAveragePrice, AverageBidPrice,
+                                           quotePublicationPrecisionSettings!.PriceScalingPrecision);
+        if (!updatedOnly || IsAverageAskPriceUpdated)
+            yield return new PQFieldUpdate(PQFieldKeys.PeriodAveragePrice, AverageAskPrice,
+                                           (byte)(PQFieldFlags.IsAskSideFlag | quotePublicationPrecisionSettings!.PriceScalingPrecision));
     }
 
     public int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -546,6 +603,12 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
             case PQFieldKeys.PeriodVolumeUpperBytes:
                 PeriodVolume = (PeriodVolume & 0x0000_0000_FFFF_FFFF) | ((long)pqFieldUpdate.Value << 32);
                 return 0;
+            case PQFieldKeys.PeriodAveragePrice:
+                if (pqFieldUpdate.IsBid())
+                    AverageBidPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                else
+                    AverageAskPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                return 0;
             default:
                 return -1;
         }
@@ -567,6 +630,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
             EndAskPrice      = ps.EndAskPrice;
             TickCount        = ps.TickCount;
             PeriodVolume     = ps.PeriodVolume;
+            AverageBidPrice  = ps.AverageBidPrice;
+            AverageAskPrice  = ps.AverageAskPrice;
         }
         else
         {
@@ -594,6 +659,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
             if (pqPs.IsTickCountUpdated) TickCount             = pqPs.TickCount;
             if (pqPs.IsPeriodVolumeLowerBytesUpdated || pqPs.IsPeriodVolumeUpperBytesUpdated)
                 PeriodVolume = pqPs.PeriodVolume;
+            if (pqPs.IsAverageBidPriceUpdated) AverageBidPrice = pqPs.AverageBidPrice;
+            if (pqPs.IsAverageAskPriceUpdated) AverageAskPrice = pqPs.AverageAskPrice;
 
             if (pqPs is PQPricePeriodSummary pqPeriodSummary) updatedFlags = pqPeriodSummary.updatedFlags;
         }
@@ -626,6 +693,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         var endAskPriceSame     = EndAskPrice == other.EndAskPrice;
         var tickCountSame       = TickCount == other.TickCount;
         var periodVolumeSame    = PeriodVolume == other.PeriodVolume;
+        var averageBidSame      = AverageBidPrice == other.AverageBidPrice;
+        var averageAskSame      = AverageAskPrice == other.AverageAskPrice;
 
         var updateFlagsSame = true;
         if (exactTypes)
@@ -636,7 +705,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
 
         return timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
             && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame
-            && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && updateFlagsSame;
+            && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && updateFlagsSame
+            && averageBidSame && averageAskSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPricePeriodSummary?)obj, true);
@@ -657,6 +727,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
             hashCode = (hashCode * 397) ^ endAskPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)tickCount;
             hashCode = (hashCode * 397) ^ periodVolume.GetHashCode();
+            hashCode = (hashCode * 397) ^ averageBidPrice.GetHashCode();
+            hashCode = (hashCode * 397) ^ averageAskPrice.GetHashCode();
             return hashCode;
         }
     }
@@ -667,5 +739,6 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         $" {StartAskPrice}, {nameof(HighestBidPrice)}: {HighestBidPrice}, {nameof(HighestAskPrice)}: " +
         $"{HighestAskPrice}, {nameof(LowestBidPrice)}: {LowestBidPrice}, {nameof(LowestAskPrice)}: " +
         $"{LowestAskPrice}, {nameof(EndBidPrice)}: {EndBidPrice}, {nameof(EndAskPrice)}: {EndAskPrice}, " +
-        $"{nameof(TickCount)}: {TickCount}, {nameof(PeriodVolume)}: {PeriodVolume} }}";
+        $"{nameof(TickCount)}: {TickCount}, {nameof(PeriodVolume)}: {PeriodVolume}, {nameof(AverageBidPrice)}: {AverageBidPrice}, " +
+        $"{nameof(AverageAskPrice)}: {AverageAskPrice} }}";
 }

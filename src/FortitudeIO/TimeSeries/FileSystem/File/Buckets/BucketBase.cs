@@ -7,8 +7,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.TimeSeries.FileSystem.File.Appending;
-using FortitudeIO.TimeSeries.FileSystem.File.Reading;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
 #endregion
 
@@ -54,6 +55,8 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         IsOpen && MappedFileBucketInfo != null
                && BucketHeaderFileView!.StartAddress == RequiredHeaderViewLocation
                && BucketHeaderFileView!.LowerViewFileCursorOffset == RequiredHeaderViewFileCursorOffset;
+
+    public TimeSeriesPeriodRange TimeSeriesPeriodRange => new(PeriodStartTime, TimeSeriesPeriod);
 
     public IBucketFactory<TBucket> BucketFactory
     {
@@ -269,6 +272,8 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
     public IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
 
+    public abstract IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext);
+
     public void RefreshViews(ShiftableMemoryMappedFileView? usingMappedFileView = null)
     {
         var isWriter = Writable;
@@ -295,9 +300,9 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
             return StorageAttemptResult.NextBucketPeriod;
         if (storageDateTime >= bucketPeriod.PreviousPeriodStart(PeriodStartTime) && storageDateTime < PeriodStartTime)
             return StorageAttemptResult.BucketClosedForAppend;
-        var filePeriod    = BucketContainer.ContainingSession.TimeSeriesPeriod;
-        var fileStartTime = BucketContainer.ContainingSession.PeriodStartTime;
-        if (storageDateTime >= fileStartTime && storageDateTime < filePeriod.PeriodEnd(fileStartTime)) return StorageAttemptResult.BucketSearchRange;
+        var fileStartTime = BucketContainer.ContainingSession.TimeSeriesPeriodRange.PeriodStartTime;
+        var fileEndTime   = BucketContainer.ContainingSession.TimeSeriesPeriodRange.PeriodEnd();
+        if (storageDateTime >= fileStartTime && storageDateTime < fileEndTime) return StorageAttemptResult.BucketSearchRange;
         return StorageAttemptResult.NextFilePeriod;
     }
 
@@ -335,8 +340,8 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         MappedFileBucketInfo->TotalFileDataSizeBytes = 0;
         cacheBucketHeader.TotalFileDataSizeBytes     = 0;
 
-        var thisEndBucketTime = TimeSeriesPeriod.PeriodEnd(PeriodStartTime);
-        var fileEndTime       = BucketContainer.TimeSeriesPeriod.PeriodEnd(BucketContainer.PeriodStartTime);
+        var thisEndBucketTime = TimeSeriesPeriodRange.PeriodEnd();
+        var fileEndTime       = BucketContainer.TimeSeriesPeriodRange.PeriodEnd();
 
         if (fileEndTime == thisEndBucketTime) BucketFlags |= BucketFlags.IsLastPossibleSibling;
         BucketContainer.AddNewBucket(this);
@@ -374,9 +379,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
     public abstract AppendResult AppendEntry(IAppendContext<TEntry> entry);
 
-    public bool BucketIntersects(PeriodRange? period = null) => period.IntersectsWith(TimeSeriesPeriod, PeriodStartTime);
-
-    public abstract IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext);
+    public bool BucketIntersects(TimeRange? period = null) => period.IntersectsWith(TimeSeriesPeriodRange);
 
     public void EnsureHeaderViewCoversAllHeaders()
     {

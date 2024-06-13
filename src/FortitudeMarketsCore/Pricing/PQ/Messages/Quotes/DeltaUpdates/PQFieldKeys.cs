@@ -46,31 +46,32 @@ public static class PQFieldKeys
     public const byte ClientReceivedSubHourTime  = 25; // 0x19
 
     // Level 1 Fields
-    public const byte AdapterSentDateTime          = 26; // 0x1A
-    public const byte AdapterSentSubHourTime       = 27; // 0x1B
-    public const byte AdapterReceivedDateTime      = 28; // 0x1C
-    public const byte AdapterReceivedSubHourTime   = 29; // 0x1D
-    public const byte SourceBidDateTime            = 30; // 0x1E
-    public const byte SourceBidSubHourTime         = 31; // 0x1F
-    public const byte SourceAskDateTime            = 32; // 0x20
-    public const byte SourceAskSubHourTime         = 33; // 0x21
-    public const byte ReplayAdapterSentDateTime    = 34; // 0x22
-    public const byte ReplayAdapterSentSubHourTime = 35; // 0x23
+    public const byte AdapterSentDateTime        = 26; // 0x1A
+    public const byte AdapterSentSubHourTime     = 27; // 0x1B
+    public const byte AdapterReceivedDateTime    = 28; // 0x1C
+    public const byte AdapterReceivedSubHourTime = 29; // 0x1D
+    public const byte SourceBidDateTime          = 30; // 0x1E
+    public const byte SourceBidSubHourTime       = 31; // 0x1F
+    public const byte SourceAskDateTime          = 32; // 0x20
+    public const byte SourceAskSubHourTime       = 33; // 0x21
 
     public const byte BidAskTopOfBookPrice = 50; // 0x32 same as book LayerPriceOffset on purpose :-)
 
     // period summary
-    public const byte PeriodStartDateTime    = 36; // 0x24
-    public const byte PeriodStartSubHourTime = 37; // 0x25
-    public const byte PeriodStartPrice       = 38; // 0x26
-    public const byte PeriodEndDateTime      = 39; // 0x27
-    public const byte PeriodEndSubHourTime   = 40; // 0x28
-    public const byte PeriodEndPrice         = 41; // 0x29
-    public const byte PeriodHighestPrice     = 42; // 0x2A
-    public const byte PeriodLowestPrice      = 43; // 0x2B
-    public const byte PeriodTickCount        = 44; // 0x2C
-    public const byte PeriodVolumeLowerBytes = 45; // 0x2D
-    public const byte PeriodVolumeUpperBytes = 46; // 0x2E
+    public const byte PeriodStartDateTime    = 34; // 0x22
+    public const byte PeriodStartSubHourTime = 35; // 0x23
+    public const byte PeriodStartPrice       = 36; // 0x24
+    public const byte PeriodEndDateTime      = 37; // 0x25
+    public const byte PeriodEndSubHourTime   = 38; // 0x26
+    public const byte PeriodEndPrice         = 39; // 0x27
+    public const byte PeriodHighestPrice     = 40; // 0x28
+    public const byte PeriodLowestPrice      = 41; // 0x29
+    public const byte PeriodTickCount        = 42; // 0x2A
+    public const byte PeriodVolumeLowerBytes = 43; // 0x2B
+    public const byte PeriodVolumeUpperBytes = 44; // 0x2C
+    public const byte PeriodAveragePrice     = 45; // 0x2D
+
+    public const byte Spare = 46; // 0x2E
 
     // Level 2 Fields - first 20 layers
     public const byte LayerNameDictionaryUpsertCommand = 47; // 0x2F StringFieldUpdate

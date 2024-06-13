@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
@@ -16,7 +19,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : class, IPQLevel0Quote
+internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQLevel0Quote
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteFeedDeserializer<T>));
 
@@ -41,11 +44,11 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
             throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext bufferContext)
         {
-            var sockBuffContext = bufferContext as SocketBufferReadContext;
+            var sockBuffContext                                           = bufferContext as SocketBufferReadContext;
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
-            using var fixedBuffer = bufferContext.EncodedBuffer!;
-            var ptr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
-            var sequenceId = StreamByteOps.ToUInt(ref ptr);
+            using var fixedBuffer                                         = bufferContext.EncodedBuffer!;
+            var       ptr                                                 = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            var       sequenceId                                          = StreamByteOps.ToUInt(ref ptr);
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
             PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)
@@ -67,7 +70,7 @@ internal class PQQuoteFeedDeserializer<T> : PQDeserializerBase<T> where T : clas
             return false;
         feedIsStopped = true;
         Logger.Info("Stale detected on feed {0}, {1}ms elapsed with no update",
-            Identifier.Source, elapsed);
+                    Identifier.Source, elapsed);
         PushQuoteToSubscribers(PQSyncStatus.Stale);
         return true;
     }

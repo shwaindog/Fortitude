@@ -20,8 +20,4 @@
     <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TimeSeries\FileSystem\Retireval\" />
-  </ItemGroup>
-
 </Project>

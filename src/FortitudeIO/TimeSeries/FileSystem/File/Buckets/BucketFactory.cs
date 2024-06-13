@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
 
 namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 

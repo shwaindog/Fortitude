@@ -682,7 +682,7 @@ public class PQPricePeriodSummaryTests
 
         emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
         emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.ConsumerConflated, emptySummary.SummaryPeriod);
+        Assert.AreEqual(TimeSeriesPeriod.None, emptySummary.SummaryPeriod);
     }
 
     [TestMethod]

@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.DataStructures.Memory;
@@ -19,12 +22,12 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
 {
     new IPQClientMessageStreamDecoder Supply(string name);
 
-    IPQDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
+    IPQQuoteDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
         where T : PQLevel0Quote, new();
 
-    IPQDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType);
+    IPQQuoteDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType);
 
-    IPQDeserializer? GetDeserializer(ISourceTickerQuoteInfo identifier);
+    IPQQuoteDeserializer? GetDeserializer(ISourceTickerQuoteInfo identifier);
 
     bool UnregisterDeserializer(ISourceTickerQuoteInfo identifier);
 }
@@ -34,8 +37,8 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializ
     public PQSourceTickerInfoResponseDeserializer statelessPQSourceTickerInfoResponseDeserializer;
 
     public PQClientQuoteDeserializerRepository(string name, IRecycler recycler
-        , IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(name,
-        recycler, fallbackCoalasingDeserializer) =>
+      , IMessageDeserializationRepository? fallbackCoalasingDeserializer = null) : base(name,
+                                                                                        recycler, fallbackCoalasingDeserializer) =>
         statelessPQSourceTickerInfoResponseDeserializer = new PQSourceTickerInfoResponseDeserializer(recycler);
 
     public override IPQClientMessageStreamDecoder Supply(string name) =>
@@ -43,29 +46,30 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializ
 
     IMessageStreamDecoder IMessageStreamDecoderFactory.Supply(string name) => Supply(name);
 
-    public IPQDeserializer? GetDeserializer(ISourceTickerQuoteInfo identifier) =>
-        TryGetDeserializer(identifier.Id, out var quoteDeserializer) ?
-            quoteDeserializer as IPQDeserializer :
-            CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.Id) as IPQDeserializer;
+    public IPQQuoteDeserializer? GetDeserializer(ISourceTickerQuoteInfo identifier) =>
+        TryGetDeserializer(identifier.Id, out var quoteDeserializer)
+            ? quoteDeserializer as IPQQuoteDeserializer
+            : CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.Id) as IPQQuoteDeserializer;
 
     public bool UnregisterDeserializer(ISourceTickerQuoteInfo identifier) => UnregisterDeserializer(identifier.Id);
 
-    public IPQDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : PQLevel0Quote, new()
+    public IPQQuoteDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : PQLevel0Quote, new()
     {
-        IPQDeserializer quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
+        IPQQuoteDeserializer quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
         RegisteredDeserializers.Add(streamPubConfig.SourceTickerQuoteInfo.Id, quoteDeserializer);
         return quoteDeserializer;
     }
 
-    public IPQDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType)
+    public IPQQuoteDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType)
     {
         return pqLevelQuoteMessageType switch
-        {
-            Type when pqLevelQuoteMessageType == typeof(PQLevel0Quote) => CreateQuoteDeserializer<PQLevel0Quote>(streamPubConfig)
-            , Type when pqLevelQuoteMessageType == typeof(PQLevel1Quote) => CreateQuoteDeserializer<PQLevel1Quote>(streamPubConfig)
-            , Type when pqLevelQuoteMessageType == typeof(PQLevel2Quote) => CreateQuoteDeserializer<PQLevel2Quote>(streamPubConfig)
-            , Type when pqLevelQuoteMessageType == typeof(PQLevel3Quote) => CreateQuoteDeserializer<PQLevel3Quote>(streamPubConfig), _ => null
-        };
+               {
+                   Type when pqLevelQuoteMessageType == typeof(PQLevel0Quote) => CreateQuoteDeserializer<PQLevel0Quote>(streamPubConfig)
+                 , Type when pqLevelQuoteMessageType == typeof(PQLevel1Quote) => CreateQuoteDeserializer<PQLevel1Quote>(streamPubConfig)
+                 , Type when pqLevelQuoteMessageType == typeof(PQLevel2Quote) => CreateQuoteDeserializer<PQLevel2Quote>(streamPubConfig)
+                 , Type when pqLevelQuoteMessageType == typeof(PQLevel3Quote) => CreateQuoteDeserializer<PQLevel3Quote>(streamPubConfig)
+                 , _                                                          => null
+               };
     }
 
     public override INotifyingMessageDeserializer<TM>? SourceNotifyingMessageDeserializerFromMessageId<TM>(uint msgId) =>
@@ -77,10 +81,10 @@ public sealed class PQClientQuoteDeserializerRepository : ConversationDeserializ
     public override IMessageDeserializer? SourceDeserializerFromMessageId(uint msgId, Type messageType)
     {
         return msgId switch
-        {
-            (uint)PQMessageIds.SourceTickerInfoResponse => statelessPQSourceTickerInfoResponseDeserializer
-            , _ => CascadingFallbackDeserializationFactoryRepo?.SourceDeserializerFromMessageId(msgId, messageType)
-        };
+               {
+                   (uint)PQMessageIds.SourceTickerInfoResponse => statelessPQSourceTickerInfoResponseDeserializer
+                 , _ => CascadingFallbackDeserializationFactoryRepo?.SourceDeserializerFromMessageId(msgId, messageType)
+               };
     }
 
     public override uint? ResolveExpectedMessageIdForMessageType(Type messageType)

@@ -33,7 +33,7 @@ public class PQQuoteDeserializerTests
     private int  countLevel3SerializerPublishes;
     private int  countLevel3SerializerUpdates;
 
-    private IList<IPQDeserializer> deserializers = null!;
+    private IList<IPQQuoteDeserializer> deserializers = null!;
 
     private PQLevel0Quote expectedL0FullyInitializedQuote = null!;
     private PQLevel1Quote expectedL1FullyInitializedQuote = null!;
@@ -94,7 +94,7 @@ public class PQQuoteDeserializerTests
 
         SetupEventListeners();
 
-        deserializers = new List<IPQDeserializer>
+        deserializers = new List<IPQQuoteDeserializer>
         {
             pqLevel0QuoteDeserializer, pqLevel1QuoteDeserializer, pqLevel2QuoteDeserializer, pqLevel3QuoteDeserializer
         };

@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Serdes.Binary;
@@ -9,8 +12,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 public class InitializationState<T> : SynchronisingState<T> where T : PQLevel0Quote, new()
 {
-    public InitializationState(IPQQuoteDeserializer<T> linkedDeserializer) : base(linkedDeserializer,
-        QuoteSyncState.InitializationState) { }
+    public InitializationState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
+        : base(linkedDeserializer, QuoteSyncState.InitializationState) { }
 
     protected override void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
     {
@@ -21,7 +24,7 @@ public class InitializationState<T> : SynchronisingState<T> where T : PQLevel0Qu
     protected override void LogSyncRecoveryMessage(uint sequenceId)
     {
         Logger.Info("Stream {0} started from first message, RecvSeqID={1}",
-            LinkedDeserializer.Identifier, sequenceId);
+                    LinkedDeserializer.Identifier, sequenceId);
     }
 
     protected override void ProcessUpdate(IMessageBufferContext bufferContext)

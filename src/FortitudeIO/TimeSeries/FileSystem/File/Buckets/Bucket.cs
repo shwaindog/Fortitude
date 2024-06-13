@@ -6,8 +6,9 @@
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeIO.TimeSeries.FileSystem.File.Appending;
-using FortitudeIO.TimeSeries.FileSystem.File.Reading;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
 #endregion
 
@@ -66,7 +67,7 @@ public interface IBucket : IDisposable
     Type     ExpectedEntryType              { get; }
     void     RefreshViews(ShiftableMemoryMappedFileView? usingMappedFileView = null);
     bool     Intersects(DateTime? fromTime = null, DateTime? toTime = null);
-    bool     BucketIntersects(PeriodRange? period = null);
+    bool     BucketIntersects(TimeRange? period = null);
 
     StorageAttemptResult CheckTimeSupported(DateTime storageDateTime);
 

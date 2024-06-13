@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines.Execution;
 using FortitudeBusRules.Messages;
@@ -18,32 +21,34 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 {
     private const int TasksFrequencyMs = 1000;
     private const int MaxSnapshotBatch = 100;
+
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientFeedSyncMonitorRule));
 
     private readonly string feedName;
-
     private readonly string feedRequestSnapshotsAddress;
+
     private readonly Dictionary<uint, DeserializerEventRegistrations> registeredDeserializers = new();
+
     private readonly IMessageDeserializationRepository sharedFeedDeserializationRepo;
 
-    private readonly IDoublyLinkedList<IPQDeserializer> syncKo = new DoublyLinkedList<IPQDeserializer>();
-    private readonly IDoublyLinkedList<IPQDeserializer> syncOk = new DoublyLinkedList<IPQDeserializer>();
+    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncKo = new DoublyLinkedList<IPQQuoteDeserializer>();
+    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncOk = new DoublyLinkedList<IPQQuoteDeserializer>();
 
     private DateTime lastReceivedTickTime = DateTimeConstants.UnixEpoch;
 
     public PQPricingClientFeedSyncMonitorRule(string feedName, IMessageDeserializationRepository sharedFeedDeserializationRepo)
         : base("PQClientFeedSyncMonitor" + feedName)
     {
-        this.feedName = feedName;
+        this.feedName                      = feedName;
         this.sharedFeedDeserializationRepo = sharedFeedDeserializationRepo;
-        feedRequestSnapshotsAddress = feedName.FeedTickersSnapshotRequestAddress();
+        feedRequestSnapshotsAddress        = feedName.FeedTickersSnapshotRequestAddress();
     }
 
     public override async ValueTask StartAsync()
     {
         await this.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>(
-            feedName.FeedTickerHealthRequestAddress(), ReceivedTickerHealthStatusRequest);
-        sharedFeedDeserializationRepo.MessageDeserializerRegistered += NewDeserializerRegistered;
+             feedName.FeedTickerHealthRequestAddress(), ReceivedTickerHealthStatusRequest);
+        sharedFeedDeserializationRepo.MessageDeserializerRegistered   += NewDeserializerRegistered;
         sharedFeedDeserializationRepo.MessageDeserializerUnregistered += ExistingDeserializerUnregistered;
         Timer.RunEvery(TasksFrequencyMs, MonitorDeserializersForSnapshotResync);
     }
@@ -74,19 +79,19 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private void NewDeserializerRegistered(IMessageDeserializer addedMessageDeserializer)
     {
-        if (addedMessageDeserializer is IPQDeserializer pqDeserializer)
+        if (addedMessageDeserializer is IPQQuoteDeserializer pqDeserializer)
         {
             var deserializerRegistration = new DeserializerEventRegistrations
             {
-                SyncOk = SingleParamActionWrapper<IPQDeserializer>.WrapAndAttach(OnInSync)
-                , ReceivedUpdate = SingleParamActionWrapper<IPQDeserializer>.WrapAndAttach(OnReceivedUpdate)
-                , OutOfSync = SingleParamActionWrapper<IPQDeserializer>.WrapAndAttach(OnOutOfSync)
+                SyncOk         = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnInSync)
+              , ReceivedUpdate = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnReceivedUpdate)
+              , OutOfSync      = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnOutOfSync)
             };
             registeredDeserializers[pqDeserializer.Identifier.Id] = deserializerRegistration;
 
-            pqDeserializer.SyncOk += deserializerRegistration.SyncOk;
+            pqDeserializer.SyncOk         += deserializerRegistration.SyncOk;
             pqDeserializer.ReceivedUpdate += deserializerRegistration.ReceivedUpdate;
-            pqDeserializer.OutOfSync += deserializerRegistration.OutOfSync;
+            pqDeserializer.OutOfSync      += deserializerRegistration.OutOfSync;
 
             syncOk.AddFirst(pqDeserializer);
         }
@@ -94,13 +99,13 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private void ExistingDeserializerUnregistered(IMessageDeserializer removedMessageDeserializer)
     {
-        if (removedMessageDeserializer is IPQDeserializer pqDeserializer)
+        if (removedMessageDeserializer is IPQQuoteDeserializer pqDeserializer)
         {
             if (registeredDeserializers.TryGetValue(pqDeserializer.Identifier.Id, out var deserializerRegistration))
             {
-                pqDeserializer.SyncOk -= deserializerRegistration.SyncOk;
+                pqDeserializer.SyncOk         -= deserializerRegistration.SyncOk;
                 pqDeserializer.ReceivedUpdate -= deserializerRegistration.ReceivedUpdate;
-                pqDeserializer.OutOfSync -= deserializerRegistration.OutOfSync;
+                pqDeserializer.OutOfSync      -= deserializerRegistration.OutOfSync;
             }
 
             syncOk.Remove(pqDeserializer);
@@ -137,13 +142,13 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private void FindAndSnapshotKnockedOutTickersReadyForSnapshot()
     {
-        IPQDeserializer? firstToResync = null;
+        IPQQuoteDeserializer? firstToResync = null;
 
         var requestList = Context.PooledRecycler.Borrow<FeedSourceTickerInfoUpdate>();
         for (var count = 0; count < MaxSnapshotBatch; count++)
         {
-            IPQDeserializer? pqMd;
-            bool resync;
+            IPQQuoteDeserializer? pqMd;
+            bool                  resync;
             if ((pqMd = syncKo.Head) == null)
                 break;
             if (firstToResync == null)
@@ -170,20 +175,20 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
             deserializersInNeedOfSnapshots.DecrementRefCount();
     }
 
-    private void OnReceivedUpdate(IPQDeserializer quoteDeserializer)
+    private void OnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer)
     {
         lastReceivedTickTime = TimeContext.UtcNow;
         syncOk.Remove(quoteDeserializer);
         syncOk.AddLast(quoteDeserializer);
     }
 
-    private void OnInSync(IPQDeserializer quoteDeserializer)
+    private void OnInSync(IPQQuoteDeserializer quoteDeserializer)
     {
         syncKo.Remove(quoteDeserializer);
         syncOk.AddLast(quoteDeserializer);
     }
 
-    private void OnOutOfSync(IPQDeserializer quoteDeserializer)
+    private void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
     {
         syncOk.Remove(quoteDeserializer);
         syncKo.AddFirst(quoteDeserializer);
@@ -192,8 +197,8 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private class DeserializerEventRegistrations
     {
-        public Action<IPQDeserializer> OutOfSync = null!;
-        public Action<IPQDeserializer> ReceivedUpdate = null!;
-        public Action<IPQDeserializer> SyncOk = null!;
+        public Action<IPQQuoteDeserializer> OutOfSync      = null!;
+        public Action<IPQQuoteDeserializer> ReceivedUpdate = null!;
+        public Action<IPQQuoteDeserializer> SyncOk         = null!;
     }
 }

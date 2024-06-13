@@ -60,12 +60,12 @@ public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
         priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset = 100;
     }
 
-    public PriceQuoteFileSubHeader(PriceQuoteCreateFileParameters priceQuoteCreateFileParameters,
+    public PriceQuoteFileSubHeader(PriceQuoteTimeSeriesFileParameters priceQuoteTimeSeriesFileParameters,
         ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
         : this(headerMappedFileView, subHeaderFileOffset, writable)
     {
-        SourceTickerQuoteInfo = priceQuoteCreateFileParameters.SourceTickerQuoteInfo;
-        SerializationFlags    = priceQuoteCreateFileParameters.SerializationFlags;
+        SourceTickerQuoteInfo = priceQuoteTimeSeriesFileParameters.SourceTickerQuoteInfo;
+        SerializationFlags    = priceQuoteTimeSeriesFileParameters.SerializationFlags;
     }
 
     public PQSerializationFlags SerializationFlags

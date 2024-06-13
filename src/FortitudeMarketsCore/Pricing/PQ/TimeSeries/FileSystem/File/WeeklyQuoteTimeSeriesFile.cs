@@ -5,8 +5,8 @@
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
@@ -21,9 +21,9 @@ public class WeeklyLevel0QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
     public WeeklyLevel0QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public WeeklyLevel0QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel0QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
+                                               .SetTimeSeriesEntryType(InstrumentType.Price)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
@@ -37,9 +37,9 @@ public class WeeklyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
     public WeeklyLevel1QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public WeeklyLevel1QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel1QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
+                                               .SetTimeSeriesEntryType(InstrumentType.Price)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
@@ -53,9 +53,9 @@ public class WeeklyLevel2QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
     public WeeklyLevel2QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public WeeklyLevel2QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel2QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
+                                               .SetTimeSeriesEntryType(InstrumentType.Price)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
@@ -69,9 +69,9 @@ public class WeeklyLevel3QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
     public WeeklyLevel3QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public WeeklyLevel3QuoteTimeSeriesFile(PriceQuoteCreateFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyLevel3QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(TimeSeriesEntryType.Price)
+                                               .SetTimeSeriesEntryType(InstrumentType.Price)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 

@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
@@ -17,22 +20,22 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserializer<T>
+public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublishingDeserializer<T>
     where T : PQLevel0Quote, new()
 {
-    public const int MaxBufferedUpdates = 128;
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializer<T>));
-    private readonly DeserializeStateTransitionFactory<T> stateTransitionFactory;
-    private readonly StaticRing<T> syncRing;
-    private SyncStateBase<T> currentSyncState;
+    public const            int                                  MaxBufferedUpdates = 128;
+    private static readonly IFLogger                             Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializer<T>));
+    private readonly        DeserializeStateTransitionFactory<T> stateTransitionFactory;
+    private readonly        StaticRing<T>                        syncRing;
+    private                 SyncStateBase<T>                     currentSyncState;
 
     public PQQuoteDeserializer(ITickerPricingSubscriptionConfig tickerPricingSubscriptionConfig) : base(tickerPricingSubscriptionConfig
-        .SourceTickerQuoteInfo)
+             .SourceTickerQuoteInfo)
     {
-        SyncRetryMs = tickerPricingSubscriptionConfig.PricingServerConfig.SyncRetryIntervalMs;
-        currentSyncState = new InitializationState<T>(this);
+        SyncRetryMs            = tickerPricingSubscriptionConfig.PricingServerConfig.SyncRetryIntervalMs;
+        currentSyncState       = new InitializationState<T>(this);
         stateTransitionFactory = new DeserializeStateTransitionFactory<T>();
-        AllowUpdatesCatchup = tickerPricingSubscriptionConfig.PricingServerConfig.AllowUpdatesCatchup;
+        AllowUpdatesCatchup    = tickerPricingSubscriptionConfig.PricingServerConfig.AllowUpdatesCatchup;
         syncRing = new StaticRing<T>(MaxBufferedUpdates, () =>
         {
             var newQuote = QuoteFactory(tickerPricingSubscriptionConfig.SourceTickerQuoteInfo);
@@ -44,10 +47,10 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
 
     public PQQuoteDeserializer(PQQuoteDeserializer<T> toClone) : base(toClone)
     {
-        SyncRetryMs = toClone.SyncRetryMs;
-        currentSyncState = new InitializationState<T>(this);
+        SyncRetryMs            = toClone.SyncRetryMs;
+        currentSyncState       = new InitializationState<T>(this);
         stateTransitionFactory = new DeserializeStateTransitionFactory<T>();
-        AllowUpdatesCatchup = toClone.AllowUpdatesCatchup;
+        AllowUpdatesCatchup    = toClone.AllowUpdatesCatchup;
         syncRing = new StaticRing<T>(MaxBufferedUpdates, () =>
         {
             var newQuote = QuoteFactory(toClone.Identifier);
@@ -106,7 +109,7 @@ public class PQQuoteDeserializer<T> : PQDeserializerBase<T>, IPQQuoteDeserialize
 
                 PublishedQuote.CopyFrom((ILevel0Quote)ent);
                 PublishedQuote.ClientReceivedTime = ent.ClientReceivedTime;
-                PublishedQuote.ProcessedTime = ent.ProcessedTime;
+                PublishedQuote.ProcessedTime      = ent.ProcessedTime;
             }
 
             syncRing.Clear(1);

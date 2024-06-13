@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Reflection;
 using FortitudeCommon.AsyncProcessing;
@@ -17,8 +20,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 public interface IPQClientSyncMonitoring
 {
-    void RegisterNewDeserializer(IPQDeserializer quoteDeserializer);
-    void UnregisterSerializer(IPQDeserializer quoteDeserializer);
+    void RegisterNewDeserializer(IPQQuoteDeserializer quoteDeserializer);
+    void UnregisterSerializer(IPQQuoteDeserializer quoteDeserializer);
     void CheckStartMonitoring();
     void CheckStopMonitoring();
 }
@@ -33,31 +36,37 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
     private readonly Func<string, IMarketConnectionConfig?> getSourceServerConfig;
+
     private readonly IOSParallelController osParallelController;
 
     private readonly ISequencer pqSeq = new Sequencer();
-    private readonly Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction;
-    private readonly IIntraOSThreadSignal stopSignal;
-    private readonly IDoublyLinkedList<IPQDeserializer> syncKo = new DoublyLinkedList<IPQDeserializer>();
 
-    private readonly IDoublyLinkedList<IPQDeserializer> syncOk = new DoublyLinkedList<IPQDeserializer>();
+    private readonly Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction;
+
+    private readonly IIntraOSThreadSignal stopSignal;
+
+    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncKo = new DoublyLinkedList<IPQQuoteDeserializer>();
+    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncOk = new DoublyLinkedList<IPQQuoteDeserializer>();
+
     private volatile bool tasksActive;
+
     private IOSThread? tasksThread;
 
     public PQClientSyncMonitoring(Func<string, IMarketConnectionConfig?> getSourceServerConfig,
         Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction)
     {
         osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
-        stopSignal = osParallelController.SingleOSThreadActivateSignal(false);
+        stopSignal           = osParallelController.SingleOSThreadActivateSignal(false);
+
         this.getSourceServerConfig = getSourceServerConfig;
         this.snapShotRequestAction = snapShotRequestAction;
     }
 
-    public void RegisterNewDeserializer(IPQDeserializer quoteDeserializer)
+    public void RegisterNewDeserializer(IPQQuoteDeserializer quoteDeserializer)
     {
-        quoteDeserializer.SyncOk += OnInSync;
+        quoteDeserializer.SyncOk         += OnInSync;
         quoteDeserializer.ReceivedUpdate += OnReceivedUpdate;
-        quoteDeserializer.OutOfSync += OnOutOfSync;
+        quoteDeserializer.OutOfSync      += OnOutOfSync;
 
         var seq = pqSeq.Claim();
         try
@@ -71,7 +80,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    public void UnregisterSerializer(IPQDeserializer quoteDeserializer)
+    public void UnregisterSerializer(IPQQuoteDeserializer quoteDeserializer)
     {
         if (syncOk.SafeContains(quoteDeserializer))
         {
@@ -108,6 +117,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         {
             tasksActive = true;
             tasksThread = osParallelController.CreateNewOSThread(MonitorDeserializersForSnapshotResync);
+
             tasksThread.IsBackground = true;
             tasksThread.Start();
         }
@@ -123,7 +133,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    private void OnReceivedUpdate(IPQDeserializer quoteDeserializer)
+    private void OnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer)
     {
         var seq = pqSeq.Claim();
         try
@@ -138,7 +148,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    private void OnInSync(IPQDeserializer quoteDeserializer)
+    private void OnInSync(IPQQuoteDeserializer quoteDeserializer)
     {
         var seq = pqSeq.Claim();
         try
@@ -153,7 +163,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    private void OnOutOfSync(IPQDeserializer quoteDeserializer)
+    private void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
     {
         var seq = pqSeq.Claim();
         try
@@ -199,7 +209,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
             try
             {
                 pqSeq.Serialize(seq);
-                IPQDeserializer? pu;
+                IPQQuoteDeserializer? pu;
                 if ((pu = syncOk.Head) == null || !pu.HasTimedOutAndNeedsSnapshot(TimeContext.UtcNow))
                     break;
                 syncOk.Remove(pu);
@@ -214,13 +224,14 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
     private void FindAndSnapshotKnockedOutTickersReadyForSnapshot()
     {
-        IPQDeserializer? firstToResync = null;
-        var deserializersInNeedOfSnapshots = new Dictionary<string, List<ISourceTickerQuoteInfo>>();
+        IPQQuoteDeserializer? firstToResync                  = null;
+        var                   deserializersInNeedOfSnapshots = new Dictionary<string, List<ISourceTickerQuoteInfo>>();
         for (var count = 0; tasksActive && count < MaxSnapshotBatch; count++)
         {
-            IPQDeserializer? pu;
+            IPQQuoteDeserializer? pu;
+
             bool resync;
-            var seq = pqSeq.Claim();
+            var  seq = pqSeq.Claim();
             try
             {
                 pqSeq.Serialize(seq);
@@ -241,7 +252,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
             if (!resync) continue;
             if (!deserializersInNeedOfSnapshots.TryGetValue(pu.Identifier.Source,
-                    out var pqQuoteDeserializerList))
+                                                            out var pqQuoteDeserializerList))
                 deserializersInNeedOfSnapshots[pu.Identifier.Source] =
                     pqQuoteDeserializerList = new List<ISourceTickerQuoteInfo>();
             if (!pqQuoteDeserializerList.Contains(pu.Identifier))

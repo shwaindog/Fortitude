@@ -6,10 +6,11 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries.FileSystem.File.Appending;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
-using FortitudeIO.TimeSeries.FileSystem.File.Reading;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
 #endregion
 
@@ -17,41 +18,43 @@ namespace FortitudeIO.TimeSeries.FileSystem.File;
 
 public interface ITimeSeriesFile : IDisposable
 {
-    ushort                  FileVersion             { get; }
-    ITimeSeriesFileHeader   Header                  { get; }
-    TimeSeriesPeriod        TimeSeriesPeriod        { get; }
-    bool                    AutoCloseOnZeroSessions { get; set; }
-    int                     SessionCount            { get; }
-    DateTime                PeriodStartTime         { get; }
-    TimeSeriesEntryType     TimeSeriesEntryType     { get; }
-    string                  InstrumentName          { get; }
-    string                  Category                { get; }
-    string                  SourceName              { get; }
-    string                  FileName                { get; }
-    bool                    IsOpen                  { get; }
-    Type                    EntryType               { get; }
-    ITimeSeriesFileSession? GetWriterSession();
-    ITimeSeriesFileSession  GetReaderSession();
-    ITimeSeriesFileSession  GetInfoSession();
-    bool                    Intersects(PeriodRange? periodRange = null);
-    void                    Close();
-    bool                    ReopenFile(FileFlags fileFlags = FileFlags.None);
+    ushort                FileVersion           { get; }
+    ITimeSeriesFileHeader Header                { get; }
+    TimeSeriesPeriodRange TimeSeriesPeriodRange { get; }
+
+    bool AutoCloseOnZeroSessions { get; set; }
+
+    int            SessionCount   { get; }
+    InstrumentType InstrumentType { get; }
+    string         InstrumentName { get; }
+    string         Category       { get; }
+    string         SourceName     { get; }
+    string         FileName       { get; }
+    bool           IsOpen         { get; }
+
+    Type                EntryType { get; }
+    ITimeSeriesSession? GetWriterSession();
+    ITimeSeriesSession  GetReaderSession();
+    ITimeSeriesSession  GetInfoSession();
+
+    bool Intersects(TimeRange? periodRange = null);
+    void Close();
+    bool ReopenFile(FileFlags fileFlags = FileFlags.None);
 }
 
 public interface ITimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
-{
-    new IWriterFileSession<TBucket, TEntry>? GetWriterSession();
-    new IReaderFileSession<TBucket, TEntry>  GetReaderSession();
-    new IReaderFileSession<TBucket, TEntry>  GetInfoSession();
-}
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry> { }
 
 public interface ITimeSeriesEntryFile<TEntry> : ITimeSeriesFile
     where TEntry : ITimeSeriesEntry<TEntry>
 {
     Func<TEntry>? DefaultEntryFactory { get; set; }
 
-    IEnumerable<TEntry>? EntriesFor(PeriodRange? periodRange = null, int? remainingLimit = null,
+    new IFileWriterSession<TEntry>? GetWriterSession();
+    new IFileReaderSession<TEntry>  GetReaderSession();
+    new IFileReaderSession<TEntry>  GetInfoSession();
+
+    IEnumerable<TEntry>? EntriesFor(TimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? entryFactory = null);
 }
@@ -71,15 +74,14 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     where TEntry : ITimeSeriesEntry<TEntry>
 
 {
-    private readonly List<IReaderFileSession<TBucket, TEntry>> readerSessions = new();
-    protected        IStorageTimeResolver<TEntry>?             EntryStorageTimeResolver;
+    private readonly List<IFileReaderSession<TEntry>> readerSessions = new();
 
     protected IBucketFactory<TBucket>? FileBucketFactory;
 
-    private IBucketIndexDictionary?              fileBucketIndexOffsets;
-    private IReaderFileSession<TBucket, TEntry>? infoSession;
-    private int                                  numberOfOpenSessions;
-    private IWriterFileSession<TBucket, TEntry>? writerSession;
+    private IBucketIndexDictionary?     fileBucketIndexOffsets;
+    private IFileReaderSession<TEntry>? infoSession;
+    private int                         numberOfOpenSessions;
+    private IFileWriterSession<TEntry>? writerSession;
 
     // derived classes should implement equivalent parameter constructor to be open with OpenExistingTimeSeriesFile(string filePath)
     public TimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
@@ -93,17 +95,17 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
             throw new Exception("Attempting to open a file saved with a different entry type");
     }
 
-    public TimeSeriesFile(CreateFileParameters createParameters)
+    public TimeSeriesFile(TimeSeriesFileParameters timeSeriesParameters)
     {
-        FileName = createParameters.FileNameResolver.FilePath(createParameters).FullName;
+        FileName = timeSeriesParameters.TimeSeriesFileInfo.FullName;
 
-        TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName, createParameters.InitialFileSize);
+        TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName, timeSeriesParameters.InitialFileSize);
 
         var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
         var ptr            = headerFileView.StartAddress;
         FileVersion = StreamByteOps.ToUShort(ref ptr);
         if (FileVersion is 0 or 1) // select appropriate header file based on file version
-            Header = TimeSeriesFileHeaderFromV1.NewFileCreateHeader(this, headerFileView, createParameters);
+            Header = TimeSeriesFileHeaderFromV1.NewFileCreateHeader(this, headerFileView, timeSeriesParameters);
         else
             throw new Exception("Unsupported file version being loaded");
     }
@@ -117,11 +119,14 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     }
 
     public virtual IStorageTimeResolver<TEntry>? StorageTimeResolver => null!;
-    public         IMutableTimeSeriesFileHeader  Header              { get; }
+    private        TimeSeriesPeriod              TimeSeriesPeriod    => Header.FilePeriod;
+    private        DateTime                      PeriodStartTime     => Header.FileStartPeriod;
+
+    public IMutableTimeSeriesFileHeader Header { get; }
 
     public Func<TEntry>? DefaultEntryFactory { get; set; }
 
-    public IEnumerable<TEntry>? EntriesFor(PeriodRange? periodRange = null, int? remainingLimit = null,
+    public IEnumerable<TEntry>? EntriesFor(TimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? entryFactory = null)
     {
@@ -135,6 +140,53 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         if (IsOpen && numberOfOpenSessions <= 0 && !wasOpen) Close();
     }
 
+    public IFileWriterSession<TEntry>? GetWriterSession()
+    {
+        var existingOpen = writerSession?.IsOpen ?? false;
+        if (existingOpen) return null;
+        IncrementSessionCount();
+        writerSession?.ReopenSession(FileFlags.WriterOpened);
+        writerSession ??= new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, true, ushort.MaxValue * 4);
+        return writerSession;
+    }
+
+    public IFileReaderSession<TEntry> GetReaderSession()
+    {
+        if (!IsOpen) ReopenFile();
+        IFileReaderSession<TEntry>? freeReaderSession   = null;
+        var                         shouldAddToExisting = true;
+        if (readerSessions.Any(rs => !rs.IsOpen))
+        {
+            freeReaderSession   = readerSessions.FirstOrDefault(rs => !rs.IsOpen);
+            shouldAddToExisting = freeReaderSession == null;
+        }
+
+        IncrementSessionCount();
+        freeReaderSession ??= new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, false);
+        if (shouldAddToExisting)
+            readerSessions.Add(freeReaderSession);
+        else
+            freeReaderSession.ReopenSession();
+        return freeReaderSession;
+    }
+
+    public IFileReaderSession<TEntry> GetInfoSession()
+    {
+        if (infoSession == null)
+        {
+            IncrementSessionCount();
+            var wasOpen = IsOpen;
+            if (!wasOpen) ReopenFile();
+            infoSession = new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, false);
+            infoSession.VisitChildrenCacheAndClose();
+            if (IsOpen && numberOfOpenSessions <= 0 && !wasOpen) Close();
+        }
+
+        return infoSession;
+    }
+
+    public TimeSeriesPeriodRange TimeSeriesPeriodRange => new(PeriodStartTime, TimeSeriesPeriod);
+
     public void Dispose()
     {
         Close();
@@ -145,16 +197,14 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     public bool AutoCloseOnZeroSessions { get; set; } = true;
     public int  SessionCount            => numberOfOpenSessions;
 
-    public TimeSeriesEntryType TimeSeriesEntryType => Header.TimeSeriesEntryType;
+    public InstrumentType InstrumentType => Header.InstrumentType;
 
-    ITimeSeriesFileHeader ITimeSeriesFile.Header           => Header;
-    public TimeSeriesPeriod               TimeSeriesPeriod => Header.FilePeriod;
-    public DateTime                       PeriodStartTime  => Header.FileStartPeriod;
+    ITimeSeriesFileHeader ITimeSeriesFile.Header => Header;
 
-    ITimeSeriesFileSession? ITimeSeriesFile.GetWriterSession() => GetWriterSession();
+    ITimeSeriesSession? ITimeSeriesFile.GetWriterSession() => GetWriterSession();
 
-    ITimeSeriesFileSession ITimeSeriesFile.GetReaderSession() => GetReaderSession();
-    ITimeSeriesFileSession ITimeSeriesFile.GetInfoSession()   => GetInfoSession();
+    ITimeSeriesSession ITimeSeriesFile.GetReaderSession() => GetReaderSession();
+    ITimeSeriesSession ITimeSeriesFile.GetInfoSession()   => GetInfoSession();
 
     public string SourceName
     {
@@ -176,7 +226,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         set => Header.Category = value;
     }
 
-    public bool Intersects(PeriodRange? periodRange = null) => periodRange.IntersectsWith(TimeSeriesPeriod, PeriodStartTime);
+    public bool Intersects(TimeRange? periodRange = null) => periodRange.IntersectsWith(TimeSeriesPeriodRange);
 
     public string FileName { get; }
     public bool   IsOpen   => Header.FileIsOpen || numberOfOpenSessions > 0;
@@ -199,51 +249,6 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
         Header.ReopenFileView(headerFileView, fileFlags);
         return true;
-    }
-
-    public IWriterFileSession<TBucket, TEntry>? GetWriterSession()
-    {
-        var existingOpen = writerSession?.IsOpen ?? false;
-        if (existingOpen) return null;
-        IncrementSessionCount();
-        writerSession?.ReopenSession(FileFlags.WriterOpened);
-        writerSession ??= new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, true, ushort.MaxValue * 4);
-        return writerSession;
-    }
-
-    public IReaderFileSession<TBucket, TEntry> GetReaderSession()
-    {
-        if (!IsOpen) ReopenFile();
-        IReaderFileSession<TBucket, TEntry>? freeReaderSession   = null;
-        var                                  shouldAddToExisting = true;
-        if (readerSessions.Any(rs => !rs.IsOpen))
-        {
-            freeReaderSession   = readerSessions.FirstOrDefault(rs => !rs.IsOpen);
-            shouldAddToExisting = freeReaderSession == null;
-        }
-
-        IncrementSessionCount();
-        freeReaderSession ??= new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, false);
-        if (shouldAddToExisting)
-            readerSessions.Add(freeReaderSession);
-        else
-            freeReaderSession.ReopenSession();
-        return freeReaderSession;
-    }
-
-    public IReaderFileSession<TBucket, TEntry> GetInfoSession()
-    {
-        if (infoSession == null)
-        {
-            IncrementSessionCount();
-            var wasOpen = IsOpen;
-            if (!wasOpen) ReopenFile();
-            infoSession = new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, false);
-            infoSession.VisitChildrenCacheAndClose();
-            if (IsOpen && numberOfOpenSessions <= 0 && !wasOpen) Close();
-        }
-
-        return infoSession;
     }
 
     public virtual ISessionAppendContext<TEntry, TBucket> CreateAppendContext() => new AppendContext<TEntry, TBucket>();
