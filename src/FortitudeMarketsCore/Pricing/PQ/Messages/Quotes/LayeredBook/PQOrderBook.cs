@@ -49,9 +49,10 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         NameIdLookup = InitializeNewIdLookupGenerator();
     }
 
-    public PQOrderBook(BookSide bookSide, LayerType layerType = LayerType.PriceVolume)
+    public PQOrderBook(BookSide bookSide, LayerType layerType = LayerType.PriceVolume, bool isLadder = false)
     {
         BookSide     = bookSide;
+        IsLadder     = isLadder;
         NameIdLookup = InitializeNewIdLookupGenerator();
         LayersOfType = layerType;
     }
@@ -59,13 +60,15 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     public PQOrderBook(BookSide bookSide, IPQSourceTickerQuoteInfo srcTickerQuoteInfo)
     {
         BookSide     = bookSide;
+        IsLadder     = srcTickerQuoteInfo.LayerFlags.HasLadder();
         NameIdLookup = InitializeNewIdLookupGenerator(srcTickerQuoteInfo.NameIdLookup);
         EnsureRelatedItemsAreConfigured(srcTickerQuoteInfo);
     }
 
-    public PQOrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null)
+    public PQOrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null, bool isLadder = false)
     {
         BookSide     = bookSide;
+        IsLadder     = isLadder;
         NameIdLookup = SourceOtherExistingOrNewPQNameIdNameLookup(bookLayers);
         AllLayers = bookLayers?
                     .Select(pvl => (IPQPriceVolumeLayer?)LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
@@ -77,6 +80,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     {
         BookSide     = toClone.BookSide;
         NameIdLookup = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
+        IsLadder     = toClone.IsLadder;
         var size = toClone.Capacity;
         AllLayers = new List<IPQPriceVolumeLayer?>(size);
         Capacity  = toClone.Capacity;
@@ -98,12 +102,14 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     private IPQOrderBookLayerFactorySelector LayerSelector { get; set; } = null!;
 
     protected string PQOrderBookToStringMembers =>
-        $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, " +
+        $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, {nameof(IsLadder)}: {IsLadder}, " +
         $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
 
     public LayerType LayersOfType { get; private set; } = LayerType.PriceVolume;
 
     public LayerFlags LayersSupportsLayerFlags => LayersOfType.SupportedLayerFlags();
+
+    public bool IsLadder { get; private set; }
 
     public BookSide BookSide { get; }
 
@@ -202,7 +208,8 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         base.StateReset();
     }
 
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
         IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         for (var i = 0; i < AllLayers.Count; i++)
@@ -303,6 +310,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     {
         if (source is PQOrderBook sourcePqOrderBook) NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup, copyMergeFlags);
         LayersOfType = source.LayersOfType;
+        IsLadder     = source.IsLadder;
 
         for (var i = 0; i < source.Count; i++)
         {
@@ -346,6 +354,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     {
         if (referenceInstance is { NameIdLookup: not null }) NameIdLookup.CopyFrom(referenceInstance.NameIdLookup);
         LayersOfType = referenceInstance?.LayerFlags.MostCompactLayerType() ?? LayersOfType;
+        IsLadder     = referenceInstance?.LayerFlags.HasLadder() ?? false;
         int maxBookDepth = Math.Max((byte)1, Math.Min(referenceInstance!.MaximumPublishedLayers, PQFieldKeys.SingleByteFieldIdMaxBookDepth));
 
         var layerFactory = LayerSelector.FindForLayerFlags(referenceInstance);
@@ -365,6 +374,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
+        var isLadderSame      = IsLadder == other.IsLadder;
         var deepestPricedSame = Count == other.Count;
         var bookLayersSame = exactTypes
             ? AllLayers.SequenceEqual(other)
@@ -374,7 +384,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         var deepestPossibleSame                                              = true;
         if (other is IMutableOrderBook mutableOrderBook) deepestPossibleSame = Capacity == mutableOrderBook.Capacity;
 
-        var allAreSame = deepestPossibleSame && deepestPricedSame && bookLayersSame;
+        var allAreSame = isLadderSame && deepestPossibleSame && deepestPricedSame && bookLayersSame;
         return allAreSame;
     }
 

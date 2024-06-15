@@ -62,8 +62,7 @@ public class Level3PriceQuoteTests
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
            , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-           | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference
-           , LastTradedFlags.None);
+           | LayerFlags.ValueDate | LayerFlags.TraderCount | LayerFlags.SourceQuoteReference, LastTradedFlags.None);
         simpleRecentlyTradedSrcTkrQtInfo = new SourceTickerQuoteInfo
             (ushort.MaxValue, "TestSource", ushort.MinValue, "TestTicker", Level3, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
@@ -574,7 +573,8 @@ public class Level3PriceQuoteTests
            , new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i));
     }
 
-    private static OrderBook GenerateBook<T>(BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
+    private static OrderBook GenerateBook<T>
+    (BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
         where T : IPriceVolumeLayer
     {
@@ -592,7 +592,8 @@ public class Level3PriceQuoteTests
     }
 
 
-    private static RecentlyTraded GenerateRecentlyTraded<T>(int numberOfRecentlyTraded, decimal startingPrice,
+    private static RecentlyTraded GenerateRecentlyTraded<T>
+    (int numberOfRecentlyTraded, decimal startingPrice,
         decimal deltaPrice,
         DateTime startingTime, TimeSpan deltaTime, Func<decimal, DateTime, T> generateLastTraded) where T : IMutableLastTrade
     {
@@ -611,7 +612,8 @@ public class Level3PriceQuoteTests
         return new RecentlyTraded(lastTrades);
     }
 
-    private static void UpdateTraderQuoteBook(IOrderBook toUpdate, int numberOfLayers,
+    private static void UpdateTraderQuoteBook
+    (IOrderBook toUpdate, int numberOfLayers,
         int numberOfTradersPerLayer, decimal startingVolume, decimal deltaVolumePerLayer)
     {
         var currentVolume = startingVolume;
@@ -639,7 +641,8 @@ public class Level3PriceQuoteTests
         }
     }
 
-    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IMutableLevel3Quote commonCompareQuote, IMutableLevel3Quote changingQuote)
     {
         Level1PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType

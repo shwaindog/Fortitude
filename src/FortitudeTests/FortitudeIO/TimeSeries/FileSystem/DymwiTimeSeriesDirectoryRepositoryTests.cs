@@ -34,7 +34,16 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
 
     private readonly Func<ILevel3Quote> asPQLevel3QuoteFactory = () => new PQLevel3Quote();
 
-    private string expectedFileNameFormat = "Price_tick_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3.tsf";
+    private readonly DateTime week1                = new(2024, 5, 24);
+    private readonly string   week1ExpectedDirPath = "2020s/24/05-May/Week-3/FXMajor_Global/RepoTest";
+    private readonly DateTime week2                = new(2024, 5, 31);
+    private readonly string   week2ExpectedDirPath = "2020s/24/05-May/Week-4/FXMajor_Global/RepoTest";
+    private readonly DateTime week3                = new(2024, 6, 6);
+    private readonly string   week3ExpectedDirPath = "2020s/24/06-Jun/Week-1/FXMajor_Global/RepoTest";
+    private readonly DateTime week4                = new(2024, 6, 13);
+    private readonly string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FXMajor_Global/RepoTest";
+
+    private string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3.tsf";
 
     private SourceTickerQuoteInfo  level3SrcTkrQtInfo = null!;
     private int                    newTestCount;
@@ -48,16 +57,6 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
     private DymwiTimeSeriesDirectoryRepository repo;
     private DirectoryInfo                      repoRootDir;
     private RepositoryStructureInfo            repositoryStructureInfo;
-
-    private DateTime week1                = new(2024, 5, 24);
-    private string   week1ExpectedDirPath = "2020s/24/05-May/Week-3/FXMajor_Global/RepoTest";
-
-    private DateTime week2                = new(2024, 5, 31);
-    private string   week2ExpectedDirPath = "2020s/24/05-May/Week-4/FXMajor_Global/RepoTest";
-    private DateTime week3                = new(2024, 6, 6);
-    private string   week3ExpectedDirPath = "2020s/24/06-Jun/Week-1/FXMajor_Global/RepoTest";
-    private DateTime week4                = new(2024, 6, 13);
-    private string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FXMajor_Global/RepoTest";
 
     [TestInitialize]
     public void Setup()
@@ -90,11 +89,17 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         readerSession?.Close();
         repo.CloseAllFilesAndSessions();
         repoRootDir.RecursiveDelete();
+        var currDirInfo = new DirectoryInfo(Environment.CurrentDirectory);
+        foreach (var existingTestDirectory in currDirInfo.GetDirectories("DymwiRepoTest_*")) existingTestDirectory.RecursiveDelete();
     }
 
     [TestMethod]
     public void NewRepo_AppendTwoDifferentWeekFiles_WrittenDataIsInExpectedStructureAndCanBeRetrieved()
     {
+        AssertFileNameDoesNotExistsFor(week1ExpectedDirPath, week1);
+        AssertFileNameDoesNotExistsFor(week2ExpectedDirPath, week2);
+        AssertFileNameDoesNotExistsFor(week3ExpectedDirPath, week3);
+        AssertFileNameDoesNotExistsFor(week4ExpectedDirPath, week4);
         var toPersistAndCheck = TestWeeklyDataGeneratorFixture.GenerateRepeatableQuotes<ILevel3Quote, PQLevel3Quote>
             (1, 10, 1, DayOfWeek.Wednesday, pqLevel3QuoteGenerator, week1).ToList();
         toPersistAndCheck.AddRange
@@ -110,6 +115,11 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         repoWriter.Close();
+
+        AssertFileNameExistsFor(week1ExpectedDirPath, week1);
+        AssertFileNameDoesNotExistsFor(week2ExpectedDirPath, week2);
+        AssertFileNameExistsFor(week3ExpectedDirPath, week3);
+        AssertFileNameDoesNotExistsFor(week4ExpectedDirPath, week4);
         readerSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrQtInfo)!;
         var allEntriesReader = readerSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, asPQLevel3QuoteFactory);
         var storedItems      = allEntriesReader.ResultEnumerable.ToList();
@@ -143,6 +153,20 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
                 Assert.Fail($"Entries at {i} differ test failed \ndiff {originalEntry.DiffQuotes(compareEntry)}.");
             }
         }
+    }
+
+    private void AssertFileNameExistsFor(string repoPath, DateTime timeInWeek)
+    {
+        var expectedPath     = Path.Combine(repoRootDir.FullName, repoPath, GetExpectedFileName(timeInWeek));
+        var expectedFileInfo = new FileInfo(expectedPath);
+        Assert.IsTrue(expectedFileInfo.Exists, $"Did not find expected file {expectedFileInfo.FullName}");
+    }
+
+    private void AssertFileNameDoesNotExistsFor(string repoPath, DateTime timeInWeek)
+    {
+        var expectedPath     = Path.Combine(repoRootDir.FullName, repoPath, GetExpectedFileName(timeInWeek));
+        var expectedFileInfo = new FileInfo(expectedPath);
+        Assert.IsFalse(expectedFileInfo.Exists, $"Found unexpected file {expectedFileInfo.FullName} that shouldn't exist!");
     }
 
     private string GetExpectedFileName(DateTime timeInWeek)
