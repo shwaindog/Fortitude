@@ -25,22 +25,25 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         bookLayers = new List<IPriceVolumeLayer?>();
     }
 
-    public OrderBook(BookSide bookSide, LayerType layerType = LayerType.PriceVolume)
+    public OrderBook(BookSide bookSide, LayerType layerType = LayerType.PriceVolume, bool isLadder = false)
     {
         BookSide     = bookSide;
         LayersOfType = layerType;
         bookLayers   = new List<IPriceVolumeLayer?>();
+        IsLadder     = isLadder;
     }
 
-    public OrderBook(BookSide bookSide, int numBookLayers)
+    public OrderBook(BookSide bookSide, int numBookLayers, bool isLadder = false)
     {
         BookSide   = bookSide;
         bookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
+        IsLadder   = isLadder;
     }
 
-    public OrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers)
+    public OrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers, bool isLadder = false)
     {
         BookSide = bookSide;
+        IsLadder = isLadder;
         this.bookLayers = bookLayers
                           .Select(pvl => LayerSelector
                                       .UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
@@ -53,6 +56,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         BookSide     = toClone.BookSide;
         bookLayers   = new List<IPriceVolumeLayer?>(toClone.Count());
         LayersOfType = toClone.LayersOfType;
+        IsLadder     = toClone.IsLadder;
         foreach (var priceVolumeLayer in toClone)
             bookLayers.Add(LayerSelector.CreateExpectedImplementation(priceVolumeLayer.LayerType, priceVolumeLayer));
         Capacity = toClone.Capacity;
@@ -63,6 +67,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         BookSide = bookSide;
 
         LayersOfType = sourceTickerQuoteInfo.LayerFlags.MostCompactLayerType();
+        IsLadder     = sourceTickerQuoteInfo.LayerFlags.HasLadder();
         bookLayers   = new List<IPriceVolumeLayer?>(sourceTickerQuoteInfo.MaximumPublishedLayers);
         for (var i = 0; i < sourceTickerQuoteInfo.MaximumPublishedLayers; i++)
             bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
@@ -74,6 +79,8 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     public LayerType LayersOfType { get; private set; } = LayerType.PriceVolume;
 
     public LayerFlags LayersSupportsLayerFlags => LayersOfType.SupportedLayerFlags();
+
+    public bool IsLadder { get; private set; }
 
     public IMutablePriceVolumeLayer? this[int level]
     {
@@ -141,6 +148,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         LayersOfType = source.LayersOfType;
+        IsLadder     = source.IsLadder;
         var sourceDeepestLayerSet = source.Count;
         for (var i = 0; i < sourceDeepestLayerSet; i++)
         {
@@ -177,14 +185,15 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
-        var countSame = Count == other.Count;
+        var ladderSame = IsLadder == other.IsLadder;
+        var countSame  = Count == other.Count;
         var bookLayersSame = countSame && (exactTypes
             ? this.SequenceEqual(other)
             : bookLayers.Take(Count)
                         .Zip(other.Take(Count), (thisLayer, otherLayer) => new { thisLayer, otherLayer })
                         .All(joined => joined.thisLayer != null
                                     && joined.thisLayer.AreEquivalent(joined.otherLayer)));
-        var allAreSame = countSame && bookLayersSame;
+        var allAreSame = ladderSame && countSame && bookLayersSame;
         return allAreSame;
     }
 
@@ -199,6 +208,6 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     public override int GetHashCode() => bookLayers?.GetHashCode() ?? 0;
 
     public override string ToString() =>
-        $"OrderBook {{{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, " +
+        $"OrderBook {{{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count},, {nameof(IsLadder)}: {IsLadder},  " +
         $"{nameof(bookLayers)}:[{string.Join(", ", bookLayers.Take(Count))}] }}";
 }

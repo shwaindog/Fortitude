@@ -20,8 +20,10 @@ using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeTests.TestEnvironment;
 using Moq;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeTests.TestEnvironment.TestMachineConfig;
 
 #endregion
 
@@ -64,17 +66,19 @@ public class PQServerTests
     public void Setup(LayerFlags layerDetails, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
         sourceTickerConfig1 =
-            new TickerConfig(TickerId1, TestTicker1, TickerAvailability.AllEnabled, QuoteLevel.Level3,
-                             0.00001m, 0.1m, 100, 0.1m, 250,
-                             layerDetails, 20, lastTradedFlags);
+            new TickerConfig
+                (TickerId1, TestTicker1, TickerAvailability.AllEnabled, Level3, Unknown
+               , 0.00001m, 0.1m, 100, 0.1m, 250
+               , layerDetails, 20, lastTradedFlags);
         sourceTickerConfig2 =
-            new TickerConfig(TickerId2, TestTicker2, TickerAvailability.AllEnabled, QuoteLevel.Level3,
-                             0.00001m, 0.1m, 100, 0.1m, 250,
-                             layerDetails, 20, lastTradedFlags);
+            new TickerConfig
+                (TickerId2, TestTicker2, TickerAvailability.AllEnabled, Level3, Unknown
+               , 0.00001m, 0.1m, 100, 0.1m, 250
+               , layerDetails, 20, lastTradedFlags);
         sourceTickerConfig3 =
-            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.AllEnabled, QuoteLevel.Level3,
-                             0.00001m, 0.1m, 100, 0.1m, 250,
-                             layerDetails, 20, lastTradedFlags);
+            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.AllEnabled, Level3, Unknown
+                           , 0.00001m, 0.1m, 100, 0.1m, 250
+                           , layerDetails, 20, lastTradedFlags);
         sourceTickerConfigs = new SourceTickersConfig(sourceTickerConfig1, sourceTickerConfig2, sourceTickerConfig3);
         pricingServerConfig =
             new PricingServerConfig
@@ -82,16 +86,13 @@ public class PQServerTests
                      ("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor
                     , new[]
                       {
-                          new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                                           , TestMachineConfig.ServerSnapshotPort)
+                          new EndpointConfig(LoopBackIpAddress, ServerSnapshotPort)
                       })
                , new NetworkTopicConnectionConfig
                      ("TestUpdateServer", SocketConversationProtocol.UdpPublisher
                     , new[]
                       {
-                          new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                                           , TestMachineConfig.ServerUpdatePort
-                                           , TestMachineConfig.NetworkSubAddress)
+                          new EndpointConfig(LoopBackIpAddress, ServerUpdatePort, NetworkSubAddress)
                       }
                     , connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast));
         marketConnectionConfig

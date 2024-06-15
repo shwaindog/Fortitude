@@ -79,7 +79,7 @@ public struct MarketClassification
     public MarketClassification(uint compoundedClassification) => CompoundedClassification = compoundedClassification;
 
     public MarketClassification(MarketType marketType, ProductType productType, MarketRegion marketRegion = MarketRegion.Global) =>
-        CompoundedClassification = ((uint)marketRegion << 16) | ((uint)marketType << 8) | (uint)marketType;
+        CompoundedClassification = ((uint)marketRegion << 16) | ((uint)productType << 8) | (uint)marketType;
 
     public MarketType   MarketType   => (MarketType)(CompoundedClassification & 0xFF);
     public ProductType  ProductType  => (ProductType)((CompoundedClassification >> 8) & 0xFF);
