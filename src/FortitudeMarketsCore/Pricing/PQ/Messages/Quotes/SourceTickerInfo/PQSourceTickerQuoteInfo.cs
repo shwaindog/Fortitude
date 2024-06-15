@@ -3,11 +3,13 @@
 
 #region
 
+using System.Diagnostics;
 using System.Globalization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -27,6 +29,7 @@ public interface IPQSourceTickerQuoteInfo : ISourceTickerQuoteInfo, IPQQuotePubl
     bool IsSourceUpdated                 { get; set; }
     bool IsTickerUpdated                 { get; set; }
     bool IsPublishedQuoteLevelUpdated    { get; set; }
+    bool IsMarketClassificationUpdated   { get; set; }
     bool IsRoundingPrecisionUpdated      { get; set; }
     bool IsMinSubmitSizeUpdated          { get; set; }
     bool IsMaxSubmitSizeUpdated          { get; set; }
@@ -47,25 +50,27 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
     private decimal         incrementSize;
     private LastTradedFlags lastTradedFlags;
     private LayerFlags      layerFlags;
-    private byte            maximumPublishedLayers;
-    private decimal         maxSubmitSize;
-    private ushort          minimumQuoteLife;
-    private decimal         minSubmitSize;
 
-    private QuoteLevel publishedQuoteLevel = QuoteLevel.Level2;
-    private decimal    roundingPrecision;
-    private string     source = "";
-    private ushort     sourceId;
-    private string     ticker = "";
-    private ushort     tickerId;
+    private MarketClassification marketClassification;
+    private byte                 maximumPublishedLayers;
+    private decimal              maxSubmitSize;
+    private ushort               minimumQuoteLife;
+    private decimal              minSubmitSize;
+    private QuoteLevel           publishedQuoteLevel = QuoteLevel.Level2;
+
+    private decimal roundingPrecision;
+    private string  source = "";
+    private ushort  sourceId;
+    private string  ticker = "";
+    private ushort  tickerId;
 
     protected SourceTickerInfoUpdatedFlags UpdatedFlags;
 
     public PQSourceTickerQuoteInfo() => formatPrice = "";
 
     public PQSourceTickerQuoteInfo(ushort sourceId, string source, ushort tickerId, string ticker, QuoteLevel publishedQuoteLevel,
-        byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.0001m, decimal minSubmitSize = 0.01m,
-        decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m, ushort minimumQuoteLife = 100,
+        MarketClassification marketClassification, byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.0001m,
+        decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m, ushort minimumQuoteLife = 100,
         LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
         SourceId = sourceId;
@@ -73,6 +78,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         Source   = source;
         Ticker   = ticker;
 
+        MarketClassification   = marketClassification;
         PublishedQuoteLevel    = publishedQuoteLevel;
         MaximumPublishedLayers = maximumPublishedLayers;
         RoundingPrecision      = roundingPrecision;
@@ -83,6 +89,8 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         MinimumQuoteLife = minimumQuoteLife;
         LayerFlags       = layerFlags;
         LastTradedFlags  = lastTradedFlags;
+
+        Category = PublishedQuoteLevel.ToString();
     }
 
     public PQSourceTickerQuoteInfo(ISourceTickerQuoteInfo toClone)
@@ -93,6 +101,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         Ticker   = toClone.Ticker;
 
         PublishedQuoteLevel    = toClone.PublishedQuoteLevel;
+        MarketClassification   = toClone.MarketClassification;
         MaximumPublishedLayers = toClone.MaximumPublishedLayers;
         RoundingPrecision      = toClone.RoundingPrecision;
 
@@ -103,13 +112,16 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         LayerFlags       = toClone.LayerFlags;
         LastTradedFlags  = toClone.LastTradedFlags;
 
+        Category = PublishedQuoteLevel.ToString();
+
         if (toClone is IPQSourceTickerQuoteInfo pubToClone)
         {
             IsIdUpdated     = pubToClone.IsIdUpdated;
             IsSourceUpdated = pubToClone.IsSourceUpdated;
             IsTickerUpdated = pubToClone.IsTickerUpdated;
 
-            PublishedQuoteLevel             = pubToClone.PublishedQuoteLevel;
+            IsPublishedQuoteLevelUpdated    = pubToClone.IsPublishedQuoteLevelUpdated;
+            IsMarketClassificationUpdated   = pubToClone.IsMarketClassificationUpdated;
             IsMaximumPublishedLayersUpdated = pubToClone.IsMaximumPublishedLayersUpdated;
             IsRoundingPrecisionUpdated      = pubToClone.IsRoundingPrecisionUpdated;
 
@@ -187,6 +199,17 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             if (publishedQuoteLevel == value) return;
             IsPublishedQuoteLevelUpdated = true;
             publishedQuoteLevel          = value;
+        }
+    }
+
+    public MarketClassification MarketClassification
+    {
+        get => marketClassification;
+        set
+        {
+            if (Equals(marketClassification, value)) return;
+            IsMarketClassificationUpdated = true;
+            marketClassification          = value;
         }
     }
 
@@ -337,6 +360,18 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         }
     }
 
+    public bool IsMarketClassificationUpdated
+    {
+        get => (UpdatedFlags & SourceTickerInfoUpdatedFlags.MarketClassification) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= SourceTickerInfoUpdatedFlags.MarketClassification;
+
+            else if (IsMarketClassificationUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.MarketClassification;
+        }
+    }
+
     public bool IsPublishedQuoteLevelUpdated
     {
         get => (UpdatedFlags & SourceTickerInfoUpdatedFlags.PublishedQuoteLevel) > 0;
@@ -345,7 +380,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             if (value)
                 UpdatedFlags |= SourceTickerInfoUpdatedFlags.PublishedQuoteLevel;
 
-            else if (IsRoundingPrecisionUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.PublishedQuoteLevel;
+            else if (IsPublishedQuoteLevelUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.PublishedQuoteLevel;
         }
     }
 
@@ -445,6 +480,13 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         }
     }
 
+    string IInstrument.InstrumentName => Ticker;
+    string IInstrument.SourceName     => Source;
+
+    public string?          Category    { get; set; }
+    public TimeSeriesPeriod EntryPeriod { get; set; } = TimeSeriesPeriod.Tick;
+    public InstrumentType   Type        { get; set; } = InstrumentType.Price;
+
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
     public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFieldKeys.SourceTickerNames);
@@ -460,9 +502,10 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         var tickerNameSame = string.Equals(Ticker, other.Ticker);
         var quoteLevelSame = PublishedQuoteLevel == other.PublishedQuoteLevel;
 
-        var maxPublishLayersSame  = MaximumPublishedLayers == other?.MaximumPublishedLayers;
-        var minQuoteLifeSame      = MinimumQuoteLife == other?.MinimumQuoteLife;
-        var roundingPrecisionSame = RoundingPrecision == other?.RoundingPrecision;
+        var marketClassificationSame = Equals(MarketClassification, other.MarketClassification);
+        var maxPublishLayersSame     = MaximumPublishedLayers == other?.MaximumPublishedLayers;
+        var minQuoteLifeSame         = MinimumQuoteLife == other?.MinimumQuoteLife;
+        var roundingPrecisionSame    = RoundingPrecision == other?.RoundingPrecision;
 
         var minSubmitSizeSame   = MinSubmitSize == other?.MinSubmitSize;
         var maxSubmitSizeSame   = MaxSubmitSize == other?.MaxSubmitSize;
@@ -477,9 +520,11 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             updatesSame = UpdatedFlags == pqUniqSrcTrkId!.UpdatedFlags;
         }
 
-        return sourceIdSame && tickerIdSame && sourceNameSame && tickerNameSame && quoteLevelSame && roundingPrecisionSame
-            && minSubmitSizeSame && maxSubmitSizeSame && incrementSizeSame && minQuoteLifeSame && layerFlagsSame
-            && maxPublishLayersSame && lastTradedFlagsSame && updatesSame;
+        var allAreSame = sourceIdSame && tickerIdSame && sourceNameSame && tickerNameSame && quoteLevelSame && marketClassificationSame
+                      && roundingPrecisionSame && minSubmitSizeSame && maxSubmitSizeSame && incrementSizeSame && minQuoteLifeSame
+                      && layerFlagsSame && maxPublishLayersSame && lastTradedFlagsSame && updatesSame;
+        if (!allAreSame) Debugger.Break();
+        return allAreSame;
     }
 
     IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
@@ -508,6 +553,8 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         if (!updatedOnly || IsPublishedQuoteLevelUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.PublishQuoteLevelType, (byte)PublishedQuoteLevel);
         if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, Id);
+        if (!updatedOnly || IsMarketClassificationUpdated)
+            yield return new PQFieldUpdate(PQFieldKeys.MarketClassification, MarketClassification.CompoundedClassification);
         if (!updatedOnly || IsRoundingPrecisionUpdated)
         {
             var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(RoundingPrecision)[3])[2];
@@ -595,6 +642,9 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             case PQFieldKeys.PublishQuoteLevelType:
                 PublishedQuoteLevel = (QuoteLevel)fieldUpdate.Value;
                 return 0;
+            case PQFieldKeys.MarketClassification:
+                MarketClassification = new MarketClassification(fieldUpdate.Value);
+                return 0;
             case PQFieldKeys.SourceTickerNames:
                 return (int)fieldUpdate.Value;
             case PQFieldKeys.RoundingPrecision:
@@ -651,6 +701,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         if (source.IsSourceUpdated || hasFullReplace) Ticker = source.Ticker;
 
         if (source.IsPublishedQuoteLevelUpdated || hasFullReplace) PublishedQuoteLevel = source.PublishedQuoteLevel;
+        if (source.IsMarketClassificationUpdated) MarketClassification                 = source.MarketClassification;
         if (source.IsRoundingPrecisionUpdated || hasFullReplace) RoundingPrecision     = source.RoundingPrecision;
         if (source.IsMinimumQuoteLifeUpdated || hasFullReplace) MinimumQuoteLife       = source.MinimumQuoteLife;
 
@@ -672,9 +723,10 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             if (pqSrcTkrQtInfo.IsSourceUpdated) Source = pqSrcTkrQtInfo.Source;
             if (pqSrcTkrQtInfo.IsSourceUpdated) Ticker = pqSrcTkrQtInfo.Ticker;
 
-            if (pqSrcTkrQtInfo.IsPublishedQuoteLevelUpdated) PublishedQuoteLevel = pqSrcTkrQtInfo.PublishedQuoteLevel;
-            if (pqSrcTkrQtInfo.IsRoundingPrecisionUpdated) RoundingPrecision     = pqSrcTkrQtInfo.RoundingPrecision;
-            if (pqSrcTkrQtInfo.IsMinimumQuoteLifeUpdated) MinimumQuoteLife       = pqSrcTkrQtInfo.MinimumQuoteLife;
+            if (pqSrcTkrQtInfo.IsPublishedQuoteLevelUpdated) PublishedQuoteLevel   = pqSrcTkrQtInfo.PublishedQuoteLevel;
+            if (pqSrcTkrQtInfo.IsMarketClassificationUpdated) MarketClassification = pqSrcTkrQtInfo.MarketClassification;
+            if (pqSrcTkrQtInfo.IsRoundingPrecisionUpdated) RoundingPrecision       = pqSrcTkrQtInfo.RoundingPrecision;
+            if (pqSrcTkrQtInfo.IsMinimumQuoteLifeUpdated) MinimumQuoteLife         = pqSrcTkrQtInfo.MinimumQuoteLife;
 
             if (pqSrcTkrQtInfo.IsMinSubmitSizeUpdated) MinSubmitSize = pqSrcTkrQtInfo.MinSubmitSize;
             if (pqSrcTkrQtInfo.IsMaxSubmitSizeUpdated) MaxSubmitSize = pqSrcTkrQtInfo.MaxSubmitSize;
@@ -692,6 +744,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             Ticker   = source.Ticker;
 
             PublishedQuoteLevel    = source.PublishedQuoteLevel;
+            MarketClassification   = source.MarketClassification;
             MaximumPublishedLayers = source.MaximumPublishedLayers;
             RoundingPrecision      = source.RoundingPrecision;
 
@@ -702,6 +755,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             LayerFlags       = source.LayerFlags;
             LastTradedFlags  = source.LastTradedFlags;
         }
+        Category = source.Category;
 
         return this;
     }
@@ -717,6 +771,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             hashCode = (hashCode * 397) ^ Source.GetHashCode();
             hashCode = (hashCode * 397) ^ Ticker.GetHashCode();
             hashCode = (hashCode * 397) ^ PublishedQuoteLevel.GetHashCode();
+            hashCode = (hashCode * 397) ^ MarketClassification.GetHashCode();
             hashCode = (hashCode * 397) ^ RoundingPrecision.GetHashCode();
             hashCode = (hashCode * 397) ^ MinSubmitSize.GetHashCode();
             hashCode = (hashCode * 397) ^ MaxSubmitSize.GetHashCode();
@@ -730,8 +785,10 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
     }
 
     public override string ToString() =>
-        $"PQSourceTickerQuoteInfo({nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, {nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker}," +
-        $" {nameof(PublishedQuoteLevel)}: {publishedQuoteLevel}, {nameof(RoundingPrecision)}: {roundingPrecision}, {nameof(MinSubmitSize)}: {minSubmitSize}, " +
+        $"PQSourceTickerQuoteInfo({nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, {nameof(TickerId)}: {TickerId}, " +
+        $"{nameof(Ticker)}: {Ticker}, {nameof(PublishedQuoteLevel)}: {publishedQuoteLevel}, " +
+        $"{nameof(MarketClassification)}: {marketClassification}, {nameof(MaximumPublishedLayers)}: {maximumPublishedLayers}, " +
+        $"{nameof(RoundingPrecision)}: {roundingPrecision}, {nameof(MinSubmitSize)}: {minSubmitSize}, " +
         $"{nameof(MaxSubmitSize)}: {maxSubmitSize}, {nameof(IncrementSize)}: {incrementSize}, {nameof(MinimumQuoteLife)}: {minimumQuoteLife}, " +
-        $"{nameof(LayerFlags)}: {layerFlags}, {nameof(MaximumPublishedLayers)}: {maximumPublishedLayers}, {nameof(LastTradedFlags)}: {lastTradedFlags})";
+        $"{nameof(LayerFlags)}: {layerFlags}, {nameof(LastTradedFlags)}: {lastTradedFlags})";
 }

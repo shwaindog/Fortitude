@@ -20,4 +20,7 @@ public struct TimeSeriesPeriodRange
 public static class TimeSeriesPeriodRangeExtensions
 {
     public static DateTime PeriodEnd(this TimeSeriesPeriodRange range) => range.TimeSeriesPeriod.PeriodEnd(range.PeriodStartTime);
+
+    public static bool ContainsTime(this TimeSeriesPeriodRange range, DateTime checkTime) =>
+        range.PeriodStartTime <= checkTime && range.PeriodEnd() > checkTime;
 }

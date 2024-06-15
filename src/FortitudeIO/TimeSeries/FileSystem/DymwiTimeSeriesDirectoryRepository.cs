@@ -4,7 +4,7 @@
 #region
 
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
-using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.TimeSeriesPathNameComponent;
+using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
 
 #endregion
 
@@ -12,47 +12,100 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 
 /// <summary>
 ///     Decade Year Month Week Instrument Time Series File Repository organises time series files by Decade Year, Month,
-///     Month Week Number and Instrument Name
+///     Month Week Number MarketType_MarketRegion and Instrument Name
 /// </summary>
 public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
 {
     protected DymwiTimeSeriesDirectoryRepository(RepositoryInfo repositoryInfo) : base(repositoryInfo) { }
 
 
-    public static DymwiTimeSeriesDirectoryRepository OpenRepository(IRepoStructureBuilder repoStructureBuilder)
+    public static DymwiTimeSeriesDirectoryRepository OpenRepository(IRepoPathBuilder repoPathBuilder)
     {
-        if (!repoStructureBuilder.RepositoryRootDirectory.Exists)
+        if (!repoPathBuilder.RepositoryRootDirectory.Exists)
         {
-            if (repoStructureBuilder.CreateIfNotExists)
-                repoStructureBuilder.RepositoryRootDirectory.Create();
+            if (repoPathBuilder.CreateIfNotExists)
+                repoPathBuilder.RepositoryRootDirectory.Create();
             else
-                throw new Exception($"Directory at {repoStructureBuilder.RepositoryRootDirectory.FullName} does not exist and will not be created");
+                throw new Exception($"Directory at {repoPathBuilder.RepositoryRootDirectory.FullName} does not exist and will not be created");
         }
-        var repoRootDir = new RepositoryRootDirectoryStructure(repoStructureBuilder.RepositoryName, repoStructureBuilder.RepositoryRootDirectory)
+        var repoRootDir = repoPathBuilder.CreateRepositoryRootDirectory();
+        repoRootDir.Children = new List<IPathPart>
         {
-            repoStructureBuilder.CreatePriceSummaryTimeSeriesFile(TimeSeriesPeriod.OneYear, TimeSeriesPeriod.OneYear)
-          , repoStructureBuilder.CreateIndicatorTimeSeriesFile(TimeSeriesPeriod.OneYear, TimeSeriesPeriod.OneYear)
-          , new TimeSeriesDirectoryStructure(new TimeSeriesPathNameFormat(Decade))
+            new PathDirectory(new PathName(Constant, "Summaries"))
             {
-                repoStructureBuilder.CreatePriceSummaryTimeSeriesFile(TimeSeriesPeriod.OneWeek, TimeSeriesPeriod.OneMonth)
-              , repoStructureBuilder.CreateIndicatorTimeSeriesFile(TimeSeriesPeriod.OneWeek, TimeSeriesPeriod.OneMonth)
-              , new TimeSeriesDirectoryStructure(new TimeSeriesPathNameFormat(Year))
+                new PathDirectory(new PathName(RepositoryPathName.MarketType),
+                                  new PathName(RepositoryPathName.MarketRegion))
                 {
-                    repoStructureBuilder.CreatePriceSummaryTimeSeriesFile(TimeSeriesPeriod.FourHours, TimeSeriesPeriod.FourHours)
-                  , repoStructureBuilder.CreateIndicatorTimeSeriesFile(TimeSeriesPeriod.FourHours, TimeSeriesPeriod.FourHours)
-                  , new TimeSeriesDirectoryStructure(new TimeSeriesPathNameFormat(Month))
+                    new PathDirectory(new PathName(InstrumentName))
                     {
-                        repoStructureBuilder.CreatePriceSummaryTimeSeriesFile(TimeSeriesPeriod.TenMinutes, TimeSeriesPeriod.OneHour)
-                      , repoStructureBuilder.CreateIndicatorTimeSeriesFile(TimeSeriesPeriod.TenMinutes, TimeSeriesPeriod.OneHour)
-                      , repoStructureBuilder.CreateAlgoStateTimeSeriesFile()
-                      , new TimeSeriesDirectoryStructure(new TimeSeriesPathNameFormat(WeekOfMonth))
+                        repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.OneYear, TimeSeriesPeriod.OneYear)
+                      , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.OneYear, TimeSeriesPeriod.OneYear)
+                    }
+                }
+            }
+          , new PathDirectory(new PathName(Decade))
+            {
+                new PathDirectory(new PathName(Constant, "Summaries"))
+                {
+                    new PathDirectory(new PathName(RepositoryPathName.MarketType),
+                                      new PathName(RepositoryPathName.MarketRegion))
+                    {
+                        new PathDirectory(new PathName(InstrumentName))
                         {
-                            new TimeSeriesDirectoryStructure(new TimeSeriesPathNameFormat(InstrumentName))
+                            repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.OneWeek, TimeSeriesPeriod.OneMonth)
+                          , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.OneWeek, TimeSeriesPeriod.OneMonth)
+                        }
+                    }
+                }
+              , new PathDirectory(new PathName(Year))
+                {
+                    new PathDirectory(new PathName(Constant, "Summaries"))
+                    {
+                        new PathDirectory(new PathName(RepositoryPathName.MarketType),
+                                          new PathName(RepositoryPathName.MarketRegion))
+                        {
+                            new PathDirectory(new PathName(InstrumentName))
                             {
-                                repoStructureBuilder.CreatePriceTimeSeriesFile(TimeSeriesPeriod.Tick)
-                              , repoStructureBuilder.CreatePriceSummaryTimeSeriesFile(TimeSeriesPeriod.FifteenSeconds, TimeSeriesPeriod.FiveMinutes)
-                              , repoStructureBuilder.CreateIndicatorTimeSeriesFile(TimeSeriesPeriod.FifteenSeconds, TimeSeriesPeriod.FiveMinutes)
-                              , repoStructureBuilder.CreateAlgoSignalTimeSeriesFile()
+                                repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.FourHours, TimeSeriesPeriod.FourHours)
+                              , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.FourHours, TimeSeriesPeriod.FourHours)
+                            }
+                        }
+                    }
+                  , new PathDirectory(new PathName(Month))
+                    {
+                        new PathDirectory(new PathName(Constant, "Summaries"))
+                        {
+                            new PathDirectory(new PathName(RepositoryPathName.MarketType),
+                                              new PathName(RepositoryPathName.MarketRegion))
+                            {
+                                new PathDirectory(new PathName(InstrumentName))
+                                {
+                                    repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.TenMinutes, TimeSeriesPeriod.OneHour)
+                                  , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.TenMinutes, TimeSeriesPeriod.OneHour)
+                                }
+                            }
+                        }
+                      , new PathDirectory(new PathName(Constant, "AlgoState"))
+                        {
+                            repoPathBuilder.AlgoStateFile()
+                        }
+                      , new PathDirectory(new PathName(WeekOfMonth))
+                        {
+                            new PathDirectory(new PathName(RepositoryPathName.MarketType),
+                                              new PathName(RepositoryPathName.MarketRegion))
+                            {
+                                new PathDirectory(new PathName(InstrumentName))
+                                {
+                                    repoPathBuilder.PriceFile(TimeSeriesPeriod.Tick)
+                                  , repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.FifteenSeconds
+                                                                   , TimeSeriesPeriod.FiveMinutes)
+                                  , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.FifteenSeconds,
+                                                                  TimeSeriesPeriod.FiveMinutes)
+                                }
+                            }
+                          , new PathDirectory(new PathName(Constant, "AlgoSignals"))
+                            {
+                                repoPathBuilder.AlgoSignalFile()
                             }
                         }
                     }
@@ -60,7 +113,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
             }
         };
 
-        var repositoryInfo = new RepositoryInfo(repoRootDir, repoStructureBuilder.Proximity);
+        var repositoryInfo = new RepositoryInfo(repoRootDir, repoPathBuilder.Proximity, repoPathBuilder.TimeSeriesFileExtension);
         return new DymwiTimeSeriesDirectoryRepository(repositoryInfo);
     }
 }

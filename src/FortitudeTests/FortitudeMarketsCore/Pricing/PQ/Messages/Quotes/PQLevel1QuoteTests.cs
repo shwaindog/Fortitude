@@ -21,6 +21,8 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 using static FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates.PQBooleanValues;
 
 #endregion
@@ -42,13 +44,13 @@ public class PQLevel1QuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-                                                          "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-                                                          LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-                                                        | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                        | LastTradedFlags.LastTradedVolume |
-                                                          LastTradedFlags.LastTradedTime);
-        blankSourceTickerQuoteInfo  = new SourceTickerQuoteInfo(0, "", 0, "", QuoteLevel.Level1);
+        sourceTickerQuoteInfo =
+            new SourceTickerQuoteInfo
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+               , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        blankSourceTickerQuoteInfo  = new SourceTickerQuoteInfo(0, "", 0, "", Level1, Unknown);
         emptyQuote                  = new PQLevel1Quote(sourceTickerQuoteInfo) { HasUpdates = false };
         fullyPopulatedPqLevel1Quote = new PQLevel1Quote(sourceTickerQuoteInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedPqLevel1Quote, 1);
@@ -746,7 +748,7 @@ public class PQLevel1QuoteTests
 
     internal class DummyLevel1Quote : PQLevel0QuoteTests.DummyPQLevel0Quote, IPQLevel1Quote
     {
-        public override QuoteLevel QuoteLevel => QuoteLevel.Level1;
+        public override QuoteLevel QuoteLevel => Level1;
 
         IMutablePricePeriodSummary? IMutableLevel1Quote.SummaryPeriod
         {

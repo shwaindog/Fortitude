@@ -31,7 +31,7 @@ public class PriceQuoteTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<T
     public PriceQuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.TimeSeriesFileParameters)
     {
-        Header.FileFlags        |= FileFlags.HasSubFileHeader;
+        Header.FileFlags        |= FileFlags.HasSubFileHeader | FileFlags.HasInternalIndexInHeader;
         Header.SubHeaderFactory =  (view, offset, writable) => new PriceQuoteFileSubHeader(sourceTickerTimeSeriesFileParams, view, offset, writable);
         PriceQuoteFileHeader    =  (IPriceQuoteFileHeader)Header.SubHeader!;
 

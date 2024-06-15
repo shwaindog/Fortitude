@@ -200,7 +200,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         MaxHeaderTypeTextSizeBytes = timeSeriesFileParameters.MaxTypeStringSizeBytes;
         MaxHeaderTextSizeBytes = timeSeriesFileParameters.MaxStringSizeBytes;
         // ReSharper disable once VirtualMemberCallInConstructor
-        FileHeaderSize = (uint)(EndOfHeaderSectionFileOffset - 2);
+        FileHeaderSize               = (uint)(EndOfHeaderSectionFileOffset - 2);
         if(FileFlags.HasInternalIndexInHeaderFlag() && InternalIndexMaxSize > 0)
         {
             writableV1HeaderBody->InternalIndexFileStartOffset = StartOfIndexFileOffset;
@@ -233,9 +233,10 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 
         FilePeriod = timeSeriesFileParameters.FilePeriod;
         FileStartPeriod = timeSeriesFileParameters.FilePeriod.ContainingPeriodBoundaryStart(timeSeriesFileParameters.FileStartPeriod);
-        InstrumentType = timeSeriesFileParameters.Instrument.TimeSeriesType;
+        InstrumentType = timeSeriesFileParameters.Instrument.Type;
 
-        TotalHeaderSizeBytes = FileHeaderSize + 2;
+        TotalHeaderSizeBytes  = FileHeaderSize + 2;
+
         cacheV1HeaderBody = *writableV1HeaderBody;
     }
 

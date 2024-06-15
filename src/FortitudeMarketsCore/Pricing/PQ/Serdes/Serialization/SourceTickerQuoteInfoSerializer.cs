@@ -68,6 +68,7 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
         StreamByteOps.ToBytes(ref currPtr, message.SourceId);
         StreamByteOps.ToBytes(ref currPtr, message.TickerId);
         *currPtr++ = (byte)message.PublishedQuoteLevel;
+        StreamByteOps.ToBytes(ref currPtr, message.MarketClassification.CompoundedClassification);
         StreamByteOps.ToBytes(ref currPtr, message.RoundingPrecision);
         StreamByteOps.ToBytes(ref currPtr, message.MinSubmitSize);
         StreamByteOps.ToBytes(ref currPtr, message.MaxSubmitSize);

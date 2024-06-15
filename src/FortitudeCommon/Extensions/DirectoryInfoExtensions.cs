@@ -20,4 +20,26 @@ public static class DirectoryInfoExtensions
         foreach (var subDirMatches in RecursiveFindFiles(subDir, filePattern))
             yield return subDirMatches;
     }
+
+    public static bool RecursiveDelete(this DirectoryInfo deleteDir)
+    {
+        try
+        {
+            foreach (var match in deleteDir.GetFiles())
+            {
+                match.Delete();
+                if (match.Exists) return false;
+            }
+            foreach (var subDir in deleteDir.GetDirectories())
+                if (!RecursiveDelete(subDir))
+                    return false;
+            deleteDir.Delete();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Could not delete file or directory {0}.  Got {1}", deleteDir.FullName, ex);
+            return false;
+        }
+    }
 }

@@ -5,51 +5,57 @@
 
 using System.Globalization;
 using FortitudeCommon.Extensions;
+using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
 
 #endregion
 
 namespace FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 
-public class TimeSeriesPathNameFormat
+public class PathName
 {
-    public TimeSeriesPathNameFormat(TimeSeriesPathNameComponent pathPart, string? formatString = null)
+    public PathName(RepositoryPathName pathPart, string? formatString = null)
     {
         PathPart = pathPart;
         if (formatString == null)
             FormatString = PathPart switch
                            {
-                               TimeSeriesPathNameComponent.Decade                                                => "{0:YYYY}"
-                             , TimeSeriesPathNameComponent.Year                                                  => "{0:YY}"
-                             , TimeSeriesPathNameComponent.Month                                                 => "{0:MM-MMM}"
-                             , TimeSeriesPathNameComponent.WeekOfYear or TimeSeriesPathNameComponent.WeekOfMonth => "Week_{0:00}"
-                             , TimeSeriesPathNameComponent.Day                                                   => "{0:DD}"
-                             , TimeSeriesPathNameComponent.Hour                                                  => "{0:HH}"
-                             , TimeSeriesPathNameComponent.InstrumentName or TimeSeriesPathNameComponent.SourceName
-                                                                          or TimeSeriesPathNameComponent.Category
-                                                                          or TimeSeriesPathNameComponent.EntryPeriod
-                                                                          or TimeSeriesPathNameComponent.FilePeriod
-                                                                          or TimeSeriesPathNameComponent.TimeSeriesType => "{0}"
+                               Decade             => "{0:yyyy}s"
+                             , Year               => "{0:yy}"
+                             , Month              => "{0:MM-MMM}"
+                             , WeekOfMonth        => "Week-{0}"
+                             , WeekOfYear         => "Week-{0:00}"
+                             , Day                => "{0:dd}"
+                             , DirectoryStartDate => "{0:yyyy-MM-dd}"
+                             , Hour               => "{0:HH}"
+                             , InstrumentName or SourceName
+                                              or Category
+                                              or EntryPeriod
+                                              or FilePeriod
+                                              or TimeSeriesType
+                                              or RepositoryPathName.MarketRegion
+                                              or MarketProductType
+                                              or RepositoryPathName.MarketType => "{0}"
                              , _ => throw new Exception($"No default formatting defined for {pathPart}")
                            };
         else
             FormatString = formatString;
     }
 
-    public TimeSeriesPathNameComponent PathPart { get; }
+    public RepositoryPathName PathPart { get; }
 
     public string FormatString { get; }
 
-    public string? GetString(Instrument instrument, DateTime timeInPeriod)
+    public string? GetString(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forTimeSeriesPeriod)
     {
         switch (PathPart)
         {
-            case TimeSeriesPathNameComponent.Decade:
-                var decade = timeInPeriod.ToUniversalTime().TruncToDecadeBoundary().Year;
+            case Decade:
+                var decade = timeInPeriod.ToUniversalTime().TruncToDecadeBoundary();
                 return string.Format(FormatString, decade);
-            case TimeSeriesPathNameComponent.Quarter:
+            case Quarter:
                 var quarter = timeInPeriod.ToUniversalTime().Month / 4 + 1;
                 return string.Format(FormatString, quarter);
-            case TimeSeriesPathNameComponent.WeekOfMonth:
+            case WeekOfMonth:
                 var periodStart = timeInPeriod.ToUniversalTime().TruncToWeekBoundary();
                 var weekNumber  = 1;
                 var weekMonth   = periodStart.Month;
@@ -60,7 +66,7 @@ public class TimeSeriesPathNameFormat
                     currentWeek = currentWeek.AddDays(-7);
                 }
                 return string.Format(FormatString, weekNumber);
-            case TimeSeriesPathNameComponent.WeekOfYear:
+            case WeekOfYear:
                 var startPeriod    = timeInPeriod.ToUniversalTime().TruncToWeekBoundary();
                 var currWeekNumber = 1;
                 var weekYear       = startPeriod.Year;
@@ -71,24 +77,34 @@ public class TimeSeriesPathNameFormat
                     checkWeek = checkWeek.AddDays(-7);
                 }
                 return string.Format(FormatString, currWeekNumber);
-            case TimeSeriesPathNameComponent.Year:
-            case TimeSeriesPathNameComponent.Month:
-            case TimeSeriesPathNameComponent.Day:
-            case TimeSeriesPathNameComponent.Hour:
+            case DirectoryStartDate:
+                var weekStart = timeInPeriod.ToUniversalTime().TruncToWeekBoundary();
+                return string.Format(FormatString, weekStart);
+            case Year:
+            case Month:
+            case Day:
+            case Hour:
                 return string.Format(FormatString, timeInPeriod);
-            case TimeSeriesPathNameComponent.InstrumentName:
+            case InstrumentName:
                 return string.Format(FormatString, instrument.InstrumentName);
-            case TimeSeriesPathNameComponent.Category:
-                return instrument.Category != null ? string.Format(FormatString, instrument.Category) : null;
-            case TimeSeriesPathNameComponent.SourceName:
+            case SourceName:
                 return string.Format(FormatString, instrument.SourceName);
-            case TimeSeriesPathNameComponent.TimeSeriesType:
-                return string.Format(FormatString, instrument.TimeSeriesType);
-            case TimeSeriesPathNameComponent.EntryPeriod:
+            case TimeSeriesType:
+                return string.Format(FormatString, instrument.Type);
+            case MarketProductType:
+                return string.Format(FormatString, instrument.MarketClassification.ProductType);
+            case RepositoryPathName.MarketRegion:
+                return string.Format(FormatString, instrument.MarketClassification.MarketRegion);
+            case RepositoryPathName.MarketType:
+                return string.Format(FormatString, instrument.MarketClassification.MarketType);
+            case Category:
+                return instrument.Category != null ? string.Format(FormatString, instrument.Category) : null;
+            case EntryPeriod:
                 return string.Format(FormatString, instrument.EntryPeriod.ShortName());
-            case TimeSeriesPathNameComponent.None:
+            case Constant:
                 return FormatString;
-            case TimeSeriesPathNameComponent.FilePeriod:
+            case FilePeriod:
+                return string.Format(FormatString, forTimeSeriesPeriod.ShortName());
             default: throw new Exception($"TimeSeriesFilePathType {PathPart} can not be converted to a TimeSeriesFilePathFormat");
         }
     }
@@ -97,39 +113,39 @@ public class TimeSeriesPathNameFormat
     {
         switch (PathPart)
         {
-            case TimeSeriesPathNameComponent.Decade:
+            case Decade:
                 var checkDecade = check.SafeExtractInt();
                 return checkDecade is > 1900 and < 3000;
-            case TimeSeriesPathNameComponent.Quarter:
+            case Quarter:
                 var checkQuarter = check.SafeExtractInt();
                 return checkQuarter is > 0 and < 5;
-            case TimeSeriesPathNameComponent.WeekOfMonth:
+            case WeekOfMonth:
                 var weekOfMonth = check.SafeExtractInt();
                 return weekOfMonth is > 0 and < 5;
-            case TimeSeriesPathNameComponent.WeekOfYear:
+            case WeekOfYear:
                 var weekOfYear = check.SafeExtractInt();
                 return weekOfYear is > 0 and < 53;
-            case TimeSeriesPathNameComponent.Year:
+            case Year:
                 var checkYear = check.SafeExtractInt();
                 return checkYear is > 1900 and < 3000;
-            case TimeSeriesPathNameComponent.Month:
+            case Month:
                 var checkMonth = check.SafeExtractInt();
                 return checkMonth is > 0 and < 13;
-            case TimeSeriesPathNameComponent.Day:
+            case Day:
                 var checkDay = check.SafeExtractInt();
                 return checkDay is > 0 and < 32;
-            case TimeSeriesPathNameComponent.Hour:
+            case Hour:
                 var checkHour = check.SafeExtractInt();
                 return checkHour is >= 0 and < 25;
-            case TimeSeriesPathNameComponent.InstrumentName:
-            case TimeSeriesPathNameComponent.Category:
-            case TimeSeriesPathNameComponent.SourceName:
-            case TimeSeriesPathNameComponent.None:
+            case InstrumentName:
+            case Category:
+            case SourceName:
+            case Constant:
                 return true;
-            case TimeSeriesPathNameComponent.TimeSeriesType:
+            case TimeSeriesType:
                 return Enum.TryParse<InstrumentType>(check, true, out var ignored);
-            case TimeSeriesPathNameComponent.FilePeriod:
-            case TimeSeriesPathNameComponent.EntryPeriod:
+            case FilePeriod:
+            case EntryPeriod:
                 return check.FromShortName() != TimeSeriesPeriod.None;
             default: throw new Exception($"TimeSeriesFilePathType {PathPart} interpreted as a valid type");
         }
@@ -139,8 +155,8 @@ public class TimeSeriesPathNameFormat
     {
         switch (PathPart)
         {
-            case TimeSeriesPathNameComponent.Year:
-            case TimeSeriesPathNameComponent.Decade:
+            case Year:
+            case Decade:
                 var succeeded = DateTime.TryParseExact(namePart, FormatString, null, DateTimeStyles.AdjustToUniversal, out var year);
                 return succeeded ? year : null;
             default: return null;
@@ -151,7 +167,7 @@ public class TimeSeriesPathNameFormat
     {
         switch (PathPart)
         {
-            case TimeSeriesPathNameComponent.Year:
+            case Year:
                 var yearInt = namePart.SafeExtractInt();
                 if (yearInt < 100)
                 {
@@ -160,19 +176,19 @@ public class TimeSeriesPathNameFormat
                 }
                 var yearSucceeded = DateTime.TryParseExact(namePart, FormatString, null, DateTimeStyles.AdjustToUniversal, out var year);
                 return yearSucceeded ? year : null;
-            case TimeSeriesPathNameComponent.Day:
-            case TimeSeriesPathNameComponent.Hour:
+            case Day:
+            case Hour:
                 var timeSpanSucceeded = TimeSpan.TryParseExact(namePart, FormatString, null, out var timeSpan);
                 return timeSpanSucceeded ? baseDate.Add(timeSpan) : null;
-            case TimeSeriesPathNameComponent.Month:
+            case Month:
                 var parseMonth = namePart.SafeExtractInt();
                 return parseMonth != null ? new DateTime(baseDate.Year, parseMonth.Value, 0).ToUniversalTime() : null;
-            case TimeSeriesPathNameComponent.WeekOfMonth:
+            case WeekOfMonth:
                 var monthWeekNum       = namePart.SafeExtractInt();
                 var firstDayOfMonth    = baseDate.DayOfWeek;
                 var firstSundayInMonth = firstDayOfMonth == DayOfWeek.Sunday ? baseDate : baseDate.AddDays(7 - (int)firstDayOfMonth);
                 return monthWeekNum != null ? firstSundayInMonth.AddDays(7 * (monthWeekNum.Value - 1)) : null;
-            case TimeSeriesPathNameComponent.WeekOfYear:
+            case WeekOfYear:
                 var yearWeekNum       = namePart.SafeExtractInt();
                 var firstDayOfYear    = baseDate.DayOfWeek;
                 var firstSundayInYear = firstDayOfYear == DayOfWeek.Sunday ? baseDate : baseDate.AddDays(7 - (int)firstDayOfYear);
@@ -185,8 +201,8 @@ public class TimeSeriesPathNameFormat
     {
         switch (PathPart)
         {
-            case TimeSeriesPathNameComponent.FilePeriod:
-            case TimeSeriesPathNameComponent.EntryPeriod:
+            case FilePeriod:
+            case EntryPeriod:
                 return namePart.FromShortName();
             default: return TimeSeriesPeriod.None;
         }

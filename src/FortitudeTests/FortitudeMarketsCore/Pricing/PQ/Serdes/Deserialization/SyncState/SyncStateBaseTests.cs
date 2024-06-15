@@ -16,6 +16,8 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using Moq;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -86,7 +88,7 @@ public class SyncStateBaseTests
     {
         SourceTickerQuoteInfo =
             new SourceTickerQuoteInfo
-                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
                , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
                , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
                , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);

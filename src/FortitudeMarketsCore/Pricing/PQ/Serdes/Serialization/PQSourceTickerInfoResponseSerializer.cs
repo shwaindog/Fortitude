@@ -90,6 +90,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.SourceId);
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.TickerId);
         *currPtr++ = (byte)sourceTickerQuoteInfo.PublishedQuoteLevel;
+        StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.MarketClassification.CompoundedClassification);
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.RoundingPrecision);
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.MinSubmitSize);
         StreamByteOps.ToBytes(ref currPtr, sourceTickerQuoteInfo.MaxSubmitSize);

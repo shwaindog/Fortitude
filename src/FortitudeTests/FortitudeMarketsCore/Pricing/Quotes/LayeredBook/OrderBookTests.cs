@@ -16,6 +16,8 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -102,12 +104,11 @@ public class OrderBookTests
             simpleFullyPopulatedOrderBook, sourceFullyPopulatedOrderBook, sourceQtRefFullyPopulatedOrderBook
           , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
         };
-        publicationPrecisionSettings = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, 20,
-                                                                 0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price
-                                                               , LastTradedFlags.PaidOrGiven |
-                                                                 LastTradedFlags.TraderName |
-                                                                 LastTradedFlags.LastTradedVolume |
-                                                                 LastTradedFlags.LastTradedTime);
+        publicationPrecisionSettings = new SourceTickerQuoteInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
     }
 
     [TestMethod]

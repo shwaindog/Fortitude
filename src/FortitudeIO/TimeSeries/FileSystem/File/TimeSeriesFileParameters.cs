@@ -10,7 +10,7 @@ public interface IDirectoryFileNameResolver
 
 public struct TimeSeriesFileParameters
 {
-    public TimeSeriesFileParameters(FileInfo timeSeriesFileInfo, Instrument instrument,
+    public TimeSeriesFileParameters(FileInfo timeSeriesFileInfo, IInstrument instrument,
         TimeSeriesPeriod filePeriod, DateTime fileStartPeriod, uint internalIndexSize = 0,
         FileFlags initialFileFlags = FileFlags.None, int initialFileSize = ushort.MaxValue * 2, ushort maxStringSizeBytes = byte.MaxValue
       , ushort maxTypeStringSizeBytes = 512)
@@ -28,7 +28,7 @@ public struct TimeSeriesFileParameters
 
     public FileInfo TimeSeriesFileInfo { get; set; }
 
-    public Instrument Instrument { get; set; }
+    public IInstrument Instrument { get; set; }
 
     public string? OriginSourceText              { get; set; }
     public string? ExternalIndexFileRelativePath { get; set; }
@@ -57,17 +57,23 @@ public static class CreateFileParametersExtensions
     {
         var updated = input;
         updated.InternalIndexSize =  internalIndexSize;
-        updated.InitialFileFlags  |= internalIndexSize > 0 ? FileFlags.HasExternalIndexFile : FileFlags.None;
+        updated.InitialFileFlags  |= internalIndexSize > 0 ? FileFlags.HasInternalIndexInHeader : FileFlags.None;
         return updated;
     }
 
-    public static TimeSeriesFileParameters SetTimeSeriesEntryType(this TimeSeriesFileParameters input, InstrumentType instrumentType)
+    public static TimeSeriesFileParameters SetFileFlags(this TimeSeriesFileParameters input, FileFlags toSet)
     {
-        var updated                  = input;
-        var instrumentClassification = updated.Instrument;
-        instrumentClassification.TimeSeriesType = instrumentType;
-        updated.Instrument                      = instrumentClassification;
+        var updated = input;
+        updated.InitialFileFlags |= toSet;
         return updated;
+    }
+
+    public static TimeSeriesFileParameters AssertTimeSeriesEntryType(this TimeSeriesFileParameters input, InstrumentType instrumentType)
+    {
+        if (input.Instrument.Type != instrumentType)
+            throw new Exception($"Expected TimeSeriesFileParameters.TimeSeriesType to be of " +
+                                $"type {instrumentType} but it was {input.Instrument.Type}");
+        return input;
     }
 
     public static TimeSeriesFileParameters SetInitialFileSize(this TimeSeriesFileParameters input, int initialFileSize)

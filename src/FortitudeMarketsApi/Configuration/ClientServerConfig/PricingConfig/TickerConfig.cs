@@ -1,7 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -13,18 +17,19 @@ namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 public interface ITickerConfig : IInterfacesComparable<ITickerConfig>
 {
-    ushort TickerId { get; set; }
-    string Ticker { get; set; }
-    TickerAvailability? TickerAvailability { get; set; }
-    QuoteLevel? PublishedQuoteLevel { get; set; }
-    decimal? RoundingPrecision { get; }
-    decimal? MinSubmitSize { get; }
-    decimal? MaxSubmitSize { get; }
-    decimal? IncrementSize { get; }
-    ushort? MinimumQuoteLife { get; }
-    LayerFlags? LayerFlags { get; }
-    byte? MaximumPublishedLayers { get; }
-    LastTradedFlags? LastTradedFlags { get; }
+    ushort                TickerId               { get; set; }
+    string                Ticker                 { get; set; }
+    TickerAvailability?   TickerAvailability     { get; set; }
+    QuoteLevel?           PublishedQuoteLevel    { get; set; }
+    MarketClassification? MarketClassification   { get; set; }
+    decimal?              RoundingPrecision      { get; }
+    decimal?              MinSubmitSize          { get; }
+    decimal?              MaxSubmitSize          { get; }
+    decimal?              IncrementSize          { get; }
+    ushort?               MinimumQuoteLife       { get; }
+    LayerFlags?           LayerFlags             { get; }
+    byte?                 MaximumPublishedLayers { get; }
+    LastTradedFlags?      LastTradedFlags        { get; }
 }
 
 public class TickerConfig : ConfigSection, ITickerConfig
@@ -36,34 +41,34 @@ public class TickerConfig : ConfigSection, ITickerConfig
         decimal? roundingPrecision = null, decimal? minSubmitSize = null, decimal? maxSubmitSize = null, decimal? incrementSize = null,
         ushort? minimumQuoteLife = null, LayerFlags? layerFlags = null, byte? maximumPublisherLayers = null, LastTradedFlags? lastTradedFlags = null)
     {
-        TickerId = tickerId;
-        Ticker = ticker;
-        TickerAvailability = tickerAvailability;
-        PublishedQuoteLevel = publishedQuoteLevel;
-        RoundingPrecision = roundingPrecision;
-        MinSubmitSize = minSubmitSize;
-        MaxSubmitSize = maxSubmitSize;
-        IncrementSize = incrementSize;
-        MinimumQuoteLife = minimumQuoteLife;
-        LayerFlags = layerFlags;
+        TickerId               = tickerId;
+        Ticker                 = ticker;
+        TickerAvailability     = tickerAvailability;
+        PublishedQuoteLevel    = publishedQuoteLevel;
+        RoundingPrecision      = roundingPrecision;
+        MinSubmitSize          = minSubmitSize;
+        MaxSubmitSize          = maxSubmitSize;
+        IncrementSize          = incrementSize;
+        MinimumQuoteLife       = minimumQuoteLife;
+        LayerFlags             = layerFlags;
         MaximumPublishedLayers = maximumPublisherLayers;
-        LastTradedFlags = lastTradedFlags;
+        LastTradedFlags        = lastTradedFlags;
     }
 
     public TickerConfig(ITickerConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        TickerId = toClone.TickerId;
-        Ticker = toClone.Ticker;
-        TickerAvailability = toClone.TickerAvailability;
-        PublishedQuoteLevel = toClone.PublishedQuoteLevel;
-        RoundingPrecision = toClone.RoundingPrecision;
-        MinSubmitSize = toClone.MinSubmitSize;
-        MaxSubmitSize = toClone.MaxSubmitSize;
-        IncrementSize = toClone.IncrementSize;
-        MinimumQuoteLife = toClone.MinimumQuoteLife;
-        LayerFlags = toClone.LayerFlags;
+        TickerId               = toClone.TickerId;
+        Ticker                 = toClone.Ticker;
+        TickerAvailability     = toClone.TickerAvailability;
+        PublishedQuoteLevel    = toClone.PublishedQuoteLevel;
+        RoundingPrecision      = toClone.RoundingPrecision;
+        MinSubmitSize          = toClone.MinSubmitSize;
+        MaxSubmitSize          = toClone.MaxSubmitSize;
+        IncrementSize          = toClone.IncrementSize;
+        MinimumQuoteLife       = toClone.MinimumQuoteLife;
+        LayerFlags             = toClone.LayerFlags;
         MaximumPublishedLayers = toClone.MaximumPublishedLayers;
-        LastTradedFlags = toClone.LastTradedFlags;
+        LastTradedFlags        = toClone.LastTradedFlags;
     }
 
     public TickerConfig(ITickerConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -98,6 +103,16 @@ public class TickerConfig : ConfigSection, ITickerConfig
             return checkValue != null ? Enum.Parse<QuoteLevel>(checkValue) : null;
         }
         set => this[nameof(PublishedQuoteLevel)] = value.ToString();
+    }
+
+    public MarketClassification? MarketClassification
+    {
+        get
+        {
+            var checkValue = this[nameof(MarketClassification)];
+            return checkValue != null ? new MarketClassification(uint.Parse(checkValue)) : null;
+        }
+        set => this[nameof(MarketClassification)] = value?.CompoundedClassification.ToString();
     }
 
     public decimal? RoundingPrecision
@@ -183,37 +198,40 @@ public class TickerConfig : ConfigSection, ITickerConfig
     public bool AreEquivalent(ITickerConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
-        var tickerIdSame = TickerId == other.TickerId;
-        var tickerSame = Ticker == other.Ticker;
-        var quoteLevelSame = PublishedQuoteLevel == other.PublishedQuoteLevel;
-        var availabilitySame = TickerAvailability == other.TickerAvailability;
-        var roundingSame = RoundingPrecision == other.RoundingPrecision;
-        var minSubitSizeSame = MinSubmitSize == other.MinSubmitSize;
-        var maxSubitSizeSame = MaxSubmitSize == other.MaxSubmitSize;
-        var incrementSizeSame = IncrementSize == other.IncrementSize;
-        var minQuoteLifeSizeSame = MinimumQuoteLife == other.MinimumQuoteLife;
-        var layerFlagsSizeSame = LayerFlags == other.LayerFlags;
-        var maxLayersSame = MaximumPublishedLayers == other.MaximumPublishedLayers;
-        var lastTradedFlagsSame = LastTradedFlags == other.LastTradedFlags;
+        var tickerIdSame             = TickerId == other.TickerId;
+        var tickerSame               = Ticker == other.Ticker;
+        var quoteLevelSame           = PublishedQuoteLevel == other.PublishedQuoteLevel;
+        var marketClassificationSame = Equals(MarketClassification, other.MarketClassification);
+        var availabilitySame         = TickerAvailability == other.TickerAvailability;
+        var roundingSame             = RoundingPrecision == other.RoundingPrecision;
+        var minSubitSizeSame         = MinSubmitSize == other.MinSubmitSize;
+        var maxSubitSizeSame         = MaxSubmitSize == other.MaxSubmitSize;
+        var incrementSizeSame        = IncrementSize == other.IncrementSize;
+        var minQuoteLifeSizeSame     = MinimumQuoteLife == other.MinimumQuoteLife;
+        var layerFlagsSizeSame       = LayerFlags == other.LayerFlags;
+        var maxLayersSame            = MaximumPublishedLayers == other.MaximumPublishedLayers;
+        var lastTradedFlagsSame      = LastTradedFlags == other.LastTradedFlags;
 
-        return tickerIdSame && tickerSame && availabilitySame && quoteLevelSame && roundingSame && minSubitSizeSame && maxSubitSizeSame &&
-               incrementSizeSame && minQuoteLifeSizeSame && layerFlagsSizeSame && maxLayersSame && lastTradedFlagsSame;
+        return tickerIdSame && tickerSame && availabilitySame && quoteLevelSame && marketClassificationSame && roundingSame
+            && minSubitSizeSame && maxSubitSizeSame && incrementSizeSame && minQuoteLifeSizeSame && layerFlagsSizeSame
+            && maxLayersSame && lastTradedFlagsSame;
     }
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(TickerId)] = null;
-        root[path + ":" + nameof(Ticker)] = null;
-        root[path + ":" + nameof(TickerAvailability)] = null;
-        root[path + ":" + nameof(PublishedQuoteLevel)] = null;
-        root[path + ":" + nameof(RoundingPrecision)] = null;
-        root[path + ":" + nameof(MinSubmitSize)] = null;
-        root[path + ":" + nameof(MaxSubmitSize)] = null;
-        root[path + ":" + nameof(IncrementSize)] = null;
-        root[path + ":" + nameof(MinimumQuoteLife)] = null;
-        root[path + ":" + nameof(LayerFlags)] = null;
+        root[path + ":" + nameof(TickerId)]               = null;
+        root[path + ":" + nameof(Ticker)]                 = null;
+        root[path + ":" + nameof(TickerAvailability)]     = null;
+        root[path + ":" + nameof(PublishedQuoteLevel)]    = null;
+        root[path + ":" + nameof(MarketClassification)]   = null;
+        root[path + ":" + nameof(RoundingPrecision)]      = null;
+        root[path + ":" + nameof(MinSubmitSize)]          = null;
+        root[path + ":" + nameof(MaxSubmitSize)]          = null;
+        root[path + ":" + nameof(IncrementSize)]          = null;
+        root[path + ":" + nameof(MinimumQuoteLife)]       = null;
+        root[path + ":" + nameof(LayerFlags)]             = null;
         root[path + ":" + nameof(MaximumPublishedLayers)] = null;
-        root[path + ":" + nameof(LastTradedFlags)] = null;
+        root[path + ":" + nameof(LastTradedFlags)]        = null;
     }
 
     protected bool Equals(ITickerConfig other) => AreEquivalent(other, true);
@@ -233,6 +251,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         hashCode.Add(Ticker);
         hashCode.Add(TickerAvailability);
         hashCode.Add(PublishedQuoteLevel);
+        hashCode.Add(MarketClassification);
         hashCode.Add(RoundingPrecision);
         hashCode.Add(MinSubmitSize);
         hashCode.Add(MaxSubmitSize);
@@ -247,7 +266,8 @@ public class TickerConfig : ConfigSection, ITickerConfig
     public override string ToString() =>
         $"{nameof(TickerConfig)}({nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker}, " +
         $"{nameof(TickerAvailability)}: {TickerAvailability}, {nameof(PublishedQuoteLevel)}: {PublishedQuoteLevel}, " +
-        $"{nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, " +
+        $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(RoundingPrecision)}: {RoundingPrecision}, " +
+        $"{nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, " +
         $"{nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +
         $"{nameof(LayerFlags)}: {LayerFlags}, {nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, " +
         $"{nameof(LastTradedFlags)}: {LastTradedFlags}, {nameof(Path)}: {Path})";

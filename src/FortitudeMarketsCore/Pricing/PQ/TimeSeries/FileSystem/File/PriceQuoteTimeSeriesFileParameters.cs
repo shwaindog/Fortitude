@@ -15,7 +15,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 public struct PriceQuoteTimeSeriesFileParameters
 {
     public PriceQuoteTimeSeriesFileParameters(ISourceTickerQuoteInfo sourceTickerQuoteInfo, FileInfo fileInfo,
-        Instrument instrument, TimeSeriesPeriod filePeriod, DateTime fileStartPeriod,
+        IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime fileStartPeriod,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage,
         uint internalIndexSize = 0, FileFlags initialFileFlags = FileFlags.None, int initialFileSize = ushort.MaxValue * 2,
         ushort maxStringSizeBytes = byte.MaxValue, ushort maxTypeStringSizeBytes = 512)
@@ -58,12 +58,18 @@ public static class PriceQuoteCreateFileParametersExtensions
         return updated;
     }
 
-    public static PriceQuoteTimeSeriesFileParameters SetTimeSeriesEntryType(this PriceQuoteTimeSeriesFileParameters input
-      , InstrumentType instrumentType)
+    public static PriceQuoteTimeSeriesFileParameters SetFileFlags(this PriceQuoteTimeSeriesFileParameters input, FileFlags toSet)
     {
         var updated = input;
-        updated.TimeSeriesFileParameters = input.TimeSeriesFileParameters.SetTimeSeriesEntryType(instrumentType);
+        updated.TimeSeriesFileParameters = input.TimeSeriesFileParameters.SetFileFlags(toSet);
         return updated;
+    }
+
+    public static PriceQuoteTimeSeriesFileParameters AssertTimeSeriesEntryType(this PriceQuoteTimeSeriesFileParameters input
+      , InstrumentType instrumentType)
+    {
+        input.TimeSeriesFileParameters.AssertTimeSeriesEntryType(instrumentType);
+        return input;
     }
 
     public static PriceQuoteTimeSeriesFileParameters SetInitialFileSize(this PriceQuoteTimeSeriesFileParameters input, int initialFileSize)

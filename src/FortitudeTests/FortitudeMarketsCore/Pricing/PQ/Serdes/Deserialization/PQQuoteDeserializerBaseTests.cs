@@ -23,6 +23,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using Moq;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 
 #endregion
 
@@ -89,8 +90,8 @@ public class PQQuoteDeserializerBaseTests
 
         sourceTickerQuoteInfo =
             new SourceTickerQuoteInfo
-                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3,
-                 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, Unknown
+               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
                , LayerFlags.Volume | LayerFlags.Price
                , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 

@@ -11,17 +11,17 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 
 public class InstrumentRepoFile : IComparable<InstrumentRepoFile>
 {
-    public InstrumentRepoFile(Instrument instrument, TimeSeriesRepoFile timeSeriesRepoFile, TimeSeriesPeriodRange filePeriodRange)
+    public InstrumentRepoFile(IInstrument instrument, TimeSeriesRepoFile timeSeriesRepoFile, TimeSeriesPeriodRange filePeriodRange)
     {
         Instrument         = instrument;
         TimeSeriesRepoFile = timeSeriesRepoFile;
         FilePeriodRange    = filePeriodRange;
     }
 
-    public Instrument                Instrument         { get; }
-    public TimeSeriesRepoFile        TimeSeriesRepoFile { get; }
-    public TimeSeriesPeriodRange     FilePeriodRange    { get; }
-    public ITimeSeriesFileStructure? FileStructure      { get; set; }
+    public IInstrument           Instrument         { get; }
+    public TimeSeriesRepoFile    TimeSeriesRepoFile { get; }
+    public TimeSeriesPeriodRange FilePeriodRange    { get; }
+    public IPathFile?            FileStructure      { get; set; }
 
     public int CompareTo(InstrumentRepoFile? other) => FilePeriodRange.PeriodStartTime < other?.FilePeriodRange.PeriodStartTime ? -1 : 1;
 

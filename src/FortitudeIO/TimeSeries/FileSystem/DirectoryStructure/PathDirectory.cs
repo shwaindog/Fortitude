@@ -9,21 +9,22 @@ using System.Collections;
 
 namespace FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 
-public interface ITimeSeriesDirectoryStructure : ITimeSeriesPathStructure, IEnumerable<ITimeSeriesPathStructure>
+public interface IPathDirectory : IPathPart, IEnumerable<IPathPart>
 {
     int DepthFromRoot { get; }
 
-    List<ITimeSeriesPathStructure> Children { get; set; }
+    public List<IPathPart> Children { get; set; }
+    void                   Add(IPathPart child);
 }
 
-public class TimeSeriesDirectoryStructure : TimeSeriesPathStructure, ITimeSeriesDirectoryStructure
+public class PathDirectory : PathPart, IPathDirectory
 {
-    private List<ITimeSeriesPathStructure> children = new();
-    public TimeSeriesDirectoryStructure(params TimeSeriesPathNameFormat[] nameParts) : base(nameParts) { }
+    private List<IPathPart> children = new();
+    public PathDirectory(params PathName[] nameParts) : base(nameParts) { }
 
     public int DepthFromRoot => ParentDirectory != null ? ParentDirectory.DepthFromRoot + 1 : 0;
 
-    public List<ITimeSeriesPathStructure> Children
+    public List<IPathPart> Children
     {
         get => children;
         set
@@ -35,13 +36,13 @@ public class TimeSeriesDirectoryStructure : TimeSeriesPathStructure, ITimeSeries
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<ITimeSeriesPathStructure> GetEnumerator() => Children.GetEnumerator();
+    public IEnumerator<IPathPart> GetEnumerator() => Children.GetEnumerator();
 
-    public override TimeSeriesFileStructureMatch PathMatch(TimeSeriesFileStructureMatch currentMatch)
+    public override PathFileMatch PathMatch(PathFileMatch currentMatch)
     {
         var dateChildDir =
             Children
-                .OfType<ITimeSeriesDirectoryStructure>()
+                .OfType<IPathDirectory>()
                 .FirstOrDefault(cd => cd.NameParts
                                         .Any(np => TimePeriodPart.Contains(np.PathPart)));
         if (dateChildDir != null && currentMatch.RemainingPath.Count >= 2)
@@ -57,8 +58,8 @@ public class TimeSeriesDirectoryStructure : TimeSeriesPathStructure, ITimeSeries
             if (checkDate != null)
             {
                 base.PathMatch(currentMatch);
-                currentMatch.DeepestDirectoryStructureMatch = this;
-                currentMatch.PeriodStart                    = checkDate.Value;
+                currentMatch.DeepestDirectoryMatch = this;
+                currentMatch.PeriodStart           = checkDate.Value;
                 currentMatch.MatchedPath.Add(currentMatch.RemainingPath[0]);
                 currentMatch.RemainingPath.RemoveAt(0);
                 return dateChildDir.PathMatch(currentMatch);
@@ -70,29 +71,29 @@ public class TimeSeriesDirectoryStructure : TimeSeriesPathStructure, ITimeSeries
                 if (timeSeriesPath.MatchesFormat(currentMatch.RemainingPath[0]))
                 {
                     base.PathMatch(currentMatch);
-                    currentMatch.DeepestDirectoryStructureMatch = this;
+                    currentMatch.DeepestDirectoryMatch = this;
                     currentMatch.MatchedPath.Add(currentMatch.RemainingPath[0]);
                     currentMatch.RemainingPath.RemoveAt(0);
                     return timeSeriesPath.PathMatch(currentMatch);
                 }
         }
-        if (DepthFromRoot > currentMatch.DeepestDirectoryStructureMatch.DepthFromRoot)
+        if (DepthFromRoot > currentMatch.DeepestDirectoryMatch.DepthFromRoot)
         {
             base.PathMatch(currentMatch);
-            currentMatch.DeepestDirectoryStructureMatch = this;
+            currentMatch.DeepestDirectoryMatch = this;
             currentMatch.MatchedPath.Add(currentMatch.RemainingPath[0]);
             currentMatch.RemainingPath.RemoveAt(0);
         }
         return currentMatch;
     }
 
-    public override TimeSeriesInstrumentStructureMatch InstrumentMatch(TimeSeriesInstrumentStructureMatch currentMatch)
+    public override PathInstrumentMatch InstrumentMatch(PathInstrumentMatch currentMatch)
     {
         if (Children.Any(timeSeriesPath => timeSeriesPath.InstrumentMatch(currentMatch).HasTimeSeriesFileStructureMatch)) return currentMatch;
         return currentMatch;
     }
 
-    public void Add(ITimeSeriesPathStructure child)
+    public void Add(IPathPart child)
     {
         child.ParentDirectory = this;
         children.Add(child);

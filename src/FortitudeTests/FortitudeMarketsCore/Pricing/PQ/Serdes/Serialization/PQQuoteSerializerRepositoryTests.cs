@@ -1,13 +1,17 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -17,17 +21,20 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 public class PQClientQuoteSerializerRepositoryTests
 {
     private const ushort ExpectedSourceId = ushort.MaxValue;
-    private const ushort ExpectedTickerd = ushort.MaxValue;
+    private const ushort ExpectedTickerd  = ushort.MaxValue;
+
     private PQClientQuoteSerializerRepository pqClientQuoteSerializerRepository = null!;
+
     private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", QuoteLevel.Level3, 20,
-            0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
-            LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-            LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
+            (ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
         pqClientQuoteSerializerRepository = new PQClientQuoteSerializerRepository(new Recycler(), null);
     }

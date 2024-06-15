@@ -507,9 +507,6 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         if (infoResult > 0) return infoResult;
         switch (pqFieldUpdate.Id)
         {
-            case PQFieldKeys.PQSequenceId:
-                PQSequenceId = pqFieldUpdate.Value;
-                return 0;
             case PQFieldKeys.SinglePrice:
                 IsSinglePriceUpdated = true;
                 SinglePrice          = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);

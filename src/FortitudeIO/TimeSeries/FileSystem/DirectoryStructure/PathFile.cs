@@ -6,46 +6,49 @@
 using System.Collections.Concurrent;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries.FileSystem.Session;
+using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
 
 #endregion
 
 namespace FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 
-public interface ITimeSeriesFileStructure : ITimeSeriesPathStructure
+public interface IPathFile : IPathPart
 {
     IDictionary<Type, ITimeSeriesRepositoryFileFactory> FileEntryFactoryRegistry { get; set; }
 
     InstrumentMatch InstrumentFileMatch { get; set; }
 
-    IWriterSession<TEntry> GetOrCreateTimeSeriesFileWriter<TEntry>(Instrument instrument, DateTime fileTimePeriod)
+    IWriterSession<TEntry> GetOrCreateTimeSeriesFileWriter<TEntry>(IInstrument instrument, DateTime fileTimePeriod)
         where TEntry : ITimeSeriesEntry<TEntry>;
 
     IReaderSession<TEntry> GetRepoFilesReaderSession<TEntry>(IEnumerable<InstrumentRepoFile> instrumentFiles)
         where TEntry : ITimeSeriesEntry<TEntry>;
 }
 
-public class TimeSeriesFileStructure : TimeSeriesPathStructure, ITimeSeriesFileStructure
+public class PathFile : PathPart, IPathFile
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileStructure));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PathFile));
     private readonly        string   fileExtension;
 
-    public TimeSeriesFileStructure(string fileExtension, InstrumentMatch instrumentFileMatch)
-        : base(new TimeSeriesPathNameFormat(TimeSeriesPathNameComponent.TimeSeriesType),
-               new TimeSeriesPathNameFormat(TimeSeriesPathNameComponent.EntryPeriod),
-               new TimeSeriesPathNameFormat(TimeSeriesPathNameComponent.SourceName),
-               new TimeSeriesPathNameFormat(TimeSeriesPathNameComponent.InstrumentName),
-               new TimeSeriesPathNameFormat(TimeSeriesPathNameComponent.FilePeriod),
-               new TimeSeriesPathNameFormat(TimeSeriesPathNameComponent.Category))
+    public PathFile(string fileExtension, InstrumentMatch instrumentFileMatch)
+        : base(new PathName(TimeSeriesType),
+               new PathName(EntryPeriod),
+               new PathName(MarketProductType),
+               new PathName(SourceName),
+               new PathName(InstrumentName),
+               new PathName(DirectoryStartDate),
+               new PathName(FilePeriod),
+               new PathName(Category))
     {
         this.fileExtension  = fileExtension;
         InstrumentFileMatch = instrumentFileMatch;
 
-        if (NameParts.Any(np => np.PathPart == TimeSeriesPathNameComponent.Category))
-            if (NameParts[^1].PathPart != TimeSeriesPathNameComponent.Category)
+        if (NameParts.Any(np => np.PathPart == Category))
+            if (NameParts[^1].PathPart != Category)
                 throw new Exception("Category must be the last part of the name as it is optional");
     }
 
-    public TimeSeriesFileStructure(string fileExtension, InstrumentMatch instrumentFileMatch, params TimeSeriesPathNameFormat[] nameParts)
+    public PathFile(string fileExtension, InstrumentMatch instrumentFileMatch, params PathName[] nameParts)
         : base(nameParts)
     {
         this.fileExtension  = fileExtension;
@@ -55,7 +58,7 @@ public class TimeSeriesFileStructure : TimeSeriesPathStructure, ITimeSeriesFileS
     public IDictionary<Type, ITimeSeriesRepositoryFileFactory> FileEntryFactoryRegistry { get; set; }
         = new ConcurrentDictionary<Type, ITimeSeriesRepositoryFileFactory>();
 
-    public IWriterSession<TEntry> GetOrCreateTimeSeriesFileWriter<TEntry>(Instrument instrument, DateTime fileTimePeriod)
+    public IWriterSession<TEntry> GetOrCreateTimeSeriesFileWriter<TEntry>(IInstrument instrument, DateTime fileTimePeriod)
         where TEntry : ITimeSeriesEntry<TEntry>
     {
         var entryType = typeof(TEntry);
@@ -64,10 +67,16 @@ public class TimeSeriesFileStructure : TimeSeriesPathStructure, ITimeSeriesFileS
 
         if (timeSeriesFileFactory == null) throw new Exception($"No Time Series file factory has been registered for type {entryType}");
 
-        var fileInfo       = new FileInfo(FullPath(instrument, fileTimePeriod));
-        var folderPeriod   = ParentDirectory!.PathTimeSeriesPeriod;
+        var folderPeriod = ParentDirectory!.PathTimeSeriesPeriod;
+        var fileInfo     = new FileInfo(FullPath(instrument, fileTimePeriod, folderPeriod));
+        var fileExists   = fileInfo.Exists;
+        if (!(fileInfo.Directory?.Exists ?? false)) Directory.CreateDirectory(ParentDirectory.FullPath(instrument, fileTimePeriod, folderPeriod));
         var timeSeriesFile = timeSeriesFileFactory.OpenOrCreate(fileInfo, instrument, folderPeriod, fileTimePeriod);
 
+        if (!fileExists)
+            RepositoryRootDirectory.OnFileInstrumentUpdated
+                (new RepositoryInstrumentFileUpdateEvent
+                    (instrument, this, fileInfo, timeSeriesFile.TimeSeriesPeriodRange, timeSeriesFile, PathUpdateType.Available));
         return timeSeriesFile.GetWriterSession()!;
     }
 
@@ -100,19 +109,19 @@ public class TimeSeriesFileStructure : TimeSeriesPathStructure, ITimeSeriesFileS
 
     public InstrumentMatch InstrumentFileMatch { get; set; }
 
-    public override TimeSeriesInstrumentStructureMatch InstrumentMatch(TimeSeriesInstrumentStructureMatch currentMatch)
+    public override PathInstrumentMatch InstrumentMatch(PathInstrumentMatch currentMatch)
     {
         if (InstrumentFileMatch.Matches(currentMatch.SearchInstrument)) currentMatch.TimeSeriesFile = this;
         return currentMatch;
     }
 
-    public override TimeSeriesFileStructureMatch PathMatch(TimeSeriesFileStructureMatch currentMatch)
+    public override PathFileMatch PathMatch(PathFileMatch currentMatch)
     {
         base.PathMatch(currentMatch);
         currentMatch.TimeSeriesFile = this;
         return currentMatch;
     }
 
-    public override string PathName(Instrument instrument, DateTime timeInPeriod) =>
-        string.Join(NamePartSeparator, NameParts.Select(tsfpf => tsfpf.GetString(instrument, timeInPeriod))) + "." + fileExtension;
+    public override string PathName(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forPeriod) =>
+        string.Join(NamePartSeparator, NameParts.Select(tsfpf => tsfpf.GetString(instrument, timeInPeriod, forPeriod))) + fileExtension;
 }
