@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
@@ -9,6 +12,8 @@ using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -17,10 +22,12 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 [TestClass]
 public class Level0PriceQuoteTests
 {
-    private Level0PriceQuote emptyQuote = null!;
+    private Level0PriceQuote emptyQuote                = null!;
     private Level0PriceQuote fullyPopulatedLevel0Quote = null!;
     private Level0PriceQuote newlyPopulatedLevel0Quote = null!;
+
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
+
     private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
@@ -28,13 +35,12 @@ public class Level0PriceQuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-            LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-            | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                                  | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime);
-        emptyQuote = new Level0PriceQuote(sourceTickerQuoteInfo);
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        emptyQuote                = new Level0PriceQuote(sourceTickerQuoteInfo);
         fullyPopulatedLevel0Quote = new Level0PriceQuote(sourceTickerQuoteInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedLevel0Quote, 1);
         newlyPopulatedLevel0Quote = new Level0PriceQuote(sourceTickerQuoteInfo);
@@ -54,12 +60,13 @@ public class Level0PriceQuoteTests
     [TestMethod]
     public void IntializedFromConstructor_New_InitializesFieldsAsExpected()
     {
-        var expectedSourceTime = new DateTime(2018, 02, 04, 18, 56, 9);
+        var expectedSourceTime         = new DateTime(2018, 02, 04, 18, 56, 9);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
+
         var expectedSinglePrice = 1.23456m;
 
-        var fromConstructor = new Level0PriceQuote(sourceTickerQuoteInfo, expectedSourceTime, true,
-            expectedSinglePrice, expectedClientReceivedTime);
+        var fromConstructor = new Level0PriceQuote
+            (sourceTickerQuoteInfo, expectedSourceTime, true, expectedSinglePrice, expectedClientReceivedTime);
 
         Assert.AreSame(sourceTickerQuoteInfo, fromConstructor.SourceTickerQuoteInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
@@ -100,14 +107,15 @@ public class Level0PriceQuoteTests
     [TestMethod]
     public void EmptyQuote_Mutate_UpdatesFields()
     {
-        var expectedSourceTime = new DateTime(2018, 02, 04, 18, 56, 9);
+        var expectedSourceTime         = new DateTime(2018, 02, 04, 18, 56, 9);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
+
         var expectedSinglePrice = 1.23456m;
 
-        emptyQuote.IsReplay = true;
-        emptyQuote.SourceTime = expectedSourceTime;
+        emptyQuote.IsReplay           = true;
+        emptyQuote.SourceTime         = expectedSourceTime;
         emptyQuote.ClientReceivedTime = expectedClientReceivedTime;
-        emptyQuote.SinglePrice = expectedSinglePrice;
+        emptyQuote.SinglePrice        = expectedSinglePrice;
 
         Assert.AreSame(sourceTickerQuoteInfo, emptyQuote.SourceTickerQuoteInfo);
         Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
@@ -153,8 +161,8 @@ public class Level0PriceQuoteTests
     [TestMethod]
     public void OneDifferenceAtATime_AreEquivalent_ReturnsExpected()
     {
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, fullyPopulatedLevel0Quote,
-            (IMutableLevel0Quote)fullyPopulatedLevel0Quote.Clone());
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, fullyPopulatedLevel0Quote, fullyPopulatedLevel0Quote.Clone());
     }
 
     [TestMethod]
@@ -166,7 +174,7 @@ public class Level0PriceQuoteTests
     [TestMethod]
     public void FullyPopulatedQuote_ToString_ReturnsNameAndValues()
     {
-        var q = fullyPopulatedLevel0Quote;
+        var q        = fullyPopulatedLevel0Quote;
         var toString = q.ToString();
 
         Assert.IsTrue(toString.Contains(q.GetType().Name));
@@ -182,7 +190,7 @@ public class Level0PriceQuoteTests
         IMutableLevel0Quote commonCompareQuote, IMutableLevel0Quote changingQuote)
     {
         var diffSrcTkrQtInfo = commonCompareQuote.SourceTickerQuoteInfo!.Clone();
-        diffSrcTkrQtInfo.Source = "DifferSourceName";
+        diffSrcTkrQtInfo.Source             = "DifferSourceName";
         changingQuote.SourceTickerQuoteInfo = diffSrcTkrQtInfo;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
         changingQuote.SourceTickerQuoteInfo.Source = commonCompareQuote.SourceTickerQuoteInfo.Source;

@@ -7,6 +7,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
@@ -71,6 +72,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
         deserializedSourceTickerQuoteInfo.SourceId               = StreamByteOps.ToUShort(ref currPtr);
         deserializedSourceTickerQuoteInfo.TickerId               = StreamByteOps.ToUShort(ref currPtr);
         deserializedSourceTickerQuoteInfo.PublishedQuoteLevel    = (QuoteLevel)(*currPtr++);
+        deserializedSourceTickerQuoteInfo.MarketClassification   = new MarketClassification(StreamByteOps.ToUInt(ref currPtr));
         deserializedSourceTickerQuoteInfo.RoundingPrecision      = StreamByteOps.ToDecimal(ref currPtr);
         deserializedSourceTickerQuoteInfo.MinSubmitSize          = StreamByteOps.ToDecimal(ref currPtr);
         deserializedSourceTickerQuoteInfo.MaxSubmitSize          = StreamByteOps.ToDecimal(ref currPtr);

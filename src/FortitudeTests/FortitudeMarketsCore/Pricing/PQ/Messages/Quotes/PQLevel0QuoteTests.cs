@@ -24,6 +24,8 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -48,13 +50,14 @@ public class PQLevel0QuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-                                                          "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-                                                          LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-                                                        | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                        | LastTradedFlags.LastTradedVolume |
-                                                          LastTradedFlags.LastTradedTime);
-        blankSourceTickerQuoteInfo  = new SourceTickerQuoteInfo(0, "", 0, "", QuoteLevel.Level1);
+        sourceTickerQuoteInfo =
+            new SourceTickerQuoteInfo
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, FxMajor
+               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+               , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
+                                             | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        blankSourceTickerQuoteInfo  = new SourceTickerQuoteInfo(0, "", 0, "", Level1, Unknown);
         emptyQuote                  = new PQLevel0Quote(sourceTickerQuoteInfo) { HasUpdates = false };
         fullyPopulatedPqLevel0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedPqLevel0Quote, 1);
@@ -539,7 +542,7 @@ public class PQLevel0QuoteTests
         public byte Version      => 1;
         public uint PQSequenceId { get; set; }
 
-        public virtual QuoteLevel      QuoteLevel => QuoteLevel.Level0;
+        public virtual QuoteLevel      QuoteLevel => Level0;
         public         ISyncLock       Lock       { get; } = new SpinLockLight();
         public         IPQLevel0Quote? Previous   { get; set; }
         public         IPQLevel0Quote? Next       { get; set; }

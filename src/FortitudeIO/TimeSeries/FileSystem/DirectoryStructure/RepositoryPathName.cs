@@ -3,9 +3,9 @@
 
 namespace FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 
-public enum TimeSeriesPathNameComponent
+public enum RepositoryPathName
 {
-    None
+    Constant
   , Decade
   , Year
   , Quarter
@@ -15,8 +15,12 @@ public enum TimeSeriesPathNameComponent
   , Day
   , Hour
   , InstrumentName
+  , MarketType
+  , MarketProductType
+  , MarketRegion
   , Category
   , FilePeriod
+  , DirectoryStartDate
   , EntryPeriod
   , SourceName
   , TimeSeriesType

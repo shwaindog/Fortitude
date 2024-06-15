@@ -13,6 +13,8 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using Moq;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -98,12 +100,11 @@ public class PQQuoteFeedDeserializerTests
     }
 
     private SourceTickerQuoteInfo BuildSourceTickerQuoteInfo(ushort sourceId, ushort tickerId, string ticker) =>
-        new(sourceId, "TestSource", tickerId, ticker, QuoteLevel.Level3, 20,
-            0.00001m, 30000m, 50000000m, 1000m, 1,
-            LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-          | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                                | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime);
+        new(sourceId, "TestSource", tickerId, ticker, Level3, Unknown
+          , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+          , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+          , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
+                                        | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
     [TestMethod]
     public void FreshSerializer_DeserializeSnapshot_SyncClientQuoteWithExpected()

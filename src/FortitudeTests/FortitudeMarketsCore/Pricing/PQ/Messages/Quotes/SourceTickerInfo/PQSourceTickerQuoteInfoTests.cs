@@ -8,10 +8,11 @@ using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -32,17 +33,16 @@ public class PQSourceTickerQuoteInfoTests
         fullyPopulatedSrcTkrQtInfo =
             new PQSourceTickerQuoteInfo
                 (new SourceTickerQuoteInfo
-                    (ushort.MaxValue, "TestSource", ushort.MaxValue
-                   , "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m
-                   , 50000000m, 1000m, 1,
-                     LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
-                   , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-                     LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
+                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, FxMajor
+                   , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+                   , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+                   , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
+                                                 | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
         emptySrcTkrQtInfo =
             new PQSourceTickerQuoteInfo
                 (new SourceTickerQuoteInfo
-                    (0, "", 0, "", QuoteLevel.Level2, 0, 0m, 0m,
-                     0m, 0m, 0, LayerFlags.None));
+                    (0, "", 0, "", Level2, Unknown, 0,
+                     0m, 0m, 0m, 0m, 0, LayerFlags.None));
 
         testDateTime = new DateTime(2017, 11, 07, 18, 33, 24);
     }
@@ -506,7 +506,7 @@ public class PQSourceTickerQuoteInfoTests
         var pqFieldUpdates =
             fullyPopulatedSrcTkrQtInfo.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
-        var newEmpty = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(0, "", 0, "", QuoteLevel.Level3));
+        var newEmpty = new PQSourceTickerQuoteInfo(new SourceTickerQuoteInfo(0, "", 0, "", Level3, Unknown));
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         var stringFieldUpdates =
             fullyPopulatedSrcTkrQtInfo.GetStringUpdates

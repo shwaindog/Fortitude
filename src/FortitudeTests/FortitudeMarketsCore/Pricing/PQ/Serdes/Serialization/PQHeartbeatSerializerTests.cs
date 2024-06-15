@@ -8,11 +8,12 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -41,30 +42,26 @@ public class PQHeartbeatSerializerTests
     [TestInitialize]
     public void SetUp()
     {
-        firstQuoteInfo = new SourceTickerQuoteInfo(1, "TestSource", 1,
-                                                   "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-                                                   LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-                                                 | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                 | LastTradedFlags.LastTradedVolume |
-                                                   LastTradedFlags.LastTradedTime);
-        secondQuoteInfo = new SourceTickerQuoteInfo(2, "TestSource", 2,
-                                                    "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-                                                    LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-                                                  | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                  | LastTradedFlags.LastTradedVolume |
-                                                    LastTradedFlags.LastTradedTime);
-        thirdQuoteInfo = new SourceTickerQuoteInfo(3, "TestSource", 3,
-                                                   "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-                                                   LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-                                                 | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                 | LastTradedFlags.LastTradedVolume |
-                                                   LastTradedFlags.LastTradedTime);
-        fourthQuoteInfo = new SourceTickerQuoteInfo(4, "TestSource", 4,
-                                                    "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-                                                    LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-                                                  | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                  | LastTradedFlags.LastTradedVolume |
-                                                    LastTradedFlags.LastTradedTime);
+        firstQuoteInfo = new SourceTickerQuoteInfo
+            (1, "TestSource", 1, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        secondQuoteInfo = new SourceTickerQuoteInfo
+            (2, "TestSource", 2, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        thirdQuoteInfo = new SourceTickerQuoteInfo
+            (3, "TestSource", 3, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        fourthQuoteInfo = new SourceTickerQuoteInfo
+            (4, "TestSource", 4, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
         firstQuote  = new PQLevel0Quote(firstQuoteInfo);
         secondQuote = new PQLevel1Quote(secondQuoteInfo);

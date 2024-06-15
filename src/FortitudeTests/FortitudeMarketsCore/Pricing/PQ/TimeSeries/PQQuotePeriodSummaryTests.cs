@@ -10,7 +10,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
@@ -19,6 +18,8 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeMarketsCore.Pricing.TimeSeries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -43,10 +44,10 @@ public class PQPricePeriodSummaryTests
         pricePrecisionSettings =
             new PQSourceTickerQuoteInfo
                 (new SourceTickerQuoteInfo
-                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3,
-                     20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-                     LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount,
-                     LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
+                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+                   , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+                   , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+                   , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
 
         emptySummary                = new PQPricePeriodSummary();
         fullyPopulatedPeriodSummary = new PQPricePeriodSummary();

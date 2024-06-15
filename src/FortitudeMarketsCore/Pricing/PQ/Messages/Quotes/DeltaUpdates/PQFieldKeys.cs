@@ -15,12 +15,12 @@ public static class PQFieldKeys
     public const byte SingleByteFieldIdMaxBookDepth          = 20;
     public const byte SingleByteFieldIdMaxPossibleLastTrades = 10;
 
-    public const byte PQSequenceId = 1;
 
     // Source Ticker Info
-    public const byte PublishQuoteLevelType  = 2;
-    public const byte SourceTickerId         = 3;
-    public const byte SourceTickerNames      = 4; //StringFieldUpdate
+    public const byte PublishQuoteLevelType  = 1;
+    public const byte SourceTickerId         = 2;
+    public const byte SourceTickerNames      = 3; //StringFieldUpdate
+    public const byte MarketClassification   = 4;
     public const byte RoundingPrecision      = 5;
     public const byte MinSubmitSize          = 6;
     public const byte MaxSubmitSize          = 7;

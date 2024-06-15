@@ -1,13 +1,17 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -17,30 +21,38 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 public class PQClientQuoteDeserializerRepositoryTests
 {
     private const ushort ExpectedSourceId = ushort.MaxValue;
-    private const ushort ExpectedTickerd = ushort.MaxValue;
-    private const uint ExpectedStreamId = ((uint)ExpectedSourceId << 16) | ExpectedTickerd;
-    private PQClientQuoteDeserializerRepository pqClientQuoteDeserializerRepository = null!;
-    private ITickerPricingSubscriptionConfig sourceTickerPricingSubscriptionConfig = null!;
-    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private const ushort ExpectedTickerd  = ushort.MaxValue;
+    private const uint   ExpectedStreamId = ((uint)ExpectedSourceId << 16) | ExpectedTickerd;
+
+    private PQClientQuoteDeserializerRepository pqClientQuoteDeserializerRepository   = null!;
+    private ITickerPricingSubscriptionConfig    sourceTickerPricingSubscriptionConfig = null!;
+    private ISourceTickerQuoteInfo              sourceTickerQuoteInfo                 = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", QuoteLevel.Level3, 20,
-            0.00001m, 30000m, 50000000m, 1000m, 1, LayerFlags.Volume | LayerFlags.Price,
-            LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-            LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        sourceTickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig(
-            sourceTickerQuoteInfo,
-            new PricingServerConfig(
-                new NetworkTopicConnectionConfig("ConnectionName", SocketConversationProtocol.TcpClient, new[]
-                {
-                    new EndpointConfig("ConnectionName", 9090)
-                }),
-                new NetworkTopicConnectionConfig("ConnectionName", SocketConversationProtocol.TcpClient, new[]
-                {
-                    new EndpointConfig("ConnectionName", 9090)
-                })));
+        sourceTickerQuoteInfo =
+            new SourceTickerQuoteInfo
+                (ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", Level3, Unknown
+               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , LayerFlags.Volume | LayerFlags.Price
+               , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        sourceTickerPricingSubscriptionConfig =
+            new TickerPricingSubscriptionConfig
+                (sourceTickerQuoteInfo
+               , new PricingServerConfig
+                     (new NetworkTopicConnectionConfig
+                          ("ConnectionName", SocketConversationProtocol.TcpClient
+                         , new[]
+                           {
+                               new EndpointConfig("ConnectionName", 9090)
+                           }),
+                      new NetworkTopicConnectionConfig
+                          ("ConnectionName", SocketConversationProtocol.TcpClient
+                         , new[]
+                           {
+                               new EndpointConfig("ConnectionName", 9090)
+                           })));
 
         pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest", new Recycler());
     }

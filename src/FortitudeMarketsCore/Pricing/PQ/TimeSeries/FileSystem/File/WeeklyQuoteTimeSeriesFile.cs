@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -23,12 +24,15 @@ public class WeeklyLevel0QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
 
     public WeeklyLevel0QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(InstrumentType.Price)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Price)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
     public override ISessionAppendContext<ILevel0Quote, DailyToOneHourPQLevel0QuoteSubBuckets<ILevel0Quote>> CreateAppendContext() =>
         new PQAppendContext<ILevel0Quote, DailyToOneHourPQLevel0QuoteSubBuckets<ILevel0Quote>, PQLevel0Quote>();
+
+    public static WeeklyLevel0QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
 public class WeeklyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel1QuoteTimeSeriesFile,
@@ -39,12 +43,16 @@ public class WeeklyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
 
     public WeeklyLevel1QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(InstrumentType.Price)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Price)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
     public override ISessionAppendContext<ILevel1Quote, DailyToOneHourPQLevel1QuoteSubBuckets<ILevel1Quote>> CreateAppendContext() =>
         new PQAppendContext<ILevel1Quote, DailyToOneHourPQLevel1QuoteSubBuckets<ILevel1Quote>, PQLevel1Quote>();
+
+
+    public static WeeklyLevel1QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
 public class WeeklyLevel2QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel2QuoteTimeSeriesFile,
@@ -55,12 +63,15 @@ public class WeeklyLevel2QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
 
     public WeeklyLevel2QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(InstrumentType.Price)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Price)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
     public override ISessionAppendContext<ILevel2Quote, DailyToOneHourPQLevel2QuoteSubBuckets<ILevel2Quote>> CreateAppendContext() =>
         new PQAppendContext<ILevel2Quote, DailyToOneHourPQLevel2QuoteSubBuckets<ILevel2Quote>, PQLevel2Quote>();
+
+    public static WeeklyLevel2QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
 public class WeeklyLevel3QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel3QuoteTimeSeriesFile,
@@ -71,10 +82,13 @@ public class WeeklyLevel3QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
 
     public WeeklyLevel3QuoteTimeSeriesFile(PriceQuoteTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
-                                               .SetTimeSeriesEntryType(InstrumentType.Price)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Price)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
     public override ISessionAppendContext<ILevel3Quote, DailyToOneHourPQLevel3QuoteSubBuckets<ILevel3Quote>> CreateAppendContext() =>
         new PQAppendContext<ILevel3Quote, DailyToOneHourPQLevel3QuoteSubBuckets<ILevel3Quote>, PQLevel3Quote>();
+
+    public static WeeklyLevel3QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }

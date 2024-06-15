@@ -12,16 +12,16 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 
 public class TimeSeriesRepoFile
 {
-    public TimeSeriesRepoFile(FileInfo file, RepositoryRootDirectoryStructure repositoryRoot, ITimeSeriesFileStructure repositoryFileStructure)
+    public TimeSeriesRepoFile(FileInfo file, IRepositoryRootDirectory repositoryRoot, IPathFile pathFile)
     {
-        RepositoryRoot          = repositoryRoot;
-        RepositoryFileStructure = repositoryFileStructure;
-        File                    = file;
+        RepositoryRoot = repositoryRoot;
+        PathFile       = pathFile;
+        File           = file;
     }
 
-    public FileInfo                         File                    { get; }
-    public RepositoryRootDirectoryStructure RepositoryRoot          { get; }
-    public ITimeSeriesFileStructure         RepositoryFileStructure { get; }
+    public FileInfo                 File           { get; }
+    public IRepositoryRootDirectory RepositoryRoot { get; }
+    public IPathFile                PathFile       { get; }
 
     public ITimeSeriesFile? TimeSeriesFile { get; set; }
 

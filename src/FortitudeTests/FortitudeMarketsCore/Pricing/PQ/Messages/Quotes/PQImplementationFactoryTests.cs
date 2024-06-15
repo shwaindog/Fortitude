@@ -1,10 +1,14 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
-using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -16,11 +20,13 @@ public class PQImplementationFactoryTests
     [TestMethod]
     public void NewPQImplementationFactory_GetConcreteMapping_GetsConcreateImplementationOfInterface()
     {
-        var sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-            LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-            | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                                  | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        var sourceTickerQuoteInfo =
+            new SourceTickerQuoteInfo
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+               , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
+                                             | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         var pqImplementationFactory = new PQImplementationFactory();
 
         var pqLevel0Quote = pqImplementationFactory.GetConcreteMapping<IPQLevel0Quote>(sourceTickerQuoteInfo);
@@ -40,11 +46,13 @@ public class PQImplementationFactoryTests
     [ExpectedException(typeof(ArgumentOutOfRangeException))]
     public void NonSupportedPQType_GetConcreteMapping_GetsConcreateImplementationOfInterface()
     {
-        var sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-            LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-            | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                                  | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        var sourceTickerQuoteInfo =
+            new SourceTickerQuoteInfo
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+               , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
+                                             | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         var pqImplementationFactory = new PQImplementationFactory();
 
         pqImplementationFactory.GetConcreteMapping<PQLevel1QuoteTests.DummyLevel1Quote>(sourceTickerQuoteInfo);

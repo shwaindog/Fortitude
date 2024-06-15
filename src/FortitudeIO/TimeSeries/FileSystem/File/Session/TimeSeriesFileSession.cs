@@ -51,7 +51,7 @@ public interface IFileReaderSession<TEntry> : IReaderSession<TEntry>
 }
 
 public interface IFileWriterSession<TEntry> : IWriterSession<TEntry>, IFileReaderSession<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry> { }
+    where TEntry : ITimeSeriesEntry<TEntry>;
 
 public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<TEntry>
   , IBucketTrackingSession
@@ -258,11 +258,19 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
     {
         if (!IsWritable) return new AppendResult(StorageAttemptResult.BucketClosedForAppend);
 
+
         appendContext ??= timeSeriesFile.CreateAppendContext();
 
         appendContext.PreviousEntry = appendContext.CurrentEntry;
         appendContext.CurrentEntry  = entry;
-        appendContext.StorageTime   = entry.StorageTime(timeSeriesFile.StorageTimeResolver);
+        var storageTime = entry.StorageTime(timeSeriesFile.StorageTimeResolver);
+
+        if (!TimeSeriesPeriodRange.ContainsTime(storageTime))
+        {
+            if (CurrentlyOpenBucket?.IsOpen ?? false) CurrentlyOpenBucket!.CloseBucketFileViews();
+            return new AppendResult(StorageAttemptResult.NextFilePeriod);
+        }
+        appendContext.StorageTime = storageTime;
 
         var bucketMatch = CurrentlyOpenBucket?.CheckTimeSupported(appendContext.StorageTime)
                        ?? appendContext?.LastAddedRootBucket?.CheckTimeSupported(appendContext.StorageTime)

@@ -14,6 +14,8 @@ using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Pricing.Quotes;
+using static FortitudeIO.TimeSeries.InstrumentType;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 
 #endregion
 
@@ -53,10 +55,10 @@ public class TimeSeriesFileTests
         createNewEntryFactory  = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         testTimeSeriesFileParameters =
-            new TimeSeriesFileParameters(timeSeriesFile,
-                                         new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, TimeSeriesPeriod.Tick
-                                                      , "TestInstrumentCategory"),
-                                         TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
+            new TimeSeriesFileParameters
+                (timeSeriesFile, new Instrument("TestInstrumentName", "TestSourceName", Price, Unknown, TimeSeriesPeriod.Tick
+                                              , "TestInstrumentCategory"),
+                 TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
         oneWeekFile   = new TestWeeklyLevel1StructsTimeSeriesFile(testTimeSeriesFileParameters);
         writerSession = oneWeekFile.GetWriterSession()!;
     }
@@ -243,7 +245,7 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.InstrumentName);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
-        Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
+        Assert.AreEqual(Price, header.InstrumentType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
         Assert.AreEqual(typeof(TestWeeklyLevel1StructsTimeSeriesFile), header.TimeSeriesFileType);
@@ -258,7 +260,7 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.InstrumentName);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
-        Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
+        Assert.AreEqual(Price, header.InstrumentType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
         Assert.AreEqual(typeof(TestWeeklyLevel1StructsTimeSeriesFile), header.TimeSeriesFileType);
@@ -267,7 +269,7 @@ public class TimeSeriesFileTests
     [TestMethod]
     public void CreateNewFile_BeyondFileTime_ReturnsFileRangeNotSupported()
     {
-        Assert.AreEqual(InstrumentType.Price, oneWeekFile.InstrumentType);
+        Assert.AreEqual(Price, oneWeekFile.InstrumentType);
         var singleQuoteMiddleOfWeek = GenerateRepeatableL1QuoteStructs(1, 1, 12, DayOfWeek.Wednesday);
         var nextWeekQuote           = singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);

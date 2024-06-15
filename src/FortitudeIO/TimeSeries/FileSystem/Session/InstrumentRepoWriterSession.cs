@@ -12,17 +12,17 @@ namespace FortitudeIO.TimeSeries.FileSystem.Session;
 
 public class InstrumentRepoWriterSession<TEntry> : IWriterSession<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
-    private readonly ITimeSeriesFileStructure fileStructure;
-    private readonly Instrument               instrument;
+    private readonly IInstrument instrument;
+    private readonly IPathFile   pathFile;
 
     private IWriterSession<TEntry>? currentFileWriterSession;
 
     private StorageAttemptResult lastStorageAttemptResult;
 
-    public InstrumentRepoWriterSession(Instrument instrument, ITimeSeriesFileStructure fileStructure)
+    public InstrumentRepoWriterSession(IInstrument instrument, IPathFile pathFile)
     {
-        this.instrument    = instrument;
-        this.fileStructure = fileStructure;
+        this.instrument = instrument;
+        this.pathFile   = pathFile;
     }
 
     public void Dispose()
@@ -45,9 +45,10 @@ public class InstrumentRepoWriterSession<TEntry> : IWriterSession<TEntry> where 
             appendResult             = currentFileWriterSession.AppendEntry(entry);
             lastStorageAttemptResult = appendResult.StorageAttemptResult;
             if (lastStorageAttemptResult == StorageAttemptResult.PeriodRangeMatched) return appendResult;
+            currentFileWriterSession.Close();
         }
 
-        currentFileWriterSession = fileStructure.GetOrCreateTimeSeriesFileWriter<TEntry>(instrument, entry.StorageTime());
+        currentFileWriterSession = pathFile.GetOrCreateTimeSeriesFileWriter<TEntry>(instrument, entry.StorageTime());
         appendResult             = currentFileWriterSession.AppendEntry(entry);
         lastStorageAttemptResult = appendResult.StorageAttemptResult;
         return appendResult;

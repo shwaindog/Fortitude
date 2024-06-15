@@ -20,31 +20,41 @@ public interface ITimeSeriesRepositoryFileFactory<TEntry> : ITimeSeriesRepositor
 {
     ITimeSeriesEntryFile<TEntry>? OpenExisting(FileInfo fileInfo);
 
-    ITimeSeriesEntryFile<TEntry> OpenOrCreate(FileInfo fileInfo, Instrument instrument, TimeSeriesPeriod filePeriod
+    ITimeSeriesEntryFile<TEntry> OpenOrCreate(FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
       , DateTime filePeriodTime);
 }
 
-public class TimeSeriesRepositoryFileFactory<TFile, TBucket, TEntry> : ITimeSeriesRepositoryFileFactory<TEntry>
-    where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
+public abstract class TimeSeriesRepositoryFileFactory<TEntry> : ITimeSeriesRepositoryFileFactory<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry>
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     public Type EntryType => typeof(TEntry);
 
-    public virtual ITimeSeriesEntryFile<TEntry>? OpenExisting(FileInfo fileInfo) =>
+    public abstract ITimeSeriesEntryFile<TEntry>? OpenExisting(FileInfo fileInfo);
+
+    public abstract ITimeSeriesEntryFile<TEntry> OpenOrCreate(FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
+      , DateTime filePeriodTime);
+
+    protected virtual TimeSeriesFileParameters CreateTimeSeriesFileParameters(FileInfo fileInfo, IInstrument instrument,
+        TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+    {
+        var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
+        return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, initialFileFlags: FileFlags.WriterOpened);
+    }
+}
+
+public class TimeSeriesRepositoryFileFactory<TFile, TBucket, TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
+  , ITimeSeriesRepositoryFileFactory<TEntry>
+    where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>
+{
+    public override ITimeSeriesEntryFile<TEntry>? OpenExisting(FileInfo fileInfo) =>
         TimeSeriesFile<TFile, TBucket, TEntry>.OpenExistingTimeSeriesFile(fileInfo.FullName);
 
-    public virtual ITimeSeriesEntryFile<TEntry> OpenOrCreate(FileInfo fileInfo, Instrument instrument, TimeSeriesPeriod filePeriod
+    public override ITimeSeriesEntryFile<TEntry> OpenOrCreate(FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
       , DateTime filePeriodTime)
     {
         var openOrCreateParams = CreateTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return new TimeSeriesFile<TFile, TBucket, TEntry>(openOrCreateParams);
-    }
-
-    protected virtual TimeSeriesFileParameters CreateTimeSeriesFileParameters(FileInfo fileInfo, Instrument instrument,
-        TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
-    {
-        var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
-        return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart);
     }
 }

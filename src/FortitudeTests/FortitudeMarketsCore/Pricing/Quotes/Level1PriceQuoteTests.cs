@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
@@ -10,6 +13,8 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.TimeSeries;
+using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -18,9 +23,11 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 [TestClass]
 public class Level1PriceQuoteTests
 {
-    private Level1PriceQuote emptyQuote = null!;
+    private Level1PriceQuote emptyQuote                = null!;
     private Level1PriceQuote fullyPopulatedLevel1Quote = null!;
+
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
+
     private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
@@ -28,13 +35,12 @@ public class Level1PriceQuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo(ushort.MaxValue, "TestSource", ushort.MaxValue,
-            "TestTicker", QuoteLevel.Level3, 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
-            LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize
-            | LayerFlags.TraderCount, LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
-                                                                  | LastTradedFlags.LastTradedVolume |
-                                                                  LastTradedFlags.LastTradedTime);
-        emptyQuote = new Level1PriceQuote(sourceTickerQuoteInfo);
+        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        emptyQuote                = new Level1PriceQuote(sourceTickerQuoteInfo);
         fullyPopulatedLevel1Quote = new Level1PriceQuote(sourceTickerQuoteInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedLevel1Quote, 1);
     }
@@ -60,21 +66,23 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void IntializedFromConstructor_New_InitializesFieldsAsExpected()
     {
-        var expectedSourceTime = new DateTime(2018, 02, 04, 23, 56, 59);
+        var expectedSourceTime         = new DateTime(2018, 02, 04, 23, 56, 59);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
-        var expectedSinglePrice = 1.23456m;
+        var expectedSinglePrice        = 1.23456m;
         var expectedAdapterReceiveTime = new DateTime(2018, 02, 04, 20, 56, 9);
-        var expectedAdapterSentTime = new DateTime(2018, 02, 04, 21, 56, 9);
-        var expectedSourceBidTime = new DateTime(2018, 02, 04, 22, 56, 9);
-        var expectedBidPriceTop = 2.34567m;
-        var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
-        var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new PricePeriodSummary();
+        var expectedAdapterSentTime    = new DateTime(2018, 02, 04, 21, 56, 9);
+        var expectedSourceBidTime      = new DateTime(2018, 02, 04, 22, 56, 9);
+        var expectedBidPriceTop        = 2.34567m;
+        var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
+        var expectedAskPriceTop        = 3.45678m;
+        var expectedPeriodSummary      = new PricePeriodSummary();
 
-        var fromConstructor = new Level1PriceQuote(sourceTickerQuoteInfo, expectedSourceTime, true,
-            expectedSinglePrice, expectedClientReceivedTime, expectedAdapterReceiveTime, expectedAdapterSentTime,
-            expectedSourceBidTime, expectedBidPriceTop, true, expectedSourceAskTime, expectedAskPriceTop,
-            true, true, expectedPeriodSummary);
+        var fromConstructor =
+            new Level1PriceQuote
+                (sourceTickerQuoteInfo, expectedSourceTime, true, expectedSinglePrice, expectedClientReceivedTime
+               , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime
+               , expectedBidPriceTop, true, expectedSourceAskTime, expectedAskPriceTop
+               , true, true, expectedPeriodSummary);
 
         Assert.AreSame(sourceTickerQuoteInfo, fromConstructor.SourceTickerQuoteInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
@@ -98,9 +106,11 @@ public class Level1PriceQuoteTests
     {
         var pqPeriodSummary = new PQPricePeriodSummary();
 
-        var nonSourceTickerQuoteInfoQuote = new Level1PriceQuote(sourceTickerQuoteInfo, DateTime.Now, true,
-            1m, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, 1m, true, DateTime.Now, 1m,
-            true, true, pqPeriodSummary);
+        var nonSourceTickerQuoteInfoQuote =
+            new Level1PriceQuote
+                (sourceTickerQuoteInfo, DateTime.Now, true, 1m, DateTime.Now, DateTime.Now
+               , DateTime.Now, DateTime.Now, 1m, true, DateTime.Now
+               , 1m, true, true, pqPeriodSummary);
 
         Assert.IsInstanceOfType(nonSourceTickerQuoteInfoQuote.SummaryPeriod, typeof(PricePeriodSummary));
     }
@@ -117,7 +127,7 @@ public class Level1PriceQuoteTests
     public void NonSourceTickerQuoteInfo_New_CopiesExceptPeriodSummaryIsConverted()
     {
         var originalPeriodSummary = fullyPopulatedLevel1Quote.SummaryPeriod!;
-        var pqPeriodSummary = new PQPricePeriodSummary(originalPeriodSummary);
+        var pqPeriodSummary       = new PQPricePeriodSummary(originalPeriodSummary);
         fullyPopulatedLevel1Quote.SummaryPeriod = pqPeriodSummary;
         var copyQuote = new Level1PriceQuote(fullyPopulatedLevel1Quote);
         Assert.AreNotEqual(fullyPopulatedLevel1Quote, copyQuote);
@@ -148,31 +158,31 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void PopulatedQuote_Mutate_UpdatesFields()
     {
-        var expectedSourceTime = new DateTime(2018, 02, 04, 23, 56, 59);
+        var expectedSourceTime         = new DateTime(2018, 02, 04, 23, 56, 59);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
-        var expectedSinglePrice = 1.23456m;
+        var expectedSinglePrice        = 1.23456m;
         var expectedAdapterReceiveTime = new DateTime(2018, 02, 04, 20, 56, 9);
-        var expectedAdapterSentTime = new DateTime(2018, 02, 04, 21, 56, 9);
-        var expectedSourceBidTime = new DateTime(2018, 02, 04, 22, 56, 9);
-        var expectedBidPriceTop = 2.34567m;
-        var expectedSourceAskTime = new DateTime(2018, 02, 04, 23, 56, 9);
-        var expectedAskPriceTop = 3.45678m;
-        var expectedPeriodSummary = new PricePeriodSummary();
+        var expectedAdapterSentTime    = new DateTime(2018, 02, 04, 21, 56, 9);
+        var expectedSourceBidTime      = new DateTime(2018, 02, 04, 22, 56, 9);
+        var expectedBidPriceTop        = 2.34567m;
+        var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
+        var expectedAskPriceTop        = 3.45678m;
+        var expectedPeriodSummary      = new PricePeriodSummary();
 
-        emptyQuote.SourceTime = expectedSourceTime;
-        emptyQuote.IsReplay = true;
-        emptyQuote.SinglePrice = expectedSinglePrice;
-        emptyQuote.ClientReceivedTime = expectedClientReceivedTime;
-        emptyQuote.AdapterReceivedTime = expectedAdapterReceiveTime;
-        emptyQuote.AdapterSentTime = expectedAdapterSentTime;
-        emptyQuote.SourceBidTime = expectedSourceBidTime;
-        emptyQuote.BidPriceTop = expectedBidPriceTop;
+        emptyQuote.SourceTime           = expectedSourceTime;
+        emptyQuote.IsReplay             = true;
+        emptyQuote.SinglePrice          = expectedSinglePrice;
+        emptyQuote.ClientReceivedTime   = expectedClientReceivedTime;
+        emptyQuote.AdapterReceivedTime  = expectedAdapterReceiveTime;
+        emptyQuote.AdapterSentTime      = expectedAdapterSentTime;
+        emptyQuote.SourceBidTime        = expectedSourceBidTime;
+        emptyQuote.BidPriceTop          = expectedBidPriceTop;
         emptyQuote.IsBidPriceTopUpdated = true;
-        emptyQuote.SourceAskTime = expectedSourceAskTime;
-        emptyQuote.AskPriceTop = expectedAskPriceTop;
+        emptyQuote.SourceAskTime        = expectedSourceAskTime;
+        emptyQuote.AskPriceTop          = expectedAskPriceTop;
         emptyQuote.IsAskPriceTopUpdated = true;
-        emptyQuote.Executable = true;
-        emptyQuote.SummaryPeriod = expectedPeriodSummary;
+        emptyQuote.Executable           = true;
+        emptyQuote.SummaryPeriod        = expectedPeriodSummary;
 
         Assert.AreSame(sourceTickerQuoteInfo, emptyQuote.SourceTickerQuoteInfo);
         Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
@@ -247,8 +257,8 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void OneDifferenceAtATime_AreEquivalent_ReturnsExpected()
     {
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, fullyPopulatedLevel1Quote,
-            (IMutableLevel1Quote)fullyPopulatedLevel1Quote.Clone());
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, fullyPopulatedLevel1Quote, (IMutableLevel1Quote)fullyPopulatedLevel1Quote.Clone());
     }
 
     [TestMethod]
@@ -260,7 +270,7 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void FullyPopulatedQuote_ToString_ReturnsNameAndValues()
     {
-        var q = fullyPopulatedLevel1Quote;
+        var q        = fullyPopulatedLevel1Quote;
         var toString = q.ToString();
 
         Assert.IsTrue(toString.Contains(q.GetType().Name));
@@ -285,12 +295,12 @@ public class Level1PriceQuoteTests
     internal static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
         IMutableLevel1Quote commonCompareQuote, IMutableLevel1Quote changingQuote)
     {
-        Level0PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-            commonCompareQuote, changingQuote);
+        Level0PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, commonCompareQuote, changingQuote);
 
         var diffPeriodSummary = commonCompareQuote.SummaryPeriod!.Clone();
         diffPeriodSummary.HighestAskPrice = 3.45678m;
-        changingQuote.SummaryPeriod = diffPeriodSummary;
+        changingQuote.SummaryPeriod       = diffPeriodSummary;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
         changingQuote.SummaryPeriod = commonCompareQuote.SummaryPeriod.Clone();
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
