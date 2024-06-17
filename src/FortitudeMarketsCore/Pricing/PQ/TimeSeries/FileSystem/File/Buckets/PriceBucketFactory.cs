@@ -12,16 +12,18 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class PriceQuoteBucketFactory<TBucket> : BucketFactory<TBucket>
-    where TBucket : class, IBucketNavigation<TBucket>, IPriceQuoteBucket, IMutableBucket
+public class PriceBucketFactory<TBucket> : BucketFactory<TBucket>
+    where TBucket : class, IBucketNavigation<TBucket>, IPriceBucket, IMutableBucket
 {
-    public PriceQuoteBucketFactory(ISourceTickerQuoteInfo sourceTickerQuoteInfo,
+    public PriceBucketFactory
+    (ISourceTickerQuoteInfo sourceTickerQuoteInfo,
         bool isFileRootBucketType = false) : base(isFileRootBucketType) =>
         SourceTickerQuoteInfo = sourceTickerQuoteInfo;
 
     private ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; }
 
-    protected override TBucket NewBucketObject(IMutableBucketContainer bucketContainer, long currentFileOffset, bool isWritable
+    protected override TBucket NewBucketObject
+    (IMutableBucketContainer bucketContainer, long currentFileOffset, bool isWritable
       , ShiftableMemoryMappedFileView? alternativeMappedFileView = null)
     {
         var newBucket = base.NewBucketObject(bucketContainer, currentFileOffset, isWritable, alternativeMappedFileView);

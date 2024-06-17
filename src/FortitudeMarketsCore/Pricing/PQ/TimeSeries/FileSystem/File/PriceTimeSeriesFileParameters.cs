@@ -12,9 +12,10 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public struct PriceQuoteTimeSeriesFileParameters
+public struct PriceTimeSeriesFileParameters
 {
-    public PriceQuoteTimeSeriesFileParameters(ISourceTickerQuoteInfo sourceTickerQuoteInfo, FileInfo fileInfo,
+    public PriceTimeSeriesFileParameters
+    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, FileInfo fileInfo,
         IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime fileStartPeriod,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage,
         uint internalIndexSize = 0, FileFlags initialFileFlags = FileFlags.None, int initialFileSize = ushort.MaxValue * 2,
@@ -27,7 +28,8 @@ public struct PriceQuoteTimeSeriesFileParameters
         SerializationFlags    = serializationFlags;
     }
 
-    public PriceQuoteTimeSeriesFileParameters(ISourceTickerQuoteInfo sourceTickerQuoteInfo, TimeSeriesFileParameters timeSeriesFileParameters,
+    public PriceTimeSeriesFileParameters
+    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, TimeSeriesFileParameters timeSeriesFileParameters,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage)
     {
         TimeSeriesFileParameters = timeSeriesFileParameters;
@@ -44,35 +46,36 @@ public struct PriceQuoteTimeSeriesFileParameters
 
 public static class PriceQuoteCreateFileParametersExtensions
 {
-    public static PriceQuoteTimeSeriesFileParameters SetFilePeriod(this PriceQuoteTimeSeriesFileParameters input, TimeSeriesPeriod filePeriod)
+    public static PriceTimeSeriesFileParameters SetFilePeriod(this PriceTimeSeriesFileParameters input, TimeSeriesPeriod filePeriod)
     {
         var updated = input;
         updated.TimeSeriesFileParameters = input.TimeSeriesFileParameters.SetFilePeriod(filePeriod);
         return updated;
     }
 
-    public static PriceQuoteTimeSeriesFileParameters SetInternalIndexSize(this PriceQuoteTimeSeriesFileParameters input, uint internalIndexSize)
+    public static PriceTimeSeriesFileParameters SetInternalIndexSize(this PriceTimeSeriesFileParameters input, uint internalIndexSize)
     {
         var updated = input;
         updated.TimeSeriesFileParameters = input.TimeSeriesFileParameters.SetInternalIndexSize(internalIndexSize);
         return updated;
     }
 
-    public static PriceQuoteTimeSeriesFileParameters SetFileFlags(this PriceQuoteTimeSeriesFileParameters input, FileFlags toSet)
+    public static PriceTimeSeriesFileParameters SetFileFlags(this PriceTimeSeriesFileParameters input, FileFlags toSet)
     {
         var updated = input;
         updated.TimeSeriesFileParameters = input.TimeSeriesFileParameters.SetFileFlags(toSet);
         return updated;
     }
 
-    public static PriceQuoteTimeSeriesFileParameters AssertTimeSeriesEntryType(this PriceQuoteTimeSeriesFileParameters input
+    public static PriceTimeSeriesFileParameters AssertTimeSeriesEntryType
+    (this PriceTimeSeriesFileParameters input
       , InstrumentType instrumentType)
     {
         input.TimeSeriesFileParameters.AssertTimeSeriesEntryType(instrumentType);
         return input;
     }
 
-    public static PriceQuoteTimeSeriesFileParameters SetInitialFileSize(this PriceQuoteTimeSeriesFileParameters input, int initialFileSize)
+    public static PriceTimeSeriesFileParameters SetInitialFileSize(this PriceTimeSeriesFileParameters input, int initialFileSize)
     {
         var updated = input;
         updated.TimeSeriesFileParameters = input.TimeSeriesFileParameters.SetInitialFileSize(initialFileSize);

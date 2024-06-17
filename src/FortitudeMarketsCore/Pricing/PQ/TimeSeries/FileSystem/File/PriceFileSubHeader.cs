@@ -16,7 +16,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public interface ISerializationPriceQuoteFileHeader : IPriceQuoteFileHeader
+public interface ISerializationPriceFileHeader : IPriceQuoteFileHeader
 {
     PQSerializationFlags SerializationFlags { get; set; }
 }
@@ -29,7 +29,7 @@ public struct PriceQuoteSubHeader
     public ushort SourceTickerQuoteSubHeaderBytesOffset;
 }
 
-public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
+public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
 {
     private static IRecycler recycler = new Recycler();
 
@@ -48,7 +48,7 @@ public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
     private PriceQuoteSubHeader*             priceQuoteSubHeader;
     private SourceTickerQuoteInfoSerializer? sourceTickerQuoteInfoSerializer;
 
-    public PriceQuoteFileSubHeader(ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
+    public PriceFileSubHeader(ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
     {
         memoryMappedFileView     = headerMappedFileView;
         this.subHeaderFileOffset = subHeaderFileOffset;
@@ -60,12 +60,13 @@ public unsafe class PriceQuoteFileSubHeader : ISerializationPriceQuoteFileHeader
         priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset = 100;
     }
 
-    public PriceQuoteFileSubHeader(PriceQuoteTimeSeriesFileParameters priceQuoteTimeSeriesFileParameters,
+    public PriceFileSubHeader
+    (PriceTimeSeriesFileParameters priceTimeSeriesFileParameters,
         ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
         : this(headerMappedFileView, subHeaderFileOffset, writable)
     {
-        SourceTickerQuoteInfo = priceQuoteTimeSeriesFileParameters.SourceTickerQuoteInfo;
-        SerializationFlags    = priceQuoteTimeSeriesFileParameters.SerializationFlags;
+        SourceTickerQuoteInfo = priceTimeSeriesFileParameters.SourceTickerQuoteInfo;
+        SerializationFlags    = priceTimeSeriesFileParameters.SerializationFlags;
     }
 
     public PQSerializationFlags SerializationFlags

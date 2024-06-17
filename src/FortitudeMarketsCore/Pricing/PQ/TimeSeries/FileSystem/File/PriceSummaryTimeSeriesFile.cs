@@ -8,7 +8,7 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
@@ -16,19 +16,19 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class PriceQuoteTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<TFile, TBucket, TEntry>, IPriceQuoteTimeSeriesFile
+public class PriceSummaryTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<TFile, TBucket, TEntry>, IPriceQuoteTimeSeriesFile
     where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceBucket
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
-    public PriceQuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public PriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header)
     {
         Header.SubHeaderFactory = (view, offset, writable) => new PriceFileSubHeader(view, offset, writable);
         PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
     }
 
-    public PriceQuoteTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public PriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.TimeSeriesFileParameters)
     {
         Header.FileFlags        |= FileFlags.HasSubFileHeader | FileFlags.HasInternalIndexInHeader;

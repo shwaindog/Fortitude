@@ -175,6 +175,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         }
     }
 
+    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => SummaryEndTime;
+
     public bool IsEndTimeDateUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.EndTimeDateFlag) > 0;

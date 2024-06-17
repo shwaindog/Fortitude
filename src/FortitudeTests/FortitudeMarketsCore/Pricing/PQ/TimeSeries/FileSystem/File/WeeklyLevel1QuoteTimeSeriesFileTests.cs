@@ -83,7 +83,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
                , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, Unknown
                               , TimeSeriesPeriod.Tick, "TestInstrumentCategory"),
                  TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
-        var createPriceQuoteFile = new PriceQuoteTimeSeriesFileParameters(level1SrcTkrQtInfo, createTestCreateFileParameters);
+        var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level1SrcTkrQtInfo, createTestCreateFileParameters);
         level1OneWeekFile   = new WeeklyLevel1QuoteTimeSeriesFile(createPriceQuoteFile);
         level1SessionWriter = level1OneWeekFile.GetWriterSession()!;
     }
@@ -119,8 +119,8 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned(pqLevel1QuoteGenerator, asPQLevel1QuoteFactory);
     }
 
-    public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>(
-        IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel1Quote> retrievalFactory)
+    public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>
+        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel1Quote> retrievalFactory)
         where TEntry : class, IMutableLevel1Quote, ILevel1Quote
     {
         var toPersistAndCheck
@@ -176,8 +176,8 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(pqLevel1QuoteGenerator, asPQLevel1QuoteFactory);
     }
 
-    public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>(
-        IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel1Quote> retrievalFactory)
+    public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>
+        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel1Quote> retrievalFactory)
         where TEntry : class, IMutableLevel1Quote, ILevel1Quote
     {
         var toPersistAndCheck =
@@ -250,7 +250,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToOneHourPQLevel1QuoteSubBuckets<ILevel1Quote>), header.BucketType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel1QuoteSubBuckets<ILevel1Quote>), header.BucketType);
         Assert.AreEqual(typeof(ILevel1Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel1QuoteTimeSeriesFile), header.TimeSeriesFileType);
         level1OneWeekFile.Close();
@@ -266,7 +266,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToOneHourPQLevel1QuoteSubBuckets<ILevel1Quote>), header.BucketType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel1QuoteSubBuckets<ILevel1Quote>), header.BucketType);
         Assert.AreEqual(typeof(ILevel1Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel1QuoteTimeSeriesFile), header.TimeSeriesFileType);
     }

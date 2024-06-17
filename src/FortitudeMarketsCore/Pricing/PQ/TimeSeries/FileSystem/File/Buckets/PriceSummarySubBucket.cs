@@ -8,18 +8,18 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public abstract class PriceQuoteSubBucket<TEntry, TBucket, TSubBucket> : SubBucketOnlyBucket<TEntry, TBucket, TSubBucket>, IPriceBucket
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
+public abstract class PriceSummarySubBucket<TEntry, TBucket, TSubBucket> : SubBucketOnlyBucket<TEntry, TBucket, TSubBucket>, IPriceBucket
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceBucket
     where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>, IPriceBucket
 {
-    protected PriceQuoteSubBucket
+    protected PriceSummarySubBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }

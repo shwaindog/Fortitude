@@ -118,6 +118,8 @@ public class PricePeriodSummary : IMutablePricePeriodSummary
     public decimal  AverageBidPrice  { get; set; }
     public decimal  AverageAskPrice  { get; set; }
 
+    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => SummaryEndTime;
+
     public IPricePeriodSummary CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SummaryPeriod    = source.SummaryPeriod;

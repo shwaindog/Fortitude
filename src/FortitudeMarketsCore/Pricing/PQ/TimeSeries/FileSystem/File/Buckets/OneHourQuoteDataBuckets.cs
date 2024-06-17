@@ -13,40 +13,44 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class OneHourPQLevel0QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, OneHourPQLevel0QuoteDataBucket<TEntry>, PQLevel0Quote>
+public class HourlyLevel0QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel0QuoteDataBucket<TEntry>, PQLevel0Quote>
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
 {
-    public OneHourPQLevel0QuoteDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+    public HourlyLevel0QuoteDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneHour;
 }
 
-public class OneHourPQLevel1QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, OneHourPQLevel1QuoteDataBucket<TEntry>, PQLevel1Quote>
+public class HourlyLevel1QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel1QuoteDataBucket<TEntry>, PQLevel1Quote>
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel1Quote
 {
-    public OneHourPQLevel1QuoteDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+    public HourlyLevel1QuoteDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneHour;
 }
 
-public class OneHourPQLevel2QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, OneHourPQLevel2QuoteDataBucket<TEntry>, PQLevel2Quote>
+public class HourlyLevel2QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel2QuoteDataBucket<TEntry>, PQLevel2Quote>
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel2Quote
 {
-    public OneHourPQLevel2QuoteDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+    public HourlyLevel2QuoteDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneHour;
 }
 
-public class OneHourPQLevel3QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, OneHourPQLevel3QuoteDataBucket<TEntry>, PQLevel3Quote>
+public class HourlyLevel3QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel3QuoteDataBucket<TEntry>, PQLevel3Quote>
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel3Quote
 {
-    public OneHourPQLevel3QuoteDataBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+    public HourlyLevel3QuoteDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 

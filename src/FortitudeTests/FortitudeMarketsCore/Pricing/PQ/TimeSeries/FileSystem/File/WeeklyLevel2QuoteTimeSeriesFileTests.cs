@@ -60,7 +60,8 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         startOfWeek = dateToGenerate.AddDays(dayDiff);
     }
 
-    private void CreateLevel2File(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader,
+    private void CreateLevel2File
+    (FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader,
         LayerType layerType = LayerType.PriceVolume, byte numberOfLayers = 20)
     {
         level2SrcTkrQtInfo =
@@ -86,7 +87,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
                , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, Unknown
                               , TimeSeriesPeriod.Tick, "TestInstrumentCategory"),
                  TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
-        var createPriceQuoteFile = new PriceQuoteTimeSeriesFileParameters(level2SrcTkrQtInfo, createTestCreateFileParameters);
+        var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level2SrcTkrQtInfo, createTestCreateFileParameters);
         level2OneWeekFile   = new WeeklyLevel2QuoteTimeSeriesFile(createPriceQuoteFile);
         level2SessionWriter = level2OneWeekFile.GetWriterSession()!;
     }
@@ -276,8 +277,8 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(pqLevel2QuoteGenerator, asPQLevel2QuoteFactory);
     }
 
-    public void CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned<TEntry>(
-        IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel2Quote> retrievalFactory)
+    public void CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned<TEntry>
+        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel2Quote> retrievalFactory)
         where TEntry : class, IMutableLevel2Quote, ILevel2Quote
     {
         var toPersistAndCheck
@@ -319,8 +320,8 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned(pqLevel2QuoteGenerator, asPQLevel2QuoteFactory);
     }
 
-    public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>(
-        IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel2Quote> retrievalFactory)
+    public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>
+        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel2Quote> retrievalFactory)
         where TEntry : class, IMutableLevel2Quote, ILevel2Quote
     {
         var toPersistAndCheck
@@ -376,8 +377,8 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(pqLevel2QuoteGenerator, asPQLevel2QuoteFactory);
     }
 
-    public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>(
-        IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel2Quote> retrievalFactory)
+    public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>
+        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel2Quote> retrievalFactory)
         where TEntry : class, IMutableLevel2Quote, ILevel2Quote
     {
         var toPersistAndCheck =
@@ -450,7 +451,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToOneHourPQLevel2QuoteSubBuckets<ILevel2Quote>), header.BucketType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel2QuoteSubBuckets<ILevel2Quote>), header.BucketType);
         Assert.AreEqual(typeof(ILevel2Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel2QuoteTimeSeriesFile), header.TimeSeriesFileType);
         level2OneWeekFile.Close();
@@ -466,7 +467,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToOneHourPQLevel2QuoteSubBuckets<ILevel2Quote>), header.BucketType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel2QuoteSubBuckets<ILevel2Quote>), header.BucketType);
         Assert.AreEqual(typeof(ILevel2Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel2QuoteTimeSeriesFile), header.TimeSeriesFileType);
     }
