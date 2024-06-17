@@ -138,8 +138,9 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         UpdatedFlags = LastTradeUpdated.None;
     }
 
-    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         if (!updatedOnly || IsTradeTimeDateUpdated)

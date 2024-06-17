@@ -35,7 +35,8 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     private   IPQNameIdLookupGenerator nameIdLookup = null!;
     private   ushort                   sourceId;
 
-    public PQSourcePriceVolumeLayer(IPQNameIdLookupGenerator sourceIdToNameIdLookup, decimal price = 0m, decimal volume = 0m,
+    public PQSourcePriceVolumeLayer
+    (IPQNameIdLookupGenerator sourceIdToNameIdLookup, decimal price = 0m, decimal volume = 0m,
         string? sourceName = null, bool executable = false)
         : base(price, volume)
     {
@@ -176,8 +177,9 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
@@ -221,7 +223,8 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+    public override IPriceVolumeLayer CopyFrom
+    (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);

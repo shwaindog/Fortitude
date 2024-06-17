@@ -57,6 +57,29 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
+    public static TimeSpan AveragePeriodTimeSpan(this TimeSeriesPeriod period)
+    {
+        return period switch
+               {
+                   OneSecond      => TimeSpan.FromSeconds(1)
+                 , FifteenSeconds => TimeSpan.FromSeconds(15)
+                 , ThirtySeconds  => TimeSpan.FromSeconds(30)
+                 , OneMinute      => TimeSpan.FromMinutes(1)
+                 , FiveMinutes    => TimeSpan.FromMinutes(5)
+                 , TenMinutes     => TimeSpan.FromMinutes(10)
+                 , FifteenMinutes => TimeSpan.FromMinutes(15)
+                 , ThirtyMinutes  => TimeSpan.FromMinutes(30)
+                 , OneHour        => TimeSpan.FromHours(1)
+                 , FourHours      => TimeSpan.FromHours(4)
+                 , OneDay         => TimeSpan.FromDays(1)
+                 , OneWeek        => TimeSpan.FromDays(7)
+                 , OneMonth       => TimeSpan.FromDays(365.25) / 12
+                 , OneYear        => TimeSpan.FromDays(365.25)
+                 , OneDecade      => TimeSpan.FromDays(3652.5)
+                 , _              => throw new Exception("Period has not fixed TimeSpan")
+               };
+    }
+
     public static DateTime PeriodEnd(this TimeSeriesPeriod period, DateTime startTime)
     {
         return period switch

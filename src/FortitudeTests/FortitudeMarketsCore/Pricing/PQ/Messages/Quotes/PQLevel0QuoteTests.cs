@@ -433,8 +433,8 @@ public class PQLevel0QuoteTests
         Assert.IsTrue(hashCode != 0);
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison, PQLevel0Quote original,
-        PQLevel0Quote changingLevel0Quote)
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+        (bool exactComparison, PQLevel0Quote original, PQLevel0Quote changingLevel0Quote)
     {
         Assert.IsTrue(original.AreEquivalent(changingLevel0Quote));
         Assert.IsTrue(changingLevel0Quote.AreEquivalent(original));
@@ -499,8 +499,9 @@ public class PQLevel0QuoteTests
         Assert.IsTrue(changingLevel0Quote.AreEquivalent(original, exactComparison));
     }
 
-    public static void AssertContainsAllLevel0Fields(IList<PQFieldUpdate> checkFieldUpdates,
-        PQLevel0Quote originalQuote, PQBooleanValues expectedBooleanFlags = PQBooleanValues.IsReplayUpdatedFlag | PQBooleanValues.IsReplaySetFlag)
+    public static void AssertContainsAllLevel0Fields
+    (IList<PQFieldUpdate> checkFieldUpdates, PQLevel0Quote originalQuote
+      , PQBooleanValues expectedBooleanFlags = PQBooleanValues.IsReplayUpdatedFlag | PQBooleanValues.IsReplaySetFlag)
     {
         PQSourceTickerQuoteInfoTests.AssertSourceTickerInfoContainsAllFields(checkFieldUpdates,
                                                                              originalQuote.SourceTickerQuoteInfo!);
@@ -518,8 +519,7 @@ public class PQLevel0QuoteTests
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.QuoteBooleanFlags));
     }
 
-    public static PQFieldStringUpdate ExtractFieldStringUpdateWithId(IList<PQFieldStringUpdate> allUpdates,
-        byte id, int dictionaryId)
+    public static PQFieldStringUpdate ExtractFieldStringUpdateWithId(IList<PQFieldStringUpdate> allUpdates, byte id, int dictionaryId)
     {
         return allUpdates.FirstOrDefault(fu => fu.Field.Id == id && fu.StringUpdate.DictionaryId == dictionaryId);
     }
@@ -555,8 +555,7 @@ public class PQLevel0QuoteTests
         IMutableLevel0Quote IMutableLevel0Quote.Clone() => (IMutableLevel0Quote)Clone();
         IPQLevel0Quote IPQLevel0Quote.          Clone() => (IPQLevel0Quote)Clone();
 
-        public IVersionedMessage CopyFrom(IVersionedMessage source
-          , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();
 
         bool ILevel0Quote.    IsReplay           => false;
@@ -578,16 +577,15 @@ public class PQLevel0QuoteTests
         public int  UpdateField(PQFieldUpdate updates)                  => -1;
         public bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => false;
 
-        public override ILevel0Quote CopyFrom(ILevel0Quote source
-          , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        public IReusableObject<IVersionedMessage> CopyFrom
+            (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             this;
 
-        public IReusableObject<IVersionedMessage> CopyFrom(IReusableObject<IVersionedMessage> source
-          , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-            this;
-
-        public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-            IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+        public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+        (DateTime snapShotTime, StorageFlags messageFlags,
+            IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
         {
             yield break;
         }
@@ -624,9 +622,7 @@ public class PQLevel0QuoteTests
 
         public bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false) => false;
 
-        public DummyPQLevel0Quote CopyFrom(DummyPQLevel0Quote source
-          , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-            this;
+        public DummyPQLevel0Quote CopyFrom(DummyPQLevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
 
         public override ILevel0Quote Clone() => new PQLevel1QuoteTests.DummyLevel1Quote();
 

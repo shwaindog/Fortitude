@@ -429,8 +429,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         UpdatedFlags        = QuoteFieldUpdatedFlags.None;
     }
 
-    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
 
@@ -692,12 +693,11 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         return this;
     }
 
-    IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source
-      , CopyMergeFlags copyMergeFlags) =>
+    IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
         (IVersionedMessage)CopyFrom((ILevel0Quote)source, copyMergeFlags);
 
-    public IReusableObject<IVersionedMessage> CopyFrom(IReusableObject<IVersionedMessage> source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+    public IReusableObject<IVersionedMessage> CopyFrom
+        (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         (IVersionedMessage)CopyFrom((ILevel0Quote)source, copyMergeFlags);
 
     public virtual void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance)
@@ -764,8 +764,8 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         return this;
     }
 
-    private PQSourceTickerQuoteInfo ConvertToPQSourceTickerInfo(ISourceTickerQuoteInfo value,
-        PQSourceTickerQuoteInfo? originalQuoteInfo)
+    private PQSourceTickerQuoteInfo ConvertToPQSourceTickerInfo
+        (ISourceTickerQuoteInfo value, PQSourceTickerQuoteInfo? originalQuoteInfo)
     {
         if (originalQuoteInfo == null)
         {

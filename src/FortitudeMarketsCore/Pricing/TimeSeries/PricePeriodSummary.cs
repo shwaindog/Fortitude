@@ -35,9 +35,8 @@ public struct Candle
 
 public class PricePeriodSummary : IMutablePricePeriodSummary
 {
-    private TimeSeriesPeriod timeSeriesPeriod;
-
-    public PricePeriodSummary(TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
+    public PricePeriodSummary
+    (TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m, decimal highestAskPrice = 0m,
         decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m, decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u,
         long periodVolume = 0L, decimal averageBidPrice = 0m, decimal averageAskPrice = 0m)
@@ -78,15 +77,7 @@ public class PricePeriodSummary : IMutablePricePeriodSummary
         AverageAskPrice  = toClone.AverageAskPrice;
     }
 
-    public TimeSeriesPeriod SummaryPeriod
-    {
-        get
-        {
-            if (timeSeriesPeriod == TimeSeriesPeriod.None) timeSeriesPeriod = this.CalcTimeFrame();
-            return timeSeriesPeriod;
-        }
-        set => timeSeriesPeriod = value;
-    }
+    public TimeSeriesPeriod SummaryPeriod { get; set; }
     public bool IsEmpty
     {
         get
@@ -175,9 +166,10 @@ public class PricePeriodSummary : IMutablePricePeriodSummary
         var averageBidPriceSame = AverageBidPrice == other.AverageBidPrice;
         var averageAskPriceSame = AverageAskPrice == other.AverageAskPrice;
 
-        return timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
-            && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame && endBidPriceSame
-            && endAskPriceSame && tickCountSame && periodVolumeSame && averageBidPriceSame && averageAskPriceSame;
+        var allAreSame = timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
+                      && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame && endBidPriceSame
+                      && endAskPriceSame && tickCountSame && periodVolumeSame && averageBidPriceSame && averageAskPriceSame;
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPricePeriodSummary?)obj, true);

@@ -3,6 +3,7 @@
 
 #region
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
@@ -10,7 +11,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.TimeSeries;
 
 #endregion
 
@@ -18,6 +18,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 
 public interface IPQPricePeriodSummary : IMutablePricePeriodSummary, IPQSupportsFieldUpdates<IPricePeriodSummary>
 {
+    bool IsSummaryPeriodUpdated          { get; set; }
     bool IsStartTimeDateUpdated          { get; set; }
     bool IsStartTimeSubHourUpdated       { get; set; }
     bool IsEndTimeDateUpdated            { get; set; }
@@ -80,12 +81,13 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
 
     public TimeSeriesPeriod SummaryPeriod
     {
-        get
+        get => timeSeriesPeriod;
+        set
         {
-            if (timeSeriesPeriod == TimeSeriesPeriod.None) timeSeriesPeriod = this.CalcTimeFrame();
-            return timeSeriesPeriod;
+            if (value == timeSeriesPeriod) return;
+            IsSummaryPeriodUpdated = true;
+            timeSeriesPeriod       = value;
         }
-        set => timeSeriesPeriod = value;
     }
 
     public bool IsEmpty
@@ -122,6 +124,18 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
             IsStartTimeDateUpdated    |= startTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch();
             IsStartTimeSubHourUpdated |= startTime.GetSubHourComponent() != value.GetSubHourComponent();
             startTime                 =  value;
+        }
+    }
+
+    public bool IsSummaryPeriodUpdated
+    {
+        get => (updatedFlags & PeriodSummaryUpdatedFlags.SummaryPeriodFlag) > 0;
+        set
+        {
+            if (value)
+                updatedFlags |= PeriodSummaryUpdatedFlags.SummaryPeriodFlag;
+
+            else if (IsSummaryPeriodUpdated) updatedFlags ^= PeriodSummaryUpdatedFlags.SummaryPeriodFlag;
         }
     }
 
@@ -483,10 +497,13 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
     }
 
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Update) > 0;
+        if (!updatedOnly || IsSummaryPeriodUpdated)
+            yield return new PQFieldUpdate(PQFieldKeys.SummaryPeriod, (uint)timeSeriesPeriod);
         if (!updatedOnly || IsStartTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.PeriodStartDateTime, startTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsStartTimeSubHourUpdated)
@@ -552,6 +569,9 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
     {
         switch (pqFieldUpdate.Id)
         {
+            case PQFieldKeys.SummaryPeriod:
+                SummaryPeriod = (TimeSeriesPeriod)pqFieldUpdate.Value;
+                return 0;
             case PQFieldKeys.PeriodStartDateTime:
                 IsStartTimeDateUpdated = true;
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref startTime, pqFieldUpdate.Value);
@@ -618,6 +638,7 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
     {
         if (!(ps is IPQPricePeriodSummary pqPs))
         {
+            SummaryPeriod    = ps.SummaryPeriod;
             SummaryStartTime = ps.SummaryStartTime;
             SummaryEndTime   = ps.SummaryEndTime;
             StartBidPrice    = ps.StartBidPrice;
@@ -636,6 +657,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
         else
         {
             // between types only copy the changed parts not everything.
+            if (pqPs.IsSummaryPeriodUpdated)
+                SummaryPeriod = pqPs.SummaryPeriod;
             if (pqPs.IsStartTimeDateUpdated)
                 PQFieldConverters.UpdateHoursFromUnixEpoch(ref startTime,
                                                            pqPs.SummaryStartTime.GetHoursFromUnixEpoch());
@@ -703,10 +726,12 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
             updateFlagsSame = updatedFlags == otherPQ.updatedFlags;
         }
 
-        return timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
-            && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame
-            && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && updateFlagsSame
-            && averageBidSame && averageAskSame;
+        var allAreSame = timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
+                      && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame
+                      && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && updateFlagsSame
+                      && averageBidSame && averageAskSame;
+        if (!allAreSame) Debugger.Break();
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPricePeriodSummary?)obj, true);
@@ -715,7 +740,8 @@ public class PQPricePeriodSummary : IPQPricePeriodSummary
     {
         unchecked
         {
-            var hashCode = startTime.GetHashCode();
+            var hashCode = timeSeriesPeriod.GetHashCode();
+            hashCode = (hashCode * 397) ^ startTime.GetHashCode();
             hashCode = (hashCode * 397) ^ endTime.GetHashCode();
             hashCode = (hashCode * 397) ^ startBidPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ startAskPrice.GetHashCode();

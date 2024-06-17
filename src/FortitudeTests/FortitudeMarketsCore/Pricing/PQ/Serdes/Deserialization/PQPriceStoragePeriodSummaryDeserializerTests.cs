@@ -1,0 +1,127 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
+
+using FortitudeCommon.Serdes;
+using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
+using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
+using FortitudeMarketsCore.Pricing.TimeSeries;
+using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+
+#endregion
+
+namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
+
+[TestClass]
+public class PQPriceStoragePeriodSummaryDeserializerTests
+{
+    private BufferContext                           bufferContext = null!;
+    private PQPriceStoragePeriodSummaryDeserializer deserializer  = new();
+
+    private List<IPricePeriodSummary> originalSummaries = null!;
+
+    private PQPriceStoragePeriodSummary pqPriceStoragePeriodSummary = null!;
+    private CircularReadWriteBuffer     readWriteBuffer             = null!;
+
+    private PQPriceStoragePeriodSummarySerializer snapshotSerializer = new(StorageFlags.Snapshot);
+    private PQPriceStoragePeriodSummarySerializer updateSerializer   = new(StorageFlags.Update);
+
+
+    [TestInitialize]
+    public void SetUp()
+    {
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
+        bufferContext   = new BufferContext(readWriteBuffer);
+
+        pqPriceStoragePeriodSummary = new PQPriceStoragePeriodSummary(new PQPriceVolumePublicationPrecisionSettings(0x3, 0x9));
+
+        snapshotSerializer = new PQPriceStoragePeriodSummarySerializer(StorageFlags.Snapshot);
+        updateSerializer   = new PQPriceStoragePeriodSummarySerializer(StorageFlags.Update);
+
+        originalSummaries = new List<IPricePeriodSummary>(6);
+        var startDateTime = new DateTime(2024, 6, 17, 16, 0, 0);
+        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2361m
+                                                , 0.048m, 60, 30_000));
+        startDateTime = startDateTime.AddMinutes(1);
+        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m
+                                                , 0.089m, 20, 2_000_000));
+        startDateTime = startDateTime.AddMinutes(1);
+        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2311m
+                                                , 0.022m, 20, 50));
+        startDateTime = startDateTime.AddMinutes(1);
+        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2320m, 0.0002m, 1.2366m
+                                                , 0.030m, 2_000_000, 30));
+        startDateTime = startDateTime.AddMinutes(1);
+        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2366m, 0.0002m, 1.2361m
+                                                , 0.010m, 60, 30_000));
+        startDateTime = startDateTime.AddMinutes(1);
+        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m
+                                                , 0.048m, 60, 200_000));
+    }
+
+
+    [TestMethod]
+    public void SerializeAllSummaries_Deserialize_ReturnsSameValues()
+    {
+        SerializeSummary(originalSummaries[0], snapshotSerializer);
+        foreach (var pricePeriodSummary in originalSummaries.Skip(1)) SerializeSummary(pricePeriodSummary, updateSerializer);
+        for (var i = 0; i < originalSummaries.Count; i++)
+        {
+            var original     = originalSummaries[i];
+            var deserialized = deserializer.Deserialize(bufferContext);
+
+            Assert.IsTrue(original.AreEquivalent(deserialized));
+        }
+    }
+
+
+    [TestMethod]
+    public void SerializeWithMissingPeriod_Deserialize_ReturnsSameValues()
+    {
+        originalSummaries.RemoveAt(1);
+        SerializeSummary(originalSummaries[0], snapshotSerializer);
+        foreach (var pricePeriodSummary in originalSummaries.Skip(1)) SerializeSummary(pricePeriodSummary, updateSerializer);
+        for (var i = 0; i < originalSummaries.Count; i++)
+        {
+            var original     = originalSummaries[i];
+            var deserialized = deserializer.Deserialize(bufferContext);
+
+            Assert.IsTrue(original.AreEquivalent(deserialized));
+        }
+    }
+
+    private void SerializeSummary(IPricePeriodSummary priceSummary, ISerializer<IPQPriceStoragePeriodSummary> serializer)
+    {
+        pqPriceStoragePeriodSummary.HasUpdates = false;
+        pqPriceStoragePeriodSummary.CopyFrom(priceSummary);
+        Assert.IsTrue(pqPriceStoragePeriodSummary.AreEquivalent(priceSummary));
+        serializer.Serialize(pqPriceStoragePeriodSummary, bufferContext);
+        var bytesSerialized = bufferContext.LastWriteLength;
+        Assert.IsTrue(bytesSerialized > 0);
+    }
+
+    private IPricePeriodSummary CreatePeriodSummary
+    (
+        DateTime startTime, TimeSeriesPeriod period, decimal startMid,
+        decimal bidAskSpread, decimal endMid, decimal highLowSpread, uint tickCount, long volume)
+    {
+        var halfBidAskSpread   = bidAskSpread / 2;
+        var averageStartEndMid = (startMid + endMid) / 2;
+        var halfHighLowSpread  = highLowSpread / 2;
+
+        var result =
+            new PricePeriodSummary
+                (period, startTime, period.PeriodEnd(startTime), startMid - halfBidAskSpread, startMid + halfBidAskSpread
+               , averageStartEndMid + halfHighLowSpread - halfBidAskSpread, averageStartEndMid + halfHighLowSpread + halfBidAskSpread
+               , averageStartEndMid - halfHighLowSpread - halfBidAskSpread, averageStartEndMid - halfHighLowSpread + halfBidAskSpread,
+                 endMid - halfBidAskSpread, endMid + halfBidAskSpread, tickCount, volume, averageStartEndMid - halfBidAskSpread,
+                 averageStartEndMid + halfBidAskSpread);
+        return result;
+    }
+}

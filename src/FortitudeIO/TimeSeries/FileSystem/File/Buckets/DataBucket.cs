@@ -61,8 +61,9 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
 
     private IFixedByteArrayBuffer? writerBuffer;
 
-    protected DataBucket(IMutableBucketContainer bucketContainer,
-        long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
+    protected DataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+      , ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     protected virtual bool CanAccessDataBucketHeaderFromFileView =>
@@ -102,7 +103,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
                 }
                 else
                 {
-                    BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, ushort.MaxValue * 4);
+                    BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, ushort.MaxValue * 4, true);
                     var viewOffset            = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
                     var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, ushort.MaxValue * 4);
                     writerBuffer = new GrowableUnmanagedBuffer(uncompressedFileRange)
@@ -300,8 +301,9 @@ public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDa
 {
     private long? endOfHeaderSectionFileOffset;
 
-    public ProxyDataBucket(IMutableBucketContainer bucketContainer,
-        long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
+    public ProxyDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+      , ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     internal override long EndOfBaseBucketHeaderSectionOffset => endOfHeaderSectionFileOffset!.Value;
@@ -317,7 +319,8 @@ public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDa
         // should never be called;
         Enumerable.Empty<TEntry>();
 
-    public override AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext
+    public override AppendResult AppendEntry
+    (IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext
       , AppendResult appendResult) =>
         // should never be called;
         new(StorageAttemptResult.NoBucketChecked);
@@ -328,7 +331,8 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
 {
     private ProxyDataBucket<TEntry, TBucket>? dualMappedBucket;
 
-    protected IndexedDataBucket(IMutableBucketContainer bucketContainer,
+    protected IndexedDataBucket
+    (IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
@@ -411,8 +415,9 @@ public abstract class MessageDataBucket<TEntry, TBucket> : DataBucket<TEntry, TB
     where TEntry : class, ITimeSeriesEntry<TEntry>, IVersionedMessage
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
-    protected MessageDataBucket(IMutableBucketContainer bucketContainer,
-        long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
+    protected MessageDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+      , ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     public abstract IMessageSerializer<TEntry>   MessageSerializer   { get; }
@@ -423,8 +428,9 @@ public abstract class IndexedMessageDataBucket<TEntry, TBucket> : IndexedDataBuc
     where TEntry : class, ITimeSeriesEntry<TEntry>, IVersionedMessage
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
-    protected IndexedMessageDataBucket(IMutableBucketContainer bucketContainer,
-        long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
+    protected IndexedMessageDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+      , ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     public abstract IMessageSerializer<TEntry>   MessageSerializer   { get; }
