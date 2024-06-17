@@ -7,15 +7,19 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public interface IPriceQuoteBucket
+public interface IPriceBucket
 {
     ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; }
 }
 
-public interface IPriceQuoteBucket<TEntry> : IPriceQuoteBucket, IMutableBucket<TEntry>
+public interface IPriceQuoteBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote { }
+
+public interface IPricePeriodSummaryBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary { }

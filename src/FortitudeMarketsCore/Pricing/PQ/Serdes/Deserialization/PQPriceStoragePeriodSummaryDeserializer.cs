@@ -9,6 +9,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
 using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.PQPriceStorageSummaryFlags;
@@ -17,16 +18,28 @@ using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.PQPriceStorageSummaryFla
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public class PQPriceStoragePeriodSummaryDeserializer : IDeserializer<IPQPriceStoragePeriodSummary>
+public interface IPQPriceStoragePeriodSummaryDeserializer : IDeserializer<IPricePeriodSummary>
+{
+    IPQPriceStoragePeriodSummary DeserializedPriceSummary { get; }
+}
+
+public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSummaryDeserializer
 {
     private const byte NextByteBitShift      = 7;
     private const byte Lowest7BitsInByteMask = 0x7F;
     private const byte HighestBitInByteMask  = 0x80;
 
-    public IPQPriceStoragePeriodSummary DeserializedPriceSummary { get; } = new PQPriceStoragePeriodSummary();
-    public MarshalType                  MarshalType              => MarshalType.Binary;
+    public PQPriceStoragePeriodSummaryDeserializer() => DeserializedPriceSummary = new PQPriceStoragePeriodSummary();
 
-    public IPQPriceStoragePeriodSummary? Deserialize(ISerdeContext readContext)
+    public PQPriceStoragePeriodSummaryDeserializer
+        (IPQPriceVolumePublicationPrecisionSettings precisionSettings) =>
+        DeserializedPriceSummary = new PQPriceStoragePeriodSummary(precisionSettings);
+
+    public IPQPriceStoragePeriodSummary DeserializedPriceSummary { get; }
+
+    public MarshalType MarshalType => MarshalType.Binary;
+
+    public IPricePeriodSummary? Deserialize(ISerdeContext readContext)
     {
         if ((readContext.Direction & ContextDirection.Read) == 0)
             throw new ArgumentException("Expected readContext to allow reading");

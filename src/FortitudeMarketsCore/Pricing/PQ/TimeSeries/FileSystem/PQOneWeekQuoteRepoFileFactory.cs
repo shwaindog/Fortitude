@@ -18,14 +18,16 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
 
 {
-    protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters(FileInfo fileInfo, IInstrument instrument,
+    protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
+    (FileInfo fileInfo, IInstrument instrument,
         TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
-    protected virtual PriceQuoteTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters(FileInfo fileInfo, IInstrument instrument,
+    protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
+    (FileInfo fileInfo, IInstrument instrument,
         TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
     {
         if (filePeriod != TimeSeriesPeriod.OneWeek) throw new Exception("Expected file period to be one week");
@@ -34,7 +36,7 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
 
         var timeSeriesFileParams = CreateTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
 
-        return new PriceQuoteTimeSeriesFileParameters(sourceTickerQuoteInfo, timeSeriesFileParams);
+        return new PriceTimeSeriesFileParameters(sourceTickerQuoteInfo, timeSeriesFileParams);
     }
 
     public override ITimeSeriesEntryFile<TEntry>? OpenExisting(FileInfo fileInfo)
@@ -53,7 +55,8 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
                };
     }
 
-    public override ITimeSeriesEntryFile<TEntry> OpenOrCreate(FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
+    public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
+    (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
       , DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);

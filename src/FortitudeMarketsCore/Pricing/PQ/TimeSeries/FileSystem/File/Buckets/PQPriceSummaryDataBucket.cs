@@ -12,8 +12,8 @@ using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
@@ -21,42 +21,42 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataBucket<TEntry, TBucket>, IPriceQuoteBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket<TEntry>
-    where TSerializeType : PQLevel0Quote, new()
+public abstract class PQPriceSummaryDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IPricePeriodSummaryBucket<TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPricePeriodSummaryBucket<TEntry>
 {
     private IMessageBufferContext? bufferContext;
-    private PQQuoteSerializer?     indexEntrySerializer;
 
-    private IPQQuoteDeserializer<TSerializeType>? messageDeserializer;
+    private PQPriceStoragePeriodSummarySerializer? indexEntrySerializer;
 
-    private PQQuoteSerializer? repeatedEntrySerializer;
+    private IPQPriceStoragePeriodSummaryDeserializer? messageDeserializer;
 
-    protected PQQuoteDataBucket
+    private PQPriceStoragePeriodSummarySerializer? repeatedEntrySerializer;
+
+    protected PQPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
-    public IPQQuoteDeserializer<TSerializeType> DefaultMessageDeserializer
+    public IPQPriceStoragePeriodSummaryDeserializer DefaultMessageDeserializer
     {
         get
         {
             if (messageDeserializer == null)
             {
                 var srcTkrQtInfo = SourceTickerQuoteInfo;
-                messageDeserializer = new PQQuoteStorageDeserializer<TSerializeType>(srcTkrQtInfo);
+                messageDeserializer = new PQPriceStoragePeriodSummaryDeserializer(new PQSourceTickerQuoteInfo(srcTkrQtInfo));
             }
 
             return messageDeserializer;
         }
     }
 
-    public PQQuoteSerializer IndexEntryMessageSerializer =>
-        indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorageIncludeReceiverTimes);
+    public PQPriceStoragePeriodSummarySerializer IndexEntryMessageSerializer =>
+        indexEntrySerializer ??= new PQPriceStoragePeriodSummarySerializer(StorageFlags.Complete);
 
-    public PQQuoteSerializer RepeatedEntryMessageSerializer =>
-        repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorageIncludeReceiverTimes);
+    public PQPriceStoragePeriodSummarySerializer RepeatedEntryMessageSerializer =>
+        repeatedEntrySerializer ??= new PQPriceStoragePeriodSummarySerializer(StorageFlags.Update);
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; } = null!;
 
@@ -66,17 +66,14 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
 
         bufferContext.EncodedBuffer = readBuffer;
 
-        if (readBuffer.ReadCursor == 0) DefaultMessageDeserializer.PublishedQuote.ResetFields();
+        if (readBuffer.ReadCursor == 0) DefaultMessageDeserializer.DeserializedPriceSummary.HasUpdates = false;
         return ReadEntries(bufferContext, readerContext, DefaultMessageDeserializer);
     }
 
     public override AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext, AppendResult appendResult)
     {
-        var pqContext = entryContext as IPQQuoteAppendContext<TEntry, TSerializeType>;
+        var pqContext = entryContext as IPQPricePeriodSummaryAppendContext<TEntry>;
         var entry     = entryContext.CurrentEntry;
-        if (entry.SourceTickerQuoteInfo!.SourceId != SourceTickerQuoteInfo.SourceId ||
-            entry.SourceTickerQuoteInfo.TickerId != SourceTickerQuoteInfo.TickerId || pqContext == null)
-            return new AppendResult(StorageAttemptResult.EntryNotCompatible);
 
         bufferContext ??= new MessageBufferContext(writeBuffer);
 
@@ -99,23 +96,23 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
 
     public virtual IEnumerable<TEntry> ReadEntries
     (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext
-      , IPQQuoteDeserializer<TSerializeType> bufferDeserializer)
+      , IPQPriceStoragePeriodSummaryDeserializer bufferDeserializer)
     {
         var entryCount = 0;
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)
         {
             entryCount++;
-            bufferDeserializer.PublishedQuote.HasUpdates = false;
+            bufferDeserializer.DeserializedPriceSummary.HasUpdates = false;
             bufferDeserializer.Deserialize(buffer);
             var toReturn = readerContext.GetNextEntryToPopulate;
-            toReturn.CopyFrom(bufferDeserializer.PublishedQuote, CopyMergeFlags.FullReplace);
+            toReturn.CopyFrom(bufferDeserializer.DeserializedPriceSummary, CopyMergeFlags.FullReplace);
             if (readerContext.ProcessCandidateEntry(toReturn)) yield return toReturn;
         }
     }
 
     public virtual AppendResult AppendEntry
     (IMessageBufferContext bufferContext,
-        TSerializeType lastEntryLevel, PQQuoteSerializer useSerializer, AppendResult appendResult)
+        IPQPriceStoragePeriodSummary lastEntryLevel, PQPriceStoragePeriodSummarySerializer useSerializer, AppendResult appendResult)
     {
         useSerializer.Serialize(lastEntryLevel, bufferContext);
         if (bufferContext.LastWriteLength <= 0) return new AppendResult(StorageAttemptResult.StorageSizeFailure);

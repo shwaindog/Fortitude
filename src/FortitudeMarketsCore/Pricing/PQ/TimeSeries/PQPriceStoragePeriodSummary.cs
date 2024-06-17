@@ -217,6 +217,8 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
 
     public DateTime SummaryEndTime { get; set; } = DateTimeConstants.UnixEpoch;
 
+    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => SummaryEndTime;
+
     public decimal AverageBidPrice
     {
         get => averageBidPrice;
@@ -505,6 +507,8 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         AverageBidPrice  = ps.AverageBidPrice;
         AverageAskPrice  = ps.AverageAskPrice;
 
+        SummaryStorageFlags |= copyMergeFlags.HasFullReplace() ? Snapshot : None;
+
         return this;
     }
 
@@ -524,6 +528,8 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         PeriodVolume     = ps.PeriodVolume;
         AverageBidPrice  = ps.AverageBidPrice;
         AverageAskPrice  = ps.AverageAskPrice;
+
+        SummaryStorageFlags |= copyMergeFlags.HasFullReplace() ? Snapshot : None;
 
         return this;
     }

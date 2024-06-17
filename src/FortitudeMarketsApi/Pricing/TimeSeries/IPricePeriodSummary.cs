@@ -11,7 +11,7 @@ using FortitudeIO.TimeSeries;
 namespace FortitudeMarketsApi.Pricing.TimeSeries;
 
 public interface IPricePeriodSummary : ICloneable<IPricePeriodSummary>, IInterfacesComparable<IPricePeriodSummary>
-  , IStoreState<IPricePeriodSummary>, ITimeSeriesSummary
+  , IStoreState<IPricePeriodSummary>, ITimeSeriesSummary, ITimeSeriesEntry<IPricePeriodSummary>
 {
     bool    IsEmpty         { get; }
     decimal StartBidPrice   { get; }
