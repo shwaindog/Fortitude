@@ -53,7 +53,6 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
 
     private IReaderSession<ILevel3Quote>? readerSession;
 
-
     private DymwiTimeSeriesDirectoryRepository repo;
     private DirectoryInfo                      repoRootDir;
     private RepositoryStructureInfo            repositoryStructureInfo;
@@ -174,7 +173,6 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         var weekStart = timeInWeek.ToUniversalTime().TruncToWeekBoundary();
         return string.Format(expectedFileNameFormat, weekStart);
     }
-
 
     private string GenerateUniqueDirectoryName()
     {

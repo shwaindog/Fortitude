@@ -30,10 +30,10 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
     public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup) => NameIdLookup = traderIdToNameLookup;
 
-    public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup, decimal tradePrice = 0m, DateTime? tradeTime = null,
-        decimal tradeVolume = 0m, bool wasPaid = false, bool wasGiven = false, string? traderName = null)
-        : base(tradePrice, tradeTime,
-               tradeVolume, wasPaid, wasGiven)
+    public PQLastTraderPaidGivenTrade
+    (IPQNameIdLookupGenerator traderIdToNameLookup, decimal tradePrice = 0m, DateTime? tradeTime = null
+      , decimal tradeVolume = 0m, bool wasPaid = false, bool wasGiven = false, string? traderName = null)
+        : base(tradePrice, tradeTime, tradeVolume, wasPaid, wasGiven)
     {
         NameIdLookup = traderIdToNameLookup;
         TraderName   = traderName;
@@ -134,8 +134,9 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
@@ -159,7 +160,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
+    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates
+    (DateTime snapShotTime,
         StorageFlags messageFlags)
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime,

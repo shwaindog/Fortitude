@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -41,6 +42,7 @@ public class QuoteSequencedTestDataBuilder
 
     public void InitalizePeriodSummary(IMutablePricePeriodSummary pricePeriodSummary, uint batchId)
     {
+        pricePeriodSummary.SummaryPeriod    = TimeSeriesPeriod.OneSecond;
         pricePeriodSummary.SummaryStartTime = new DateTime(2017, 11, 18, 20, 09, 11);
         pricePeriodSummary.StartBidPrice    = 0.79324m;
         pricePeriodSummary.StartAskPrice    = 0.79334m;

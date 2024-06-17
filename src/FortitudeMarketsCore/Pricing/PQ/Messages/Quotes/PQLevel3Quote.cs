@@ -180,8 +180,9 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
@@ -229,8 +230,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        StorageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
         foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
             yield return pqFieldStringUpdate;
@@ -252,7 +252,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         return false;
     }
 
-    public override ILevel0Quote CopyFrom(ILevel0Quote source
+    public override ILevel0Quote CopyFrom
+    (ILevel0Quote source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);

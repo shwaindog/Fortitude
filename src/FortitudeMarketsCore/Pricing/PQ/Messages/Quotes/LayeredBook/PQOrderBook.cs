@@ -210,7 +210,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
     (DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         for (var i = 0; i < AllLayers.Count; i++)
             if (this[i] is { } currentLayer)

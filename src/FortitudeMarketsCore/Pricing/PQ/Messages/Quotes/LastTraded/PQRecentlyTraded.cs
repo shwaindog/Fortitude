@@ -164,8 +164,9 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
             lastTrades[Count] = (IPQLastTrade)newLastTrade;
     }
 
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         for (var i = 0; i < lastTrades.Count; i++)
             if (this[i] is PQLastTrade lastTrade)
@@ -209,8 +210,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
         return false;
     }
 
-    public override IRecentlyTraded CopyFrom(IRecentlyTraded source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IRecentlyTraded CopyFrom(IRecentlyTraded source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is PQRecentlyTraded sourceRecentlyTraded) NameIdLookup.CopyFrom(sourceRecentlyTraded.NameIdLookup, copyMergeFlags);
         if (lastTrades.Count < source.Capacity)

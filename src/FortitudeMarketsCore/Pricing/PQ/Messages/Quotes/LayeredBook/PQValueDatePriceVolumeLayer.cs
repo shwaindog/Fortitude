@@ -24,8 +24,8 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
 {
     private DateTime valueDate = DateTimeConstants.UnixEpoch;
 
-    public PQValueDatePriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
-        DateTime? valueDate = null)
+    public PQValueDatePriceVolumeLayer
+        (decimal price = 0m, decimal volume = 0m, DateTime? valueDate = null)
         : base(price, volume) =>
         ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
 
@@ -81,8 +81,9 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
@@ -105,8 +106,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         return 0;
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var pqValueDate   = source as IPQValueDatePriceVolumeLayer;

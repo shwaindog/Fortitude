@@ -35,8 +35,9 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     private decimal tradeVolume;
 
-    public PQLastPaidGivenTrade(decimal tradePrice = 0m, DateTime? tradeTime = null, decimal tradeVolume = 0m,
-        bool wasPaid = false, bool wasGiven = false) : base(tradePrice, tradeTime)
+    public PQLastPaidGivenTrade
+        (decimal tradePrice = 0m, DateTime? tradeTime = null, decimal tradeVolume = 0m, bool wasPaid = false, bool wasGiven = false)
+        : base(tradePrice, tradeTime)
     {
         TradeVolume = tradeVolume;
         WasPaid     = wasPaid;
@@ -172,8 +173,9 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,

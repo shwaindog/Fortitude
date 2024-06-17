@@ -22,7 +22,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 
-public interface IPQSourceTickerQuoteInfo : ISourceTickerQuoteInfo, IPQQuotePublicationPrecisionSettings, ICloneable<IPQSourceTickerQuoteInfo>
+public interface IPQSourceTickerQuoteInfo : ISourceTickerQuoteInfo, IPQPriceVolumePublicationPrecisionSettings, ICloneable<IPQSourceTickerQuoteInfo>
   , IHasNameIdLookup, IPQSupportsFieldUpdates<IPQSourceTickerQuoteInfo>, IPQSupportsStringUpdates<IPQSourceTickerQuoteInfo>
 {
     bool IsIdUpdated                     { get; set; }
@@ -52,11 +52,12 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
     private LayerFlags      layerFlags;
 
     private MarketClassification marketClassification;
-    private byte                 maximumPublishedLayers;
-    private decimal              maxSubmitSize;
-    private ushort               minimumQuoteLife;
-    private decimal              minSubmitSize;
-    private QuoteLevel           publishedQuoteLevel = QuoteLevel.Level2;
+
+    private byte       maximumPublishedLayers;
+    private decimal    maxSubmitSize;
+    private ushort     minimumQuoteLife;
+    private decimal    minSubmitSize;
+    private QuoteLevel publishedQuoteLevel = QuoteLevel.Level2;
 
     private decimal roundingPrecision;
     private string  source = "";
@@ -68,7 +69,8 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
 
     public PQSourceTickerQuoteInfo() => formatPrice = "";
 
-    public PQSourceTickerQuoteInfo(ushort sourceId, string source, ushort tickerId, string ticker, QuoteLevel publishedQuoteLevel,
+    public PQSourceTickerQuoteInfo
+    (ushort sourceId, string source, ushort tickerId, string ticker, QuoteLevel publishedQuoteLevel,
         MarketClassification marketClassification, byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.0001m,
         decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m, ushort minimumQuoteLife = 100,
         LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
@@ -134,6 +136,9 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             IsLayerFlagsUpdated       = pubToClone.IsLayerFlagsUpdated;
         }
     }
+
+    public byte PriceScalingPrecision  { get; set; } = 1;
+    public byte VolumeScalingPrecision { get; }      = 6;
 
     public virtual bool HasUpdates
     {
@@ -320,9 +325,6 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
                         .Replace('7', '0')
                         .Replace('8', '0')
                         .Replace('9', '0');
-
-    public byte PriceScalingPrecision  { get; set; } = 1;
-    public byte VolumeScalingPrecision { get; }      = 6;
 
     public bool IsIdUpdated
     {
@@ -535,8 +537,8 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
 
     object ICloneable.Clone() => Clone();
 
-    public IReusableObject<IVersionedMessage> CopyFrom(IReusableObject<IVersionedMessage> source,
-        CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+    public IReusableObject<IVersionedMessage> CopyFrom
+        (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
 
     public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
@@ -545,8 +547,9 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
     ISourceTickerQuoteInfo ISourceTickerQuoteInfo.Clone() => Clone();
 
 
-    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags updateStyle,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags updateStyle,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
 
@@ -692,8 +695,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
      ?? new PQSourceTickerQuoteInfo(this);
 
 
-    public override PQSourceTickerQuoteInfo CopyFrom(
-        PQSourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQSourceTickerQuoteInfo CopyFrom(PQSourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var hasFullReplace = copyMergeFlags.HasFullReplace();
 
@@ -715,8 +717,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         return this;
     }
 
-    public ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is PQSourceTickerQuoteInfo pqSrcTkrQtInfo && copyMergeFlags == CopyMergeFlags.JustDifferences)
         {

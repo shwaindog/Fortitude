@@ -431,8 +431,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var precisionSettings = quotePublicationPrecisionSettings ?? PQSourceTickerQuoteInfo;
         var updatedOnly       = (messageFlags & StorageFlags.Complete) == 0;
@@ -485,8 +486,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        if (pqFieldUpdate.Id >= PQFieldKeys.PeriodStartDateTime &&
-            pqFieldUpdate.Id <= PQFieldKeys.PeriodVolumeUpperBytes)
+        if (pqFieldUpdate.Id >= PQFieldKeys.SummaryPeriod &&
+            pqFieldUpdate.Id <= PQFieldKeys.PeriodAveragePrice)
         {
             SummaryPeriod ??= new PQPricePeriodSummary();
             return SummaryPeriod.UpdateField(pqFieldUpdate);
@@ -739,8 +740,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         if (IsAskPriceTopUpdatedChanged) IsAskPriceTopUpdated = (booleanFlags & PQBooleanValues.IsAskPriceTopUpdatedSetFlag) > 0;
     }
 
-    protected virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields(DateTime snapShotTime,
-        bool updatedOnly, IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    protected virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields
+    (DateTime snapShotTime,
+        bool updatedOnly, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         if (!updatedOnly || IsBidPriceTopChanged)
             yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, BidPriceTop

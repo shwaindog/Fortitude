@@ -76,7 +76,8 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
             throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength                                               = Serialize(bufferContext.EncodedBuffer!, obj);
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
+
             if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
         }

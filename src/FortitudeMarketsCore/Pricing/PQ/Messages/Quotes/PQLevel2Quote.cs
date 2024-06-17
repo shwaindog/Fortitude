@@ -170,8 +170,9 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         base.ResetFields();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
@@ -208,8 +209,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime,
-        StorageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
         foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
             yield return pqFieldStringUpdate;
@@ -307,8 +307,9 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         return this;
     }
 
-    protected override IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields(DateTime snapShotTime,
-        bool updatedOnly, IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    protected override IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields
+    (DateTime snapShotTime,
+        bool updatedOnly, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         yield break;
     }

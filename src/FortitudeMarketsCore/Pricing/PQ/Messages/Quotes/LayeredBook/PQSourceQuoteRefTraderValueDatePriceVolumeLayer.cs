@@ -35,9 +35,9 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
     public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
         : base(initialDict) { }
 
-    public PQSourceQuoteRefTraderValueDatePriceVolumeLayer(IPQNameIdLookupGenerator nameIdLookup, decimal price = 0m, decimal volume = 0m,
-        DateTime? valueDate = null, string? sourceName = null,
-        bool executable = false, uint sourceQuoteReference = 0u)
+    public PQSourceQuoteRefTraderValueDatePriceVolumeLayer
+    (IPQNameIdLookupGenerator nameIdLookup, decimal price = 0m, decimal volume = 0m, DateTime? valueDate = null
+      , string? sourceName = null, bool executable = false, uint sourceQuoteReference = 0u)
         : base(nameIdLookup, price, volume)
     {
         ValueDate  = valueDate ?? DateTimeConstants.UnixEpoch;
@@ -235,8 +235,9 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         base.StateReset();
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags,
-        IPQQuotePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
@@ -306,7 +307,8 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         return false;
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+    public override IPriceVolumeLayer CopyFrom
+    (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);

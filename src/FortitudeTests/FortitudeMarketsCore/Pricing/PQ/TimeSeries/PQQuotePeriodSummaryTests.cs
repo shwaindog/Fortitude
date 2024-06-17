@@ -592,98 +592,16 @@ public class PQPricePeriodSummaryTests
     }
 
     [TestMethod]
-    public void EmptySummary_DifferingStartEndTimesCalcTimeFrame_ReturnsExpectedTimeFrame()
+    public void EmptySummary_DifferingSummaryPeriod_IsSavedAndReturned()
     {
         Assert.AreEqual(TimeSeriesPeriod.None, emptySummary.SummaryPeriod);
         var wellKnownStartTime = new DateTime(2017, 11, 19, 19, 00, 00);
         emptySummary.SummaryStartTime = wellKnownStartTime;
         Assert.AreEqual(TimeSeriesPeriod.None, emptySummary.SummaryPeriod);
-        emptySummary.SummaryEndTime = wellKnownStartTime;
+        emptySummary.SummaryPeriod = TimeSeriesPeriod.Tick;
         Assert.AreEqual(TimeSeriesPeriod.Tick, emptySummary.SummaryPeriod);
-
-        var endTime = wellKnownStartTime.AddSeconds(1);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneSecond, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddMinutes(1);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneMinute, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddMinutes(5);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.FiveMinutes, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddMinutes(10);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.TenMinutes, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddMinutes(15);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.FifteenMinutes, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddMinutes(30);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.ThirtyMinutes, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddHours(1);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneHour, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddHours(4);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.FourHours, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddDays(1);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneDay, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddDays(5.00001);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddDays(6.999999);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddDays(28);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneMonth, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddDays(31);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.OneMonth, emptySummary.SummaryPeriod);
-
-        endTime = wellKnownStartTime.AddMilliseconds(512);
-
-        emptySummary.SummaryPeriod  = TimeSeriesPeriod.None;
-        emptySummary.SummaryEndTime = endTime;
-        Assert.AreEqual(TimeSeriesPeriod.None, emptySummary.SummaryPeriod);
+        emptySummary.SummaryPeriod = TimeSeriesPeriod.OneDecade;
+        Assert.AreEqual(TimeSeriesPeriod.OneDecade, emptySummary.SummaryPeriod);
     }
 
     [TestMethod]
@@ -816,9 +734,8 @@ public class PQPricePeriodSummaryTests
         Assert.IsTrue(emptySummary.GetHashCode() != hashCode);
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison
-      , PQPricePeriodSummary original,
-        PQPricePeriodSummary changingPeriodSummary)
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+        (bool exactComparison, PQPricePeriodSummary original, PQPricePeriodSummary changingPeriodSummary)
     {
         Assert.IsTrue(original.AreEquivalent(changingPeriodSummary));
         Assert.IsTrue(changingPeriodSummary.AreEquivalent(original));
@@ -895,8 +812,7 @@ public class PQPricePeriodSummaryTests
         Assert.IsTrue(changingPeriodSummary.AreEquivalent(original, exactComparison));
     }
 
-    public static void AssertPeriodSummaryContainsAllFields(IList<PQFieldUpdate> checkFieldUpdates,
-        IPQPricePeriodSummary periodSummary)
+    public static void AssertPeriodSummaryContainsAllFields(IList<PQFieldUpdate> checkFieldUpdates, IPQPricePeriodSummary periodSummary)
     {
         Assert.AreEqual(new PQFieldUpdate
                             (PQFieldKeys.PeriodStartDateTime, periodSummary.SummaryStartTime.GetHoursFromUnixEpoch()),
