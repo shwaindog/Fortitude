@@ -48,12 +48,40 @@ public static class DateTimeExtensions
                };
     }
 
-    public static DateTime TruncToMonthBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.Day);
+    public static DateTime TruncToMonthBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.Day + 1);
 
-    public static DateTime TruncToYearBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.DayOfYear);
+    public static DateTime TruncToYearBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.DayOfYear + 1);
 
     public static DateTime TruncToDecadeBoundary(this DateTime allTicks) =>
         allTicks.TruncToYearBoundary().AddYears(-(allTicks.TruncToYearBoundary().Year % 10));
+
+
+    public static DateTime TruncToFirstSundayInMonth(this DateTime dateTime)
+    {
+        var firstDayOfMonth = dateTime.TruncToMonthBoundary();
+        var dayOfWeek       = firstDayOfMonth.DayOfWeek;
+        if (dayOfWeek == DayOfWeek.Sunday) return firstDayOfMonth;
+        var daysToSunday = 7 - (int)dayOfWeek;
+        return firstDayOfMonth.AddDays(daysToSunday);
+    }
+
+    public static DateTime TruncToFirstSundayInYear(this DateTime dateTime)
+    {
+        var firstDayOfYear = dateTime.TruncToYearBoundary();
+        var dayOfWeek      = firstDayOfYear.DayOfWeek;
+        if (dayOfWeek == DayOfWeek.Sunday) return firstDayOfYear;
+        var daysToSunday = 7 - (int)dayOfWeek;
+        return firstDayOfYear.AddDays(daysToSunday);
+    }
+
+    public static DateTime TruncToFirstSundayInDecade(this DateTime dateTime)
+    {
+        var firstDayOfDecade = dateTime.TruncToDecadeBoundary();
+        var dayOfWeek        = firstDayOfDecade.DayOfWeek;
+        if (dayOfWeek == DayOfWeek.Sunday) return firstDayOfDecade;
+        var daysToSunday = 7 - (int)dayOfWeek;
+        return firstDayOfDecade.AddDays(daysToSunday);
+    }
 
     public static DateTime CappedTicksToDateTime(this long ticks)
     {

@@ -102,11 +102,13 @@ public interface IMutableBucket : IBucket
 public interface IMutableBucket<TEntry> : IBucket<TEntry>, IMutableBucket where TEntry : ITimeSeriesEntry<TEntry>
 {
     IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
-    AppendResult                  AppendEntry(IAppendContext<TEntry> entry);
+
+    AppendResult AppendEntry(IAppendContext<TEntry> entry);
 }
 
 public interface IBucketNavigation<TBucket> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket
 {
     IBucketFactory<TBucket> BucketFactory { get; set; }
-    TBucket?                CloseAndCreateNextBucket();
+
+    TBucket? CloseAndCreateNextBucket();
 }

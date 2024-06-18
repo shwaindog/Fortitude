@@ -78,7 +78,8 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
     private ShiftableMemoryMappedFileView? readChildBucketsView;
     private FixedByteArrayBuffer?          uncompressedBuffer;
 
-    public TimeSeriesFileSession(TimeSeriesFile<TFile, TBucket, TEntry> file, bool isWritable,
+    public TimeSeriesFileSession
+    (TimeSeriesFile<TFile, TBucket, TEntry> file, bool isWritable,
         int defaultViewSizeBytes = ushort.MaxValue * 2, int reserveMultiple = 2, int activeViewAdditionalMultiple = 2)
     {
         timeSeriesFile                    = file;
@@ -186,11 +187,13 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         cacheBuckets.Add((TBucket)bucket);
     }
 
-    public IReaderContext<TEntry> GetAllEntriesReader(EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+    public IReaderContext<TEntry> GetAllEntriesReader
+    (EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null) =>
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew);
 
-    public IReaderContext<TEntry> GetEntriesBetweenReader(TimeRange? periodRange,
+    public IReaderContext<TEntry> GetEntriesBetweenReader
+    (TimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null) =>
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew)
@@ -265,23 +268,38 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         appendContext.CurrentEntry  = entry;
         var storageTime = entry.StorageTime(timeSeriesFile.StorageTimeResolver);
 
-        if (!TimeSeriesPeriodRange.ContainsTime(storageTime))
+        // None is Unlimited
+        if (!TimeSeriesPeriodRange.ContainsTime(storageTime) && TimeSeriesPeriodRange.TimeSeriesPeriod != TimeSeriesPeriod.None)
         {
-            if (CurrentlyOpenBucket?.IsOpen ?? false) CurrentlyOpenBucket!.CloseBucketFileViews();
+            if (currentlyOpenBucket?.IsOpen ?? false) currentlyOpenBucket!.CloseBucketFileViews();
             return new AppendResult(StorageAttemptResult.NextFilePeriod);
         }
         appendContext.StorageTime = storageTime;
 
         var bucketMatch = CurrentlyOpenBucket?.CheckTimeSupported(appendContext.StorageTime)
-                       ?? appendContext?.LastAddedRootBucket?.CheckTimeSupported(appendContext.StorageTime)
                        ?? StorageAttemptResult.NoBucketChecked;
         if (bucketMatch == StorageAttemptResult.BucketClosedForAppend) return new AppendResult(bucketMatch);
         if (bucketMatch == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket!.AppendEntry(appendContext!);
+        if (bucketMatch == StorageAttemptResult.NoBucketChecked)
+        {
+            var checkLastAdded = appendContext?.LastAddedRootBucket?.CheckTimeSupported(appendContext.StorageTime) ??
+                                 StorageAttemptResult.NoBucketChecked;
+            if (checkLastAdded == StorageAttemptResult.PeriodRangeMatched)
+            {
+                currentlyOpenBucket = appendContext!.LastAddedRootBucket!;
+                if (!currentlyOpenBucket.IsOpen) currentlyOpenBucket.OpenBucket(asWritable: IsWritable);
+                return currentlyOpenBucket!.AppendEntry(appendContext!);
+            }
+        }
         if (bucketMatch == StorageAttemptResult.NextBucketPeriod)
         {
-            CurrentlyOpenBucket                = currentlyOpenBucket!.CloseAndCreateNextBucket();
-            appendContext!.LastAddedRootBucket = currentlyOpenBucket;
-            return currentlyOpenBucket?.AppendEntry(appendContext) ?? new AppendResult(StorageAttemptResult.NextFilePeriod);
+            currentlyOpenBucket = currentlyOpenBucket!.CloseAndCreateNextBucket();
+
+            if (currentlyOpenBucket != null)
+            {
+                appendContext!.LastAddedRootBucket = currentlyOpenBucket;
+                return currentlyOpenBucket.AppendEntry(appendContext);
+            }
         }
 
         var searchedBucket = GetOrCreateBucketFor(appendContext!.StorageTime);
@@ -297,10 +315,10 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
 
         foreach (var bucketIndexOffset in BucketIndexes.Values)
         {
-            if (CurrentlyOpenBucket is { IsOpen: true }) CurrentlyOpenBucket.CloseBucketFileViews();
+            if (currentlyOpenBucket is { IsOpen: true }) currentlyOpenBucket.CloseBucketFileViews();
             if (bucketIndexOffset is { NumEntries: > 0 })
             {
-                CurrentlyOpenBucket = FileBucketFactory.OpenExistingBucket(this, bucketIndexOffset.ParentOrFileOffset, false);
+                currentlyOpenBucket = FileBucketFactory.OpenExistingBucket(this, bucketIndexOffset.ParentOrFileOffset, false);
                 cacheBuckets.Add(currentlyOpenBucket!);
             }
         }
@@ -310,7 +328,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
 
     public TBucket? GetOrCreateBucketFor(DateTime storageDateTime)
     {
-        var searchResult = CurrentlyOpenBucket?.CheckTimeSupported(storageDateTime)
+        var searchResult = currentlyOpenBucket?.CheckTimeSupported(storageDateTime)
                         ?? appendContext?.LastAddedRootBucket?.CheckTimeSupported(storageDateTime) ?? StorageAttemptResult.NoBucketChecked;
 
         if (searchResult == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket;
@@ -319,22 +337,28 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         if (IsWritable && searchResult == StorageAttemptResult.NextBucketPeriod &&
             (currentlyOpenBucket?.BucketFlags.HasBucketCurrentAppendingFlag() ?? false))
         {
-            CurrentlyOpenBucket = currentlyOpenBucket.CloseAndCreateNextBucket()!;
-            return currentlyOpenBucket;
+            currentlyOpenBucket = currentlyOpenBucket.CloseAndCreateNextBucket();
+            if (currentlyOpenBucket != null) return currentlyOpenBucket;
         }
         if (searchResult == StorageAttemptResult.NoBucketChecked)
         {
             var fileEndTime = TimeSeriesPeriodRange.PeriodEnd();
-            if (storageDateTime < TimeSeriesPeriodRange.PeriodStartTime || storageDateTime > fileEndTime) return null;
+            if (storageDateTime < TimeSeriesPeriodRange.PeriodStartTime
+             || (TimeSeriesPeriodRange.TimeSeriesPeriod != TimeSeriesPeriod.None
+              && storageDateTime > fileEndTime)) return null;
         }
 
-        if (searchResult == StorageAttemptResult.BucketSearchRange)
+        if (searchResult is StorageAttemptResult.BucketSearchRange
+                         or not (StorageAttemptResult.NextFilePeriod or StorageAttemptResult.CalculateFilePeriod))
+        {
             foreach (var existingBucket in ChronologicallyOrderedBuckets())
                 if (existingBucket.CheckTimeSupported(storageDateTime) == StorageAttemptResult.PeriodRangeMatched)
-                    return existingBucket;
-        if (!cacheBuckets.Any())
-            CurrentlyOpenBucket = FileBucketFactory.CreateNewBucket(this, FileHeader.EndOfHeaderFileOffset, storageDateTime, true);
+                    return currentlyOpenBucket = existingBucket;
+            var fileOffset = FileHeader.EndOfHeaderFileOffset;
 
+            if (cacheBuckets.Any()) fileOffset = cacheBuckets.Max(sb => sb.CalculateBucketEndFileOffset());
+            currentlyOpenBucket = FileBucketFactory.CreateNewBucket(this, fileOffset, storageDateTime, true);
+        }
 
         return currentlyOpenBucket;
     }
