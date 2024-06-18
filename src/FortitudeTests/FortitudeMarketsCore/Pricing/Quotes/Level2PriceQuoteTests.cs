@@ -14,7 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.TimeSeries;
+using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
@@ -532,7 +532,8 @@ public class Level2PriceQuoteTests
            , true);
     }
 
-    private static OrderBook GenerateBook<T>(BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
+    private static OrderBook GenerateBook<T>
+    (BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
         where T : IPriceVolumeLayer
     {
@@ -565,8 +566,8 @@ public class Level2PriceQuoteTests
         }
     }
 
-    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
-        IMutableLevel2Quote commonCompareQuote, IMutableLevel2Quote changingQuote)
+    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
+        (bool exactComparison, IMutableLevel2Quote commonCompareQuote, IMutableLevel2Quote changingQuote)
     {
         Level1PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType
             (exactComparison, commonCompareQuote, changingQuote);

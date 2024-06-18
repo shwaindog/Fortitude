@@ -10,8 +10,8 @@ using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
-using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
-using FortitudeMarketsCore.Pricing.TimeSeries;
+using FortitudeMarketsCore.Pricing.PQ.Summaries;
+using FortitudeMarketsCore.Pricing.Summaries;
 
 #endregion
 

@@ -15,10 +15,10 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsCore.Pricing.Generators.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Generators.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.Generators;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
-using FortitudeMarketsCore.Pricing.Quotes.Generators;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
@@ -49,13 +49,14 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
     private int                    newTestCount;
     private PQLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
 
-    private PQRepoPathBuilder pqRepoBuilder;
+    private PQRepoPathBuilder pqRepoBuilder = null!;
 
     private IReaderSession<ILevel3Quote>? readerSession;
 
-    private DymwiTimeSeriesDirectoryRepository repo;
-    private DirectoryInfo                      repoRootDir;
-    private RepositoryStructureInfo            repositoryStructureInfo;
+    private DymwiTimeSeriesDirectoryRepository repo = null!;
+
+    private DirectoryInfo           repoRootDir = null!;
+    private RepositoryStructureInfo repositoryStructureInfo;
 
     [TestInitialize]
     public void Setup()

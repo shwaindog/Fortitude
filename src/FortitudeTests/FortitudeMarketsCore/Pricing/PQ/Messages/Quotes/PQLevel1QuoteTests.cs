@@ -17,9 +17,9 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
+using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.Quotes;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries;
+using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
@@ -643,8 +643,8 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(hashCode != 0);
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison, PQLevel1Quote original,
-        PQLevel1Quote changingLevel1Quote)
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+        (bool exactComparison, PQLevel1Quote original, PQLevel1Quote changingLevel1Quote)
     {
         PQLevel0QuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison, original,
                                                                                changingLevel1Quote);
@@ -711,8 +711,9 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(changingLevel1Quote.AreEquivalent(original, exactComparison));
     }
 
-    public static void AssertContainsAllLevel1Fields(IList<PQFieldUpdate> checkFieldUpdates,
-        PQLevel1Quote l1Q, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllExceptExecutableUpdated)
+    public static void AssertContainsAllLevel1Fields
+    (IList<PQFieldUpdate> checkFieldUpdates, PQLevel1Quote l1Q
+      , PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllExceptExecutableUpdated)
     {
         PQPricePeriodSummaryTests.AssertPeriodSummaryContainsAllFields(checkFieldUpdates, l1Q.SummaryPeriod!);
 

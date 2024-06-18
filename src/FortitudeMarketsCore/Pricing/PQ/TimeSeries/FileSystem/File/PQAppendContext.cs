@@ -9,6 +9,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Summaries;
 
 #endregion
 

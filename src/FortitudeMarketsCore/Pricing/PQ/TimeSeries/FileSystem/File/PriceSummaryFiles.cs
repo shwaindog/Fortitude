@@ -15,8 +15,8 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class WeeklyDailyHourlyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<WeeklyDailyHourlyPriceSummaryTimeSeriesFile,
-    DailyToHourlyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class WeeklyDailyHourlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<WeeklyDailyHourlyPriceSummaryTimeSeriesFile, DailyToHourlyPriceSummarySubBuckets>
 {
     public WeeklyDailyHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -28,14 +28,52 @@ public class WeeklyDailyHourlyPriceSummaryTimeSeriesFile : PriceSummaryTimeSerie
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets<IPricePeriodSummary>> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets<IPricePeriodSummary>>();
+    public override ISessionAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets>();
 
     public static WeeklyDailyHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class MonthlyDailyHourlyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<MonthlyDailyHourlyPriceSummaryTimeSeriesFile,
-    DailyToHourlyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class WeeklyFourHourlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<WeeklyFourHourlyPriceSummaryTimeSeriesFile, FourHourlyPriceSummaryDataBucket>
+{
+    public WeeklyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+        : base(pagedMemoryMappedFile, header) { }
+
+    public WeeklyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
+                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
+                                               .SetInternalIndexSize(42)
+                                               .SetInitialFileSize(512 * 1024)) { }
+
+    public override ISessionAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket>();
+
+    public static WeeklyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
+}
+
+public class MonthlyFourHourlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<MonthlyFourHourlyPriceSummaryTimeSeriesFile, FourHourlyPriceSummaryDataBucket>
+{
+    public MonthlyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+        : base(pagedMemoryMappedFile, header) { }
+
+    public MonthlyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneMonth)
+                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
+                                               .SetInternalIndexSize(186)
+                                               .SetInitialFileSize(512 * 1024)) { }
+
+    public override ISessionAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket>();
+
+    public static MonthlyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
+}
+
+public class MonthlyDailyHourlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<MonthlyDailyHourlyPriceSummaryTimeSeriesFile, DailyToHourlyPriceSummarySubBuckets>
 {
     public MonthlyDailyHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -47,14 +85,35 @@ public class MonthlyDailyHourlyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeri
                                                .SetInternalIndexSize(31)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets<IPricePeriodSummary>> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets<IPricePeriodSummary>>();
+    public override ISessionAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets>();
 
     public static MonthlyDailyHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class MonthlyWeeklyDailyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<MonthlyWeeklyDailyPriceSummaryTimeSeriesFile,
-    WeeklyToDailyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile, WeeklyToFourHourlyPriceSummarySubBuckets>
+{
+    public MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+        : base(pagedMemoryMappedFile, header) { }
+
+    public MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
+                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
+                                               .SetInternalIndexSize(4)
+                                               .SetInitialFileSize(512 * 1024)) { }
+
+    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToFourHourlyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToFourHourlyPriceSummarySubBuckets>();
+
+    public static MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile
+        (FileInfo file) =>
+        OpenExistingTimeSeriesFile(file.FullName);
+}
+
+public class MonthlyWeeklyDailyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<MonthlyWeeklyDailyPriceSummaryTimeSeriesFile, WeeklyToDailyPriceSummarySubBuckets>
 {
     public MonthlyWeeklyDailyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -66,14 +125,35 @@ public class MonthlyWeeklyDailyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeri
                                                .SetInternalIndexSize(4)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets<IPricePeriodSummary>> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets<IPricePeriodSummary>>();
+    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets>();
 
     public static MonthlyWeeklyDailyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class YearlyWeeklyDailyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<YearlyWeeklyDailyPriceSummaryTimeSeriesFile,
-    WeeklyToDailyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile, MonthlyToFourHourlyPriceSummarySubBuckets>
+{
+    public YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+        : base(pagedMemoryMappedFile, header) { }
+
+    public YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneYear)
+                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
+                                               .SetInternalIndexSize(12)
+                                               .SetInitialFileSize(512 * 1024)) { }
+
+    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToFourHourlyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToFourHourlyPriceSummarySubBuckets>();
+
+    public static YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile
+        (FileInfo file) =>
+        OpenExistingTimeSeriesFile(file.FullName);
+}
+
+public class YearlyWeeklyDailyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<YearlyWeeklyDailyPriceSummaryTimeSeriesFile, WeeklyToDailyPriceSummarySubBuckets>
 {
     public YearlyWeeklyDailyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -85,14 +165,14 @@ public class YearlyWeeklyDailyPriceSummaryTimeSeriesFile : PriceSummaryTimeSerie
                                                .SetInternalIndexSize(53)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets<IPricePeriodSummary>> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets<IPricePeriodSummary>>();
+    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets>();
 
     public static YearlyWeeklyDailyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile,
-    MonthlyToWeeklyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile, MonthlyToWeeklyPriceSummarySubBuckets>
 {
     public YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -104,15 +184,15 @@ public class YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile : PriceSummaryTimeSer
                                                .SetInternalIndexSize(12)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets<IPricePeriodSummary>> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets<IPricePeriodSummary>>();
+    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets>();
 
     public static YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile,
-    MonthlyToWeeklyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile, MonthlyToWeeklyPriceSummarySubBuckets>
 {
     public DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -124,15 +204,15 @@ public class DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile : PriceSummaryTi
                                                .SetInternalIndexSize(120)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets<IPricePeriodSummary>> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets<IPricePeriodSummary>>();
+    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets>();
 
     public static DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile,
-    YearlyToMonthlyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile, YearlyToMonthlyPriceSummarySubBuckets>
 {
     public DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -144,15 +224,15 @@ public class DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile : PriceSummaryTi
                                                .SetInternalIndexSize(10)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, YearlyToMonthlyPriceSummarySubBuckets<IPricePeriodSummary>> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, YearlyToMonthlyPriceSummarySubBuckets<IPricePeriodSummary>>();
+    public override ISessionAppendContext<IPricePeriodSummary, YearlyToMonthlyPriceSummarySubBuckets> CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, YearlyToMonthlyPriceSummarySubBuckets>();
 
     public static DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile,
-    DecenniallyToYearlyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile, DecenniallyToYearlyPriceSummarySubBuckets>
 {
     public UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -164,32 +244,51 @@ public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile : PriceSummary
                                                .SetInternalIndexSize(10)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, DecenniallyToYearlyPriceSummarySubBuckets<IPricePeriodSummary>>
+    public override ISessionAppendContext<IPricePeriodSummary, DecenniallyToYearlyPriceSummarySubBuckets>
         CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DecenniallyToYearlyPriceSummarySubBuckets<IPricePeriodSummary>>();
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DecenniallyToYearlyPriceSummarySubBuckets>();
 
     public static UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class UnlimitedUnlimitedDecenniallyPriceSummaryTimeSeriesFile : PriceSummaryTimeSeriesFile<
-    UnlimitedUnlimitedDecenniallyPriceSummaryTimeSeriesFile,
-    UnlimitedToDecenniallyPriceSummarySubBuckets<IPricePeriodSummary>, IPricePeriodSummary>
+public class UnlimitedDecenniallyPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<UnlimitedDecenniallyPriceSummaryTimeSeriesFile, DecenniallyPriceSummaryDataBucket>
 {
-    public UnlimitedUnlimitedDecenniallyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public UnlimitedDecenniallyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public UnlimitedUnlimitedDecenniallyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public UnlimitedDecenniallyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.None)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(1)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, UnlimitedToDecenniallyPriceSummarySubBuckets<IPricePeriodSummary>>
+    public override ISessionAppendContext<IPricePeriodSummary, DecenniallyPriceSummaryDataBucket>
         CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, UnlimitedToDecenniallyPriceSummarySubBuckets<IPricePeriodSummary>>();
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DecenniallyPriceSummaryDataBucket>();
 
-    public static UnlimitedUnlimitedDecenniallyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
+    public static UnlimitedDecenniallyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
+}
+
+public class UnlimitedPriceSummaryTimeSeriesFile :
+    PriceSummaryTimeSeriesFile<UnlimitedPriceSummaryTimeSeriesFile, UnlimitedPriceSummaryDataBucket>
+{
+    public UnlimitedPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+        : base(pagedMemoryMappedFile, header) { }
+
+    public UnlimitedPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.None)
+                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .SetFileFlags(FileFlags.HasSubFileHeader)
+                                               .SetInternalIndexSize(1)
+                                               .SetInitialFileSize(512 * 1024)) { }
+
+    public override ISessionAppendContext<IPricePeriodSummary, UnlimitedPriceSummaryDataBucket>
+        CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, UnlimitedPriceSummaryDataBucket>();
+
+    public static UnlimitedPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }

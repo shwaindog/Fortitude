@@ -6,14 +6,12 @@
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarketsApi.Pricing.TimeSeries;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class HourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEntry, HourlyPriceSummaryDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+public class HourlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<HourlyPriceSummaryDataBucket>
 {
     public HourlyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -23,8 +21,17 @@ public class HourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEn
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneHour;
 }
 
-public class DailyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEntry, DailyPriceSummaryDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+public class FourHourlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<FourHourlyPriceSummaryDataBucket>
+{
+    public FourHourlyPriceSummaryDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+        bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
+
+    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.FourHours;
+}
+
+public class DailyPriceSummaryDataBucket : PQPriceSummaryDataBucket<DailyPriceSummaryDataBucket>
 {
     public DailyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -34,8 +41,7 @@ public class DailyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEnt
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }
 
-public class WeeklyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEntry, WeeklyPriceSummaryDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+public class WeeklyPriceSummaryDataBucket : PQPriceSummaryDataBucket<WeeklyPriceSummaryDataBucket>
 {
     public WeeklyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -45,8 +51,7 @@ public class WeeklyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEn
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneWeek;
 }
 
-public class MonthlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEntry, MonthlyPriceSummaryDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+public class MonthlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<MonthlyPriceSummaryDataBucket>
 {
     public MonthlyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -56,19 +61,17 @@ public class MonthlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TE
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneMonth;
 }
 
-public class YearlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEntry, YearlyPriceSummaryDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+public class YearlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<YearlyPriceSummaryDataBucket>
 {
     public YearlyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
-    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneMonth;
+    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneYear;
 }
 
-public class DecenniallyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<TEntry, DecenniallyPriceSummaryDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+public class DecenniallyPriceSummaryDataBucket : PQPriceSummaryDataBucket<DecenniallyPriceSummaryDataBucket>
 {
     public DecenniallyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -76,4 +79,14 @@ public class DecenniallyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucke
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
+}
+
+public class UnlimitedPriceSummaryDataBucket : PQPriceSummaryDataBucket<UnlimitedPriceSummaryDataBucket>
+{
+    public UnlimitedPriceSummaryDataBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+        bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
+        : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
+
+    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.None;
 }
