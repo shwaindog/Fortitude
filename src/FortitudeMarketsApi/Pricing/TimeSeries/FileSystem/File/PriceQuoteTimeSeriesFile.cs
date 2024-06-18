@@ -11,5 +11,5 @@ namespace FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 
 public interface IPriceQuoteTimeSeriesFile : ITimeSeriesFile
 {
-    IPriceQuoteFileHeader PriceQuoteFileHeader { get; }
+    IPriceFileHeader PriceFileHeader { get; }
 }

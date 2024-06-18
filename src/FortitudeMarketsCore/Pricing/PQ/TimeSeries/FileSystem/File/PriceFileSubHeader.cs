@@ -16,7 +16,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public interface ISerializationPriceFileHeader : IPriceQuoteFileHeader
+public interface ISerializationPriceFileHeader : IPriceFileHeader
 {
     PQSerializationFlags SerializationFlags { get; set; }
 }

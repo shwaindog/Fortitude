@@ -60,8 +60,9 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         Ticker = null!;
     }
 
-    public SourceTickerQuoteInfo(ushort sourceId, string source, ushort tickerId, string ticker, QuoteLevel publishedQuoteLevel,
-        MarketClassification marketClassification, byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.0001m,
+    public SourceTickerQuoteInfo
+    (ushort sourceId, string source, ushort tickerId, string ticker, QuoteLevel publishedQuoteLevel,
+        MarketClassification marketClassification, byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.00001m,
         decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m, ushort minimumQuoteLife = 100,
         LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume,
         LastTradedFlags lastTradedFlags = LastTradedFlags.None)
@@ -178,7 +179,8 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
     IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
 
-    IReusableObject<IVersionedMessage> IStoreState<IReusableObject<IVersionedMessage>>.CopyFrom(IReusableObject<IVersionedMessage> source
+    IReusableObject<IVersionedMessage> IStoreState<IReusableObject<IVersionedMessage>>.CopyFrom
+    (IReusableObject<IVersionedMessage> source
       , CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
 

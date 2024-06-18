@@ -91,7 +91,7 @@ public class PQQuoteDeserializerBaseTests
         sourceTickerQuoteInfo =
             new SourceTickerQuoteInfo
                 (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", QuoteLevel.Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1
                , LayerFlags.Volume | LayerFlags.Price
                , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
@@ -118,8 +118,8 @@ public class PQQuoteDeserializerBaseTests
     public void TearDown()
     {
         var realInstance =
-            PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool("clientCallback",
-                                                                        TimeSpan.FromMilliseconds(10), typeof(UserCallback));
+            PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool
+                ("clientCallback", TimeSpan.FromMilliseconds(10), typeof(UserCallback));
 
         NonPublicInvocator.SetStaticField
             (dummyLevel0QuoteDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
@@ -347,7 +347,8 @@ public class PQQuoteDeserializerBaseTests
     public void EmptyQuoteLvl2Quote_UpdateQuote_SetsDispatcherContextDetails()
     {
         var expectedL2Quote = new PQLevel2Quote(sourceTickerQuoteInfo);
-        var numLayers       = expectedL2Quote.BidBook.Capacity;
+
+        var numLayers = expectedL2Quote.BidBook.Capacity;
         Assert.IsTrue(numLayers >= 20);
         for (var i = 0; i < numLayers; i++)
         {
@@ -387,7 +388,8 @@ public class PQQuoteDeserializerBaseTests
     [TestMethod]
     public void EmptyQuoteLvl3Quote_UpdateQuote_SetsDispatcherContextDetails()
     {
-        var expectedL3Quote           = new PQLevel3Quote(sourceTickerQuoteInfo);
+        var expectedL3Quote = new PQLevel3Quote(sourceTickerQuoteInfo);
+
         var deepestPossibleLayerIndex = expectedL3Quote.BidBook.Capacity;
         Assert.IsTrue(deepestPossibleLayerIndex >= 20);
         var toggleGivenBool = false;
@@ -658,8 +660,7 @@ public class PQQuoteDeserializerBaseTests
             UpdateQuote(socketBufferReadContext, ent, sequenceId);
         }
 
-        public void InvokePushQuoteToSubscribers(PQSyncStatus syncStatus,
-            IPerfLogger? detectionToPublishLatencyTraceLogger = null)
+        public void InvokePushQuoteToSubscribers(PQSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null)
         {
             PushQuoteToSubscribers(syncStatus, detectionToPublishLatencyTraceLogger);
         }

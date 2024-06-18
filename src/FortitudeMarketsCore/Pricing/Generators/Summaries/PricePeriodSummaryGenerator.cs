@@ -8,6 +8,7 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Generators.MidPrice;
 using FortitudeMarketsCore.Pricing.Summaries;
+using MathNet.Numerics;
 using MathNet.Numerics.Distributions;
 
 #endregion
@@ -172,6 +173,8 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
                             , (long)(GeneratePriceSummaryInfo.AverageVolume +
                                      NormalDist.Sample() * GeneratePriceSummaryInfo.VolumeStandardDeviation));
 
+        volume = RoundVolumeToScaleValue(volume);
+
         var tickCount = Math.Max(GeneratePriceSummaryInfo.MinimumTickCount
                                , (uint)(GeneratePriceSummaryInfo.AverageTickCount +
                                         NormalDist.Sample() * GeneratePriceSummaryInfo.TickCountStandardDeviation));
@@ -192,6 +195,33 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
         priceSummary.TickCount       = tickCount;
 
         return priceSummary;
+    }
+
+    private long RoundVolumeToScaleValue(long volume)
+    {
+        int volumeRound;
+        var minVolAmounts = Math.Min(GeneratePriceSummaryInfo.SourceTickerQuoteInfo.IncrementSize
+                                   , GeneratePriceSummaryInfo.SourceTickerQuoteInfo.MinSubmitSize);
+        if (minVolAmounts < 1 && minVolAmounts.Scale > 0)
+        {
+            volumeRound = minVolAmounts.Scale;
+        }
+        else if (minVolAmounts > 10)
+        {
+            var count = 1;
+            while (minVolAmounts > 10)
+            {
+                count++;
+                minVolAmounts /= 10;
+            }
+            volumeRound = -count;
+        }
+        else
+        {
+            volumeRound = 0;
+        }
+        volume = volume.Round(volumeRound);
+        return volume;
     }
 }
 

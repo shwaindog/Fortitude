@@ -76,7 +76,7 @@ public class PQQuoteDeserializerTests
     {
         sourceTickerQuoteInfo = new SourceTickerQuoteInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , 20, 0.000001m, 30000m, 50000000m, 1000m, 1
            , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
            , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                          | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);

@@ -95,13 +95,13 @@ public class QuoteSequencedTestDataBuilder
         for (var i = 0; i < numLayers; i++)
         {
             var deltaPrice  = 0.00001m * i;
-            var deltaVolume = batchId * 10000 + 10000m * i;
+            var deltaVolume = batchId * 100_000 + 100_000m * i;
             var mutableBid  = level2Quote.BidBook[i]!;
             var mutableAsk  = level2Quote.AskBook[i]!;
             mutableBid.Price  = 0.791905m + batchId * 0.00001m - deltaPrice;
-            mutableBid.Volume = 30000 + deltaVolume;
+            mutableBid.Volume = 100_000 + deltaVolume;
             mutableAsk.Price  = 0.791906m + batchId * 0.00001m + deltaPrice;
-            mutableAsk.Volume = 30000 + deltaVolume;
+            mutableAsk.Volume = 100_0000 + deltaVolume;
 
             if (mutableBid is IMutableSourcePriceVolumeLayer mutableBidPriceVal)
                 SetupSourceNameOnLayer(mutableBidPriceVal, true, batchId);

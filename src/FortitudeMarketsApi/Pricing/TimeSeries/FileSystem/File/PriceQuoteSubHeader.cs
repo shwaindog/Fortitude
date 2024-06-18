@@ -10,7 +10,7 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 namespace FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 
-public interface IPriceQuoteFileHeader : IFileSubHeader
+public interface IPriceFileHeader : IFileSubHeader
 {
     ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; }
 }

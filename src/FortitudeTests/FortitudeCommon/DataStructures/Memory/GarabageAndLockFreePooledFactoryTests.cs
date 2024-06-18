@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Text;
 using FortitudeCommon.Chronometry;
@@ -11,25 +14,24 @@ namespace FortitudeTests.FortitudeCommon.DataStructures.Memory;
 [TestClass]
 public class GarbageAndLockFreePooledFactoryTests
 {
-    private const int MaxNumberThreads = 8;
+    private const int MaxNumberThreads       = 8;
     private const int BorrowReturnIterations = 1_000;
 
     private readonly LendItemTrackingTimes[] itemTracking = new LendItemTrackingTimes[MaxNumberThreads + 1];
-    private readonly Random randomNumberGen = new();
-    private readonly Thread[] workerThreads = new Thread[MaxNumberThreads];
+
+    private readonly Random   randomNumberGen = new();
+    private readonly Thread[] workerThreads   = new Thread[MaxNumberThreads];
 
     private volatile bool allGood;
 
-    private GarbageAndLockFreePooledFactory<LendableItem> garbageAndLockFreePooledFactory
-        = new(() => new LendableItem());
+    private GarbageAndLockFreePooledFactory<LendableItem> garbageAndLockFreePooledFactory = new(() => new LendableItem());
 
     [TestInitialize]
     public void SetUp()
     {
         LendableItem.ResetInstanceCounter();
-        allGood = true;
-        garbageAndLockFreePooledFactory = new GarbageAndLockFreePooledFactory<LendableItem>(
-            () => new LendableItem());
+        allGood                         = true;
+        garbageAndLockFreePooledFactory = new GarbageAndLockFreePooledFactory<LendableItem>(() => new LendableItem());
         for (var i = 0; i < MaxNumberThreads; i++)
         {
             var workerThread = new Thread(RunExercise) { Name = "WorkerThread_" + i };
@@ -42,15 +44,14 @@ public class GarbageAndLockFreePooledFactoryTests
     [TestMethod]
     public void MultipleElementsEnquedRemovingSomeElementsStillRetainsExistingItems()
     {
-        var pool = new GarbageAndLockFreePooledFactory<string>(
-            () => throw new ArgumentException());
+        var pool = new GarbageAndLockFreePooledFactory<string>(() => throw new ArgumentException());
 
-        var firstString = "firstString";
+        var firstString  = "firstString";
         var secondString = "secondString";
-        var thirdString = "thirdString";
+        var thirdString  = "thirdString";
         var fourthString = "fourthString";
-        var fifthString = "fifthString";
-        var sixthString = "sixthString";
+        var fifthString  = "fifthString";
+        var sixthString  = "sixthString";
 
         var allStrings = new List<string>
             { firstString, secondString, thirdString, fourthString, fifthString, sixthString };
@@ -97,7 +98,7 @@ public class GarbageAndLockFreePooledFactoryTests
         for (var i = 0; i < itemTracking.Length; i++)
         {
             var lendItemTrackingTimes = itemTracking[i];
-            var maxNumberOfSlots = lendItemTrackingTimes.SlotCounter;
+            var maxNumberOfSlots      = lendItemTrackingTimes.SlotCounter;
             for (var j = 0; j < maxNumberOfSlots; j++)
             {
                 totalBorrowAndReturns++;
@@ -106,16 +107,16 @@ public class GarbageAndLockFreePooledFactoryTests
                 {
                     var olderLendTime = lendItemTrackingTimes.TrackTime[k];
                     Assert.IsTrue(currentLendTime.BorrowTime > olderLendTime.ReturnTime,
-                        $"itemTracking[{i}].TrackTime[{j}].ReturnTime = {currentLendTime.BorrowTime:O} < " +
-                        $"itemTracking[{i}].TrackTime[{k}].BorrowTime = {olderLendTime.ReturnTime:O}");
+                                  $"itemTracking[{i}].TrackTime[{j}].ReturnTime = {currentLendTime.BorrowTime:O} < " +
+                                  $"itemTracking[{i}].TrackTime[{k}].BorrowTime = {olderLendTime.ReturnTime:O}");
                 }
 
                 for (var k = j + 1; k < maxNumberOfSlots && k < j + MaxNumberThreads * 2; k++)
                 {
                     var newLendTime = lendItemTrackingTimes.TrackTime[k];
                     Assert.IsTrue(currentLendTime.ReturnTime < newLendTime.BorrowTime,
-                        $"itemTracking[{i}].TrackTime[{j}].ReturnTime = {currentLendTime.ReturnTime:O} > " +
-                        $"itemTracking[{i}].TrackTime[{k}].BorrowTime = {newLendTime.BorrowTime:O}");
+                                  $"itemTracking[{i}].TrackTime[{j}].ReturnTime = {currentLendTime.ReturnTime:O} > " +
+                                  $"itemTracking[{i}].TrackTime[{k}].BorrowTime = {newLendTime.BorrowTime:O}");
                 }
             }
         }
@@ -134,18 +135,22 @@ public class GarbageAndLockFreePooledFactoryTests
                 var lendableItem = garbageAndLockFreePooledFactory.Borrow();
                 lendableItem.AssertAndStampThreadId();
                 var borrowTime = TimeContext.LocalTimeNow;
-                var borrowSlot = itemTracking[lendableItem.InstanceNumber].TrackBorrowTime(borrowTime);
-                var numOfSpins = randomNumberGen.Next(0, 800);
-                // ReSharper disable once EmptyForStatement
-                for (var j = 0; j < numOfSpins; j++)
+                if (lendableItem.InstanceNumber < itemTracking.Length)
                 {
-                    // spin baby spin
-                }
+                    var borrowSlot = itemTracking[lendableItem.InstanceNumber].TrackBorrowTime(borrowTime);
 
-                lendableItem.ClearThreadId();
-                var returnTime = TimeContext.LocalTimeNow;
-                garbageAndLockFreePooledFactory.ReturnBorrowed(lendableItem);
-                itemTracking[lendableItem.InstanceNumber].SetReturnTime(borrowSlot, returnTime);
+                    var numOfSpins = randomNumberGen.Next(0, 800);
+                    // ReSharper disable once EmptyForStatement
+                    for (var j = 0; j < numOfSpins; j++)
+                    {
+                        // spin baby spin
+                    }
+
+                    lendableItem.ClearThreadId();
+                    var returnTime = TimeContext.LocalTimeNow;
+                    garbageAndLockFreePooledFactory.ReturnBorrowed(lendableItem);
+                    itemTracking[lendableItem.InstanceNumber].SetReturnTime(borrowSlot, returnTime);
+                } // don't return items not being tracked
             }
         }
         catch (Exception ex)
@@ -169,7 +174,7 @@ public class GarbageAndLockFreePooledFactoryTests
 
     private class LendableItem
     {
-        private static int allInstanceCounter;
+        private static   int allInstanceCounter;
         private volatile int threadId;
 
         public int InstanceNumber { get; } = Interlocked.Increment(ref allInstanceCounter);
@@ -196,15 +201,16 @@ public class GarbageAndLockFreePooledFactoryTests
         public LendTimes(DateTime borrowTime) : this() => BorrowTime = borrowTime;
 
         public readonly DateTime BorrowTime;
+
         public DateTime ReturnTime;
     }
 
     private class LendItemTrackingTimes
     {
         public readonly LendTimes[] TrackTime = new LendTimes[BorrowReturnIterations * MaxNumberThreads];
-        private int nextSlotCounter;
 
-        public int SlotCounter => nextSlotCounter;
+        private int nextSlotCounter;
+        public  int SlotCounter => nextSlotCounter;
 
         public int TrackBorrowTime(DateTime borrowTime)
         {
@@ -217,7 +223,7 @@ public class GarbageAndLockFreePooledFactoryTests
         {
             var previousEntry = TrackTime[slotNum];
             previousEntry.ReturnTime = returnTime;
-            TrackTime[slotNum] = previousEntry;
+            TrackTime[slotNum]       = previousEntry;
         }
     }
 }

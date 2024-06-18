@@ -81,7 +81,7 @@ public class SourceTickerQuoteInfoTests
         Assert.AreEqual("MinimalSource", minimalSrcTkrQtInfo.Source);
         Assert.AreEqual("MinalTicker", minimalSrcTkrQtInfo.Ticker);
         Assert.AreEqual(20, minimalSrcTkrQtInfo.MaximumPublishedLayers);
-        Assert.AreEqual(0.0001m, minimalSrcTkrQtInfo.RoundingPrecision);
+        Assert.AreEqual(0.00001m, minimalSrcTkrQtInfo.RoundingPrecision);
         Assert.AreEqual(0.01m, minimalSrcTkrQtInfo.MinSubmitSize);
         Assert.AreEqual(1_000_000m, minimalSrcTkrQtInfo.MaxSubmitSize);
         Assert.AreEqual(0.01m, minimalSrcTkrQtInfo.IncrementSize);
@@ -201,7 +201,7 @@ public class SourceTickerQuoteInfoTests
         // ReSharper disable RedundantArgumentDefaultValue
         var matchingStqi = new SourceTickerQuoteInfo
             (1, "TestSource", 1, "TestTicker", QuoteLevel.Level2, Unknown,
-             20, 0.0001m, 0.01m,
+             20, 0.00001m, 0.01m,
              1_000_000, 0.01m, 100, LayerFlags.Price | LayerFlags.Volume, LastTradedFlags.None);
         Assert.AreEqual(commonStqi, matchingStqi);
         // ReSharper restore RedundantArgumentDefaultValue

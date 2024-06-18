@@ -75,44 +75,44 @@ public class PQQuoteSerializerTests
         level0QuoteInfo =
             new SourceTickerQuoteInfo
                 (1, "TestSource1", 1, "TestTicker1", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1);
         level1QuoteInfo =
             new SourceTickerQuoteInfo
                 (2, "TestSource2", 2, "TestTicker2", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1);
         valueDateQuoteInfo =
             new SourceTickerQuoteInfo
                 (7, "TestSource", 7, "TestTicker", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1,
                  LayerFlags.Volume | LayerFlags.Price | LayerFlags.ValueDate,
                  LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                              | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         everyLayerQuoteInfo =
             new SourceTickerQuoteInfo
                 (8, "TestSource", 8, "TestTicker", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1,
                  LayerFlags.Volume.AllFlags(),
                  LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                              | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         simpleNoRecentlyTradedQuoteInfo
             = new SourceTickerQuoteInfo
                 (3, "TestSource", 3, "TestTicker", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1);
         srcNmLstTrdQuoteInfo =
             new SourceTickerQuoteInfo
                 (4, "TestSource", 4, "TestTicker", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1,
                  LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceName
                , LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime);
         srcQtRfPdGvnVlmQuoteInfo =
             new SourceTickerQuoteInfo
                 (5, "TestSource", 5, "TestTicker", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1,
                  LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference, LastTradedFlags.PaidOrGiven);
         trdrLyrTrdrPdGvnVlmDtlsQuoteInfo =
             new SourceTickerQuoteInfo
                 (6, "TestSource", 6, "TestTicker", Level3, Unknown
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1,
+               , 20, 0.000001m, 30000m, 50000000m, 1000m, 1,
                  LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName
                | LayerFlags.TraderSize | LayerFlags.TraderCount, LastTradedFlags.TraderName);
         level0Quote       = new PQLevel0Quote(level0QuoteInfo);
@@ -318,7 +318,8 @@ public class PQQuoteSerializerTests
         }
     }
 
-    private unsafe void AssertExpectedBytesWriten(int amtWritten, bool isSnapshot,
+    private unsafe void AssertExpectedBytesWriten
+    (int amtWritten, bool isSnapshot,
         List<PQFieldUpdate> expectedFieldUpdates, List<PQFieldStringUpdate> expectedStringUpdates,
         IPQLevel0Quote originalQuote)
     {

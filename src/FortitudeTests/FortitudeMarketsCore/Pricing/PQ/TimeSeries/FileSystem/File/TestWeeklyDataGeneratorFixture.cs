@@ -4,8 +4,11 @@
 #region
 
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Generators.Quotes;
+using FortitudeMarketsCore.Pricing.Generators.Summaries;
 
 #endregion
 
@@ -52,17 +55,55 @@ public static class TestWeeklyDataGeneratorFixture
         }
     }
 
+    public static IEnumerable<IPricePeriodSummary> GeneratePriceSummaryForEachDayAndHourOfCurrentWeek<TEntry>
+        (int start, int amount, TimeSeriesPeriod summaryPeriod, IPricePeriodSummaryGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
+        where TEntry : class, IMutablePricePeriodSummary
+    {
+        var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
+        var currentDayOfWeek = dateToGenerate.DayOfWeek;
+        var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
+        var startOfWeek      = dateToGenerate.AddDays(dayDiff);
+        var currentDay       = startOfWeek;
+        for (var i = 0; i < 7; i++)
+        {
+            for (var j = 0; j < 24; j++)
+                foreach (var l1QuoteStruct in GenerateRepeatablePriceSummaries
+                             (start, amount, j, currentDay.DayOfWeek, summaryPeriod, quoteGenerator))
+                    yield return l1QuoteStruct;
+            currentDay = currentDay.AddDays(1);
+        }
+    }
+
+    public static IEnumerable<IPricePeriodSummary> GenerateRepeatablePriceSummaries<TEntry>
+    (int start, int amount, int hour, DayOfWeek forDayOfWeek, TimeSeriesPeriod summaryPeriod, IPricePeriodSummaryGenerator<TEntry> quoteGenerator
+      , DateTime? forWeekWithDate = null)
+        where TEntry : class, IMutablePricePeriodSummary
+    {
+        var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
+        var currentDayOfWeek = dateToGenerate.DayOfWeek;
+        var dayDiff          = forDayOfWeek - currentDayOfWeek;
+        var generateDate     = dateToGenerate.AddDays(dayDiff);
+        var hourToGenerate   = TimeSpan.FromHours(hour);
+        var generateDateHour = generateDate.Add(hourToGenerate);
+
+        for (var i = start; i < start + amount; i++)
+        {
+            var startTime = generateDateHour + TimeSpan.FromSeconds(i);
+            yield return quoteGenerator.PriceSummaries(startTime, TimeSeriesPeriod.OneSecond, 1).First();
+        }
+    }
+
     public static string GenerateUniqueFileNameOffDateTime()
     {
         var now = DateTime.Now;
         Interlocked.Increment(ref newTestCount);
         var nowString = now.ToString("yyyy-MM-dd_HH-mm-ss_fff");
-        return "WeeklyQuoteTimeSeriesFile_" + nowString + "_" + newTestCount + ".bin";
+        return "PriceTimeSeriesTestFile_" + nowString + "_" + newTestCount + ".bin";
     }
 
     public static void DeleteTestFiles(DirectoryInfo fromDirectory)
     {
-        foreach (var existingTimeSeriesFile in fromDirectory.GetFiles("WeeklyQuoteTimeSeriesFile_*"))
+        foreach (var existingTimeSeriesFile in fromDirectory.GetFiles("PriceTimeSeriesTestFile_*"))
             try
             {
                 existingTimeSeriesFile.Delete();

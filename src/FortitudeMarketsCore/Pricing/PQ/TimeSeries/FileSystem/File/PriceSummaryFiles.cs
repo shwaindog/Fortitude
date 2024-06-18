@@ -7,8 +7,6 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
-using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 #endregion
@@ -28,9 +26,6 @@ public class WeeklyDailyHourlyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets>();
-
     public static WeeklyDailyHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
@@ -46,9 +41,6 @@ public class WeeklyFourHourlyPriceSummaryTimeSeriesFile :
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(42)
                                                .SetInitialFileSize(512 * 1024)) { }
-
-    public override ISessionAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket>();
 
     public static WeeklyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
@@ -66,9 +58,6 @@ public class MonthlyFourHourlyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(186)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, FourHourlyPriceSummaryDataBucket>();
-
     public static MonthlyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
@@ -85,9 +74,6 @@ public class MonthlyDailyHourlyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(31)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DailyToHourlyPriceSummarySubBuckets>();
-
     public static MonthlyDailyHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
@@ -103,9 +89,6 @@ public class MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile :
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(4)
                                                .SetInitialFileSize(512 * 1024)) { }
-
-    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToFourHourlyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToFourHourlyPriceSummarySubBuckets>();
 
     public static MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile
         (FileInfo file) =>
@@ -125,9 +108,6 @@ public class MonthlyWeeklyDailyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(4)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets>();
-
     public static MonthlyWeeklyDailyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
@@ -143,9 +123,6 @@ public class YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile :
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(12)
                                                .SetInitialFileSize(512 * 1024)) { }
-
-    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToFourHourlyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToFourHourlyPriceSummarySubBuckets>();
 
     public static YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile
         (FileInfo file) =>
@@ -165,9 +142,6 @@ public class YearlyWeeklyDailyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(53)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, WeeklyToDailyPriceSummarySubBuckets>();
-
     public static YearlyWeeklyDailyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
@@ -183,9 +157,6 @@ public class YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile :
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(12)
                                                .SetInitialFileSize(512 * 1024)) { }
-
-    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets>();
 
     public static YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
@@ -204,9 +175,6 @@ public class DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(120)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, MonthlyToWeeklyPriceSummarySubBuckets>();
-
     public static DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
@@ -223,9 +191,6 @@ public class DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile :
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(10)
                                                .SetInitialFileSize(512 * 1024)) { }
-
-    public override ISessionAppendContext<IPricePeriodSummary, YearlyToMonthlyPriceSummarySubBuckets> CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, YearlyToMonthlyPriceSummarySubBuckets>();
 
     public static DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
@@ -244,10 +209,6 @@ public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(10)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, DecenniallyToYearlyPriceSummarySubBuckets>
-        CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DecenniallyToYearlyPriceSummarySubBuckets>();
-
     public static UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
@@ -265,10 +226,6 @@ public class UnlimitedDecenniallyPriceSummaryTimeSeriesFile :
                                                .SetInternalIndexSize(1)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<IPricePeriodSummary, DecenniallyPriceSummaryDataBucket>
-        CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, DecenniallyPriceSummaryDataBucket>();
-
     public static UnlimitedDecenniallyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
@@ -285,10 +242,6 @@ public class UnlimitedPriceSummaryTimeSeriesFile :
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(1)
                                                .SetInitialFileSize(512 * 1024)) { }
-
-    public override ISessionAppendContext<IPricePeriodSummary, UnlimitedPriceSummaryDataBucket>
-        CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, UnlimitedPriceSummaryDataBucket>();
 
     public static UnlimitedPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }

@@ -19,16 +19,14 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
-    (FileInfo fileInfo, IInstrument instrument,
-        TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
     protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
-    (FileInfo fileInfo, IInstrument instrument,
-        TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
     {
         if (filePeriod != TimeSeriesPeriod.OneWeek) throw new Exception("Expected file period to be one week");
         var sourceTickerQuoteInfo = instrument as ISourceTickerQuoteInfo;
@@ -56,8 +54,7 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-    (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
-      , DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch

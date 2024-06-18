@@ -67,7 +67,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         level2SrcTkrQtInfo =
             new SourceTickerQuoteInfo
                 (19, "WeeklyLevel2QuoteTimeSeriesFileTests", 79, "PersistTest", Level2, Unknown
-               , numberOfLayers, layerFlags: layerType.SupportedLayerFlags(), lastTradedFlags: LastTradedFlags.None);
+               , numberOfLayers, layerFlags: layerType.SupportedLayerFlags(), lastTradedFlags: LastTradedFlags.None, roundingPrecision: 0.000001m);
 
         var generateQuoteInfo = new GenerateQuoteInfo(level2SrcTkrQtInfo);
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
