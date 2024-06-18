@@ -9,7 +9,7 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
-using FortitudeMarketsCore.Pricing.TimeSeries;
+using FortitudeMarketsCore.Pricing.Summaries;
 
 #endregion
 
@@ -19,7 +19,8 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
 {
     public Level1PriceQuote() { }
 
-    public Level1PriceQuote(ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
+    public Level1PriceQuote
+    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null,
         DateTime? sourceBidTime = null, decimal bidPriceTop = 0m, bool isBidPriceTopChanged = false,

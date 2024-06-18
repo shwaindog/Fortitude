@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Quotes.Generators;
+using FortitudeMarketsCore.Pricing.Generators.Quotes;
 
 #endregion
 
@@ -15,8 +15,8 @@ public static class TestWeeklyDataGeneratorFixture
 {
     private static int newTestCount;
 
-    public static IEnumerable<TQuoteLevel> GenerateQuotesForEachDayAndHourOfCurrentWeek<TQuoteLevel, TEntry>(int start, int amount
-      , IQuoteGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
+    public static IEnumerable<TQuoteLevel> GenerateQuotesForEachDayAndHourOfCurrentWeek<TQuoteLevel, TEntry>
+        (int start, int amount, IQuoteGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
         where TEntry : class, TQuoteLevel, IMutableLevel0Quote
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
@@ -34,8 +34,8 @@ public static class TestWeeklyDataGeneratorFixture
         }
     }
 
-    public static IEnumerable<TQuoteLevel> GenerateRepeatableQuotes<TQuoteLevel, TEntry>(int start, int amount,
-        int hour, DayOfWeek forDayOfWeek, IQuoteGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
+    public static IEnumerable<TQuoteLevel> GenerateRepeatableQuotes<TQuoteLevel, TEntry>
+        (int start, int amount, int hour, DayOfWeek forDayOfWeek, IQuoteGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
         where TEntry : class, IMutableLevel0Quote, TQuoteLevel
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;

@@ -10,9 +10,9 @@ using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
+using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.TimeSeries;
+using FortitudeMarketsCore.Pricing.Summaries;
 using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
@@ -292,8 +292,8 @@ public class Level1PriceQuoteTests
         Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
     }
 
-    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
-        IMutableLevel1Quote commonCompareQuote, IMutableLevel1Quote changingQuote)
+    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
+        (bool exactComparison, IMutableLevel1Quote commonCompareQuote, IMutableLevel1Quote changingQuote)
     {
         Level0PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType
             (exactComparison, commonCompareQuote, changingQuote);

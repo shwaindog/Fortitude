@@ -11,8 +11,8 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.TimeSeries;
-using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.PQPriceStorageSummaryFlags;
+using FortitudeMarketsCore.Pricing.PQ.Summaries;
+using static FortitudeMarketsCore.Pricing.PQ.Summaries.PQPriceStorageSummaryFlags;
 
 #endregion
 

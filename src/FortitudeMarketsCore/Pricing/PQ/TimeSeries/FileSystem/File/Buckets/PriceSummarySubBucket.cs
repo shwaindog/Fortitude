@@ -4,7 +4,6 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
-using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
@@ -14,10 +13,9 @@ using FortitudeMarketsApi.Pricing.TimeSeries;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public abstract class PriceSummarySubBucket<TEntry, TBucket, TSubBucket> : SubBucketOnlyBucket<TEntry, TBucket, TSubBucket>, IPriceBucket
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceBucket
-    where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>, IPriceBucket
+public abstract class PriceSummarySubBucket<TBucket, TSubBucket> : SubBucketOnlyBucket<IPricePeriodSummary, TBucket, TSubBucket>, IPriceBucket
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<IPricePeriodSummary>, IPriceBucket
+    where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<IPricePeriodSummary>, IPriceBucket
 {
     protected PriceSummarySubBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,

@@ -6,7 +6,6 @@
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session;
@@ -16,14 +15,15 @@ using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarketsCore.Pricing.PQ.Summaries;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public abstract class PQPriceSummaryDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IPricePeriodSummaryBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPricePeriodSummaryBucket<TEntry>
+public abstract class PQPriceSummaryDataBucket<TBucket> : DataBucket<IPricePeriodSummary, TBucket>
+  , IPricePeriodSummaryBucket
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<IPricePeriodSummary>, IPricePeriodSummaryBucket
 {
     private IMessageBufferContext? bufferContext;
 
@@ -60,7 +60,7 @@ public abstract class PQPriceSummaryDataBucket<TEntry, TBucket> : DataBucket<TEn
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; } = null!;
 
-    public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext)
+    public override IEnumerable<IPricePeriodSummary> ReadEntries(IBuffer readBuffer, IReaderContext<IPricePeriodSummary> readerContext)
     {
         bufferContext ??= new MessageBufferContext(readBuffer);
 
@@ -70,9 +70,10 @@ public abstract class PQPriceSummaryDataBucket<TEntry, TBucket> : DataBucket<TEn
         return ReadEntries(bufferContext, readerContext, DefaultMessageDeserializer);
     }
 
-    public override AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext, AppendResult appendResult)
+    public override AppendResult AppendEntry
+        (IFixedByteArrayBuffer writeBuffer, IAppendContext<IPricePeriodSummary> entryContext, AppendResult appendResult)
     {
-        var pqContext = entryContext as IPQPricePeriodSummaryAppendContext<TEntry>;
+        var pqContext = entryContext as IPQPricePeriodSummaryAppendContext<IPricePeriodSummary>;
         var entry     = entryContext.CurrentEntry;
 
         bufferContext ??= new MessageBufferContext(writeBuffer);
@@ -94,8 +95,8 @@ public abstract class PQPriceSummaryDataBucket<TEntry, TBucket> : DataBucket<TEn
         return AppendEntry(bufferContext, lastEntryQuote, messageSerializer, appendResult);
     }
 
-    public virtual IEnumerable<TEntry> ReadEntries
-    (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext
+    public virtual IEnumerable<IPricePeriodSummary> ReadEntries
+    (IMessageBufferContext buffer, IReaderContext<IPricePeriodSummary> readerContext
       , IPQPriceStoragePeriodSummaryDeserializer bufferDeserializer)
     {
         var entryCount = 0;
