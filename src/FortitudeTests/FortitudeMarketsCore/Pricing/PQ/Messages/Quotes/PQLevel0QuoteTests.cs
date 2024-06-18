@@ -41,7 +41,7 @@ public class PQLevel0QuoteTests
     private PQLevel0Quote newlyPopulatedPqLevel0Quote = null!;
 
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private ISourceTickerQuoteInfo        sourceTickerQuoteInfo         = null!;
+    private PQSourceTickerQuoteInfo       sourceTickerQuoteInfo         = null!;
 
     private DateTime testDateTime;
 
@@ -51,15 +51,15 @@ public class PQLevel0QuoteTests
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
         sourceTickerQuoteInfo =
-            new SourceTickerQuoteInfo
+            new PQSourceTickerQuoteInfo
                 (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, FxMajor
-               , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , 20, 0.0000001m, 30000m, 50000000m, 1000m, 1
                , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
                , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName
                                              | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         blankSourceTickerQuoteInfo  = new SourceTickerQuoteInfo(0, "", 0, "", Level1, Unknown);
-        emptyQuote                  = new PQLevel0Quote(sourceTickerQuoteInfo) { HasUpdates = false };
-        fullyPopulatedPqLevel0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
+        fullyPopulatedPqLevel0Quote = new PQLevel0Quote(new PQSourceTickerQuoteInfo(sourceTickerQuoteInfo));
+        emptyQuote                  = new PQLevel0Quote(new PQSourceTickerQuoteInfo(sourceTickerQuoteInfo)) { HasUpdates = false };
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedPqLevel0Quote, 1);
         newlyPopulatedPqLevel0Quote = new PQLevel0Quote(sourceTickerQuoteInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(newlyPopulatedPqLevel0Quote, 2);
@@ -162,13 +162,14 @@ public class PQLevel0QuoteTests
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         var expectedSinglePrice = 1.2345678m;
+        var priceScale          = sourceTickerQuoteInfo.PriceScalingPrecision;
         emptyQuote.SinglePrice = expectedSinglePrice;
         Assert.IsTrue(emptyQuote.IsSinglePriceUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSinglePrice, emptyQuote.SinglePrice);
         var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.SinglePrice, expectedSinglePrice, 1);
+        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.SinglePrice, PQScaling.Scale(expectedSinglePrice, priceScale), priceScale);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyQuote.IsSinglePriceUpdated = false;
@@ -257,7 +258,7 @@ public class PQLevel0QuoteTests
         var pqFieldUpdates =
             fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
-        AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote);
+        AssertContainsAllLevel0Fields(sourceTickerQuoteInfo, pqFieldUpdates, fullyPopulatedPqLevel0Quote);
     }
 
     [TestMethod]
@@ -267,7 +268,7 @@ public class PQLevel0QuoteTests
         var pqFieldUpdates =
             fullyPopulatedPqLevel0Quote.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Snapshot).ToList();
-        AssertContainsAllLevel0Fields(pqFieldUpdates, fullyPopulatedPqLevel0Quote);
+        AssertContainsAllLevel0Fields(sourceTickerQuoteInfo, pqFieldUpdates, fullyPopulatedPqLevel0Quote);
     }
 
     [TestMethod]
@@ -500,14 +501,15 @@ public class PQLevel0QuoteTests
     }
 
     public static void AssertContainsAllLevel0Fields
-    (IList<PQFieldUpdate> checkFieldUpdates, PQLevel0Quote originalQuote
+    (IPQPriceVolumePublicationPrecisionSettings precisionSettings, IList<PQFieldUpdate> checkFieldUpdates, PQLevel0Quote originalQuote
       , PQBooleanValues expectedBooleanFlags = PQBooleanValues.IsReplayUpdatedFlag | PQBooleanValues.IsReplaySetFlag)
     {
+        var priceScale = precisionSettings.PriceScalingPrecision;
         PQSourceTickerQuoteInfoTests.AssertSourceTickerInfoContainsAllFields(checkFieldUpdates,
                                                                              originalQuote.SourceTickerQuoteInfo!);
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (uint)originalQuote.PQSyncStatus),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PQSyncStatus));
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SinglePrice, originalQuote.SinglePrice, 1),
+        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SinglePrice, PQScaling.Scale(originalQuote.SinglePrice, priceScale), priceScale),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.SinglePrice));
         var sourceTime = NonPublicInvocator.GetInstanceField<DateTime>(originalQuote, "sourceTime");
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceSentDateTime, sourceTime.GetHoursFromUnixEpoch()),

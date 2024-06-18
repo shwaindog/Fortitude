@@ -3,7 +3,6 @@
 
 #region
 
-using System.Diagnostics;
 using System.Globalization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
@@ -92,6 +91,9 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         LayerFlags       = layerFlags;
         LastTradedFlags  = lastTradedFlags;
 
+        PriceScalingPrecision  = PQScaling.FindScaleFactor(RoundingPrecision);
+        VolumeScalingPrecision = PQScaling.FindScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
+
         Category = PublishedQuoteLevel.ToString();
     }
 
@@ -116,6 +118,9 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
 
         Category = PublishedQuoteLevel.ToString();
 
+        PriceScalingPrecision  = PQScaling.FindScaleFactor(RoundingPrecision);
+        VolumeScalingPrecision = PQScaling.FindScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
+
         if (toClone is IPQSourceTickerQuoteInfo pubToClone)
         {
             IsIdUpdated     = pubToClone.IsIdUpdated;
@@ -137,8 +142,8 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         }
     }
 
-    public byte PriceScalingPrecision  { get; set; } = 1;
-    public byte VolumeScalingPrecision { get; }      = 6;
+    public byte PriceScalingPrecision  { get; } = 3;
+    public byte VolumeScalingPrecision { get; } = 6;
 
     public virtual bool HasUpdates
     {
@@ -525,7 +530,6 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         var allAreSame = sourceIdSame && tickerIdSame && sourceNameSame && tickerNameSame && quoteLevelSame && marketClassificationSame
                       && roundingPrecisionSame && minSubmitSizeSame && maxSubmitSizeSame && incrementSizeSame && minQuoteLifeSame
                       && layerFlagsSame && maxPublishLayersSame && lastTradedFlagsSame && updatesSame;
-        if (!allAreSame) Debugger.Break();
         return allAreSame;
     }
 

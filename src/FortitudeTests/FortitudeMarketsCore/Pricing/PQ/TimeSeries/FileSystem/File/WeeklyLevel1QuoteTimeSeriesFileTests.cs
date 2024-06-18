@@ -54,7 +54,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         level1SrcTkrQtInfo =
             new SourceTickerQuoteInfo
                 (19, "WeeklyLevel1QuoteTimeSeriesFileTests", 79, "PersistTest", Level1, Unknown
-               , 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None);
+               , 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None, roundingPrecision: 0.000001m);
 
 
         var dateToGenerate   = DateTime.UtcNow.Date;

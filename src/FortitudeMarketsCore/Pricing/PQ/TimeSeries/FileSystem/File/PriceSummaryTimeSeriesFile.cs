@@ -7,6 +7,7 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
+using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
@@ -23,7 +24,7 @@ public class PriceSummaryTimeSeriesFile<TFile, TBucket> : TimeSeriesFile<TFile, 
         : base(pagedMemoryMappedFile, header)
     {
         Header.SubHeaderFactory = (view, offset, writable) => new PriceFileSubHeader(view, offset, writable);
-        PriceQuoteFileHeader    = (IPriceQuoteFileHeader)Header.SubHeader!;
+        PriceFileHeader         = (IPriceFileHeader)Header.SubHeader!;
     }
 
     public PriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
@@ -31,14 +32,18 @@ public class PriceSummaryTimeSeriesFile<TFile, TBucket> : TimeSeriesFile<TFile, 
     {
         Header.FileFlags        |= FileFlags.HasSubFileHeader | FileFlags.HasInternalIndexInHeader;
         Header.SubHeaderFactory =  (view, offset, writable) => new PriceFileSubHeader(sourceTickerTimeSeriesFileParams, view, offset, writable);
-        PriceQuoteFileHeader    =  (IPriceQuoteFileHeader)Header.SubHeader!;
+        PriceFileHeader         =  (IPriceFileHeader)Header.SubHeader!;
     }
 
     public override IBucketFactory<TBucket> RootBucketFactory
     {
-        get { return FileBucketFactory ??= new PriceBucketFactory<TBucket>(PriceQuoteFileHeader.SourceTickerQuoteInfo, true); }
+        get { return FileBucketFactory ??= new PriceBucketFactory<TBucket>(PriceFileHeader.SourceTickerQuoteInfo, true); }
         set => FileBucketFactory = value;
     }
 
-    public IPriceQuoteFileHeader PriceQuoteFileHeader { get; }
+    public IPriceFileHeader PriceFileHeader { get; }
+
+    public override ISessionAppendContext<IPricePeriodSummary, TBucket>
+        CreateAppendContext() =>
+        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, TBucket>(PriceFileHeader.SourceTickerQuoteInfo);
 }

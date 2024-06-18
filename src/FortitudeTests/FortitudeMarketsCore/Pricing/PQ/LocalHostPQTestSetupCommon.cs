@@ -48,25 +48,27 @@ public class LocalHostPQTestSetupCommon
             new SourceTickersConfig
                 (new TickerConfig
                     (TickerId, TestTicker, TickerAvailability.AllEnabled, QuoteLevel.Level3, Unknown
-                   , 0.00001m, 0.1m, 100, 0.1m
+                   , 0.000001m, 0.1m, 100, 0.1m
                    , 250, LayerDetails, 20, LastTradedFlags));
         FirstTickerQuoteInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
-        PricingServerConfig ??= new PricingServerConfig(
-                                                        new NetworkTopicConnectionConfig("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor,
-                                                                                         new List<IEndpointConfig>
-                                                                                         {
-                                                                                             new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                                                                                            , TestMachineConfig.ServerSnapshotPort)
-                                                                                         }, "TestSnapshotServerDescription")
-                                                      , new NetworkTopicConnectionConfig("TestUpdateServer", SocketConversationProtocol.UdpPublisher,
-                                                                                         new List<IEndpointConfig>
-                                                                                         {
-                                                                                             new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                                                                                            , TestMachineConfig.ServerUpdatePort
-                                                                                            , subnetMask: TestMachineConfig.NetworkSubAddress)
-                                                                                         }, "TestUpdateServerDescription"
-                                                                                       , connectionAttributes: SocketConnectionAttributes.Fast |
-                                                                                         SocketConnectionAttributes.Multicast));
+        PricingServerConfig ??=
+            new PricingServerConfig
+                (new NetworkTopicConnectionConfig
+                     ("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor
+                    , new List<IEndpointConfig>
+                      {
+                          new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                                           , TestMachineConfig.ServerSnapshotPort)
+                      }, "TestSnapshotServerDescription")
+               , new NetworkTopicConnectionConfig
+                     ("TestUpdateServer", SocketConversationProtocol.UdpPublisher
+                    , new List<IEndpointConfig>
+                      {
+                          new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                                           , TestMachineConfig.ServerUpdatePort
+                                           , subnetMask: TestMachineConfig.NetworkSubAddress)
+                      }, "TestUpdateServerDescription"
+                    , connectionAttributes: SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast));
         DefaultServerMarketConnectionConfig ??= new MarketConnectionConfig(1, ExchangeName, MarketConnectionType.Pricing
                                                                          , SourceTickersConfig, PricingServerConfig);
         DefaultServerMarketsConfig ??= new MarketsConfig("LocalHostPQTestSetupServer", DefaultServerMarketConnectionConfig);

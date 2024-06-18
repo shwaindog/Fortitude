@@ -39,6 +39,21 @@ public static class PQScaling
 
     public static uint Scale(decimal value, byte flag) => (uint)(Math.Abs(value) * Factors[16 - (flag & FactorMask)]);
 
+    public static byte FindScaleFactor(decimal precisionExample)
+    {
+        if (precisionExample < 1m && precisionExample.Scale is > 0 and < 8) return (byte)(8 - precisionExample.Scale);
+        if (precisionExample is >= 1m and < 10m) return 8;
+        var currentScale = precisionExample;
+        var count        = 1;
+        while (currentScale > 10m)
+        {
+            count++;
+            currentScale /= 10;
+        }
+        if (count < 8) return (byte)(8 + count);
+        throw new Exception("Example precision value is greater than PQScaling support");
+    }
+
     public static uint AutoScale(decimal value, int maxNumberOfSignificantDigits, out byte flagSelected)
     {
         int afterDecimalPoint = BitConverter.GetBytes(decimal.GetBits(value)[3])[2];

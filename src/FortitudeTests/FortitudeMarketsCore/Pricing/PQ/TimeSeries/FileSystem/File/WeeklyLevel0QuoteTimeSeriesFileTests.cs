@@ -54,7 +54,7 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         level0SrcTkrQtInfo =
             new SourceTickerQuoteInfo
                 (19, "WeeklyLevel0QuoteTimeSeriesFileTests", 79, "PersistTest", Level0, Unknown
-               , 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None);
+               , 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None, roundingPrecision: 0.000001m);
 
         var dateToGenerate   = DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;

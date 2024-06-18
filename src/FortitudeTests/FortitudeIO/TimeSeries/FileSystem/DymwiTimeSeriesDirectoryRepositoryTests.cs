@@ -64,7 +64,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         level3SrcTkrQtInfo =
             new SourceTickerQuoteInfo
                 (19, "DymwiTest", 79, "RepoTest", Level3, FxMajor
-               , 5, layerFlags: LayerFlags.SourceQuoteReference, lastTradedFlags: LastTradedFlags.PaidOrGiven);
+               , 5, layerFlags: LayerFlags.SourceQuoteReference, lastTradedFlags: LastTradedFlags.PaidOrGiven, roundingPrecision: 0.000001m);
 
         var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrQtInfo);
         generateQuoteInfo.MidPriceGenerator!.StartTime  = week1.Date;
