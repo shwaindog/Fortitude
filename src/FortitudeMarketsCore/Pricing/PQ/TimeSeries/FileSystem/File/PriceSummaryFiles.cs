@@ -84,7 +84,7 @@ public class MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile :
         : base(pagedMemoryMappedFile, header) { }
 
     public MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneMonth)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(4)
@@ -223,7 +223,7 @@ public class UnlimitedDecenniallyPriceSummaryTimeSeriesFile :
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.None)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
-                                               .SetInternalIndexSize(1)
+                                               .SetInternalIndexSize(50)
                                                .SetInitialFileSize(512 * 1024)) { }
 
     public static UnlimitedDecenniallyPriceSummaryTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) =>

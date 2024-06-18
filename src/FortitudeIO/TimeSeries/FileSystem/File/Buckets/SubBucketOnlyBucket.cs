@@ -28,7 +28,8 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
 
     protected IBucketFactory<TSubBucket>? SubBucketFac;
 
-    protected SubBucketOnlyBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+    protected SubBucketOnlyBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
       , ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         BucketFlags |= BucketFlags.HasOnlySubBuckets;
@@ -135,7 +136,10 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
 
     public override uint CreateBucketId(uint previousHighestBucketId) => BucketId * 1000 + LastAddedBucketId + 1;
 
-    public override long CalculateBucketEndFileOffset() => SubBuckets.Max(sb => sb.CalculateBucketEndFileOffset());
+    public override long CalculateBucketEndFileOffset() =>
+        SubBuckets.Any()
+            ? SubBuckets.Max(sb => sb.CalculateBucketEndFileOffset())
+            : EndAllHeadersSectionFileOffset;
 
     public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext) =>
         SubBuckets.Where(sb => sb.BucketIntersects(readerContext.PeriodRange))
@@ -162,15 +166,14 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
             currentlyOpenSubBucket = currentlyOpenSubBucket.CloseAndCreateNextBucket()!;
             return currentlyOpenSubBucket.AppendEntry(entryContext);
         }
+        if (currentlyOpenSubBucket is { IsOpen: true }) currentlyOpenSubBucket.CloseBucketFileViews();
         foreach (var existingBucket in SubBuckets)
             if (existingBucket.CheckTimeSupported(entryStorageTime) == StorageAttemptResult.PeriodRangeMatched)
             {
                 currentlyOpenSubBucket = (TSubBucket)existingBucket.OpenBucket(OwningSession.ActiveBucketDataFileView, true);
                 return existingBucket.AppendEntry(entryContext);
             }
-
-        currentlyOpenSubBucket = SubBucketFactory.CreateNewBucket(this, EndAllHeadersSectionFileOffset,
-                                                                  entryStorageTime, true);
+        currentlyOpenSubBucket = SubBucketFactory.CreateNewBucket(this, CalculateBucketEndFileOffset(), entryStorageTime, true);
         return currentlyOpenSubBucket.AppendEntry(entryContext);
     }
 }

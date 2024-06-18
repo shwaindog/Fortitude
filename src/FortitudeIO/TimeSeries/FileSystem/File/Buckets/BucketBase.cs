@@ -35,7 +35,8 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     protected byte* RequiredHeaderViewLocation;
     protected bool  Writable;
 
-    protected BucketBase(IMutableBucketContainer bucketContainer,
+    protected BucketBase
+    (IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
     {
         BucketContainer                   = bucketContainer;
@@ -186,12 +187,9 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         set
         {
             if (value == cacheBucketHeader.TotalDataEntriesCount || !Writable || !CanAccessHeaderFromFileView) return;
-            if (BucketContainerIndexEntry != null)
-            {
-                var deltaEntries = value - MappedFileBucketInfo->TotalDataEntriesCount;
-                BucketContainerIndexEntry->NumEntries += deltaEntries;
-                BucketContainer.TotalDataEntriesCount += deltaEntries;
-            }
+            var deltaEntries = value - MappedFileBucketInfo->TotalDataEntriesCount;
+            BucketContainer.TotalDataEntriesCount += deltaEntries;
+            if (BucketContainerIndexEntry != null) BucketContainerIndexEntry->NumEntries += deltaEntries;
 
             MappedFileBucketInfo->TotalDataEntriesCount = value;
             cacheBucketHeader.TotalDataEntriesCount     = value;
@@ -292,17 +290,20 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         // if (!IsOpen) OpenBucket(asWritable: Writable);
         if (storageDateTime == default || storageDateTime == DateTimeConstants.UnixEpoch) return StorageAttemptResult.StorageTimeNotSupported;
         var bucketPeriod  = TimeSeriesPeriod;
-        var bucketEndTime = bucketPeriod.PeriodEnd(PeriodStartTime);
-        if (storageDateTime >= PeriodStartTime && storageDateTime < bucketEndTime)
+        var bucketEndTime = bucketPeriod.PeriodEnd(PeriodStartTime); // None is unlimited
+        if ((storageDateTime >= PeriodStartTime && storageDateTime < bucketEndTime) || bucketPeriod == TimeSeriesPeriod.None)
             return BucketFlags.HasBucketCurrentAppendingFlag() ? StorageAttemptResult.PeriodRangeMatched : StorageAttemptResult.BucketClosedForAppend;
 
         if (storageDateTime >= bucketEndTime && storageDateTime < bucketPeriod.PeriodEnd(bucketEndTime))
             return StorageAttemptResult.NextBucketPeriod;
         if (storageDateTime >= bucketPeriod.PreviousPeriodStart(PeriodStartTime) && storageDateTime < PeriodStartTime)
             return StorageAttemptResult.BucketClosedForAppend;
-        var fileStartTime = BucketContainer.ContainingSession.TimeSeriesPeriodRange.PeriodStartTime;
-        var fileEndTime   = BucketContainer.ContainingSession.TimeSeriesPeriodRange.PeriodEnd();
-        if (storageDateTime >= fileStartTime && storageDateTime < fileEndTime) return StorageAttemptResult.BucketSearchRange;
+        var fileRange     = BucketContainer.ContainingSession.TimeSeriesPeriodRange;
+        var filePeriod    = fileRange.TimeSeriesPeriod;
+        var fileStartTime = fileRange.PeriodStartTime;
+        var fileEndTime   = fileRange.PeriodEnd();
+        if (storageDateTime >= fileStartTime && (storageDateTime < fileEndTime || filePeriod == TimeSeriesPeriod.None))
+            return StorageAttemptResult.BucketSearchRange;
         return StorageAttemptResult.NextFilePeriod;
     }
 
