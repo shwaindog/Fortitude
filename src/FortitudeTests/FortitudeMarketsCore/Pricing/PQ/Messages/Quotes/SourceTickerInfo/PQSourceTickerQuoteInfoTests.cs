@@ -6,8 +6,8 @@
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -599,7 +599,8 @@ public class PQSourceTickerQuoteInfoTests
         hashCode = fullyPopulatedSrcTkrQtInfo.GetHashCode();
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         PQSourceTickerQuoteInfo original, PQSourceTickerQuoteInfo changingSrcTkrQtInfo)
     {
         Assert.IsTrue(original.AreEquivalent(changingSrcTkrQtInfo));
@@ -651,7 +652,8 @@ public class PQSourceTickerQuoteInfoTests
         Assert.IsTrue(original.AreEquivalent(changingSrcTkrQtInfo, exactComparison));
     }
 
-    public static void AssertSourceTickerInfoContainsAllFields(IList<PQFieldUpdate> checkFieldUpdates,
+    public static void AssertSourceTickerInfoContainsAllFields
+    (IList<PQFieldUpdate> checkFieldUpdates,
         ISourceTickerQuoteInfo srcTkrInfo)
     {
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceTickerId, srcTkrInfo.Id),

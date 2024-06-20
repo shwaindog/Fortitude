@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -16,7 +16,8 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
 {
     public SourceQuoteRefTraderValueDatePriceVolumeLayer() => ValueDate = DateTimeConstants.UnixEpoch;
 
-    public SourceQuoteRefTraderValueDatePriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
+    public SourceQuoteRefTraderValueDatePriceVolumeLayer
+    (decimal price = 0m, decimal volume = 0m,
         DateTime? valueDate = null, string? sourceName = null, bool executable = false,
         uint quoteRef = 0u) : base(price, volume)
     {
@@ -98,7 +99,8 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         SourceQuoteReference = 0;
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+    public override IPriceVolumeLayer CopyFrom
+    (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);

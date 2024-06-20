@@ -1,17 +1,25 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
+
+public interface IQuotePublisher<in T> : IDisposable where T : ILevel0Quote
+{
+    void PublishReset(string ticker, DateTime exchangeTs, DateTime exchangeSentTs, DateTime adapterRecvTs);
+    void PublishQuoteUpdate(T quote);
+}
 
 public interface IPQPublisher : IQuotePublisher<ILevel0Quote>
 {
@@ -29,8 +37,8 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublisher<>));
 
     private readonly IMap<string, T> pictures = new ConcurrentMap<string, T>();
-    private readonly IPQServer<T> pqServer;
-    private volatile bool shutdownFlag;
+    private readonly IPQServer<T>    pqServer;
+    private volatile bool            shutdownFlag;
 
     public PQPublisher(IPQServer<T> pqServer) => this.pqServer = pqServer;
 
@@ -62,10 +70,10 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
 
         foreach (var pictureKvp in pictures)
         {
-            var now = TimeContext.UtcNow;
+            var now     = TimeContext.UtcNow;
             var picture = pictureKvp.Value;
             picture.ResetFields();
-            picture.SourceTime = now;
+            picture.SourceTime         = now;
             picture.ClientReceivedTime = now;
             if (picture is IMutableLevel1Quote pq1) pq1.AdapterSentTime = now;
             pqServer.Publish(picture);
@@ -79,7 +87,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
         if (pictures.TryGetValue(ticker, out var pqPicture))
         {
             pqPicture!.ResetFields();
-            pqPicture.SourceTime = exchangeTs;
+            pqPicture.SourceTime         = exchangeTs;
             pqPicture.ClientReceivedTime = adapterRecvTs;
             if (pqPicture is IMutableLevel1Quote pq1) pq1.AdapterSentTime = exchangeSentTs;
             pqServer.Publish(pqPicture);

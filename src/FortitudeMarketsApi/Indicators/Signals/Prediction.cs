@@ -1,0 +1,18 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
+
+using FortitudeMarketsApi.Pricing;
+
+#endregion
+
+namespace FortitudeMarketsApi.Indicators.Signals;
+
+public struct Prediction
+{
+    public BidAskPair?        MarketAtPrediction    { get; set; }
+    public LifeTime           LifeTime              { get; set; }
+    public PredictedDirection PredictedDirection    { get; set; }
+    public decimal            TargetPredictionPrice { get; set; }
+}

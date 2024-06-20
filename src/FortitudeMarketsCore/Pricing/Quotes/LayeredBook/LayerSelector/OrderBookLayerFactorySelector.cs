@@ -1,8 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -34,8 +37,9 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
     protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
         new SourceQuoteRefTraderValueDatePriceVolumeLayer();
 
-    public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IPriceVolumeLayer CreateExpectedImplementation
+    (LayerType desiredLayerType, IPriceVolumeLayer? copy = null
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var implementation = LayerFlagToImplementation(desiredLayerType);
         if (copy != null) implementation.CopyFrom(copy, copyMergeFlags);
@@ -44,16 +48,20 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
 
     public static IPriceVolumeLayer LayerFlagToImplementation(LayerType desiredLayerType)
     {
-        var newLayer = desiredLayerType switch
-        {
-            LayerType.PriceVolume => new PriceVolumeLayer()
-            , LayerType.SourceQuoteRefTraderValueDatePriceVolume => new SourceQuoteRefTraderValueDatePriceVolumeLayer()
-            , LayerType.SourceQuoteRefPriceVolume => new SourceQuoteRefPriceVolumeLayer()
-            , LayerType.SourcePriceVolume => new SourcePriceVolumeLayer()
-            , LayerType.ValueDatePriceVolume => new ValueDatePriceVolumeLayer()
-            , LayerType.TraderPriceVolume => new TraderPriceVolumeLayer()
-            , _ => new PriceVolumeLayer()
-        };
+        var newLayer =
+            desiredLayerType switch
+            {
+                LayerType.PriceVolume => new PriceVolumeLayer()
+
+              , LayerType.SourceQuoteRefTraderValueDatePriceVolume => new SourceQuoteRefTraderValueDatePriceVolumeLayer()
+
+              , LayerType.SourceQuoteRefPriceVolume => new SourceQuoteRefPriceVolumeLayer()
+              , LayerType.SourcePriceVolume         => new SourcePriceVolumeLayer()
+              , LayerType.ValueDatePriceVolume      => new ValueDatePriceVolumeLayer()
+              , LayerType.TraderPriceVolume         => new TraderPriceVolumeLayer()
+
+              , _ => new PriceVolumeLayer()
+            };
         return newLayer;
     }
 }

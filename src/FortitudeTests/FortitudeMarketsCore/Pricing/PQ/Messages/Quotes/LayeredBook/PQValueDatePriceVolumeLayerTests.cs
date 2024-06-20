@@ -6,8 +6,8 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -325,7 +325,8 @@ public class PQValueDatePriceVolumeLayerTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.ValueDate)}: {populatedPvl.ValueDate}"));
     }
 
-    public static void AssertContainsAllPvlFields(IList<PQFieldUpdate> checkFieldUpdates,
+    public static void AssertContainsAllPvlFields
+    (IList<PQFieldUpdate> checkFieldUpdates,
         PQValueDatePriceVolumeLayer pvl)
     {
         PQPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
@@ -336,7 +337,8 @@ public class PQValueDatePriceVolumeLayerTests
     }
 
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         PQValueDatePriceVolumeLayer? original, PQValueDatePriceVolumeLayer? changingPriceVolumeLayer,
         IOrderBook? originalOrderBook = null,
         IOrderBook? changingOrderBook = null,

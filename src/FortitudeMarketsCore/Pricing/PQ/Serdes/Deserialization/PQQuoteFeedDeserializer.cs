@@ -50,7 +50,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
             var       ptr                                                 = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
             var       sequenceId                                          = StreamByteOps.ToUInt(ref ptr);
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
-            PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
+            PushQuoteToSubscribers(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)
                 OnSyncOk(this);
             else
@@ -71,7 +71,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
         feedIsStopped = true;
         Logger.Info("Stale detected on feed {0}, {1}ms elapsed with no update",
                     Identifier.Source, elapsed);
-        PushQuoteToSubscribers(PQSyncStatus.Stale);
+        PushQuoteToSubscribers(PriceSyncStatus.Stale);
         return true;
     }
 

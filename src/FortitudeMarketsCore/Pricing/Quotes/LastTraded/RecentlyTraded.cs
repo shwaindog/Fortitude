@@ -7,7 +7,7 @@ using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
 
@@ -128,7 +128,8 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
             LastTrades[Count] = newLastTrade;
     }
 
-    public override IRecentlyTraded CopyFrom(IRecentlyTraded source
+    public override IRecentlyTraded CopyFrom
+    (IRecentlyTraded source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var currentDeepestLayerSet = Count;

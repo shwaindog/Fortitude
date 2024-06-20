@@ -7,7 +7,7 @@ using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 
@@ -97,13 +97,6 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         }
     }
 
-    public int AppendEntryAtEnd()
-    {
-        var index = bookLayers.Count;
-        bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType));
-        return index;
-    }
-
     public BookSide BookSide { get; }
 
     IPriceVolumeLayer? IOrderBook.this[int level] => this[level];
@@ -137,6 +130,13 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
                 if (cloneFirstLayer != null) bookLayers.Add(cloneFirstLayer);
             }
         }
+    }
+
+    public int AppendEntryAtEnd()
+    {
+        var index = bookLayers.Count;
+        bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType));
+        return index;
     }
 
     public override void StateReset()

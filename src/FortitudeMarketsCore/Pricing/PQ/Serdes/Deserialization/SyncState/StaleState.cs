@@ -24,7 +24,7 @@ public class StaleState<T> : InSyncState<T> where T : PQLevel0Quote, new()
                     sequenceId);
         SwitchState(QuoteSyncState.InSync);
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
+        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
                               LinkedDeserializer.OnSyncOk);
     }
 

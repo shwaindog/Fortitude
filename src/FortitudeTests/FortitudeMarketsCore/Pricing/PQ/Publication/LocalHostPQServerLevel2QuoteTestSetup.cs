@@ -4,7 +4,7 @@
 #region
 
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeMarketsCore.Pricing.Quotes;
@@ -39,8 +39,8 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
     {
         InitializeServerPrereqs();
         var useMarketConnectionConfig = overrideMarketConnectionConfig ?? DefaultServerMarketConnectionConfig;
-        PqServer = new PQServer<PQLevel2Quote>(useMarketConnectionConfig, HeartBeatSender, ServerDispatcherResolver,
-                                               PqSnapshotFactory, PqUpdateFactory);
+        PqServer = new PQServer<PQLevel2Quote>
+            (useMarketConnectionConfig, HeartBeatSender, ServerDispatcherResolver, PqSnapshotFactory, PqUpdateFactory);
         PqPublisher = new PQPublisher<PQLevel2Quote>(PqServer);
         PqPublisher.RegisterTickersWithServer(useMarketConnectionConfig);
         Logger.Info("Started PQServer");

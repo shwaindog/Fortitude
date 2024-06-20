@@ -1,9 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
@@ -14,16 +17,16 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 [TestClass]
 public class LastTradeTests
 {
-    private LastTrade emptyLt = null!;
+    private LastTrade emptyLt     = null!;
     private LastTrade populatedLt = null!;
-    private DateTime testDateTime;
+    private DateTime  testDateTime;
 
     [TestInitialize]
     public void SetUp()
     {
-        emptyLt = new LastTrade();
+        emptyLt      = new LastTrade();
         testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
-        populatedLt = new LastTrade(4.2949_672m, testDateTime);
+        populatedLt  = new LastTrade(4.2949_672m, testDateTime);
     }
 
     [TestMethod]
@@ -45,7 +48,7 @@ public class LastTradeTests
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
 
-        var pqLt = new PQLastTrade(1.23456m, testDateTime);
+        var pqLt           = new PQLastTrade(1.23456m, testDateTime);
         var fromPqInstance = new LastTrade(pqLt);
         Assert.AreEqual(1.23456m, fromPqInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPqInstance.TradeTime);
@@ -59,10 +62,11 @@ public class LastTradeTests
     public void EmptyEntry_Mutate_UpdatesFields()
     {
         const decimal expectedPrice = 3.45678m;
+
         var expectedTradeTime = new DateTime(2018, 3, 4, 11, 34, 5);
 
         emptyLt.TradePrice = expectedPrice;
-        emptyLt.TradeTime = expectedTradeTime;
+        emptyLt.TradeTime  = expectedTradeTime;
 
         Assert.AreEqual(expectedPrice, emptyLt.TradePrice);
         Assert.AreEqual(expectedTradeTime, emptyLt.TradeTime);
@@ -99,7 +103,7 @@ public class LastTradeTests
     public void PQPopulatedLt_CopyFromToEmptyPvl_QuotesEquivalentToEachOther()
     {
         var pqLastTrade = new PQLastTrade(populatedLt);
-        var newEmpty = new LastTrade();
+        var newEmpty    = new LastTrade();
         newEmpty.CopyFrom(pqLastTrade);
         Assert.IsTrue(populatedLt.AreEquivalent(newEmpty));
         Assert.AreEqual(populatedLt, newEmpty);
@@ -123,10 +127,10 @@ public class LastTradeTests
     public void FullyPopulatedLtCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
         var fullyPopulatedClone = (LastTrade)((ICloneable)populatedLt).Clone();
-        AssertAreEquivalentMeetsExpectedExactComparisonType(true, populatedLt,
-            fullyPopulatedClone);
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedLt,
-            fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (true, populatedLt, fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, populatedLt, fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -155,7 +159,8 @@ public class LastTradeTests
     }
 
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IMutableLastTrade? original, IMutableLastTrade? changingLastTrade,
         IMutableRecentlyTraded? originalRecentlyTraded = null, IMutableRecentlyTraded? changingRecentlyTraded = null,
         IMutableLevel3Quote? originalQuote = null, IMutableLevel3Quote? changingQuote = null)
@@ -168,27 +173,27 @@ public class LastTradeTests
         changingLastTrade.TradePrice = 12.34567m;
         Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
         if (originalRecentlyTraded != null)
-            Assert.IsFalse(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+            Assert.IsFalse
+                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastTrade.TradePrice = original.TradePrice;
         Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
-            Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+            Assert.IsTrue
+                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastTrade.TradeTime = new DateTime(2018, 1, 02, 20, 22, 50);
         Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
         if (originalRecentlyTraded != null)
-            Assert.IsFalse(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+            Assert.IsFalse
+                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastTrade.TradeTime = original.TradeTime;
         Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
-            Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+            Assert.IsTrue
+                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

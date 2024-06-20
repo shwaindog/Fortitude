@@ -7,9 +7,10 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
@@ -21,7 +22,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
 {
     public Level3PriceQuote() { }
 
-    public Level3PriceQuote(ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
+    public Level3PriceQuote
+    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null,
         bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, bool isAskPriceTopChanged = false,
@@ -69,6 +71,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
 
     public DateTime ValueDate { get; set; } = DateTimeConstants.UnixEpoch;
 
+    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => (ILevel3Quote)Clone();
+
 
     public DateTime StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver = null)
     {
@@ -101,8 +105,6 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
 
         return this;
     }
-
-    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => (ILevel3Quote)Clone();
 
     ILevel3Quote ILevel3Quote.Clone() => (ILevel3Quote)Clone();
 

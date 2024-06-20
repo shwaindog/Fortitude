@@ -5,8 +5,8 @@
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -340,7 +340,8 @@ public class PQPriceVolumeLayerTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.Volume)}: {populatedPvl.Volume:N2}"));
     }
 
-    public static void AssertContainsAllPvlFields(IList<PQFieldUpdate> checkFieldUpdates,
+    public static void AssertContainsAllPvlFields
+    (IList<PQFieldUpdate> checkFieldUpdates,
         IPQPriceVolumeLayer pvl)
     {
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, pvl.Price, 1),
@@ -351,7 +352,8 @@ public class PQPriceVolumeLayerTests
                                                                     PQFieldKeys.LayerVolumeOffset, 6), $"For {pvl.GetType().Name} ");
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IPQPriceVolumeLayer? original, IPQPriceVolumeLayer? changingPriceVolumeLayer,
         IOrderBook? originalOrderBook = null,
         IOrderBook? changingOrderBook = null,

@@ -4,9 +4,9 @@
 #region
 
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
@@ -191,9 +191,9 @@ public class QuoteSequencedTestDataBuilder
         level0Quote.ClientReceivedTime = level0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 10));
         if (level0Quote is IPQLevel0Quote pqLevel0Quote)
         {
-            pqLevel0Quote.PQSyncStatus   = PQSyncStatus.Good;
-            pqLevel0Quote.PQSequenceId   = batchId;
-            pqLevel0Quote.DispatchedTime = pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
+            pqLevel0Quote.PQPriceSyncStatus = PriceSyncStatus.Good;
+            pqLevel0Quote.PQSequenceId      = batchId;
+            pqLevel0Quote.DispatchedTime    = pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
             pqLevel0Quote.SocketReceivingTime =
                 pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 12));
             pqLevel0Quote.ProcessedTime = pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 13));

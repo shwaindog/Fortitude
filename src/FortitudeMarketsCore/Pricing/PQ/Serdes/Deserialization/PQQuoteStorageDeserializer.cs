@@ -24,7 +24,8 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
 
     private uint lastSequenceId = 0;
 
-    public PQQuoteStorageDeserializer(ISourceTickerQuoteInfo identifier,
+    public PQQuoteStorageDeserializer
+    (ISourceTickerQuoteInfo identifier,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage,
         byte storageVersion = 1)
         : base(identifier, serializationFlags)
@@ -58,7 +59,7 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
 
             lastSequenceId = PublishedQuote.PQSequenceId;
 
-            PushQuoteToSubscribers(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
+            PushQuoteToSubscribers(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             return PublishedQuote;
         }
 

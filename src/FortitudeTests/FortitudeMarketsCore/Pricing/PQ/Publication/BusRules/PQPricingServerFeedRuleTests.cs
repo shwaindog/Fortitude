@@ -1,11 +1,14 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Publication.BusRules;
 using FortitudeMarketsCore.Pricing.PQ.Publication.BusRules.BusMessages;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
@@ -21,14 +24,15 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication.BusRules;
 public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingServerFeedRuleTests));
-    private IMarketConnectionConfig clientMarketConfig = null!;
-    private string feedName = null!;
-    private ManualResetEvent haveReceivedPriceAutoResetEvent = null!;
-    private PQPricingClientFeedRule pqPricingClientFeedRule = null!;
-    private PQPricingServerFeedRule pricingServerFeedRule = null!;
-    private PublishQuoteEvent publishQuoteEvent = null!;
-    private LocalHostPQTestSetupCommon serverConfig = null!;
-    private TestSubscribeToTickerRule testSubscribeToTickerRule = null!;
+
+    private IMarketConnectionConfig    clientMarketConfig              = null!;
+    private string                     feedName                        = null!;
+    private ManualResetEvent           haveReceivedPriceAutoResetEvent = null!;
+    private PQPricingClientFeedRule    pqPricingClientFeedRule         = null!;
+    private PQPricingServerFeedRule    pricingServerFeedRule           = null!;
+    private PublishQuoteEvent          publishQuoteEvent               = null!;
+    private LocalHostPQTestSetupCommon serverConfig                    = null!;
+    private TestSubscribeToTickerRule  testSubscribeToTickerRule       = null!;
 
 
     [TestInitialize]
@@ -41,19 +45,20 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         serverConfig = new LocalHostPQTestSetupCommon
         {
             LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize
-            , LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
-                                LastTradedFlags.LastTradedTime
+          , LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
+                              LastTradedFlags.LastTradedTime
         };
         serverConfig.InitializeCommonConfig();
         haveReceivedPriceAutoResetEvent = new ManualResetEvent(false);
+
         feedName = serverConfig.DefaultServerMarketConnectionConfig.Name;
-        var serverConfigMarketConnectionConfig = serverConfig.DefaultServerMarketConnectionConfig
-            .ShiftPortsBy(8);
+
+        var serverConfigMarketConnectionConfig = serverConfig.DefaultServerMarketConnectionConfig.ShiftPortsBy(8);
         ;
-        pricingServerFeedRule = new PQPricingServerFeedRule(serverConfigMarketConnectionConfig);
-        clientMarketConfig = serverConfigMarketConnectionConfig.ToggleProtocolDirection("PQPricingServerFeedRuleTests");
-        clientMarketConfig.Name = "PQClientSourceFeedRuleTests";
-        pqPricingClientFeedRule = new PQPricingClientFeedRule(clientMarketConfig);
+        pricingServerFeedRule     = new PQPricingServerFeedRule(serverConfigMarketConnectionConfig);
+        clientMarketConfig        = serverConfigMarketConnectionConfig.ToggleProtocolDirection("PQPricingServerFeedRuleTests");
+        clientMarketConfig.Name   = "PQClientSourceFeedRuleTests";
+        pqPricingClientFeedRule   = new PQPricingClientFeedRule(clientMarketConfig);
         testSubscribeToTickerRule = new TestSubscribeToTickerRule(clientMarketConfig.Name, "EUR/USD", haveReceivedPriceAutoResetEvent);
         publishQuoteEvent = new PublishQuoteEvent
         {
@@ -88,7 +93,7 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         Logger.Info("Deployed client listening rule");
         await Task.Delay(1); // NEED this to allow tasks above to dispatch any callbacks
 
-        var counter = 0;
+        var  counter = 0;
         bool receivedSnapshotTick;
         do
         {

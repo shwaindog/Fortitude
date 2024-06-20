@@ -1,8 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -15,9 +18,10 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 [TestClass]
 public class SourceQuoteRefPriceVolumeLayerTests
 {
-    private SourceQuoteRefPriceVolumeLayer emptyPvl = null!;
-    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
-    private SourceQuoteRefPriceVolumeLayer populatedPvl = null!;
+    private SourceQuoteRefPriceVolumeLayer emptyPvl              = null!;
+    private IPQNameIdLookupGenerator       nameIdLookupGenerator = null!;
+    private SourceQuoteRefPriceVolumeLayer populatedPvl          = null!;
+
     private uint wellKnownQuoteRefNum;
 
     private string wellKnownSourceName = null!;
@@ -27,19 +31,19 @@ public class SourceQuoteRefPriceVolumeLayerTests
     {
         nameIdLookupGenerator
             = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
-        wellKnownSourceName = "TestSourceName";
+        wellKnownSourceName  = "TestSourceName";
         wellKnownQuoteRefNum = 54416884u;
 
         emptyPvl = new SourceQuoteRefPriceVolumeLayer();
-        populatedPvl = new SourceQuoteRefPriceVolumeLayer(4.2949_672m, 42_949_672m, wellKnownSourceName, true,
-            wellKnownQuoteRefNum);
+        populatedPvl = new SourceQuoteRefPriceVolumeLayer
+            (4.2949_672m, 42_949_672m, wellKnownSourceName, true, wellKnownQuoteRefNum);
     }
 
     [TestMethod]
     public void NewPvl_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newPvl = new SourceQuoteRefPriceVolumeLayer(20, 40_000_000, wellKnownSourceName, true,
-            wellKnownQuoteRefNum);
+        var newPvl = new SourceQuoteRefPriceVolumeLayer
+            (20, 40_000_000, wellKnownSourceName, true, wellKnownQuoteRefNum);
         Assert.AreEqual(20m, newPvl.Price);
         Assert.AreEqual(40_000_000m, newPvl.Volume);
         Assert.AreEqual(wellKnownSourceName, newPvl.SourceName);
@@ -56,8 +60,8 @@ public class SourceQuoteRefPriceVolumeLayerTests
     [TestMethod]
     public void NewPvl_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedPvl = new SourceQuoteRefPriceVolumeLayer(20, 40_000_000, wellKnownSourceName, true,
-            wellKnownQuoteRefNum);
+        var newPopulatedPvl = new SourceQuoteRefPriceVolumeLayer
+            (20, 40_000_000, wellKnownSourceName, true, wellKnownQuoteRefNum);
         var fromSrcQtRefInstance = new SourceQuoteRefPriceVolumeLayer(newPopulatedPvl);
         Assert.AreEqual(20m, fromSrcQtRefInstance.Price);
         Assert.AreEqual(40_000_000m, fromSrcQtRefInstance.Volume);
@@ -65,8 +69,8 @@ public class SourceQuoteRefPriceVolumeLayerTests
         Assert.IsTrue(fromSrcQtRefInstance.Executable);
         Assert.AreEqual(wellKnownQuoteRefNum, fromSrcQtRefInstance.SourceQuoteReference);
 
-        var pqValueDatePvl = new PQSourceQuoteRefPriceVolumeLayer(nameIdLookupGenerator.Clone(), 1.23456m, 5_123_456m,
-            wellKnownSourceName, true, wellKnownQuoteRefNum);
+        var pqValueDatePvl = new PQSourceQuoteRefPriceVolumeLayer
+            (nameIdLookupGenerator.Clone(), 1.23456m, 5_123_456m, wellKnownSourceName, true, wellKnownQuoteRefNum);
         var fromNonPqInstance = new SourceQuoteRefPriceVolumeLayer(pqValueDatePvl);
         Assert.AreEqual(1.23456m, fromNonPqInstance.Price);
         Assert.AreEqual(5_123_456m, fromNonPqInstance.Volume);
@@ -74,8 +78,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
         Assert.IsTrue(fromNonPqInstance.Executable);
         Assert.AreEqual(wellKnownQuoteRefNum, fromNonPqInstance.SourceQuoteReference);
 
-        var fromNonSourceQtRefPriceVolumeLayer = new SourceQuoteRefPriceVolumeLayer(
-            new PriceVolumeLayer(20, 40_000_000));
+        var fromNonSourceQtRefPriceVolumeLayer = new SourceQuoteRefPriceVolumeLayer(new PriceVolumeLayer(20, 40_000_000));
         Assert.AreEqual(20, fromNonSourceQtRefPriceVolumeLayer.Price);
         Assert.AreEqual(40_000_000, fromNonSourceQtRefPriceVolumeLayer.Volume);
         Assert.AreEqual(null, fromNonSourceQtRefPriceVolumeLayer.SourceName);
@@ -93,15 +96,16 @@ public class SourceQuoteRefPriceVolumeLayerTests
     [TestMethod]
     public void EmptyLayer_Mutate_UpdatesFields()
     {
-        const decimal expectedPrice = 3.45678m;
-        const decimal expectedVolume = 5.67890m;
-        const string expectedSourceName = "NewSourceName";
-        const uint expectedSrcQuoteRef = 612656;
+        const decimal expectedPrice       = 3.45678m;
+        const decimal expectedVolume      = 5.67890m;
+        const string  expectedSourceName  = "NewSourceName";
+        const uint    expectedSrcQuoteRef = 612656;
 
-        emptyPvl.Price = expectedPrice;
-        emptyPvl.Volume = expectedVolume;
+        emptyPvl.Price      = expectedPrice;
+        emptyPvl.Volume     = expectedVolume;
         emptyPvl.SourceName = expectedSourceName;
         emptyPvl.Executable = true;
+
         emptyPvl.SourceQuoteReference = expectedSrcQuoteRef;
 
         Assert.AreEqual(expectedPrice, emptyPvl.Price);
@@ -139,7 +143,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
     [TestMethod]
     public void PQPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var pqPvl = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
+        var pqPvl    = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
         var newEmpty = new SourceQuoteRefPriceVolumeLayer();
         newEmpty.CopyFrom(pqPvl);
         Assert.AreEqual(populatedPvl, newEmpty);
@@ -181,8 +185,8 @@ public class SourceQuoteRefPriceVolumeLayerTests
     public void FullyPopulatedPvlCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
         var fullyPopulatedClone = ((IMutableSourceQuoteRefPriceVolumeLayer)populatedPvl).Clone();
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedPvl,
-            fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, populatedPvl, fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -202,11 +206,11 @@ public class SourceQuoteRefPriceVolumeLayerTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.Volume)}: {populatedPvl.Volume:N2}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.SourceName)}: {populatedPvl.SourceName}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.Executable)}: {populatedPvl.Executable}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.SourceQuoteReference)}: " +
-                                        $"{populatedPvl.SourceQuoteReference:N0}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.SourceQuoteReference)}: {populatedPvl.SourceQuoteReference:N0}"));
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IMutableSourceQuoteRefPriceVolumeLayer? original,
         IMutableSourceQuoteRefPriceVolumeLayer? changingPriceVolumeLayer,
         IOrderBook? originalOrderBook = null,
@@ -218,20 +222,20 @@ public class SourceQuoteRefPriceVolumeLayerTests
         Assert.IsNotNull(original);
         Assert.IsNotNull(changingPriceVolumeLayer);
 
-        SourcePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-            original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+        SourcePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         changingPriceVolumeLayer.SourceQuoteReference = 7654321;
         Assert.IsFalse(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
-            Assert.IsFalse(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+            Assert.IsFalse
+                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingPriceVolumeLayer.SourceQuoteReference = original.SourceQuoteReference;
         Assert.IsTrue(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
-            Assert.IsTrue(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+            Assert.IsTrue
+                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

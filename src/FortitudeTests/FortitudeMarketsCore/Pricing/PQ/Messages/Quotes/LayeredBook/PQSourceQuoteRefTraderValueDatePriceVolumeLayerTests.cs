@@ -6,8 +6,8 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -936,7 +936,8 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
         for (var i = 0; i < populatedPvl.Count; i++) Assert.IsTrue(toString.Contains(populatedPvl[i]!.ToString()!));
     }
 
-    public static void AssertContainsAllPvlFields(IList<PQFieldUpdate> checkFieldUpdates,
+    public static void AssertContainsAllPvlFields
+    (IList<PQFieldUpdate> checkFieldUpdates,
         PQSourceQuoteRefTraderValueDatePriceVolumeLayer pvl)
     {
         PQTraderPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
@@ -959,7 +960,8 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
                                                                     PQFieldKeys.LayerSourceQuoteRefOffset), $"For {pvl.GetType().Name} ");
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         PQSourceQuoteRefTraderValueDatePriceVolumeLayer? original,
         PQSourceQuoteRefTraderValueDatePriceVolumeLayer? changingPriceVolumeLayer,
         IOrderBook? originalOrderBook = null,

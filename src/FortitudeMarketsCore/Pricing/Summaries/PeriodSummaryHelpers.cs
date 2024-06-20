@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 
 #endregion
 

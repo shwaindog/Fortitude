@@ -9,7 +9,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using static FortitudeMarketsCore.Pricing.PQ.Summaries.PQPriceStorageSummaryFlags;

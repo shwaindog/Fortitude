@@ -39,20 +39,18 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
         base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
         LastSuccessfulUpdateSequienceId = sequenceId;
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
-                              LinkedDeserializer.OnReceivedUpdate);
+        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger, LinkedDeserializer.OnReceivedUpdate);
     }
 
     protected override void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
     {
         if (LinkedDeserializer.AllowUpdatesCatchup && sequenceId < LinkedDeserializer.PublishedQuote.PQSequenceId
-                                                   && sequenceId > LastSuccessfulUpdateSequienceId &&
-                                                      LastSuccessfulUpdateSequienceId > 0)
+                                                   && sequenceId > LastSuccessfulUpdateSequienceId && LastSuccessfulUpdateSequienceId > 0)
         {
             if (LogCounter % 100 == 0)
-                Logger.Info("Sequence anomaly ignored on stream {0}, PrevSeqID={1}, RecvSeqID={2}",
-                            LinkedDeserializer.Identifier,
-                            LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId);
+                Logger.Info
+                    ("Sequence anomaly ignored on stream {0}, PrevSeqID={1}, RecvSeqID={2}"
+                   , LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId);
             LogCounter++;
             return;
         }
@@ -62,19 +60,17 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
         SaveMessageToSyncSlot(bufferContext, sequenceId);
         var sockBuffContext = bufferContext as SocketBufferReadContext;
         if (sockBuffContext != null)
-            Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}, WakeUpTs={3}, " +
-                        "DeserializeTs={4}, ReceivingTimestamp={5}",
-                        LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId,
-                        sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
-                        sockBuffContext.DeserializerTime.ToString(DateTimeFormat),
-                        sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
+            Logger.Info
+                ("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}, WakeUpTs={3}, DeserializeTs={4}, ReceivingTimestamp={5}",
+                 LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId
+               , sockBuffContext.DetectTimestamp.ToString(DateTimeFormat)
+               , sockBuffContext.DeserializerTime.ToString(DateTimeFormat), sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
         else
             Logger.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}",
                         LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId);
 
         SwitchState(QuoteSyncState.Synchronising);
-        PublishQuoteRunAction(PQSyncStatus.OutOfSync, sockBuffContext?.DispatchLatencyLogger,
-                              LinkedDeserializer.OnOutOfSync);
+        PublishQuoteRunAction(PriceSyncStatus.OutOfSync, sockBuffContext?.DispatchLatencyLogger, LinkedDeserializer.OnOutOfSync);
     }
 
     public override bool HasJustGoneStale(DateTime utcNow)
@@ -82,10 +78,10 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
         int elapsed;
         if ((elapsed = (int)(utcNow - LinkedDeserializer.PublishedQuote.ClientReceivedTime).TotalMilliseconds) <=
             PQTimeoutMs) return false;
-        Logger.Info("Stale detected on stream {0}, {1}ms elapsed with no update",
-                    LinkedDeserializer.Identifier, elapsed);
+        Logger.Info
+            ("Stale detected on stream {0}, {1}ms elapsed with no update", LinkedDeserializer.Identifier, elapsed);
         SwitchState(QuoteSyncState.Stale);
-        LinkedDeserializer.PushQuoteToSubscribers(PQSyncStatus.Stale);
+        LinkedDeserializer.PushQuoteToSubscribers(PriceSyncStatus.Stale);
         return true;
     }
 }

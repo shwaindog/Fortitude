@@ -4,8 +4,8 @@
 #region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -268,7 +268,8 @@ public class PQTraderLayerInfoTests
                                         $"{populatedTli.TraderVolume:N2}"));
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IPQTraderLayerInfo? original,
         IPQTraderLayerInfo? changingTraderLayerInfo,
         ITraderPriceVolumeLayer? originalTraderPriceVolumeLayer = null,

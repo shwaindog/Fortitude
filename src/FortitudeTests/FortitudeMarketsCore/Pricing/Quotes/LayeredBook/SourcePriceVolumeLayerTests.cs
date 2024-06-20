@@ -1,8 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -16,7 +19,9 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 public class SourcePriceVolumeLayerTests
 {
     private SourcePriceVolumeLayer emptyPvl = null!;
+
     private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
+
     private SourcePriceVolumeLayer populatedPvl = null!;
 
     private string wellKnownSourceName = null!;
@@ -28,7 +33,7 @@ public class SourcePriceVolumeLayerTests
             = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
         wellKnownSourceName = "TestSourceName";
 
-        emptyPvl = new SourcePriceVolumeLayer();
+        emptyPvl     = new SourcePriceVolumeLayer();
         populatedPvl = new SourcePriceVolumeLayer(4.2949_672m, 42_949_672m, wellKnownSourceName, true);
     }
 
@@ -80,12 +85,12 @@ public class SourcePriceVolumeLayerTests
     [TestMethod]
     public void EmptyLayer_Mutate_UpdatesFields()
     {
-        const decimal expectedPrice = 3.45678m;
-        const decimal expectedVolume = 5.67890m;
-        const string expectedSourceName = "NewSourceName";
+        const decimal expectedPrice      = 3.45678m;
+        const decimal expectedVolume     = 5.67890m;
+        const string  expectedSourceName = "NewSourceName";
 
-        emptyPvl.Price = expectedPrice;
-        emptyPvl.Volume = expectedVolume;
+        emptyPvl.Price      = expectedPrice;
+        emptyPvl.Volume     = expectedVolume;
         emptyPvl.SourceName = expectedSourceName;
         emptyPvl.Executable = true;
 
@@ -121,7 +126,7 @@ public class SourcePriceVolumeLayerTests
     [TestMethod]
     public void PQPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var pqPvl = new PQSourcePriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
+        var pqPvl    = new PQSourcePriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
         var newEmpty = new SourcePriceVolumeLayer();
         newEmpty.CopyFrom(pqPvl);
         Assert.AreEqual(populatedPvl, newEmpty);
@@ -151,8 +156,8 @@ public class SourcePriceVolumeLayerTests
     public void FullyPopulatedPvlCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
         var fullyPopulatedClone = ((IMutableSourcePriceVolumeLayer)populatedPvl).Clone();
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedPvl,
-            fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, populatedPvl, fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -174,7 +179,8 @@ public class SourcePriceVolumeLayerTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.Executable)}: {populatedPvl.Executable}"));
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IMutableSourcePriceVolumeLayer? original, IMutableSourcePriceVolumeLayer? changingPriceVolumeLayer,
         IOrderBook? originalOrderBook = null,
         IOrderBook? changingOrderBook = null,
@@ -185,33 +191,33 @@ public class SourcePriceVolumeLayerTests
         Assert.IsNotNull(original);
         Assert.IsNotNull(changingPriceVolumeLayer);
 
-        PriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-            original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+        PriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         changingPriceVolumeLayer.SourceName = "ChangingSourceName";
         Assert.IsFalse(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
-            Assert.IsFalse(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+            Assert.IsFalse
+                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingPriceVolumeLayer.SourceName = original.SourceName;
         Assert.IsTrue(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
-            Assert.IsTrue(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+            Assert.IsTrue
+                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingPriceVolumeLayer.Executable = !changingPriceVolumeLayer.Executable;
         Assert.IsFalse(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
-            Assert.IsFalse(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+            Assert.IsFalse
+                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingPriceVolumeLayer.Executable = original.Executable;
         Assert.IsTrue(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
         if (originalOrderBook != null)
-            Assert.IsTrue(
-                originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+            Assert.IsTrue
+                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

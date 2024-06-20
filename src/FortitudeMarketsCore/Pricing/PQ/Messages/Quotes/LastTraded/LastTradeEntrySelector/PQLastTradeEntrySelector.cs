@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
@@ -19,7 +19,8 @@ public interface IPQLastTradeTypeSelector : ILastTradeEntryFlagsSelector<IPQRece
 {
     bool TypeCanWholeyContain(Type copySourceType, Type copyDestinationType);
 
-    IPQLastTrade? SelectLastTradeEntry(IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
+    IPQLastTrade? SelectLastTradeEntry
+    (IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
       , bool keepCloneState = false);
 }
 
@@ -47,7 +48,8 @@ public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyT
         return false;
     }
 
-    public IPQLastTrade? SelectLastTradeEntry(IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
+    public IPQLastTrade? SelectLastTradeEntry
+    (IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
       , bool keepCloneState = false)
     {
         if (desired == null) return original;

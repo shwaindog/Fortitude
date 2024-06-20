@@ -6,9 +6,9 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes;
@@ -186,7 +186,8 @@ public class Level0PriceQuoteTests
         Assert.IsTrue(toString.Contains($"{nameof(q.ClientReceivedTime)}: {q.ClientReceivedTime:O}"));
     }
 
-    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IMutableLevel0Quote commonCompareQuote, IMutableLevel0Quote changingQuote)
     {
         var diffSrcTkrQtInfo = commonCompareQuote.SourceTickerQuoteInfo!.Clone();

@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -68,6 +68,18 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, " +
         $"{nameof(Count)}: {Count} {PQTraderPriceVolumeLayerToStringMembers}";
 
+    public bool IsValueDateUpdated
+    {
+        get => (UpdatedFlags & LayerFieldUpdatedFlags.ValueDateUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
+
+            else if (IsValueDateUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
+        }
+    }
+
     public override LayerType LayerType => LayerType.SourceQuoteRefTraderValueDatePriceVolume;
 
     public override LayerFlags SupportsLayerFlags =>
@@ -82,18 +94,6 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
             if (valueDate == value) return;
             IsValueDateUpdated = true;
             valueDate          = value;
-        }
-    }
-
-    public bool IsValueDateUpdated
-    {
-        get => (UpdatedFlags & LayerFieldUpdatedFlags.ValueDateUpdatedFlag) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
-
-            else if (IsValueDateUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.ValueDateUpdatedFlag;
         }
     }
 
@@ -372,8 +372,6 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
     IPQSourceQuoteRefTraderValueDatePriceVolumeLayer IPQSourceQuoteRefTraderValueDatePriceVolumeLayer.Clone() =>
         (IPQSourceQuoteRefTraderValueDatePriceVolumeLayer)Clone();
 
-    IPQValueDatePriceVolumeLayer IPQValueDatePriceVolumeLayer.Clone() => (IPQSourceQuoteRefTraderValueDatePriceVolumeLayer)Clone();
-
     IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.Clone() => (IPQSourceQuoteRefPriceVolumeLayer)Clone();
 
     ISourcePriceVolumeLayer ICloneable<ISourcePriceVolumeLayer>.Clone() => (ISourcePriceVolumeLayer)Clone();
@@ -432,6 +430,8 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayer : PQTraderPriceVolu
         var allAreSame = baseSame && valueDateSame && sourceQuoteRefSame && sourceNameSame && executableSame;
         return allAreSame;
     }
+
+    IPQValueDatePriceVolumeLayer IPQValueDatePriceVolumeLayer.Clone() => (IPQSourceQuoteRefTraderValueDatePriceVolumeLayer)Clone();
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);
 
