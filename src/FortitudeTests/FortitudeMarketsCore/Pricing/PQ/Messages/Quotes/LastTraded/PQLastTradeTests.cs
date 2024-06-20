@@ -6,7 +6,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
@@ -384,7 +384,8 @@ public class PQLastTradeTests
                                                                     PQFieldKeys.LastTradeTimeSubHourOffset), $"For {lt.GetType().Name} ");
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison, PQLastTrade? original,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison, PQLastTrade? original,
         PQLastTrade changingLastTrade, PQRecentlyTraded? originalRecentlyTraded = null
       , PQRecentlyTraded? changingRecentlyTraded = null,
         PQLevel3Quote? originalQuote = null, PQLevel3Quote? changingQuote = null)

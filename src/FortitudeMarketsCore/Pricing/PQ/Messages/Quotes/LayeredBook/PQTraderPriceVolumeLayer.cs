@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;

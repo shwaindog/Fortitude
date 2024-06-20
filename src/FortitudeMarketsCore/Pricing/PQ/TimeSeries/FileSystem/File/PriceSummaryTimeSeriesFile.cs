@@ -8,7 +8,7 @@ using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 

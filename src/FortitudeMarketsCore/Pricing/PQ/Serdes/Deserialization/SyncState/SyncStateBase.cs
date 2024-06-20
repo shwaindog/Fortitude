@@ -19,12 +19,14 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
     protected const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.ffffff";
 
     protected static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SyncStateBase<>));
-    protected        int      LogCounter;
+
+    protected int LogCounter;
 
     internal SyncStateBase(IPQQuotePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
     {
         LinkedDeserializer = linkedDeserializer;
-        State              = state;
+
+        State = state;
     }
 
     public IPQQuotePublishingDeserializer<T> LinkedDeserializer { get; }
@@ -85,23 +87,23 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
             if (LogCounter % 100 == 0)
             {
                 if (bufferContext is SocketBufferReadContext sockBuffContext)
-                    Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, " +
-                                "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
-                                LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
-                                sequenceId, sockBuffContext.DetectTimestamp.ToString(DateTimeFormat),
-                                sockBuffContext.DeserializerTime.ToString(DateTimeFormat),
-                                sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
+                    Logger.Info
+                        ("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}"
+                        ,
+                         LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId
+                       , sockBuffContext.DetectTimestamp.ToString(DateTimeFormat), sockBuffContext.DeserializerTime.ToString(DateTimeFormat)
+                       , sockBuffContext.ReceivingTimestamp.ToString(DateTimeFormat));
                 else
                     Logger.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3} ",
-                                LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId,
-                                sequenceId);
+                                LogCounter, LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId);
             }
 
             LogCounter++;
         }
     }
 
-    protected void PublishQuoteRunAction(PQSyncStatus syncStatus, IPerfLogger? dispatchLatencyLogger,
+    protected void PublishQuoteRunAction
+    (PriceSyncStatus syncStatus, IPerfLogger? dispatchLatencyLogger,
         Action<IPQQuoteDeserializer> syncStateAction)
     {
         LinkedDeserializer.PushQuoteToSubscribers(syncStatus, dispatchLatencyLogger);

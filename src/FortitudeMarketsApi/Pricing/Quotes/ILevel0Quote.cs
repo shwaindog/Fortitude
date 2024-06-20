@@ -19,11 +19,13 @@ public interface ILevel0Quote : IReusableObject<ILevel0Quote>,
     QuoteLevel QuoteLevel { get; }
     bool       IsReplay   { get; }
 
-    DateTime                SourceTime            { get; }
-    DateTime                ClientReceivedTime    { get; }
+    DateTime SourceTime         { get; }
+    DateTime ClientReceivedTime { get; }
+
     ISourceTickerQuoteInfo? SourceTickerQuoteInfo { get; }
-    decimal                 SinglePrice           { get; }
-    new ILevel0Quote        CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+
+    decimal          SinglePrice { get; }
+    new ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
 public struct Level0QuoteStruct : ITimeSeriesEntry<Level0QuoteStruct>
@@ -41,4 +43,17 @@ public struct Level0QuoteStruct : ITimeSeriesEntry<Level0QuoteStruct>
     public DateTime ClientReceivedTime;
     public decimal  SinglePrice;
     public DateTime StorageTime(IStorageTimeResolver<Level0QuoteStruct>? resolver = null) => SourceTime;
+}
+
+public interface IMutableLevel0Quote : ILevel0Quote
+{
+    new bool     IsReplay           { get; set; }
+    new DateTime SourceTime         { get; set; }
+    new DateTime ClientReceivedTime { get; set; }
+
+    new ISourceTickerQuoteInfo? SourceTickerQuoteInfo { get; set; }
+
+    new decimal SinglePrice { get; set; }
+
+    new IMutableLevel0Quote Clone();
 }

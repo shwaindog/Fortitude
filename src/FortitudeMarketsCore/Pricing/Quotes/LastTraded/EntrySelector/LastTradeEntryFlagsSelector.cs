@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 
 #endregion
 

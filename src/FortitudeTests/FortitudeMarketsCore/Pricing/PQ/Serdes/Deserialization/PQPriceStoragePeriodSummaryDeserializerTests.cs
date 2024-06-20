@@ -6,7 +6,7 @@
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -21,8 +21,9 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 [TestClass]
 public class PQPriceStoragePeriodSummaryDeserializerTests
 {
-    private BufferContext                           bufferContext = null!;
-    private PQPriceStoragePeriodSummaryDeserializer deserializer  = new();
+    private BufferContext bufferContext = null!;
+
+    private PQPriceStoragePeriodSummaryDeserializer deserializer = new();
 
     private List<IPricePeriodSummary> originalSummaries = null!;
 
@@ -46,23 +47,23 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
 
         originalSummaries = new List<IPricePeriodSummary>(6);
         var startDateTime = new DateTime(2024, 6, 17, 16, 0, 0);
-        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2361m
-                                                , 0.048m, 60, 30_000));
+        originalSummaries.Add
+            (CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2361m, 0.048m, 60, 30_000));
         startDateTime = startDateTime.AddMinutes(1);
-        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m
-                                                , 0.089m, 20, 2_000_000));
+        originalSummaries.Add
+            (CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m, 0.089m, 20, 2_000_000));
         startDateTime = startDateTime.AddMinutes(1);
-        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2311m
-                                                , 0.022m, 20, 50));
+        originalSummaries.Add
+            (CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2311m, 0.022m, 20, 50));
         startDateTime = startDateTime.AddMinutes(1);
-        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2320m, 0.0002m, 1.2366m
-                                                , 0.030m, 2_000_000, 30));
+        originalSummaries.Add
+            (CreatePeriodSummary(startDateTime, OneMinute, 1.2320m, 0.0002m, 1.2366m, 0.030m, 2_000_000, 30));
         startDateTime = startDateTime.AddMinutes(1);
-        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2366m, 0.0002m, 1.2361m
-                                                , 0.010m, 60, 30_000));
+        originalSummaries.Add
+            (CreatePeriodSummary(startDateTime, OneMinute, 1.2366m, 0.0002m, 1.2361m, 0.010m, 60, 30_000));
         startDateTime = startDateTime.AddMinutes(1);
-        originalSummaries.Add(CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m
-                                                , 0.048m, 60, 200_000));
+        originalSummaries.Add
+            (CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m, 0.048m, 60, 200_000));
     }
 
 

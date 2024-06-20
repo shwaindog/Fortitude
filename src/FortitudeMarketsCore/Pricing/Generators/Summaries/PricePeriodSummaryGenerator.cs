@@ -5,7 +5,7 @@
 
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Generators.MidPrice;
 using FortitudeMarketsCore.Pricing.Summaries;
 using MathNet.Numerics;

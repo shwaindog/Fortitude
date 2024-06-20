@@ -5,7 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -49,7 +49,8 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         base.StateReset();
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+    public override IPriceVolumeLayer CopyFrom
+    (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Price  = source.Price;

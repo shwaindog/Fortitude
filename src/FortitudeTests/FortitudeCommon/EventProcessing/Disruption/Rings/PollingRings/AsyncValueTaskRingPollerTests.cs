@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
@@ -14,19 +17,25 @@ namespace FortitudeTests.FortitudeCommon.EventProcessing.Disruption.Rings.Pollin
 public class AsyncValueTaskRingPollerTests
 {
     private const string ExpectedThreadName = "AsyncValueTaskRingPollerTests-AsyncValueTaskPoller";
-    private const uint NoDataPauseTimeout = 100U;
+    private const uint   NoDataPauseTimeout = 100U;
+
     private AsyncValueTaskRingPoller<StringContainer> asyncValueTaskRingPoller = null!;
+
     private ValueTask<long> completeNoWorkDoneValueTask;
     private ValueTask<long> completeWorkDoneValueTask;
-    private bool haveCalledThreadInitializeAction;
+    private bool            haveCalledThreadInitializeAction;
     private ValueTask<long> incompleteValueTask;
-    private Mock<IIntraOSThreadSignal> moqIntraOsThreadSignal = null!;
-    private Mock<IOSThread> moqOsThread = null!;
-    private Mock<IOSParallelController> moqParallelController = null!;
+
+    private Mock<IIntraOSThreadSignal>  moqIntraOsThreadSignal = null!;
+    private Mock<IOSThread>             moqOsThread            = null!;
+    private Mock<IOSParallelController> moqParallelController  = null!;
+
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
+
     private Mock<IAsyncValueTaskPollingRing<StringContainer>> moqPollingRing = null!;
-    private Action threadInitializeAction = null!;
-    private ThreadStart workerThreadMethod = null!;
+
+    private Action      threadInitializeAction = null!;
+    private ThreadStart workerThreadMethod     = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -40,24 +49,27 @@ public class AsyncValueTaskRingPollerTests
             Thread.Sleep(20_000);
             return 1;
         }, this);
-        incompleteValueTask = new ValueTask<long>(incompleteTask);
-        completeWorkDoneValueTask = new ValueTask<long>(1);
+        incompleteValueTask         = new ValueTask<long>(incompleteTask);
+        completeWorkDoneValueTask   = new ValueTask<long>(1);
         completeNoWorkDoneValueTask = new ValueTask<long>(-1);
 
-        moqPollingRing = new Mock<IAsyncValueTaskPollingRing<StringContainer>>();
+        moqPollingRing               = new Mock<IAsyncValueTaskPollingRing<StringContainer>>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
-        moqParallelController = new Mock<IOSParallelController>();
-        moqIntraOsThreadSignal = new Mock<IIntraOSThreadSignal>();
-        moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
+        moqParallelController        = new Mock<IOSParallelController>();
+        moqIntraOsThreadSignal       = new Mock<IIntraOSThreadSignal>();
+        moqParallelControllerFactory
+            .SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelController.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
         moqOsThread = new Mock<IOSThread>();
         moqOsThread.SetupGet(ost => ost.IsAlive).Returns(true);
-        moqParallelController.Setup(pc => pc.CreateNewOSThread(It.IsAny<ThreadStart>()))
+        moqParallelController
+            .Setup(pc => pc.CreateNewOSThread(It.IsAny<ThreadStart>()))
             .Callback<ThreadStart>(workerMethod => { workerThreadMethod = workerMethod; })
             .Returns(moqOsThread.Object).Verifiable();
-        moqParallelController.Setup(pc => pc.SingleOSThreadActivateSignal(false))
+        moqParallelController
+            .Setup(pc => pc.SingleOSThreadActivateSignal(false))
             .Returns(moqIntraOsThreadSignal.Object).Verifiable();
 
         moqPollingRing.SetupAllProperties();
@@ -75,9 +87,8 @@ public class AsyncValueTaskRingPollerTests
     [TestMethod]
     public void NewRingPoller_New_SetsNameWithPoller()
     {
-        asyncValueTaskRingPoller
-            = new AsyncValueTaskRingPoller<StringContainer>(moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction
-                , moqParallelController.Object);
+        asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
+            (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
         Assert.AreEqual("AsyncValueTaskRingPollerTests-AsyncValueTaskPoller", asyncValueTaskRingPoller.Name);
     }
 
@@ -91,12 +102,12 @@ public class AsyncValueTaskRingPollerTests
             Assert.AreEqual(1, asyncValueTaskRingPoller.UsageCount);
             Assert.IsTrue(NonPublicInvocator.GetInstanceField<bool>(asyncValueTaskRingPoller, "isRunning"));
             asyncValueTaskRingPoller.Stop();
+            moqPollingRing.Setup(pr => pr.Poll()).Returns(completeNoWorkDoneValueTask);
         }).Returns(completeNoWorkDoneValueTask);
-        asyncValueTaskRingPoller
-            = new AsyncValueTaskRingPoller<StringContainer>(moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction
-                , moqParallelController.Object);
+        asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
+            (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
 
-        moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
+        moqOsThread.SetupSet(ost => ost.Name         = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
 
@@ -126,9 +137,8 @@ public class AsyncValueTaskRingPollerTests
                 }).Returns(completeNoWorkDoneValueTask);
             }).Returns(incompleteValueTask);
         }).Returns(incompleteValueTask);
-        asyncValueTaskRingPoller
-            = new AsyncValueTaskRingPoller<StringContainer>(moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction
-                , moqParallelController.Object);
+        asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
+            (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
 
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
 
@@ -144,10 +154,9 @@ public class AsyncValueTaskRingPollerTests
     [TestMethod]
     public void StartedRingPoller_Start_IncrementsUsageCountDoesNotRelaunchWorkerThread()
     {
-        asyncValueTaskRingPoller
-            = new AsyncValueTaskRingPoller<StringContainer>(moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction
-                , moqParallelController.Object);
-        moqOsThread.SetupSet(ost => ost.Name = ExpectedThreadName).Verifiable();
+        asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
+            (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
+        moqOsThread.SetupSet(ost => ost.Name         = ExpectedThreadName).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
         asyncValueTaskRingPoller.Start();
@@ -164,10 +173,9 @@ public class AsyncValueTaskRingPollerTests
     [TestMethod]
     public void StartedRingPollerUsageCount1_Stop_DecrementsUsageCountStopsWorkThread()
     {
-        asyncValueTaskRingPoller
-            = new AsyncValueTaskRingPoller<StringContainer>(moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction
-                , moqParallelController.Object);
-        moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
+        asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
+            (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
+        moqOsThread.SetupSet(ost => ost.Name         = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
         asyncValueTaskRingPoller.Start();
@@ -186,10 +194,9 @@ public class AsyncValueTaskRingPollerTests
     [TestMethod]
     public void StartedRingPollerUsageCount2_Stop_DecrementsUsageCountLeavesWorkerThreadRunning()
     {
-        asyncValueTaskRingPoller
-            = new AsyncValueTaskRingPoller<StringContainer>(moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction
-                , moqParallelController.Object);
-        moqOsThread.SetupSet(ost => ost.Name = It.IsRegex(ExpectedThreadName)).Verifiable();
+        asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
+            (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
+        moqOsThread.SetupSet(ost => ost.Name         = It.IsRegex(ExpectedThreadName)).Verifiable();
         moqOsThread.SetupSet(ost => ost.IsBackground = true).Verifiable();
         moqOsThread.Setup(ost => ost.Start()).Verifiable();
         asyncValueTaskRingPoller.Start();

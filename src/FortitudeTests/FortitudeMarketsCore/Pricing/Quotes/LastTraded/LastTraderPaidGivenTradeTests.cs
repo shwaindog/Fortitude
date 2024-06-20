@@ -1,9 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
@@ -17,26 +20,28 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 public class LastTraderPaidGivenTradeTests
 {
     private const string WellKnownTraderName = "TestTraderName";
-    private LastTraderPaidGivenTrade emptyLt = null!;
+
+    private LastTraderPaidGivenTrade emptyLt               = null!;
     private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
-    private LastTraderPaidGivenTrade populatedLt = null!;
-    private DateTime testDateTime;
+    private LastTraderPaidGivenTrade populatedLt           = null!;
+    private DateTime                 testDateTime;
 
     [TestInitialize]
     public void SetUp()
     {
         nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
-        emptyLt = new LastTraderPaidGivenTrade();
+
+        emptyLt      = new LastTraderPaidGivenTrade();
         testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
-        populatedLt = new LastTraderPaidGivenTrade(4.2949_672m, testDateTime, 42_949_672.95m, true, true,
-            WellKnownTraderName);
+        populatedLt = new LastTraderPaidGivenTrade
+            (4.2949_672m, testDateTime, 42_949_672.95m, true, true, WellKnownTraderName);
     }
 
     [TestMethod]
     public void NewLt_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newLt = new LastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, WellKnownTraderName);
+        var newLt = new LastTraderPaidGivenTrade
+            (20, testDateTime, 42_949_672.95m, true, true, WellKnownTraderName);
         Assert.AreEqual(20m, newLt.TradePrice);
         Assert.AreEqual(testDateTime, newLt.TradeTime);
         Assert.AreEqual(42_949_672.95m, newLt.TradeVolume);
@@ -55,8 +60,8 @@ public class LastTraderPaidGivenTradeTests
     [TestMethod]
     public void NewLt_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedLt = new LastTraderPaidGivenTrade(20, testDateTime, 42_949_672.95m,
-            true, true, WellKnownTraderName);
+        var newPopulatedLt = new LastTraderPaidGivenTrade
+            (20, testDateTime, 42_949_672.95m, true, true, WellKnownTraderName);
         var fromPQInstance = new LastTraderPaidGivenTrade(newPopulatedLt);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
@@ -89,17 +94,18 @@ public class LastTraderPaidGivenTradeTests
     [TestMethod]
     public void EmptyEntry_Mutate_UpdatesFields()
     {
-        const decimal expectedPrice = 3.45678m;
-        var expectedTradeTime = new DateTime(2018, 3, 4, 11, 34, 5);
-        const decimal expectedVolume = 2345.345m;
-        const string expectedTraderName = "Toly";
+        const decimal expectedPrice      = 3.45678m;
+        const decimal expectedVolume     = 2345.345m;
+        const string  expectedTraderName = "Toly";
 
-        emptyLt.TradePrice = expectedPrice;
-        emptyLt.TradeTime = expectedTradeTime;
+        var expectedTradeTime = new DateTime(2018, 3, 4, 11, 34, 5);
+
+        emptyLt.TradePrice  = expectedPrice;
+        emptyLt.TradeTime   = expectedTradeTime;
         emptyLt.TradeVolume = expectedVolume;
-        emptyLt.WasGiven = true;
-        emptyLt.WasPaid = true;
-        emptyLt.TraderName = expectedTraderName;
+        emptyLt.WasGiven    = true;
+        emptyLt.WasPaid     = true;
+        emptyLt.TraderName  = expectedTraderName;
 
         Assert.AreEqual(expectedPrice, emptyLt.TradePrice);
         Assert.AreEqual(expectedTradeTime, emptyLt.TradeTime);
@@ -146,7 +152,7 @@ public class LastTraderPaidGivenTradeTests
     public void PQPopulatedLt_CopyFromToEmptyPvl_QuotesEquivalentToEachOther()
     {
         var pqLastTrade = new PQLastTraderPaidGivenTrade(populatedLt, nameIdLookupGenerator);
-        var newEmpty = new LastTraderPaidGivenTrade();
+        var newEmpty    = new LastTraderPaidGivenTrade();
         newEmpty.CopyFrom(pqLastTrade);
         Assert.IsTrue(populatedLt.AreEquivalent(newEmpty));
         Assert.AreEqual(populatedLt, newEmpty);
@@ -182,10 +188,10 @@ public class LastTraderPaidGivenTradeTests
     public void FullyPopulatedLtCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
         var fullyPopulatedClone = (LastTraderPaidGivenTrade)((ICloneable)populatedLt).Clone();
-        AssertAreEquivalentMeetsExpectedExactComparisonType(true, populatedLt,
-            fullyPopulatedClone);
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedLt,
-            fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (true, populatedLt, fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, populatedLt, fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -217,7 +223,8 @@ public class LastTraderPaidGivenTradeTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TraderName)}: {populatedLt.TraderName}"));
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (
         bool exactComparison,
         IMutableLastTraderPaidGivenTrade original,
         IMutableLastTraderPaidGivenTrade changingLastTraderPaidGivenTrade,
@@ -226,25 +233,25 @@ public class LastTraderPaidGivenTradeTests
         IMutableLevel3Quote? originalQuote = null,
         IMutableLevel3Quote? changingQuote = null)
     {
-        LastPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-            exactComparison, original, changingLastTraderPaidGivenTrade, originalRecentlyTraded,
-            changingRecentlyTraded, originalQuote, changingQuote);
+        LastPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, original, changingLastTraderPaidGivenTrade, originalRecentlyTraded, changingRecentlyTraded, originalQuote
+           , changingQuote);
 
         if (original.GetType() == typeof(LastTraderPaidGivenTrade))
-            Assert.IsTrue(original.AreEquivalent(
-                new LastTraderPaidGivenTrade(changingLastTraderPaidGivenTrade), exactComparison));
+            Assert.IsTrue
+                (original.AreEquivalent(new LastTraderPaidGivenTrade(changingLastTraderPaidGivenTrade), exactComparison));
 
         changingLastTraderPaidGivenTrade.TraderName = "Changed Trader Name";
         Assert.IsFalse(original.AreEquivalent(changingLastTraderPaidGivenTrade, exactComparison));
         if (originalRecentlyTraded != null)
-            Assert.IsFalse(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+            Assert.IsFalse
+                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastTraderPaidGivenTrade.TraderName = original.TraderName;
         Assert.IsTrue(changingLastTraderPaidGivenTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
-            Assert.IsTrue(
-                originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+            Assert.IsTrue
+                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

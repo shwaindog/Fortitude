@@ -6,8 +6,8 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;

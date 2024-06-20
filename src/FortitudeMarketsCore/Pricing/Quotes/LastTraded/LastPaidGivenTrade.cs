@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -14,7 +14,8 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
 {
     public LastPaidGivenTrade() { }
 
-    public LastPaidGivenTrade(decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m,
+    public LastPaidGivenTrade
+    (decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m,
         bool wasPaid = false, bool wasGiven = false) : base(tradePrice, tradeDateTime)
     {
         WasPaid     = wasPaid;

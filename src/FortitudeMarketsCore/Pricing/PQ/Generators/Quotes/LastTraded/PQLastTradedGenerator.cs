@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Generators.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;

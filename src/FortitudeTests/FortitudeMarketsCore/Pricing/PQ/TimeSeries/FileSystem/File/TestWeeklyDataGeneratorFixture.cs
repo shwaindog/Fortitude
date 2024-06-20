@@ -6,7 +6,7 @@
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Generators.Quotes;
 using FortitudeMarketsCore.Pricing.Generators.Summaries;
 

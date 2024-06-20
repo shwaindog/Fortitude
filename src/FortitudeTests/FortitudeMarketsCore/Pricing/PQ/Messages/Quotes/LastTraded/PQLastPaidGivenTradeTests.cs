@@ -6,7 +6,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
@@ -513,7 +513,8 @@ public class PQLastPaidGivenTradeTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.WasPaid)}: {populatedLt.WasPaid}"));
     }
 
-    public static void AssertContainsAllLtFields(IList<PQFieldUpdate> checkFieldUpdates,
+    public static void AssertContainsAllLtFields
+    (IList<PQFieldUpdate> checkFieldUpdates,
         IPQLastPaidGivenTrade lt)
     {
         PQLastTradeTests.AssertContainsAllLtFields(checkFieldUpdates, lt);
@@ -528,7 +529,8 @@ public class PQLastPaidGivenTradeTests
                          PQFieldKeys.LastTradeVolumeOffset, expectedFlag), $"For asklayer {lt.GetType().Name}");
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         PQLastPaidGivenTrade? original, PQLastPaidGivenTrade? changingLastPaidGivenTrade,
         PQRecentlyTraded? originalRecentlyTraded = null, PQRecentlyTraded? changingRecentlyTraded = null,
         PQLevel3Quote? originalQuote = null, PQLevel3Quote? changingQuote = null)

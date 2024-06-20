@@ -43,13 +43,14 @@ public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutabl
     bool IsSinglePriceUpdated               { get; set; }
     bool IsSyncStatusUpdated                { get; set; }
 
-    ISyncLock    Lock                { get; }
-    uint         PQSequenceId        { get; set; }
-    DateTime     LastPublicationTime { get; set; }
-    DateTime     SocketReceivingTime { get; set; }
-    DateTime     ProcessedTime       { get; set; }
-    DateTime     DispatchedTime      { get; set; }
-    PQSyncStatus PQSyncStatus        { get; set; }
+    ISyncLock Lock                { get; }
+    uint      PQSequenceId        { get; set; }
+    DateTime  LastPublicationTime { get; set; }
+    DateTime  SocketReceivingTime { get; set; }
+    DateTime  ProcessedTime       { get; set; }
+    DateTime  DispatchedTime      { get; set; }
+
+    PriceSyncStatus PQPriceSyncStatus { get; set; }
 
     void ResetFields();
 
@@ -63,16 +64,18 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
     protected readonly ISyncLock SyncLock = new SpinLockLight();
 
     protected PQBooleanValues BooleanFields;
-    private   DateTime        clientReceivedTime = DateTimeConstants.UnixEpoch;
-    private   DateTime        dispatchedTime     = DateTimeConstants.UnixEpoch;
+
+    private DateTime clientReceivedTime = DateTimeConstants.UnixEpoch;
+    private DateTime dispatchedTime     = DateTimeConstants.UnixEpoch;
 
     protected PQSourceTickerQuoteInfo? PQSourceTickerQuoteInfo;
 
-    private PQSyncStatus pqSyncStatus  = PQSyncStatus.OutOfSync;
-    private DateTime     processedTime = DateTimeConstants.UnixEpoch;
-    private decimal      singlePrice;
-    private DateTime     socketReceivingTime = DateTimeConstants.UnixEpoch;
-    private DateTime     sourceTime          = DateTimeConstants.UnixEpoch;
+    private PriceSyncStatus priceSyncStatus = PriceSyncStatus.OutOfSync;
+
+    private DateTime processedTime = DateTimeConstants.UnixEpoch;
+    private decimal  singlePrice;
+    private DateTime socketReceivingTime = DateTimeConstants.UnixEpoch;
+    private DateTime sourceTime          = DateTimeConstants.UnixEpoch;
 
     protected QuoteFieldUpdatedFlags UpdatedFlags;
 
@@ -82,10 +85,11 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public PQLevel0Quote(ILevel0Quote toClone)
     {
-        singlePrice           = toClone.SinglePrice;
-        IsReplay              = toClone.IsReplay;
-        sourceTime            = toClone.SourceTime;
-        ClientReceivedTime    = toClone.ClientReceivedTime;
+        singlePrice        = toClone.SinglePrice;
+        IsReplay           = toClone.IsReplay;
+        sourceTime         = toClone.SourceTime;
+        ClientReceivedTime = toClone.ClientReceivedTime;
+
         SourceTickerQuoteInfo = new PQSourceTickerQuoteInfo(toClone.SourceTickerQuoteInfo!);
         if (toClone is IPQLevel0Quote pqLevel0Quote)
         {
@@ -93,7 +97,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
             SourceTickerQuoteInfo = pqLevel0Quote.SourceTickerQuoteInfo;
             PQSequenceId          = pqLevel0Quote.PQSequenceId;
-            PQSyncStatus          = pqLevel0Quote.PQSyncStatus;
+            PQPriceSyncStatus     = pqLevel0Quote.PQPriceSyncStatus;
             LastPublicationTime   = pqLevel0Quote.LastPublicationTime;
             SocketReceivingTime   = pqLevel0Quote.SocketReceivingTime;
             ProcessedTime         = pqLevel0Quote.ProcessedTime;
@@ -106,7 +110,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     protected string Level0ToStringMembers =>
         $"{nameof(PQSourceTickerQuoteInfo)}: {PQSourceTickerQuoteInfo}, {nameof(PQSequenceId)}: {PQSequenceId}, " +
-        $"{nameof(PQSyncStatus)}: {PQSyncStatus}, {nameof(LastPublicationTime)}: {LastPublicationTime}, " +
+        $"{nameof(PQPriceSyncStatus)}: {PQPriceSyncStatus}, {nameof(LastPublicationTime)}: {LastPublicationTime}, " +
         $"{nameof(SourceTime)}: {SourceTime}, {nameof(DispatchedTime)}: {DispatchedTime}, " +
         $"{nameof(ProcessedTime)}: {ProcessedTime}, {nameof(IsSourceTimeDateUpdated)}: {IsSourceTimeDateUpdated}, " +
         $"{nameof(IsSourceTimeSubHourUpdated)}: {IsSourceTimeSubHourUpdated}, " +
@@ -120,8 +124,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
 
     public uint MessageId => (uint)PQMessageIds.Quote;
 
-    public uint      PQSequenceId { get; set; }
-    public ISyncLock Lock         => SyncLock;
+    public uint PQSequenceId { get; set; }
+
+    public ISyncLock Lock => SyncLock;
 
     public DateTime LastPublicationTime { get; set; }
 
@@ -330,14 +335,14 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         }
     }
 
-    public PQSyncStatus PQSyncStatus
+    public PriceSyncStatus PQPriceSyncStatus
     {
-        get => pqSyncStatus;
+        get => priceSyncStatus;
         set
         {
-            if (pqSyncStatus == value) return;
+            if (priceSyncStatus == value) return;
             IsSyncStatusUpdated = true;
-            pqSyncStatus        = value;
+            priceSyncStatus     = value;
         }
     }
 
@@ -424,7 +429,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         dispatchedTime      = DateTimeConstants.UnixEpoch;
         clientReceivedTime  = DateTimeConstants.UnixEpoch;
         LastPublicationTime = DateTimeConstants.UnixEpoch;
-        PQSyncStatus        = PQSyncStatus.OutOfSync;
+        PQPriceSyncStatus   = PriceSyncStatus.OutOfSync;
         IsReplay            = false;
         UpdatedFlags        = QuoteFieldUpdatedFlags.None;
     }
@@ -457,7 +462,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         }
 
         if (!updatedOnly || IsSyncStatusUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)PQSyncStatus);
+            yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)PQPriceSyncStatus);
 
         var includeReceiverTimes = (messageFlags & StorageFlags.IncludeReceiverTimes) > 0;
         if (includeReceiverTimes)
@@ -525,7 +530,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                 SetBooleanFields((PQBooleanValues)pqFieldUpdate.Value);
                 return 0;
             case PQFieldKeys.PQSyncStatus:
-                PQSyncStatus = (PQSyncStatus)pqFieldUpdate.Value;
+                PQPriceSyncStatus = (PriceSyncStatus)pqFieldUpdate.Value;
                 return 0;
             case PQFieldKeys.SocketReceivingDateTime:
                 IsSocketReceivedTimeDateUpdated = true;
@@ -656,9 +661,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                 IsClientReceivedTimeSubHourUpdated = originalClientReceivedTime != clientReceivedTime;
             }
 
-            if (ipq0.IsReplayUpdated || isFullReplace) IsReplay         = ipq0.IsReplay;
-            if (ipq0.IsSinglePriceUpdated || isFullReplace) SinglePrice = ipq0.SinglePrice;
-            if (ipq0.IsSyncStatusUpdated || isFullReplace) PQSyncStatus = ipq0.PQSyncStatus;
+            if (ipq0.IsReplayUpdated || isFullReplace) IsReplay              = ipq0.IsReplay;
+            if (ipq0.IsSinglePriceUpdated || isFullReplace) SinglePrice      = ipq0.SinglePrice;
+            if (ipq0.IsSyncStatusUpdated || isFullReplace) PQPriceSyncStatus = ipq0.PQPriceSyncStatus;
             //PQ tracks its own changes only copy explicit changes
 
             OverrideSerializationFlags = ipq0.OverrideSerializationFlags;
@@ -740,7 +745,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         if (exactTypes)
         {
             sequenceIdSame        = PQSequenceId == pqLevel0Quote!.PQSequenceId;
-            publicationStatusSame = PQSyncStatus == pqLevel0Quote.PQSyncStatus;
+            publicationStatusSame = PQPriceSyncStatus == pqLevel0Quote.PQPriceSyncStatus;
 
             socketReceivingTimeSame = SocketReceivingTime.Equals(pqLevel0Quote.SocketReceivingTime);
             lastPubTimeSame         = LastPublicationTime.Equals(pqLevel0Quote.LastPublicationTime);
@@ -807,7 +812,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
             hashCode = (hashCode * 397) ^ DispatchedTime.GetHashCode();
             hashCode = (hashCode * 397) ^ ClientReceivedTime.GetHashCode();
             hashCode = (hashCode * 397) ^ IsReplay.GetHashCode();
-            hashCode = (hashCode * 397) ^ (int)PQSyncStatus;
+            hashCode = (hashCode * 397) ^ (int)PQPriceSyncStatus;
             hashCode = (hashCode * 397) ^ (SourceTickerQuoteInfo?.GetHashCode() ?? 0);
             return hashCode;
         }

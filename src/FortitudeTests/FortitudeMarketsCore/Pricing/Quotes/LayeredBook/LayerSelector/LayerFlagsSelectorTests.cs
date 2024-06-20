@@ -5,8 +5,8 @@
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
@@ -252,11 +252,13 @@ public class LayerFlagsSelectorTests
 
         protected override string SelectTraderPriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectTraderPriceVolumeLayer);
 
-        protected override string SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(
+        protected override string SelectSourceQuoteRefTraderValueDatePriceVolumeLayer
+        (
             ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
             nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
 
-        public override IPriceVolumeLayer CreateExpectedImplementation(LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
+        public override IPriceVolumeLayer CreateExpectedImplementation
+        (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
             CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();
     }

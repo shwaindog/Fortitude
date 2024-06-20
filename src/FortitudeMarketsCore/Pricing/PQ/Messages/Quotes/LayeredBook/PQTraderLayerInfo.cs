@@ -6,7 +6,7 @@
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 
@@ -44,7 +44,8 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
 
     public PQTraderLayerInfo() => NameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
 
-    public PQTraderLayerInfo(IPQNameIdLookupGenerator lookupDict, string? traderName = null,
+    public PQTraderLayerInfo
+    (IPQNameIdLookupGenerator lookupDict, string? traderName = null,
         decimal traderVolume = 0m)
     {
         NameIdLookup = lookupDict;
@@ -184,7 +185,8 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         base.StateReset();
     }
 
-    public override ITraderLayerInfo CopyFrom(ITraderLayerInfo source
+    public override ITraderLayerInfo CopyFrom
+    (ITraderLayerInfo source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var pqTrdrLyrInfo = source as IPQTraderLayerInfo;

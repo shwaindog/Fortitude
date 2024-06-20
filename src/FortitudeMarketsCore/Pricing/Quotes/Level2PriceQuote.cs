@@ -6,8 +6,9 @@
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
@@ -23,7 +24,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
         AskBook = new OrderBook(BookSide.AskBook, 20);
     }
 
-    public Level2PriceQuote(ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
+    public Level2PriceQuote
+    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
         DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null,
         DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false,

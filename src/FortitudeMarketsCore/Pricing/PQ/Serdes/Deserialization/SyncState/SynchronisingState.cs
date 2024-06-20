@@ -39,7 +39,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
         LogSyncRecoveryMessage(sequenceId);
         SwitchState(QuoteSyncState.InSync);
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
+        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
                               LinkedDeserializer.OnSyncOk);
     }
 
@@ -75,7 +75,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
                     LinkedDeserializer.Identifier, prevSeqId, currSeqId, prevSeqId);
 
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PQSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
+        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
                               LinkedDeserializer.OnSyncOk);
         SwitchState(QuoteSyncState.InSync);
     }

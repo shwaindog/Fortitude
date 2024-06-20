@@ -13,9 +13,9 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
@@ -447,7 +447,7 @@ public class PQQuoteDeserializerBaseTests
             TimeContext.Provider = moqTimeContext.Object;
 
             var expectedDateTime          = new DateTime(2017, 07, 15, 21, 35, 14);
-            var expectedPublicationStatus = PQSyncStatus.Good;
+            var expectedPublicationStatus = PriceSyncStatus.Good;
 
             moqTimeContext.SetupGet(tc => tc.UtcNow).Returns(expectedDateTime);
 
@@ -459,7 +459,7 @@ public class PQQuoteDeserializerBaseTests
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
                          Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
-                         Assert.AreEqual(expectedPublicationStatus, pq.PQSyncStatus);
+                         Assert.AreEqual(expectedPublicationStatus, pq.PQPriceSyncStatus);
                      }
                     ).Verifiable();
             moqL1QObserver
@@ -470,7 +470,7 @@ public class PQQuoteDeserializerBaseTests
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
                          Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
-                         Assert.AreEqual(expectedPublicationStatus, pq.PQSyncStatus);
+                         Assert.AreEqual(expectedPublicationStatus, pq.PQPriceSyncStatus);
                      }
                     ).Verifiable();
             moqL2QObserver
@@ -481,7 +481,7 @@ public class PQQuoteDeserializerBaseTests
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
                          Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
-                         Assert.AreEqual(expectedPublicationStatus, pq.PQSyncStatus);
+                         Assert.AreEqual(expectedPublicationStatus, pq.PQPriceSyncStatus);
                      }
                     ).Verifiable();
             moqL3QObserver
@@ -492,7 +492,7 @@ public class PQQuoteDeserializerBaseTests
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
                          Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
-                         Assert.AreEqual(expectedPublicationStatus, pq.PQSyncStatus);
+                         Assert.AreEqual(expectedPublicationStatus, pq.PQPriceSyncStatus);
                      }
                     ).Verifiable();
 
@@ -555,7 +555,7 @@ public class PQQuoteDeserializerBaseTests
 
         SetupQuoteChanges(new DateTime(2017, 07, 15, 22, 06, 25));
 
-        var expectedPublicationStatus = PQSyncStatus.Good;
+        var expectedPublicationStatus = PriceSyncStatus.Good;
 
         dummyLevel0QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
         dummyLevel1QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
@@ -568,7 +568,7 @@ public class PQQuoteDeserializerBaseTests
     {
         SetupObserversAndSyncLock();
 
-        var expectedPublicationStatus = PQSyncStatus.Good;
+        var expectedPublicationStatus = PriceSyncStatus.Good;
 
         moqL0QObserver.Setup(o => o.OnNext(dummyLevel0QuoteDeserializer.PublishedQuote))
                       .Callback(() => { Assert.Fail("Should Never Get Here"); });
@@ -597,10 +597,10 @@ public class PQQuoteDeserializerBaseTests
 
         moqPerfLoggerPool.Verify(ltcslp => ltcslp.StartNewTrace(), Times.Exactly(4));
         moqPerfLoggerPool.Verify(ltcslp => ltcslp.StartNewTrace(), Times.Exactly(4));
-        Assert.AreEqual(expectedPublicationStatus, dummyLevel0QuoteDeserializer.PublishedQuote.PQSyncStatus);
-        Assert.AreEqual(expectedPublicationStatus, dummyLevel1QuoteDeserializer.PublishedQuote.PQSyncStatus);
-        Assert.AreEqual(expectedPublicationStatus, dummyLevel2QuoteDeserializer.PublishedQuote.PQSyncStatus);
-        Assert.AreEqual(expectedPublicationStatus, dummyLevel3QuoteDeserializer.PublishedQuote.PQSyncStatus);
+        Assert.AreEqual(expectedPublicationStatus, dummyLevel0QuoteDeserializer.PublishedQuote.PQPriceSyncStatus);
+        Assert.AreEqual(expectedPublicationStatus, dummyLevel1QuoteDeserializer.PublishedQuote.PQPriceSyncStatus);
+        Assert.AreEqual(expectedPublicationStatus, dummyLevel2QuoteDeserializer.PublishedQuote.PQPriceSyncStatus);
+        Assert.AreEqual(expectedPublicationStatus, dummyLevel3QuoteDeserializer.PublishedQuote.PQPriceSyncStatus);
     }
 
     private void SetupObserversAndSyncLock()
@@ -660,7 +660,7 @@ public class PQQuoteDeserializerBaseTests
             UpdateQuote(socketBufferReadContext, ent, sequenceId);
         }
 
-        public void InvokePushQuoteToSubscribers(PQSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null)
+        public void InvokePushQuoteToSubscribers(PriceSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null)
         {
             PushQuoteToSubscribers(syncStatus, detectionToPublishLatencyTraceLogger);
         }

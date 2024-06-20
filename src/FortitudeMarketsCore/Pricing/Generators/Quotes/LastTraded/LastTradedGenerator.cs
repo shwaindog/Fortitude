@@ -3,8 +3,8 @@
 
 #region
 
-using FortitudeMarketsApi.Pricing.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Generators.MidPrice;
 using MathNet.Numerics.Distributions;
 

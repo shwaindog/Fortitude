@@ -34,7 +34,8 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     protected Func<ISourceTickerQuoteInfo, T> QuoteFactory;
 
-    protected PQQuoteDeserializerBase(ISourceTickerQuoteInfo tickerPricingSubscriptionConfig,
+    protected PQQuoteDeserializerBase
+    (ISourceTickerQuoteInfo tickerPricingSubscriptionConfig,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
     {
         this.serializationFlags = serializationFlags;
@@ -219,7 +220,8 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
         return (int)msgSize;
     }
 
-    public void PushQuoteToSubscribers(PQSyncStatus syncStatus,
+    public void PushQuoteToSubscribers
+    (PriceSyncStatus syncStatus,
         IPerfLogger? detectionToPublishLatencyTraceLogger = null)
     {
         if (!Subscribers.Any() && !AllDeserializedNotifiers.Any()) return;
@@ -227,7 +229,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
         PublishedQuote.Lock.Acquire();
         try
         {
-            PublishedQuote.PQSyncStatus = syncStatus;
+            PublishedQuote.PQPriceSyncStatus = syncStatus;
             if (!ShouldPublish) return;
             PublishedQuote.DispatchedTime = TimeContext.UtcNow;
             if (tl.Enabled) tl.Add("Ticker", Identifier.Ticker);

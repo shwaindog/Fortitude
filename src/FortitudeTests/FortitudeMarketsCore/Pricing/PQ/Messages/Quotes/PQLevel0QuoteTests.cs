@@ -11,10 +11,9 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -123,14 +122,14 @@ public class PQLevel0QuoteTests
     {
         Assert.IsFalse(emptyQuote.IsSyncStatusUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
+        Assert.AreEqual(PriceSyncStatus.OutOfSync, emptyQuote.PQPriceSyncStatus);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        var expectedSyncStatus = PQSyncStatus.Good;
-        emptyQuote.PQSyncStatus = expectedSyncStatus;
+        var expectedSyncStatus = PriceSyncStatus.Good;
+        emptyQuote.PQPriceSyncStatus = expectedSyncStatus;
         Assert.IsTrue(emptyQuote.IsSyncStatusUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
-        Assert.AreEqual(expectedSyncStatus, emptyQuote.PQSyncStatus);
+        Assert.AreEqual(expectedSyncStatus, emptyQuote.PQPriceSyncStatus);
         var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)expectedSyncStatus);
@@ -149,7 +148,7 @@ public class PQLevel0QuoteTests
 
         var newEmpty = new PQLevel0Quote(sourceTickerQuoteInfo);
         newEmpty.UpdateField(sourceUpdates[0]);
-        Assert.AreEqual(expectedSyncStatus, newEmpty.PQSyncStatus);
+        Assert.AreEqual(expectedSyncStatus, newEmpty.PQPriceSyncStatus);
         Assert.IsTrue(newEmpty.IsSyncStatusUpdated);
     }
 
@@ -235,8 +234,8 @@ public class PQLevel0QuoteTests
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        emptyQuote.IsReplay     = true;
-        emptyQuote.PQSyncStatus = PQSyncStatus.Good;
+        emptyQuote.IsReplay          = true;
+        emptyQuote.PQPriceSyncStatus = PriceSyncStatus.Good;
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
         emptyQuote.SourceTime = expectedSetTime;
         var expectedSinglePrice = 1.2345678m;
@@ -247,7 +246,7 @@ public class PQLevel0QuoteTests
 
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
-        Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
+        Assert.AreEqual(PriceSyncStatus.OutOfSync, emptyQuote.PQPriceSyncStatus);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
         Assert.AreEqual(0m, emptyQuote.SinglePrice);
     }
@@ -370,7 +369,7 @@ public class PQLevel0QuoteTests
                       fullyPopulatedPqLevel0Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SinglePrice);
-        Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
+        Assert.AreEqual(PriceSyncStatus.OutOfSync, emptyQuote.PQPriceSyncStatus);
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.IsReplayUpdated);
@@ -469,9 +468,9 @@ public class PQLevel0QuoteTests
         changingLevel0Quote.PQSequenceId = original.PQSequenceId;
         Assert.IsTrue(original.AreEquivalent(changingLevel0Quote, exactComparison));
 
-        changingLevel0Quote.PQSyncStatus = PQSyncStatus.FeedDown;
+        changingLevel0Quote.PQPriceSyncStatus = PriceSyncStatus.FeedDown;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLevel0Quote, exactComparison));
-        changingLevel0Quote.PQSyncStatus = original.PQSyncStatus;
+        changingLevel0Quote.PQPriceSyncStatus = original.PQPriceSyncStatus;
         Assert.IsTrue(changingLevel0Quote.AreEquivalent(original, exactComparison));
 
         changingLevel0Quote.SocketReceivingTime = new DateTime(2017, 11, 06, 21, 24, 41);
@@ -507,7 +506,7 @@ public class PQLevel0QuoteTests
         var priceScale = precisionSettings.PriceScalingPrecision;
         PQSourceTickerQuoteInfoTests.AssertSourceTickerInfoContainsAllFields(checkFieldUpdates,
                                                                              originalQuote.SourceTickerQuoteInfo!);
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (uint)originalQuote.PQSyncStatus),
+        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (uint)originalQuote.PQPriceSyncStatus),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PQSyncStatus));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SinglePrice, PQScaling.Scale(originalQuote.SinglePrice, priceScale), priceScale),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.SinglePrice));
@@ -544,10 +543,11 @@ public class PQLevel0QuoteTests
         public byte Version      => 1;
         public uint PQSequenceId { get; set; }
 
-        public virtual QuoteLevel      QuoteLevel => Level0;
-        public         ISyncLock       Lock       { get; } = new SpinLockLight();
-        public         IPQLevel0Quote? Previous   { get; set; }
-        public         IPQLevel0Quote? Next       { get; set; }
+        public virtual QuoteLevel QuoteLevel => Level0;
+
+        public ISyncLock       Lock     { get; } = new SpinLockLight();
+        public IPQLevel0Quote? Previous { get; set; }
+        public IPQLevel0Quote? Next     { get; set; }
 
         public PQMessageFlags? OverrideSerializationFlags { get; set; }
 
@@ -566,11 +566,13 @@ public class PQLevel0QuoteTests
 
         public ISourceTickerQuoteInfo? SourceTickerQuoteInfo { get; set; }
 
-        public DateTime     SocketReceivingTime { get; set; }
-        public DateTime     ProcessedTime       { get; set; }
-        public DateTime     DispatchedTime      { get; set; }
-        public PQSyncStatus PQSyncStatus        { get; set; }
-        public decimal      SinglePrice         { get; set; } = 0m;
+        public DateTime SocketReceivingTime { get; set; }
+        public DateTime ProcessedTime       { get; set; }
+        public DateTime DispatchedTime      { get; set; }
+
+        public PriceSyncStatus PQPriceSyncStatus { get; set; }
+
+        public decimal SinglePrice { get; set; } = 0m;
 
         bool IMutableLevel0Quote.    IsReplay           { get; set; }
         DateTime IMutableLevel0Quote.SourceTime         { get; set; }

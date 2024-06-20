@@ -8,9 +8,9 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
@@ -101,10 +101,10 @@ public class SyncStateBaseTests
                           NetworkTopicConnectionConfigTests.DummyTopicConnectionConfig,
                           syncRetryIntervalMs: retryWaitMs, allowUpdatesCatchup: allowCatchup)));
         SendPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
-            { PQSyncStatus = PQSyncStatus.Good, PQSequenceId = 2 };
+            { PQPriceSyncStatus = PriceSyncStatus.Good, PQSequenceId = 2 };
         DesersializerPqLevel0Quote = pqQuoteStreamDeserializer.PublishedQuote;
         SyncSlotPqLevel0Quote = new PQLevel0Quote(SourceTickerQuoteInfo)
-            { PQSyncStatus = PQSyncStatus.Good };
+            { PQPriceSyncStatus = PriceSyncStatus.Good };
 
 
         SetupQuoteStreamDeserializerExpectations();

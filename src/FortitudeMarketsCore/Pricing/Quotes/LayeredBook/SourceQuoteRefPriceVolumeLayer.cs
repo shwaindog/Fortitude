@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -14,7 +14,8 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
 {
     public SourceQuoteRefPriceVolumeLayer() { }
 
-    public SourceQuoteRefPriceVolumeLayer(decimal price = 0m, decimal volume = 0m,
+    public SourceQuoteRefPriceVolumeLayer
+    (decimal price = 0m, decimal volume = 0m,
         string? sourceName = null, bool executable = false, uint quoteReference = 0u)
         : base(price, volume, sourceName, executable) =>
         SourceQuoteReference = quoteReference;
@@ -47,7 +48,8 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
         SourceQuoteReference = 0;
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source
+    public override IPriceVolumeLayer CopyFrom
+    (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);

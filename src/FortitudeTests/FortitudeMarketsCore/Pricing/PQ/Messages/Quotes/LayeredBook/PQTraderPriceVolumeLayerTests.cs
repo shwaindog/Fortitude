@@ -6,8 +6,8 @@
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -852,7 +852,8 @@ public class PQTraderPriceVolumeLayerTests
         Assert.AreEqual(0, ((IEnumerable<ITraderLayerInfo>)populatedPvl).Count());
     }
 
-    public static void AssertContainsAllPvlFields(IList<PQFieldUpdate> checkFieldUpdates,
+    public static void AssertContainsAllPvlFields
+    (IList<PQFieldUpdate> checkFieldUpdates,
         IPQTraderPriceVolumeLayer pvl)
     {
         PQPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
@@ -886,7 +887,8 @@ public class PQTraderPriceVolumeLayerTests
         }
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IPQTraderPriceVolumeLayer? original,
         IPQTraderPriceVolumeLayer? changingPriceVolumeLayer,
         IOrderBook? originalOrderBook = null,
@@ -929,7 +931,8 @@ public class PQTraderPriceVolumeLayerTests
         }
     }
 
-    public static void AssertTraderLayersAreExpected(ITraderPriceVolumeLayer checkTraderLayers,
+    public static void AssertTraderLayersAreExpected
+    (ITraderPriceVolumeLayer checkTraderLayers,
         bool[]? expectPopulated = null, string[]? expectedTraderNames = null, decimal[]? expectedVolumes = null,
         bool[]? expectedTraderNameUpdated = null, bool[]? expectedVolumeUpdated = null)
     {

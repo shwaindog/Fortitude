@@ -44,7 +44,7 @@ public interface IPQQuotePublishingDeserializer<T> : IPQQuoteDeserializer<T>
     bool AllowUpdatesCatchup { get; }
     uint SyncRetryMs         { get; }
 
-    void PushQuoteToSubscribers(PQSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null);
+    void PushQuoteToSubscribers(PriceSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null);
 
     void ClearSyncRing();
     T    ClaimSyncSlotEntry();

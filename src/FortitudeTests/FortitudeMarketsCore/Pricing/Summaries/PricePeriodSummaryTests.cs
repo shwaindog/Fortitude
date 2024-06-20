@@ -6,7 +6,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.Summaries;
 

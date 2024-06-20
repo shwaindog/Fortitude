@@ -6,10 +6,9 @@
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
@@ -229,7 +228,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel0SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Stale, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Stale, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
         moqL1QObserver.Setup(o => o.OnNext(pqLevel1QuoteDeserializer.PublishedQuote))
@@ -237,7 +236,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel1SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Stale, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Stale, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
         moqL2QObserver.Setup(o => o.OnNext(pqLevel2QuoteDeserializer.PublishedQuote))
@@ -245,7 +244,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel2SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Stale, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Stale, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
         moqL3QObserver.Setup(o => o.OnNext(pqLevel3QuoteDeserializer.PublishedQuote))
@@ -253,7 +252,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel3SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Stale, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Stale, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
 
@@ -279,7 +278,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel0SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Good, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Good, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
         moqL1QObserver.Setup(o => o.OnNext(pqLevel1QuoteDeserializer.PublishedQuote))
@@ -287,7 +286,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel1SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Good, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Good, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
         moqL2QObserver.Setup(o => o.OnNext(pqLevel2QuoteDeserializer.PublishedQuote))
@@ -295,7 +294,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel2SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Good, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Good, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
         moqL3QObserver.Setup(o => o.OnNext(pqLevel3QuoteDeserializer.PublishedQuote))
@@ -303,7 +302,7 @@ public class PQQuoteDeserializerTests
                                                 pq =>
                                                 {
                                                     countLevel3SerializerPublishes++;
-                                                    Assert.AreEqual(PQSyncStatus.Good, pq.PQSyncStatus);
+                                                    Assert.AreEqual(PriceSyncStatus.Good, pq.PQPriceSyncStatus);
                                                 }
                                                ).Verifiable();
 
@@ -425,22 +424,22 @@ public class PQQuoteDeserializerTests
         moqL0QObserver.Setup(o => o.OnNext(pqLevel0QuoteDeserializer.PublishedQuote))
                       .Callback<IPQLevel0Quote>(pq =>
                       {
-                          if (pq.PQSyncStatus == PQSyncStatus.Good) l0QuoteSame = true;
+                          if (pq.PQPriceSyncStatus == PriceSyncStatus.Good) l0QuoteSame = true;
                       });
         moqL1QObserver.Setup(o => o.OnNext(pqLevel1QuoteDeserializer.PublishedQuote))
                       .Callback<IPQLevel1Quote>(pq =>
                       {
-                          if (pq.PQSyncStatus == PQSyncStatus.Good) l1QuoteSame = true;
+                          if (pq.PQPriceSyncStatus == PriceSyncStatus.Good) l1QuoteSame = true;
                       });
         moqL2QObserver.Setup(o => o.OnNext(pqLevel2QuoteDeserializer.PublishedQuote))
                       .Callback<IPQLevel2Quote>(pq =>
                       {
-                          if (pq.PQSyncStatus == PQSyncStatus.Good) l2QuoteSame = true;
+                          if (pq.PQPriceSyncStatus == PriceSyncStatus.Good) l2QuoteSame = true;
                       });
         moqL3QObserver.Setup(o => o.OnNext(pqLevel3QuoteDeserializer.PublishedQuote))
                       .Callback<IPQLevel3Quote>(pq =>
                       {
-                          if (pq.PQSyncStatus == PQSyncStatus.Good) l3QuoteSame = true;
+                          if (pq.PQPriceSyncStatus == PriceSyncStatus.Good) l3QuoteSame = true;
                       });
 
         foreach (var quoteBatch in quoteBatches) CallDeserializer(quoteBatch);
@@ -594,13 +593,13 @@ public class PQQuoteDeserializerTests
     private void SetupPQLevelQuotes()
     {
         expectedL0FullyInitializedQuote = new PQLevel0Quote(sourceTickerQuoteInfo)
-            { PQSyncStatus = PQSyncStatus.Good };
+            { PQPriceSyncStatus = PriceSyncStatus.Good };
         expectedL1FullyInitializedQuote = new PQLevel1Quote(sourceTickerQuoteInfo)
-            { PQSyncStatus = PQSyncStatus.Good };
+            { PQPriceSyncStatus = PriceSyncStatus.Good };
         expectedL2FullyInitializedQuote = new PQLevel2Quote(sourceTickerQuoteInfo)
-            { PQSyncStatus = PQSyncStatus.Good };
+            { PQPriceSyncStatus = PriceSyncStatus.Good };
         expectedL3FullyInitializedQuote = new PQLevel3Quote(sourceTickerQuoteInfo)
-            { PQSyncStatus = PQSyncStatus.Good };
+            { PQPriceSyncStatus = PriceSyncStatus.Good };
 
         expectedQuotes = new List<IPQLevel0Quote>
         {

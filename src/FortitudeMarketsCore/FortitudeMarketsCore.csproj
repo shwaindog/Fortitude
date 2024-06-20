@@ -23,6 +23,7 @@
     <Folder Include="Configuration\ClientServerConfig\MarketsConfig\" />
     <Folder Include="Configuration\ClientServerConfig\PricingConfig\" />
     <Folder Include="Configuration\ClientServerConfig\TradingConfig\" />
+    <Folder Include="Indicatorss\" />
     <Folder Include="Pricing\Quotes\SourceTickerInfo\" />
   </ItemGroup>
 

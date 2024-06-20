@@ -8,10 +8,10 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
+using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
@@ -465,8 +465,8 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
-        emptyQuote.IsReplay     = true;
-        emptyQuote.PQSyncStatus = PQSyncStatus.Good;
+        emptyQuote.IsReplay          = true;
+        emptyQuote.PQPriceSyncStatus = PriceSyncStatus.Good;
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
         emptyQuote.SourceTime = expectedSetTime;
         var expectedSinglePrice = 1.2345678m;
@@ -486,7 +486,7 @@ public class PQLevel1QuoteTests
 
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
-        Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
+        Assert.AreEqual(PriceSyncStatus.OutOfSync, emptyQuote.PQPriceSyncStatus);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
         Assert.AreEqual(0m, emptyQuote.SinglePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
@@ -564,7 +564,7 @@ public class PQLevel1QuoteTests
                       fullyPopulatedPqLevel1Quote.SourceTickerQuoteInfo!.AreEquivalent(emptyQuote.SourceTickerQuoteInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SinglePrice);
-        Assert.AreEqual(PQSyncStatus.OutOfSync, emptyQuote.PQSyncStatus);
+        Assert.AreEqual(PriceSyncStatus.OutOfSync, emptyQuote.PQPriceSyncStatus);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);

@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
@@ -561,7 +561,8 @@ public class PQRecentlyTradedTests
         return typeof(PQLastTraderPaidGivenTrade);
     }
 
-    private void AssertAllLayersAreOfTypeAndEquivalentTo(PQRecentlyTraded upgradedRecentlyTraded,
+    private void AssertAllLayersAreOfTypeAndEquivalentTo
+    (PQRecentlyTraded upgradedRecentlyTraded,
         PQRecentlyTraded equivalentTo, Type expectedType, bool compareForEquivalence = true,
         bool exactlyEquals = false)
     {
@@ -601,7 +602,8 @@ public class PQRecentlyTradedTests
         return newEmpty;
     }
 
-    public static void AssertContainsAllLevelRecentlyTradedFields(IList<PQFieldUpdate> checkFieldUpdates,
+    public static void AssertContainsAllLevelRecentlyTradedFields
+    (IList<PQFieldUpdate> checkFieldUpdates,
         PQRecentlyTraded recentlyTraded, uint expectedBooleanFlags = 3)
     {
         for (var i = 0; i < MaxNumberOfEntries; i++)
@@ -646,7 +648,8 @@ public class PQRecentlyTradedTests
         }
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         PQRecentlyTraded original, PQRecentlyTraded changingRecentlyTraded, PQLevel3Quote? originalQuote = null,
         PQLevel3Quote? changingQuote = null)
     {

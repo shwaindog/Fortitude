@@ -1,10 +1,13 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -18,10 +21,11 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 public class TraderPriceVolumeLayerTests
 {
     private const string TraderNameBase = "TestTraderName";
-    private TraderPriceVolumeLayer emptyPvl = null!;
+
+    private TraderPriceVolumeLayer   emptyPvl              = null!;
     private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
-    private int populatedNumberOfTraders;
-    private TraderPriceVolumeLayer populatedPvl = null!;
+    private int                      populatedNumberOfTraders;
+    private TraderPriceVolumeLayer   populatedPvl = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -29,7 +33,8 @@ public class TraderPriceVolumeLayerTests
         nameIdLookupGenerator
             = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
         populatedNumberOfTraders = 3;
-        emptyPvl = new TraderPriceVolumeLayer();
+
+        emptyPvl     = new TraderPriceVolumeLayer();
         populatedPvl = new TraderPriceVolumeLayer(4.2949_672m, 42_949_672m);
         AddTraderLayers(populatedPvl, populatedNumberOfTraders);
     }
@@ -290,7 +295,7 @@ public class TraderPriceVolumeLayerTests
     [TestMethod]
     public void PQPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var pqPvl = new PQTraderPriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
+        var pqPvl    = new PQTraderPriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
         var newEmpty = new TraderPriceVolumeLayer();
         newEmpty.CopyFrom(pqPvl);
         Assert.AreEqual(populatedPvl, newEmpty);
@@ -335,8 +340,8 @@ public class TraderPriceVolumeLayerTests
     public void FullyPopulatedPvlCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
         var fullyPopulatedClone = ((IMutableTraderPriceVolumeLayer)populatedPvl).Clone();
-        AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedPvl,
-            fullyPopulatedClone);
+        AssertAreEquivalentMeetsExpectedExactComparisonType
+            (false, populatedPvl, fullyPopulatedClone);
     }
 
     [TestMethod]
@@ -376,17 +381,19 @@ public class TraderPriceVolumeLayerTests
         // ReSharper restore RedundantCast
     }
 
-    public static void AddTraderLayers(IMutableTraderPriceVolumeLayer addTraderLayers,
+    public static void AddTraderLayers
+    (IMutableTraderPriceVolumeLayer addTraderLayers,
         int numberOfTraderLayersToCrete)
     {
         for (var i = 0; i < numberOfTraderLayersToCrete; i++)
         {
-            addTraderLayers[i]!.TraderName = TraderNameBase + i;
+            addTraderLayers[i]!.TraderName   = TraderNameBase + i;
             addTraderLayers[i]!.TraderVolume = (i + 1) * 1_000_000;
         }
     }
 
-    public static void AssertTraderLayersAreExpected(ITraderPriceVolumeLayer checkTraderLayers,
+    public static void AssertTraderLayersAreExpected
+    (ITraderPriceVolumeLayer checkTraderLayers,
         bool[]? expectPopulated = null, string[]? expectedTraderNames = null, decimal[]? expectedVolumes = null,
         bool[]? expectedTraderNameUpdated = null, bool[]? expectedVolumeUpdated = null)
     {
@@ -394,7 +401,7 @@ public class TraderPriceVolumeLayerTests
         for (var i = 0; i < checkTraderLayers.Count; i++)
             if (expectPopulated == null || expectPopulated[i])
             {
-                var traderName = expectedTraderNames?[i] ?? TraderNameBase + i;
+                var traderName     = expectedTraderNames?[i] ?? TraderNameBase + i;
                 var expectedVolume = expectedVolumes?[i] ?? 1_000_000 * (i + 1);
                 Assert.AreEqual(traderName, checkTraderLayers[i]?.TraderName);
                 Assert.AreEqual(expectedVolume, checkTraderLayers[i]?.TraderVolume);
@@ -406,7 +413,8 @@ public class TraderPriceVolumeLayerTests
             }
     }
 
-    public static void AssertAreEquivalentMeetsExpectedExactComparisonType(bool exactComparison,
+    public static void AssertAreEquivalentMeetsExpectedExactComparisonType
+    (bool exactComparison,
         IMutableTraderPriceVolumeLayer? original,
         IMutableTraderPriceVolumeLayer? changingPriceVolumeLayer,
         IOrderBook? originalOrderBook = null,
@@ -418,8 +426,8 @@ public class TraderPriceVolumeLayerTests
         Assert.IsNotNull(original);
         Assert.IsNotNull(changingPriceVolumeLayer);
 
-        PriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-            original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+        PriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         Assert.AreEqual(original.Count, changingPriceVolumeLayer.Count);
         for (var i = 0; i < original.Count; i++)
@@ -428,9 +436,9 @@ public class TraderPriceVolumeLayerTests
             var changingTraderInfo = changingPriceVolumeLayer[i];
 
             Assert.AreEqual(originalTraderInfo != null, changingTraderInfo != null);
-            TraderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
-                originalTraderInfo, changingTraderInfo, original, changingPriceVolumeLayer,
-                originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+            TraderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                (exactComparison, originalTraderInfo, changingTraderInfo, original, changingPriceVolumeLayer
+               , originalOrderBook, changingOrderBook, originalQuote, changingQuote);
         }
     }
 }

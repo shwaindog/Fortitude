@@ -5,8 +5,8 @@
 
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.LastTraded;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
@@ -63,7 +63,8 @@ public class PQTickerFeedSubscriptionTests
 
     public class DummyPQTickerFeedSubscription : PQTickerFeedSubscription
     {
-        public DummyPQTickerFeedSubscription(IPricingServerConfig feedServerConfig,
+        public DummyPQTickerFeedSubscription
+        (IPricingServerConfig feedServerConfig,
             ISourceTickerQuoteInfo sourceTickerQuoteInfo) : base(feedServerConfig, sourceTickerQuoteInfo) { }
 
         public bool UnsubscribeHasBeenCalled { get; set; }

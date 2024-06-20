@@ -5,7 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.LayeredBook;
+using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -72,7 +72,8 @@ public class TraderLayerInfo : ReusableObject<ITraderLayerInfo>, IMutableTraderL
         base.StateReset();
     }
 
-    public override ITraderLayerInfo CopyFrom(ITraderLayerInfo source
+    public override ITraderLayerInfo CopyFrom
+    (ITraderLayerInfo source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         TraderVolume = source.TraderVolume;

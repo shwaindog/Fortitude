@@ -7,7 +7,7 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.TimeSeries;
+using FortitudeMarketsApi.Pricing.Summaries;
 
 #endregion
 
