@@ -89,7 +89,7 @@ public class PathFile : PathPart, IPathFile
 
         if (timeSeriesFileFactory == null) throw new Exception($"No Time Series file factory has been registered for type {entryType}");
 
-        var listAvailableFile = new List<InstrumentRepoFile>();
+        var listAvailableFile = new InstrumentRepoFileSet();
         foreach (var instrumentRepoFile in instrumentFiles)
         {
             var timeSeriesFile = timeSeriesFileFactory.OpenExisting(instrumentRepoFile.TimeSeriesRepoFile.File);

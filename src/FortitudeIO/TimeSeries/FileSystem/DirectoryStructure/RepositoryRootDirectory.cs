@@ -14,14 +14,21 @@ public delegate void RepositoryInstrumentFileAvailabilityChanged(IRepositoryRoot
 
 public interface IRepositoryRootDirectory : IPathDirectory
 {
-    DirectoryInfo                                     RootDirectoryInfo { get; set; }
-    string                                            RepositoryName    { get; set; }
+    DirectoryInfo DirInfo        { get; set; }
+    string        RepositoryName { get; set; }
+    string        DirPath        { get; }
+
+    ITimeSeriesRepository Repository { get; set; }
+
     event RepositoryInstrumentFileAvailabilityChanged FileAvailabilityChanged;
 
-    void                            OnFileInstrumentUpdated(RepositoryInstrumentFileUpdateEvent updateEvent);
+    void OnFileInstrumentUpdated(RepositoryInstrumentFileUpdateEvent updateEvent);
+
     IEnumerable<InstrumentRepoFile> RepositoryInstrumentDetails(string extension);
-    InstrumentRepoFile?             GetInstrumentFileDetails(FileInfo timeSeriesFile);
-    IPathFile?                      FindFileStructure(IInstrument instrument);
+
+    InstrumentRepoFile? GetInstrumentFileDetails(FileInfo timeSeriesFile);
+
+    IPathFile? FindFileStructure(IInstrument instrument);
 }
 
 public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
@@ -44,13 +51,17 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
 
     public string RepositoryName { get; set; }
 
+    public string DirPath => rootDirectoryInfo.FullName;
+
     public event RepositoryInstrumentFileAvailabilityChanged? FileAvailabilityChanged;
 
-    public DirectoryInfo RootDirectoryInfo
+    public DirectoryInfo DirInfo
     {
         get => rootDirectoryInfo;
         set => rootDirectoryInfo = value ?? throw new ArgumentNullException(nameof(value));
     }
+
+    public ITimeSeriesRepository Repository { get; set; }
 
     public override TimeSeriesPeriod PathTimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
 
@@ -58,7 +69,7 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
 
 
     public IEnumerable<InstrumentRepoFile> RepositoryInstrumentDetails(string extension) =>
-        RootDirectoryInfo
+        DirInfo
             .RecursiveFindFiles("*" + extension)
             .Select(GetInstrumentFileDetails)
             .OfType<InstrumentRepoFile>();

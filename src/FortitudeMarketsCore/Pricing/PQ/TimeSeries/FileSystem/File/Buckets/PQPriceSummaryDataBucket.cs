@@ -74,14 +74,14 @@ public abstract class PQPriceSummaryDataBucket<TBucket> : DataBucket<IPricePerio
         (IFixedByteArrayBuffer writeBuffer, IAppendContext<IPricePeriodSummary> entryContext, AppendResult appendResult)
     {
         var pqContext = entryContext as IPQPricePeriodSummaryAppendContext<IPricePeriodSummary>;
-        var entry     = entryContext.CurrentEntry;
+        var entry     = entryContext.CurrentEntry!;
 
         bufferContext ??= new MessageBufferContext(writeBuffer);
 
         bufferContext.EncodedBuffer = writeBuffer;
 
         var messageSerializer = RepeatedEntryMessageSerializer;
-        var lastEntryQuote    = pqContext.SerializeEntry;
+        var lastEntryQuote    = pqContext!.SerializeEntry;
         lastEntryQuote.HasUpdates = false;
         if (writeBuffer.WriteCursor == 0)
         {

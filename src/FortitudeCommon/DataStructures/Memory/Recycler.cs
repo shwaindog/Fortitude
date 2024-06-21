@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections.Concurrent;
 using FortitudeCommon.Types;
@@ -9,7 +12,7 @@ namespace FortitudeCommon.DataStructures.Memory;
 
 public interface IRecycler
 {
-    T Borrow<T>() where T : class, new();
+    T      Borrow<T>() where T : class, new();
     object Borrow(Type type);
 
     void Recycle(object trash);
@@ -22,18 +25,19 @@ public class SingletonRecycler
 
 public class Recycler : IRecycler
 {
-    private readonly bool acceptNonCreatedObjects;
+    private readonly bool                                       acceptNonCreatedObjects;
     private readonly ConcurrentDictionary<Type, IPooledFactory> poolFactoryMap = new();
-    private readonly bool shouldAutoRecycleOnRefCountZero;
-    private readonly bool throwWhenAttemptToRecycleRefCountNoZero;
+    private readonly bool                                       shouldAutoRecycleOnRefCountZero;
+    private readonly bool                                       throwWhenAttemptToRecycleRefCountNoZero;
 
     public Recycler() : this(true, true, false) { }
 
-    public Recycler(bool shouldAutoRecycleOnRefCountZero = true, bool acceptNonCreatedObjects = true,
+    public Recycler
+    (bool shouldAutoRecycleOnRefCountZero = true, bool acceptNonCreatedObjects = true,
         bool throwWhenAttemptToRecycleRefCountNoZero = true)
     {
-        this.acceptNonCreatedObjects = acceptNonCreatedObjects;
-        this.shouldAutoRecycleOnRefCountZero = shouldAutoRecycleOnRefCountZero;
+        this.acceptNonCreatedObjects                 = acceptNonCreatedObjects;
+        this.shouldAutoRecycleOnRefCountZero         = shouldAutoRecycleOnRefCountZero;
         this.throwWhenAttemptToRecycleRefCountNoZero = throwWhenAttemptToRecycleRefCountNoZero;
     }
 
@@ -53,7 +57,7 @@ public class Recycler : IRecycler
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount < 1) recyclable.IncrementRefCount();
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount > 1) recyclable.DecrementRefCount();
             recyclable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
-            recyclable.IsInRecycler = false;
+            recyclable.IsInRecycler              = false;
         }
 
         return borrowed;
@@ -66,7 +70,7 @@ public class Recycler : IRecycler
             var newInstanceFunc = ReflectionHelper.CreateEmptyConstructorFactoryAsFuncType(type);
             poolFactoryContainer = (IPooledFactory)ReflectionHelper
                 .InstantiateGenericType(typeof(GarbageAndLockFreePooledFactory<>)
-                    , new[] { type }, newInstanceFunc, 4);
+                                      , new[] { type }, newInstanceFunc, 4);
             poolFactoryMap.TryAdd(type, poolFactoryContainer);
         }
 
@@ -77,7 +81,7 @@ public class Recycler : IRecycler
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount < 1) recyclable.IncrementRefCount();
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount > 1) recyclable.DecrementRefCount();
             recyclable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
-            recyclable.IsInRecycler = false;
+            recyclable.IsInRecycler              = false;
         }
 
         return borrowed;
@@ -85,7 +89,7 @@ public class Recycler : IRecycler
 
     public void Recycle(object trash)
     {
-        var type = trash.GetType();
+        var type       = trash.GetType();
         var recyclable = trash as IRecyclableObject;
         if (recyclable != null)
         {
@@ -104,7 +108,7 @@ public class Recycler : IRecycler
 
                 poolFactoryContainer = (IPooledFactory)ReflectionHelper
                     .InstantiateGenericType(typeof(GarbageAndLockFreePooledFactory<>)
-                        , new[] { type }, newInstanceFunc, 4);
+                                          , new[] { type }, newInstanceFunc, 4);
                 poolFactoryMap.TryAdd(trash.GetType(), poolFactoryContainer);
             }
             else

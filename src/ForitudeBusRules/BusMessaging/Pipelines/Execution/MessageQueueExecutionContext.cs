@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -11,15 +14,15 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.Execution;
 
 public abstract class MessageQueueExecutionContext : RecyclableObject
 {
-    protected IRecycler EventQueueRecycler = null!;
-    protected IMessageQueue MessageQueue = null!;
-    protected IRule SenderRule = null!;
+    protected IRecycler     EventQueueRecycler = null!;
+    protected IMessageQueue MessageQueue       = null!;
+    protected IRule         SenderRule         = null!;
 
     public void Configure(IMessageQueue executionQueue, IRule senderRule)
     {
-        MessageQueue = executionQueue;
+        MessageQueue       = executionQueue;
         EventQueueRecycler = executionQueue.Context.PooledRecycler;
-        SenderRule = senderRule;
+        SenderRule         = senderRule;
     }
 
     public override void StateReset()
@@ -36,7 +39,7 @@ public class MessageQueueExecutionContextAction<TP> : MessageQueueExecutionConte
         noParamsSyncPayload.Configure(methodToExecute, firstParam);
         noParamsSyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(noParamsSyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextAction<TP>)}.{nameof(OneParamSyncActionPayload<TP>)}");
+                                      , $"{nameof(MessageQueueExecutionContextAction<TP>)}.{nameof(OneParamSyncActionPayload<TP>)}");
         return new ValueTask(noParamsSyncPayload, noParamsSyncPayload.Version);
     }
 
@@ -46,7 +49,31 @@ public class MessageQueueExecutionContextAction<TP> : MessageQueueExecutionConte
         noParamsAsyncPayload.Configure(methodToExecute, firstParam, secondParam);
         noParamsAsyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(noParamsAsyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextAction<TP>)}.{nameof(TwoParamSyncActionPayload<TP, BasicCancellationToken?>)}");
+                                      , $"{nameof(MessageQueueExecutionContextAction<TP>)}.{nameof(TwoParamSyncActionPayload<TP, BasicCancellationToken?>)}");
+        return new ValueTask(noParamsAsyncPayload, noParamsAsyncPayload.Version);
+    }
+}
+
+public class MessageQueueExecutionContextAction<TP1, TP2> : MessageQueueExecutionContext, IAlternativeExecutionContextAction<TP1, TP2>
+{
+    public ValueTask Execute(Action<TP1, TP2> methodToExecute, TP1 firstParam, TP2 secondParam)
+    {
+        var noParamsSyncPayload = EventQueueRecycler.Borrow<TwoParamSyncActionPayload<TP1, TP2>>();
+        noParamsSyncPayload.Configure(methodToExecute, firstParam, secondParam);
+        noParamsSyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
+        MessageQueue.EnqueuePayloadBody(noParamsSyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
+                                      , $"{nameof(MessageQueueExecutionContextAction<TP1, TP2>)}.{nameof(TwoParamSyncActionPayload<TP1, TP2>)}");
+        return new ValueTask(noParamsSyncPayload, noParamsSyncPayload.Version);
+    }
+
+    public ValueTask Execute
+        (Action<TP1, TP2, BasicCancellationToken?> methodToExecute, TP1 firstParam, TP2 secondParam, BasicCancellationToken? thirdParam)
+    {
+        var noParamsAsyncPayload = EventQueueRecycler.Borrow<ThreeParamSyncActionPayload<TP1, TP2, BasicCancellationToken?>>();
+        noParamsAsyncPayload.Configure(methodToExecute, firstParam, secondParam, thirdParam);
+        noParamsAsyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
+        MessageQueue.EnqueuePayloadBody(noParamsAsyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
+                                      , $"{nameof(MessageQueueExecutionContextAction<TP1, TP2>)}.{nameof(ThreeParamSyncActionPayload<TP1, TP2, BasicCancellationToken?>)}");
         return new ValueTask(noParamsAsyncPayload, noParamsAsyncPayload.Version);
     }
 }
@@ -59,7 +86,7 @@ public class MessageQueueExecutionContextResult<TR> : MessageQueueExecutionConte
         noParamsSyncPayload.Configure(methodToExecute);
         noParamsSyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(noParamsSyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextResult<TR>)}.{nameof(NoParamsSyncResultPayload<TR>)}");
+                                      , $"{nameof(MessageQueueExecutionContextResult<TR>)}.{nameof(NoParamsSyncResultPayload<TR>)}");
         return new ValueTask<TR>(noParamsSyncPayload, noParamsSyncPayload.Version);
     }
 
@@ -69,7 +96,7 @@ public class MessageQueueExecutionContextResult<TR> : MessageQueueExecutionConte
         noParamsAsyncPayload.Configure(methodToExecute);
         noParamsAsyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(noParamsAsyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextResult<TR>)}.{nameof(NoParamsAsyncResultPayload<TR>)}");
+                                      , $"{nameof(MessageQueueExecutionContextResult<TR>)}.{nameof(NoParamsAsyncResultPayload<TR>)}");
         return new ValueTask<TR>(noParamsAsyncPayload, noParamsAsyncPayload.Version);
     }
 
@@ -79,7 +106,7 @@ public class MessageQueueExecutionContextResult<TR> : MessageQueueExecutionConte
         noParamsAsyncPayload.Configure(methodToExecute, firstParam);
         noParamsAsyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(noParamsAsyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextResult<TR>)}.{nameof(OneParamSyncResultPayload<TR, BasicCancellationToken?>)}");
+                                      , $"{nameof(MessageQueueExecutionContextResult<TR>)}.{nameof(OneParamSyncResultPayload<TR, BasicCancellationToken?>)}");
         return new ValueTask<TR>(noParamsAsyncPayload, noParamsAsyncPayload.Version);
     }
 }
@@ -92,7 +119,7 @@ public class MessageQueueExecutionContextResult<TR, TP> : MessageQueueExecutionC
         oneParamSyncPayload.Configure(methodToExecute, firstParam);
         oneParamSyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(oneParamSyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextResult<TR, TP>)}.{nameof(OneParamSyncResultPayload<TR, TP>)}");
+                                      , $"{nameof(MessageQueueExecutionContextResult<TR, TP>)}.{nameof(OneParamSyncResultPayload<TR, TP>)}");
         return new ValueTask<TR>(oneParamSyncPayload, oneParamSyncPayload.Version);
     }
 
@@ -102,7 +129,7 @@ public class MessageQueueExecutionContextResult<TR, TP> : MessageQueueExecutionC
         oneParamAsyncPayload.Configure(methodToExecute, firstParam);
         oneParamAsyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(oneParamAsyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextResult<TR, TP>)}.{nameof(OneParamAsyncResultPayload<TR, TP>)}");
+                                      , $"{nameof(MessageQueueExecutionContextResult<TR, TP>)}.{nameof(OneParamAsyncResultPayload<TR, TP>)}");
         return new ValueTask<TR>(oneParamAsyncPayload, oneParamAsyncPayload.Version);
     }
 
@@ -112,7 +139,7 @@ public class MessageQueueExecutionContextResult<TR, TP> : MessageQueueExecutionC
         noParamsAsyncPayload.Configure(methodToExecute, firstParam, secondParam);
         noParamsAsyncPayload.ResponseTimeoutAndRecycleTimer = MessageQueue.Context.QueueTimer;
         MessageQueue.EnqueuePayloadBody(noParamsAsyncPayload, SenderRule, MessageType.QueueParamsExecutionPayload
-            , $"{nameof(MessageQueueExecutionContextResult<TR, TP>)}.{nameof(TwoParamsSyncResultPayload<TR, TP, BasicCancellationToken?>)}");
+                                      , $"{nameof(MessageQueueExecutionContextResult<TR, TP>)}.{nameof(TwoParamsSyncResultPayload<TR, TP, BasicCancellationToken?>)}");
         return new ValueTask<TR>(noParamsAsyncPayload, noParamsAsyncPayload.Version);
     }
 }

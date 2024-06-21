@@ -28,7 +28,7 @@ public interface IPQLevel3Quote : IPQLevel2Quote, IMutableLevel3Quote
     new IPQLevel3Quote     Clone();
 }
 
-public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
+public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQLevel3Quote>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));
 
@@ -298,11 +298,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
             recentlyTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.RecentlyTraded?.NameIdLookup);
     }
 
-    public DateTime StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
-    }
+    DateTime ITimeSeriesEntry<ILevel3Quote>.StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver) => StorageTime(resolver);
 
     ILevel3Quote ICloneable<ILevel3Quote>.Clone() => (ILevel3Quote)Clone();
 
@@ -327,6 +323,12 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote
         var valueDateSame        = ValueDate == otherL3.ValueDate;
         var allAreSame           = baseSame && recentlyTradedSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
         return allAreSame;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<PQLevel3Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel0Quote, true);

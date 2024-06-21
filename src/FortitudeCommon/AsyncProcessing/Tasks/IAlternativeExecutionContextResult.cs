@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 
@@ -25,6 +28,12 @@ public interface IAlternativeExecutionContextAction<TP>
 {
     ValueTask Execute(Action<TP> methodToExecute, TP firstParam);
     ValueTask Execute(Action<TP, BasicCancellationToken?> methodToExecute, TP firstParam, BasicCancellationToken? secondParam);
+}
+
+public interface IAlternativeExecutionContextAction<TP1, TP2>
+{
+    ValueTask Execute(Action<TP1, TP2> methodToExecute, TP1 firstParam, TP2 secondParam);
+    ValueTask Execute(Action<TP1, TP2, BasicCancellationToken?> methodToExecute, TP1 firstParam, TP2 secondParam, BasicCancellationToken? thirdParam);
 }
 
 public interface IAlternativeExecutionContextResult<TR> : IRecyclableObject

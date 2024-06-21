@@ -74,8 +74,8 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
     {
         var pqContext = entryContext as IPQQuoteAppendContext<TEntry, TSerializeType>;
         var entry     = entryContext.CurrentEntry;
-        if (entry.SourceTickerQuoteInfo!.SourceId != SourceTickerQuoteInfo.SourceId ||
-            entry.SourceTickerQuoteInfo.TickerId != SourceTickerQuoteInfo.TickerId || pqContext == null)
+        if (entry!.SourceTickerQuoteInfo!.SourceId != SourceTickerQuoteInfo.SourceId
+         || entry.SourceTickerQuoteInfo.TickerId != SourceTickerQuoteInfo.TickerId || pqContext == null)
             return new AppendResult(StorageAttemptResult.EntryNotCompatible);
 
         bufferContext ??= new MessageBufferContext(writeBuffer);

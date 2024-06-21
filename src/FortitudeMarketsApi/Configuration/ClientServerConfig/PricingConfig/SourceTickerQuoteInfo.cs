@@ -16,7 +16,33 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-public interface ISourceTickerQuoteInfo : IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage, IInstrument
+public interface ISourceTickerIdentifier
+{
+    uint   Id       { get; }
+    ushort SourceId { get; }
+    ushort TickerId { get; }
+    string Source   { get; }
+    string Ticker   { get; }
+}
+
+public struct SourceTickerIdentifier : ISourceTickerIdentifier
+{
+    public SourceTickerIdentifier(ushort sourceId, ushort tickerId, string source, string ticker)
+    {
+        SourceId = sourceId;
+        TickerId = tickerId;
+        Source   = source;
+        Ticker   = ticker;
+    }
+
+    public uint   Id       => (uint)((SourceId << 16) | TickerId);
+    public ushort SourceId { get; }
+    public ushort TickerId { get; }
+    public string Source   { get; }
+    public string Ticker   { get; }
+}
+
+public interface ISourceTickerQuoteInfo : ISourceTickerIdentifier, IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage, IInstrument
 {
     uint   Id       { get; }
     ushort SourceId { get; set; }

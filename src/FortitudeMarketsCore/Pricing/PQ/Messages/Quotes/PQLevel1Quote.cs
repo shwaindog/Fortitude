@@ -40,7 +40,7 @@ public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
     new IPQLevel1Quote         Clone();
 }
 
-public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
+public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQLevel1Quote>
 {
     private DateTime adapterReceivedTime = DateTimeConstants.UnixEpoch;
     private DateTime adapterSentTime     = DateTimeConstants.UnixEpoch;
@@ -710,7 +710,9 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote
         return allAreSame;
     }
 
-    public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
+    DateTime ITimeSeriesEntry<ILevel1Quote>.StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver) => StorageTime(resolver);
+
+    public DateTime StorageTime(IStorageTimeResolver<PQLevel1Quote>? resolver = null)
     {
         resolver ??= QuoteStorageTimeResolver.Instance;
         return resolver.ResolveStorageTime(this);

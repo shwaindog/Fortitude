@@ -16,7 +16,7 @@ using FortitudeMarketsCore.Pricing.Summaries;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
+public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeriesEntry<Level1PriceQuote>
 {
     public Level1PriceQuote() { }
 
@@ -82,11 +82,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
     public IMutablePricePeriodSummary? SummaryPeriod { get; set; }
     IPricePeriodSummary? ILevel1Quote. SummaryPeriod => SummaryPeriod;
 
-    public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
-    }
+    DateTime ITimeSeriesEntry<ILevel1Quote>.StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver) => StorageTime(resolver);
 
     public override DateTime SourceTime
     {
@@ -160,6 +156,12 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote
                            bidPriceTopSame && isBidPriceTopChangedSame && sourceAskTimeSame && askPriceTopSame &&
                            isAskPriceTopChangedSame && executableSame && periodSummarySame;
         return isEquivalent;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<Level1PriceQuote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel1Quote, true);

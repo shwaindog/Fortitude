@@ -83,7 +83,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
     private decimal lowestBidPrice;
     private long    periodVolume;
 
-    private IPQPriceVolumePublicationPrecisionSettings? precisionSettings = null!;
+    private IPQPriceVolumePublicationPrecisionSettings? precisionSettings;
 
     private decimal  startAskPrice;
     private decimal  startBidPrice;
@@ -224,7 +224,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => averageBidPrice;
         set
         {
-            var current  = PQScaling.Scale(averageBidPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(averageBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaAverageBidPrice) * DeltaAverageBidPrice
@@ -242,7 +242,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => averageAskPrice;
         set
         {
-            var current  = PQScaling.Scale(averageAskPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(averageAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaAverageAskPrice) * DeltaAverageAskPrice
@@ -261,7 +261,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => startBidPrice;
         set
         {
-            var current  = PQScaling.Scale(endBidPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(endBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaStartBidPrice) * DeltaStartBidPrice
@@ -289,7 +289,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => startAskPrice;
         set
         {
-            var current  = PQScaling.Scale(endAskPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(endAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaStartAskPrice) * DeltaStartAskPrice
@@ -317,7 +317,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => highestBidPrice;
         set
         {
-            var current  = PQScaling.Scale(highestBidPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(highestBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaHighestBidPrice) * DeltaHighestBidPrice
@@ -336,7 +336,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => highestAskPrice;
         set
         {
-            var current  = PQScaling.Scale(highestAskPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(highestAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaHighestAskPrice) * DeltaHighestAskPrice
@@ -355,7 +355,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => lowestBidPrice;
         set
         {
-            var current  = PQScaling.Scale(lowestBidPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(lowestBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaLowestBidPrice) * DeltaLowestBidPrice
@@ -374,7 +374,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => lowestAskPrice;
         set
         {
-            var current  = PQScaling.Scale(lowestAskPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(lowestAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaLowestAskPrice) * DeltaLowestAskPrice
@@ -393,7 +393,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => endBidPrice;
         set
         {
-            var current  = PQScaling.Scale(endBidPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(endBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaEndBidPrice) * DeltaEndBidPrice
@@ -412,7 +412,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => endAskPrice;
         set
         {
-            var current  = PQScaling.Scale(endAskPrice, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(endAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaEndAskPrice) * DeltaEndAskPrice
@@ -459,7 +459,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => periodVolume;
         set
         {
-            var current  = PQScaling.Scale(periodVolume, (byte)(PrecisionSettings.VolumeScalingPrecision & 0x1F));
+            var current  = PQScaling.Scale(periodVolume, (byte)(PrecisionSettings!.VolumeScalingPrecision & 0x1F));
             var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.VolumeScalingPrecision & 0x1F));
             var delta =
                 SummaryStorageFlags.SignMultiplier(NegateDeltaPeriodVolume) * DeltaPeriodVolume
