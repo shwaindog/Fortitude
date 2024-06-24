@@ -41,8 +41,9 @@ public static class StringExtensions
         return false;
     }
 
-    public static bool IsNullOrEmpty(this string? value) => string.IsNullOrEmpty(value);
-    public static bool IsEmptyString(this object? value) => Equals(value, string.Empty);
+    public static bool IsNullOrEmpty(this string? value)    => string.IsNullOrEmpty(value);
+    public static bool IsNotNullOrEmpty(this string? value) => !string.IsNullOrEmpty(value);
+    public static bool IsEmptyString(this object? value)    => Equals(value, string.Empty);
 
 
     public static int? SafeExtractInt(this string value)

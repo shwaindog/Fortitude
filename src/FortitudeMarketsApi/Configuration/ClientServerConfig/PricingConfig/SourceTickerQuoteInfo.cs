@@ -3,11 +3,14 @@
 
 #region
 
+using System.Collections;
 using System.Globalization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -16,13 +19,38 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-public interface ISourceTickerQuoteInfo : IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage, IInstrument
+public interface ISourceTickerIdentifier
 {
     uint   Id       { get; }
-    ushort SourceId { get; set; }
-    ushort TickerId { get; set; }
-    string Source   { get; set; }
-    string Ticker   { get; set; }
+    ushort SourceId { get; }
+    ushort TickerId { get; }
+    string Source   { get; }
+    string Ticker   { get; }
+}
+
+public struct SourceTickerIdentifier : ISourceTickerIdentifier
+{
+    public SourceTickerIdentifier(ushort sourceId, ushort tickerId, string source, string ticker)
+    {
+        SourceId = sourceId;
+        TickerId = tickerId;
+        Source   = source;
+        Ticker   = ticker;
+    }
+
+    public uint   Id       => (uint)((SourceId << 16) | TickerId);
+    public ushort SourceId { get; }
+    public ushort TickerId { get; }
+    public string Source   { get; }
+    public string Ticker   { get; }
+}
+
+public interface ISourceTickerQuoteInfo : ISourceTickerIdentifier, IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage, IInstrument
+{
+    new ushort SourceId { get; set; }
+    new ushort TickerId { get; set; }
+    new string Source   { get; set; }
+    new string Ticker   { get; set; }
 
     new MarketClassification MarketClassification { get; set; }
 
@@ -46,13 +74,13 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
 {
     private string? category;
 
-    private TimeSeriesPeriod entryPeriod;
+    private TimeSeriesPeriod? entryPeriod;
 
-    private string? formatPrice;
-    private string  instrumentName;
-    private string  sourceName;
+    private string?   formatPrice;
+    private string[]? optionalKeys;
+    private string[]? requiredKeys;
 
-    private InstrumentType timeSeriesType;
+    private InstrumentType? timeSeriesType;
 
     public SourceTickerQuoteInfo()
     {
@@ -106,7 +134,13 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         LayerFlags       = toClone.LayerFlags;
         LastTradedFlags  = toClone.LastTradedFlags;
 
-        Category = PublishedQuoteLevel.ToString();
+        foreach (var instrumentFields in toClone) this[instrumentFields.Key] = instrumentFields.Value;
+    }
+
+    public string? Category
+    {
+        get => category ?? PublishedQuoteLevel.ToString();
+        set => category = value;
     }
 
     object ICloneable.Clone() => Clone();
@@ -134,11 +168,91 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
     public LastTradedFlags LastTradedFlags { get; set; }
 
     string IInstrument.InstrumentName => Ticker;
-    string IInstrument.SourceName     => Source;
 
-    public string?          Category    { get; set; }
-    public TimeSeriesPeriod EntryPeriod { get; set; } = TimeSeriesPeriod.Tick;
-    public InstrumentType   Type        { get; set; } = InstrumentType.Price;
+    public TimeSeriesPeriod EntryPeriod
+    {
+        get => entryPeriod ?? TimeSeriesPeriod.Tick;
+        set => entryPeriod = value;
+    }
+    public InstrumentType Type
+    {
+        get => timeSeriesType ?? InstrumentType.Price;
+        set => timeSeriesType = value;
+    }
+
+    public string? this[string key]
+    {
+        get
+        {
+            switch (key)
+            {
+                case nameof(RepositoryPathName.MarketType):        return MarketClassification.MarketType.ToString();
+                case nameof(RepositoryPathName.MarketProductType): return MarketClassification.ProductType.ToString();
+                case nameof(RepositoryPathName.MarketRegion):      return MarketClassification.MarketRegion.ToString();
+                case nameof(RepositoryPathName.SourceName):        return Source;
+                case nameof(RepositoryPathName.Category):          return Category ?? PublishedQuoteLevel.ToString();
+            }
+            return null;
+        }
+        set
+        {
+            switch (key)
+            {
+                case nameof(RepositoryPathName.MarketType):
+                    if (Enum.TryParse<MarketType>(value, true, out var marketType))
+                        if (MarketClassification.MarketType == MarketType.Unknown)
+                            MarketClassification = MarketClassification.SetMarketType(marketType);
+                    break;
+                case nameof(RepositoryPathName.MarketProductType):
+                    if (Enum.TryParse<ProductType>(value, true, out var productType))
+                        if (MarketClassification.ProductType == ProductType.Unknown)
+                            MarketClassification = MarketClassification.SetProductType(productType);
+                    break;
+                case nameof(RepositoryPathName.MarketRegion):
+                    if (Enum.TryParse<MarketRegion>(value, true, out var marketRegion))
+                        if (MarketClassification.MarketRegion == MarketRegion.Unknown)
+                            MarketClassification = MarketClassification.SetMarketRegion(marketRegion);
+                    break;
+                case nameof(RepositoryPathName.SourceName):
+                    if (Source.IsNullOrEmpty()) Source = value ?? "";
+                    break;
+                case nameof(RepositoryPathName.Category):
+                    if (Category.IsNullOrEmpty()) Category = value ?? "";
+                    break;
+            }
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+    {
+        if (Source.IsNotNullOrEmpty()) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.SourceName), Source);
+        if (category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), category);
+        if (MarketClassification.MarketType != MarketType.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+        if (MarketClassification.ProductType != ProductType.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
+        if (MarketClassification.MarketRegion != MarketRegion.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+    }
+
+    public IEnumerable<string> RequiredInstrumentKeys
+    {
+        get => requiredKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiRequiredInstrumentKeys;
+        set => requiredKeys = value.ToArray();
+    }
+
+    public IEnumerable<string> OptionalInstrumentKeys
+    {
+        get => optionalKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiOptionalInstrumentKeys;
+        set => optionalKeys = value.ToArray();
+    }
+
+    public bool HasAllRequiredKeys =>
+        Source.IsNotNullOrEmpty() && MarketClassification.MarketType != MarketType.Unknown
+                                  && MarketClassification.ProductType != ProductType.Unknown &&
+                                     MarketClassification.MarketRegion != MarketRegion.Unknown;
 
     public string FormatPrice =>
         formatPrice ??= RoundingPrecision
@@ -207,7 +321,7 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
         LayerFlags       = source.LayerFlags;
         LastTradedFlags  = source.LastTradedFlags;
 
-        Category = source.Category;
+        foreach (var instrumentFields in source) this[instrumentFields.Key] = instrumentFields.Value;
         return this;
     }
 

@@ -16,7 +16,7 @@ using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
+public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeriesEntry<Level2PriceQuote>
 {
     public Level2PriceQuote()
     {
@@ -83,11 +83,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
     public bool              IsAskBookChanged { get; set; }
 
 
-    public DateTime StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
-    }
+    DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
 
     public override decimal BidPriceTop
     {
@@ -172,6 +168,12 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote
 
         var allAreSame = baseIsSame && bidBooksSame && bidBookChangedSame && askBooksSame && askBookChangedSame;
         return allAreSame;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<Level2PriceQuote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel2Quote, true);

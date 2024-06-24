@@ -8,7 +8,7 @@ using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 
 #endregion
 

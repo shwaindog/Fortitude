@@ -17,13 +17,14 @@ using FortitudeMarketsApi.Pricing.TimeSeries;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quote
+public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quote, ITimeSeriesEntry<Level0PriceQuote>
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Level0PriceQuote));
     public Level0PriceQuote() { }
 
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
-    public Level0PriceQuote(ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
+    public Level0PriceQuote
+    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
         bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null)
     {
         SourceTickerQuoteInfo = sourceTickerQuoteInfo is SourceTickerQuoteInfo
@@ -58,11 +59,7 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
     public virtual decimal  SinglePrice        { get; set; }
     public         DateTime ClientReceivedTime { get; set; }
 
-    public DateTime StorageTime(IStorageTimeResolver<ILevel0Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
-    }
+    DateTime ITimeSeriesEntry<ILevel0Quote>.StorageTime(IStorageTimeResolver<ILevel0Quote>? resolver) => StorageTime(resolver);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -102,6 +99,12 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
         var allEquivalent = srcTickersAreEquivalent && sourceTimesSame && replayIsSame && singlePriceSame
                          && clientReceivedTimeSame;
         return allEquivalent;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<Level0PriceQuote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel0Quote, true);

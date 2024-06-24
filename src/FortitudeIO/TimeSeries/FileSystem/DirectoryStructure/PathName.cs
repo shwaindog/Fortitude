@@ -13,6 +13,8 @@ namespace FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 
 public class PathName
 {
+    private string? pathPartString;
+
     public PathName(RepositoryPathName pathPart, string? formatString = null)
     {
         PathPart = pathPart;
@@ -41,7 +43,8 @@ public class PathName
             FormatString = formatString;
     }
 
-    public RepositoryPathName PathPart { get; }
+    public RepositoryPathName PathPart       { get; }
+    public string             PathPartString => pathPartString ??= PathPart.ToString();
 
     public string FormatString { get; }
 
@@ -88,17 +91,17 @@ public class PathName
             case InstrumentName:
                 return string.Format(FormatString, instrument.InstrumentName);
             case SourceName:
-                return string.Format(FormatString, instrument.SourceName);
+                return string.Format(FormatString, instrument[nameof(SourceName)]);
             case TimeSeriesType:
                 return string.Format(FormatString, instrument.Type);
             case MarketProductType:
-                return string.Format(FormatString, instrument.MarketClassification.ProductType);
+                return string.Format(FormatString, instrument[nameof(MarketProductType)]);
             case RepositoryPathName.MarketRegion:
-                return string.Format(FormatString, instrument.MarketClassification.MarketRegion);
+                return string.Format(FormatString, instrument[nameof(RepositoryPathName.MarketRegion)]);
             case RepositoryPathName.MarketType:
-                return string.Format(FormatString, instrument.MarketClassification.MarketType);
+                return string.Format(FormatString, instrument[nameof(RepositoryPathName.MarketType)]);
             case Category:
-                return instrument.Category != null ? string.Format(FormatString, instrument.Category) : null;
+                return instrument[nameof(Category)] != null ? string.Format(FormatString, instrument[nameof(Category)]) : null;
             case EntryPeriod:
                 return string.Format(FormatString, instrument.EntryPeriod.ShortName());
             case Constant:

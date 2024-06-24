@@ -1,9 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Tasks;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
@@ -12,6 +14,7 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.Execution;
 public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
     private TP firstParameter = default!;
+
     private Action<TP>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -50,7 +53,7 @@ public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvo
 
     public void Configure(Action<TP> toExecute, TP firstParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
@@ -58,8 +61,9 @@ public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvo
 
 public class TwoParamSyncActionPayload<TP, TP2> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
-    private TP firstParameter = default!;
+    private TP  firstParameter  = default!;
     private TP2 secondParameter = default!;
+
     private Action<TP, TP2>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -100,11 +104,67 @@ public class TwoParamSyncActionPayload<TP, TP2> : ReusableValueTaskSource<int>, 
 
     public void Configure(Action<TP, TP2> toExecute, TP firstParam, TP2 secondParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
         if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+    }
+}
+
+public class ThreeParamSyncActionPayload<TP1, TP2, TP3> : ReusableValueTaskSource<int>, IInvokeablePayload
+{
+    private TP1 firstParameter  = default!;
+    private TP2 secondParameter = default!;
+    private TP3 thirdParameter  = default!;
+
+    private Action<TP1, TP2, TP3>? toInvoke;
+
+    public bool IsAsyncInvoke => false;
+
+    public ValueTask InvokeAsync()
+    {
+        toInvoke?.Invoke(firstParameter, secondParameter, thirdParameter);
+        TrySetResult(0);
+        return ValueTask.CompletedTask;
+    }
+
+    public virtual void Invoke()
+    {
+        try
+        {
+            toInvoke!(firstParameter, secondParameter, thirdParameter);
+            TrySetResult(0);
+        }
+        catch (Exception ex)
+        {
+            SetException(ex);
+        }
+    }
+
+    public override int DecrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.DecrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.DecrementRefCount();
+        return base.DecrementRefCount();
+    }
+
+    public override int IncrementRefCount()
+    {
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+        return base.IncrementRefCount();
+    }
+
+    public void Configure(Action<TP1, TP2, TP3> toExecute, TP1 firstParam, TP2 secondParam, TP3 thirdParam)
+    {
+        toInvoke       = toExecute;
+        firstParameter = firstParam;
+        if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
+        secondParameter = secondParam;
+        if (secondParameter is IRecyclableObject recyclableSecondParam) recyclableSecondParam.IncrementRefCount();
+        thirdParameter = thirdParam;
+        if (thirdParameter is IRecyclableObject recyclableThirdParam) recyclableThirdParam.IncrementRefCount();
     }
 }
 
@@ -193,6 +253,7 @@ public class NoParamsAsyncResultPayload<TR> : ReusableValueTaskSource<TR>, IInvo
 public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
     private TP firstParameter = default!;
+
     private Func<TP, TR>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -235,7 +296,7 @@ public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, II
 
     public void Configure(Func<TP, TR> toExecute, TP firstParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
@@ -243,8 +304,8 @@ public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, II
 
 public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OneParamAsyncActionPayload<TP>));
     private TP firstParameter = default!;
+
     private Func<TP, ValueTask>? toInvoke;
 
     public bool IsAsyncInvoke => true;
@@ -285,7 +346,7 @@ public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInv
 
     public void Configure(Func<TP, ValueTask> toExecute, TP firstParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
@@ -294,6 +355,7 @@ public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInv
 public class OneParamAsyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
     private TP firstParameter = default!;
+
     private Func<TP, ValueTask<TR>>? toInvoke;
 
     public bool IsAsyncInvoke => true;
@@ -346,7 +408,7 @@ public class OneParamAsyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, I
 
     public void Configure(Func<TP, ValueTask<TR>> toExecute, TP firstParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
     }
@@ -354,8 +416,9 @@ public class OneParamAsyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, I
 
 public class TwoParamsSyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP firstParameter = default!;
+    private TP  firstParameter  = default!;
     private TP2 secondParameter = default!;
+
     private Func<TP, TP2, TR>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -400,7 +463,7 @@ public class TwoParamsSyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<T
 
     public void Configure(Func<TP, TP2, TR> toExecute, TP firstParam, TP2 secondParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
@@ -410,8 +473,9 @@ public class TwoParamsSyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<T
 
 public class TwoParamsAsyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP firstParameter = default!;
+    private TP  firstParameter  = default!;
     private TP2 secondParameter = default!;
+
     private Func<TP, TP2, ValueTask<TR>>? toInvoke;
 
     public bool IsAsyncInvoke => true;
@@ -466,7 +530,7 @@ public class TwoParamsAsyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<
 
     public void Configure(Func<TP, TP2, ValueTask<TR>> toExecute, TP firstParam, TP2 secondParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
@@ -476,9 +540,10 @@ public class TwoParamsAsyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<
 
 public class ThreeParamsSyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP firstParameter = default!;
+    private TP  firstParameter  = default!;
     private TP2 secondParameter = default!;
-    private TP3 thirdParameter = default!;
+    private TP3 thirdParameter  = default!;
+
     private Func<TP, TP2, TP3, TR>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -525,7 +590,7 @@ public class ThreeParamsSyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskS
 
     public void Configure(Func<TP, TP2, TP3, TR> toExecute, TP firstParam, TP2 secondParam, TP3 thirdParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;
@@ -537,9 +602,10 @@ public class ThreeParamsSyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskS
 
 public class ThreeParamsAsyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP firstParameter = default!;
+    private TP  firstParameter  = default!;
     private TP2 secondParameter = default!;
-    private TP3 thirdParameter = default!;
+    private TP3 thirdParameter  = default!;
+
     private Func<TP, TP2, TP3, ValueTask<TR>>? toInvoke;
 
     public bool IsAsyncInvoke => true;
@@ -596,7 +662,7 @@ public class ThreeParamsAsyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTask
 
     public void Configure(Func<TP, TP2, TP3, ValueTask<TR>> toExecute, TP firstParam, TP2 secondParam, TP3 thirdParam)
     {
-        toInvoke = toExecute;
+        toInvoke       = toExecute;
         firstParameter = firstParam;
         if (firstParameter is IRecyclableObject recyclableFirstParam) recyclableFirstParam.IncrementRefCount();
         secondParameter = secondParam;

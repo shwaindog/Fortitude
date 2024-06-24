@@ -13,7 +13,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion

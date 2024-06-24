@@ -36,7 +36,7 @@ public class PQClient : IDisposable
     private readonly IDictionary<string, PQSourceSubscriptionsContext> sourceSubscriptions =
         new Dictionary<string, PQSourceSubscriptionsContext>();
 
-    private readonly ISourceTickerQuoteInfoRepo sourceTickerQuoteInfoRepo;
+    private readonly ISourceTickerQuoteInfoRegistry sourceTickerQuoteInfoRegistry;
 
     private readonly object unsubscribeSyncLock = new();
 
@@ -44,16 +44,16 @@ public class PQClient : IDisposable
 
     private int missingRefs;
 
-    public PQClient(IMarketsConfig marketsConfig,
-        ISocketDispatcherResolver socketDispatcherResolver,
-        IPQConversationRepository<IPQUpdateClient>? updateClientFactory = null,
-        IPQConversationRepository<IPQSnapshotClient>? snapshotClientFactory = null)
+    public PQClient
+    (IMarketsConfig marketsConfig, ISocketDispatcherResolver socketDispatcherResolver
+      , IPQConversationRepository<IPQUpdateClient>? updateClientFactory = null
+      , IPQConversationRepository<IPQSnapshotClient>? snapshotClientFactory = null)
     {
         osParallelController   = OSParallelControllerFactory.Instance.GetOSParallelController;
         shutDownSignal         = osParallelController.SingleOSThreadActivateSignal(false);
         pqClientSyncMonitoring = new PQClientSyncMonitoring(GetSourceServerConfig, RequestSnapshots);
-        sourceTickerQuoteInfoRepo =
-            new SourceTickerQuoteInfoRepo
+        sourceTickerQuoteInfoRegistry =
+            new SourceTickerQuoteInfoRegistry
                 ("PQClient", marketsConfig.Markets
                                           .SelectMany(mcc => mcc.AllSourceTickerInfos));
         this.marketsConfig         = marketsConfig;
@@ -79,7 +79,7 @@ public class PQClient : IDisposable
         }
     }
 
-    public ISourceTickerQuoteInfoRepo RequestSourceTickerForSource(string sourceName)
+    public ISourceTickerQuoteInfoRegistry RequestSourceTickerForSource(string sourceName)
     {
         PQSourceSubscriptionsContext? sourceSubscriptionsContext;
         lock (sourceSubscriptions)
@@ -101,20 +101,21 @@ public class PQClient : IDisposable
 
         var snapShotClient
             = snapshotClientFactory.RetrieveOrCreateConversation(pricingServerConfig.SnapshotConnectionConfig);
-        snapShotClient.SourceTickerQuoteInfoRepo = sourceTickerQuoteInfoRepo;
+        snapShotClient.SourceTickerQuoteInfoRegistry = sourceTickerQuoteInfoRegistry;
 
         snapShotClient.RequestSourceTickerQuoteInfoList();
-        return sourceTickerQuoteInfoRepo;
+        return sourceTickerQuoteInfoRegistry;
     }
 
-    public ISourceTickerQuoteInfoRepo RequestSourceTickerForAllSources()
+    public ISourceTickerQuoteInfoRegistry RequestSourceTickerForAllSources()
     {
         foreach (var marketConnectionConfig in marketsConfig.Markets)
             RequestSourceTickerForSource(marketConnectionConfig.Name);
-        return sourceTickerQuoteInfoRepo;
+        return sourceTickerQuoteInfoRegistry;
     }
 
-    public IPQTickerFeedSubscriptionQuoteStream<T>? GetQuoteStream<T>(
+    public IPQTickerFeedSubscriptionQuoteStream<T>? GetQuoteStream<T>
+    (
         ISourceTickerQuoteInfo sourceTickerQuoteInfo, uint syncRetryMsOverride = 60000) where T : PQLevel0Quote, new()
     {
         PQSourceSubscriptionsContext? sourceSubscriptionsContext;
@@ -128,7 +129,8 @@ public class PQClient : IDisposable
             }
         }
 
-        var foundSourceTickerQuoteConfig = sourceTickerQuoteInfoRepo.GetSourceTickerInfo(sourceTickerQuoteInfo.Source, sourceTickerQuoteInfo.Ticker);
+        var foundSourceTickerQuoteConfig
+            = sourceTickerQuoteInfoRegistry.GetSourceTickerInfo(sourceTickerQuoteInfo.Source, sourceTickerQuoteInfo.Ticker);
         if (sourceSubscriptionsContext.MarketConnectionConfig == null || foundSourceTickerQuoteConfig == null) return null;
         if (sourceSubscriptionsContext.Subscriptions.Select(ssc => ssc.Source + ssc.Ticker)
                                       .Any(st => st == sourceTickerQuoteInfo.Source + sourceTickerQuoteInfo.Ticker))
@@ -152,9 +154,8 @@ public class PQClient : IDisposable
         return sub;
     }
 
-    private PQTickerFeedSubscriptionQuoteStream<T>? CreateQuoteStream<T>(
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo, IMarketConnectionConfig? marketConnectionConfig)
-        where T : PQLevel0Quote, new()
+    private PQTickerFeedSubscriptionQuoteStream<T>? CreateQuoteStream<T>
+        (ISourceTickerQuoteInfo sourceTickerQuoteInfo, IMarketConnectionConfig? marketConnectionConfig) where T : PQLevel0Quote, new()
     {
         PQTickerFeedSubscriptionQuoteStream<T>? pqTickerFeedSubscriptionQuoteStream = null;
         IPricingServerConfig?                   pricingServerConfig                 = null;
@@ -212,9 +213,9 @@ public class PQClient : IDisposable
         if (sourceTickerPublicationConfig != null)
         {
             var pricingServerConfig = feedRef.PricingServerConfig!;
-            var quoteDeserializer = deserializationRepository.GetDeserializer(sourceTickerPublicationConfig)
-                                 ?? throw new Exception(
-                                                        $"Subscription for {ticker} on {feedRef.Name} does not exists");
+            var quoteDeserializer =
+                deserializationRepository.GetDeserializer(sourceTickerPublicationConfig)
+             ?? throw new Exception($"Subscription for {ticker} on {feedRef.Name} does not exists");
 
 
             lock (unsubscribeSyncLock)

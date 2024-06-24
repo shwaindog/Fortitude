@@ -21,7 +21,7 @@ using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 using static FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates.PQBooleanValues;
 

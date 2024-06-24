@@ -25,7 +25,7 @@ public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote
     new IPQLevel2Quote Clone();
 }
 
-public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
+public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQLevel2Quote>
 {
     // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel2Quote));
@@ -228,11 +228,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
         return false;
     }
 
-    public DateTime StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
-    }
+    DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
 
     ILevel2Quote ICloneable<ILevel2Quote>.Clone() => (ILevel2Quote)Clone();
 
@@ -298,6 +294,12 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote
 
         var allAreSame = baseSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
         return allAreSame;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<PQLevel2Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     public override PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)

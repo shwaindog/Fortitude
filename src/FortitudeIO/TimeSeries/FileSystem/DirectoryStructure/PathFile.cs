@@ -16,7 +16,7 @@ public interface IPathFile : IPathPart
 {
     IDictionary<Type, ITimeSeriesRepositoryFileFactory> FileEntryFactoryRegistry { get; set; }
 
-    InstrumentMatch InstrumentFileMatch { get; set; }
+    InstrumentEntryRangeMatch InstrumentEntryRangeFileMatch { get; set; }
 
     IWriterSession<TEntry> GetOrCreateTimeSeriesFileWriter<TEntry>(IInstrument instrument, DateTime fileTimePeriod)
         where TEntry : ITimeSeriesEntry<TEntry>;
@@ -30,7 +30,7 @@ public class PathFile : PathPart, IPathFile
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PathFile));
     private readonly        string   fileExtension;
 
-    public PathFile(string fileExtension, InstrumentMatch instrumentFileMatch)
+    public PathFile(string fileExtension, InstrumentEntryRangeMatch instrumentEntryRangeFileMatch)
         : base(new PathName(TimeSeriesType),
                new PathName(EntryPeriod),
                new PathName(MarketProductType),
@@ -40,19 +40,19 @@ public class PathFile : PathPart, IPathFile
                new PathName(FilePeriod),
                new PathName(Category))
     {
-        this.fileExtension  = fileExtension;
-        InstrumentFileMatch = instrumentFileMatch;
+        this.fileExtension            = fileExtension;
+        InstrumentEntryRangeFileMatch = instrumentEntryRangeFileMatch;
 
         if (NameParts.Any(np => np.PathPart == Category))
             if (NameParts[^1].PathPart != Category)
                 throw new Exception("Category must be the last part of the name as it is optional");
     }
 
-    public PathFile(string fileExtension, InstrumentMatch instrumentFileMatch, params PathName[] nameParts)
+    public PathFile(string fileExtension, InstrumentEntryRangeMatch instrumentEntryRangeFileMatch, params PathName[] nameParts)
         : base(nameParts)
     {
-        this.fileExtension  = fileExtension;
-        InstrumentFileMatch = instrumentFileMatch;
+        this.fileExtension            = fileExtension;
+        InstrumentEntryRangeFileMatch = instrumentEntryRangeFileMatch;
     }
 
     public IDictionary<Type, ITimeSeriesRepositoryFileFactory> FileEntryFactoryRegistry { get; set; }
@@ -89,7 +89,7 @@ public class PathFile : PathPart, IPathFile
 
         if (timeSeriesFileFactory == null) throw new Exception($"No Time Series file factory has been registered for type {entryType}");
 
-        var listAvailableFile = new List<InstrumentRepoFile>();
+        var listAvailableFile = new InstrumentRepoFileSet();
         foreach (var instrumentRepoFile in instrumentFiles)
         {
             var timeSeriesFile = timeSeriesFileFactory.OpenExisting(instrumentRepoFile.TimeSeriesRepoFile.File);
@@ -107,11 +107,11 @@ public class PathFile : PathPart, IPathFile
         return new RepositoryFilesReaderSession<TEntry>(listAvailableFile);
     }
 
-    public InstrumentMatch InstrumentFileMatch { get; set; }
+    public InstrumentEntryRangeMatch InstrumentEntryRangeFileMatch { get; set; }
 
     public override PathInstrumentMatch InstrumentMatch(PathInstrumentMatch currentMatch)
     {
-        if (InstrumentFileMatch.Matches(currentMatch.SearchInstrument)) currentMatch.TimeSeriesFile = this;
+        if (InstrumentEntryRangeFileMatch.Matches(currentMatch.SearchInstrument)) currentMatch.TimeSeriesFile = this;
         return currentMatch;
     }
 

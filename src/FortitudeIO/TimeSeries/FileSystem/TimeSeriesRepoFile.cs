@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
 
@@ -23,9 +24,13 @@ public class TimeSeriesRepoFile
     public IRepositoryRootDirectory RepositoryRoot { get; }
     public IPathFile                PathFile       { get; }
 
+    public RepositoryProximity Proximity => RepositoryRoot.Repository.Proximity;
+
+    public string RootDirRelativePath => File.FullName.Replace(RepositoryRoot.DirPath + Path.DirectorySeparatorChar, "");
+
     public ITimeSeriesFile? TimeSeriesFile { get; set; }
 
-    public string RepositoryRelativePath => File.FullName.Replace(RepositoryRoot.RootDirectoryInfo.FullName, "." + Path.DirectorySeparatorChar);
+    public string RepositoryRelativePath => File.FullName.Replace(RepositoryRoot.DirInfo.FullName, "." + Path.DirectorySeparatorChar);
 
     protected bool Equals(TimeSeriesRepoFile other) => File.Equals(other.File);
 

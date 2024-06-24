@@ -57,7 +57,7 @@ public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutabl
     new IPQLevel0Quote Clone();
 }
 
-public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
+public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITimeSeriesEntry<PQLevel0Quote>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel0Quote));
 
@@ -584,11 +584,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
         PQSourceTickerQuoteInfo != null && PQSourceTickerQuoteInfo.UpdateFieldString(stringUpdate);
 
 
-    public DateTime StorageTime(IStorageTimeResolver<ILevel0Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
-    }
+    DateTime ITimeSeriesEntry<ILevel0Quote>.StorageTime(IStorageTimeResolver<ILevel0Quote>? resolver) => StorageTime(resolver);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -761,6 +757,12 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote
                       && updatedFlagsSame && booleanFieldsSame && dispatchTimeSame && processingTimeSame && lastPubTimeSame
                       && socketReceivingTimeSame && sequenceIdSame && publicationStatusSame;
         return allAreSame;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<PQLevel0Quote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     public virtual PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)

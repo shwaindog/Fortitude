@@ -14,7 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using Moq;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion

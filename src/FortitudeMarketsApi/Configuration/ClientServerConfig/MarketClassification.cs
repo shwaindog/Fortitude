@@ -1,7 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-namespace FortitudeIO.TimeSeries;
+namespace FortitudeMarketsApi.Configuration.ClientServerConfig;
 
 public enum MarketRegion : byte
 {
@@ -105,4 +105,13 @@ public static class MarketClassificationExtensions
 
     public static string MarketExerciseRegionType(this MarketClassification marketClassification, string delimiter = "-") =>
         marketClassification.MarketType + delimiter + marketClassification.ProductType + delimiter + marketClassification.MarketRegion;
+
+    public static MarketClassification SetMarketType(this MarketClassification marketClassification, MarketType marketType) =>
+        new(marketType, marketClassification.ProductType, marketClassification.MarketRegion);
+
+    public static MarketClassification SetProductType(this MarketClassification marketClassification, ProductType productType) =>
+        new(marketClassification.MarketType, productType, marketClassification.MarketRegion);
+
+    public static MarketClassification SetMarketRegion(this MarketClassification marketClassification, MarketRegion marketRegion) =>
+        new(marketClassification.MarketType, marketClassification.ProductType, marketRegion);
 }

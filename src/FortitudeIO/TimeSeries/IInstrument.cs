@@ -1,14 +1,24 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using System.Collections;
+using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries.FileSystem;
+
+#endregion
+
 namespace FortitudeIO.TimeSeries;
 
-public interface IInstrument
+public interface IInstrument : IEnumerable<KeyValuePair<string, string>>
 {
-    public string               InstrumentName       { get; }
-    public string               SourceName           { get; }
-    public MarketClassification MarketClassification { get; }
-    public string?              Category             { get; set; }
+    string InstrumentName { get; }
+
+    string? this[string key] { get; set; }
+    IEnumerable<string> RequiredInstrumentKeys { get; set; }
+    IEnumerable<string> OptionalInstrumentKeys { get; set; }
+    bool                HasAllRequiredKeys     { get; }
 
     public TimeSeriesPeriod EntryPeriod { get; set; }
     public InstrumentType   Type        { get; }
@@ -16,43 +26,75 @@ public interface IInstrument
 
 public class Instrument : IInstrument
 {
-    public Instrument(string instrumentName, string sourceName, InstrumentType type,
-        MarketClassification marketClassification, TimeSeriesPeriod entryPeriod, string? category = null)
+    private static string[]? requiredKeys;
+    private static string[]? optionalKeys;
+
+    private Dictionary<string, string> instrumentDefinition = new();
+
+    public Instrument
+    (string instrumentName, InstrumentType type, TimeSeriesPeriod entryPeriod, IEnumerable<KeyValuePair<string, string>> requiredValues
+      , IEnumerable<KeyValuePair<string, string>>? optionalValues = null)
     {
-        InstrumentName       = instrumentName;
-        SourceName           = sourceName;
-        MarketClassification = marketClassification;
+        InstrumentName = instrumentName;
+        var optionalOrEmpty = optionalValues ?? Enumerable.Empty<KeyValuePair<string, string>>();
+        instrumentDefinition = requiredValues.Concat(optionalOrEmpty).ToDictionary();
+        requiredKeys         = requiredValues.Select(x => x.Key).ToArray();
         Type                 = type;
         EntryPeriod          = entryPeriod;
-        Category             = category;
+        optionalKeys         = optionalOrEmpty.Select(x => x.Key).ToArray();
     }
 
-    public string               InstrumentName       { get; }
-    public string               SourceName           { get; }
-    public MarketClassification MarketClassification { get; }
-    public string?              Category             { get; set; }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<string, string>> GetEnumerator() =>
+        instrumentDefinition.Where(kvp => kvp.Value.IsNotNullOrEmpty()).GetEnumerator();
+
+    public string? this[string key]
+    {
+        get => instrumentDefinition[key];
+        set => instrumentDefinition[key] = value ?? string.Empty;
+    }
+
+    public IEnumerable<string> RequiredInstrumentKeys
+    {
+        get => requiredKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiRequiredInstrumentKeys;
+        set => requiredKeys = value.ToArray();
+    }
+
+    public bool HasAllRequiredKeys => instrumentDefinition.All(kvp => RequiredInstrumentKeys.Contains(kvp.Key) && kvp.Value.IsNotNullOrEmpty());
+    public IEnumerable<string> OptionalInstrumentKeys
+    {
+        get => optionalKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiOptionalInstrumentKeys;
+        set => optionalKeys = value.ToArray();
+    }
+
+    public string InstrumentName { get; }
 
     public TimeSeriesPeriod EntryPeriod { get; set; }
     public InstrumentType   Type        { get; }
 }
 
-public class InstrumentMatch
+public class InstrumentEntryRangeMatch
 {
-    public InstrumentMatch(InstrumentType timeSeriesTypeMatch) => TimeSeriesTypeMatch = timeSeriesTypeMatch;
-    public InstrumentMatch(TimeSeriesPeriod? entryPeriodMatchFrom) => EntryPeriodMatchFrom = entryPeriodMatchFrom;
+    private Dictionary<string, string> instrumentMatchValues = new();
+    public InstrumentEntryRangeMatch(InstrumentType timeSeriesTypeMatch) => TimeSeriesTypeMatch = timeSeriesTypeMatch;
+    public InstrumentEntryRangeMatch(TimeSeriesPeriod? entryPeriodMatchFrom) => EntryPeriodMatchFrom = entryPeriodMatchFrom;
 
-    public InstrumentMatch(InstrumentType timeSeriesTypeMatch, TimeSeriesPeriod? entryPeriodMatchFrom)
+    public InstrumentEntryRangeMatch(InstrumentType timeSeriesTypeMatch, TimeSeriesPeriod? entryPeriodMatchFrom)
         : this(entryPeriodMatchFrom) =>
         TimeSeriesTypeMatch = timeSeriesTypeMatch;
 
-    public InstrumentMatch(InstrumentType timeSeriesTypeMatch, TimeSeriesPeriod? entryPeriodMatchFrom, TimeSeriesPeriod? entryPeriodMatchTo)
+    public InstrumentEntryRangeMatch(InstrumentType timeSeriesTypeMatch, TimeSeriesPeriod? entryPeriodMatchFrom, TimeSeriesPeriod? entryPeriodMatchTo)
         : this(timeSeriesTypeMatch, entryPeriodMatchFrom) =>
         EntryPeriodMatchTo = entryPeriodMatchTo;
 
-    public string?               InstrumentNameMatch       { get; set; }
-    public string?               SourceNameMatch           { get; set; }
-    public string?               CategoryMatch             { get; set; }
-    public MarketClassification? MarketClassificationMatch { get; set; }
+    public string? InstrumentNameMatch { get; set; }
+
+    public string? this[string key]
+    {
+        get => instrumentMatchValues[key];
+        set => instrumentMatchValues[key] = value ?? string.Empty;
+    }
 
     public TimeSeriesPeriod? EntryPeriodMatchFrom { get; set; }
     public TimeSeriesPeriod? EntryPeriodMatchTo   { get; set; }
@@ -60,15 +102,13 @@ public class InstrumentMatch
 
     public bool Matches(IInstrument instrument)
     {
-        var instrumentNameMatches  = InstrumentNameMatch == null || instrument.InstrumentName.Contains(InstrumentNameMatch);
-        var sourceNameMatches      = SourceNameMatch == null || instrument.SourceName.Contains(SourceNameMatch);
-        var categoryMatches        = CategoryMatch == null || instrument.Category == null || instrument.Category.Contains(CategoryMatch);
+        var instrumentNameMatches = InstrumentNameMatch == null || instrument.InstrumentName.Contains(InstrumentNameMatch);
+
         var entryPeriodFromMatches = EntryPeriodMatchFrom == null || instrument.EntryPeriod >= EntryPeriodMatchFrom;
         var entryPeriodToMatches   = EntryPeriodMatchTo == null || instrument.EntryPeriod <= EntryPeriodMatchTo;
         var instrumentTypeMatches  = TimeSeriesTypeMatch == null || instrument.Type == TimeSeriesTypeMatch;
 
-        var allMatch = instrumentNameMatches && sourceNameMatches && categoryMatches
-                    && entryPeriodFromMatches && entryPeriodToMatches && instrumentTypeMatches;
+        var allMatch = instrumentNameMatches && entryPeriodFromMatches && entryPeriodToMatches && instrumentTypeMatches;
         return allMatch;
     }
 }

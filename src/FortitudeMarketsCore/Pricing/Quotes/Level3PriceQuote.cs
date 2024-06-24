@@ -18,7 +18,7 @@ using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
+public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeriesEntry<Level3PriceQuote>
 {
     public Level3PriceQuote() { }
 
@@ -73,12 +73,7 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
 
     ILevel3Quote ICloneable<ILevel3Quote>.Clone() => (ILevel3Quote)Clone();
 
-
-    public DateTime StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
-    }
+    DateTime ITimeSeriesEntry<ILevel3Quote>.StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver) => StorageTime(resolver);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -126,6 +121,12 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote
         var valueDateSame        = ValueDate == otherL3.ValueDate;
 
         return baseIsSame && lastTradesSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
+    }
+
+    public DateTime StorageTime(IStorageTimeResolver<Level3PriceQuote>? resolver = null)
+    {
+        resolver ??= QuoteStorageTimeResolver.Instance;
+        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ILevel0Quote?)obj, true);

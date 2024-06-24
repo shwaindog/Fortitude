@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
@@ -15,7 +16,6 @@ using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Pricing.Quotes;
 using static FortitudeIO.TimeSeries.InstrumentType;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
 
 #endregion
 
@@ -54,10 +54,18 @@ public class TimeSeriesFileTests
         timeSeriesFile         = new FileInfo(testTimeSeriesFilePath);
         createNewEntryFactory  = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
+        var instrumentFields = new Dictionary<string, string>
+        {
+            { nameof(RepositoryPathName.SourceName), "TestSourceName" }, { nameof(RepositoryPathName.MarketType), "Unknown" }
+          , { nameof(RepositoryPathName.MarketProductType), "Unknown" }, { nameof(RepositoryPathName.MarketRegion), "Unknown" }
+        };
+        var optionalInstrumentFields = new Dictionary<string, string>
+        {
+            { nameof(RepositoryPathName.Category), "TestInstrumentCategory" }
+        };
         testTimeSeriesFileParameters =
             new TimeSeriesFileParameters
-                (timeSeriesFile, new Instrument("TestInstrumentName", "TestSourceName", Price, Unknown, TimeSeriesPeriod.Tick
-                                              , "TestInstrumentCategory"),
+                (timeSeriesFile, new Instrument("TestInstrumentName", Price, TimeSeriesPeriod.Tick, instrumentFields, optionalInstrumentFields),
                  TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
         oneWeekFile   = new TestWeeklyLevel1StructsTimeSeriesFile(testTimeSeriesFileParameters);
         writerSession = oneWeekFile.GetWriterSession()!;

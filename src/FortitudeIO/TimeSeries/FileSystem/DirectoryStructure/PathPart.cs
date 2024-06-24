@@ -93,15 +93,13 @@ public abstract class PathPart : IPathPart
     public virtual PathFileMatch PathMatch(PathFileMatch currentMatch)
     {
         currentMatch.InstrumentNameMatch = ExtractInstrumentName(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentNameMatch;
-        currentMatch.SourceNameMatch     = ExtractSourceName(currentMatch.MatchedPath[^1]) ?? currentMatch.SourceNameMatch;
         currentMatch.InstrumentTypeMatch = ExtractInstrumentType(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentTypeMatch;
         currentMatch.EntryPeriodMatch    = ExtractEntryPeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.EntryPeriodMatch;
-        currentMatch.CategoryMatch       = ExtractCategory(currentMatch.MatchedPath[^1]) ?? currentMatch.CategoryMatch;
         currentMatch.FilePeriodMatch     = ExtractFilePeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.FilePeriodMatch;
-        currentMatch.MarketRegionMatch   = ExtractMarketRegion(currentMatch.MatchedPath[^1]) ?? currentMatch.MarketRegionMatch;
-        currentMatch.MarketTypeMatch     = ExtractMarketType(currentMatch.MatchedPath[^1]) ?? currentMatch.MarketTypeMatch;
-
-        currentMatch.MarketProductTypeMatch = ExtractMarketProductType(currentMatch.MatchedPath[^1]) ?? currentMatch.MarketProductTypeMatch;
+        foreach (var field in currentMatch.RequiredFields)
+            currentMatch[field] = ExtractInstrumentField(field, currentMatch.MatchedPath[^1]) ?? currentMatch[field];
+        foreach (var field in currentMatch.OptionalFields)
+            currentMatch[field] = ExtractInstrumentField(field, currentMatch.MatchedPath[^1]) ?? currentMatch[field];
         return currentMatch;
     }
 
@@ -128,11 +126,11 @@ public abstract class PathPart : IPathPart
         return null;
     }
 
-    public string? ExtractSourceName(string pathPart)
+    public string? ExtractInstrumentField(string instrumentFieldPart, string pathPart)
     {
         var fileNameSplit = pathPart.Split(NamePartSeparator);
         for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == SourceName && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
+            if (NameParts[i].PathPartString == instrumentFieldPart && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
                 return fileNameSplit[i];
         return null;
     }
@@ -143,42 +141,6 @@ public abstract class PathPart : IPathPart
         for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
             if (NameParts[i].PathPart == InstrumentName && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
                 return fileNameSplit[i];
-        return null;
-    }
-
-    public string? ExtractCategory(string pathPart)
-    {
-        var fileNameSplit = pathPart.Split(NamePartSeparator);
-        for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == Category && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
-                return fileNameSplit[i];
-        return null;
-    }
-
-    public MarketType? ExtractMarketType(string pathPart)
-    {
-        var fileNameSplit = pathPart.Split(NamePartSeparator);
-        for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == RepositoryPathName.MarketType && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
-                return Enum.Parse<MarketType>(fileNameSplit[i]);
-        return null;
-    }
-
-    public ProductType? ExtractMarketProductType(string pathPart)
-    {
-        var fileNameSplit = pathPart.Split(NamePartSeparator);
-        for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == MarketProductType && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
-                return Enum.Parse<ProductType>(fileNameSplit[i]);
-        return null;
-    }
-
-    public MarketRegion? ExtractMarketRegion(string pathPart)
-    {
-        var fileNameSplit = pathPart.Split(NamePartSeparator);
-        for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == RepositoryPathName.MarketRegion && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
-                return Enum.Parse<MarketRegion>(fileNameSplit[i]);
         return null;
     }
 

@@ -31,7 +31,7 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
 {
     private readonly List<InstrumentRepoFileReaderSession<TEntry>> sortedInstrumentReaderSessions;
 
-    public RepositoryFilesReaderSession(List<InstrumentRepoFile> repoFiles)
+    public RepositoryFilesReaderSession(InstrumentRepoFileSet repoFiles)
     {
         repoFiles.Sort();
         sortedInstrumentReaderSessions = repoFiles.Select(irf => new InstrumentRepoFileReaderSession<TEntry>(irf)).ToList();
@@ -82,11 +82,13 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
         }
     }
 
-    public IReaderContext<TEntry> GetAllEntriesReader(EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+    public IReaderContext<TEntry> GetAllEntriesReader
+    (EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null) =>
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew);
 
-    public IReaderContext<TEntry> GetEntriesBetweenReader(TimeRange? periodRange,
+    public IReaderContext<TEntry> GetEntriesBetweenReader
+    (TimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null) =>
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew)
