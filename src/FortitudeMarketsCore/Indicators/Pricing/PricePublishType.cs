@@ -21,6 +21,18 @@ public struct PricePublishInterval
         PublishPeriod             = publishPeriod;
     }
 
+    public PricePublishInterval(TimeSpan publishTimeSpan)
+    {
+        PriceIndicatorPublishType = PriceIndicatorPublishType.SetTimeSpan;
+        PublishTimeSpan           = publishTimeSpan;
+    }
+
+    public PricePublishInterval(TimeSeriesPeriod publishPeriod)
+    {
+        PriceIndicatorPublishType = PriceIndicatorPublishType.TimeSeriesPeriod;
+        PublishPeriod             = publishPeriod;
+    }
+
     public PriceIndicatorPublishType PriceIndicatorPublishType { get; }
     public TimeSpan?                 PublishTimeSpan           { get; }
     public TimeSeriesPeriod?         PublishPeriod             { get; }
@@ -35,14 +47,18 @@ public enum PriceIndicatorPublishType
 
 public struct BatchPricePublishInterval
 {
-    public BatchPricePublishInterval(int batchCount, PricePublishInterval publishEvery, PricePublishInterval batchPublishEntrySeparation = default)
+    public BatchPricePublishInterval
+    (int batchCount, PricePublishInterval publishEvery, PricePublishInterval entryRange
+      , PricePublishInterval batchPublishEntrySeparation = default)
     {
         BatchCount                  = batchCount;
+        EntryRange                  = entryRange;
         PublishEvery                = publishEvery;
         BatchPublishEntrySeparation = batchPublishEntrySeparation;
     }
 
-    private PricePublishInterval BatchPublishEntrySeparation { get; }
+    public PricePublishInterval BatchPublishEntrySeparation { get; }
+    public PricePublishInterval EntryRange                  { get; }
 
     public int BatchCount { get; }
 

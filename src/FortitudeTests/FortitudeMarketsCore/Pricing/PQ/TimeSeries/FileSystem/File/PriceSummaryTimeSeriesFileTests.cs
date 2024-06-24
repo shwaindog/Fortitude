@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
@@ -21,7 +22,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.Summaries;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
@@ -98,12 +99,20 @@ public class PriceSummaryTimeSeriesFileTests
               , _                          => startOfWeek
             };
 
+        var instrumentFields = new Dictionary<string, string>
+        {
+            { nameof(RepositoryPathName.SourceName), "TestSourceName" }, { nameof(RepositoryPathName.MarketType), "Unknown" }
+          , { nameof(RepositoryPathName.MarketProductType), "Unknown" }, { nameof(RepositoryPathName.MarketRegion), "Unknown" }
+        };
+        var optionalInstrumentFields = new Dictionary<string, string>
+        {
+            { nameof(RepositoryPathName.Category), "TestInstrumentCategory" }
+        };
 
         var createTestCreateFileParameters =
             new TimeSeriesFileParameters
                 (timeSeriesFile
-               , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.PriceSummaryPeriod, Unknown
-                              , entryPeriod, "TestInstrumentCategory")
+               , new Instrument("TestInstrumentName", InstrumentType.PriceSummaryPeriod, entryPeriod, instrumentFields, optionalInstrumentFields)
                , filePeriod, fileStartTime, internalIndexSize, fileFlags);
         return new PriceTimeSeriesFileParameters(srcTkrQtInfo, createTestCreateFileParameters);
     }

@@ -23,7 +23,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using Moq;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 
 #endregion
 
@@ -70,7 +70,8 @@ public class PQQuoteDeserializerBaseTests
     [TestInitialize]
     public void SetUp()
     {
-        moqUniqueSrcTkrId            = new Mock<ISourceTickerQuoteInfo>();
+        moqUniqueSrcTkrId = new Mock<ISourceTickerQuoteInfo>();
+        moqUniqueSrcTkrId.Setup(stqi => stqi.GetEnumerator()).Returns(Enumerable.Empty<KeyValuePair<string, string>>().GetEnumerator);
         dummyLevel0QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQLevel0Quote>(moqUniqueSrcTkrId.Object);
         dummyLevel1QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQLevel1Quote>(moqUniqueSrcTkrId.Object);
         dummyLevel2QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQLevel2Quote>(moqUniqueSrcTkrId.Object);

@@ -224,8 +224,8 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset    = CalculateStringStart(5);
 
         InstrumentName                = timeSeriesFileParameters.Instrument.InstrumentName;
-        SourceName                    = timeSeriesFileParameters.Instrument.SourceName;
-        Category                      = timeSeriesFileParameters.Instrument.Category;
+        SourceName                    = timeSeriesFileParameters.Instrument[nameof(SourceName)];
+        Category                      = timeSeriesFileParameters.Instrument[nameof(Category)];
         OriginSourceText              = timeSeriesFileParameters.OriginSourceText;
 
         ExternalIndexFileRelativePath = timeSeriesFileParameters.ExternalIndexFileRelativePath;

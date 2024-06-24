@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 
@@ -14,24 +15,24 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 
 public struct RepositoryInfo
 {
-    public RepositoryInfo(IRepositoryRootDirectory repositoryRoot, RepositoryProximity proximity, string timeSeriesFileExtension)
+    public RepositoryInfo
+    (IRepositoryRootDirectory repoRootDir, IFileRepositoryLocationConfig repositoryLocationConfig
+      , string[] requiredInstrumentFields, string[]? optionalInstrumentFields)
     {
-        RepoRootDir             = repositoryRoot;
-        Proximity               = proximity;
-        TimeSeriesFileExtension = timeSeriesFileExtension;
+        RepoRootDir              = repoRootDir;
+        Proximity                = repositoryLocationConfig.Proximity;
+        TimeSeriesFileExtension  = repositoryLocationConfig.TimeSeriesFileExtension;
+        RequiredInstrumentFields = requiredInstrumentFields;
+        OptionalInstrumentFields = optionalInstrumentFields;
     }
 
     public IRepositoryRootDirectory RepoRootDir;
     public RepositoryProximity      Proximity;
 
-    public string TimeSeriesFileExtension = ".tsf";
-}
+    public string[]  RequiredInstrumentFields;
+    public string[]? OptionalInstrumentFields;
 
-public enum RepositoryProximity
-{
-    Local
-  , Remote
-  , Both
+    public string TimeSeriesFileExtension = ".tsf";
 }
 
 public interface ITimeSeriesRepository
@@ -42,32 +43,15 @@ public interface ITimeSeriesRepository
 
     IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap { get; }
 
+    string[]  RequiredInstrumentFields { get; }
+    string[]? OptionalInstrumentFields { get; }
+
     void CloseAllFilesAndSessions();
 
     IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, TimeRange? restrictedRange = null)
         where TEntry : ITimeSeriesEntry<TEntry>;
 
     IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry>;
-}
-
-public interface IRepositoryBuilder
-{
-    ITimeSeriesRepository BuildRepository();
-}
-
-public class RepositoryBuilder
-{
-    public RepositoryBuilder(IRepoPathBuilder repositoryPathBuilder, Func<IRepoPathBuilder, ITimeSeriesRepository> buildRepositoryFactoryFunc)
-    {
-        RepositoryPathBuilder      = repositoryPathBuilder;
-        BuildRepositoryFactoryFunc = buildRepositoryFactoryFunc;
-    }
-
-    public IRepoPathBuilder RepositoryPathBuilder { get; }
-
-    public Func<IRepoPathBuilder, ITimeSeriesRepository> BuildRepositoryFactoryFunc { get; }
-
-    public ITimeSeriesRepository BuildRepository() => BuildRepositoryFactoryFunc(RepositoryPathBuilder);
 }
 
 public class TimeSeriesDirectoryRepository : ITimeSeriesRepository
@@ -91,6 +75,9 @@ public class TimeSeriesDirectoryRepository : ITimeSeriesRepository
     public RepositoryProximity Proximity => repositoryInfo.Proximity;
 
     public IRepositoryRootDirectory RepoRootDirectory => repositoryInfo.RepoRootDir;
+
+    public string[]  RequiredInstrumentFields => repositoryInfo.RequiredInstrumentFields;
+    public string[]? OptionalInstrumentFields => repositoryInfo.OptionalInstrumentFields;
 
     public IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap { get; private set; }
         = new ConcurrentMap<IInstrument, InstrumentRepoFileSet>();

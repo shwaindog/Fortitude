@@ -3,12 +3,16 @@
 
 #region
 
+using System.Collections;
 using System.Globalization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
@@ -45,6 +49,8 @@ public interface IPQSourceTickerQuoteInfo : ISourceTickerQuoteInfo, IPQPriceVolu
 
 public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, IPQSourceTickerQuoteInfo
 {
+    private string? category;
+
     private string?         formatPrice;
     private decimal         incrementSize;
     private LastTradedFlags lastTradedFlags;
@@ -56,7 +62,9 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
     private decimal    maxSubmitSize;
     private ushort     minimumQuoteLife;
     private decimal    minSubmitSize;
+    private string[]?  optionalKeys;
     private QuoteLevel publishedQuoteLevel = QuoteLevel.Level2;
+    private string[]?  requiredKeys;
 
     private decimal roundingPrecision;
     private string  source = "";
@@ -105,7 +113,6 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         Ticker   = toClone.Ticker;
 
         PublishedQuoteLevel    = toClone.PublishedQuoteLevel;
-        MarketClassification   = toClone.MarketClassification;
         MaximumPublishedLayers = toClone.MaximumPublishedLayers;
         RoundingPrecision      = toClone.RoundingPrecision;
 
@@ -116,10 +123,13 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         LayerFlags       = toClone.LayerFlags;
         LastTradedFlags  = toClone.LastTradedFlags;
 
-        Category = PublishedQuoteLevel.ToString();
+        foreach (var instrumentFields in toClone) this[instrumentFields.Key] = instrumentFields.Value;
 
         PriceScalingPrecision  = PQScaling.FindScaleFactor(RoundingPrecision);
         VolumeScalingPrecision = PQScaling.FindScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
+
+
+        foreach (var instrumentFields in toClone) this[instrumentFields.Key] = instrumentFields.Value;
 
         if (toClone is IPQSourceTickerQuoteInfo pubToClone)
         {
@@ -140,6 +150,12 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             IsMinimumQuoteLifeUpdated = pubToClone.IsMinimumQuoteLifeUpdated;
             IsLayerFlagsUpdated       = pubToClone.IsLayerFlagsUpdated;
         }
+    }
+
+    public string? Category
+    {
+        get => category ?? PublishedQuoteLevel.ToString();
+        set => category = value;
     }
 
     public byte PriceScalingPrecision  { get; } = 3;
@@ -487,14 +503,87 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
         }
     }
 
-    string IInstrument.InstrumentName => Ticker;
-    string IInstrument.SourceName     => Source;
+    string IInstrument.     InstrumentName => Ticker;
+    public TimeSeriesPeriod EntryPeriod    { get; set; } = TimeSeriesPeriod.Tick;
+    public InstrumentType   Type           { get; set; } = InstrumentType.Price;
 
-    public string?          Category    { get; set; }
-    public TimeSeriesPeriod EntryPeriod { get; set; } = TimeSeriesPeriod.Tick;
-    public InstrumentType   Type        { get; set; } = InstrumentType.Price;
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+    {
+        if (Source.IsNotNullOrEmpty()) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.SourceName), Source);
+        if (category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), category);
+        if (MarketClassification.MarketType != MarketType.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+        if (MarketClassification.ProductType != ProductType.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
+        if (MarketClassification.MarketRegion != MarketRegion.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+    }
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
+    public string? this[string key]
+    {
+        get
+        {
+            switch (key)
+            {
+                case nameof(RepositoryPathName.MarketType):        return MarketClassification.MarketType.ToString();
+                case nameof(RepositoryPathName.MarketProductType): return MarketClassification.ProductType.ToString();
+                case nameof(RepositoryPathName.MarketRegion):      return MarketClassification.MarketRegion.ToString();
+                case nameof(RepositoryPathName.SourceName):        return Source;
+                case nameof(RepositoryPathName.Category):          return Category ?? PublishedQuoteLevel.ToString();
+            }
+            return null;
+        }
+        set
+        {
+            switch (key)
+            {
+                case nameof(RepositoryPathName.MarketType):
+                    if (Enum.TryParse<MarketType>(value, true, out var marketType))
+                        if (MarketClassification.MarketType == MarketType.Unknown)
+                            MarketClassification = MarketClassification.SetMarketType(marketType);
+                    break;
+                case nameof(RepositoryPathName.MarketProductType):
+                    if (Enum.TryParse<ProductType>(value, true, out var productType))
+                        if (MarketClassification.ProductType == ProductType.Unknown)
+                            MarketClassification = MarketClassification.SetProductType(productType);
+                    break;
+                case nameof(RepositoryPathName.MarketRegion):
+                    if (Enum.TryParse<MarketRegion>(value, true, out var marketRegion))
+                        if (MarketClassification.MarketRegion == MarketRegion.Unknown)
+                            MarketClassification = MarketClassification.SetMarketRegion(marketRegion);
+                    break;
+                case nameof(RepositoryPathName.SourceName):
+                    if (Source.IsNullOrEmpty()) Source = value ?? "";
+                    break;
+                case nameof(RepositoryPathName.Category):
+                    if (Category.IsNullOrEmpty()) Category = value ?? "";
+                    break;
+            }
+        }
+    }
+
+    public IEnumerable<string> RequiredInstrumentKeys
+    {
+        get => requiredKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiRequiredInstrumentKeys;
+        set => requiredKeys = value.ToArray();
+    }
+
+    public IEnumerable<string> OptionalInstrumentKeys
+    {
+        get => optionalKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiOptionalInstrumentKeys;
+        set => optionalKeys = value.ToArray();
+    }
+
+    public bool HasAllRequiredKeys =>
+        Source.IsNotNullOrEmpty() && MarketClassification.MarketType != MarketType.Unknown
+                                  && MarketClassification.ProductType != ProductType.Unknown &&
+                                     MarketClassification.MarketRegion != MarketRegion.Unknown;
+
 
     public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFieldKeys.SourceTickerNames);
 
@@ -749,7 +838,6 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             Ticker   = source.Ticker;
 
             PublishedQuoteLevel    = source.PublishedQuoteLevel;
-            MarketClassification   = source.MarketClassification;
             MaximumPublishedLayers = source.MaximumPublishedLayers;
             RoundingPrecision      = source.RoundingPrecision;
 
@@ -760,7 +848,7 @@ public class PQSourceTickerQuoteInfo : ReusableObject<PQSourceTickerQuoteInfo>, 
             LayerFlags       = source.LayerFlags;
             LastTradedFlags  = source.LastTradedFlags;
         }
-        Category = source.Category;
+        foreach (var instrumentFields in source) this[instrumentFields.Key] = instrumentFields.Value;
 
         return this;
     }

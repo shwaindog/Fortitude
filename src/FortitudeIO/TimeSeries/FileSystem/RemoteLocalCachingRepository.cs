@@ -4,27 +4,13 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 
 #endregion
 
 namespace FortitudeIO.TimeSeries.FileSystem;
-
-public class RemoteLocalRepositoryParams : IRepositoryBuilder
-{
-    public RemoteLocalRepositoryParams(IRepositoryBuilder localRepositoryBuilder, IRepositoryBuilder remoteRepositoryBuilder)
-    {
-        LocalRepositoryBuilder  = localRepositoryBuilder;
-        RemoteRepositoryBuilder = remoteRepositoryBuilder;
-    }
-
-    public IRepositoryBuilder LocalRepositoryBuilder  { get; set; }
-    public IRepositoryBuilder RemoteRepositoryBuilder { get; set; }
-
-    public ITimeSeriesRepository BuildRepository() =>
-        new RemoteLocalCachingRepository(LocalRepositoryBuilder.BuildRepository(), RemoteRepositoryBuilder.BuildRepository());
-}
 
 public class RemoteLocalCachingRepository : ITimeSeriesRepository
 {
@@ -44,6 +30,9 @@ public class RemoteLocalCachingRepository : ITimeSeriesRepository
         localRepository.CloseAllFilesAndSessions();
     }
 
+    public string[]  RequiredInstrumentFields => localRepository.RequiredInstrumentFields;
+    public string[]? OptionalInstrumentFields => localRepository.OptionalInstrumentFields;
+
     public IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap
     {
         get
@@ -54,7 +43,7 @@ public class RemoteLocalCachingRepository : ITimeSeriesRepository
                 var combined = keyValuePair.Value;
 
                 if (result.TryGetValue(keyValuePair.Key, out var existingSet)) combined = existingSet! + keyValuePair.Value;
-                result.AddOrUpdate(keyValuePair.Key, combined);
+                result.AddOrUpdate(keyValuePair.Key, combined!);
             }
             return result;
         }

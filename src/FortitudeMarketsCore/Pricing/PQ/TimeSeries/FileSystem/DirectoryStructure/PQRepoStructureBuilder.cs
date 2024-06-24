@@ -4,6 +4,7 @@
 #region
 
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeMarketsApi.Pricing.Quotes;
 
@@ -13,7 +14,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructu
 
 public class PQRepoPathBuilder : RepoPathBuilder
 {
-    public PQRepoPathBuilder(RepositoryStructureInfo repositoryStructureInfo) : base(repositoryStructureInfo) { }
+    public PQRepoPathBuilder(ISingleRepositoryBuilderConfig repoConfig) : base(repoConfig) { }
 
     public override IPathFile PriceFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null)
     {

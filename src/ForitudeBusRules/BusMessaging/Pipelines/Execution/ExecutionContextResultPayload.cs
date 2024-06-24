@@ -6,7 +6,6 @@
 using FortitudeBusRules.BusMessaging.Tasks;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
@@ -14,7 +13,8 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.Execution;
 
 public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
-    private TP          firstParameter = default!;
+    private TP firstParameter = default!;
+
     private Action<TP>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -61,8 +61,9 @@ public class OneParamSyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvo
 
 public class TwoParamSyncActionPayload<TP, TP2> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
-    private TP               firstParameter  = default!;
-    private TP2              secondParameter = default!;
+    private TP  firstParameter  = default!;
+    private TP2 secondParameter = default!;
+
     private Action<TP, TP2>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -113,9 +114,10 @@ public class TwoParamSyncActionPayload<TP, TP2> : ReusableValueTaskSource<int>, 
 
 public class ThreeParamSyncActionPayload<TP1, TP2, TP3> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
-    private TP1                    firstParameter  = default!;
-    private TP2                    secondParameter = default!;
-    private TP3                    thirdParameter  = default!;
+    private TP1 firstParameter  = default!;
+    private TP2 secondParameter = default!;
+    private TP3 thirdParameter  = default!;
+
     private Action<TP1, TP2, TP3>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -250,7 +252,8 @@ public class NoParamsAsyncResultPayload<TR> : ReusableValueTaskSource<TR>, IInvo
 
 public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP            firstParameter = default!;
+    private TP firstParameter = default!;
+
     private Func<TP, TR>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -301,9 +304,9 @@ public class OneParamSyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, II
 
 public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInvokeablePayload
 {
-    private static readonly IFLogger             Logger         = FLoggerFactory.Instance.GetLogger(typeof(OneParamAsyncActionPayload<TP>));
-    private                 TP                   firstParameter = default!;
-    private                 Func<TP, ValueTask>? toInvoke;
+    private TP firstParameter = default!;
+
+    private Func<TP, ValueTask>? toInvoke;
 
     public bool IsAsyncInvoke => true;
 
@@ -351,7 +354,8 @@ public class OneParamAsyncActionPayload<TP> : ReusableValueTaskSource<int>, IInv
 
 public class OneParamAsyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP                       firstParameter = default!;
+    private TP firstParameter = default!;
+
     private Func<TP, ValueTask<TR>>? toInvoke;
 
     public bool IsAsyncInvoke => true;
@@ -412,8 +416,9 @@ public class OneParamAsyncResultPayload<TR, TP> : ReusableValueTaskSource<TR>, I
 
 public class TwoParamsSyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP                 firstParameter  = default!;
-    private TP2                secondParameter = default!;
+    private TP  firstParameter  = default!;
+    private TP2 secondParameter = default!;
+
     private Func<TP, TP2, TR>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -468,8 +473,9 @@ public class TwoParamsSyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<T
 
 public class TwoParamsAsyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP                            firstParameter  = default!;
-    private TP2                           secondParameter = default!;
+    private TP  firstParameter  = default!;
+    private TP2 secondParameter = default!;
+
     private Func<TP, TP2, ValueTask<TR>>? toInvoke;
 
     public bool IsAsyncInvoke => true;
@@ -534,9 +540,10 @@ public class TwoParamsAsyncResultPayload<TR, TP, TP2> : ReusableValueTaskSource<
 
 public class ThreeParamsSyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP                      firstParameter  = default!;
-    private TP2                     secondParameter = default!;
-    private TP3                     thirdParameter  = default!;
+    private TP  firstParameter  = default!;
+    private TP2 secondParameter = default!;
+    private TP3 thirdParameter  = default!;
+
     private Func<TP, TP2, TP3, TR>? toInvoke;
 
     public bool IsAsyncInvoke => false;
@@ -595,9 +602,10 @@ public class ThreeParamsSyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskS
 
 public class ThreeParamsAsyncResultPayload<TR, TP, TP2, TP3> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
-    private TP                                 firstParameter  = default!;
-    private TP2                                secondParameter = default!;
-    private TP3                                thirdParameter  = default!;
+    private TP  firstParameter  = default!;
+    private TP2 secondParameter = default!;
+    private TP3 thirdParameter  = default!;
+
     private Func<TP, TP2, TP3, ValueTask<TR>>? toInvoke;
 
     public bool IsAsyncInvoke => true;

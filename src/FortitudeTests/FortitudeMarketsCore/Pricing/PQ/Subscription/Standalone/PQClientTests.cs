@@ -113,6 +113,7 @@ public class PQClientTests
 
 
         moqFirstTestSourceTickerQuoteInfo = new Mock<ISourceTickerQuoteInfo>();
+        moqFirstTestSourceTickerQuoteInfo.Setup(stqi => stqi.GetEnumerator()).Returns(Enumerable.Empty<KeyValuePair<string, string>>().GetEnumerator);
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Source).Returns(firstTestSourceName);
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Ticker).Returns(firstTestTicker);
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Id).Returns(FirstSourceTickerId);
@@ -276,7 +277,8 @@ public class PQClientTests
     }
 
     private IPQTickerFeedSubscriptionQuoteStream<T>
-        NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<T>(
+        NewPQClientTyped_GetQuoteStreamNoMulticast_RegistersAndReturnsQuote<T>
+        (
             Mock<ISourceTickerQuoteInfo>? sourceTickerQuoteInfo = null) where T : PQLevel0Quote, new()
     {
         sourceTickerQuoteInfo ??= moqFirstTestSourceTickerQuoteInfo;

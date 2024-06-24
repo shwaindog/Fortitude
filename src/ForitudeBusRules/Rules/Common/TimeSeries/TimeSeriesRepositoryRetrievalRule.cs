@@ -4,6 +4,7 @@
 #region
 
 using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.TimeSeries.FileSystem.Config;
 
 #endregion
 
@@ -11,10 +12,10 @@ namespace FortitudeBusRules.Rules.Common.TimeSeries;
 
 public class TimeSeriesRepositoryRetrievalRule : Rule
 {
-    private readonly IRepositoryBuilder?    repoBuilder;
+    private readonly IFileRepositoryConfig? repoBuilder;
     protected        ITimeSeriesRepository? TimeSeriesRepository;
 
-    public TimeSeriesRepositoryRetrievalRule(IRepositoryBuilder repoBuilder, string ruleName) : base(ruleName) => this.repoBuilder = repoBuilder;
+    public TimeSeriesRepositoryRetrievalRule(IFileRepositoryConfig repoBuilder, string ruleName) : base(ruleName) => this.repoBuilder = repoBuilder;
 
     public TimeSeriesRepositoryRetrievalRule(ITimeSeriesRepository existingRepository, string ruleName) : base(ruleName) =>
         TimeSeriesRepository = existingRepository;

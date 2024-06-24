@@ -15,7 +15,7 @@ public delegate void RepositoryInstrumentFileAvailabilityChanged(IRepositoryRoot
 public interface IRepositoryRootDirectory : IPathDirectory
 {
     DirectoryInfo DirInfo        { get; set; }
-    string        RepositoryName { get; set; }
+    string?       RepositoryName { get; set; }
     string        DirPath        { get; }
 
     ITimeSeriesRepository Repository { get; set; }
@@ -37,7 +37,7 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
 
     private DirectoryInfo rootDirectoryInfo;
 
-    public RepositoryRootDirectory(string repositoryName, DirectoryInfo rootDirectoryInfo) : base(Array.Empty<PathName>())
+    public RepositoryRootDirectory(string? repositoryName, DirectoryInfo rootDirectoryInfo) : base(Array.Empty<PathName>())
     {
         this.rootDirectoryInfo = rootDirectoryInfo;
         RepositoryName         = repositoryName;
@@ -49,7 +49,7 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
         set { }
     }
 
-    public string RepositoryName { get; set; }
+    public string? RepositoryName { get; set; }
 
     public string DirPath => rootDirectoryInfo.FullName;
 
@@ -61,7 +61,7 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
         set => rootDirectoryInfo = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public ITimeSeriesRepository Repository { get; set; }
+    public ITimeSeriesRepository Repository { get; set; } = null!;
 
     public override TimeSeriesPeriod PathTimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
 
@@ -126,7 +126,8 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
             var baseDate = dateChildDir.NameParts.FirstOrDefault(np => np.ExtractDate(dirSplit[0]) != null)?.ExtractDate(dirSplit[0]);
             if (baseDate != null)
             {
-                var search = new PathFileMatch(fileInRepo, this, baseDate.Value)
+                var search = new PathFileMatch(fileInRepo, Repository.RequiredInstrumentFields, this, Repository.OptionalInstrumentFields
+                                             , baseDate.Value)
                 {
                     RemainingPath = dirSplit.ToList()
                 };
@@ -138,7 +139,7 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
             foreach (var childItem in Children)
                 if (childItem.MatchesFormat(dirSplit[0]))
                 {
-                    var search = new PathFileMatch(fileInRepo, this)
+                    var search = new PathFileMatch(fileInRepo, Repository.RequiredInstrumentFields, this, Repository.OptionalInstrumentFields)
                     {
                         RemainingPath = dirSplit.ToList()
                     };

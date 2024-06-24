@@ -5,6 +5,7 @@
 
 using System.Collections;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 
 #endregion

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Maps;
 
@@ -6,22 +9,27 @@ using FortitudeCommon.DataStructures.Maps;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-public interface ISourceTickerQuoteInfoRepo
+public interface ISourceTickerQuoteInfoRegistry
 {
     string Name { get; }
+
     IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos { get; }
+
     event Action<IEnumerable<ISourceTickerQuoteInfo>> UpdatedSourceTickerInfos;
+
     IEnumerable<ISourceTickerQuoteInfo> GetAllSourceTickerInfoForTicker(string ticker);
     IEnumerable<ISourceTickerQuoteInfo> GetAllSourceTickerInfoForSource(string source);
+
     ISourceTickerQuoteInfo? GetSourceTickerInfo(string sourceName, string ticker);
+
     void AppendReplace(IEnumerable<ISourceTickerQuoteInfo> toAmendAdd);
 }
 
-public class SourceTickerQuoteInfoRepo : ISourceTickerQuoteInfoRepo
+public class SourceTickerQuoteInfoRegistry : ISourceTickerQuoteInfoRegistry
 {
     private readonly IMap<string, List<ISourceTickerQuoteInfo>> sourceTickerMap = new ConcurrentMap<string, List<ISourceTickerQuoteInfo>>();
 
-    public SourceTickerQuoteInfoRepo(string name, IEnumerable<ISourceTickerQuoteInfo>? initialization = null)
+    public SourceTickerQuoteInfoRegistry(string name, IEnumerable<ISourceTickerQuoteInfo>? initialization = null)
     {
         Name = name;
         if (initialization != null) AppendReplace(initialization);
@@ -29,7 +37,9 @@ public class SourceTickerQuoteInfoRepo : ISourceTickerQuoteInfoRepo
 
     public string Name { get; }
 
+
     public event Action<IEnumerable<ISourceTickerQuoteInfo>>? UpdatedSourceTickerInfos;
+
     public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos => sourceTickerMap.SelectMany(kvp => kvp.Value);
 
     public IEnumerable<ISourceTickerQuoteInfo> GetAllSourceTickerInfoForTicker(string ticker) =>
@@ -39,9 +49,9 @@ public class SourceTickerQuoteInfoRepo : ISourceTickerQuoteInfoRepo
         sourceTickerMap.SelectMany(kvp => kvp.Value).Where(stqi => stqi.Source == source);
 
     public ISourceTickerQuoteInfo? GetSourceTickerInfo(string sourceName, string ticker) =>
-        sourceTickerMap.TryGetValue(sourceName, out List<ISourceTickerQuoteInfo>? sourceTickerList) ?
-            sourceTickerList!.FirstOrDefault(stqi => stqi.Ticker == ticker) :
-            null;
+        sourceTickerMap.TryGetValue(sourceName, out List<ISourceTickerQuoteInfo>? sourceTickerList)
+            ? sourceTickerList!.FirstOrDefault(stqi => stqi.Ticker == ticker)
+            : null;
 
     public void AppendReplace(IEnumerable<ISourceTickerQuoteInfo> toAmendAdd)
     {

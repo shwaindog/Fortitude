@@ -6,7 +6,7 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
@@ -19,7 +19,7 @@ using FortitudeMarketsCore.Pricing.PQ.Generators.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
-using static FortitudeIO.TimeSeries.MarketClassificationExtensions;
+using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
@@ -33,6 +33,8 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
 
     private readonly Func<ILevel3Quote> asPQLevel3QuoteFactory = () => new PQLevel3Quote();
 
+    private readonly string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3.tsf";
+
     private readonly DateTime week1                = new(2024, 5, 24);
     private readonly string   week1ExpectedDirPath = "2020s/24/05-May/Week-3/FXMajor_Global/RepoTest";
     private readonly DateTime week2                = new(2024, 5, 31);
@@ -42,20 +44,17 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
     private readonly DateTime week4                = new(2024, 6, 13);
     private readonly string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FXMajor_Global/RepoTest";
 
-    private string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3.tsf";
-
     private SourceTickerQuoteInfo  level3SrcTkrQtInfo = null!;
     private int                    newTestCount;
     private PQLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
-
-    private PQRepoPathBuilder pqRepoBuilder = null!;
 
     private IReaderSession<ILevel3Quote>? readerSession;
 
     private DymwiTimeSeriesDirectoryRepository repo = null!;
 
-    private DirectoryInfo           repoRootDir = null!;
-    private RepositoryStructureInfo repositoryStructureInfo;
+    private DirectoryInfo repoRootDir = null!;
+
+    private SingleRepositoryBuilderConfig repositoryLocationConfig = null!;
 
     [TestInitialize]
     public void Setup()
@@ -75,11 +74,11 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         var testRepoFullPath = Path.Combine(Environment.CurrentDirectory, testRepoName);
 
         repoRootDir = new DirectoryInfo(testRepoFullPath);
-        repositoryStructureInfo
-            = new RepositoryStructureInfo("DymwiTimeSeriesDirectoryRepositoryTests", repoRootDir, RepositoryProximity.Local, true);
+        repositoryLocationConfig
+            = new SingleRepositoryBuilderConfig(repoRootDir.FullName, RepositoryProximity.Local, typeof(PQRepoPathBuilder), RepositoryType.Dymwi, true
+                                              , "DymwiTests");
 
-        pqRepoBuilder = new PQRepoPathBuilder(repositoryStructureInfo);
-        repo          = DymwiTimeSeriesDirectoryRepository.OpenRepository(pqRepoBuilder);
+        repo = (DymwiTimeSeriesDirectoryRepository)repositoryLocationConfig.BuildRepository();
     }
 
     [TestCleanup]

@@ -16,8 +16,10 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 /// </summary>
 public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
 {
-    protected DymwiTimeSeriesDirectoryRepository(RepositoryInfo repositoryInfo) : base(repositoryInfo) { }
+    public static readonly string[]  DymwiRequiredInstrumentKeys = ["SourceName", "MarketType", "MarketProductType", "MarketRegion"];
+    public static readonly string[]  DymwiOptionalInstrumentKeys = ["Category"];
 
+    protected DymwiTimeSeriesDirectoryRepository(RepositoryInfo repositoryInfo) : base(repositoryInfo) { }
 
     public static DymwiTimeSeriesDirectoryRepository OpenRepository(IRepoPathBuilder repoPathBuilder)
     {
@@ -33,8 +35,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
         {
             new PathDirectory(new PathName(Constant, "Summaries"))
             {
-                new PathDirectory(new PathName(RepositoryPathName.MarketType),
-                                  new PathName(RepositoryPathName.MarketRegion))
+                new PathDirectory(new PathName(MarketType),
+                                  new PathName(MarketRegion))
                 {
                     new PathDirectory(new PathName(InstrumentName))
                     {
@@ -47,8 +49,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
             {
                 new PathDirectory(new PathName(Constant, "Summaries"))
                 {
-                    new PathDirectory(new PathName(RepositoryPathName.MarketType),
-                                      new PathName(RepositoryPathName.MarketRegion))
+                    new PathDirectory(new PathName(MarketType),
+                                      new PathName(MarketRegion))
                     {
                         new PathDirectory(new PathName(InstrumentName))
                         {
@@ -61,8 +63,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                 {
                     new PathDirectory(new PathName(Constant, "Summaries"))
                     {
-                        new PathDirectory(new PathName(RepositoryPathName.MarketType),
-                                          new PathName(RepositoryPathName.MarketRegion))
+                        new PathDirectory(new PathName(MarketType),
+                                          new PathName(MarketRegion))
                         {
                             new PathDirectory(new PathName(InstrumentName))
                             {
@@ -75,8 +77,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                     {
                         new PathDirectory(new PathName(Constant, "Summaries"))
                         {
-                            new PathDirectory(new PathName(RepositoryPathName.MarketType),
-                                              new PathName(RepositoryPathName.MarketRegion))
+                            new PathDirectory(new PathName(MarketType),
+                                              new PathName(MarketRegion))
                             {
                                 new PathDirectory(new PathName(InstrumentName))
                                 {
@@ -87,12 +89,12 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                         }
                       , new PathDirectory(new PathName(Constant, "AlgoState"))
                         {
-                            repoPathBuilder.AlgoStateFile()
+                            repoPathBuilder.IndicatorStateFile()
                         }
                       , new PathDirectory(new PathName(WeekOfMonth))
                         {
-                            new PathDirectory(new PathName(RepositoryPathName.MarketType),
-                                              new PathName(RepositoryPathName.MarketRegion))
+                            new PathDirectory(new PathName(MarketType),
+                                              new PathName(MarketRegion))
                             {
                                 new PathDirectory(new PathName(InstrumentName))
                                 {
@@ -105,7 +107,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                             }
                           , new PathDirectory(new PathName(Constant, "AlgoSignals"))
                             {
-                                repoPathBuilder.AlgoSignalFile()
+                                repoPathBuilder.IndicatorSignalFile()
                             }
                         }
                     }
@@ -113,7 +115,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
             }
         };
 
-        var repositoryInfo = new RepositoryInfo(repoRootDir, repoPathBuilder.Proximity, repoPathBuilder.TimeSeriesFileExtension);
+        var repositoryInfo = new RepositoryInfo(repoRootDir, repoPathBuilder.FileRepositoryLocationConfig, DymwiRequiredInstrumentKeys, DymwiOptionalInstrumentKeys);
         return new DymwiTimeSeriesDirectoryRepository(repositoryInfo);
     }
 }

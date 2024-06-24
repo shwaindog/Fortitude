@@ -13,6 +13,8 @@ using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.TimeSeries.FileSystem.Config;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -68,7 +70,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
     private ISubscription? pql2RequestListenerSubscription;
     private ISubscription? pql3RequestListenerSubscription;
 
-    public HistoricalQuotesRetrievalRule(IRepositoryBuilder repoBuilder) : base(repoBuilder, "HistoricalPriceRetrievalRule") { }
+    public HistoricalQuotesRetrievalRule(IFileRepositoryConfig repoBuilder) : base(repoBuilder, "HistoricalPriceRetrievalRule") { }
 
     public HistoricalQuotesRetrievalRule(ITimeSeriesRepository existingRepository) : base(existingRepository, "HistoricalPriceRetrievalRule") { }
 
@@ -110,7 +112,8 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
     {
         var matchingInstruments =
             TimeSeriesRepository!.InstrumentFilesMap.Keys
-                                 .Where(i => i.InstrumentName == tickerId.Ticker && i.SourceName == tickerId.Source).ToList();
+                                 .Where(i => i.InstrumentName == tickerId.Ticker && i[nameof(RepositoryPathName.SourceName)] == tickerId.Source)
+                                 .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }
 
