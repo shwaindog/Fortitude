@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
@@ -88,7 +89,7 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew);
 
     public IReaderContext<TEntry> GetEntriesBetweenReader
-    (TimeRange? periodRange,
+    (UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null) =>
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew)

@@ -322,7 +322,8 @@ public class PriceSummaryTimeSeriesFileTests
         for (var i = 0; i < originalList.Count; i++)
         {
             var originalEntry = originalList[i];
-            var compareEntry  = toCompareList[i];
+            ((IMutablePricePeriodSummary)originalEntry).PeriodSummaryFlags |= PricePeriodSummaryFlags.FromStorage;
+            var compareEntry = toCompareList[i];
             if (!originalEntry.AreEquivalent(compareEntry))
             {
                 Logger.Warn("Entries at {0} differ test failed \noriginal {1}\nretrieved {2} ", i, originalEntry, compareEntry);

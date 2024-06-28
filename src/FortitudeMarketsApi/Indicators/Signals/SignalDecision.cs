@@ -23,7 +23,7 @@ public interface ISignalDecision
 
     List<KeyPricePoints> KeyPricePoints { get; }
 
-    List<BidAskPair>           FibanacciSampleTopOfBook                  { get; }
+    List<BidAskInstantPair>    FibanacciSampleTopOfBook                  { get; }
     List<VolatilityPeriod>     InstrumentFibancciSampleVolatilityPeriods { get; }
     List<MovingAveragePeriods> FibancciSampleMovingAveragePeriods        { get; }
 }
@@ -42,7 +42,7 @@ public struct SignalDecision : ISignalDecision
 
     public List<KeyPricePoints> KeyPricePoints { get; set; }
 
-    public List<BidAskPair>           FibanacciSampleTopOfBook                  { get; set; }
+    public List<BidAskInstantPair>    FibanacciSampleTopOfBook                  { get; set; }
     public List<VolatilityPeriod>     InstrumentFibancciSampleVolatilityPeriods { get; set; }
     public List<MovingAveragePeriods> FibancciSampleMovingAveragePeriods        { get; set; }
 }

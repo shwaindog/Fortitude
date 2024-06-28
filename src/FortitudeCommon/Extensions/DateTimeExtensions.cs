@@ -5,15 +5,18 @@ namespace FortitudeCommon.Extensions;
 
 public static class DateTimeExtensions
 {
-    private static long MinTicks           = DateTime.MinValue.Ticks;
-    private static long MaxTicks           = DateTime.MaxValue.Ticks;
+    public static  long MinTicks           = DateTime.MinValue.Ticks;
+    public static  long MaxTicks           = DateTime.MaxValue.Ticks;
     private static long fiveMinuteTicks    = TimeSpan.TicksPerMinute * 5;
     private static long tenMinuteTicks     = TimeSpan.TicksPerMinute * 10;
     private static long fifteenMinuteTicks = TimeSpan.TicksPerMinute * 15;
     private static long thirtyMinuteTicks  = TimeSpan.TicksPerMinute * 30;
     private static long fourHourTicks      = TimeSpan.TicksPerHour * 4;
+    private static long twelveHourTicks    = TimeSpan.TicksPerHour * 12;
 
     public static DateTime TruncToSecondBoundary(this DateTime allTicks)   => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerSecond));
+    public static DateTime TruncTo5SecondBoundary(this DateTime allTicks)  => allTicks.AddTicks(-(allTicks.Ticks % 5 * TimeSpan.TicksPerSecond));
+    public static DateTime TruncTo10SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 10 * TimeSpan.TicksPerSecond));
     public static DateTime TruncTo15SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 15 * TimeSpan.TicksPerSecond));
     public static DateTime TruncTo30SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 30 * TimeSpan.TicksPerSecond));
 
@@ -29,7 +32,8 @@ public static class DateTimeExtensions
 
     public static DateTime TruncTo1HourBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerHour));
 
-    public static DateTime TruncTo4HourBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % fourHourTicks));
+    public static DateTime TruncTo4HourBoundary(this DateTime allTicks)  => allTicks.AddTicks(-(allTicks.Ticks % fourHourTicks));
+    public static DateTime TruncTo12HourBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % twelveHourTicks));
 
     public static DateTime TruncToDayBoundary(this DateTime allTicks) => allTicks.Date;
 
@@ -50,10 +54,23 @@ public static class DateTimeExtensions
 
     public static DateTime TruncToMonthBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.Day + 1);
 
-    public static DateTime TruncToYearBoundary(this DateTime allTicks) => allTicks.Date.AddDays(-allTicks.Date.DayOfYear + 1);
+    public static DateTime TruncToQuarterBoundary(this DateTime allTicks)
+    {
+        var quarterMonth = allTicks.Month / 4 * 4;
+        return new DateTime(allTicks.Year, quarterMonth, 1);
+    }
+
+    public static DateTime TruncToYearBoundary(this DateTime allTicks)  => allTicks.Date.AddDays(-allTicks.Date.DayOfYear + 1);
+    public static DateTime TruncTo5YearBoundary(this DateTime allTicks) => allTicks.TruncToYearBoundary().AddYears(-(allTicks.Year % 5) + 1);
 
     public static DateTime TruncToDecadeBoundary(this DateTime allTicks) =>
         allTicks.TruncToYearBoundary().AddYears(-(allTicks.TruncToYearBoundary().Year % 10));
+
+    public static DateTime TruncToCenturyBoundary(this DateTime allTicks) =>
+        allTicks.TruncToYearBoundary().AddYears(-(allTicks.TruncToYearBoundary().Year % 100));
+
+    public static DateTime TruncToMillenniumBoundary(this DateTime allTicks) =>
+        allTicks.TruncToYearBoundary().AddYears(-(allTicks.TruncToYearBoundary().Year % 1000));
 
 
     public static DateTime TruncToFirstSundayInMonth(this DateTime dateTime)
@@ -87,5 +104,43 @@ public static class DateTimeExtensions
     {
         var cappedTicks = Math.Min(MaxTicks, Math.Max(MinTicks, ticks));
         return DateTime.FromBinary(cappedTicks);
+    }
+
+    public static DateTime Min(this DateTime first, DateTime? optionalSecond)
+    {
+        if (optionalSecond == null) return first;
+        var maxTicks = Math.Min(first.Ticks, optionalSecond.Value.Ticks);
+        return DateTime.FromBinary(maxTicks);
+    }
+
+    public static DateTime Min(this DateTime first, DateTime second)
+    {
+        var maxTicks = Math.Min(first.Ticks, second.Ticks);
+        return DateTime.FromBinary(maxTicks);
+    }
+
+    public static DateTime Min(this DateTime first, DateTime second, DateTime third)
+    {
+        var maxTicks = Math.Min(Math.Min(first.Ticks, second.Ticks), third.Ticks);
+        return DateTime.FromBinary(maxTicks);
+    }
+
+    public static DateTime Max(this DateTime first, DateTime? optionalSecond)
+    {
+        if (optionalSecond == null) return first;
+        var maxTicks = Math.Max(first.Ticks, optionalSecond.Value.Ticks);
+        return DateTime.FromBinary(maxTicks);
+    }
+
+    public static DateTime Max(this DateTime first, DateTime second)
+    {
+        var maxTicks = Math.Max(first.Ticks, second.Ticks);
+        return DateTime.FromBinary(maxTicks);
+    }
+
+    public static DateTime Max(this DateTime first, DateTime second, DateTime third)
+    {
+        var maxTicks = Math.Max(Math.Max(first.Ticks, second.Ticks), third.Ticks);
+        return DateTime.FromBinary(maxTicks);
     }
 }

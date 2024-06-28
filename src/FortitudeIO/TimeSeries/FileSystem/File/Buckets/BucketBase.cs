@@ -380,7 +380,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
     public abstract AppendResult AppendEntry(IAppendContext<TEntry> entry);
 
-    public bool BucketIntersects(TimeRange? period = null) => period.IntersectsWith(TimeSeriesPeriodRange);
+    public bool BucketIntersects(UnboundedTimeRange? period = null) => TimeSeriesPeriodRange.Intersects(period);
 
     public void EnsureHeaderViewCoversAllHeaders()
     {

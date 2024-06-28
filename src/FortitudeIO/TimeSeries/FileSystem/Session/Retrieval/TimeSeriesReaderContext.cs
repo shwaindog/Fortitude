@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
@@ -47,7 +48,7 @@ public interface IReaderContext<TEntry>
     IEnumerable<List<TEntry>>     BatchedResultEnumerable { get; }
     IBlockingQueue<TEntry>?       PublishEntriesQueue     { get; set; }
     IBlockingQueue<TEntry>?       SourceEntriesQueue      { get; set; }
-    TimeRange?                    PeriodRange             { get; set; }
+    UnboundedTimeRange?           PeriodRange             { get; set; }
     ReaderOptions                 ReaderOptions           { get; set; }
     ResultFlags                   ResultPublishFlags      { get; set; }
     EntryResultSourcing           EntrySourcing           { get; set; }
@@ -82,7 +83,8 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
     private Semaphore? maxUnconsumedSemaphore;
     private TEntry?    populateEntrySingleton;
 
-    public TimeSeriesReaderContext(IReaderSession<TEntry> readerSession,
+    public TimeSeriesReaderContext
+    (IReaderSession<TEntry> readerSession,
         EntryResultSourcing defaultEntryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null)
     {
@@ -283,9 +285,9 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
     public IBlockingQueue<TEntry>? PublishEntriesQueue { get; set; }
     public IBlockingQueue<TEntry>? SourceEntriesQueue  { get; set; }
 
-    public TimeRange?    PeriodRange        { get; set; }
-    public ReaderOptions ReaderOptions      { get; set; }
-    public ResultFlags   ResultPublishFlags { get; set; }
+    public UnboundedTimeRange? PeriodRange        { get; set; }
+    public ReaderOptions       ReaderOptions      { get; set; }
+    public ResultFlags         ResultPublishFlags { get; set; }
 
     public EntryResultSourcing EntrySourcing { get; set; }
 

@@ -23,9 +23,9 @@ public class PQPricePeriodSummaryGenerator : PricePeriodSummaryGenerator<PQPrice
         var currMid = previousCurrentMidPriceTime.CurrentMid;
         return new PQPricePeriodSummary
         {
-            SummaryPeriod    = GeneratePriceSummaryInfo.SummaryPeriod
-          , SummaryEndTime   = GeneratePriceSummaryInfo.SummaryPeriod.PeriodEnd(currMid.Time)
-          , SummaryStartTime = currMid.Time
+            TimeSeriesPeriod = GeneratePriceSummaryInfo.SummaryPeriod
+          , PeriodEndTime    = GeneratePriceSummaryInfo.SummaryPeriod.PeriodEnd(currMid.Time)
+          , PeriodStartTime  = currMid.Time
         };
     }
 }

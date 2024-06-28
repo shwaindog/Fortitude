@@ -15,11 +15,11 @@ public static class PeriodSummaryHelpers
 {
     public static TimeSeriesPeriod CalcTimeFrame(this IPricePeriodSummary pricePeriodSumary)
     {
-        if (pricePeriodSumary.SummaryStartTime.Equals(DateTimeConstants.UnixEpoch)
-         || pricePeriodSumary.SummaryEndTime < pricePeriodSumary.SummaryStartTime) return TimeSeriesPeriod.None;
-        if (pricePeriodSumary.SummaryEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeSeriesPeriod.None;
-        if (pricePeriodSumary.SummaryStartTime.Equals(pricePeriodSumary.SummaryEndTime)) return TimeSeriesPeriod.Tick;
-        var diffTimeSpan = pricePeriodSumary.SummaryEndTime - pricePeriodSumary.SummaryStartTime;
+        if (pricePeriodSumary.PeriodStartTime.Equals(DateTimeConstants.UnixEpoch)
+         || pricePeriodSumary.PeriodEndTime < pricePeriodSumary.PeriodStartTime) return TimeSeriesPeriod.None;
+        if (pricePeriodSumary.PeriodEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeSeriesPeriod.None;
+        if (pricePeriodSumary.PeriodStartTime.Equals(pricePeriodSumary.PeriodEndTime)) return TimeSeriesPeriod.Tick;
+        var diffTimeSpan = pricePeriodSumary.PeriodEndTime - pricePeriodSumary.PeriodStartTime;
         var totalSeconds = (int)diffTimeSpan.TotalSeconds;
         if (totalSeconds == 1) return TimeSeriesPeriod.OneSecond;
         if (totalSeconds == 60) return TimeSeriesPeriod.OneMinute;

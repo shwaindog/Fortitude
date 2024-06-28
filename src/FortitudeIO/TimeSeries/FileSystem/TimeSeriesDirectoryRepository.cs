@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries.FileSystem.Config;
@@ -48,7 +49,7 @@ public interface ITimeSeriesRepository
 
     void CloseAllFilesAndSessions();
 
-    IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, TimeRange? restrictedRange = null)
+    IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
         where TEntry : ITimeSeriesEntry<TEntry>;
 
     IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry>;
@@ -82,7 +83,7 @@ public class TimeSeriesDirectoryRepository : ITimeSeriesRepository
     public IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap { get; private set; }
         = new ConcurrentMap<IInstrument, InstrumentRepoFileSet>();
 
-    public IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, TimeRange? restrictedRange = null)
+    public IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
         where TEntry : ITimeSeriesEntry<TEntry>
     {
         var instrumentFiles = InstrumentFilesMap[instrument];

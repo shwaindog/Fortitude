@@ -42,19 +42,20 @@ public class QuoteSequencedTestDataBuilder
 
     public void InitalizePeriodSummary(IMutablePricePeriodSummary pricePeriodSummary, uint batchId)
     {
-        pricePeriodSummary.SummaryPeriod    = TimeSeriesPeriod.OneSecond;
-        pricePeriodSummary.SummaryStartTime = new DateTime(2017, 11, 18, 20, 09, 11);
-        pricePeriodSummary.StartBidPrice    = 0.79324m;
-        pricePeriodSummary.StartAskPrice    = 0.79334m;
-        pricePeriodSummary.HighestBidPrice  = 0.79354m;
-        pricePeriodSummary.HighestAskPrice  = 0.79364m;
-        pricePeriodSummary.LowestBidPrice   = 0.79304m;
-        pricePeriodSummary.LowestAskPrice   = 0.79314m;
-        pricePeriodSummary.EndBidPrice      = 0.79334m;
-        pricePeriodSummary.EndAskPrice      = 0.79344m;
-        pricePeriodSummary.TickCount        = 10;
-        pricePeriodSummary.PeriodVolume     = 400_000_000_000_000;
-        pricePeriodSummary.SummaryEndTime   = new DateTime(2017, 11, 18, 20, 09, 12);
+        pricePeriodSummary.TimeSeriesPeriod   = TimeSeriesPeriod.OneSecond;
+        pricePeriodSummary.PeriodStartTime    = new DateTime(2017, 11, 18, 20, 09, 11);
+        pricePeriodSummary.StartBidPrice      = 0.79324m;
+        pricePeriodSummary.StartAskPrice      = 0.79334m;
+        pricePeriodSummary.HighestBidPrice    = 0.79354m;
+        pricePeriodSummary.HighestAskPrice    = 0.79364m;
+        pricePeriodSummary.LowestBidPrice     = 0.79304m;
+        pricePeriodSummary.LowestAskPrice     = 0.79314m;
+        pricePeriodSummary.EndBidPrice        = 0.79334m;
+        pricePeriodSummary.EndAskPrice        = 0.79344m;
+        pricePeriodSummary.TickCount          = 10;
+        pricePeriodSummary.PeriodVolume       = 100_000_000_000;
+        pricePeriodSummary.PeriodSummaryFlags = PricePeriodSummaryFlags.FromStorage;
+        pricePeriodSummary.PeriodEndTime      = new DateTime(2017, 11, 18, 20, 09, 12);
     }
 
     private void SetupLevel3Quote(IMutableLevel3Quote? pqLevel3Quote, uint batchId)

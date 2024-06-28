@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
@@ -193,7 +194,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew);
 
     public IReaderContext<TEntry> GetEntriesBetweenReader
-    (TimeRange? periodRange,
+    (UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null) =>
         new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew)

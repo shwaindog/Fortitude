@@ -11,7 +11,7 @@ namespace FortitudeMarketsApi.Indicators.Signals;
 
 public struct Prediction
 {
-    public BidAskPair?        MarketAtPrediction    { get; set; }
+    public BidAskInstantPair? MarketAtPrediction    { get; set; }
     public LifeTime           LifeTime              { get; set; }
     public PredictedDirection PredictedDirection    { get; set; }
     public decimal            TargetPredictionPrice { get; set; }

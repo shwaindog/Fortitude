@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
@@ -52,7 +53,7 @@ public class RemoteLocalCachingRepository : ITimeSeriesRepository
     public IRepositoryRootDirectory RepoRootDirectory => localRepository.RepoRootDirectory;
 
     public IReaderSession<TEntry>? GetReaderSession<TEntry>
-        (IInstrument instrument, TimeRange? restrictedRange = null) where TEntry : ITimeSeriesEntry<TEntry>
+        (IInstrument instrument, UnboundedTimeRange? restrictedRange = null) where TEntry : ITimeSeriesEntry<TEntry>
     {
         var instrumentFiles = localRepository.InstrumentFilesMap[instrument] + remoteRepository.InstrumentFilesMap[instrument];
 

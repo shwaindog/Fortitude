@@ -20,9 +20,9 @@ public struct VolatilityPeriod
 
 public struct MovingAveragePeriods
 {
-    public BidAskPair       MarketAveragePrice { get; set; }
-    public TimeSeriesPeriod AveragePeriod      { get; set; }
-    public decimal          Velocity           { get; set; }
+    public BidAskInstantPair MarketAveragePrice { get; set; }
+    public TimeSeriesPeriod  AveragePeriod      { get; set; }
+    public decimal           Velocity           { get; set; }
 }
 
 public enum PricePointType

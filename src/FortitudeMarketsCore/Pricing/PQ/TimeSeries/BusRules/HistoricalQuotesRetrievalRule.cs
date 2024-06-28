@@ -10,6 +10,7 @@ using FortitudeBusRules.BusMessaging.Routing.Channel;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
@@ -28,7 +29,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
 public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote
 {
-    public HistoricalQuotesRequest(ISourceTickerIdentifier tickerId, ChannelPublishRequest<TEntry> channelRequest, TimeRange? timeRange = null)
+    public HistoricalQuotesRequest
+        (ISourceTickerIdentifier tickerId, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
     {
         TickerId       = tickerId;
         TimeRange      = timeRange;
@@ -36,7 +38,7 @@ public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesE
     }
 
     public ISourceTickerIdentifier       TickerId       { get; }
-    public TimeRange?                    TimeRange      { get; }
+    public UnboundedTimeRange?           TimeRange      { get; }
     public ChannelPublishRequest<TEntry> ChannelRequest { get; }
 
     public string RequestAddress { get; } = CalculateRequestAddress();
@@ -70,7 +72,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
     private ISubscription? pql2RequestListenerSubscription;
     private ISubscription? pql3RequestListenerSubscription;
 
-    public HistoricalQuotesRetrievalRule(IFileRepositoryConfig repoBuilder) : base(repoBuilder, "HistoricalPriceRetrievalRule") { }
+    public HistoricalQuotesRetrievalRule(IRepositoryBuilder repoBuilder) : base(repoBuilder, "HistoricalPriceRetrievalRule") { }
 
     public HistoricalQuotesRetrievalRule(ITimeSeriesRepository existingRepository) : base(existingRepository, "HistoricalPriceRetrievalRule") { }
 
@@ -178,7 +180,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
         if (request.ChannelRequest.BatchSize > 1) readerContext.BatchLimit   = request.ChannelRequest.BatchSize;
         if (request.ChannelRequest.ResultLimit > 0) readerContext.MaxResults = request.ChannelRequest.ResultLimit;
         var launchContext = Context.GetEventQueues(MessageQueueType.Worker)
-                                   .SelectEventQueue(QueueSelectionStrategy.LeastBusy)
+                                   .SelectEventQueue(QueueSelectionStrategy.EarliestStarted)
                                    .GetExecutionContextAction<IReaderContext<TEntry>, HistoricalQuotesRequest<TEntry>>(this);
 
         launchContext.Execute(ProcessResults, readerContext, request);

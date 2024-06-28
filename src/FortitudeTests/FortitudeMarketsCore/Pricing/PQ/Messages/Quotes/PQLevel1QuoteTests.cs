@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -775,6 +776,8 @@ public class PQLevel1QuoteTests
         IPQLevel1Quote IPQLevel1Quote.          Clone()       => this;
         ILevel1Quote ILevel1Quote.              Clone()       => this;
         ILevel1Quote ICloneable<ILevel1Quote>.  Clone()       => this;
+
+        public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
 
         public DateTime AdapterSentTime { get; set; }
         public DateTime SourceBidTime   { get; set; }

@@ -68,8 +68,8 @@ public static class PQFieldKeys
     public const byte PeriodHighestPrice     = 41; // 0x29
     public const byte PeriodLowestPrice      = 42; // 0x2A
     public const byte PeriodTickCount        = 43; // 0x2B
-    public const byte PeriodVolumeLowerBytes = 44; // 0x2C
-    public const byte PeriodVolumeUpperBytes = 45; // 0x2D
+    public const byte PeriodVolume           = 44; // 0x2C
+    public const byte PeriodSummaryFlags     = 45; // 0x2D
     public const byte PeriodAveragePrice     = 46; // 0x2E 
 
     // Level 2 Fields - first 20 layers

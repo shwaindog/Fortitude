@@ -3,15 +3,33 @@
 
 #region
 
-using FortitudeMarketsApi.Configuration.ClientServerConfig;
+using FortitudeBusRules.BusMessaging.Pipelines;
+using FortitudeBusRules.Rules;
+using FortitudeMarketsCore.Indicators.Config;
+using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
 #endregion
 
 namespace FortitudeMarketsCore.Indicators;
 
-public interface IIndicatorServicesConfig
+public class IndicatorServiceRegistryRule : Rule
 {
-    IMarketConnectionConfig MarketConnectionConfig { get; set; }
-}
+    private readonly IIndicatorServicesConfig config;
 
-public class IndicatorServiceRegistryRule { }
+    public IndicatorServiceRegistryRule(IIndicatorServicesConfig config) : base(nameof(IndicatorServiceRegistryRule)) => this.config = config;
+
+
+    public override ValueTask StartAsync()
+    {
+        if (config.MarketsConfig != null)
+        {
+            // launch client pricing feeds
+        }
+        if (config.TimeSeriesFileRepositoryConfig != null)
+        {
+            var historicalQuoteRetriever = new HistoricalQuotesRetrievalRule(config.TimeSeriesFileRepositoryConfig);
+            Context.MessageBus.DeployRule(this, historicalQuoteRetriever, new DeploymentOptions(messageGroupType: MessageQueueType.Custom));
+        }
+        return base.StartAsync();
+    }
+}

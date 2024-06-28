@@ -41,5 +41,5 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
         await tickerListenSubscription.UnsubscribeAsync();
     }
 
-    protected virtual void ReceiveQuoteHandler(IBusMessage<TQuoteType> priceQuoteMessage) { }
+    protected virtual ValueTask ReceiveQuoteHandler(IBusMessage<TQuoteType> priceQuoteMessage) => ValueTask.CompletedTask;
 }
