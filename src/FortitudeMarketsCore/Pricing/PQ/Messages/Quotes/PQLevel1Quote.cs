@@ -7,6 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -328,6 +329,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
             adapterReceivedTime = value;
         }
     }
+
+    public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
 
     public virtual decimal BidPriceTop
     {

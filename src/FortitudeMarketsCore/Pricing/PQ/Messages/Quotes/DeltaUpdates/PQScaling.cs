@@ -51,7 +51,7 @@ public static class PQScaling
             currentScale /= 10;
         }
         if (count < 8) return (byte)(8 + count);
-        throw new Exception("Example precision value is greater than PQScaling support");
+        return 15;
     }
 
     public static uint AutoScale(decimal value, int maxNumberOfSignificantDigits, out byte flagSelected)

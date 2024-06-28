@@ -10,18 +10,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeIO.TimeSeries.FileSystem.Config;
 
-public interface IFileRepositoryConfig
+public interface IFileRepositoryConfig : IRepositoryBuilder
 {
     string                   RepositoryName   { get; set; }
     IRepositoryBuilderConfig RepositoryConfig { get; set; }
-    ITimeSeriesRepository    BuildRepository();
 }
 
 public class FileRepositoryConfig : ConfigSection, IFileRepositoryConfig
 {
     private object? ignoreSuppressWarnings;
+
+    private ITimeSeriesRepository? repository;
     public FileRepositoryConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public FileRepositoryConfig() { }
+
+    public FileRepositoryConfig(IFileRepositoryConfig toClone, IConfigurationRoot root, string path) : base(root, path)
+    {
+        RepositoryName   = toClone.RepositoryName;
+        RepositoryConfig = toClone.RepositoryConfig;
+    }
+
+    public FileRepositoryConfig(IFileRepositoryConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public string RepositoryName
     {
@@ -54,5 +63,5 @@ public class FileRepositoryConfig : ConfigSection, IFileRepositoryConfig
         }
     }
 
-    public ITimeSeriesRepository BuildRepository() => RepositoryConfig.BuildRepository();
+    public ITimeSeriesRepository BuildRepository() => repository ??= RepositoryConfig.BuildRepository();
 }

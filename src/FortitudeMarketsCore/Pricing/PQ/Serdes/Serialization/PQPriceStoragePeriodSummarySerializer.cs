@@ -30,16 +30,18 @@ public class PQPriceStoragePeriodSummarySerializer : ISerializer<IPQPriceStorage
 
     public MarshalType MarshalType => MarshalType.Binary;
 
-    public void Serialize(IPQPriceStoragePeriodSummary priceSummaryPeriod, ISerdeContext writeContext)
+    public void Serialize(IPQPriceStoragePeriodSummary psps, ISerdeContext writeContext)
     {
         if ((writeContext.Direction & ContextDirection.Write) == 0)
             throw new ArgumentException("Expected writeContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
-            var writeLength = Serialize(bufferContext.EncodedBuffer!, priceSummaryPeriod);
+            var writeLength = Serialize(bufferContext.EncodedBuffer!, psps);
 
             if (writeLength > 0) bufferContext.EncodedBuffer!.WriteCursor += writeLength;
             bufferContext.LastWriteLength = writeLength;
+
+            psps.HasUpdates = false;
         }
         else
         {
@@ -57,21 +59,23 @@ public class PQPriceStoragePeriodSummarySerializer : ISerializer<IPQPriceStorage
 
         var writeStart     = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
         var ptr            = writeStart;
-        var priceScale     = (byte)((uint)pqPriceStoragePeriodSummary.VolumePricePrecisionScale & 0x0F);
-        var volumeScale    = (byte)(((uint)pqPriceStoragePeriodSummary.VolumePricePrecisionScale >> 4) & 0x0F);
-        var serializeFlags = (PQPriceStorageSummaryFlags)((uint)pqPriceStoragePeriodSummary.SummaryStorageFlags & 0xFFFF);
+        var serializeFlags = pqPriceStoragePeriodSummary.SummaryStorageFlags;
         if (publishAll)
         {
             if (buffer.RemainingStorage < 74) return -1;
-            serializeFlags = (PQPriceStorageSummaryFlags)(((ushort)serializeFlags & (uint)SnapshotClearMask)
-                                                        | (uint)Snapshot);
-            StreamByteOps.ToBytes(ref ptr, (ushort)serializeFlags);
-            var serializeShort = (ushort)(((uint)pqPriceStoragePeriodSummary.SummaryStorageFlags >> 16) & 0xFFFF);
+
+            var priceScale   = (byte)((uint)pqPriceStoragePeriodSummary.VolumePricePrecisionScale & 0x0F);
+            var volumeScale  = (byte)(((uint)pqPriceStoragePeriodSummary.VolumePricePrecisionScale >> 4) & 0x0F);
+            var shiftedScale = (uint)((volumeScale << 4) | priceScale) << 24;
+            serializeFlags &= ~PriceVolumeScaleMask;
+            serializeFlags |= (PQPriceStorageSummaryFlags)((uint)Snapshot | shiftedScale);
+            StreamByteOps.ToBytes(ref ptr, (uint)serializeFlags);
+            var serializeShort = (ushort)((ushort)pqPriceStoragePeriodSummary.TimeSeriesPeriod & 0xFFFF);
             StreamByteOps.ToBytes(ref ptr, serializeShort);
-            serializeShort = (ushort)((ushort)pqPriceStoragePeriodSummary.SummaryPeriod & 0xFFFF);
-            StreamByteOps.ToBytes(ref ptr, serializeShort);
-            var summaryStartTimeTicks = pqPriceStoragePeriodSummary.SummaryStartTime.Ticks;
+            var summaryStartTimeTicks = pqPriceStoragePeriodSummary.PeriodStartTime.Ticks;
             StreamByteOps.ToBytes(ref ptr, summaryStartTimeTicks);
+            var summaryFlags = (uint)pqPriceStoragePeriodSummary.PeriodSummaryFlags;
+            StreamByteOps.ToBytes(ref ptr, summaryFlags);
             pqPriceStoragePeriodSummary.DeltaEndBidPrice     = PQScaling.Scale(pqPriceStoragePeriodSummary.EndBidPrice, priceScale);
             pqPriceStoragePeriodSummary.DeltaEndAskPrice     = PQScaling.Scale(pqPriceStoragePeriodSummary.EndAskPrice, priceScale);
             pqPriceStoragePeriodSummary.DeltaStartBidPrice   = PQScaling.Scale(pqPriceStoragePeriodSummary.StartBidPrice, priceScale);
@@ -90,10 +94,15 @@ public class PQPriceStoragePeriodSummarySerializer : ISerializer<IPQPriceStorage
         else
         {
             if (buffer.RemainingStorage < 28) return -1;
-            StreamByteOps.ToBytes(ref ptr, (ushort)serializeFlags);
+            StreamByteOps.ToBytes(ref ptr, (uint)serializeFlags);
             if (!serializeFlags.HasFlag(IsNextTimePeriod)) Serialize7BitDeltaUint(ref ptr, pqPriceStoragePeriodSummary.DeltaPeriodsFromPrevious);
+            if (serializeFlags.HasFlag(HasSummaryFlagsChanges))
+            {
+                Serialize7BitDeltaUint(ref ptr, pqPriceStoragePeriodSummary.DeltaSummaryFlagsUpperBytes);
+                Serialize7BitDeltaUint(ref ptr, pqPriceStoragePeriodSummary.DeltaSummaryFlagsLowerBytes);
+            }
         }
-        if (!serializeFlags.HasFlag(PricesStartSameAsLastEndPrices))
+        if (!serializeFlags.HasFlag(PricesStartSameAsLastEndPrices) || publishAll)
         {
             Serialize7BitDeltaUint(ref ptr, pqPriceStoragePeriodSummary.DeltaStartBidPrice);
             Serialize7BitDeltaUint(ref ptr, pqPriceStoragePeriodSummary.DeltaStartAskPrice);

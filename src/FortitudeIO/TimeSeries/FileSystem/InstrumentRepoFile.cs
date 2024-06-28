@@ -4,6 +4,7 @@
 #region
 
 using System.Collections;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
@@ -43,7 +44,7 @@ public class InstrumentRepoFile : IComparable<InstrumentRepoFile>, IEquatable<In
     }
 
 
-    public bool FileIntersects(TimeRange? timePeriod = null) => timePeriod.IntersectsWith(FilePeriodRange);
+    public bool FileIntersects(UnboundedTimeRange? timePeriod = null) => FilePeriodRange.Intersects(timePeriod);
 
     public override bool Equals(object? obj)
     {

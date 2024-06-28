@@ -11,15 +11,19 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeIO.TimeSeries.FileSystem.Config;
 
-public interface IRepositoryBuilderConfig
+public interface IRepositoryBuilder
+{
+    ITimeSeriesRepository BuildRepository();
+}
+
+public interface IRepositoryBuilderConfig : IRepositoryBuilder
 {
     string?        RepoPathBuilderClassName { get; set; }
     Type?          RepoPathBuilderType      { get; set; }
     bool           CreateIfNotExists        { get; set; }
     RepositoryType RepositoryType           { get; set; }
 
-    IRepoPathBuilder      RepositoryPathBuilder(IFileRepositoryLocationConfig fileRepoLocationConfig);
-    ITimeSeriesRepository BuildRepository();
+    IRepoPathBuilder RepositoryPathBuilder(IFileRepositoryLocationConfig fileRepoLocationConfig);
 }
 
 public abstract class RepositoryBuilderConfig : ConfigSection, IRepositoryBuilderConfig

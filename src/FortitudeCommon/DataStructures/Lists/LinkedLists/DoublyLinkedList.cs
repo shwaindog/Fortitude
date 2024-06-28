@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 
@@ -29,15 +32,18 @@ public class DoublyLinkedList<T> : IDoublyLinkedList<T> where T : class, IDoubly
     {
         if (Head == null)
         {
-            Head = Tail = node;
+            Head      = Tail = node;
             node.Next = null;
+
             node.Previous = null;
         }
         else
         {
             Head.Previous = node;
+
             node.Next = Head;
-            Head = node;
+            Head      = node;
+
             node.Previous = null;
         }
 
@@ -49,15 +55,17 @@ public class DoublyLinkedList<T> : IDoublyLinkedList<T> where T : class, IDoubly
         if (Head == null)
         {
             Head = Tail = node;
-            node.Next = null;
+
+            node.Next     = null;
             node.Previous = null;
         }
         else
         {
             node.Previous = Tail;
+
             Tail!.Next = node;
-            Tail = node;
-            node.Next = null;
+            Tail       = node;
+            node.Next  = null;
         }
 
         return node;
@@ -97,12 +105,20 @@ public class DoublyLinkedList<T> : IDoublyLinkedList<T> where T : class, IDoubly
         return node;
     }
 
+    public void DetachNodes()
+    {
+        Head = null;
+        Tail = null;
+    }
+
     public void Swap(DoublyLinkedList<T> doublyLinkedList)
     {
         var head = Head;
         var tail = Tail;
+
         Head = doublyLinkedList.Head;
         Tail = doublyLinkedList.Tail;
+
         doublyLinkedList.Head = head;
         doublyLinkedList.Tail = tail;
     }

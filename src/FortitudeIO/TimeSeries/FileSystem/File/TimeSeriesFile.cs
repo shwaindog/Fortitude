@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Types;
@@ -37,7 +38,7 @@ public interface ITimeSeriesFile : IDisposable
     ITimeSeriesSession  GetReaderSession();
     ITimeSeriesSession  GetInfoSession();
 
-    bool Intersects(TimeRange? periodRange = null);
+    bool Intersects(UnboundedTimeRange? periodRange = null);
     void Close();
     bool ReopenFile(FileFlags fileFlags = FileFlags.None);
 }
@@ -54,7 +55,8 @@ public interface ITimeSeriesEntryFile<TEntry> : ITimeSeriesFile
     new IFileReaderSession<TEntry>  GetReaderSession();
     new IFileReaderSession<TEntry>  GetInfoSession();
 
-    IEnumerable<TEntry>? EntriesFor(TimeRange? periodRange = null, int? remainingLimit = null,
+    IEnumerable<TEntry>? EntriesFor
+    (UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? entryFactory = null);
 }
@@ -126,7 +128,8 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
 
     public Func<TEntry>? DefaultEntryFactory { get; set; }
 
-    public IEnumerable<TEntry>? EntriesFor(TimeRange? periodRange = null, int? remainingLimit = null,
+    public IEnumerable<TEntry>? EntriesFor
+    (UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? entryFactory = null)
     {
@@ -226,7 +229,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         set => Header.Category = value;
     }
 
-    public bool Intersects(TimeRange? periodRange = null) => periodRange.IntersectsWith(TimeSeriesPeriodRange);
+    public bool Intersects(UnboundedTimeRange? periodRange = null) => TimeSeriesPeriodRange.Intersects(periodRange);
 
     public string FileName { get; }
     public bool   IsOpen   => Header.FileIsOpen || numberOfOpenSessions > 0;

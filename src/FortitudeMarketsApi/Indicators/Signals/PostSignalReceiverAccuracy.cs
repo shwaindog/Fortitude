@@ -11,8 +11,8 @@ namespace FortitudeMarketsApi.Indicators.Signals;
 
 public struct PostDecisionAccuracy
 {
-    public BidAskPair MarketTopOfBook { get; set; }
-    public decimal    Accuracy        { get; set; }
+    public BidAskInstantPair MarketTopOfBook { get; set; }
+    public decimal           Accuracy        { get; set; }
 }
 
 public struct PostSignalReceiverAccuracy

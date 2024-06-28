@@ -13,9 +13,9 @@ namespace FortitudeMarketsCore.Pricing;
 
 public static class BidAskExtensions
 {
-    public static BidAsk ToBidAsk(this IPQLevel1Quote level1Quote, IRecycler? recycler = null)
+    public static BidAskInstant ToBidAsk(this IPQLevel1Quote level1Quote, IRecycler? recycler = null)
     {
-        var bidAsk = (BidAsk)(recycler?.Borrow<BidAsk>().CopyFrom(level1Quote) ?? new BidAsk(level1Quote));
+        var bidAsk = (BidAskInstant)(recycler?.Borrow<BidAskInstant>().CopyFrom(level1Quote) ?? new BidAskInstant(level1Quote));
         bidAsk.SequenceNumber = level1Quote.PQSequenceId;
         return bidAsk;
     }

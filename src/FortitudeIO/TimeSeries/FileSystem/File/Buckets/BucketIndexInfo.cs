@@ -4,6 +4,7 @@
 #region
 
 using System.Runtime.InteropServices;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
 using static FortitudeIO.TimeSeries.FileSystem.File.Buckets.BucketHeader;
 
@@ -66,7 +67,7 @@ public static class BucketIndexExtensions
         (bucketIndexInfo.BucketStartTime < toTime || (toTime == null && fromTime != null))
      && (bucketIndexInfo.BucketPeriod.PeriodEnd(bucketIndexInfo.BucketStartTime) > fromTime || (fromTime == null && toTime != null));
 
-    public static bool Intersects(this BucketIndexInfo bucketIndexInfo, TimeRange? periodRange)
+    public static bool Intersects(this BucketIndexInfo bucketIndexInfo, UnboundedTimeRange? periodRange)
     {
         if (periodRange == null) return true;
         var range = periodRange.Value;

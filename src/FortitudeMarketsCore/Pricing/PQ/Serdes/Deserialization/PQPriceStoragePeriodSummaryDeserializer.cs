@@ -66,25 +66,20 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
     {
         using var fixedBuffer = buffer;
 
-        var readStart   = fixedBuffer.ReadBuffer + buffer.BufferRelativeReadCursor;
-        var ptr         = readStart;
-        var flags       = (PQPriceStorageSummaryFlags)StreamByteOps.ToUShort(ref ptr);
-        var priceScale  = (byte)(ent.VolumePricePrecisionScale & 0x0F);
-        var volumeScale = (byte)((ent.VolumePricePrecisionScale >> 4) & 0x0F);
+        var readStart        = fixedBuffer.ReadBuffer + buffer.BufferRelativeReadCursor;
+        var ptr              = readStart;
+        var flags            = (PQPriceStorageSummaryFlags)StreamByteOps.ToUInt(ref ptr);
+        var priceScale       = (byte)(((uint)(flags & PriceScaleMask) >> 24) & 0x0F);
+        var volumeScale      = (byte)(((uint)(flags & VolumeScaleMask) >> 28) & 0x0F);
+        var precisionSetting = ent.PrecisionSettings;
+        if (precisionSetting == null || (precisionSetting.PriceScalingPrecision & 0x0F) != priceScale
+                                     || (precisionSetting.VolumeScalingPrecision & 0x0F) != volumeScale)
+            ent.PrecisionSettings = new PQPriceVolumePublicationPrecisionSettings(priceScale, volumeScale);
 
         var isSnapshot = flags.HasSnapshotFlag();
         ent.HasUpdates = false;
         if (isSnapshot)
         {
-            var flagsUint = ((uint)StreamByteOps.ToUShort(ref ptr) << 16) | (uint)flags;
-            flags       = (PQPriceStorageSummaryFlags)flagsUint;
-            priceScale  = (byte)(((uint)(flags & PriceScaleMask) >> 16) & 0x0F);
-            volumeScale = (byte)(((uint)(flags & VolumeScaleMask) >> 20) & 0x0F);
-            var precisionSetting = ent.PrecisionSettings;
-            if (precisionSetting == null || (precisionSetting.PriceScalingPrecision & 0x0F) != priceScale
-                                         || (precisionSetting.VolumeScalingPrecision & 0x0F) != volumeScale)
-                ent.PrecisionSettings = new PQPriceVolumePublicationPrecisionSettings(priceScale, volumeScale);
-
             ent.StartBidPrice   = 0m;
             ent.StartAskPrice   = 0m;
             ent.HighestBidPrice = 0m;
@@ -97,26 +92,45 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
             ent.AverageAskPrice = 0m;
             ent.PeriodVolume    = 0;
             ent.TickCount       = 0;
-            ent.SummaryEndTime  = DateTimeConstants.UnixEpoch;
+            ent.PeriodEndTime   = DateTimeConstants.UnixEpoch;
 
-            ent.SummaryPeriod    = (TimeSeriesPeriod)StreamByteOps.ToUShort(ref ptr);
-            ent.SummaryStartTime = StreamByteOps.ToLong(ref ptr).CappedTicksToDateTime();
+            ent.TimeSeriesPeriod   = (TimeSeriesPeriod)StreamByteOps.ToUShort(ref ptr);
+            ent.PeriodStartTime    = StreamByteOps.ToLong(ref ptr).CappedTicksToDateTime();
+            ent.PeriodSummaryFlags = (PricePeriodSummaryFlags)StreamByteOps.ToUInt(ref ptr);
         }
         else
         {
             if (!flags.HasFlag(IsNextTimePeriod))
             {
                 var numberOfPeriods                            = Deserialize7BitDeltaUint(ref ptr);
-                var currentStartTime                           = ent.SummaryStartTime;
-                while (numberOfPeriods-- > 0) currentStartTime = ent.SummaryPeriod.PeriodEnd(currentStartTime);
-                ent.SummaryStartTime = currentStartTime;
+                var currentStartTime                           = ent.PeriodStartTime;
+                while (numberOfPeriods-- > 0) currentStartTime = ent.TimeSeriesPeriod.PeriodEnd(currentStartTime);
+                ent.PeriodStartTime = currentStartTime;
             }
             else
             {
-                ent.SummaryStartTime = ent.SummaryEndTime;
+                ent.PeriodStartTime = ent.PeriodEndTime;
+            }
+            if (flags.HasFlag(HasSummaryFlagsChanges))
+            {
+                var existingSummaryFlagsUpperBytes = (uint)ent.PeriodSummaryFlags >> 16;
+                var deltaUpperBytes = Deserialize7BitDeltaUint(ref ptr);
+                var newUpper = (flags.HasFlag(NegateDeltaSummaryFlagsUpperByte) ? -1 : 1) * deltaUpperBytes + existingSummaryFlagsUpperBytes;
+                var existingSummaryFlagsLowerBytes = (ushort)ent.PeriodSummaryFlags;
+                var deltaLowerBytes = Deserialize7BitDeltaUint(ref ptr);
+                var newLower = (flags.HasFlag(NegateDeltaSummaryFlagsLowerByte) ? -1 : 1) * deltaLowerBytes + existingSummaryFlagsLowerBytes;
+                var currentFlags = (PricePeriodSummaryFlags)((newUpper << 16) | newLower);
+                ent.PeriodSummaryFlags = currentFlags;
             }
         }
-        if (!flags.HasFlag(PricesStartSameAsLastEndPrices))
+        if (isSnapshot)
+        {
+            ent.StartBidPrice = flags.SignMultiplier(NegateDeltaStartBidPrice)
+                              * PQScaling.Unscale(Deserialize7BitDeltaUint(ref ptr), priceScale);
+            ent.StartAskPrice = flags.SignMultiplier(NegateDeltaStartAskPrice)
+                              * PQScaling.Unscale(Deserialize7BitDeltaUint(ref ptr), priceScale);
+        }
+        else if (!flags.HasFlag(PricesStartSameAsLastEndPrices))
         {
             ent.StartBidPrice = ent.EndBidPrice + flags.SignMultiplier(NegateDeltaStartBidPrice)
               * PQScaling.Unscale(Deserialize7BitDeltaUint(ref ptr), priceScale);

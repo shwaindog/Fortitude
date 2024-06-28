@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
@@ -22,10 +23,12 @@ public interface IReaderSession<TEntry> : ITimeSeriesSession
     IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext);
     void                VisitChildrenCacheAndClose();
 
-    IReaderContext<TEntry> GetAllEntriesReader(EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+    IReaderContext<TEntry> GetAllEntriesReader
+    (EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
       , Func<TEntry>? createNew = null);
 
-    IReaderContext<TEntry> GetEntriesBetweenReader(TimeRange? periodRange,
+    IReaderContext<TEntry> GetEntriesBetweenReader
+    (UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null);
 }

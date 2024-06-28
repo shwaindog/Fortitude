@@ -44,12 +44,12 @@ public struct SignalHistory
 
 public struct SignalIndicatorHistory
 {
-    public int           IndicatorId    { get; set; }
-    public IndicatorType IndicatorType  { get; set; }
-    public BidAskPair?   BidAskSnapshot { get; set; }
-    public SignalState   SentState      { get; set; }
-    public SignalState?  ReceivedState  { get; set; }
-    public SignalAction  Action         { get; set; }
+    public int                IndicatorId    { get; set; }
+    public IndicatorType      IndicatorType  { get; set; }
+    public BidAskInstantPair? BidAskSnapshot { get; set; }
+    public SignalState        SentState      { get; set; }
+    public SignalState?       ReceivedState  { get; set; }
+    public SignalAction       Action         { get; set; }
 
     public SignalHistory? IndicatorSignalHistory { get; set; }
 

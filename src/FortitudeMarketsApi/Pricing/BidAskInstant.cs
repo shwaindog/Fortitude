@@ -12,20 +12,18 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsApi.Pricing;
 
-public interface IBidAskPair : IInterfacesComparable<IBidAskPair>
+public interface IBidAskInstantPair : IBidAskPair, IInterfacesComparable<IBidAskInstantPair>
 {
-    decimal  BidPrice       { get; }
-    decimal  AskPrice       { get; }
     DateTime AtTime         { get; }
     ushort   SourceId       { get; set; }
     uint     SequenceNumber { get; set; }
 }
 
-public struct BidAskPair : IBidAskPair
+public struct BidAskInstantPair : IBidAskInstantPair
 {
-    public BidAskPair() { }
+    public BidAskInstantPair() { }
 
-    public BidAskPair(BidAskPair toClone)
+    public BidAskInstantPair(BidAskInstantPair toClone)
     {
         BidPrice       = toClone.BidPrice;
         AskPrice       = toClone.AskPrice;
@@ -34,7 +32,7 @@ public struct BidAskPair : IBidAskPair
         SequenceNumber = toClone.SequenceNumber;
     }
 
-    public BidAskPair(ILevel1Quote toCapture)
+    public BidAskInstantPair(ILevel1Quote toCapture)
     {
         BidPrice = toCapture.BidPriceTop;
         AskPrice = toCapture.AskPriceTop;
@@ -42,7 +40,7 @@ public struct BidAskPair : IBidAskPair
         SourceId = toCapture.SourceTickerQuoteInfo?.SourceId ?? 0;
     }
 
-    public BidAskPair(decimal bidPrice, decimal askPrice, DateTime? atTime = null, ushort sourceId = 0, uint sequenceNumber = 0)
+    public BidAskInstantPair(decimal bidPrice, decimal askPrice, DateTime? atTime = null, ushort sourceId = 0, uint sequenceNumber = 0)
     {
         BidPrice       = bidPrice;
         AskPrice       = askPrice;
@@ -57,7 +55,7 @@ public struct BidAskPair : IBidAskPair
     public ushort   SourceId       { get; set; }
     public uint     SequenceNumber { get; set; }
 
-    public bool AreEquivalent(IBidAskPair? other, bool exactTypes = false)
+    public bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
     {
         var bidPriceSame       = BidPrice == other.BidPrice;
         var askPriceSame       = AskPrice == other.AskPrice;
@@ -72,53 +70,53 @@ public struct BidAskPair : IBidAskPair
     }
 }
 
-public interface IBidAskPairNode : IBidAskPair, IDoublyLinkedListNode<IBidAskPairNode> { }
+public interface IBidAskInstant : IBidAskInstantPair, IDoublyLinkedListNode<IBidAskInstant> { }
 
-public class BidAsk : ReusableObject<IBidAskPair>, IBidAskPairNode
+public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
 {
-    private BidAskPair bidAskPairState;
+    private BidAskInstantPair bidAskInstantPairState;
 
-    public BidAsk() { }
-    public BidAsk(BidAskPair bidAskPair) => bidAskPairState = bidAskPair;
+    public BidAskInstant() { }
+    public BidAskInstant(BidAskInstantPair bidAskInstantPair) => bidAskInstantPairState = bidAskInstantPair;
 
-    public BidAsk(BidAsk bidAsk) => bidAskPairState = bidAsk.bidAskPairState;
+    public BidAskInstant(BidAskInstant bidAskInstant) => bidAskInstantPairState = bidAskInstant.bidAskInstantPairState;
 
-    public BidAsk(ILevel1Quote toCapture) => bidAskPairState = new BidAskPair(toCapture);
+    public BidAskInstant(ILevel1Quote toCapture) => bidAskInstantPairState = new BidAskInstantPair(toCapture);
 
     public decimal BidPrice
     {
-        get => bidAskPairState.BidPrice;
-        set => bidAskPairState.BidPrice = value;
+        get => bidAskInstantPairState.BidPrice;
+        set => bidAskInstantPairState.BidPrice = value;
     }
 
     public decimal AskPrice
     {
-        get => bidAskPairState.AskPrice;
-        set => bidAskPairState.AskPrice = value;
+        get => bidAskInstantPairState.AskPrice;
+        set => bidAskInstantPairState.AskPrice = value;
     }
 
     public DateTime AtTime
     {
-        get => bidAskPairState.AtTime;
-        set => bidAskPairState.AtTime = value;
+        get => bidAskInstantPairState.AtTime;
+        set => bidAskInstantPairState.AtTime = value;
     }
 
     public ushort SourceId
     {
-        get => bidAskPairState.SourceId;
-        set => bidAskPairState.SourceId = value;
+        get => bidAskInstantPairState.SourceId;
+        set => bidAskInstantPairState.SourceId = value;
     }
 
     public uint SequenceNumber
     {
-        get => bidAskPairState.SequenceNumber;
-        set => bidAskPairState.SequenceNumber = value;
+        get => bidAskInstantPairState.SequenceNumber;
+        set => bidAskInstantPairState.SequenceNumber = value;
     }
 
-    public IBidAskPairNode? Previous { get; set; }
-    public IBidAskPairNode? Next     { get; set; }
+    public IBidAskInstant? Previous { get; set; }
+    public IBidAskInstant? Next     { get; set; }
 
-    public bool AreEquivalent(IBidAskPair? other, bool exactTypes = false)
+    public bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
     {
         var bidPriceSame       = BidPrice == other.BidPrice;
         var askPriceSame       = AskPrice == other.AskPrice;
@@ -132,7 +130,7 @@ public class BidAsk : ReusableObject<IBidAskPair>, IBidAskPairNode
         return allAreSame;
     }
 
-    public override IBidAskPair CopyFrom(IBidAskPair source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IBidAskInstantPair CopyFrom(IBidAskInstantPair source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         BidPrice = source.BidPrice;
         AskPrice = source.AskPrice;
@@ -143,7 +141,7 @@ public class BidAsk : ReusableObject<IBidAskPair>, IBidAskPairNode
         return this;
     }
 
-    public IBidAskPair CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IBidAskInstantPair CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         BidPrice = source.BidPriceTop;
         AskPrice = source.AskPriceTop;
@@ -154,22 +152,22 @@ public class BidAsk : ReusableObject<IBidAskPair>, IBidAskPairNode
     }
 
 
-    public override IBidAskPair Clone() => Recycler?.Borrow<BidAsk>().CopyFrom(this) ?? new BidAsk(this);
+    public override IBidAskInstantPair Clone() => Recycler?.Borrow<BidAskInstant>().CopyFrom(this) ?? new BidAskInstant(this);
 
-    protected bool Equals(BidAsk other) => AreEquivalent(other, true);
+    protected bool Equals(BidAskInstant other) => AreEquivalent(other, true);
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((BidAsk)obj);
+        return Equals((BidAskInstant)obj);
     }
 
-    public override int GetHashCode() => bidAskPairState.GetHashCode();
+    public override int GetHashCode() => bidAskInstantPairState.GetHashCode();
 
     public override string ToString() =>
-        $"{nameof(BidAsk)}{nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice}, " +
+        $"{nameof(BidAskInstant)}{nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice}, " +
         $"{nameof(AtTime)}: {AtTime}, {nameof(SourceId)}: {SourceId}, " +
         $"{nameof(SequenceNumber)}: {SequenceNumber}";
 }

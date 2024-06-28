@@ -7,6 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -68,16 +69,18 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeri
         }
     }
 
-    public override QuoteLevel QuoteLevel           => QuoteLevel.Level1;
-    public          DateTime   AdapterReceivedTime  { get; set; } = DateTimeConstants.UnixEpoch;
-    public          DateTime   AdapterSentTime      { get; set; } = DateTimeConstants.UnixEpoch;
-    public          DateTime   SourceBidTime        { get; set; } = DateTimeConstants.UnixEpoch;
-    public virtual  decimal    BidPriceTop          { get; set; }
-    public          bool       IsBidPriceTopUpdated { get; set; }
-    public          DateTime   SourceAskTime        { get; set; } = DateTimeConstants.UnixEpoch;
-    public virtual  decimal    AskPriceTop          { get; set; }
-    public          bool       IsAskPriceTopUpdated { get; set; }
-    public          bool       Executable           { get; set; }
+    public override QuoteLevel QuoteLevel          => QuoteLevel.Level1;
+    public          DateTime   AdapterReceivedTime { get; set; } = DateTimeConstants.UnixEpoch;
+    public          DateTime   AdapterSentTime     { get; set; } = DateTimeConstants.UnixEpoch;
+    public          DateTime   SourceBidTime       { get; set; } = DateTimeConstants.UnixEpoch;
+
+    public         BidAskPair BidAskTop            => new(BidPriceTop, AskPriceTop);
+    public virtual decimal    BidPriceTop          { get; set; }
+    public         bool       IsBidPriceTopUpdated { get; set; }
+    public         DateTime   SourceAskTime        { get; set; } = DateTimeConstants.UnixEpoch;
+    public virtual decimal    AskPriceTop          { get; set; }
+    public         bool       IsAskPriceTopUpdated { get; set; }
+    public         bool       Executable           { get; set; }
 
     public IMutablePricePeriodSummary? SummaryPeriod { get; set; }
     IPricePeriodSummary? ILevel1Quote. SummaryPeriod => SummaryPeriod;

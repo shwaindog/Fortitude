@@ -4,8 +4,11 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using static FortitudeMarketsCore.Pricing.PQ.Summaries.PQPriceStorageSummaryFlags;
@@ -17,27 +20,32 @@ namespace FortitudeMarketsCore.Pricing.PQ.Summaries;
 [Flags]
 public enum PQPriceStorageSummaryFlags : uint
 {
-    None                           = 0x00_00
-  , IsNextTimePeriod               = 0x00_01
-  , Snapshot                       = 0x00_02
-  , PricesStartSameAsLastEndPrices = 0x00_04
-  , NegateDeltaStartBidPrice       = 0x00_08
-  , NegateDeltaStartAskPrice       = 0x00_10
-  , NegateDeltaHighestBidPrice     = 0x00_20
-  , NegateDeltaHighestAskPrice     = 0x00_40
-  , NegateDeltaLowestBidPrice      = 0x00_80
-  , NegateDeltaLowestAskPrice      = 0x01_00
-  , NegateDeltaEndBidPrice         = 0x02_00
-  , NegateDeltaEndAskPrice         = 0x04_00
-  , TickCountSameAsPrevious        = 0x08_00
-  , NegateDeltaTickCount           = 0x10_00
-  , NegateDeltaPeriodVolume        = 0x20_00
-  , NegateDeltaAverageBidPrice     = 0x40_00
-  , NegateDeltaAverageAskPrice     = 0x80_00
-  , PriceScaleMask                 = 0x0F_00_00
-  , VolumeScaleMask                = 0xF0_00_00
-  , SnapshotClearMask              = 0x00_FF_FD
-  , AllFlags                       = 0xFF_FF_FF
+    None                             = 0x00_00
+  , IsNextTimePeriod                 = 0x00_01
+  , Snapshot                         = 0x00_02
+  , PricesStartSameAsLastEndPrices   = 0x00_04
+  , HasSummaryFlagsChanges           = 0x00_08
+  , NegateDeltaSummaryFlagsUpperByte = 0x00_10
+  , NegateDeltaSummaryFlagsLowerByte = 0x00_20
+  , NegateDeltaStartBidPrice         = 0x00_40
+  , NegateDeltaStartAskPrice         = 0x00_80
+  , NegateDeltaHighestBidPrice       = 0x01_00
+  , NegateDeltaHighestAskPrice       = 0x02_00
+  , NegateDeltaLowestBidPrice        = 0x04_00
+  , NegateDeltaLowestAskPrice        = 0x08_00
+  , NegateDeltaEndBidPrice           = 0x10_00
+  , NegateDeltaEndAskPrice           = 0x20_00
+  , TickCountSameAsPrevious          = 0x40_00
+  , NegateDeltaTickCount             = 0x80_00
+  , NegateDeltaPeriodVolume          = 0x01_00_00
+  , NegateDeltaAverageBidPrice       = 0x02_00_00
+  , NegateDeltaAverageAskPrice       = 0x04_00_00
+  , PriceScaleMask                   = 0x0F_00_00_00
+  , VolumeScaleMask                  = 0xF0_00_00_00
+  , PriceVolumeScaleMask             = 0xFF_00_00_00
+  , SnapshotClearMask                = 0xFF_07_FF_FD
+  , SetSnapshotMask                  = 0xFF_00_00_02
+  , AllFlags                         = 0xFF_07_FF_FF
 }
 
 public static class PQPriceStorageSummaryFlagsExtensions
@@ -54,34 +62,39 @@ public interface IPQPriceStoragePeriodSummary : IMutablePricePeriodSummary, ITra
 
     IPQPriceVolumePublicationPrecisionSettings? PrecisionSettings { get; set; }
 
-    uint DeltaPeriodsFromPrevious  { get; set; }
-    uint DeltaStartBidPrice        { get; set; }
-    uint DeltaStartAskPrice        { get; set; }
-    uint DeltaHighestBidPrice      { get; set; }
-    uint DeltaHighestAskPrice      { get; set; }
-    uint DeltaLowestBidPrice       { get; set; }
-    uint DeltaLowestAskPrice       { get; set; }
-    uint DeltaEndBidPrice          { get; set; }
-    uint DeltaEndAskPrice          { get; set; }
-    uint DeltaTickCount            { get; set; }
-    uint DeltaPeriodVolume         { get; set; }
-    uint DeltaAverageBidPrice      { get; set; }
-    uint DeltaAverageAskPrice      { get; set; }
-    byte VolumePricePrecisionScale { get; }
+    uint DeltaPeriodsFromPrevious    { get; set; }
+    uint DeltaStartBidPrice          { get; set; }
+    uint DeltaStartAskPrice          { get; set; }
+    uint DeltaHighestBidPrice        { get; set; }
+    uint DeltaHighestAskPrice        { get; set; }
+    uint DeltaLowestBidPrice         { get; set; }
+    uint DeltaLowestAskPrice         { get; set; }
+    uint DeltaEndBidPrice            { get; set; }
+    uint DeltaEndAskPrice            { get; set; }
+    uint DeltaTickCount              { get; set; }
+    uint DeltaPeriodVolume           { get; set; }
+    uint DeltaSummaryFlagsUpperBytes { get; set; }
+    uint DeltaSummaryFlagsLowerBytes { get; set; }
+    uint DeltaAverageBidPrice        { get; set; }
+    uint DeltaAverageAskPrice        { get; set; }
+    byte VolumePricePrecisionScale   { get; }
+
+    new IPQPriceStoragePeriodSummary Clone();
 }
 
-public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
+public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPriceStoragePeriodSummary
 {
-    private decimal averageAskPrice;
-    private decimal averageBidPrice;
-    private uint    deltaPeriodsFromPrevious;
-    private decimal endAskPrice;
-    private decimal endBidPrice;
-    private decimal highestAskPrice;
-    private decimal highestBidPrice;
-    private decimal lowestAskPrice;
-    private decimal lowestBidPrice;
-    private long    periodVolume;
+    private decimal                 averageAskPrice;
+    private decimal                 averageBidPrice;
+    private uint                    deltaPeriodsFromPrevious;
+    private decimal                 endAskPrice;
+    private decimal                 endBidPrice;
+    private decimal                 highestAskPrice;
+    private decimal                 highestBidPrice;
+    private decimal                 lowestAskPrice;
+    private decimal                 lowestBidPrice;
+    private PricePeriodSummaryFlags periodSummaryFlags;
+    private long                    periodVolume;
 
     private IPQPriceVolumePublicationPrecisionSettings? precisionSettings;
 
@@ -90,36 +103,82 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
     private DateTime startTime = DateTimeConstants.UnixEpoch;
     private uint     tickCount;
 
-    public PQPriceStoragePeriodSummary() { }
+    public PQPriceStoragePeriodSummary() => PeriodSummaryFlags = PricePeriodSummaryFlags.FromStorage;
 
     public PQPriceStoragePeriodSummary(IPQPriceVolumePublicationPrecisionSettings precisionSettings)
     {
         PrecisionSettings   =  precisionSettings;
         SummaryStorageFlags |= Snapshot;
+        periodSummaryFlags  =  PricePeriodSummaryFlags.FromStorage;
     }
 
     public PQPriceStoragePeriodSummary(IPQPriceStoragePeriodSummary toClone)
     {
-        precisionSettings = toClone.PrecisionSettings;
-        SummaryPeriod     = toClone.SummaryPeriod;
-        SummaryStartTime  = toClone.SummaryStartTime;
-        SummaryEndTime    = toClone.SummaryEndTime;
-        StartBidPrice     = toClone.StartBidPrice;
-        StartAskPrice     = toClone.StartAskPrice;
-        HighestBidPrice   = toClone.HighestBidPrice;
-        HighestAskPrice   = toClone.HighestAskPrice;
-        LowestBidPrice    = toClone.LowestBidPrice;
-        LowestAskPrice    = toClone.LowestAskPrice;
-        EndBidPrice       = toClone.EndBidPrice;
-        EndAskPrice       = toClone.EndAskPrice;
-        TickCount         = toClone.TickCount;
-        PeriodVolume      = toClone.PeriodVolume;
-        AverageBidPrice   = toClone.AverageBidPrice;
-        AverageAskPrice   = toClone.AverageBidPrice;
+        precisionSettings  = toClone.PrecisionSettings;
+        TimeSeriesPeriod   = toClone.TimeSeriesPeriod;
+        PeriodStartTime    = toClone.PeriodStartTime;
+        PeriodEndTime      = toClone.PeriodEndTime;
+        StartBidPrice      = toClone.StartBidPrice;
+        StartAskPrice      = toClone.StartAskPrice;
+        HighestBidPrice    = toClone.HighestBidPrice;
+        HighestAskPrice    = toClone.HighestAskPrice;
+        LowestBidPrice     = toClone.LowestBidPrice;
+        LowestAskPrice     = toClone.LowestAskPrice;
+        EndBidPrice        = toClone.EndBidPrice;
+        EndAskPrice        = toClone.EndAskPrice;
+        TickCount          = toClone.TickCount;
+        PeriodVolume       = toClone.PeriodVolume;
+        PeriodSummaryFlags = toClone.PeriodSummaryFlags | PricePeriodSummaryFlags.FromStorage;
+        AverageBidPrice    = toClone.AverageBidPrice;
+        AverageAskPrice    = toClone.AverageBidPrice;
     }
 
     public PQPriceStorageSummaryFlags SummaryStorageFlags { get; private set; }
 
+    public PricePeriodSummaryFlags PeriodSummaryFlags
+    {
+        get => periodSummaryFlags;
+        set
+        {
+            var upperCurrent  = (uint)periodSummaryFlags >> 16;
+            var newUpperValue = (uint)value >> 16;
+            var deltaUpper =
+                SummaryStorageFlags.SignMultiplier(NegateDeltaSummaryFlagsUpperByte) * DeltaSummaryFlagsUpperBytes
+              + (int)newUpperValue - (int)upperCurrent;
+            if (deltaUpper < 0)
+                SummaryStorageFlags |= NegateDeltaSummaryFlagsUpperByte;
+            else
+                SummaryStorageFlags &= AllFlags & ~NegateDeltaSummaryFlagsUpperByte;
+            DeltaSummaryFlagsUpperBytes = (uint)Math.Abs(deltaUpper);
+            var lowerCurrent  = (ushort)periodSummaryFlags;
+            var newLowerValue = (ushort)(value | PricePeriodSummaryFlags.FromStorage);
+            var deltaLower =
+                SummaryStorageFlags.SignMultiplier(NegateDeltaSummaryFlagsLowerByte) * DeltaSummaryFlagsLowerBytes
+              + newLowerValue - lowerCurrent;
+            if (deltaLower < 0)
+                SummaryStorageFlags |= NegateDeltaSummaryFlagsLowerByte;
+            else
+                SummaryStorageFlags &= AllFlags & ~NegateDeltaSummaryFlagsLowerByte;
+            DeltaSummaryFlagsLowerBytes = (uint)Math.Abs(deltaLower);
+            if (deltaUpper > 0 || deltaLower > 0)
+                SummaryStorageFlags |= HasSummaryFlagsChanges;
+            else
+                SummaryStorageFlags &= AllFlags & ~HasSummaryFlagsChanges;
+            periodSummaryFlags = value | PricePeriodSummaryFlags.FromStorage;
+        }
+    }
+
+    public BoundedTimeRange ToBoundedTimeRange(DateTime? maxDateTime = null) => new(PeriodStartTime, PeriodEndTime.Min(maxDateTime));
+
+    public bool IsWhollyBoundedBy
+        (ITimeSeriesPeriodRange parentRange) =>
+        parentRange.PeriodStartTime <= PeriodStartTime && parentRange.PeriodEnd() >= PeriodEndTime;
+
+    public BidAskPair StartBidAsk   => new(StartBidPrice, StartAskPrice);
+    public BidAskPair HighestBidAsk => new(HighestBidPrice, HighestAskPrice);
+    public BidAskPair LowestBidAsk  => new(LowestBidPrice, LowestAskPrice);
+    public BidAskPair EndBidAsk     => new(EndBidPrice, EndAskPrice);
+    public BidAskPair AverageBidAsk => new(AverageBidPrice, AverageAskPrice);
 
     public uint DeltaPeriodsFromPrevious
     {
@@ -148,7 +207,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         {
             precisionSettings   =  value;
             SummaryStorageFlags &= AllFlags & ~PriceScaleMask & ~VolumeScaleMask;
-            SummaryStorageFlags |= (PQPriceStorageSummaryFlags)((uint)VolumePricePrecisionScale << 16);
+            SummaryStorageFlags |= (PQPriceStorageSummaryFlags)((uint)VolumePricePrecisionScale << 24);
         }
     }
 
@@ -163,7 +222,10 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
     public uint DeltaAverageBidPrice { get; set; }
     public uint DeltaAverageAskPrice { get; set; }
 
-    public TimeSeriesPeriod SummaryPeriod { get; set; }
+    public uint DeltaSummaryFlagsUpperBytes { get; set; }
+    public uint DeltaSummaryFlagsLowerBytes { get; set; }
+
+    public TimeSeriesPeriod TimeSeriesPeriod { get; set; }
 
     public bool IsEmpty
     {
@@ -174,50 +236,53 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
                 HighestAskPrice == decimal.Zero && LowestBidPrice == decimal.Zero && LowestAskPrice == decimal.Zero &&
                 EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                 AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
-            var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
-            var summaryPeriodNone      = SummaryPeriod == TimeSeriesPeriod.None;
-            var startEndTimeUnixEpoch = SummaryStartTime == DateTimeConstants.UnixEpoch
-                                     && SummaryEndTime == DateTimeConstants.UnixEpoch;
-            return pricesAreAllZero && tickCountAndVolumeZero && summaryPeriodNone && startEndTimeUnixEpoch;
+            var tickCountAndVolumeZero    = TickCount == 0 && PeriodVolume == 0;
+            var summaryPeriodNone         = TimeSeriesPeriod == TimeSeriesPeriod.None;
+            var summaryFlagsNoneOrStorage = PeriodSummaryFlags is PricePeriodSummaryFlags.FromStorage or PricePeriodSummaryFlags.None;
+            var startEndTimeUnixEpoch = PeriodStartTime == DateTimeConstants.UnixEpoch
+                                     && PeriodEndTime == DateTimeConstants.UnixEpoch;
+            return pricesAreAllZero && tickCountAndVolumeZero && summaryPeriodNone && startEndTimeUnixEpoch && summaryFlagsNoneOrStorage;
         }
         set
         {
             if (!value) return;
-            StartBidPrice    = StartAskPrice  = HighestBidPrice = HighestAskPrice = AverageBidPrice = decimal.Zero;
-            LowestBidPrice   = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
-            TickCount        = 0;
-            PeriodVolume     = 0;
-            SummaryPeriod    = TimeSeriesPeriod.None;
-            SummaryStartTime = SummaryEndTime = DateTimeConstants.UnixEpoch;
+            StartBidPrice       = StartAskPrice  = HighestBidPrice = HighestAskPrice = AverageBidPrice = decimal.Zero;
+            LowestBidPrice      = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
+            TickCount           = 0;
+            PeriodVolume        = 0;
+            TimeSeriesPeriod    = TimeSeriesPeriod.None;
+            PeriodSummaryFlags  = PricePeriodSummaryFlags.FromStorage;
+            PeriodStartTime     = PeriodEndTime = DateTimeConstants.UnixEpoch;
+            SummaryStorageFlags = None;
         }
     }
 
-    public DateTime SummaryStartTime
+    public DateTime PeriodStartTime
     {
         get => startTime;
         set
         {
-            if (SummaryEndTime > DateTimeConstants.UnixEpoch)
+            if (PeriodEndTime > DateTimeConstants.UnixEpoch)
             {
-                var  currentStartTime   = SummaryEndTime;
+                var  currentStartTime   = PeriodEndTime;
                 var  haveFoundStartTime = currentStartTime == value;
                 uint countPeriod        = 1;
                 while (!haveFoundStartTime)
                 {
-                    currentStartTime = SummaryPeriod.PeriodEnd(currentStartTime);
+                    currentStartTime = TimeSeriesPeriod.PeriodEnd(currentStartTime);
                     countPeriod++;
                     haveFoundStartTime = currentStartTime == value;
                 }
                 DeltaPeriodsFromPrevious = countPeriod;
             }
-            startTime      = value;
-            SummaryEndTime = SummaryPeriod.PeriodEnd(startTime);
+            startTime     = value;
+            PeriodEndTime = TimeSeriesPeriod.PeriodEnd(startTime);
         }
     }
 
-    public DateTime SummaryEndTime { get; set; } = DateTimeConstants.UnixEpoch;
+    public DateTime PeriodEndTime { get; set; } = DateTimeConstants.UnixEpoch;
 
-    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => SummaryEndTime;
+    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => PeriodEndTime;
 
     public decimal AverageBidPrice
     {
@@ -269,13 +334,13 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
             if (delta < 0)
             {
                 SummaryStorageFlags &= AllFlags & ~PricesStartSameAsLastEndPrices;
-                SummaryStorageFlags |= NegateDeltaStartAskPrice;
+                SummaryStorageFlags |= NegateDeltaStartBidPrice;
             }
             else if (delta > 0)
             {
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaStartAskPrice & ~PricesStartSameAsLastEndPrices;
+                SummaryStorageFlags &= AllFlags & ~NegateDeltaStartBidPrice & ~PricesStartSameAsLastEndPrices;
             }
-            else
+            else if (DeltaStartAskPrice == 0)
             {
                 SummaryStorageFlags |= PricesStartSameAsLastEndPrices;
             }
@@ -303,7 +368,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
             {
                 SummaryStorageFlags &= AllFlags & ~NegateDeltaStartAskPrice & ~PricesStartSameAsLastEndPrices;
             }
-            else
+            else if (DeltaStartBidPrice == 0)
             {
                 SummaryStorageFlags |= PricesStartSameAsLastEndPrices;
             }
@@ -383,7 +448,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
                 SummaryStorageFlags |= NegateDeltaLowestAskPrice;
             else
                 SummaryStorageFlags &= AllFlags & ~NegateDeltaLowestAskPrice;
-            DeltaLowestBidPrice = (uint)Math.Abs(delta);
+            DeltaLowestAskPrice = (uint)Math.Abs(delta);
             lowestAskPrice      = value;
         }
     }
@@ -478,89 +543,115 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
         get => SummaryStorageFlags > 0;
         set
         {
-            if (!value) return;
+            if (value) return;
             SummaryStorageFlags = None;
-            SummaryStorageFlags = (PQPriceStorageSummaryFlags)((uint)VolumePricePrecisionScale << 16);
+            SummaryStorageFlags = (PQPriceStorageSummaryFlags)((uint)VolumePricePrecisionScale << 24);
 
-            DeltaStartBidPrice  = DeltaStartAskPrice  = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
-            DeltaLowestBidPrice = DeltaLowestAskPrice = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
-            DeltaTickCount      = DeltaPeriodVolume   = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
+            DeltaStartBidPrice          = DeltaStartAskPrice          = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
+            DeltaLowestBidPrice         = DeltaLowestAskPrice         = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
+            DeltaTickCount              = DeltaPeriodVolume           = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
+            DeltaSummaryFlagsLowerBytes = DeltaSummaryFlagsUpperBytes = 0;
         }
     }
 
+    public IPricePeriodSummary? Previous { get; set; }
+    public IPricePeriodSummary? Next     { get; set; }
+
 
     public IPQPriceStoragePeriodSummary CopyFrom
-        (IPQPriceStoragePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        SummaryPeriod    = ps.SummaryPeriod;
-        SummaryStartTime = ps.SummaryStartTime;
-        StartBidPrice    = ps.StartBidPrice;
-        StartAskPrice    = ps.StartAskPrice;
-        HighestBidPrice  = ps.HighestBidPrice;
-        HighestAskPrice  = ps.HighestAskPrice;
-        LowestBidPrice   = ps.LowestBidPrice;
-        LowestAskPrice   = ps.LowestAskPrice;
-        EndBidPrice      = ps.EndBidPrice;
-        EndAskPrice      = ps.EndAskPrice;
-        TickCount        = ps.TickCount;
-        PeriodVolume     = ps.PeriodVolume;
-        AverageBidPrice  = ps.AverageBidPrice;
-        AverageAskPrice  = ps.AverageAskPrice;
+        (IPQPriceStoragePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (IPQPriceStoragePeriodSummary)CopyFrom((IPricePeriodSummary)ps, copyMergeFlags);
 
-        SummaryStorageFlags |= copyMergeFlags.HasFullReplace() ? Snapshot : None;
+
+    public override IPricePeriodSummary CopyFrom(IPricePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        TimeSeriesPeriod   = ps.TimeSeriesPeriod;
+        PeriodStartTime    = ps.PeriodStartTime;
+        StartBidPrice      = ps.StartBidAsk.BidPrice;
+        StartAskPrice      = ps.StartBidAsk.AskPrice;
+        HighestBidPrice    = ps.HighestBidAsk.BidPrice;
+        HighestAskPrice    = ps.HighestBidAsk.AskPrice;
+        LowestBidPrice     = ps.LowestBidAsk.BidPrice;
+        LowestAskPrice     = ps.LowestBidAsk.AskPrice;
+        EndBidPrice        = ps.EndBidAsk.BidPrice;
+        EndAskPrice        = ps.EndBidAsk.AskPrice;
+        TickCount          = ps.TickCount;
+        PeriodVolume       = ps.PeriodVolume;
+        PeriodSummaryFlags = ps.PeriodSummaryFlags | PricePeriodSummaryFlags.FromStorage;
+        AverageBidPrice    = ps.AverageBidAsk.BidPrice;
+        AverageAskPrice    = ps.AverageBidAsk.AskPrice;
+
+        if (ps is IPQPriceStoragePeriodSummary storageSummary)
+            if (PrecisionSettings != storageSummary.PrecisionSettings)
+                PrecisionSettings = storageSummary.PrecisionSettings;
+        if (copyMergeFlags.HasFullReplace())
+            SummaryStorageFlags |= Snapshot;
+        else
+            SummaryStorageFlags &= SnapshotClearMask;
 
         return this;
     }
 
-    public IPricePeriodSummary CopyFrom(IPricePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override void StateReset()
     {
-        SummaryPeriod    = ps.SummaryPeriod;
-        SummaryStartTime = ps.SummaryStartTime;
-        StartBidPrice    = ps.StartBidPrice;
-        StartAskPrice    = ps.StartAskPrice;
-        HighestBidPrice  = ps.HighestBidPrice;
-        HighestAskPrice  = ps.HighestAskPrice;
-        LowestBidPrice   = ps.LowestBidPrice;
-        LowestAskPrice   = ps.LowestAskPrice;
-        EndBidPrice      = ps.EndBidPrice;
-        EndAskPrice      = ps.EndAskPrice;
-        TickCount        = ps.TickCount;
-        PeriodVolume     = ps.PeriodVolume;
-        AverageBidPrice  = ps.AverageBidPrice;
-        AverageAskPrice  = ps.AverageAskPrice;
-
-        SummaryStorageFlags |= copyMergeFlags.HasFullReplace() ? Snapshot : None;
-
-        return this;
+        IsEmpty    = true;
+        HasUpdates = false;
+        base.StateReset();
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+    IStoreState IStoreState.CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
-    public IMutablePricePeriodSummary Clone() => new PQPricePeriodSummary(this);
+    IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() =>
+        Recycler?.Borrow<PQPriceStoragePeriodSummary>().CopyFrom(this) as IMutablePricePeriodSummary ?? new PQPriceStoragePeriodSummary(this);
+
+    IReusableObject<IPricePeriodSummary> IStoreState<IReusableObject<IPricePeriodSummary>>.CopyFrom
+        (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
+
+    public override IPQPriceStoragePeriodSummary Clone() =>
+        Recycler?.Borrow<PQPriceStoragePeriodSummary>().CopyFrom(this) ?? new PQPriceStoragePeriodSummary(this);
 
     object ICloneable.Clone() => Clone();
 
     IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
+    public double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler)
+    {
+        const ushort checkBitMask = 0x1;
+
+        var missingTickPeriods      = PeriodSummaryFlags.MissingTickFlags();
+        var currentRangeMissing     = (missingTickPeriods & checkBitMask) > 0;
+        var totalCompletePercentage = 0.0;
+        foreach (var subRange in this.To16SubTimeRanges(recycler))
+        {
+            if (subRange.IntersectsWith(timeRange) && !currentRangeMissing)
+                totalCompletePercentage += subRange.ContributingPercentageOfTimeRange(timeRange);
+            missingTickPeriods  >>= 1;
+            currentRangeMissing =   (missingTickPeriods & checkBitMask) > 0;
+        }
+        return totalCompletePercentage;
+    }
+
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame       = SummaryPeriod == other.SummaryPeriod;
-        var startTimeSame       = SummaryStartTime.Equals(other.SummaryStartTime);
-        var endTimeSame         = SummaryEndTime.Equals(other.SummaryEndTime);
-        var startBidPriceSame   = StartBidPrice == other.StartBidPrice;
-        var startAskPriceSame   = StartAskPrice == other.StartAskPrice;
-        var highestBidPriceSame = HighestBidPrice == other.HighestBidPrice;
-        var highestAskPriceSame = HighestAskPrice == other.HighestAskPrice;
-        var lowestBidPriceSame  = LowestBidPrice == other.LowestBidPrice;
-        var lowestAskPriceSame  = LowestAskPrice == other.LowestAskPrice;
-        var endBidPriceSame     = EndBidPrice == other.EndBidPrice;
-        var endAskPriceSame     = EndAskPrice == other.EndAskPrice;
-        var tickCountSame       = TickCount == other.TickCount;
-        var periodVolumeSame    = PeriodVolume == other.PeriodVolume;
-        var averageBidSame      = AverageBidPrice == other.AverageBidPrice;
-        var averageAskSame      = AverageAskPrice == other.AverageAskPrice;
+        var timeFrameSame          = TimeSeriesPeriod == other.TimeSeriesPeriod;
+        var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
+        var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
+        var startBidPriceSame      = StartBidPrice == other.StartBidAsk.BidPrice;
+        var startAskPriceSame      = StartAskPrice == other.StartBidAsk.AskPrice;
+        var highestBidPriceSame    = HighestBidPrice == other.HighestBidAsk.BidPrice;
+        var highestAskPriceSame    = HighestAskPrice == other.HighestBidAsk.AskPrice;
+        var lowestBidPriceSame     = LowestBidPrice == other.LowestBidAsk.BidPrice;
+        var lowestAskPriceSame     = LowestAskPrice == other.LowestBidAsk.AskPrice;
+        var endBidPriceSame        = EndBidPrice == other.EndBidAsk.BidPrice;
+        var endAskPriceSame        = EndAskPrice == other.EndBidAsk.AskPrice;
+        var tickCountSame          = TickCount == other.TickCount;
+        var periodVolumeSame       = PeriodVolume == other.PeriodVolume;
+        var periodSummaryFlagsSame = PeriodSummaryFlags == (other.PeriodSummaryFlags | PricePeriodSummaryFlags.FromStorage);
+        var averageBidSame         = AverageBidPrice == other.AverageBidAsk.BidPrice;
+        var averageAskSame         = AverageAskPrice == other.AverageBidAsk.AskPrice;
 
         var updateFlagsSame = true;
         if (exactTypes)
@@ -571,8 +662,8 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
 
         var allAreSame = timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
                       && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame
-                      && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && updateFlagsSame
-                      && averageBidSame && averageAskSame;
+                      && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && periodSummaryFlagsSame
+                      && updateFlagsSame && averageBidSame && averageAskSame;
         return allAreSame;
     }
 
@@ -582,9 +673,9 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
     {
         unchecked
         {
-            var hashCode = SummaryPeriod.GetHashCode();
+            var hashCode = TimeSeriesPeriod.GetHashCode();
             hashCode = (hashCode * 397) ^ startTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ SummaryEndTime.GetHashCode();
+            hashCode = (hashCode * 397) ^ PeriodEndTime.GetHashCode();
             hashCode = (hashCode * 397) ^ startBidPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ startAskPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ highestBidPrice.GetHashCode();
@@ -595,6 +686,7 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
             hashCode = (hashCode * 397) ^ endAskPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)tickCount;
             hashCode = (hashCode * 397) ^ periodVolume.GetHashCode();
+            hashCode = (hashCode * 397) ^ PeriodSummaryFlags.GetHashCode();
             hashCode = (hashCode * 397) ^ averageBidPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ averageAskPrice.GetHashCode();
             return hashCode;
@@ -602,11 +694,11 @@ public class PQPriceStoragePeriodSummary : IPQPriceStoragePeriodSummary
     }
 
     public override string ToString() =>
-        $"PQPriceStoragePeriodSummary {{ {nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(SummaryStartTime)}: {SummaryStartTime}, " +
-        $"{nameof(SummaryEndTime)}: {SummaryEndTime}, {nameof(StartBidPrice)}: {StartBidPrice}, {nameof(StartAskPrice)}:" +
+        $"PQPriceStoragePeriodSummary {{ {nameof(TimeSeriesPeriod)}: {TimeSeriesPeriod}, {nameof(PeriodStartTime)}: {PeriodStartTime}, " +
+        $"{nameof(PeriodEndTime)}: {PeriodEndTime}, {nameof(StartBidPrice)}: {StartBidPrice}, {nameof(StartAskPrice)}:" +
         $" {StartAskPrice}, {nameof(HighestBidPrice)}: {HighestBidPrice}, {nameof(HighestAskPrice)}: " +
         $"{HighestAskPrice}, {nameof(LowestBidPrice)}: {LowestBidPrice}, {nameof(LowestAskPrice)}: " +
         $"{LowestAskPrice}, {nameof(EndBidPrice)}: {EndBidPrice}, {nameof(EndAskPrice)}: {EndAskPrice}, " +
-        $"{nameof(TickCount)}: {TickCount}, {nameof(PeriodVolume)}: {PeriodVolume}, {nameof(AverageBidPrice)}: {AverageBidPrice}, " +
-        $"{nameof(AverageAskPrice)}: {AverageAskPrice} }}";
+        $"{nameof(TickCount)}: {TickCount}, {nameof(PeriodVolume)}: {PeriodVolume}, {nameof(PeriodSummaryFlags)}: {PeriodSummaryFlags}, " +
+        $"{nameof(AverageBidPrice)}: {AverageBidPrice}, {nameof(AverageAskPrice)}: {AverageAskPrice} }}";
 }

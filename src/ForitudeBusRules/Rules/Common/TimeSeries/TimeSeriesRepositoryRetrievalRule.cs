@@ -12,10 +12,10 @@ namespace FortitudeBusRules.Rules.Common.TimeSeries;
 
 public class TimeSeriesRepositoryRetrievalRule : Rule
 {
-    private readonly IFileRepositoryConfig? repoBuilder;
+    private readonly IRepositoryBuilder?    repoBuilder;
     protected        ITimeSeriesRepository? TimeSeriesRepository;
 
-    public TimeSeriesRepositoryRetrievalRule(IFileRepositoryConfig repoBuilder, string ruleName) : base(ruleName) => this.repoBuilder = repoBuilder;
+    public TimeSeriesRepositoryRetrievalRule(IRepositoryBuilder repoBuilder, string ruleName) : base(ruleName) => this.repoBuilder = repoBuilder;
 
     public TimeSeriesRepositoryRetrievalRule(ITimeSeriesRepository existingRepository, string ruleName) : base(ruleName) =>
         TimeSeriesRepository = existingRepository;
