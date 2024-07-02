@@ -162,7 +162,6 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             // var start            = DateTime.Now;
             var uncompressionBufferSize = Math.Max(ExpandedDataSize, 2_048);
             var uncompressedBuffer      = OwningSession.UncompressedBuffer;
-            var originalLength          = uncompressedBuffer.Length;
             uncompressedBuffer.SetLength((long)uncompressionBufferSize);
             BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
             var viewOffset         = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
@@ -173,7 +172,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             lzmaDecoder.Decompress(compressedStream, uncompressedStream);
             readerBuffer             = uncompressedBuffer;
             readerBuffer.WriteCursor = uncompressedStream.Position;
-            uncompressedBuffer.SetLength(originalLength);
+            readerBuffer.SetLength(readerBuffer.BackingMemoryAddressRange.Length);
             // Logger.Info("Bucket {0} took {1} ms to decompress and read compressed data", BucketId, (DateTime.Now - start).TotalMilliseconds);
         }
         else

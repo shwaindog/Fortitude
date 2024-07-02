@@ -30,8 +30,7 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
         byte storageVersion = 1)
         : base(identifier, serializationFlags)
     {
-        if (string.IsNullOrEmpty(identifier.Ticker))
-            throw new ArgumentException("Expected no ticker to be specified.");
+        if (string.IsNullOrEmpty(identifier.Ticker)) throw new ArgumentException("Expected no ticker to be specified.");
         StorageVersion = storageVersion;
     }
 
@@ -41,10 +40,8 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
 
     public override T Deserialize(ISerdeContext readContext)
     {
-        if ((readContext.Direction & ContextDirection.Read) == 0)
-            throw new ArgumentException("Expected readContext to allow reading");
-        if ((readContext.MarshalType & MarshalType.Binary) == 0)
-            throw new ArgumentException("Expected readContext to be a binary buffer context");
+        if ((readContext.Direction & ContextDirection.Read) == 0) throw new ArgumentException("Expected readContext to allow reading");
+        if ((readContext.MarshalType & MarshalType.Binary) == 0) throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext bufferContext)
         {
             var sockBuffContext = bufferContext as SocketBufferReadContext;

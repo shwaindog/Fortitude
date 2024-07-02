@@ -14,11 +14,14 @@ public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
     private readonly long arrayOffset;
     private readonly bool closeMemoryRegionOnDispose;
 
+    private long cappedLength;
+
     private IVirtualMemoryAddressRange? mappedViewRegion;
 
     private VirtualMemoryByteArrayEnumerator? reusableEnumerator;
 
-    public UnmanagedByteArray(IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset,
+    public UnmanagedByteArray
+    (IVirtualMemoryAddressRange mappedViewRegion, long arrayOffset,
         long length, bool closeMemoryRegionOnDispose = false)
     {
         if (mappedViewRegion.Length < arrayOffset + length)
@@ -64,9 +67,8 @@ public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
 
     public void SetLength(long newSize)
     {
-        if (mappedViewRegion!.Length < arrayOffset + newSize) GrowByDefaultSize();
-        if (mappedViewRegion!.Length < arrayOffset + newSize)
-            throw new Exception("Memory mapped file view size does not match expected file position and/or size");
+        while (mappedViewRegion!.Length < newSize) GrowByDefaultSize();
+        if (mappedViewRegion!.Length < newSize) throw new Exception("Memory mapped file view size does not match expected file position and/or size");
         Length = newSize;
     }
 
@@ -79,15 +81,26 @@ public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
 
     public IByteArray GrowByDefaultSize()
     {
-        var currentLength = Length;
-        var growSize      = DefaultGrowSize;
-        mappedViewRegion = mappedViewRegion!.GrowByDefaultSize();
-        SetLength(currentLength + growSize);
+        var newRegion = mappedViewRegion!.GrowByDefaultSize();
+        if (newRegion != mappedViewRegion)
+        {
+            mappedViewRegion.Dispose();
+            mappedViewRegion = newRegion;
+        }
+        Length = mappedViewRegion.Length;
         return this;
     }
 
-    public long Length { get; private set; }
 
+    public long Length
+    {
+        get => Math.Min(cappedLength, mappedViewRegion?.Length ?? 0);
+        set
+        {
+            var maxLength = mappedViewRegion?.Length ?? 0;
+            cappedLength = value > maxLength ? maxLength : value;
+        }
+    }
     long IByteArray.Count => Length;
 
     public void Dispose()
@@ -96,16 +109,7 @@ public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
         mappedViewRegion = null;
     }
 
-    IVirtualMemoryAddressRange IGrowable<IVirtualMemoryAddressRange>.GrowByDefaultSize()
-    {
-        var newRegion = mappedViewRegion!.GrowByDefaultSize();
-        if (newRegion != mappedViewRegion)
-        {
-            mappedViewRegion.Dispose();
-            mappedViewRegion = newRegion;
-        }
-        return this;
-    }
+    IVirtualMemoryAddressRange IGrowable<IVirtualMemoryAddressRange>.GrowByDefaultSize() => (IVirtualMemoryAddressRange)GrowByDefaultSize();
 
     public byte* StartAddress => mappedViewRegion!.StartAddress + arrayOffset;
     public byte* EndAddress   => StartAddress + Length;

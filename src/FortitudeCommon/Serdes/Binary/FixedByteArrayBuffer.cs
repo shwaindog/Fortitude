@@ -25,6 +25,8 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
 
     protected int BufferAccessCounter;
 
+    private long cappedLength = long.MaxValue;
+
     private bool isDestroyed;
     private long ReadCursorPos;
 
@@ -124,11 +126,19 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
 
     public long Position
     {
-        get => WriteCursor = ReadCursor;
-        set => WriteCursor = ReadCursor = value;
+        get => WriteCursorPos = ReadCursor;
+        set => WriteCursorPos = ReadCursor = value;
     }
 
-    public long Length => (nint)VirtualMemoryAddressRange!.EndAddress - (nint)VirtualMemoryAddressRange!.StartAddress;
+    public long Length
+    {
+        get => Math.Min(cappedLength, (nint)VirtualMemoryAddressRange!.EndAddress - (nint)VirtualMemoryAddressRange!.StartAddress);
+        set
+        {
+            var maxLength = (nint)VirtualMemoryAddressRange!.EndAddress - (nint)VirtualMemoryAddressRange!.StartAddress;
+            cappedLength = value > maxLength ? maxLength : value;
+        }
+    }
 
     public bool AllRead => WriteCursorPos == ReadCursor;
 
@@ -160,26 +170,26 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
         switch (origin)
         {
             case SeekOrigin.Begin:
-                if (offset > Length || offset < 0)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset > Length || offset < 0) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = (int)offset;
                 break;
             case SeekOrigin.End:
-                if (offset < 0 || offset > Length)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset < 0 || offset > Length) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = Length - (int)offset;
                 break;
             default:
                 var proposedCursor = Position + (int)offset;
-                if (proposedCursor < 0 || proposedCursor > Length)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (proposedCursor < 0 || proposedCursor > Length) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = proposedCursor;
                 break;
         }
         return Position;
     }
 
-    public virtual void SetLength(long value) { }
+    public virtual void SetLength(long value)
+    {
+        Length = value;
+    }
 
     public void Write(byte[] buffer, int offset, int count)
     {

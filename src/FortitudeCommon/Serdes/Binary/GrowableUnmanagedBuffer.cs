@@ -5,7 +5,6 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
@@ -28,23 +27,19 @@ public class GrowableUnmanagedBuffer : FixedByteArrayBuffer, IGrowableUnmanagedB
     public GrowableUnmanagedBuffer(IVirtualMemoryAddressRange virtualMemoryAddressRange, bool shouldCloseView = true)
         : base(virtualMemoryAddressRange, shouldCloseView) { }
 
-    public int GrowRemainingBytesThreshold { get; set; } = 1024;
+    public int GrowRemainingBytesThreshold { get; set; } = 16192;
 
     public IGrowableUnmanagedBuffer GrowByDefaultSize()
     {
         if (VirtualMemoryAddressRange != null)
         {
-            if (VirtualMemoryAddressRange is ShiftableMemoryMappedFileView shiftableMemoryMappedFileView)
-            {
-                ReadCursor  -= shiftableMemoryMappedFileView.HalfViewSizeBytes;
-                WriteCursor -= shiftableMemoryMappedFileView.HalfViewSizeBytes;
-            }
             var grown = VirtualMemoryAddressRange.GrowByDefaultSize();
             if (grown != VirtualMemoryAddressRange)
             {
                 VirtualMemoryAddressRange.Dispose();
                 VirtualMemoryAddressRange = grown;
             }
+            Length = grown.Length;
 
             if (ReadCursor < 0 || WriteCursor < 0)
                 throw new Exception("Error ShiftableMemoryMappedFileView moved beyond the ReadCursor or WriteCursor");
@@ -70,8 +65,11 @@ public class GrowableUnmanagedBuffer : FixedByteArrayBuffer, IGrowableUnmanagedB
             LimitNextSerialize = null;
             WriteCursorPos     = value;
             if (BufferAccessCounter <= 1)
-                if (RemainingStorage < GrowRemainingBytesThreshold)
-                    GrowByDefaultSize();
+            {
+                var bufferStorage = VirtualMemoryAddressRange!.Length - WriteCursorPos - GrowRemainingBytesThreshold;
+                if (bufferStorage < 0) GrowByDefaultSize();
+                if (Length < GrowRemainingBytesThreshold) Length += GrowRemainingBytesThreshold;
+            }
         }
     }
 
@@ -80,23 +78,18 @@ public class GrowableUnmanagedBuffer : FixedByteArrayBuffer, IGrowableUnmanagedB
         switch (origin)
         {
             case SeekOrigin.Begin:
-                if (offset > Length && offset < Length + VirtualMemoryAddressRange!.DefaultGrowSize)
-                    GrowByDefaultSize();
-                if (offset > Length || offset < 0)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset > Length && offset < Length + VirtualMemoryAddressRange!.DefaultGrowSize) GrowByDefaultSize();
+                if (offset > Length || offset < 0) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = (int)offset;
                 break;
             case SeekOrigin.End:
-                if (offset < 0 || offset > Length)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset < 0 || offset > Length) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = Length - (int)offset;
                 break;
             default:
                 var proposedCursor = Position + (int)offset;
-                if (proposedCursor > Length && offset < Length + VirtualMemoryAddressRange!.DefaultGrowSize)
-                    GrowByDefaultSize();
-                if (proposedCursor < 0 || proposedCursor > Length)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (proposedCursor > Length && offset < Length + VirtualMemoryAddressRange!.DefaultGrowSize) GrowByDefaultSize();
+                if (proposedCursor < 0 || proposedCursor > Length) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = proposedCursor;
                 break;
         }
@@ -107,22 +100,20 @@ public class GrowableUnmanagedBuffer : FixedByteArrayBuffer, IGrowableUnmanagedB
     {
         if (VirtualMemoryAddressRange != null)
         {
-            while (Length < value)
+            while (VirtualMemoryAddressRange.Length < value)
             {
-                if (VirtualMemoryAddressRange is ShiftableMemoryMappedFileView shiftableMemoryMappedFileView)
-                {
-                    ReadCursor  -= shiftableMemoryMappedFileView.HalfViewSizeBytes;
-                    WriteCursor -= shiftableMemoryMappedFileView.HalfViewSizeBytes;
-                }
                 var grown = VirtualMemoryAddressRange.GrowByDefaultSize();
-                if (grown == VirtualMemoryAddressRange) continue;
-                VirtualMemoryAddressRange.Dispose();
-                VirtualMemoryAddressRange = grown;
+                if (grown != VirtualMemoryAddressRange)
+                {
+                    VirtualMemoryAddressRange.Dispose();
+                    VirtualMemoryAddressRange = grown;
+                }
             }
+            Length = value;
             if (ReadCursor < 0 || WriteCursor < 0)
                 throw new Exception("Error ShiftableMemoryMappedFileView moved beyond the ReadCursor or WriteCursor");
-            ReadCursor  = Math.Min(ReadCursor, Length);
-            WriteCursor = Math.Min(WriteCursor, Length);
+            ReadCursor     = Math.Min(ReadCursor, Length);
+            WriteCursorPos = Math.Min(WriteCursor, Length);
         }
     }
 

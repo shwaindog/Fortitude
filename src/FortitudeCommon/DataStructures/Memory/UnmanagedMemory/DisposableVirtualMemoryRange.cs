@@ -11,8 +11,9 @@ namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
 
 public unsafe class DisposableVirtualMemoryRange : IVirtualMemoryAddressRange
 {
-    private readonly int                sizeInPages;
-    private          IOSDirectMemoryApi osDirectMemoryApi;
+    private readonly int sizeInPages;
+
+    private IOSDirectMemoryApi osDirectMemoryApi;
 
     public DisposableVirtualMemoryRange(IOSDirectMemoryApi osDirectMemoryApi, byte* startAddress, int sizeInPages)
     {
@@ -31,14 +32,14 @@ public unsafe class DisposableVirtualMemoryRange : IVirtualMemoryAddressRange
 
     public UnmanagedByteArray CreateUnmanagedByteArrayInThisRange(long viewOffset, int length)
     {
-        if (viewOffset + length > (nint)EndAddress)
-            throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
+        if (viewOffset + length > (nint)EndAddress) throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
         return new UnmanagedByteArray(this, viewOffset, length);
     }
 
-    public byte*                      StartAddress        { get; }
-    public long                       Length              => sizeInPages * osDirectMemoryApi.MinimumRequiredPageSize;
-    public byte*                      EndAddress          => StartAddress + Length;
-    public long                       DefaultGrowSize     => Length;
+    public byte* StartAddress    { get; }
+    public long  Length          => sizeInPages * osDirectMemoryApi.MinimumRequiredPageSize;
+    public byte* EndAddress      => StartAddress + Length;
+    public long  DefaultGrowSize => Length;
+
     public IVirtualMemoryAddressRange GrowByDefaultSize() => MemoryUtils.ResizeVirtualMemory(this, Length + DefaultGrowSize);
 }

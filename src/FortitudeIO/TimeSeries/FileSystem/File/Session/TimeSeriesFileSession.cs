@@ -127,7 +127,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
 
     public FixedByteArrayBuffer UncompressedBuffer
     {
-        get { return uncompressedBuffer ??= new FixedByteArrayBuffer(MemoryUtils.CreateUnmanagedByteArray((long)ushort.MaxValue * 400)); }
+        get { return uncompressedBuffer ??= new GrowableUnmanagedBuffer(MemoryUtils.CreateUnmanagedByteArray((long)ushort.MaxValue * 4)); }
     }
     public IMutableTimeSeriesFileHeader FileHeader => timeSeriesFile.Header;
 
@@ -345,8 +345,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
                         ?? appendContext?.LastAddedRootBucket?.CheckTimeSupported(storageDateTime) ?? StorageAttemptResult.NoBucketChecked;
 
         if (searchResult == StorageAttemptResult.PeriodRangeMatched) return currentlyOpenBucket;
-        if (searchResult == StorageAttemptResult.NextFilePeriod)
-            throw new InvalidOperationException("Entry can not be contained within this file");
+        if (searchResult == StorageAttemptResult.NextFilePeriod) throw new InvalidOperationException("Entry can not be contained within this file");
         if (IsWritable && searchResult == StorageAttemptResult.NextBucketPeriod &&
             (currentlyOpenBucket?.BucketFlags.HasBucketCurrentAppendingFlag() ?? false))
         {
@@ -358,7 +357,8 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
             var fileEndTime = TimeSeriesPeriodRange.PeriodEnd();
             if (storageDateTime < TimeSeriesPeriodRange.PeriodStartTime
              || (TimeSeriesPeriodRange.TimeSeriesPeriod != TimeSeriesPeriod.None
-              && storageDateTime > fileEndTime)) return null;
+              && storageDateTime > fileEndTime))
+                return null;
         }
 
         if (searchResult is StorageAttemptResult.BucketSearchRange
