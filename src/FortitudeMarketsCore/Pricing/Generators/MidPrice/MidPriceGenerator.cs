@@ -58,8 +58,8 @@ public interface IMidPriceGenerator
 
 public abstract class MidPriceGenerator : IMidPriceGenerator
 {
-    public int      RoundAtDecimalPlaces { get; set; }
-    public DateTime StartTime            { get; set; }
+    public virtual int      RoundAtDecimalPlaces { get; set; }
+    public         DateTime StartTime            { get; set; }
 
     public decimal StartPrice { get; set; }
 

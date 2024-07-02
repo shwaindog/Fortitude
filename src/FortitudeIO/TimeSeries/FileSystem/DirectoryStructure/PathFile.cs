@@ -92,7 +92,7 @@ public class PathFile : PathPart, IPathFile
         var listAvailableFile = new InstrumentRepoFileSet();
         foreach (var instrumentRepoFile in instrumentFiles)
         {
-            var timeSeriesFile = timeSeriesFileFactory.OpenExisting(instrumentRepoFile.TimeSeriesRepoFile.File);
+            var timeSeriesFile = timeSeriesFileFactory.OpenExistingEntryFile(instrumentRepoFile.TimeSeriesRepoFile.File);
             if (timeSeriesFile != null)
             {
                 instrumentRepoFile.TimeSeriesRepoFile.TimeSeriesFile = timeSeriesFile;

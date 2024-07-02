@@ -13,15 +13,18 @@ namespace FortitudeIO.TimeSeries.FileSystem.Config;
 
 public interface IRepositoryBuilder
 {
-    ITimeSeriesRepository BuildRepository();
+    RepositoryInfo        BuildRepositoryInfo(string? repositoryName = null);
+    ITimeSeriesRepository BuildRepository(string? repositoryName = null);
 }
 
 public interface IRepositoryBuilderConfig : IRepositoryBuilder
 {
-    string?        RepoPathBuilderClassName { get; set; }
-    Type?          RepoPathBuilderType      { get; set; }
-    bool           CreateIfNotExists        { get; set; }
-    RepositoryType RepositoryType           { get; set; }
+    string?        RepoPathBuilderClassName              { get; set; }
+    Type?          RepoPathBuilderType                   { get; set; }
+    bool           CreateIfNotExists                     { get; set; }
+    RepositoryType RepositoryType                        { get; set; }
+    string[]       RequiredInstrumentAttributeFieldNames { get; set; }
+    string[]?      OptionalInstrumentAttributeFieldNames { get; set; }
 
     IRepoPathBuilder RepositoryPathBuilder(IFileRepositoryLocationConfig fileRepoLocationConfig);
 }
@@ -64,7 +67,9 @@ public abstract class RepositoryBuilderConfig : ConfigSection, IRepositoryBuilde
         RepoPathBuilderType = repoPathBuilderType;
     }
 
-    public abstract ITimeSeriesRepository BuildRepository();
+    public abstract ITimeSeriesRepository BuildRepository(string? repositoryName = "NoRepositoryName");
+
+    public abstract RepositoryInfo BuildRepositoryInfo(string? repositoryName = "NoRepositoryName");
 
     public abstract IRepoPathBuilder RepositoryPathBuilder(IFileRepositoryLocationConfig fileRepoLocationConfig);
 
@@ -90,5 +95,49 @@ public abstract class RepositoryBuilderConfig : ConfigSection, IRepositoryBuilde
             return checkValue != null ? Enum.Parse<RepositoryType>(checkValue) : RepositoryType.Custom;
         }
         set => this[nameof(RepositoryType)] = value.ToString();
+    }
+
+    public string[] RequiredInstrumentAttributeFieldNames
+    {
+        get => GetSection(nameof(RequiredInstrumentAttributeFieldNames)).GetChildren().Select(c => c.Value).OfType<string>().ToArray();
+        set
+        {
+            var existingSection = GetSection(nameof(RequiredInstrumentAttributeFieldNames));
+            var existingKeys    = existingSection.GetChildren().Select(c => c.Key).ToList();
+            if (!value.Any())
+            {
+                foreach (var key in existingKeys) existingSection[key] = null;
+                return;
+            }
+            for (var i = 0; i < value.Length; i++)
+            {
+                var key = $"{i}";
+                existingSection[key] = value[i];
+                if (existingKeys.Count > 0) existingKeys.RemoveAt(0);
+            }
+            foreach (var extraKey in existingKeys) existingSection[extraKey] = null;
+        }
+    }
+
+    public string[]? OptionalInstrumentAttributeFieldNames
+    {
+        get => GetSection(nameof(OptionalInstrumentAttributeFieldNames)).GetChildren().Select(c => c.Value).OfType<string>().ToArray();
+        set
+        {
+            var existingSection = GetSection(nameof(OptionalInstrumentAttributeFieldNames));
+            var existingKeys    = existingSection.GetChildren().Select(c => c.Key).ToList();
+            if (value == null || !value.Any())
+            {
+                foreach (var key in existingKeys) existingSection[key] = null;
+                return;
+            }
+            for (var i = 0; i < value.Length; i++)
+            {
+                var key = $"{i}";
+                existingSection[key] = value[i];
+                if (existingKeys.Count > 0) existingKeys.RemoveAt(0);
+            }
+            foreach (var extraKey in existingKeys) existingSection[extraKey] = null;
+        }
     }
 }

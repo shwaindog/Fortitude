@@ -16,6 +16,12 @@ public interface IIndicatorServicesConfig
 {
     IMarketsConfig?        MarketsConfig                  { get; set; }
     IFileRepositoryConfig? TimeSeriesFileRepositoryConfig { get; set; }
+
+
+    TimeSpan DefaultCachePricesTimeSpan               { get; set; }
+    TimeSpan DefaultCacheSummaryPeriodsPricesTimeSpan { get; set; }
+
+    IPersistenceConfig PersistenceConfig { get; set; }
 }
 
 public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
@@ -46,5 +52,31 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
         set =>
             ignoreSuppressWarnings
                 = value != null ? new FileRepositoryConfig(value, ConfigRoot, Path + ":" + nameof(TimeSeriesFileRepositoryConfig)) : null;
+    }
+
+    public TimeSpan DefaultCachePricesTimeSpan
+    {
+        get
+        {
+            var checkValue = this[nameof(DefaultCachePricesTimeSpan)];
+            return checkValue != null ? TimeSpan.Parse(checkValue) : TimeSpan.FromHours(1);
+        }
+        set => this[nameof(DefaultCachePricesTimeSpan)] = value.ToString();
+    }
+
+    public TimeSpan DefaultCacheSummaryPeriodsPricesTimeSpan
+    {
+        get
+        {
+            var checkValue = this[nameof(DefaultCacheSummaryPeriodsPricesTimeSpan)];
+            return checkValue != null ? TimeSpan.Parse(checkValue) : TimeSpan.FromHours(1);
+        }
+        set => this[nameof(DefaultCacheSummaryPeriodsPricesTimeSpan)] = value.ToString();
+    }
+
+    public IPersistenceConfig PersistenceConfig
+    {
+        get => new PersistenceConfig(ConfigRoot, Path + ":" + nameof(PersistenceConfig));
+        set => ignoreSuppressWarnings = new PersistenceConfig(value, ConfigRoot, Path + ":" + nameof(PersistenceConfig));
     }
 }

@@ -34,7 +34,7 @@ public enum EntryResultSourcing
   , NewEachEntryLimited
 }
 
-public interface IReaderContext<TEntry>
+public interface IReaderContext<TEntry> : IDisposable
 {
     IMessageDeserializer?         BucketDeserializer      { get; set; }
     IMessageSerializer?           ResultWriter            { get; set; }
@@ -68,6 +68,10 @@ public interface IReaderContext<TEntry>
     void    FinishedConsumingEntry(TEntry entry);
     bool    ProcessCandidateEntry(TEntry entry);
 
+    IFlowRateEnumerable<TEntry>       FlowRateEnumerable(FlowRate flowRate);
+    IFlowRateEnumerable<List<TEntry>> BatchedFlowRateEnumerable(BatchRate batchRate);
+
+    void CloseReaderSession();
     void RunReader();
 }
 
@@ -91,6 +95,16 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
         this.readerSession = readerSession;
         EntrySourcing      = defaultEntryResultSourcing;
         this.createNew     = SourceEntryFactory = createNew ?? ReflectionHelper.DefaultCtorFunc<TEntry>();
+    }
+
+    public void Dispose()
+    {
+        CloseReaderSession();
+    }
+
+    public void CloseReaderSession()
+    {
+        if (readerSession.IsOpen) readerSession.Dispose();
     }
 
     public IMessageDeserializer?  BucketDeserializer { get; set; }
@@ -153,8 +167,10 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
         get => callbackAction;
         set
         {
-            if (value != null) ResultPublishFlags |= RunCallback;
-            else ResultPublishFlags               =  ResultPublishFlags.Unset(RunCallback);
+            if (value != null)
+                ResultPublishFlags |= RunCallback;
+            else
+                ResultPublishFlags = ResultPublishFlags.Unset(RunCallback);
             callbackAction = value;
         }
     }
@@ -231,6 +247,8 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
         return shouldIncludeThis && ResultPublishFlags.HasAsEnumerableFlag();
     }
 
+    public IFlowRateEnumerable<TEntry> FlowRateEnumerable(FlowRate flowRate) => new FlowRateEnumerableWrapper<TEntry>(flowRate, ResultEnumerable);
+
     public IEnumerable<TEntry> ResultEnumerable
     {
         get
@@ -255,6 +273,12 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
                 foreach (var timeSeriesEntry in ResultList) yield return timeSeriesEntry;
             }
         }
+    }
+
+    public IFlowRateEnumerable<List<TEntry>> BatchedFlowRateEnumerable(BatchRate batchRate)
+    {
+        BatchLimit = batchRate.NumberInBatch;
+        return new BatchFlowRateEnumerableWrapper<List<TEntry>, TEntry>(new FlowRate(batchRate), BatchedResultEnumerable);
     }
 
     public IEnumerable<List<TEntry>> BatchedResultEnumerable

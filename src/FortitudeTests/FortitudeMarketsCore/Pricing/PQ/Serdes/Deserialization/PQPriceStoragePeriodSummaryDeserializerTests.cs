@@ -77,7 +77,7 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
             var original     = originalSummaries[i];
             var deserialized = deserializer.Deserialize(bufferContext);
 
-            Assert.IsTrue(deserialized.AreEquivalent(original));
+            Assert.IsTrue(deserialized!.AreEquivalent(original));
         }
     }
 
@@ -93,7 +93,7 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
             var original     = originalSummaries[i];
             var deserialized = deserializer.Deserialize(bufferContext);
 
-            Assert.IsTrue(deserialized.AreEquivalent(original));
+            Assert.IsTrue(deserialized!.AreEquivalent(original));
         }
     }
 

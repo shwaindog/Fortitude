@@ -109,27 +109,25 @@ public static class DateTimeExtensions
     public static DateTime Min(this DateTime first, DateTime? optionalSecond)
     {
         if (optionalSecond == null) return first;
-        var maxTicks = Math.Min(first.Ticks, optionalSecond.Value.Ticks);
-        return DateTime.FromBinary(maxTicks);
+        return first.Min(optionalSecond.Value);
     }
 
     public static DateTime Min(this DateTime first, DateTime second)
     {
-        var maxTicks = Math.Min(first.Ticks, second.Ticks);
-        return DateTime.FromBinary(maxTicks);
+        var minTicks = Math.Min(first.Ticks, second.Ticks);
+        return DateTime.FromBinary(minTicks);
     }
 
     public static DateTime Min(this DateTime first, DateTime second, DateTime third)
     {
-        var maxTicks = Math.Min(Math.Min(first.Ticks, second.Ticks), third.Ticks);
-        return DateTime.FromBinary(maxTicks);
+        var minTicks = Math.Min(Math.Min(first.Ticks, second.Ticks), third.Ticks);
+        return DateTime.FromBinary(minTicks);
     }
 
     public static DateTime Max(this DateTime first, DateTime? optionalSecond)
     {
         if (optionalSecond == null) return first;
-        var maxTicks = Math.Max(first.Ticks, optionalSecond.Value.Ticks);
-        return DateTime.FromBinary(maxTicks);
+        return first.Max(optionalSecond.Value);
     }
 
     public static DateTime Max(this DateTime first, DateTime second)

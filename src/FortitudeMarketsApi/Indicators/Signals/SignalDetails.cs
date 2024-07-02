@@ -66,6 +66,15 @@ public interface ISignalDetails
 
 public class SignalDetails : ISignalDetails
 {
+    public SignalDetails(int detailsId, string name, SignalType signalType, Indicator publishingIndicator, string description)
+    {
+        Description         = description;
+        DetailsId           = detailsId;
+        Name                = name;
+        PublishingIndicator = publishingIndicator;
+        SignalType          = signalType;
+    }
+
     public int        DetailsId           { get; set; }
     public string     Name                { get; set; }
     public string     Description         { get; set; }

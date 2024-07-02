@@ -60,7 +60,6 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
 
     public uint LastAddedBucketId { get; private set; }
 
-
     public IEnumerable<TSubBucket> SubBuckets
     {
         get
@@ -86,6 +85,11 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
                 }
             return cacheSubBuckets;
         }
+    }
+
+    public void EntryWrittenAt(DateTime entryStorageTime)
+    {
+        ContainingSession.EntryWrittenAt(entryStorageTime);
     }
 
     public int ContainerDepth => BucketContainer.ContainerDepth + 1;

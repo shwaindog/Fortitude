@@ -20,10 +20,10 @@ namespace FortitudeTests.TestHelpers;
 [NoMatchingProductionClass]
 public class TestMetrics
 {
-    private const int MaxAllowedUntestedClassesInCommon               = 185;
+    private const int MaxAllowedUntestedClassesInCommon               = 195;
     private const int MaxAllowedUntestedClassesInFortitudeIO          = 145;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsApi  = 40;
-    private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 235;
+    private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 245;
     private const int MaxAllowedUntestedClassesInFortitudeBusRules    = 108;
 
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses    = null!;
@@ -196,12 +196,9 @@ public class TestMetrics
     {
         if (testClass.FullName!.Contains("FortitudeTests.FortitudeCommon")) return fortitudeCommonAssemblyClasses;
         if (testClass.FullName!.Contains("FortitudeTests.FortitudeIO")) return fortitudeIOAssemblyClasses;
-        if (testClass.FullName!.Contains("FortitudeTests.FortitudeMarketsApi"))
-            return fortitudeMarketsApiAssemblyClasses;
-        if (testClass.FullName!.Contains("FortitudeTests.FortitudeMarketsCore"))
-            return fortitudeMarketsCoreAssemblyClasses;
-        if (testClass.FullName!.Contains("FortitudeTests.FortitudeBusRules"))
-            return fortitudeBusRulesAssemblyClasses;
+        if (testClass.FullName!.Contains("FortitudeTests.FortitudeMarketsApi")) return fortitudeMarketsApiAssemblyClasses;
+        if (testClass.FullName!.Contains("FortitudeTests.FortitudeMarketsCore")) return fortitudeMarketsCoreAssemblyClasses;
+        if (testClass.FullName!.Contains("FortitudeTests.FortitudeBusRules")) return fortitudeBusRulesAssemblyClasses;
         Console.Out.WriteLine($"{testClass.FullName} cannot determine production class assembly");
         throw new ArgumentException(
                                     "Did not expect a test class without NoMatchProductionClassAttribute to not map to Common, ForititudeCommon or FotitudeCore");

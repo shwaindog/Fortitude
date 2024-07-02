@@ -14,4 +14,7 @@ public static class TimeSeriesBusRulesConstants
     public const string PricingRepoRetrievePqL1Request = $"{PricingRepoBase}.Retrieve.PQLevel1.Request";
     public const string PricingRepoRetrievePqL2Request = $"{PricingRepoBase}.Retrieve.PQLevel2.Request";
     public const string PricingRepoRetrievePqL3Request = $"{PricingRepoBase}.Retrieve.PQLevel3.Request";
+
+    public const string PricePeriodSummaryRepoStreamRequest   = $"{PricingRepoBase}.Retrieve.PeriodSummary.Stream.Request";
+    public const string PricePeriodSummaryRepoRequestResponse = $"{PricingRepoBase}.Retrieve.PeriodSummary.RequestResponse";
 }

@@ -14,6 +14,8 @@ namespace FortitudeIO.TimeSeries.FileSystem.Session;
 public interface ITimeSeriesSession : IDisposable
 {
     bool IsOpen { get; }
+    void Reopen();
+
     void Close();
 }
 

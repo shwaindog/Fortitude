@@ -7,7 +7,7 @@ using System.Collections;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries.FileSystem.Config;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeIO.TimeSeries.FileSystem.File;
 
 #endregion
 
@@ -25,8 +25,9 @@ public class InstrumentRepoFile : IComparable<InstrumentRepoFile>, IEquatable<In
     public IInstrument           Instrument         { get; }
     public TimeSeriesRepoFile    TimeSeriesRepoFile { get; }
     public TimeSeriesPeriodRange FilePeriodRange    { get; }
-    public IPathFile?            FileStructure      { get; set; }
     public RepositoryProximity   Proximity          => TimeSeriesRepoFile.Proximity;
+
+    public ITimeSeriesFile TimeSeriesFile => TimeSeriesRepoFile.GetOrOpenTimeSeriesFile(Instrument);
 
     public int CompareTo(InstrumentRepoFile? other) => FilePeriodRange.PeriodStartTime < other?.FilePeriodRange.PeriodStartTime ? -1 : 1;
 
@@ -43,6 +44,8 @@ public class InstrumentRepoFile : IComparable<InstrumentRepoFile>, IEquatable<In
         return allSame;
     }
 
+    public ITimeSeriesEntryFile<TEntry> TimeSeriesEntryFile<TEntry>() where TEntry : ITimeSeriesEntry<TEntry> =>
+        TimeSeriesRepoFile.GetOrOpenTimeSeriesFile<TEntry>();
 
     public bool FileIntersects(UnboundedTimeRange? timePeriod = null) => FilePeriodRange.Intersects(timePeriod);
 

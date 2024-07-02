@@ -25,6 +25,11 @@ public class InstrumentRepoWriterSession<TEntry> : IWriterSession<TEntry> where 
         this.pathFile   = pathFile;
     }
 
+    public void Reopen()
+    {
+        currentFileWriterSession?.Reopen();
+    }
+
     public void Dispose()
     {
         currentFileWriterSession?.Close();

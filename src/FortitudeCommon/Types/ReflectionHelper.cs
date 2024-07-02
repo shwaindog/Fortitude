@@ -34,8 +34,8 @@ public static class ReflectionHelper
 
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam) })!;
 
-        return Expression.Lambda<Func<TParam, TClass>>(
-                                                       Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
+        return Expression.Lambda<Func<TParam, TClass>>
+            (Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
     }
 
     public static Func<TParam, TClassBaseType> CtorDerivedBinder<TParam, TClassBaseType>(Type classDerivedType)
@@ -43,8 +43,8 @@ public static class ReflectionHelper
         var ctorParam = Expression.Parameter(typeof(TParam), "Param");
         var constructorInfo
             = classDerivedType.GetConstructor(new[] { typeof(TParam) })!;
-        return Expression.Lambda<Func<TParam, TClassBaseType>>(
-                                                               Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
+        return Expression.Lambda<Func<TParam, TClassBaseType>>
+            (Expression.New(constructorInfo, ctorParam), ctorParam).Compile();
     }
 
     public static Func<TParam1, TParam2, TClass> CtorBinder<TParam1, TParam2, TClass>()
@@ -54,9 +54,8 @@ public static class ReflectionHelper
 
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!;
 
-        return Expression.Lambda<Func<TParam1, TParam2, TClass>>(
-                                                                 Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
-                                                               , ctorParam2).Compile();
+        return Expression.Lambda<Func<TParam1, TParam2, TClass>>
+            (Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1, ctorParam2).Compile();
     }
 
     public static Func<TParam1, TParam2, TClassBaseType> CtorDerivedBinder<TParam1, TParam2, TClassBaseType>(Type classDerivedType)
@@ -66,9 +65,8 @@ public static class ReflectionHelper
 
         var constructorInfo = classDerivedType.GetConstructor(new[] { typeof(TParam1), typeof(TParam2) })!;
 
-        return Expression.Lambda<Func<TParam1, TParam2, TClassBaseType>>(
-                                                                         Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1
-                                                                       , ctorParam2).Compile();
+        return Expression.Lambda<Func<TParam1, TParam2, TClassBaseType>>
+            (Expression.New(constructorInfo, ctorParam1, ctorParam2), ctorParam1, ctorParam2).Compile();
     }
 
     public static Func<TParam1, TParam2, TParam3, TClass> CtorBinder<TParam1, TParam2, TParam3, TClass>()
@@ -79,9 +77,9 @@ public static class ReflectionHelper
 
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3) })!;
 
-        return Expression.Lambda<Func<TParam1, TParam2, TParam3, TClass>>(
-                                                                          Expression.New(constructorInfo, ctorParam1, ctorParam2
-                                                                                       , ctorParam3), ctorParam1, ctorParam2, ctorParam3).Compile();
+        return Expression.Lambda<Func<TParam1, TParam2, TParam3, TClass>>
+            (Expression.New(constructorInfo, ctorParam1, ctorParam2, ctorParam3)
+           , ctorParam1, ctorParam2, ctorParam3).Compile();
     }
 
     public static Func<TParam1, TParam2, TParam3, TParam4, TClass> CtorBinder<TParam1, TParam2, TParam3, TParam4, TClass>()
@@ -94,10 +92,9 @@ public static class ReflectionHelper
 
         var constructorInfo = typeof(TClass).GetConstructor(new[] { typeof(TParam1), typeof(TParam2), typeof(TParam3), typeof(TParam4) })!;
 
-        return Expression.Lambda<Func<TParam1, TParam2, TParam3, TParam4, TClass>>(
-                                                                                   Expression.New(constructorInfo
-                                                                                                , ctorParam1, ctorParam2, ctorParam3, ctorParam4)
-                                                                                 , ctorParam1, ctorParam2, ctorParam3, ctorParam4)
+        return Expression.Lambda<Func<TParam1, TParam2, TParam3, TParam4, TClass>>
+                             (Expression.New(constructorInfo, ctorParam1, ctorParam2, ctorParam3, ctorParam4)
+                            , ctorParam1, ctorParam2, ctorParam3, ctorParam4)
                          .Compile();
     }
 
@@ -182,6 +179,8 @@ public static class ReflectionHelper
 
         return false;
     }
+
+    public static bool ImplementsInterface<TInterface>(this Type type) => type.GetInterfaces().Contains(typeof(TInterface));
 
     /// <summary>
     ///     Gets a member from an object
@@ -299,7 +298,8 @@ public static class ReflectionHelper
     /// <typeparam name="T"></typeparam>
     /// <param name="parameterlessGenericType"></param>
     /// <returns></returns>
-    public static object InstantiateGenericType(Type parameterlessGenericType,
+    public static object InstantiateGenericType
+    (Type parameterlessGenericType,
         Type[] genericArgs, params object[] constructorArgs)
     {
         var fullConfiguredType = parameterlessGenericType.MakeGenericType(genericArgs);

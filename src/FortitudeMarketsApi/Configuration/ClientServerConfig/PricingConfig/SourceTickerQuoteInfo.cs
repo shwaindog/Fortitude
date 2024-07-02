@@ -5,6 +5,7 @@
 
 using System.Collections;
 using System.Globalization;
+using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
@@ -26,6 +27,26 @@ public interface ISourceTickerIdentifier
     ushort TickerId { get; }
     string Source   { get; }
     string Ticker   { get; }
+}
+
+public static class SourceTickerIdentifierExtensions
+{
+    private static readonly ConcurrentMap<ushort, IMap<ushort, string>> SingleStringShortNameLookup = new();
+
+    public static string ShortName(this ISourceTickerIdentifier identifier)
+    {
+        if (!SingleStringShortNameLookup.TryGetValue(identifier.SourceId, out var tickerMap))
+        {
+            tickerMap = new ConcurrentMap<ushort, string>();
+            SingleStringShortNameLookup.Add(identifier.SourceId, tickerMap);
+        }
+        if (!tickerMap!.TryGetValue(identifier.TickerId, out var shortName))
+        {
+            shortName = $"{identifier.Source}-{identifier.Ticker}";
+            tickerMap.Add(identifier.TickerId, shortName);
+        }
+        return shortName!;
+    }
 }
 
 public struct SourceTickerIdentifier : ISourceTickerIdentifier
@@ -52,7 +73,7 @@ public interface ISourceTickerQuoteInfo : ISourceTickerIdentifier, IInterfacesCo
     new string Source   { get; set; }
     new string Ticker   { get; set; }
 
-    new MarketClassification MarketClassification { get; set; }
+    MarketClassification MarketClassification { get; set; }
 
     QuoteLevel PublishedQuoteLevel { get; set; }
 

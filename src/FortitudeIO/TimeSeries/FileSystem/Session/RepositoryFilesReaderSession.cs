@@ -38,7 +38,6 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
         sortedInstrumentReaderSessions = repoFiles.Select(irf => new InstrumentRepoFileReaderSession<TEntry>(irf)).ToList();
     }
 
-
     public void Dispose()
     {
         foreach (var fileReaderSession in sortedInstrumentReaderSessions) fileReaderSession.ReaderSession?.Dispose();
@@ -51,6 +50,8 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
         foreach (var fileReaderSession in sortedInstrumentReaderSessions) fileReaderSession.ReaderSession?.Dispose();
     }
 
+    public void Reopen() { }
+
     public IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext)
     {
         for (var i = 0; i < sortedInstrumentReaderSessions.Count && readerContext.ContinueSearching; i++)
@@ -58,10 +59,17 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
             var fileReaderSession = sortedInstrumentReaderSessions[i];
             if (fileReaderSession.ReaderSession is not { IsOpen: true })
             {
-                var entryFile     = fileReaderSession.InstrumentRepoFile.TimeSeriesRepoFile.TimeSeriesFile as ITimeSeriesEntryFile<TEntry>;
-                var readerSession = entryFile!.GetReaderSession();
-                fileReaderSession                 = new InstrumentRepoFileReaderSession<TEntry>(fileReaderSession.InstrumentRepoFile, readerSession);
-                sortedInstrumentReaderSessions[i] = fileReaderSession;
+                if (fileReaderSession.ReaderSession != null)
+                {
+                    fileReaderSession.ReaderSession.Reopen();
+                }
+                else
+                {
+                    var entryFile = fileReaderSession.InstrumentRepoFile.TimeSeriesEntryFile<TEntry>();
+                    var readerSession = entryFile!.GetReaderSession();
+                    fileReaderSession = new InstrumentRepoFileReaderSession<TEntry>(fileReaderSession.InstrumentRepoFile, readerSession);
+                    sortedInstrumentReaderSessions[i] = fileReaderSession;
+                }
             }
             foreach (var fileEntry in fileReaderSession.ReaderSession!.StartReaderContext(readerContext)) yield return fileEntry;
         }

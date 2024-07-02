@@ -32,6 +32,26 @@ public class TimeSeriesRepoFile
 
     public string RepositoryRelativePath => File.FullName.Replace(RepositoryRoot.DirInfo.FullName, "." + Path.DirectorySeparatorChar);
 
+    public ITimeSeriesFile GetOrOpenTimeSeriesFile(IInstrument instrument)
+    {
+        TimeSeriesFile ??= FileFactory(instrument).OpenExisting(File);
+        return TimeSeriesFile!;
+    }
+
+    public ITimeSeriesEntryFile<TEntry> GetOrOpenTimeSeriesFile<TEntry>() where TEntry : ITimeSeriesEntry<TEntry>
+    {
+        var openTimeSeriesFileAsEntry = TimeSeriesFile as ITimeSeriesEntryFile<TEntry>;
+        openTimeSeriesFileAsEntry ??= FileFactory<TEntry>().OpenExistingEntryFile(File);
+        TimeSeriesFile            =   openTimeSeriesFileAsEntry;
+        return openTimeSeriesFileAsEntry!;
+    }
+
+    private ITimeSeriesRepositoryFileFactory FileFactory(IInstrument instrument) =>
+        PathFile.FileEntryFactoryRegistry.Values.First(ff => ff.IsBestFactoryFor(instrument));
+
+    private ITimeSeriesRepositoryFileFactory<TEntry> FileFactory<TEntry>() where TEntry : ITimeSeriesEntry<TEntry> =>
+        (ITimeSeriesRepositoryFileFactory<TEntry>)PathFile.FileEntryFactoryRegistry[typeof(TEntry)];
+
     protected bool Equals(TimeSeriesRepoFile other) => File.Equals(other.File);
 
     public override bool Equals(object? obj)

@@ -6,35 +6,28 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeIO.TimeSeries.FileSystem.Config;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 
 #endregion
 
 namespace FortitudeIO.TimeSeries.FileSystem;
 
-public class RemoteLocalCachingRepository : ITimeSeriesRepository
+public class RemoteLocalCachingRepository : TimeSeriesDirectoryRepositoryBase, ITimeSeriesRepository
 {
     private readonly ITimeSeriesRepository localRepository;
     private readonly ITimeSeriesRepository remoteRepository;
 
-    public RemoteLocalCachingRepository(ITimeSeriesRepository localRepository, ITimeSeriesRepository remoteRepository)
+    public RemoteLocalCachingRepository(IRemoteLocalCachingFileRepositoryConfig remoteLocalConfig, string repositoryName)
+        : base(remoteLocalConfig.BuildRepositoryInfo(repositoryName))
     {
-        this.localRepository  = localRepository;
-        this.remoteRepository = remoteRepository;
+        var localRepositoryPathBuilder = remoteLocalConfig.RepositoryPathBuilder(remoteLocalConfig.LocalRepositoryLocationConfig);
+        localRepository = DymwiTimeSeriesDirectoryRepository.OpenRepository(localRepositoryPathBuilder);
+        ;
+        var remoteRepositoryPathBuilder = remoteLocalConfig.RepositoryPathBuilder(remoteLocalConfig.RemoteRepositoryLocationConfig);
+        remoteRepository = DymwiTimeSeriesDirectoryRepository.OpenRepository(remoteRepositoryPathBuilder);
     }
 
-    public RepositoryProximity Proximity => RepositoryProximity.Both;
-
-    public void CloseAllFilesAndSessions()
-    {
-        localRepository.CloseAllFilesAndSessions();
-    }
-
-    public string[]  RequiredInstrumentFields => localRepository.RequiredInstrumentFields;
-    public string[]? OptionalInstrumentFields => localRepository.OptionalInstrumentFields;
-
-    public IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap
+    public override IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap
     {
         get
         {
@@ -48,12 +41,10 @@ public class RemoteLocalCachingRepository : ITimeSeriesRepository
             }
             return result;
         }
+        protected set { }
     }
 
-    public IRepositoryRootDirectory RepoRootDirectory => localRepository.RepoRootDirectory;
-
-    public IReaderSession<TEntry>? GetReaderSession<TEntry>
-        (IInstrument instrument, UnboundedTimeRange? restrictedRange = null) where TEntry : ITimeSeriesEntry<TEntry>
+    public override IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
     {
         var instrumentFiles = localRepository.InstrumentFilesMap[instrument] + remoteRepository.InstrumentFilesMap[instrument];
 
@@ -82,8 +73,7 @@ public class RemoteLocalCachingRepository : ITimeSeriesRepository
     }
 
 
-    public IWriterSession<TEntry>? GetWriterSession<TEntry>
-        (IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry> =>
+    public override IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) =>
         // for now always write to local copy.  Move to remote manually or when archiving
         localRepository.GetWriterSession<TEntry>(instrument);
 }

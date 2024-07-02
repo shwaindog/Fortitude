@@ -10,6 +10,16 @@ using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
+public struct SharedTicksMovingAveragePublishParams
+{
+    public ISourceTickerIdentifier SourceTickerId    { get; }
+    public ushort                  PublishAsSourceId { get; }
+
+    public PricePublishInterval PublishInterval { get; }
+
+    public MovingAverageParams[]? InitialPeriodsToPublish { get; }
+}
+
 public struct MovingAveragePublisherParams
 {
     public MovingAveragePublisherParams

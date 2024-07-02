@@ -43,7 +43,6 @@ public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesE
 
     public string RequestAddress { get; } = CalculateRequestAddress();
 
-
     public static string CalculateRequestAddress()
     {
         var typeOfTEntry = typeof(TEntry);
@@ -59,7 +58,7 @@ public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesE
     }
 }
 
-public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
+public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(HistoricalQuotesRetrievalRule));
 
@@ -72,9 +71,13 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
     private ISubscription? pql2RequestListenerSubscription;
     private ISubscription? pql3RequestListenerSubscription;
 
-    public HistoricalQuotesRetrievalRule(IRepositoryBuilder repoBuilder) : base(repoBuilder, "HistoricalPriceRetrievalRule") { }
+    public HistoricalQuotesRetrievalRule
+        (TimeSeriesRepositoryParams repositoryParams) : base(repositoryParams, nameof(HistoricalQuotesRetrievalRule)) { }
 
-    public HistoricalQuotesRetrievalRule(ITimeSeriesRepository existingRepository) : base(existingRepository, "HistoricalPriceRetrievalRule") { }
+    public HistoricalQuotesRetrievalRule(IRepositoryBuilder repoBuilder) : base(repoBuilder, nameof(HistoricalQuotesRetrievalRule)) { }
+
+    public HistoricalQuotesRetrievalRule
+        (ITimeSeriesRepository existingRepository) : base(existingRepository, nameof(HistoricalQuotesRetrievalRule)) { }
 
     public override async ValueTask StartAsync()
     {
@@ -95,6 +98,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
             (PricingRepoRetrieveL2Request, HandlePqL2HistoricalPriceRequest);
         pql3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel3Quote>, bool>
             (PricingRepoRetrieveL2Request, HandlePqL3HistoricalPriceRequest);
+        Logger.Info("Started {0} ", nameof(HistoricalQuotesRetrievalRule));
     }
 
     public override void Stop()
@@ -107,6 +111,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryRetrievalRule
         pql1RequestListenerSubscription?.Unsubscribe();
         pql2RequestListenerSubscription?.Unsubscribe();
         pql3RequestListenerSubscription?.Unsubscribe();
+        Logger.Info("Stopped {0} ", nameof(HistoricalQuotesRetrievalRule));
         base.Stop();
     }
 

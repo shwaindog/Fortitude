@@ -89,7 +89,11 @@ public class RemoteLocalCachingFileRepositoryConfig : RepositoryBuilderConfig, I
         set => this[nameof(RepositoryType)] = value.ToString();
     }
 
-    public override ITimeSeriesRepository BuildRepository()
+    public override RepositoryInfo BuildRepositoryInfo(string? repositoryName = "NoRepositoryName") =>
+        new(new RepositoryRootDirectory(repositoryName, new DirectoryInfo(LocalRepositoryLocationConfig.RootDirectoryPath)), RepositoryProximity.Both
+          , LocalRepositoryLocationConfig.TimeSeriesFileExtension, RequiredInstrumentAttributeFieldNames, OptionalInstrumentAttributeFieldNames);
+
+    public override ITimeSeriesRepository BuildRepository(string? repositoryName = "NoRepositoryName")
     {
         if (LocalRemoteRepositoriesType == RepositoryType.Dymwi)
         {
@@ -97,7 +101,7 @@ public class RemoteLocalCachingFileRepositoryConfig : RepositoryBuilderConfig, I
             var localRepo                   = DymwiTimeSeriesDirectoryRepository.OpenRepository(localRepositoryPathBuilder);
             var remoteRepositoryPathBuilder = RepositoryPathBuilder(RemoteRepositoryLocationConfig);
             var remoteRepo                  = DymwiTimeSeriesDirectoryRepository.OpenRepository(remoteRepositoryPathBuilder);
-            return new RemoteLocalCachingRepository(localRepo, remoteRepo);
+            return new RemoteLocalCachingRepository(this, repositoryName ?? "NoRepositoryName");
         }
         throw new NotImplementedException("Until custom repository config is implemented you can only construct a Dymwi repository");
     }
