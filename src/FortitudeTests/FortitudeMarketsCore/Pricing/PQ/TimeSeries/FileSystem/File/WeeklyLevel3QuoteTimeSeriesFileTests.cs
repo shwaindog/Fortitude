@@ -54,7 +54,8 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     {
         PagedMemoryMappedFile.LogMappingMessages = true;
 
-        var dateToGenerate   = DateTime.UtcNow.Date;
+        var dateToGenerate = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
+        ;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         startOfWeek = dateToGenerate.AddDays(dayDiff);

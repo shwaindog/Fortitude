@@ -57,6 +57,7 @@ public struct BidAskInstantPair : IBidAskInstantPair
 
     public bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
     {
+        if (other == null) return false;
         var bidPriceSame       = BidPrice == other.BidPrice;
         var askPriceSame       = AskPrice == other.AskPrice;
         var atTimeSame         = AtTime == other.AtTime;
@@ -118,6 +119,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
 
     public bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
     {
+        if (other == null) return false;
         var bidPriceSame       = BidPrice == other.BidPrice;
         var askPriceSame       = AskPrice == other.AskPrice;
         var atTimeSame         = AtTime == other.AtTime;

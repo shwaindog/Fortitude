@@ -63,5 +63,11 @@ public class FileRepositoryConfig : ConfigSection, IFileRepositoryConfig
         }
     }
 
-    public ITimeSeriesRepository BuildRepository() => repository ??= RepositoryConfig.BuildRepository();
+    public ITimeSeriesRepository BuildRepository
+        (string? repositoryName = null) =>
+        repository ??= RepositoryConfig.BuildRepository(repositoryName ?? RepositoryName);
+
+    public RepositoryInfo BuildRepositoryInfo
+        (string? repositoryName = null) =>
+        RepositoryConfig.BuildRepositoryInfo(repositoryName ?? RepositoryName);
 }

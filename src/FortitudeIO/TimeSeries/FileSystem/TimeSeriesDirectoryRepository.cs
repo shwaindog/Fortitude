@@ -27,6 +27,17 @@ public struct RepositoryInfo
         OptionalInstrumentFields = optionalInstrumentFields;
     }
 
+    public RepositoryInfo
+    (IRepositoryRootDirectory repoRootDir, RepositoryProximity proximity, string fileExtension
+      , string[] requiredInstrumentFields, string[]? optionalInstrumentFields)
+    {
+        RepoRootDir              = repoRootDir;
+        Proximity                = proximity;
+        TimeSeriesFileExtension  = fileExtension;
+        RequiredInstrumentFields = requiredInstrumentFields;
+        OptionalInstrumentFields = optionalInstrumentFields;
+    }
+
     public IRepositoryRootDirectory RepoRootDir;
     public RepositoryProximity      Proximity;
 
@@ -49,61 +60,144 @@ public interface ITimeSeriesRepository
 
     void CloseAllFilesAndSessions();
 
+    InstrumentFileInfo      GetInstrumentFileInfo(IInstrument instrument);
+    InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument);
+
+    IEnumerable<IInstrument> AvailableInstrumentsMatching
+    (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
+      , IEnumerable<KeyValuePair<string, string>>? attributes = null);
+
     IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
         where TEntry : ITimeSeriesEntry<TEntry>;
 
     IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry>;
 }
 
-public class TimeSeriesDirectoryRepository : ITimeSeriesRepository
+public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesDirectoryRepository));
+    protected readonly RepositoryInfo RepositoryInfo;
 
-    private readonly RepositoryInfo repositoryInfo;
+    protected TimeSeriesDirectoryRepositoryBase(RepositoryInfo repositoryInfo) => RepositoryInfo = repositoryInfo;
 
-    private IMap<IInstrument, InstrumentRepoFileSet> parsingFileDetails = new ConcurrentMap<IInstrument, InstrumentRepoFileSet>();
+    public RepositoryProximity Proximity => RepositoryInfo.Proximity;
 
-    protected TimeSeriesDirectoryRepository(RepositoryInfo repositoryInfo)
-    {
-        this.repositoryInfo = repositoryInfo;
+    public abstract IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap { get; protected set; }
 
-        repositoryInfo.RepoRootDir.Repository = this;
+    public IRepositoryRootDirectory RepoRootDirectory => RepositoryInfo.RepoRootDir;
 
-        ScanRepositoryAndUpdate();
-        repositoryInfo.RepoRootDir.FileAvailabilityChanged += RepositoryFileAvailabilityChanged;
-    }
+    public string[]  RequiredInstrumentFields => RepositoryInfo.RequiredInstrumentFields;
+    public string[]? OptionalInstrumentFields => RepositoryInfo.OptionalInstrumentFields;
 
-    public RepositoryProximity Proximity => repositoryInfo.Proximity;
+    public abstract IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
+        where TEntry : ITimeSeriesEntry<TEntry>;
 
-    public IRepositoryRootDirectory RepoRootDirectory => repositoryInfo.RepoRootDir;
-
-    public string[]  RequiredInstrumentFields => repositoryInfo.RequiredInstrumentFields;
-    public string[]? OptionalInstrumentFields => repositoryInfo.OptionalInstrumentFields;
-
-    public IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap { get; private set; }
-        = new ConcurrentMap<IInstrument, InstrumentRepoFileSet>();
-
-    public IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
-        where TEntry : ITimeSeriesEntry<TEntry>
-    {
-        var instrumentFiles = InstrumentFilesMap[instrument];
-        if (instrumentFiles == null) return null;
-        if (restrictedRange != null) instrumentFiles = instrumentFiles.Where(irf => irf.FileIntersects(restrictedRange)).ToInstrumentRepoFileSet();
-        return new RepositoryFilesReaderSession<TEntry>(instrumentFiles);
-    }
-
-    public IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry>
-    {
-        var fileStructure = repositoryInfo.RepoRootDir.FindFileStructure(instrument);
-        if (fileStructure == null) return null;
-        return new InstrumentRepoWriterSession<TEntry>(instrument, fileStructure);
-    }
+    public abstract IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry>;
 
     public void CloseAllFilesAndSessions()
     {
         foreach (var instrumentRepoFile in InstrumentFilesMap.SelectMany(kvp => kvp.Value))
             if (instrumentRepoFile.TimeSeriesRepoFile is { TimeSeriesFile: not null, TimeSeriesFile.IsOpen: true })
                 instrumentRepoFile.TimeSeriesRepoFile.TimeSeriesFile.Close();
+    }
+
+    public InstrumentFileInfo GetInstrumentFileInfo(IInstrument instrument)
+    {
+        var instrumentFiles = InstrumentFilesMap[instrument];
+        if (instrumentFiles == null || !instrumentFiles.Any())
+        {
+            var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
+            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            return new InstrumentFileInfo(instrument, fileStructurePeriod);
+        }
+        var earliestFile           = instrumentFiles.First();
+        var earliestTimeSeriesFile = earliestFile.TimeSeriesFile;
+        var earliestEntryTime      = earliestTimeSeriesFile.Header.EarliestEntryTime;
+        var latestFile             = instrumentFiles.Last();
+        var latestTimeSeriesFile   = latestFile.TimeSeriesFile;
+        var latestEntryTime        = latestTimeSeriesFile.Header.LatestEntryTime;
+        var allFileStartTimes      = instrumentFiles.Select(irf => irf.FilePeriodRange.PeriodStartTime).ToList();
+        var filePeriod             = earliestFile.FilePeriodRange.TimeSeriesPeriod;
+        return new InstrumentFileInfo(instrument, filePeriod, earliestEntryTime, latestEntryTime, allFileStartTimes);
+    }
+
+    public InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument)
+    {
+        var instrumentFiles = InstrumentFilesMap[instrument];
+        if (instrumentFiles == null || !instrumentFiles.Any())
+        {
+            var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
+            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
+        }
+        var totalCount  = 0L;
+        var fileDetails = new List<FileEntryInfo>(instrumentFiles.Count);
+        foreach (var instrumentFile in instrumentFiles)
+        {
+            var timeSeriesFile = instrumentFile.TimeSeriesFile;
+            var fileEntries    = timeSeriesFile.Header.TotalEntries;
+            fileDetails.Add(new FileEntryInfo(instrumentFile.FilePeriodRange.PeriodStartTime, instrumentFile.TimeSeriesRepoFile.Proximity
+                                            , fileEntries));
+            totalCount += fileEntries;
+        }
+        var filePeriod = instrumentFiles[0].FilePeriodRange.TimeSeriesPeriod;
+        return new InstrumentFileEntryInfo(instrument, filePeriod, fileDetails, totalCount);
+    }
+
+    public IEnumerable<IInstrument> AvailableInstrumentsMatching
+    (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
+      , IEnumerable<KeyValuePair<string, string>>? attributes = null)
+    {
+        foreach (var instrument in InstrumentFilesMap.Keys)
+        {
+            var isMatch = instrument.InstrumentName == instrumentName;
+            if (!isMatch) continue;
+            if (instrumentType != null && instrumentType != instrument.Type) continue;
+            if (entryType != null && entryType != instrument.EntryPeriod) continue;
+            if (attributes != null && attributes.Any(kvp => instrument[kvp.Key] != kvp.Value)) continue;
+            yield return instrument;
+        }
+    }
+}
+
+public class TimeSeriesDirectoryRepository : TimeSeriesDirectoryRepositoryBase, ITimeSeriesRepository
+{
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesDirectoryRepository));
+
+    private IMap<IInstrument, InstrumentRepoFileSet> parsingFileDetails = new ConcurrentMap<IInstrument, InstrumentRepoFileSet>();
+
+    protected TimeSeriesDirectoryRepository(ISingleRepositoryBuilderConfig singleRepositoryBuilderConfig, string repositoryName)
+        : base(singleRepositoryBuilderConfig.BuildRepositoryInfo(repositoryName))
+    {
+        RepositoryInfo.RepoRootDir.Repository = this;
+
+        ScanRepositoryAndUpdate();
+        RepositoryInfo.RepoRootDir.FileAvailabilityChanged += RepositoryFileAvailabilityChanged;
+    }
+
+    protected TimeSeriesDirectoryRepository(RepositoryInfo repositoryInfo) : base(repositoryInfo)
+    {
+        RepositoryInfo.RepoRootDir.Repository = this;
+
+        ScanRepositoryAndUpdate();
+        RepositoryInfo.RepoRootDir.FileAvailabilityChanged += RepositoryFileAvailabilityChanged;
+    }
+
+    public override IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument)
+    {
+        var fileStructure = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
+        if (fileStructure == null) return null;
+        return new InstrumentRepoWriterSession<TEntry>(instrument, fileStructure);
+    }
+
+    public override IMap<IInstrument, InstrumentRepoFileSet> InstrumentFilesMap { get; protected set; }
+        = new ConcurrentMap<IInstrument, InstrumentRepoFileSet>();
+
+    public override IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
+    {
+        var instrumentFiles = InstrumentFilesMap[instrument];
+        if (instrumentFiles == null) return null;
+        if (restrictedRange != null) instrumentFiles = instrumentFiles.Where(irf => irf.FileIntersects(restrictedRange)).ToInstrumentRepoFileSet();
+        return new RepositoryFilesReaderSession<TEntry>(instrumentFiles);
     }
 
     private void RepositoryFileAvailabilityChanged(IRepositoryRootDirectory sender, InstrumentRepoFileUpdateEventArgs eventArgs)
@@ -133,7 +227,7 @@ public class TimeSeriesDirectoryRepository : ITimeSeriesRepository
         parsingFileDetails.Clear();
 
         foreach (var instrumentDetails in
-                 repositoryInfo.RepoRootDir.RepositoryInstrumentDetails(repositoryInfo.TimeSeriesFileExtension))
+                 RepositoryInfo.RepoRootDir.RepositoryInstrumentDetails(RepositoryInfo.TimeSeriesFileExtension))
         {
             if (!parsingFileDetails.TryGetValue(instrumentDetails.Instrument, out var fileList))
             {
@@ -146,19 +240,14 @@ public class TimeSeriesDirectoryRepository : ITimeSeriesRepository
             {
                 var existingFile = existingFileList!.FirstOrDefault(ifd => Equals(ifd, instrumentDetails));
                 if (existingFile != null)
-                {
-                    instrumentDetails.FileStructure                     = existingFile.FileStructure;
                     instrumentDetails.TimeSeriesRepoFile.TimeSeriesFile = existingFile.TimeSeriesRepoFile.TimeSeriesFile;
-                }
                 else
-                {
-                    Logger.Info("{0} detected new Time Series file {1}", repositoryInfo.Proximity
+                    Logger.Info("{0} detected new Time Series file {1}", RepositoryInfo.Proximity
                               , instrumentDetails.TimeSeriesRepoFile.RepositoryRelativePath);
-                }
             }
             else
             {
-                Logger.Info("{0} detected new Time Series file {1}", repositoryInfo.Proximity
+                Logger.Info("{0} detected new Time Series file {1}", RepositoryInfo.Proximity
                           , instrumentDetails.TimeSeriesRepoFile.RepositoryRelativePath);
             }
         }
@@ -167,12 +256,12 @@ public class TimeSeriesDirectoryRepository : ITimeSeriesRepository
             {
                 var justParsed = existingFileList!.FirstOrDefault(ifd => Equals(ifd, existingFileDetails));
                 if (justParsed == null)
-                    Logger.Warn("{0} removed Time Series file {1} ", repositoryInfo.Proximity
+                    Logger.Warn("{0} removed Time Series file {1} ", RepositoryInfo.Proximity
                               , existingFileDetails.TimeSeriesRepoFile.RepositoryRelativePath);
             }
             else
             {
-                Logger.Warn("{0} removed Time Series file {1}", repositoryInfo.Proximity
+                Logger.Warn("{0} removed Time Series file {1}", RepositoryInfo.Proximity
                           , existingFileDetails.TimeSeriesRepoFile.RepositoryRelativePath);
             }
         (InstrumentFilesMap, parsingFileDetails) = (parsingFileDetails, InstrumentFilesMap);

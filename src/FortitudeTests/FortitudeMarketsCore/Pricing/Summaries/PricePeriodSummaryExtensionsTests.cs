@@ -11,7 +11,7 @@ using FortitudeMarketsCore.Pricing.Summaries;
 namespace FortitudeTests.FortitudeMarketsCore.Pricing.Summaries;
 
 [TestClass]
-public class PeriodSummaryHelpersTests
+public class PricePeriodSummaryExtensionsTests
 {
     [TestMethod]
     public void UnknownTimeFrameVariousStartEndTimes_TimeFrame_CalculatedCorrectly()

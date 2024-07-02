@@ -90,6 +90,16 @@ public static class TimeSeriesPeriodRangeExtensions
         return autoRecycleEnumerable;
     }
 
+    public static bool IsContainedBy(this TimeSeriesPeriodRange range, BoundedTimeRange timeRange) =>
+        range.PeriodStartTime <= timeRange.FromTime && range.PeriodEnd() > timeRange.ToTime;
+
+    public static bool CompletelyContains(this BoundedTimeRange timeRange, TimeSeriesPeriodRange range) => range.IsContainedBy(timeRange);
+
+    public static bool IsContainedBy(this TimeSeriesPeriodRange range, UnboundedTimeRange timeRange) =>
+        range.PeriodStartTime <= (timeRange.FromTime ?? DateTime.MaxValue) && range.PeriodEnd() > (timeRange.ToTime ?? DateTime.MinValue);
+
+    public static bool CompletelyContains(this UnboundedTimeRange timeRange, TimeSeriesPeriodRange range) => range.IsContainedBy(timeRange);
+
     public static bool Intersects(this TimeSeriesPeriodRange periodRange, UnboundedTimeRange? timeRange = null) =>
         timeRange == null || (periodRange.PeriodStartTime < (timeRange.Value.ToTime ?? DateTime.MaxValue) &&
                               periodRange.PeriodEnd() > (timeRange.Value.FromTime ?? DateTime.MinValue));
@@ -134,6 +144,16 @@ public static class TimeSeriesPeriodRangeExtensions
         }
         return autoRecycleEnumerable;
     }
+
+    public static bool IsContainedBy(this ITimeSeriesPeriodRange range, BoundedTimeRange timeRange) =>
+        range.PeriodStartTime <= timeRange.FromTime && range.PeriodEnd() > timeRange.ToTime;
+
+    public static bool CompletelyContains(this BoundedTimeRange timeRange, ITimeSeriesPeriodRange range) => range.IsContainedBy(timeRange);
+
+    public static bool IsContainedBy(this ITimeSeriesPeriodRange range, UnboundedTimeRange timeRange) =>
+        range.PeriodStartTime <= (timeRange.FromTime ?? DateTime.MaxValue) && range.PeriodEnd() > (timeRange.ToTime ?? DateTime.MinValue);
+
+    public static bool CompletelyContains(this UnboundedTimeRange timeRange, ITimeSeriesPeriodRange range) => range.IsContainedBy(timeRange);
 
     public static bool Intersects(this ITimeSeriesPeriodRange periodRange, UnboundedTimeRange? timeRange = null) =>
         timeRange == null || (periodRange.PeriodStartTime < (timeRange.Value.ToTime ?? DateTime.MaxValue) &&

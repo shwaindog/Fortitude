@@ -47,8 +47,7 @@ public enum PeriodListFlags : byte
 
 public class BidAskPeriod : ReusableObject<IBidAskPeriod>, IBidAskPeriod
 {
-    private PeriodListFlags  flags;
-    private TimeSeriesPeriod sweepRequiredPeriod;
+    private PeriodListFlags flags;
 
     public BidAskPeriod() { }
 

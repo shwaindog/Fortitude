@@ -65,15 +65,16 @@ public class PriceSummaryTimeSeriesFileTests
 
 
         asPQPriceStoragePeriodSummaryFactory = () => new PQPriceStoragePeriodSummary(new PQSourceTickerQuoteInfo(srcTkrQtInfo));
-        var dateToGenerate   = DateTime.UtcNow.Date;
+        var dateToGenerate   = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         startOfWeek = dateToGenerate.AddDays(dayDiff);
 
         var generateQuoteInfo = new GeneratePriceSummariesInfo(srcTkrQtInfo);
-        generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
-        generateQuoteInfo.MidPriceGenerator!.StartPrice = 200_042m;
-        generateQuoteInfo.MinimumVolume                 = 10_000;
+        generateQuoteInfo.MidPriceGenerator!.StartTime            = startOfWeek;
+        generateQuoteInfo.MidPriceGenerator!.StartPrice           = 200_042m;
+        generateQuoteInfo.MidPriceGenerator!.RoundAtDecimalPlaces = 1;
+        generateQuoteInfo.MinimumVolume                           = 10_000;
 
         priceSummaryGenerator          = new PricePeriodSummaryGenerator(generateQuoteInfo);
         pqPriceSummaryGenerator        = new PQPricePeriodSummaryGenerator(generateQuoteInfo);

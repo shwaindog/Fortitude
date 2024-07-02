@@ -13,6 +13,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing;
+using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
@@ -20,15 +21,15 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
 namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
-public class SharedTicksMovingAveragePublisherRule : PriceListenerIndicatorRule<PQLevel1Quote>
+public class LiveSharedTicksMovingAveragePublisherRule : PriceListenerIndicatorRule<PQLevel1Quote>
 {
     private readonly MovingAveragePublisherParams      movingAverageParams;
     private readonly IDoublyLinkedList<IBidAskInstant> periodTopOfBookChain = new DoublyLinkedList<IBidAskInstant>();
 
     private readonly IDoublyLinkedList<IBidAskInstant> startupCachePrices = new DoublyLinkedList<IBidAskInstant>();
 
-    private List<MovingAverageCalculationState>                averagesToCalculate;
-    private ChannelWrappingLimitedEventFactory<PQLevel1Quote>? historicalQuotesChannel;
+    private List<MovingAverageCalculationState>         averagesToCalculate;
+    private IChannelLimitedEventFactory<PQLevel1Quote>? historicalQuotesChannel;
 
     private ITimerUpdate? intervalTimer;
 
@@ -39,7 +40,7 @@ public class SharedTicksMovingAveragePublisherRule : PriceListenerIndicatorRule<
 
     private uint sequenceNumber;
 
-    public SharedTicksMovingAveragePublisherRule(MovingAveragePublisherParams movingAverageParams)
+    public LiveSharedTicksMovingAveragePublisherRule(MovingAveragePublisherParams movingAverageParams)
         : base(movingAverageParams.SourceTickerId
              , $"MovingAveragePublisherRule_{movingAverageParams.SourceTickerId.Ticker}_{movingAverageParams.SourceTickerId.Source}")
     {
@@ -57,17 +58,13 @@ public class SharedTicksMovingAveragePublisherRule : PriceListenerIndicatorRule<
         await base.StartAsync();
 
         // request historical data to latest
-        historicalQuotesChannel =
-            new ChannelWrappingLimitedEventFactory<PQLevel1Quote>
-                (new InterQueueChannel<PQLevel1Quote>(this, ReceiveHistoricalQuote), new LimitedBlockingRecycler(200));
-        var channelRequest = new ChannelPublishRequest<PQLevel1Quote>(historicalQuotesChannel, -1, 50);
+        historicalQuotesChannel = this.CreateChannelFactory<PQLevel1Quote>(ReceiveHistoricalQuote, new LimitedBlockingRecycler(200));
+        var channelRequest = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
         var now            = DateTime.UtcNow;
         var earliestTime   = averagesToCalculate.Select(map => map.EarliestTime(now)).Min();
-        var request = new HistoricalQuotesRequest<PQLevel1Quote>
-            (movingAverageParams.SourceTickerId, channelRequest, new UnboundedTimeRange(earliestTime, null));
+        var request        = channelRequest.ToHistoricalQuotesRequest(movingAverageParams.SourceTickerId, new UnboundedTimeRange(earliestTime, null));
 
-        var retrieving = await this.RequestAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
-            (request.RequestAddress, request, new DispatchOptions());
+        var retrieving = await this.RequestAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>(request.RequestAddress, request);
         if (!retrieving) retrievingHistoricalPrices = false;
         if (movingAverageParams.PublishInterval.PriceIndicatorPublishType == PriceIndicatorPublishType.SetTimeSpan)
             intervalTimer = Timer.RunEvery(movingAverageParams.PublishInterval.PublishTimeSpan!.Value, CalculateAndPublishMovingAverages);

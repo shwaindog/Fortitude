@@ -28,6 +28,8 @@ public interface IMutableBucketContainer
     IBucketIndexDictionary BucketIndexes         { get; }
     IBucketTrackingSession ContainingSession     { get; }
 
+    void EntryWrittenAt(DateTime entryStorageTime);
+
     uint CreateBucketId();
     void AddNewBucket(IMutableBucket newChild);
 
@@ -166,6 +168,12 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         set => FileHeader.TotalFileIndexSizeBytes = value;
     }
 
+    public void EntryWrittenAt(DateTime entryStorageTime)
+    {
+        if (FileHeader.EarliestEntryTime == default) FileHeader.EarliestEntryTime                                              = entryStorageTime;
+        if (FileHeader.LatestEntryTime == default || FileHeader.LatestEntryTime < entryStorageTime) FileHeader.LatestEntryTime = entryStorageTime;
+    }
+
     public ShiftableMemoryMappedFileView ContainerIndexAndHeaderFileView(int depth, uint requiredViewSize)
     {
         for (var i = parentBucketsHeaderAndIndexViews.Count; i < depth; i++)
@@ -222,12 +230,16 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
 
     public bool IsOpen { get; private set; }
 
+    public void Reopen()
+    {
+        ReopenSession(IsWritable ? FileFlags.WriterOpened : FileFlags.None);
+    }
+
     public void Close()
     {
         if (!IsOpen) return;
         if (IsWritable) BucketIndexes.FlushIndexToDisk();
-        IsOpen     = false;
-        IsWritable = false;
+        IsOpen = false;
         currentlyOpenBucket?.CloseBucketFileViews();
         currentlyOpenBucket = null;
         foreach (var bucket in cacheBuckets) bucket.CloseBucketFileViews();

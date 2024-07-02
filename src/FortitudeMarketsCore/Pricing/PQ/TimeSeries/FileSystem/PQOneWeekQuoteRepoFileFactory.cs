@@ -3,8 +3,10 @@
 
 #region
 
+using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -37,7 +39,7 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
         return new PriceTimeSeriesFileParameters(sourceTickerQuoteInfo, timeSeriesFileParams);
     }
 
-    public override ITimeSeriesEntryFile<TEntry>? OpenExisting(FileInfo fileInfo)
+    public override ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo)
     {
         return EntryType switch
                {
@@ -50,6 +52,22 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
                  , _ when EntryType == typeof(ILevel3Quote) => (ITimeSeriesEntryFile<TEntry>)WeeklyLevel3QuoteTimeSeriesFile
                        .OpenExistingTimeSeriesFile(fileInfo)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
+               };
+    }
+
+    public override ITimeSeriesFile? OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
+
+    public override bool IsBestFactoryFor(IInstrument instrument)
+    {
+        var srcTickerInfo = instrument as ISourceTickerQuoteInfo;
+        var category      = srcTickerInfo?.PublishedQuoteLevel.ToString() ?? instrument[nameof(RepositoryPathName.Category)];
+        var entryType     = typeof(TEntry);
+        return category switch
+               {
+                   nameof(QuoteLevel.Level0) => !entryType.ImplementsInterface<ILevel1Quote>()
+                 , nameof(QuoteLevel.Level1) => !entryType.ImplementsInterface<ILevel2Quote>()
+                 , nameof(QuoteLevel.Level2) => !entryType.ImplementsInterface<ILevel3Quote>()
+                 , _                         => true
                };
     }
 

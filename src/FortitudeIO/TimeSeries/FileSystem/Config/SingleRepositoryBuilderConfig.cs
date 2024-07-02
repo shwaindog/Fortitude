@@ -20,7 +20,8 @@ public interface ISingleRepositoryBuilderConfig : IRepositoryBuilderConfig
 
 public class SingleRepositoryBuilderConfig : RepositoryBuilderConfig, ISingleRepositoryBuilderConfig
 {
-    private object?           ignoreSuppressWarnings;
+    private object? ignoreSuppressWarnings;
+
     private IRepoPathBuilder? repoPathBuilder;
     public SingleRepositoryBuilderConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public SingleRepositoryBuilderConfig() { }
@@ -30,8 +31,8 @@ public class SingleRepositoryBuilderConfig : RepositoryBuilderConfig, ISingleRep
         FileRepositoryLocationConfig
             = new FileRepositoryLocationConfig(toClone.FileRepositoryLocationConfig, root, path + $":{nameof(FileRepositoryLocationConfig)}");
 
-    public SingleRepositoryBuilderConfig
-        (ISingleRepositoryBuilderConfig toClone) : base(toClone, InMemoryConfigRoot, InMemoryPath) =>
+    public SingleRepositoryBuilderConfig(ISingleRepositoryBuilderConfig toClone)
+        : base(toClone, InMemoryConfigRoot, InMemoryPath) =>
         FileRepositoryLocationConfig = new FileRepositoryLocationConfig(toClone.FileRepositoryLocationConfig);
 
 
@@ -40,27 +41,33 @@ public class SingleRepositoryBuilderConfig : RepositoryBuilderConfig, ISingleRep
       , RepositoryType repositoryType, bool createIfNotExists, IConfigurationRoot root, string path, string? repoName = null
       , string timeSeriesFileExtension = ".tsf")
         : base(repositoryType, createIfNotExists, root, path, repoPathBuilderClassName) =>
-        FileRepositoryLocationConfig = new FileRepositoryLocationConfig(repositoryRootDirectoryPath, proximity, root
-                                                                      , path + $":{nameof(FileRepositoryLocationConfig)}", repoName
-                                                                      , timeSeriesFileExtension);
+        FileRepositoryLocationConfig = new FileRepositoryLocationConfig
+            (repositoryRootDirectoryPath, proximity, root, path + $":{nameof(FileRepositoryLocationConfig)}"
+           , repoName, timeSeriesFileExtension);
 
     public SingleRepositoryBuilderConfig
     (string repositoryRootDirectoryPath, RepositoryProximity proximity, Type repoClassBuilderType, RepositoryType repositoryType
       , bool createIfNotExists, string? repoName = null, string timeSeriesFileExtension = ".tsf")
         : base(repositoryType, createIfNotExists, InMemoryConfigRoot, InMemoryPath, repoClassBuilderType) =>
-        FileRepositoryLocationConfig = new FileRepositoryLocationConfig(repositoryRootDirectoryPath, proximity, ConfigRoot
-                                                                      , Path + $":{nameof(FileRepositoryLocationConfig)}", repoName
-                                                                      , timeSeriesFileExtension);
+        FileRepositoryLocationConfig = new FileRepositoryLocationConfig
+            (repositoryRootDirectoryPath, proximity, ConfigRoot, Path + $":{nameof(FileRepositoryLocationConfig)}"
+           , repoName, timeSeriesFileExtension);
 
-    public SingleRepositoryBuilderConfig(IFileRepositoryLocationConfig fileRepositoryLocationConfig) : base() =>
-        FileRepositoryLocationConfig = fileRepositoryLocationConfig;
 
-    public override ITimeSeriesRepository BuildRepository()
+    public SingleRepositoryBuilderConfig(IFileRepositoryLocationConfig fileLocationConfig) : base(InMemoryConfigRoot, InMemoryPath) =>
+        FileRepositoryLocationConfig = new FileRepositoryLocationConfig(fileLocationConfig);
+
+    public override ITimeSeriesRepository BuildRepository(string? repositoryName = "NoRepositoryName")
     {
         if (RepositoryType == RepositoryType.Dymwi)
             return DymwiTimeSeriesDirectoryRepository.OpenRepository(RepositoryPathBuilder(FileRepositoryLocationConfig));
         throw new NotImplementedException("Until custom repository config is implemented you can only construct a Dymwi repository");
     }
+
+    public override RepositoryInfo BuildRepositoryInfo(string? repositoryName = "NoRepositoryName") =>
+        new(new RepositoryRootDirectory(repositoryName, new DirectoryInfo(FileRepositoryLocationConfig.RootDirectoryPath))
+          , FileRepositoryLocationConfig.Proximity
+          , FileRepositoryLocationConfig.TimeSeriesFileExtension, RequiredInstrumentAttributeFieldNames, OptionalInstrumentAttributeFieldNames);
 
     public override IRepoPathBuilder RepositoryPathBuilder(IFileRepositoryLocationConfig fileRepoLocationConfig)
     {

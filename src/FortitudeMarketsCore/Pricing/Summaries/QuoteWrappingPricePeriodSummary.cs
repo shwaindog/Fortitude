@@ -101,6 +101,7 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
 
     public override void StateReset()
     {
+        level1Quote?.DecrementRefCount();
         level1Quote = null;
         base.StateReset();
     }
@@ -111,7 +112,11 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
         return this;
     }
 
-    public void Configure(ILevel1Quote level1) => level1Quote = level1;
+    public void Configure(ILevel1Quote level1)
+    {
+        level1.IncrementRefCount();
+        level1Quote = level1;
+    }
 
     public static IPricePeriodSummary Wrap(ILevel1Quote level1Quote, IRecycler? recycler = null) =>
         recycler?.Borrow<QuoteWrappingPricePeriodSummary>().CopyFrom(level1Quote) ?? new QuoteWrappingPricePeriodSummary(level1Quote);

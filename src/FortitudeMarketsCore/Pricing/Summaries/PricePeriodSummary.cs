@@ -41,6 +41,13 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         PeriodEndTime   = DateTimeConstants.UnixEpoch;
     }
 
+    public PricePeriodSummary(TimeSeriesPeriod timeSeriesPeriod, DateTime startTime)
+    {
+        TimeSeriesPeriod = timeSeriesPeriod;
+        PeriodStartTime  = startTime;
+        PeriodEndTime    = timeSeriesPeriod.PeriodEnd(startTime);
+    }
+
     public PricePeriodSummary
     (TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m, decimal highestAskPrice = 0m,

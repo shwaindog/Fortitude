@@ -57,7 +57,8 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
                 (19, "WeeklyLevel0QuoteTimeSeriesFileTests", 79, "PersistTest", Level0, Unknown
                , 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None, roundingPrecision: 0.000001m);
 
-        var dateToGenerate   = DateTime.UtcNow.Date;
+        var dateToGenerate = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
+        ;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         var startOfWeek      = dateToGenerate.AddDays(dayDiff);

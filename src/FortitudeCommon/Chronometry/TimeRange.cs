@@ -82,6 +82,10 @@ public static class TimeRangeExtensions
         return bounded.FromTime!.Value - bounded.ToTime!.Value;
     }
 
+    public static UnboundedTimeRange CapUpperTime
+        (this UnboundedTimeRange toCap, DateTime maxUpperBound) =>
+        new(toCap.FromTime, toCap.ToTime?.Min(maxUpperBound) ?? maxUpperBound);
+
     public static UnboundedTimeRange? Intersection(this UnboundedTimeRange lhs, UnboundedTimeRange rhs)
     {
         var minTicks = DateTimeExtensions.MinTicks;

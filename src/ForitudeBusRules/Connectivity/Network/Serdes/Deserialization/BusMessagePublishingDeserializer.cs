@@ -50,10 +50,10 @@ public class BroadcastReceiverListenContext<T> : ReceiverListenContext<T>
         publishAddress = toClone.publishAddress;
         recycler = toClone.recycler;
     }
+
     public static IReceiverListenContext DynamicBuildTypedBroadcastReceiverListenContext(Type messageType, string name
         , IMessageBus messageBus, string publishAddress)
     {
-        
         var typeInfo = typeof(BroadcastReceiverListenContext<>).MakeGenericType(messageType);
         var targetQueueReceiverListenContext = (IReceiverListenContext)Activator.CreateInstance(typeInfo, [name, messageBus, publishAddress])!;
         return targetQueueReceiverListenContext;

@@ -288,7 +288,9 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         {
             BucketId = BucketId, FileOffset = dataWriter.WriteCursor, StorageTime = entryContext.StorageTime
         };
-        return AppendEntry(DataWriterAtAppendLocation!, entryContext, appendResult);
+        var result = AppendEntry(DataWriterAtAppendLocation!, entryContext, appendResult);
+        if (result.StorageAttemptResult == StorageAttemptResult.PeriodRangeMatched) BucketContainer.EntryWrittenAt(entryStorageTime);
+        return result;
     }
 
     public abstract AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext, AppendResult appendResult);

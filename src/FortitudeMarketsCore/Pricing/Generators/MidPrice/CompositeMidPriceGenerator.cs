@@ -9,6 +9,7 @@ public class CompositeMidMidPriceGenerator : MidPriceGenerator
     private readonly   long                     runTimeTicks;
     private readonly   long                     totalRunPlusSleepTicks;
     protected          List<IMidPriceGenerator> ComposedGenerators = new();
+    private            int                      roundAtDecimalPlaces;
 
     public CompositeMidMidPriceGenerator
         (decimal startPrice, DateTime startTime, TimeSpan runTimeSpan, int roundAtDecimalPlaces = 6, TimeSpan? deltaPostRunSleepTimeSpan = null)
@@ -28,6 +29,16 @@ public class CompositeMidMidPriceGenerator : MidPriceGenerator
         : this(startPrice, startTime, runTimeSpan, roundAtDecimalPlaces, deltaPostRunSleepTimeSpan)
     {
         ComposedGenerators.AddRange(compositeGenerators);
+    }
+
+    public override int RoundAtDecimalPlaces
+    {
+        get => roundAtDecimalPlaces;
+        set
+        {
+            roundAtDecimalPlaces = value;
+            foreach (var composedGenerator in ComposedGenerators) composedGenerator.RoundAtDecimalPlaces = roundAtDecimalPlaces;
+        }
     }
 
     public override MidPriceTime PriceAt(DateTime atTime, int sequenceNumber = 0)

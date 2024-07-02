@@ -35,6 +35,8 @@ public interface ITimeSeriesFileHeader : IDisposable
     FileOperation LastWriterOperation { get; }
     ulong LastWriterLastWriteOffset { get; }
     DateTime LastWriterWriteTime { get; }
+    DateTime EarliestEntryTime { get; }
+    DateTime LatestEntryTime { get; }
     uint TotalEntries { get; }
     ulong TotalFileDataSizeBytes { get; }
     uint TotalHeaderSizeBytes { get; }
@@ -80,6 +82,8 @@ public unsafe interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
     new FileOperation LastWriterOperation { get; set; }
     new ulong LastWriterLastWriteOffset { get; set; }
     new DateTime LastWriterWriteTime { get; set; }
+    new DateTime EarliestEntryTime { get; set; }
+    new DateTime LatestEntryTime   { get; set; }
     new uint TotalEntries { get; set; }
     new ulong TotalFileDataSizeBytes { get; set; }
     new uint TotalFileIndexSizeBytes { get; set; }
@@ -125,6 +129,8 @@ public struct TimeSeriesFileHeaderBodyV1
     public long FileStartPeriod;
     public ulong LastWriterLastWriteOffset;
     public long LastWriterWriteTime;
+    public long EarliestEntryTime;
+    public long LatestEntryTime;
     public ulong TotalFileDataSizeBytes;
     public uint FileHeaderSize;
     public uint InternalIndexMaxSize;
@@ -423,6 +429,44 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
             {
                 writableV1HeaderBody->FileStartPeriod = value.Ticks;
                 cacheV1HeaderBody.FileStartPeriod = writableV1HeaderBody->LastWriterWriteTime;
+            }
+        }
+    }
+
+    public DateTime EarliestEntryTime
+    {
+        get
+        {
+            if (headerMemoryMappedFileView == null) return DateTime.FromBinary(cacheV1HeaderBody.EarliestEntryTime);
+            cacheV1HeaderBody.EarliestEntryTime = writableV1HeaderBody->EarliestEntryTime;
+            return DateTime.FromBinary(cacheV1HeaderBody.EarliestEntryTime);
+        }
+        set
+        {
+            if (DateTime.FromBinary(cacheV1HeaderBody.EarliestEntryTime) == value || cacheV1HeaderBody.EarliestEntryTime > 0 || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                writableV1HeaderBody->EarliestEntryTime = value.Ticks;
+                cacheV1HeaderBody.EarliestEntryTime     = writableV1HeaderBody->LastWriterWriteTime;
+            }
+        }
+    }
+
+    public DateTime LatestEntryTime
+    {
+        get
+        {
+            if (headerMemoryMappedFileView == null) return DateTime.FromBinary(cacheV1HeaderBody.LatestEntryTime);
+            cacheV1HeaderBody.LatestEntryTime = writableV1HeaderBody->LatestEntryTime;
+            return DateTime.FromBinary(cacheV1HeaderBody.LatestEntryTime);
+        }
+        set
+        {
+            if (DateTime.FromBinary(cacheV1HeaderBody.LatestEntryTime) == value || cacheV1HeaderBody.LatestEntryTime > value.Ticks || headerMemoryMappedFileView == null) return;
+            if (isWritable)
+            {
+                writableV1HeaderBody->LatestEntryTime = value.Ticks;
+                cacheV1HeaderBody.LatestEntryTime     = writableV1HeaderBody->LastWriterWriteTime;
             }
         }
     }

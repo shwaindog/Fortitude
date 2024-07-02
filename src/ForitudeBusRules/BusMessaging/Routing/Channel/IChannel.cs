@@ -10,12 +10,13 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeBusRules.BusMessaging.Routing.Channel;
 
-public interface IChannel
+public interface IChannel : IReusableObject<IChannel>
 {
+    int  Id            { get; }
     bool IsOpen        { get; }
     bool ReceiverAlive { get; }
-
-    Type EventType { get; }
+    int  MaxInflight   { get; set; }
+    Type EventType     { get; }
 
     ValueTask<bool> PublishComplete(IRule sender);
     ValueTask<bool> Close(IRule caller);

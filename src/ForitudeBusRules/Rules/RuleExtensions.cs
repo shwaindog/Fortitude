@@ -20,16 +20,30 @@ public static class RuleExtensions
         (this IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         sender.Context.MessageBus.PublishAsync(sender, publishAddress, msg, dispatchOptions);
 
+    public static ValueTask<IDispatchResult> PublishAsync<T>
+        (this IRule sender, string publishAddress, T msg) =>
+        sender.PublishAsync(publishAddress, msg, new DispatchOptions());
+
     public static ValueTask<U> RequestAsync<T, U>
         (this IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions) =>
         sender.Context.MessageBus.RequestAsync<T, U>(sender, publishAddress, msg, dispatchOptions);
+
+    public static ValueTask<U> RequestAsync<T, U>
+        (this IRule sender, string publishAddress, T msg) =>
+        sender.RequestAsync<T, U>(publishAddress, msg, new DispatchOptions());
 
     public static ValueTask<IDispatchResult> DeployRuleAsync
         (this IRule sender, IRule rule, DeploymentOptions options) =>
         sender.Context.MessageBus.DeployRuleAsync(sender, rule, options);
 
+    public static ValueTask<IDispatchResult> DeployRuleAsync
+        (this IRule sender, IRule rule) =>
+        sender.DeployRuleAsync(rule, new DeploymentOptions());
+
     public static void DeployRule(this IRule sender, IRule rule, DeploymentOptions options) =>
         sender.Context.MessageBus.DeployRule(sender, rule, options);
+
+    public static void DeployRule(this IRule sender, IRule rule) => sender.DeployRule(rule, new DeploymentOptions());
 
     public static ValueTask<IDispatchResult> UndeployRuleAsync(this IRule sender, IRule toUndeployRule) =>
         sender.Context.MessageBus.UndeployRuleAsync(sender, toUndeployRule);
