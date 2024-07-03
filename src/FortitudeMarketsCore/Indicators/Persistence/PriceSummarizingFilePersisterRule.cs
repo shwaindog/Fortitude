@@ -20,7 +20,7 @@ namespace FortitudeMarketsCore.Indicators.Persistence;
 public struct SummarizingPricePersisterParams
 {
     public SummarizingPricePersisterParams
-    (TimeSeriesRepositoryParams repositoryParams, ISourceTickerIdentifier tickerId, InstrumentType instrumentType, TimeSeriesPeriod entryPeriod
+    (TimeSeriesRepositoryParams repositoryParams, ISourceTickerQuoteInfo tickerId, InstrumentType instrumentType, TimeSeriesPeriod entryPeriod
       , string appendListenAddress, TimeSpan? autoCloseAfterTimeSpan = null)
     {
         RepositoryParams       = repositoryParams;
@@ -31,7 +31,7 @@ public struct SummarizingPricePersisterParams
         AutoCloseAfterTimeSpan = autoCloseAfterTimeSpan ?? TimeSpan.FromSeconds(5);
     }
 
-    public ISourceTickerIdentifier    TickerId            { get; }
+    public ISourceTickerQuoteInfo     TickerId            { get; }
     public TimeSeriesPeriod           EntryPeriod         { get; }
     public InstrumentType             InstrumentType      { get; }
     public TimeSeriesRepositoryParams RepositoryParams    { get; }
@@ -46,7 +46,7 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
     private readonly TimeSeriesPeriod                entryPeriod;
     private readonly InstrumentType                  instrumentType;
     private readonly SummarizingPricePersisterParams persisterParams;
-    private readonly ISourceTickerIdentifier         tickerId;
+    private readonly ISourceTickerQuoteInfo          tickerId;
 
     private ISubscription? appendEntrySubscription;
 
@@ -72,15 +72,38 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
     {
         await base.StartAsync();
 
-        instrumentFileInfo = InstrumentFileInfos
+        var existingInstruments = InstrumentFileInfos
             (tickerId.Ticker, instrumentType, entryPeriod
-           , new KeyValuePair<string, string>(nameof(RepositoryPathName.SourceName), tickerId.Source)).First();
+           , new KeyValuePair<string, string>(nameof(RepositoryPathName.SourceName), tickerId.Source)).ToList();
+        if (existingInstruments.Any())
+        {
+            if (existingInstruments.Count == 1)
+                instrumentFileInfo = existingInstruments[0];
+            else
+                throw new Exception($"More than one instrument exists for {tickerId.Ticker}, {tickerId.Source}, {instrumentType}, {entryPeriod}");
+        }
+        else
+        {
+            var priceSummaryTickerInstrument = new SourceTickerQuoteInfo(tickerId)
+            {
+                EntryPeriod = entryPeriod
+              , Type        = instrumentType
+            };
+            var fileInfo = TimeSeriesRepository.GetInstrumentFileInfo(priceSummaryTickerInstrument);
+
+            if (fileInfo.FilePeriod > TimeSeriesPeriod.None)
+                instrumentFileInfo = new InstrumentFileInfo(priceSummaryTickerInstrument, fileInfo.FilePeriod);
+        }
+        if (Equals(instrumentFileInfo, default(InstrumentFileInfo)))
+            throw new Exception($"Could not locate a repository structure for {tickerId.Ticker}, {tickerId.Source}, {instrumentType}, {entryPeriod}");
+
 
         appendEntrySubscription = await this.RegisterListenerAsync<TEntry>(persisterParams.AppendListenAddress, ReceiveEntryToPersist);
     }
 
     public override async ValueTask StopAsync()
     {
+        if (writerSession?.IsOpen == true) writerSession.Close();
         if (appendEntrySubscription != null) await appendEntrySubscription.UnsubscribeAsync();
         await base.StopAsync();
     }
@@ -91,7 +114,9 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
         if (!writerSession!.IsOpen) writerSession.Reopen();
         var entry = appendEntryMsg.Payload.Body();
         writerSession.AppendEntry(entry);
-        var now                                                                                                             = DateTime.UtcNow;
+
+        var now = DateTime.UtcNow;
+
         if (!autoCloseAfterWrite && lastAppendTime != null && now - lastAppendTime > autoCloseTimeSpan) autoCloseAfterWrite = true;
         lastAppendTime = now;
         if (autoCloseAfterWrite) writerSession.Close();

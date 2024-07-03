@@ -134,11 +134,11 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
                                                                   , CacheRecentlyCompletedSummariesHandler);
         if (period is >= PricePeriodSummaryConstants.PersistPeriodsFrom and <= PricePeriodSummaryConstants.PersistPeriodsTo)
         {
-            var tickerSubPeriodService = new SourceTickerService
-                (ServiceType.PricePeriodSummaryFilePersister, tickerId, period, PQQuoteExtensions.GetQuoteLevel<TQuote>());
+            var tickerSubPeriodService = new TickerPeriodServiceRequest
+                (RequestType.StartOrStatus, ServiceType.PricePeriodSummaryFilePersister, tickerId, period, PQQuoteExtensions.GetQuoteLevel<TQuote>());
 
-            var response = await this.RequestAsync<SourceTickerService, ServiceStartInfo>
-                (IndicatorServiceConstants.IndicatorsServiceStartRequest, tickerSubPeriodService);
+            var response = await this.RequestAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>
+                (IndicatorServiceConstants.PricePeriodIndicatorsServiceStartRequest, tickerSubPeriodService);
             if (response.RunStatus == ServiceRunStatus.Disabled)
                 Logger.Info("File Persistence for PricePeriodSummary {0} for {1} is disable in this configuration", tickerId.ShortName(), period);
         }
@@ -298,7 +298,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
                     remainingPeriods.Add(currentPeriod);
                     currentPeriod = new PricePeriodSummary(period, period.ContainingPeriodBoundaryStart(subPeriodHistory.PeriodStartTime));
                 }
-                currentPeriod.Merge(subPeriodHistory);
+                currentPeriod.MergeBoundaries(subPeriodHistory);
             }
             remainingPeriods.AddRange(cacheResults);
             return remainingPeriods;
@@ -313,8 +313,10 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
             var rebuildCompleteTask   = rebuildCompleteSource.Task;
             var summaryPopulateChannel = this.CreateChannelFactory(ce =>
             {
-                if (ce.IsLastEvent) rebuildCompleteSource.SetResult(true);
-                else remainingPeriods.Add(ce.Event);
+                if (ce.IsLastEvent)
+                    rebuildCompleteSource.SetResult(true);
+                else
+                    remainingPeriods.Add(ce.Event);
                 return !ce.IsLastEvent;
             }, limitedRecycler);
             var rebuildRequest     = summaryPopulateChannel.ToChannelPublishRequest();
@@ -466,7 +468,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
                 {
                     sendMore = await PublishHistoricalSummary
                         (channelEvent.ChannelId, previousGeneratePeriodSubSummariesState.BuildPeriodSummary(Context.PooledRecycler
-                           , previousGeneratePeriodSubSummariesState.PeriodEnd()));
+                       , previousGeneratePeriodSubSummariesState.PeriodEnd()));
                     previousGeneratePeriodSubSummariesState.HasPublishedComplete = true;
                 }
 
@@ -538,7 +540,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
                 {
                     sendMore = await PublishHistoricalSummary(channelEvent.ChannelId
                                                             , previousGeneratePeriodSubSummariesState.BuildPeriodSummary(Context.PooledRecycler
-                                                                 , previousGeneratePeriodSubSummariesState.PeriodEnd()));
+                                                             , previousGeneratePeriodSubSummariesState.PeriodEnd()));
                     previousGeneratePeriodSubSummariesState.HasPublishedComplete = true;
                 }
 
@@ -580,11 +582,12 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
 
     private async ValueTask EnsureSubPeriodResolverRunning()
     {
-        var tickerSubPeriodService = new SourceTickerService
-            (ServiceType.HistoricalPricePeriodSummaryResolver, tickerId, buildPeriod, PQQuoteExtensions.GetQuoteLevel<TQuote>());
+        var tickerSubPeriodService = new TickerPeriodServiceRequest
+            (RequestType.StartOrStatus, ServiceType.HistoricalPricePeriodSummaryResolver, tickerId, buildPeriod
+           , PQQuoteExtensions.GetQuoteLevel<TQuote>());
 
-        var response = await this.RequestAsync<SourceTickerService, ServiceStartInfo>
-            (IndicatorServiceConstants.IndicatorsServiceStartRequest, tickerSubPeriodService);
+        var response = await this.RequestAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>
+            (IndicatorServiceConstants.PricePeriodIndicatorsServiceStartRequest, tickerSubPeriodService);
 
         if (response.RunStatus is not (ServiceRunStatus.ServiceStarted or ServiceRunStatus.ServiceRestarted
                                                                        or ServiceRunStatus.ServiceAlreadyRunning))

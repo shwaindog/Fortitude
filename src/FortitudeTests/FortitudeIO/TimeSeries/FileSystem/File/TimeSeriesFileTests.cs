@@ -15,6 +15,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeTests.FortitudeCommon.Extensions;
 using static FortitudeIO.TimeSeries.InstrumentType;
 
 #endregion
@@ -25,8 +26,6 @@ namespace FortitudeTests.FortitudeIO.TimeSeries.FileSystem.File;
 public class TimeSeriesFileTests
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileTests));
-
-    private static int newTestCount;
 
     private Func<Level1QuoteStruct>? createNewEntryFactory;
 
@@ -50,8 +49,8 @@ public class TimeSeriesFileTests
     {
         fileFlags |= FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader;
 
-        testTimeSeriesFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
-        timeSeriesFile         = new FileInfo(testTimeSeriesFilePath);
+        timeSeriesFile         = GenerateUniqueFileNameOffDateTime();
+        testTimeSeriesFilePath = timeSeriesFile.FullName;
         createNewEntryFactory  = () => new Level1QuoteStruct(DateTimeConstants.UnixEpoch, 0m, DateTimeConstants.UnixEpoch, 0m, 0m, false);
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var instrumentFields = new Dictionary<string, string>
@@ -331,13 +330,7 @@ public class TimeSeriesFileTests
                                                1.2345m - i * 0.0002m, 1.2345m + i * 0.0002m, true);
     }
 
-    private string GenerateUniqueFileNameOffDateTime()
-    {
-        var now = DateTime.Now;
-        Interlocked.Increment(ref newTestCount);
-        var nowString = now.ToString("yyyy-MM-dd_HH-mm-ss_fff");
-        return "TimeSeriesFileTests_" + nowString + "_" + newTestCount + ".bin";
-    }
+    private FileInfo GenerateUniqueFileNameOffDateTime() => FileInfoExtensionsTests.UniqueNewTestFileInfo("TimeSeriesFileTests", "");
 
 
     private class TestWeeklyLevel1StructsTimeSeriesFile : TimeSeriesFile<TestWeeklyLevel1StructsTimeSeriesFile, TestLevel1DailyQuoteStructBucket,

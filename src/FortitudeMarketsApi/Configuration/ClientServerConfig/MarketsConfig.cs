@@ -1,5 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using System.Collections;
 using FortitudeCommon.Configuration;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeIO.Transports.Network.Config;
@@ -9,12 +13,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig;
 
-public interface IMarketsConfig : IConnection
+public interface IMarketsConfig : IConnection, IEnumerable<IMarketConnectionConfig>
 {
     IEnumerable<IMarketConnectionConfig> Markets { get; }
-    IMarketConnectionConfig? Find(string name);
-    IMarketsConfig ToggleProtocolDirection(string connectionName);
-    IMarketsConfig ShiftPortsBy(ushort deltaPorts);
+    void                                 Add(IMarketConnectionConfig toAdd);
+    IMarketConnectionConfig?             Find(string name);
+    IMarketsConfig                       ToggleProtocolDirection(string connectionName);
+    IMarketsConfig                       ShiftPortsBy(ushort deltaPorts);
 }
 
 public class MarketsConfig : ConfigSection, IMarketsConfig
@@ -28,20 +33,31 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
     public MarketsConfig(string connectionName) : this(connectionName, InMemoryConfigRoot, InMemoryPath) { }
 
     public MarketsConfig(string connectionName, IEnumerable<IMarketConnectionConfig> marketConnectionConfigs) : this(connectionName
-        , InMemoryConfigRoot, InMemoryPath) =>
+   , InMemoryConfigRoot, InMemoryPath) =>
         Markets = marketConnectionConfigs;
 
     public MarketsConfig(string connectionName, params IMarketConnectionConfig[] marketConnectionConfigs) : this(connectionName, InMemoryConfigRoot
-        , InMemoryPath) =>
+   , InMemoryPath) =>
         Markets = marketConnectionConfigs;
 
     public MarketsConfig(IMarketsConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
         ConnectionName = toClone.ConnectionName;
-        Markets = toClone.Markets;
+        Markets        = toClone.Markets;
     }
 
     public MarketsConfig(IMarketsConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<IMarketConnectionConfig> GetEnumerator() => Markets.GetEnumerator();
+
+    public void Add(IMarketConnectionConfig toAdd)
+    {
+        var current = Markets.ToList();
+        current.Add(toAdd);
+        Markets = current;
+    }
 
     public IMarketConnectionConfig? Find(string name) =>
         Markets
@@ -66,7 +82,7 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
         set
         {
             var oldCount = Markets.Count();
-            var i = 0;
+            var i        = 0;
             foreach (var marketConnectionConfig in value)
             {
                 ignoreSuppressWarnings

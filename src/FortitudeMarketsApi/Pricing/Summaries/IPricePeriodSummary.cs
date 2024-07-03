@@ -120,24 +120,31 @@ public interface IMutablePricePeriodSummary : IPricePeriodSummary
 
 public static class MutablePricePeriodSummaryExtensions
 {
-    public static IMutablePricePeriodSummary Merge(this IMutablePricePeriodSummary mergeInto, IPricePeriodSummary other)
+    public static IMutablePricePeriodSummary OpeningState(this IMutablePricePeriodSummary mergeInto, BidAskPair? previousEnd)
+    {
+        if (previousEnd == null) return mergeInto;
+        var open = previousEnd.Value;
+        if (Equals(mergeInto.StartBidAsk, default(BidAskPair)) && Equals(mergeInto.EndBidAsk, default(BidAskPair)))
+        {
+            mergeInto.StartBidPrice  = open.BidPrice;
+            mergeInto.StartAskPrice  = open.AskPrice;
+            mergeInto.LowestBidPrice = open.BidPrice;
+            mergeInto.LowestAskPrice = open.AskPrice;
+        }
+        return mergeInto;
+    }
+
+    public static IMutablePricePeriodSummary MergeBoundaries(this IMutablePricePeriodSummary mergeInto, IPricePeriodSummary other)
     {
         if (!other.IsWhollyBoundedBy(mergeInto)) return mergeInto;
 
-        var existingTimeSpanMs = (decimal)(other.PeriodStartTime - mergeInto.PeriodStartTime).TotalMilliseconds;
-        var addTimeSpanMs      = (decimal)(other.PeriodEnd() - other.PeriodStartTime).TotalMilliseconds;
-
-        var timeWeightedExistingBidAverage = mergeInto.AverageBidPrice * existingTimeSpanMs;
-        var timeWeightedExistingAskAverage = mergeInto.AverageAskPrice * existingTimeSpanMs;
-
-        var timeWeightedMergedBidAverage = other.AverageBidAsk.BidPrice * addTimeSpanMs;
-        var timeWeightedMergedAskAverage = other.AverageBidAsk.AskPrice * addTimeSpanMs;
-
-        var mergedBidAverage = (timeWeightedExistingBidAverage + timeWeightedMergedBidAverage) / (existingTimeSpanMs + addTimeSpanMs);
-        var mergedAskAverage = (timeWeightedExistingAskAverage + timeWeightedMergedAskAverage) / (existingTimeSpanMs + addTimeSpanMs);
-
-        mergeInto.AverageBidPrice = mergedBidAverage;
-        mergeInto.AverageAskPrice = mergedAskAverage;
+        if (Equals(mergeInto.StartBidAsk, default(BidAskPair)) && Equals(mergeInto.EndBidAsk, default(BidAskPair)))
+        {
+            mergeInto.StartBidPrice  = other.StartBidAsk.BidPrice;
+            mergeInto.StartAskPrice  = other.StartBidAsk.AskPrice;
+            mergeInto.LowestBidPrice = other.LowestBidAsk.BidPrice;
+            mergeInto.LowestAskPrice = other.LowestBidAsk.AskPrice;
+        }
 
         var highestBid = Math.Max(mergeInto.HighestBidPrice, other.HighestBidAsk.BidPrice);
         var highestAsk = Math.Max(mergeInto.HighestAskPrice, other.HighestBidAsk.AskPrice);
@@ -145,12 +152,14 @@ public static class MutablePricePeriodSummaryExtensions
         var lowestBid = Math.Min(mergeInto.LowestBidPrice, other.LowestBidAsk.BidPrice);
         var lowestAsk = Math.Min(mergeInto.LowestAskPrice, other.LowestBidAsk.AskPrice);
 
-        mergeInto.HighestBidPrice = highestBid;
-        mergeInto.HighestAskPrice = highestAsk;
-        mergeInto.LowestBidPrice  = lowestBid;
-        mergeInto.LowestAskPrice  = lowestAsk;
-        mergeInto.EndBidPrice     = other.EndBidAsk.BidPrice;
-        mergeInto.EndAskPrice     = other.EndBidAsk.AskPrice;
+        mergeInto.HighestBidPrice =  highestBid;
+        mergeInto.HighestAskPrice =  highestAsk;
+        mergeInto.LowestBidPrice  =  lowestBid;
+        mergeInto.LowestAskPrice  =  lowestAsk;
+        mergeInto.EndBidPrice     =  other.EndBidAsk.BidPrice;
+        mergeInto.EndAskPrice     =  other.EndBidAsk.AskPrice;
+        mergeInto.TickCount       += other.TickCount;
+        mergeInto.PeriodVolume    += other.PeriodVolume;
 
         return mergeInto;
     }

@@ -123,3 +123,8 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
 
     public override string ToString() => $"{nameof(QuoteWrappingPricePeriodSummary)}({nameof(level1Quote)}: {level1Quote})";
 }
+
+public static class QuoteWrappingPricePeriodSummaryExtensions
+{
+    public static QuoteWrappingPricePeriodSummary ToSummary(this ILevel1Quote level1Quote) => new(level1Quote);
+}

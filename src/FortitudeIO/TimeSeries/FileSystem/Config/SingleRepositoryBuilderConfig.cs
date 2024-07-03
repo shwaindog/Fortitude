@@ -27,6 +27,10 @@ public class SingleRepositoryBuilderConfig : RepositoryBuilderConfig, ISingleRep
     public SingleRepositoryBuilderConfig() { }
 
     public SingleRepositoryBuilderConfig
+        (DirectoryInfo rootDirectoryInfo, string repositoryName = "NoRepositoryName") : this(InMemoryConfigRoot, InMemoryPath) =>
+        FileRepositoryLocationConfig = new FileRepositoryLocationConfig(rootDirectoryInfo, repositoryName);
+
+    public SingleRepositoryBuilderConfig
         (ISingleRepositoryBuilderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) =>
         FileRepositoryLocationConfig
             = new FileRepositoryLocationConfig(toClone.FileRepositoryLocationConfig, root, path + $":{nameof(FileRepositoryLocationConfig)}");

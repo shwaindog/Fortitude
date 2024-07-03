@@ -38,6 +38,15 @@ public class FileRepositoryLocationConfig : ConfigSection, IFileRepositoryLocati
     public FileRepositoryLocationConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public FileRepositoryLocationConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
+    public FileRepositoryLocationConfig
+        (DirectoryInfo rootDirectoryInfo, string repositoryName = "NoRepositoryName") : this(InMemoryConfigRoot, InMemoryPath)
+    {
+        RepositoryName          = repositoryName;
+        RootDirectoryPath       = rootDirectoryInfo.FullName;
+        TimeSeriesFileExtension = ".tsf";
+        Proximity               = RepositoryProximity.Local;
+    }
+
     public FileRepositoryLocationConfig(IFileRepositoryLocationConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
         RootDirectoryPath       = toClone.RootDirectoryPath;

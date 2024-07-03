@@ -83,6 +83,7 @@ public interface IPQPriceStoragePeriodSummary : IMutablePricePeriodSummary, ITra
 }
 
 public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPriceStoragePeriodSummary
+  , ITimeSeriesEntry<PQPriceStoragePeriodSummary>
 {
     private decimal                 averageAskPrice;
     private decimal                 averageBidPrice;
@@ -185,8 +186,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => deltaPeriodsFromPrevious;
         set
         {
-            if (value == 1)
-                SummaryStorageFlags |= IsNextTimePeriod;
+            if (value == 1) SummaryStorageFlags |= IsNextTimePeriod;
             deltaPeriodsFromPrevious = value;
         }
     }
@@ -282,7 +282,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
     public DateTime PeriodEndTime { get; set; } = DateTimeConstants.UnixEpoch;
 
-    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => PeriodEndTime;
+    DateTime ITimeSeriesEntry<IPricePeriodSummary>.StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver) => PeriodEndTime;
 
     public decimal AverageBidPrice
     {
@@ -666,6 +666,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
                       && updateFlagsSame && averageBidSame && averageAskSame;
         return allAreSame;
     }
+
+    public DateTime StorageTime(IStorageTimeResolver<PQPriceStoragePeriodSummary>? resolver = null) => PeriodEndTime;
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPricePeriodSummary?)obj, true);
 

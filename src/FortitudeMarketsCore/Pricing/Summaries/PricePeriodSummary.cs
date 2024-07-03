@@ -33,7 +33,7 @@ public struct Candle
     public long PeriodVolume;
 }
 
-public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutablePricePeriodSummary
+public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutablePricePeriodSummary, ITimeSeriesEntry<PricePeriodSummary>
 {
     public PricePeriodSummary()
     {
@@ -168,7 +168,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         (ITimeSeriesPeriodRange parentRange) =>
         parentRange.PeriodStartTime <= PeriodStartTime && parentRange.PeriodEnd() >= PeriodEndTime;
 
-    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => PeriodEndTime;
+    DateTime ITimeSeriesEntry<IPricePeriodSummary>.StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver) => PeriodEndTime;
 
     IPricePeriodSummary IStoreState<IPricePeriodSummary>.CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
@@ -220,6 +220,8 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         IsEmpty = true;
         base.StateReset();
     }
+
+    public DateTime StorageTime(IStorageTimeResolver<PricePeriodSummary>? resolver = null) => PeriodEndTime;
 
     public void Configure
     (TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,

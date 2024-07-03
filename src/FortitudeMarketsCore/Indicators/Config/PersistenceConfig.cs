@@ -25,6 +25,15 @@ public class PersistenceConfig : ConfigSection, IPersistenceConfig
     public PersistenceConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public PersistenceConfig() { }
 
+    public PersistenceConfig(bool enableAll, int autoCloseAfterSeconds = 5)
+    {
+        PersistPrices           = enableAll;
+        PersistPriceSummaries   = enableAll;
+        PersistIndicatorState   = enableAll;
+        PersistIndicatorSignals = enableAll;
+        DefaultAutoCloseAfter   = TimeSpan.FromSeconds(autoCloseAfterSeconds);
+    }
+
     public PersistenceConfig(IPersistenceConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
         PersistPrices           = toClone.PersistPrices;
@@ -78,7 +87,7 @@ public class PersistenceConfig : ConfigSection, IPersistenceConfig
         get
         {
             var checkValue = this[nameof(DefaultAutoCloseAfter)];
-            return checkValue != null ? TimeSpan.Parse(checkValue) : TimeSpan.FromHours(1);
+            return checkValue != null ? TimeSpan.Parse(checkValue) : TimeSpan.FromSeconds(5);
         }
         set => this[nameof(DefaultAutoCloseAfter)] = value.ToString();
     }

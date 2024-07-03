@@ -6,12 +6,14 @@
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeMarketsApi.Pricing.Summaries;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class HourlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<HourlyPriceSummaryDataBucket>
+public class HourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<HourlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public HourlyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -21,7 +23,8 @@ public class HourlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<HourlyPrice
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneHour;
 }
 
-public class FourHourlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<FourHourlyPriceSummaryDataBucket>
+public class FourHourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public FourHourlyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -31,7 +34,8 @@ public class FourHourlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<FourHou
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.FourHours;
 }
 
-public class DailyPriceSummaryDataBucket : PQPriceSummaryDataBucket<DailyPriceSummaryDataBucket>
+public class DailyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<DailyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public DailyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -41,7 +45,8 @@ public class DailyPriceSummaryDataBucket : PQPriceSummaryDataBucket<DailyPriceSu
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }
 
-public class WeeklyPriceSummaryDataBucket : PQPriceSummaryDataBucket<WeeklyPriceSummaryDataBucket>
+public class WeeklyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public WeeklyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -51,7 +56,8 @@ public class WeeklyPriceSummaryDataBucket : PQPriceSummaryDataBucket<WeeklyPrice
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneWeek;
 }
 
-public class MonthlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<MonthlyPriceSummaryDataBucket>
+public class MonthlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<MonthlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public MonthlyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -61,7 +67,8 @@ public class MonthlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<MonthlyPri
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneMonth;
 }
 
-public class YearlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<YearlyPriceSummaryDataBucket>
+public class YearlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<YearlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public YearlyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -71,7 +78,8 @@ public class YearlyPriceSummaryDataBucket : PQPriceSummaryDataBucket<YearlyPrice
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneYear;
 }
 
-public class DecenniallyPriceSummaryDataBucket : PQPriceSummaryDataBucket<DecenniallyPriceSummaryDataBucket>
+public class DecenniallyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<DecenniallyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public DecenniallyPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -81,7 +89,8 @@ public class DecenniallyPriceSummaryDataBucket : PQPriceSummaryDataBucket<Decenn
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
 }
 
-public class UnlimitedPriceSummaryDataBucket : PQPriceSummaryDataBucket<UnlimitedPriceSummaryDataBucket>
+public class UnlimitedPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<UnlimitedPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public UnlimitedPriceSummaryDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,

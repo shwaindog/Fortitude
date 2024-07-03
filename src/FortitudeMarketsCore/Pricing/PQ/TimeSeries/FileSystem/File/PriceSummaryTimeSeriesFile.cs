@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
@@ -16,9 +17,10 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class PriceSummaryTimeSeriesFile<TFile, TBucket> : TimeSeriesFile<TFile, TBucket, IPricePeriodSummary>, IPriceQuoteTimeSeriesFile
-    where TFile : TimeSeriesFile<TFile, TBucket, IPricePeriodSummary>
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<IPricePeriodSummary>, IPriceBucket
+public class PriceSummaryTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<TFile, TBucket, TEntry>, IPriceQuoteTimeSeriesFile
+    where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceBucket
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public PriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header)
@@ -43,7 +45,7 @@ public class PriceSummaryTimeSeriesFile<TFile, TBucket> : TimeSeriesFile<TFile, 
 
     public IPriceFileHeader PriceFileHeader { get; }
 
-    public override ISessionAppendContext<IPricePeriodSummary, TBucket>
+    public override ISessionAppendContext<TEntry, TBucket>
         CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<IPricePeriodSummary, TBucket>(PriceFileHeader.SourceTickerQuoteInfo);
+        new PQPricePeriodSummaryAppendContext<TEntry, TBucket>(PriceFileHeader.SourceTickerQuoteInfo);
 }

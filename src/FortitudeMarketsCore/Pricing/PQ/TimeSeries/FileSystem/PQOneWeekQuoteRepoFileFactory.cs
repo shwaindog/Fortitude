@@ -62,7 +62,8 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
         var srcTickerInfo = instrument as ISourceTickerQuoteInfo;
         var category      = srcTickerInfo?.PublishedQuoteLevel.ToString() ?? instrument[nameof(RepositoryPathName.Category)];
         var entryType     = typeof(TEntry);
-        return category switch
+        return instrument.Type == InstrumentType.Price
+            && category switch
                {
                    nameof(QuoteLevel.Level0) => !entryType.ImplementsInterface<ILevel1Quote>()
                  , nameof(QuoteLevel.Level1) => !entryType.ImplementsInterface<ILevel2Quote>()

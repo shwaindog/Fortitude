@@ -53,10 +53,13 @@ public interface IFileReaderSession<TEntry> : IReaderSession<TEntry>
     bool ReopenSession(FileFlags fileFlags = FileFlags.None);
 }
 
-public interface IFileWriterSession<TEntry> : IWriterSession<TEntry>, IFileReaderSession<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>;
+public interface IFileWriterSession<in TEntry> : IWriterSession<TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>
+{
+    bool ReopenSession(FileFlags fileFlags = FileFlags.None);
+}
 
-public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<TEntry>
+public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<TEntry>, IFileReaderSession<TEntry>
   , IBucketTrackingSession
     where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
@@ -258,13 +261,6 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         timeSeriesFile.DecrementSessionCount();
     }
 
-    public bool ReopenSession(FileFlags fileFlags = FileFlags.None)
-    {
-        if (IsOpen) return true;
-        isWritable = fileFlags.HasWriterOpenedFlag();
-        return true;
-    }
-
     public void Dispose()
     {
         Close();
@@ -319,6 +315,13 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         if (searchedBucket == null) return new AppendResult(StorageAttemptResult.NextFilePeriod);
         appendContext.LastAddedRootBucket = searchedBucket;
         return searchedBucket.AppendEntry(appendContext);
+    }
+
+    public bool ReopenSession(FileFlags fileFlags = FileFlags.None)
+    {
+        if (IsOpen) return true;
+        isWritable = fileFlags.HasWriterOpenedFlag();
+        return true;
     }
 
     public IEnumerable<TBucket> ChronologicallyOrderedBuckets()
