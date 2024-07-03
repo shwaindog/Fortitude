@@ -72,7 +72,7 @@ public static class TimeRangeExtensions
 
     public static bool IsBounded(this UnboundedTimeRange periodRange) => periodRange is { FromTime: not null, ToTime: not null };
 
-    public static TimeSpan TimeSpan(this BoundedTimeRange periodRange) => periodRange.FromTime - periodRange.ToTime;
+    public static TimeSpan TimeSpan(this BoundedTimeRange periodRange) => periodRange.ToTime - periodRange.FromTime;
 
     public static TimeSpan BoundedTimeSpan(this UnboundedTimeRange periodRange, BoundedTimeRange boundedRange)
     {

@@ -6,13 +6,15 @@
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeMarketsApi.Pricing.Summaries;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class DailyToHourlyPriceSummarySubBuckets :
-    PriceSummarySubBucket<DailyToHourlyPriceSummarySubBuckets, HourlyPriceSummaryDataBucket>
+public class DailyToHourlyPriceSummarySubBuckets<TEntry> :
+    PriceSummarySubBucket<DailyToHourlyPriceSummarySubBuckets<TEntry>, HourlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public DailyToHourlyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -23,8 +25,9 @@ public class DailyToHourlyPriceSummarySubBuckets :
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
 }
 
-public class WeeklyToDailyPriceSummarySubBuckets :
-    PriceSummarySubBucket<WeeklyToDailyPriceSummarySubBuckets, DailyPriceSummaryDataBucket>
+public class WeeklyToDailyPriceSummarySubBuckets<TEntry> :
+    PriceSummarySubBucket<WeeklyToDailyPriceSummarySubBuckets<TEntry>, DailyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public WeeklyToDailyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -35,8 +38,9 @@ public class WeeklyToDailyPriceSummarySubBuckets :
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneWeek;
 }
 
-public class WeeklyToFourHourlyPriceSummarySubBuckets :
-    PriceSummarySubBucket<WeeklyToFourHourlyPriceSummarySubBuckets, FourHourlyPriceSummaryDataBucket>
+public class WeeklyToFourHourlyPriceSummarySubBuckets<TEntry> :
+    PriceSummarySubBucket<WeeklyToFourHourlyPriceSummarySubBuckets<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public WeeklyToFourHourlyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -47,8 +51,9 @@ public class WeeklyToFourHourlyPriceSummarySubBuckets :
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneWeek;
 }
 
-public class MonthlyToFourHourlyPriceSummarySubBuckets :
-    PriceSummarySubBucket<MonthlyToFourHourlyPriceSummarySubBuckets, FourHourlyPriceSummaryDataBucket>
+public class MonthlyToFourHourlyPriceSummarySubBuckets<TEntry> :
+    PriceSummarySubBucket<MonthlyToFourHourlyPriceSummarySubBuckets<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public MonthlyToFourHourlyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -59,8 +64,9 @@ public class MonthlyToFourHourlyPriceSummarySubBuckets :
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneMonth;
 }
 
-public class MonthlyToDailyPriceSummarySubBuckets : PriceSummarySubBucket<MonthlyToDailyPriceSummarySubBuckets,
-    DailyPriceSummaryDataBucket>
+public class MonthlyToDailyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<MonthlyToDailyPriceSummarySubBuckets<TEntry>,
+    DailyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public MonthlyToDailyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -71,8 +77,9 @@ public class MonthlyToDailyPriceSummarySubBuckets : PriceSummarySubBucket<Monthl
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneMonth;
 }
 
-public class MonthlyToWeeklyPriceSummarySubBuckets : PriceSummarySubBucket<MonthlyToWeeklyPriceSummarySubBuckets,
-    WeeklyPriceSummaryDataBucket>
+public class MonthlyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<MonthlyToWeeklyPriceSummarySubBuckets<TEntry>,
+    WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public MonthlyToWeeklyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -83,8 +90,9 @@ public class MonthlyToWeeklyPriceSummarySubBuckets : PriceSummarySubBucket<Month
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneMonth;
 }
 
-public class YearlyToWeeklyPriceSummarySubBuckets : PriceSummarySubBucket<YearlyToWeeklyPriceSummarySubBuckets,
-    WeeklyPriceSummaryDataBucket>
+public class YearlyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<YearlyToWeeklyPriceSummarySubBuckets<TEntry>,
+    WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public YearlyToWeeklyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -95,8 +103,9 @@ public class YearlyToWeeklyPriceSummarySubBuckets : PriceSummarySubBucket<Yearly
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneYear;
 }
 
-public class YearlyToMonthlyPriceSummarySubBuckets : PriceSummarySubBucket<YearlyToMonthlyPriceSummarySubBuckets,
-    MonthlyPriceSummaryDataBucket>
+public class YearlyToMonthlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<YearlyToMonthlyPriceSummarySubBuckets<TEntry>,
+    MonthlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public YearlyToMonthlyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -107,8 +116,9 @@ public class YearlyToMonthlyPriceSummarySubBuckets : PriceSummarySubBucket<Yearl
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneYear;
 }
 
-public class YearlyToDailyPriceSummarySubBuckets : PriceSummarySubBucket<YearlyToDailyPriceSummarySubBuckets,
-    DailyPriceSummaryDataBucket>
+public class YearlyToDailyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<YearlyToDailyPriceSummarySubBuckets<TEntry>,
+    DailyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public YearlyToDailyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -119,8 +129,9 @@ public class YearlyToDailyPriceSummarySubBuckets : PriceSummarySubBucket<YearlyT
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneYear;
 }
 
-public class DecenniallyToWeeklyPriceSummarySubBuckets : PriceSummarySubBucket<DecenniallyToWeeklyPriceSummarySubBuckets,
-    WeeklyPriceSummaryDataBucket>
+public class DecenniallyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<DecenniallyToWeeklyPriceSummarySubBuckets<TEntry>,
+    WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public DecenniallyToWeeklyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -131,8 +142,9 @@ public class DecenniallyToWeeklyPriceSummarySubBuckets : PriceSummarySubBucket<D
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
 }
 
-public class DecenniallyToMonthlyPriceSummarySubBuckets : PriceSummarySubBucket<DecenniallyToMonthlyPriceSummarySubBuckets,
-    MonthlyPriceSummaryDataBucket>
+public class DecenniallyToMonthlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<DecenniallyToMonthlyPriceSummarySubBuckets<TEntry>,
+    MonthlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public DecenniallyToMonthlyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -143,8 +155,9 @@ public class DecenniallyToMonthlyPriceSummarySubBuckets : PriceSummarySubBucket<
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
 }
 
-public class DecenniallyToYearlyPriceSummarySubBuckets : PriceSummarySubBucket<DecenniallyToYearlyPriceSummarySubBuckets,
-    YearlyPriceSummaryDataBucket>
+public class DecenniallyToYearlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<DecenniallyToYearlyPriceSummarySubBuckets<TEntry>,
+    YearlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public DecenniallyToYearlyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -155,8 +168,9 @@ public class DecenniallyToYearlyPriceSummarySubBuckets : PriceSummarySubBucket<D
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
 }
 
-public class UnlimitedToYearlyPriceSummarySubBuckets : PriceSummarySubBucket<UnlimitedToYearlyPriceSummarySubBuckets,
-    YearlyPriceSummaryDataBucket>
+public class UnlimitedToYearlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<UnlimitedToYearlyPriceSummarySubBuckets<TEntry>,
+    YearlyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public UnlimitedToYearlyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -167,8 +181,9 @@ public class UnlimitedToYearlyPriceSummarySubBuckets : PriceSummarySubBucket<Unl
     public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.None;
 }
 
-public class UnlimitedToDecenniallyPriceSummarySubBuckets : PriceSummarySubBucket<UnlimitedToDecenniallyPriceSummarySubBuckets
-  , DecenniallyPriceSummaryDataBucket>
+public class UnlimitedToDecenniallyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<UnlimitedToDecenniallyPriceSummarySubBuckets<TEntry>
+  , DecenniallyPriceSummaryDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     public UnlimitedToDecenniallyPriceSummarySubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,

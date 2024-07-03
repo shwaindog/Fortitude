@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Configuration;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -70,4 +71,19 @@ public class FileRepositoryConfig : ConfigSection, IFileRepositoryConfig
     public RepositoryInfo BuildRepositoryInfo
         (string? repositoryName = null) =>
         RepositoryConfig.BuildRepositoryInfo(repositoryName ?? RepositoryName);
+
+    public static FileRepositoryConfig CreateDymwiSingleLocalRepository<T>
+        (DirectoryInfo singleRepositoryRootDir, string repositoryName) where T : IRepoPathBuilder
+    {
+        var repoConfig = new FileRepositoryConfig
+        {
+            RepositoryConfig = new SingleRepositoryBuilderConfig(singleRepositoryRootDir, repositoryName)
+            {
+                RepositoryType      = RepositoryType.Dymwi
+              , RepoPathBuilderType = typeof(T)
+            }
+          , RepositoryName = repositoryName
+        };
+        return repoConfig;
+    }
 }

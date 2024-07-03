@@ -45,16 +45,18 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
     {
         this.receiverRule     = receiverRule;
         this.receiverCallBack = receiverCallBack;
-        IsOpen                = true;
-        Id                    = Interlocked.Increment(ref totalInstanceCount);
+
+        IsOpen = true;
+        Id     = Interlocked.Increment(ref totalInstanceCount);
     }
 
     public InterQueueChannel(IListeningRule receiverRule, Func<ChannelEvent<TEvent>, ValueTask<bool>> receiverCallBackAsync)
     {
         this.receiverRule          = receiverRule;
         this.receiverCallBackAsync = receiverCallBackAsync;
-        IsOpen                     = true;
-        Id                         = Interlocked.Increment(ref totalInstanceCount);
+
+        IsOpen = true;
+        Id     = Interlocked.Increment(ref totalInstanceCount);
     }
 
     public InterQueueChannel(InterQueueChannel<TEvent> toClone)

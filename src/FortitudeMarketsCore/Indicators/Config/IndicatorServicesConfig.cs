@@ -30,12 +30,19 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
     public IndicatorServicesConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public IndicatorServicesConfig() { }
 
+    public IndicatorServicesConfig(IMarketsConfig marketsConfig, IFileRepositoryConfig repositoryConfig, IPersistenceConfig persistenceConfig)
+    {
+        MarketsConfig     = marketsConfig;
+        PersistenceConfig = persistenceConfig;
+
+        TimeSeriesFileRepositoryConfig = repositoryConfig;
+    }
+
     public IMarketsConfig? MarketsConfig
     {
         get
         {
-            if (GetSection(nameof(MarketsConfig)).GetChildren().Any())
-                return new MarketsConfig(ConfigRoot, Path + ":" + nameof(MarketsConfig));
+            if (GetSection(nameof(MarketsConfig)).GetChildren().Any()) return new MarketsConfig(ConfigRoot, Path + ":" + nameof(MarketsConfig));
             return null;
         }
         set => ignoreSuppressWarnings = value != null ? new MarketsConfig(value, ConfigRoot, Path + ":" + nameof(MarketsConfig)) : null;
@@ -45,7 +52,7 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
     {
         get
         {
-            if (GetSection(nameof(MarketsConfig)).GetChildren().Any())
+            if (GetSection(nameof(TimeSeriesFileRepositoryConfig)).GetChildren().Any())
                 return new FileRepositoryConfig(ConfigRoot, Path + ":" + nameof(TimeSeriesFileRepositoryConfig));
             return null;
         }

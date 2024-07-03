@@ -333,4 +333,23 @@ public class PricePeriodSummaryTests
         changingPricePeriodSummary.PeriodVolume = commonPricePeriodSummary.PeriodVolume;
         Assert.IsTrue(commonPricePeriodSummary.AreEquivalent(changingPricePeriodSummary));
     }
+
+
+    public static PricePeriodSummary CreatePricePeriodSummary
+        (TimeSeriesPeriod period, DateTime startTime, decimal mid, decimal openCloseSpread = 0.02m, decimal highLowSpread = 0.4m)
+    {
+        var halfSpread        = openCloseSpread / 2;
+        var halfHighLowSpread = highLowSpread / 2;
+
+        var bid1 = mid - halfSpread;
+        var ask1 = mid + halfSpread;
+        var bid2 = mid + halfHighLowSpread - halfSpread;
+        var ask2 = mid + halfHighLowSpread + halfSpread;
+        var bid3 = mid - halfHighLowSpread - halfSpread;
+        var ask3 = mid - halfHighLowSpread + halfSpread;
+
+        return new PricePeriodSummary
+            (period, startTime, period.PeriodEnd(startTime), bid1, ask1, bid2, ask2, bid3
+           , ask3, bid1, ask1, 10, 0, bid1, ask1);
+    }
 }

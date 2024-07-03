@@ -6,6 +6,7 @@
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
+using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session;
@@ -21,9 +22,9 @@ using FortitudeMarketsCore.Pricing.PQ.Summaries;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public abstract class PQPriceSummaryDataBucket<TBucket> : DataBucket<IPricePeriodSummary, TBucket>
-  , IPricePeriodSummaryBucket
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<IPricePeriodSummary>, IPricePeriodSummaryBucket
+public abstract class PQPriceSummaryDataBucket<TBucket, TEntry> : DataBucket<TEntry, TBucket>, IPricePeriodSummaryBucket<TEntry>
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPricePeriodSummaryBucket<TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
 {
     private IMessageBufferContext? bufferContext;
 
@@ -60,7 +61,7 @@ public abstract class PQPriceSummaryDataBucket<TBucket> : DataBucket<IPricePerio
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; } = null!;
 
-    public override IEnumerable<IPricePeriodSummary> ReadEntries(IBuffer readBuffer, IReaderContext<IPricePeriodSummary> readerContext)
+    public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext)
     {
         bufferContext ??= new MessageBufferContext(readBuffer);
 
@@ -71,9 +72,9 @@ public abstract class PQPriceSummaryDataBucket<TBucket> : DataBucket<IPricePerio
     }
 
     public override AppendResult AppendEntry
-        (IFixedByteArrayBuffer writeBuffer, IAppendContext<IPricePeriodSummary> entryContext, AppendResult appendResult)
+        (IFixedByteArrayBuffer writeBuffer, IAppendContext<TEntry> entryContext, AppendResult appendResult)
     {
-        var pqContext = entryContext as IPQPricePeriodSummaryAppendContext<IPricePeriodSummary>;
+        var pqContext = entryContext as IPQPricePeriodSummaryAppendContext<TEntry>;
         var entry     = entryContext.CurrentEntry!;
 
         bufferContext ??= new MessageBufferContext(writeBuffer);
@@ -95,8 +96,8 @@ public abstract class PQPriceSummaryDataBucket<TBucket> : DataBucket<IPricePerio
         return AppendEntry(bufferContext, lastEntryQuote, messageSerializer, appendResult);
     }
 
-    public virtual IEnumerable<IPricePeriodSummary> ReadEntries
-    (IMessageBufferContext buffer, IReaderContext<IPricePeriodSummary> readerContext
+    public virtual IEnumerable<TEntry> ReadEntries
+    (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext
       , IPQPriceStoragePeriodSummaryDeserializer bufferDeserializer)
     {
         var entryCount = 0;

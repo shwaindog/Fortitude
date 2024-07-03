@@ -11,7 +11,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
-using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -33,21 +32,18 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.F
 [TestClass]
 public class PriceSummaryTimeSeriesFileTests
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PriceSummaryTimeSeriesFileTests));
+    private static readonly IFLogger                   Logger = FLoggerFactory.Instance.GetLogger(typeof(PriceSummaryTimeSeriesFileTests));
+    private readonly        Func<PricePeriodSummary>   asDtoPricePeriodSummaryFactory = () => new PricePeriodSummary();
+    private readonly        Func<PQPricePeriodSummary> asPQPricePeriodSummaryFactory = () => new PQPricePeriodSummary();
 
-    private readonly Func<IPricePeriodSummary> asPQPricePeriodSummaryFactory = () => new PQPricePeriodSummary();
-    private readonly Func<IPricePeriodSummary> asPricePeriodSummaryFactory   = () => new PricePeriodSummary();
+    private readonly Func<IPricePeriodSummary> asPricePeriodSummaryFactory = () => new PricePeriodSummary();
 
-    private Func<IPricePeriodSummary> asPQPriceStoragePeriodSummaryFactory = null!;
+    private Func<PQPriceStoragePeriodSummary> asPQPriceStoragePeriodSummaryFactory = null!;
 
     private PQPriceStoragePeriodSummaryGenerator pqPriceStorageSummaryGenerator = null!;
     private PQPricePeriodSummaryGenerator        pqPriceSummaryGenerator        = null!;
 
-    private ITimeSeriesEntryFile<IPricePeriodSummary> priceSummaryFile      = null!;
-    private PricePeriodSummaryGenerator               priceSummaryGenerator = null!;
-
-    private IReaderSession<IPricePeriodSummary>? sessionReader;
-    private IWriterSession<IPricePeriodSummary>  sessionWriter = null!;
+    private PricePeriodSummaryGenerator priceSummaryGenerator = null!;
 
     private SourceTickerQuoteInfo srcTkrQtInfo = null!;
 
@@ -87,8 +83,7 @@ public class PriceSummaryTimeSeriesFileTests
     {
         fileFlags |= FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader;
 
-        var testTimeSeriesFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
-        var timeSeriesFile         = new FileInfo(testTimeSeriesFilePath);
+        var timeSeriesFile = GenerateUniqueFileNameOffDateTime();
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var fileStartTime =
             filePeriod switch
@@ -121,37 +116,26 @@ public class PriceSummaryTimeSeriesFileTests
     [TestCleanup]
     public void TearDown()
     {
-        try
-        {
-            sessionReader?.Close();
-            sessionWriter.Close();
-            priceSummaryFile.Close();
-        }
-        catch (Exception ex)
-        {
-            Console.Out.WriteLine("Could not close all sessions. Got {0}", ex);
-        }
-        var dirInfo = new DirectoryInfo(Environment.CurrentDirectory);
-        DeleteTestFiles(dirInfo);
+        DeleteTestFiles();
     }
 
     [TestMethod]
     public void WeeklyDailyHourlyFile15sSummaryPeriods_TwoSmallPeriods_OriginalValuesAreReturned()
     {
-        var createParams = CreatePriceSummaryFileParameters();
-        priceSummaryFile = new WeeklyDailyHourlyPriceSummaryTimeSeriesFile(createParams);
+        var       createParams     = CreatePriceSummaryFileParameters();
+        using var priceSummaryFile = new WeeklyDailyHourlyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.FifteenSeconds
+            (priceSummaryFile, startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.FifteenSeconds
            , priceSummaryGenerator, asPricePeriodSummaryFactory);
     }
 
     [TestMethod]
     public void WeeklyFourHourlyFile30sPQSummaryPeriods_TwoSmallPeriods_OriginalValuesAreReturned()
     {
-        var createParams = CreatePriceSummaryFileParameters(entryPeriod: TimeSeriesPeriod.ThirtySeconds, internalIndexSize: 42);
-        priceSummaryFile = new WeeklyFourHourlyPriceSummaryTimeSeriesFile(createParams);
+        var       createParams       = CreatePriceSummaryFileParameters(entryPeriod: TimeSeriesPeriod.ThirtySeconds, internalIndexSize: 42);
+        using var pqPriceSummaryFile = new WeeklyFourHourlyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.ThirtySeconds
+            (pqPriceSummaryFile, startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.ThirtySeconds
            , pqPriceSummaryGenerator, asPQPricePeriodSummaryFactory);
     }
 
@@ -160,9 +144,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.OneMinute, internalIndexSize: 186, filePeriod: TimeSeriesPeriod.OneMonth);
-        priceSummaryFile = new MonthlyFourHourlyPriceSummaryTimeSeriesFile(createParams);
+        using var pqPriceStorageSummaryFile = new MonthlyFourHourlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.OneMinute
+            (pqPriceStorageSummaryFile, startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.OneMinute
            , pqPriceStorageSummaryGenerator, asPQPriceStoragePeriodSummaryFactory);
     }
 
@@ -171,10 +155,10 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.FiveMinutes, internalIndexSize: 31, filePeriod: TimeSeriesPeriod.OneMonth);
-        priceSummaryFile = new MonthlyDailyHourlyPriceSummaryTimeSeriesFile(createParams);
+        using var dtoPriceSummaryFile = new MonthlyDailyHourlyPriceSummaryTimeSeriesFile<PricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.FiveMinutes
-           , priceSummaryGenerator, asPricePeriodSummaryFactory);
+            (dtoPriceSummaryFile, startOfWeek.AddDays(1), startOfWeek.AddDays(3), TimeSeriesPeriod.FiveMinutes
+           , priceSummaryGenerator, asDtoPricePeriodSummaryFactory);
     }
 
     [TestMethod]
@@ -182,9 +166,10 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.TenMinutes, internalIndexSize: 4, filePeriod: TimeSeriesPeriod.OneMonth);
-        priceSummaryFile = new MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(createParams);
+        using var pqPriceSummaryFile = new MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.TruncToMonthBoundary().AddDays(10), startOfWeek.TruncToMonthBoundary().AddDays(20), TimeSeriesPeriod.TenMinutes
+            (pqPriceSummaryFile, startOfWeek.TruncToMonthBoundary().AddDays(10), startOfWeek.TruncToMonthBoundary().AddDays(20)
+           , TimeSeriesPeriod.TenMinutes
            , pqPriceSummaryGenerator, asPQPricePeriodSummaryFactory);
     }
 
@@ -193,9 +178,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.FifteenMinutes, internalIndexSize: 4, filePeriod: TimeSeriesPeriod.OneMonth);
-        priceSummaryFile = new MonthlyWeeklyDailyPriceSummaryTimeSeriesFile(createParams);
+        using var pqPriceStorageSummaryFile = new MonthlyWeeklyDailyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.TruncToMonthBoundary().AddDays(10), startOfWeek.TruncToMonthBoundary().AddDays(20)
+            (pqPriceStorageSummaryFile, startOfWeek.TruncToMonthBoundary().AddDays(10), startOfWeek.TruncToMonthBoundary().AddDays(20)
            , TimeSeriesPeriod.FifteenMinutes, pqPriceStorageSummaryGenerator, asPQPriceStoragePeriodSummaryFactory);
     }
 
@@ -204,9 +189,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.TenMinutes, internalIndexSize: 12, filePeriod: TimeSeriesPeriod.OneYear);
-        priceSummaryFile = new YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile(createParams);
+        using var priceSummaryFile = new YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
+            (priceSummaryFile, startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
            , TimeSeriesPeriod.TenMinutes, priceSummaryGenerator, asPricePeriodSummaryFactory);
     }
 
@@ -215,9 +200,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.OneHour, internalIndexSize: 53, filePeriod: TimeSeriesPeriod.OneYear);
-        priceSummaryFile = new YearlyWeeklyDailyPriceSummaryTimeSeriesFile(createParams);
+        using var pqPriceSummaryFile = new YearlyWeeklyDailyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
+            (pqPriceSummaryFile, startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
            , TimeSeriesPeriod.OneHour, pqPriceSummaryGenerator, asPQPricePeriodSummaryFactory);
     }
 
@@ -226,9 +211,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.FourHours, internalIndexSize: 12, filePeriod: TimeSeriesPeriod.OneYear);
-        priceSummaryFile = new YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile(createParams);
+        using var pqPriceStorageSummaryFile = new YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
+            (pqPriceStorageSummaryFile, startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
            , TimeSeriesPeriod.FourHours, pqPriceStorageSummaryGenerator, asPQPriceStoragePeriodSummaryFactory);
     }
 
@@ -237,10 +222,10 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.ThirtyMinutes, internalIndexSize: 12, filePeriod: TimeSeriesPeriod.OneYear);
-        priceSummaryFile = new DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile(createParams);
+        using var dtoPriceSummaryFile = new DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile<PricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
-           , TimeSeriesPeriod.ThirtyMinutes, priceSummaryGenerator, asPricePeriodSummaryFactory);
+            (dtoPriceSummaryFile, startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
+           , TimeSeriesPeriod.ThirtyMinutes, priceSummaryGenerator, asDtoPricePeriodSummaryFactory);
     }
 
     // [TestMethod]
@@ -248,9 +233,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.OneDay, internalIndexSize: 10, filePeriod: TimeSeriesPeriod.OneYear);
-        priceSummaryFile = new DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile(createParams);
+        using var pqPriceSummaryFile = new DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
+            (pqPriceSummaryFile, startOfWeek.TruncToFirstSundayInYear().AddDays(15), startOfWeek.TruncToFirstSundayInYear().AddDays(45)
            , TimeSeriesPeriod.OneDay, pqPriceSummaryGenerator, asPQPricePeriodSummaryFactory);
     }
 
@@ -259,9 +244,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.OneWeek, internalIndexSize: 10, filePeriod: TimeSeriesPeriod.None);
-        priceSummaryFile = new UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile(createParams);
+        using var pqPriceStorageSummaryFile = new UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.AddDays(15), startOfWeek.AddDays(400).AddYears(5)
+            (pqPriceStorageSummaryFile, startOfWeek.AddDays(15), startOfWeek.AddDays(400).AddYears(5)
            , TimeSeriesPeriod.OneWeek, pqPriceStorageSummaryGenerator, asPQPriceStoragePeriodSummaryFactory);
     }
 
@@ -270,9 +255,9 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.OneMonth, internalIndexSize: 50, filePeriod: TimeSeriesPeriod.None);
-        priceSummaryFile = new UnlimitedDecenniallyPriceSummaryTimeSeriesFile(createParams);
+        using var priceSummaryFile = new UnlimitedDecenniallyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.AddDays(15), startOfWeek.AddDays(400).AddYears(5)
+            (priceSummaryFile, startOfWeek.AddDays(15), startOfWeek.AddDays(400).AddYears(5)
            , TimeSeriesPeriod.OneMonth, priceSummaryGenerator, asPricePeriodSummaryFactory);
     }
 
@@ -281,44 +266,46 @@ public class PriceSummaryTimeSeriesFileTests
     {
         var createParams = CreatePriceSummaryFileParameters
             (entryPeriod: TimeSeriesPeriod.OneDecade, internalIndexSize: 1, filePeriod: TimeSeriesPeriod.None);
-        priceSummaryFile = new UnlimitedPriceSummaryTimeSeriesFile(createParams);
+        using var dtoPriceSummaryFile = new UnlimitedPriceSummaryTimeSeriesFile<PricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
-            (startOfWeek.AddDays(15), startOfWeek.AddDays(3600).AddYears(5)
-           , TimeSeriesPeriod.OneDecade, priceSummaryGenerator, asPricePeriodSummaryFactory);
+            (dtoPriceSummaryFile, startOfWeek.AddDays(15), startOfWeek.AddDays(3600).AddYears(5)
+           , TimeSeriesPeriod.OneDecade, priceSummaryGenerator, asDtoPricePeriodSummaryFactory);
     }
 
     public void CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned<TEntry>
-    (DateTime firstPeriodSummaryTime, DateTime secondPeriodSummaryTime, TimeSeriesPeriod summaryPeriod
-      , IPricePeriodSummaryGenerator<TEntry> quoteGenerator, Func<IPricePeriodSummary> retrievalFactory)
-        where TEntry : class, IMutablePricePeriodSummary
+    (ITimeSeriesEntryFile<TEntry> tsf, DateTime firstPeriodSummaryTime, DateTime secondPeriodSummaryTime, TimeSeriesPeriod summaryPeriod
+      , IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator, Func<TEntry> retrievalFactory)
+        where TEntry : class, ITimeSeriesEntry<TEntry>, IPricePeriodSummary
     {
-        var toPersistAndCheck = GenerateRepeatablePriceSummaries
+        var generated = GenerateRepeatablePriceSummaries
             (1, 10, 1, DayOfWeek.Wednesday, summaryPeriod, quoteGenerator, firstPeriodSummaryTime).ToList();
-        toPersistAndCheck.AddRange
+        generated.AddRange
             (GenerateRepeatablePriceSummaries
                 (1, 10, 1, DayOfWeek.Thursday, summaryPeriod, quoteGenerator, secondPeriodSummaryTime));
 
+        var toPersistAndCheck = generated.Select(pps => retrievalFactory().CopyFrom(pps)).OfType<TEntry>().ToList();
 
-        sessionWriter = priceSummaryFile.GetWriterSession()!;
+        using var sessionWriter = tsf.GetWriterSession()!;
         foreach (var firstPeriod in toPersistAndCheck)
         {
             var result = sessionWriter.AppendEntry(firstPeriod);
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
-        priceSummaryFile.AutoCloseOnZeroSessions = false;
+        tsf.AutoCloseOnZeroSessions = false;
         sessionWriter.Close();
 
-        Assert.AreEqual((uint)toPersistAndCheck.Count, priceSummaryFile.Header.TotalEntries);
-        sessionReader = priceSummaryFile.GetReaderSession();
-        var allEntriesReader = sessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
-        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        Assert.AreEqual((uint)toPersistAndCheck.Count, tsf.Header.TotalEntries);
+        using var sessionReader    = tsf.GetReaderSession();
+        var       allEntriesReader = sessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
+        var       storedItems      = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
     }
 
-    private void CompareExpectedToExtracted(List<IPricePeriodSummary> originalList, List<IPricePeriodSummary> toCompareList)
+    private void CompareExpectedToExtracted<TEntry>(List<TEntry> originalList, List<TEntry> toCompareList)
+        where TEntry : class, ITimeSeriesEntry<TEntry>, IPricePeriodSummary
     {
         for (var i = 0; i < originalList.Count; i++)
         {

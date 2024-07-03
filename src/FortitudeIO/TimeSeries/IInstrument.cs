@@ -44,6 +44,9 @@ public class Instrument : IInstrument
         optionalKeys         = optionalOrEmpty.Select(x => x.Key).ToArray();
     }
 
+    public Instrument(string instrumentName, InstrumentType type, TimeSeriesPeriod entryPeriod, params KeyValuePair<string, string>[] requiredValues)
+        : this(instrumentName, type, entryPeriod, requiredValues, null) { }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator() =>

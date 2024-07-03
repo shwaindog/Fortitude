@@ -91,10 +91,8 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         FileName                   = pagedMemoryMappedFile.FileStream.Name;
         TimeSeriesMemoryMappedFile = pagedMemoryMappedFile;
         Header                     = header;
-        if (Header.BucketType != typeof(TBucket))
-            throw new Exception("Attempting to open a file saved with a different bucket type");
-        if (Header.EntryType != typeof(TEntry))
-            throw new Exception("Attempting to open a file saved with a different entry type");
+        if (Header.BucketType != typeof(TBucket)) throw new Exception("Attempting to open a file saved with a different bucket type");
+        if (Header.EntryType != typeof(TEntry)) throw new Exception("Attempting to open a file saved with a different entry type");
     }
 
     public TimeSeriesFile(TimeSeriesFileParameters timeSeriesParameters)
@@ -236,6 +234,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
 
     public void Close()
     {
+        if (!IsOpen) return;
         writerSession?.Close();
         foreach (var readerSession in readerSessions) readerSession.Close();
         infoSession?.Close();

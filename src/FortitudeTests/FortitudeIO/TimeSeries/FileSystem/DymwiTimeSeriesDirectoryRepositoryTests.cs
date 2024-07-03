@@ -18,6 +18,7 @@ using FortitudeMarketsCore.Pricing.Generators.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Generators.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeTests.FortitudeCommon.Extensions;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
@@ -44,8 +45,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
     private readonly DateTime week4                = new(2024, 6, 13);
     private readonly string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FXMajor_Global/RepoTest";
 
-    private SourceTickerQuoteInfo  level3SrcTkrQtInfo = null!;
-    private int                    newTestCount;
+    private SourceTickerQuoteInfo  level3SrcTkrQtInfo     = null!;
     private PQLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
 
     private IReaderSession<ILevel3Quote>? readerSession;
@@ -70,10 +70,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
 
         pqLevel3QuoteGenerator = new PQLevel3QuoteGenerator(generateQuoteInfo);
 
-        var testRepoName     = GenerateUniqueDirectoryName();
-        var testRepoFullPath = Path.Combine(Environment.CurrentDirectory, testRepoName);
-
-        repoRootDir = new DirectoryInfo(testRepoFullPath);
+        repoRootDir = GenerateUniqueDirectoryName();
         repositoryLocationConfig
             = new SingleRepositoryBuilderConfig(repoRootDir.FullName, RepositoryProximity.Local, typeof(PQRepoPathBuilder), RepositoryType.Dymwi, true
                                               , "DymwiTests");
@@ -173,11 +170,5 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         return string.Format(expectedFileNameFormat, weekStart);
     }
 
-    private string GenerateUniqueDirectoryName()
-    {
-        var now = DateTime.Now;
-        Interlocked.Increment(ref newTestCount);
-        var nowString = now.ToString("yyyy-MM-dd_HH-mm-ss_fff");
-        return "DymwiRepoTest_" + nowString + "_" + newTestCount;
-    }
+    private DirectoryInfo GenerateUniqueDirectoryName() => DirectoryInfoExtensionsTests.UniqueNewTestDirectory("DymwiRepoTest");
 }

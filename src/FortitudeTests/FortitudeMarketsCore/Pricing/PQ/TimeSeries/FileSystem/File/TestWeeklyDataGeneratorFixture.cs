@@ -3,12 +3,12 @@
 
 #region
 
-using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Generators.Quotes;
 using FortitudeMarketsCore.Pricing.Generators.Summaries;
+using FortitudeTests.FortitudeCommon.Extensions;
 
 #endregion
 
@@ -16,8 +16,6 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.F
 
 public static class TestWeeklyDataGeneratorFixture
 {
-    private static int newTestCount;
-
     public static IEnumerable<TQuoteLevel> GenerateQuotesForEachDayAndHourOfCurrentWeek<TQuoteLevel, TEntry>
         (int start, int amount, IQuoteGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
         where TEntry : class, TQuoteLevel, IMutableLevel0Quote
@@ -55,9 +53,9 @@ public static class TestWeeklyDataGeneratorFixture
         }
     }
 
-    public static IEnumerable<IPricePeriodSummary> GeneratePriceSummaryForEachDayAndHourOfCurrentWeek<TEntry>
-        (int start, int amount, TimeSeriesPeriod summaryPeriod, IPricePeriodSummaryGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
-        where TEntry : class, IMutablePricePeriodSummary
+    public static IEnumerable<IPricePeriodSummary> GeneratePriceSummaryForEachDayAndHourOfCurrentWeek
+    (int start, int amount, TimeSeriesPeriod summaryPeriod, IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator
+      , DateTime? forWeekWithDate = null)
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
@@ -74,10 +72,10 @@ public static class TestWeeklyDataGeneratorFixture
         }
     }
 
-    public static IEnumerable<IPricePeriodSummary> GenerateRepeatablePriceSummaries<TEntry>
-    (int start, int amount, int hour, DayOfWeek forDayOfWeek, TimeSeriesPeriod summaryPeriod, IPricePeriodSummaryGenerator<TEntry> quoteGenerator
+    public static IEnumerable<IPricePeriodSummary> GenerateRepeatablePriceSummaries
+    (int start, int amount, int hour, DayOfWeek forDayOfWeek, TimeSeriesPeriod summaryPeriod
+      , IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator
       , DateTime? forWeekWithDate = null)
-        where TEntry : class, IMutablePricePeriodSummary
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
@@ -93,25 +91,10 @@ public static class TestWeeklyDataGeneratorFixture
         }
     }
 
-    public static string GenerateUniqueFileNameOffDateTime()
-    {
-        var now = DateTime.Now;
-        Interlocked.Increment(ref newTestCount);
-        var nowString = now.ToString("yyyy-MM-dd_HH-mm-ss_fff");
-        return "PriceTimeSeriesTestFile_" + nowString + "_" + newTestCount + ".bin";
-    }
+    public static FileInfo GenerateUniqueFileNameOffDateTime() => FileInfoExtensionsTests.UniqueNewTestFileInfo("PriceTimeSeriesTestFile");
 
-    public static void DeleteTestFiles(DirectoryInfo fromDirectory)
+    public static void DeleteTestFiles()
     {
-        foreach (var existingTimeSeriesFile in fromDirectory.GetFiles("PriceTimeSeriesTestFile_*"))
-            try
-            {
-                existingTimeSeriesFile.Delete();
-            }
-            catch (Exception ex)
-            {
-                Console.Out.WriteLine("Could not delete file {0}. Got {1}", existingTimeSeriesFile, ex);
-                FLoggerFactory.WaitUntilDrained();
-            }
+        FileInfoExtensionsTests.DeleteTestFiles("PriceTimeSeriesTestFile");
     }
 }

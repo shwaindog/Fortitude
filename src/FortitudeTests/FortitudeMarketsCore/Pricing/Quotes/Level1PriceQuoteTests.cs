@@ -351,3 +351,18 @@ public class Level1PriceQuoteTests
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
     }
 }
+
+public static class Level1PriceQuoteTestExtensions
+{
+    public static ILevel1Quote CreateLevel1Quote
+        (this ISourceTickerQuoteInfo tickerId, DateTime sourceTime, decimal mid, decimal openCloseSpread = 0.02m)
+    {
+        var halfSpread = openCloseSpread / 2;
+
+        var bid1 = mid - halfSpread;
+        var ask1 = mid + halfSpread;
+        return new Level1PriceQuote
+            (tickerId, sourceTime, false, 0m, sourceTime, sourceTime, sourceTime
+           , sourceTime, bid1, false, sourceTime, ask1, false, true);
+    }
+}

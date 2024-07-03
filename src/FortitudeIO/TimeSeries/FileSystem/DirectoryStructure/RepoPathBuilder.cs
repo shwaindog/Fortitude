@@ -49,16 +49,16 @@ public class RepoPathBuilder : IRepoPathBuilder
     public virtual IRepositoryRootDirectory CreateRepositoryRootDirectory() => new RepositoryRootDirectory(RepositoryName, RepositoryRootDirectory);
 
     public virtual IPathFile IndicatorStateFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
-        CreateTimeSeriesFile("_AlgoState" + TimeSeriesFileExtension, InstrumentType.AlgoState, from, to);
+        CreateTimeSeriesFile("_IndicatorState." + TimeSeriesFileExtension, InstrumentType.AlgoState, from, to);
 
     public virtual IPathFile IndicatorSignalFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
-        CreateTimeSeriesFile("_AlgoSignal" + TimeSeriesFileExtension, InstrumentType.AlgoSignal, from, to);
+        CreateTimeSeriesFile("_IndicatorSignal." + TimeSeriesFileExtension, InstrumentType.AlgoSignal, from, to);
 
     public virtual IPathFile IndicatorFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
-        CreateTimeSeriesFile("_Indicator" + TimeSeriesFileExtension, InstrumentType.Indicator, from, to);
+        CreateTimeSeriesFile("_Indicator." + TimeSeriesFileExtension, InstrumentType.Indicator, from, to);
 
     public virtual IPathFile PriceSummaryFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
-        CreateTimeSeriesFile("_Summary" + TimeSeriesFileExtension, InstrumentType.PriceSummaryPeriod, from, to);
+        CreateTimeSeriesFile("_Summary." + TimeSeriesFileExtension, InstrumentType.PriceSummaryPeriod, from, to);
 
     public virtual IPathFile PriceFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
         CreateTimeSeriesFile(TimeSeriesFileExtension, InstrumentType.Price, from, to);

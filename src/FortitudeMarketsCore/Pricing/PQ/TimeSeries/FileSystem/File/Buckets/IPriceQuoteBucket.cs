@@ -21,4 +21,5 @@ public interface IPriceBucket
 public interface IPriceQuoteBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote { }
 
-public interface IPricePeriodSummaryBucket : IPriceBucket, IMutableBucket<IPricePeriodSummary> { }
+public interface IPricePeriodSummaryBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary { }

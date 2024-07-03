@@ -79,8 +79,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
 
         fileFlags |= FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader;
 
-        var testTimeSeriesFilePath = Path.Combine(Environment.CurrentDirectory, GenerateUniqueFileNameOffDateTime());
-        var timeSeriesFile         = new FileInfo(testTimeSeriesFilePath);
+        var timeSeriesFile = GenerateUniqueFileNameOffDateTime();
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var instrumentFields = new Dictionary<string, string>
         {
@@ -114,8 +113,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         {
             Console.Out.WriteLine("Could not close all sessions. Got {0}", ex);
         }
-        var dirInfo = new DirectoryInfo(Environment.CurrentDirectory);
-        DeleteTestFiles(dirInfo);
+        DeleteTestFiles();
     }
 
     [TestMethod]
