@@ -9,43 +9,56 @@ using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.Channel;
 using FortitudeBusRules.BusMessaging.Routing.Response;
 using FortitudeBusRules.Messages;
+using FortitudeBusRules.Rules;
+using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.Config;
 using static FortitudeBusRules.Rules.Common.TimeSeries.TimeSeriesRepositoryConstants;
 
 #endregion
 
-namespace FortitudeBusRules.Rules.Common.TimeSeries;
+namespace FortitudeTests.FortitudeBusRules.Rules.Common.TimeSeries;
 
-public struct TimeSeriesRepositoryInstrumentFileInfoRequest
+public class TimeSeriesRepositoryInfoStubRule : Rule
 {
-    public TimeSeriesRepositoryInstrumentFileInfoRequest
-    (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryPeriod = null
-      , Dictionary<string, string>? matchFields = null)
-    {
-        InstrumentName = instrumentName;
-        EntryPeriod    = entryPeriod;
-        InstrumentType = instrumentType;
-        MatchFields    = matchFields;
-    }
+    private List<IInstrument> allInstrumentsResult;
 
-    public string            InstrumentName { get; }
-    public TimeSeriesPeriod? EntryPeriod    { get; }
-    public InstrumentType?   InstrumentType { get; }
+    private Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileEntryInfo>> fileEntryInfosCallback;
+    private Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileInfo>>      fileInfosCallback;
 
-    public Dictionary<string, string>? MatchFields { get; }
-}
-
-public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
-{
     private ISubscription? instrumentFileEntriesInfoRequestListenSubscription;
     private ISubscription? instrumentsFileInfoRequestListenSubscription;
     private ISubscription? instrumentsListPublishRequestListenSubscription;
     private ISubscription? instrumentsListRequestListenSubscription;
 
-    public TimeSeriesRepositoryInfoRule(IRepositoryBuilder repoBuilder) : base(repoBuilder, nameof(TimeSeriesRepositoryInfoRule)) { }
-    public TimeSeriesRepositoryInfoRule(ITimeSeriesRepository existingRepository) : base(existingRepository, nameof(TimeSeriesRepositoryInfoRule)) { }
+    public TimeSeriesRepositoryInfoStubRule
+    (Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileInfo>> fileInfosCallback
+      , Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileEntryInfo>>? fileEntryInfosCallback = null,
+        List<IInstrument>? allInstrumentsResult = null)
+        : base(nameof(TimeSeriesRepositoryInfoStubRule))
+    {
+        this.fileInfosCallback      = fileInfosCallback;
+        this.fileEntryInfosCallback = fileEntryInfosCallback ?? ((_, _, _) => new List<InstrumentFileEntryInfo>());
+        this.allInstrumentsResult   = allInstrumentsResult ?? new List<IInstrument>();
+    }
+
+    public Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileInfo>> FileInfosCallback
+    {
+        get => fileInfosCallback;
+        set => fileInfosCallback = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileEntryInfo>> FileEntryInfosCallback
+    {
+        get => fileEntryInfosCallback;
+        set => fileEntryInfosCallback = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public List<IInstrument> AllInstrumentsResult
+    {
+        get => allInstrumentsResult;
+        set => allInstrumentsResult = value ?? throw new ArgumentNullException(nameof(value));
+    }
 
     public override async ValueTask StartAsync()
     {
@@ -63,16 +76,6 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
                 (TimeSeriesInstrumentEntryFileInfoRequestResponse, HandleInstrumentFileEntryInfoRequest);
     }
 
-    public override async ValueTask StopAsync()
-    {
-        await instrumentsListPublishRequestListenSubscription.NullSafeUnsubscribe();
-        await instrumentsListRequestListenSubscription.NullSafeUnsubscribe();
-        await instrumentsFileInfoRequestListenSubscription.NullSafeUnsubscribe();
-        await instrumentFileEntriesInfoRequestListenSubscription.NullSafeUnsubscribe();
-
-        await base.StopAsync();
-    }
-
     private async ValueTask<List<InstrumentFileEntryInfo>> HandleInstrumentFileEntryInfoRequest
         (IBusRespondingMessage<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileEntryInfo>> instrumentRequestMsg)
     {
@@ -88,9 +91,8 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
         return result;
     }
 
-    private List<InstrumentFileEntryInfo> GetFileEntryInfo
-        (TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
-        InstrumentFileEntryInfos(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
+    private List<InstrumentFileEntryInfo> GetFileEntryInfo(TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
+        fileEntryInfosCallback(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
 
 
     private async ValueTask<List<InstrumentFileInfo>> HandleInstrumentFileInfo
@@ -108,9 +110,8 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
         return result;
     }
 
-    private List<InstrumentFileInfo> GetFileInfo
-        (TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
-        InstrumentFileInfos(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
+    private List<InstrumentFileInfo> GetFileInfo(TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
+        fileInfosCallback(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
 
     private void HandleRequestListAllAvailableInstruments(IBusMessage<ResponsePublishParams> publishParamsMsg)
     {
@@ -133,8 +134,7 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
         }
     }
 
-    private List<IInstrument> HandleRequestResponseListAllAvailableInstruments(IBusMessage<string> noParamsMsg) =>
-        GetAllRepositoryAvailableInstruments();
+    private List<IInstrument> HandleRequestResponseListAllAvailableInstruments(IBusMessage<string> noParamsMsg) => allInstrumentsResult;
 
-    private List<IInstrument> GetAllRepositoryAvailableInstruments() => TimeSeriesRepository!.InstrumentFilesMap.Keys.ToList();
+    private List<IInstrument> GetAllRepositoryAvailableInstruments() => allInstrumentsResult;
 }

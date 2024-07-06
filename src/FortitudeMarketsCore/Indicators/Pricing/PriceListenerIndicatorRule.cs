@@ -21,7 +21,7 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
 
     protected ISourceTickerIdentifier TickerId;
 
-    private ISubscription tickerListenSubscription = null!;
+    private ISubscription? tickerListenSubscription;
 
     public PriceListenerIndicatorRule(ISourceTickerIdentifier tickerId, string ruleName) : base(ruleName)
     {
@@ -38,7 +38,7 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
 
     public override async ValueTask StopAsync()
     {
-        await tickerListenSubscription.UnsubscribeAsync();
+        await tickerListenSubscription.NullSafeUnsubscribe();
     }
 
     protected virtual ValueTask ReceiveQuoteHandler(IBusMessage<TQuoteType> priceQuoteMessage) => ValueTask.CompletedTask;

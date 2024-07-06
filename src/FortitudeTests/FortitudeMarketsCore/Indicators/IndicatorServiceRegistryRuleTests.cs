@@ -4,47 +4,97 @@
 #region
 
 using FortitudeBusRules.Messages;
+using FortitudeBusRules.Rules;
+using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Indicators;
 
 #endregion
 
 namespace FortitudeTests.FortitudeMarketsCore.Indicators;
 
-public class IndicatorServiceRegistryRuleTests
+public class IndicatorServiceRegistryRuleTests { }
+
+public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 {
-    public class IndicatorServiceRegistryRuleTestReplacementRule : IndicatorServiceRegistryRule
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(IndicatorServiceRegistryStubRule));
+
+    private readonly List<IAsyncDisposable> undeploy = new();
+
+    public IndicatorServiceRegistryStubRule(IndicatorServiceRegistryParams overrideParams)
+        : base(overrideParams) { }
+
+    public List<TickerPeriodServiceRequest> TickerPeriodReceivedRequests { get; } = new();
+    public List<GlobalServiceRequest>       GlobalReceivedRequests       { get; } = new();
+
+    public List<ServiceRunStateResponse> Responses { get; } = new();
+
+    public Dictionary<TickerPeriodServiceInfo, ServiceRuntimeState> TickerPeriodServiceRegistry => TickerPeriodServiceStateLookup;
+    public Dictionary<ServiceType, ServiceRuntimeState>             GlobalServiceRegistry       => GlobalServiceStateLookup;
+
+    public Func<TickerPeriodServiceRequest, ServiceRunStateResponse, bool> ShouldLaunchRule { get; set; } = (_, _) => true;
+
+    public override async ValueTask StopAsync()
     {
-        public IndicatorServiceRegistryRuleTestReplacementRule(IndicatorServiceRegistryParams overrideParams)
-            : base(overrideParams) { }
+        foreach (var asyncDisposable in undeploy) await asyncDisposable.DisposeAsync();
+    }
 
-        public List<TickerPeriodServiceRequest> TickerPeriodReceivedRequests { get; } = new();
-        public List<GlobalServiceRequest>       GlobalReceivedRequests       { get; } = new();
-
-        public List<ServiceRunStateResponse> Responses { get; } = new();
-
-        public Dictionary<TickerPeriodServiceInfo, ServiceRuntimeState> TickerPeriodServiceRegistry => TickerPeriodServiceStateLookup;
-        public Dictionary<ServiceType, ServiceRuntimeState>             GlobalServiceRegistry       => GlobalServiceStateLookup;
-
-        public Func<TickerPeriodServiceRequest, ServiceRunStateResponse, bool> ShouldLaunchRule { get; set; } = (_, _) => true;
-
-        protected override async ValueTask<ServiceRunStateResponse> HandleGlobalServiceStartRequest
-            (IBusRespondingMessage<GlobalServiceRequest, ServiceRunStateResponse> serviceStartRequestMsg)
+    public async ValueTask RegisterAndDeployGlobalService(ServiceType service, IRule rule)
+    {
+        try
         {
-            var serviceReq = serviceStartRequestMsg.Payload.Body();
-            GlobalReceivedRequests.Add(serviceReq);
-            var result = await base.HandleGlobalServiceStartRequest(serviceStartRequestMsg);
-            Responses.Add(result);
-            return result;
+            var deployLifeTime = await this.DeployRuleAsync(rule);
+            undeploy.Add(deployLifeTime);
+            var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStarted);
+            GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }
-
-        protected override async ValueTask<ServiceRunStateResponse> HandleTickerPeriodServiceStartRequest
-            (IBusRespondingMessage<TickerPeriodServiceRequest, ServiceRunStateResponse> serviceStartRequestMsg)
+        catch (Exception ex)
         {
-            var serviceReq = serviceStartRequestMsg.Payload.Body();
-            TickerPeriodReceivedRequests.Add(serviceReq);
-            var result = await base.HandleTickerPeriodServiceStartRequest(serviceStartRequestMsg);
-            Responses.Add(result);
-            return result;
+            Logger.Warn("Deployment of rule {0} failed.  Got {1}", rule.FriendlyName, ex);
+            var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStartFailed);
+            GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }
+    }
+
+    public async ValueTask RegisterAndDeployTickerPeriodService
+    (ISourceTickerIdentifier tickerId, TimeSeriesPeriod period, ServiceType service, IRule rule, QuoteLevel quoteLevel = QuoteLevel.Level1
+      , bool usePQQuote = false)
+    {
+        try
+        {
+            var deployLifeTime = await this.DeployRuleAsync(rule);
+            undeploy.Add(deployLifeTime);
+            var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, tickerId, period, quoteLevel, usePQQuote);
+            var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStarted);
+            TickerPeriodServiceStateLookup.Add(tickerPeriodServiceInfo, new ServiceRuntimeState(serviceRunStateResponse));
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Deployment of rule {0} failed.  Got {1}", rule.FriendlyName, ex);
+            var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStartFailed);
+            GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
+        }
+    }
+
+    protected override async ValueTask<ServiceRunStateResponse> HandleGlobalServiceStartRequest
+        (IBusRespondingMessage<GlobalServiceRequest, ServiceRunStateResponse> serviceStartRequestMsg)
+    {
+        var serviceReq = serviceStartRequestMsg.Payload.Body();
+        GlobalReceivedRequests.Add(serviceReq);
+        var result = await base.HandleGlobalServiceStartRequest(serviceStartRequestMsg);
+        Responses.Add(result);
+        return result;
+    }
+
+    protected override async ValueTask<ServiceRunStateResponse> HandleTickerPeriodServiceStartRequest
+        (IBusRespondingMessage<TickerPeriodServiceRequest, ServiceRunStateResponse> serviceStartRequestMsg)
+    {
+        var serviceReq = serviceStartRequestMsg.Payload.Body();
+        TickerPeriodReceivedRequests.Add(serviceReq);
+        var result = await base.HandleTickerPeriodServiceStartRequest(serviceStartRequestMsg);
+        Responses.Add(result);
+        return result;
     }
 }

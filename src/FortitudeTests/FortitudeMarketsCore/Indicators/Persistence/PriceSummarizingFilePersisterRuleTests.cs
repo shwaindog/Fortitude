@@ -101,7 +101,7 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
     public async Task NewRepository_SendEntriesToPersister_CanRetrieveEntriesFromRepository()
     {
         persisterRule = new PriceSummarizingFilePersisterRule<PricePeriodSummary>(persisterParams);
-        await CustomQueue1.LaunchRuleAsync(persisterRule, persisterRule, CustomQueue1SelectionResult);
+        await using var childDeployment = await CustomQueue1.LaunchRuleAsync(persisterRule, persisterRule, CustomQueue1SelectionResult);
 
         foreach (var periodSummary in toPersistPeriodSummaries)
             await MessageBus.PublishAsync(persisterRule, TestEntriesToPersistAddress, periodSummary, new DispatchOptions());
@@ -109,8 +109,6 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
         var fileInfo = timeSeriesRepository.GetInstrumentFileEntryInfo(tickerId);
         Assert.IsTrue(fileInfo.HasInstrument);
 
-        await CustomQueue1.StopRuleAsync(persisterRule, persisterRule);
-        Logger.Info("Stopped test persister");
         persisterRule = null;
     }
 }

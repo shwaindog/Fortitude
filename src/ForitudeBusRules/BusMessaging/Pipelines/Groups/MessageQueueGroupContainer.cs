@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeBusRules.BusMessaging.Messages;
@@ -20,30 +23,36 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.Groups;
 public interface IMessageQueueGroupContainer : IEnumerable<IMessageQueue>
 {
     bool HasStarted { get; }
-    int Count { get; }
-    IMessageQueueTypeGroup EventMessageQueueGroup { get; }
-    IMessageQueueTypeGroup WorkerMessageQueueGroup { get; }
-    IIOInboundMessageTypeGroup IOInboundMessageQueueGroup { get; }
+    int  Count      { get; }
+
+    IMessageQueueTypeGroup      EventMessageQueueGroup      { get; }
+    IMessageQueueTypeGroup      WorkerMessageQueueGroup     { get; }
+    IIOInboundMessageTypeGroup  IOInboundMessageQueueGroup  { get; }
     IIOOutboundMessageTypeGroup IOOutboundMessageQueueGroup { get; }
-    IMessageQueueTypeGroup CustomMessageQueueGroup { get; }
-    IMessageQueueGroupContainer Add(IMessageQueue messageQueue);
-    IMessageQueueGroupContainer AddRange(IEnumerable<IMessageQueue> eventQueue);
+    IMessageQueueTypeGroup      CustomMessageQueueGroup     { get; }
+
+    IMessageQueueGroupContainer      Add(IMessageQueue messageQueue);
+    IMessageQueueGroupContainer      AddRange(IEnumerable<IMessageQueue> eventQueue);
     IMessageQueueList<IMessageQueue> SelectEventQueues(MessageQueueType selector);
-    IMessageQueueTypeGroup SelectEventQueueGroup(IMessageQueue childOfGroup);
-    IMessageQueueTypeGroup SelectEventQueueGroup(MessageQueueType selector);
+    IMessageQueueTypeGroup           SelectEventQueueGroup(IMessageQueue childOfGroup);
+    IMessageQueueTypeGroup           SelectEventQueueGroup(MessageQueueType selector);
+
     bool Remove(IMessageQueue toRemove);
     bool Contains(IMessageQueue messageQueue);
     void Start();
     void Stop();
     void LaunchRule(IRule sender, IRule rule, DeploymentOptions deployment);
-    ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions deployment);
+
+    ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions deployment);
 
     ValueTask<U> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 
     ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
     ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
-    void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+    void      Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+
     ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
+
     void Send<T>(IRule sender, T messageOrEvent, MessageType messageType, DispatchOptions dispatchOptions);
 
     IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate);
@@ -56,19 +65,20 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
 
     public const int ReservedCoresForIO = 4; // inbound (deserializers), outbound (serializers), logging, acceptor listening thread
 
-    public const int MinimumEventQueues = 1; // at least one
+    public const int MinimumEventQueues  = 1; // at least one
     public const int MinimumWorkerQueues = 1; // at least one
+
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessageQueueGroupContainer));
 
-    private readonly IConfigureMessageBus owningMessageBus;
-    private readonly Recycler recycler;
+    private readonly IConfigureMessageBus           owningMessageBus;
+    private readonly Recycler                       recycler;
     private readonly DeployDispatchStrategySelector strategySelector;
 
     public MessageQueueGroupContainer(IConfigureMessageBus owningMessageBus, BusRulesConfig config)
     {
         this.owningMessageBus = owningMessageBus;
-        recycler = new Recycler();
-        strategySelector = new DeployDispatchStrategySelector(recycler);
+        recycler              = new Recycler();
+        strategySelector      = new DeployDispatchStrategySelector(recycler);
         this.owningMessageBus = owningMessageBus;
         var ioInboundNum = Math.Max(config.QueuesConfig.RequiredIOInboundQueues, MaximumIOQueues);
         IOInboundMessageQueueGroup = new SocketListenerMessageQueueGroup(owningMessageBus, IOInbound, recycler, config.QueuesConfig);
@@ -77,12 +87,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         IOOutboundMessageQueueGroup = new SocketSenderMessageQueueGroup(owningMessageBus, IOOutbound, recycler, config.QueuesConfig);
         IOOutboundMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, IOOutbound, (uint)ioOutboundNum));
 
-        var eventMinNum = Math.Max(config.QueuesConfig.MinEventQueues, MinimumEventQueues);
+        var eventMinNum   = Math.Max(config.QueuesConfig.MinEventQueues, MinimumEventQueues);
         var eventQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxEventQueues, Environment.ProcessorCount - ReservedCoresForIO), eventMinNum);
         EventMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Event, recycler, config.QueuesConfig);
         EventMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Event, (uint)eventQueueNum));
 
-        var workerMinNum = Math.Max(config.QueuesConfig.MinWorkerQueues, MinimumWorkerQueues);
+        var workerMinNum   = Math.Max(config.QueuesConfig.MinWorkerQueues, MinimumWorkerQueues);
         var workerQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxWorkerQueues, Environment.ProcessorCount - ReservedCoresForIO), workerMinNum);
         WorkerMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Worker, recycler, config.QueuesConfig);
         WorkerMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Worker, (uint)workerQueueNum));
@@ -91,16 +101,17 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         CustomMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, config.QueuesConfig);
     }
 
-    internal MessageQueueGroupContainer(IConfigureMessageBus owningMessageBus
-        , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createEventQueueGroup = null
-        , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createWorkerGroup = null
-        , Func<IConfigureMessageBus, IIOInboundMessageTypeGroup>? createIoInboundGroup = null
-        , Func<IConfigureMessageBus, IIOOutboundMessageTypeGroup>? createIoOutboundGroup = null
-        , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createCustomGroup = null)
+    internal MessageQueueGroupContainer
+    (IConfigureMessageBus owningMessageBus
+      , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createEventQueueGroup = null
+      , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createWorkerGroup = null
+      , Func<IConfigureMessageBus, IIOInboundMessageTypeGroup>? createIoInboundGroup = null
+      , Func<IConfigureMessageBus, IIOOutboundMessageTypeGroup>? createIoOutboundGroup = null
+      , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createCustomGroup = null)
     {
         this.owningMessageBus = owningMessageBus;
-        recycler = new Recycler();
-        strategySelector = new DeployDispatchStrategySelector(recycler);
+        recycler              = new Recycler();
+        strategySelector      = new DeployDispatchStrategySelector(recycler);
         var defaultQueuesConfig = new QueuesConfig();
         IOOutboundMessageQueueGroup = createIoOutboundGroup?.Invoke(owningMessageBus) ??
                                       new SocketSenderMessageQueueGroup(owningMessageBus, IOOutbound, recycler, defaultQueuesConfig);
@@ -118,13 +129,13 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     {
         recycler = new Recycler();
         var defaultQueuesConfig = new QueuesConfig();
-        strategySelector = new DeployDispatchStrategySelector(recycler);
+        strategySelector            = new DeployDispatchStrategySelector(recycler);
         IOOutboundMessageQueueGroup = new SocketSenderMessageQueueGroup(owningMessageBus, IOOutbound, recycler, defaultQueuesConfig);
-        IOInboundMessageQueueGroup = new SocketListenerMessageQueueGroup(owningMessageBus, IOInbound, recycler, defaultQueuesConfig)!;
-        EventMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Event, recycler, defaultQueuesConfig)!;
-        WorkerMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Worker, recycler, defaultQueuesConfig)!;
-        CustomMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, defaultQueuesConfig)!;
-        this.owningMessageBus = owningMessageBus;
+        IOInboundMessageQueueGroup  = new SocketListenerMessageQueueGroup(owningMessageBus, IOInbound, recycler, defaultQueuesConfig)!;
+        EventMessageQueueGroup      = new MessageQueueTypeGroup(owningMessageBus, Event, recycler, defaultQueuesConfig)!;
+        WorkerMessageQueueGroup     = new MessageQueueTypeGroup(owningMessageBus, Worker, recycler, defaultQueuesConfig)!;
+        CustomMessageQueueGroup     = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, defaultQueuesConfig)!;
+        this.owningMessageBus       = owningMessageBus;
         foreach (var eventQueue in queuesToAdd) Add(eventQueue);
     }
 
@@ -166,11 +177,11 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     public void LaunchRule(IRule sender, IRule rule, DeploymentOptions options)
     {
         var selectionStrategy = strategySelector.SelectDeployStrategy(sender, rule, options);
-        var selectionResult = selectionStrategy.Select(this, sender, rule, options);
+        var selectionResult   = selectionStrategy.Select(this, sender, rule, options);
         if (selectionResult != null)
         {
             sender.AddChild(rule);
-            var routeSelectionResult = selectionResult.Value;
+            var routeSelectionResult  = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
             destinationEventQueue.LaunchRule(sender, rule);
             return;
@@ -181,14 +192,14 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         throw new ArgumentException(message);
     }
 
-    public ValueTask<IDispatchResult> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions options)
+    public ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions options)
     {
         var selectionStrategy = strategySelector.SelectDeployStrategy(sender, rule, options);
-        var selectionResult = selectionStrategy.Select(this, sender, rule, options);
+        var selectionResult   = selectionStrategy.Select(this, sender, rule, options);
         if (selectionResult != null)
         {
             sender.AddChild(rule);
-            var routeSelectionResult = selectionResult.Value;
+            var routeSelectionResult  = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
             return destinationEventQueue.LaunchRuleAsync(sender, rule, routeSelectionResult);
         }
@@ -198,45 +209,45 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         throw new ArgumentException(message);
     }
 
-    public ValueTask<U> RequestAsync<T, U>(IRule sender, string publishAddress, T msg
-        , DispatchOptions dispatchOptions)
+    public ValueTask<U> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions)
     {
         var selectionStrategy = strategySelector.SelectDispatchStrategy(sender, dispatchOptions, publishAddress);
-        var selectionResult = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
+        var selectionResult   = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
         if (selectionResult is { HasItems: true, Count: 1 })
         {
-            var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-            processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
-            processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
+            var processorRegistry = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+            processorRegistry.Result                            = sender.Context.PooledRecycler.Borrow<DispatchResult>();
+            processorRegistry.Result.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
-            processorRegistry.DispatchResult.SentTime = DateTime.Now;
+            processorRegistry.Result.SentTime                = DateTime.Now;
             processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
             var requestResponseSelectionResult = selectionResult.First();
-            var destinationEventQueue = requestResponseSelectionResult.MessageQueue;
-            var destinationRule = requestResponseSelectionResult.Rule;
-            return destinationEventQueue.RequestFromPayloadAsync<T, U>(msg, sender, publishAddress, processorRegistry: processorRegistry
-                , ruleFilter: destinationRule?.AppliesToThisRule);
+            var destinationEventQueue          = requestResponseSelectionResult.MessageQueue;
+            var destinationRule                = requestResponseSelectionResult.Rule;
+            return destinationEventQueue.RequestFromPayloadAsync<T, U>
+                (msg, sender, publishAddress, processorRegistry: processorRegistry
+               , ruleFilter: destinationRule?.AppliesToThisRule);
         }
 
         selectionResult?.DecrementRefCount();
-        throw new KeyNotFoundException($"No target rule was selected possibly the destination can not  ");
+        throw new KeyNotFoundException($"No target rule was selected possibly the destination can not be found or accept  ");
     }
 
     public void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions)
     {
         var selectionStrategy = strategySelector.SelectDispatchStrategy(sender, dispatchOptions, publishAddress);
-        var selectionResult = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
+        var selectionResult   = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
         if (selectionResult is { HasItems: true })
         {
             var payLoadMarshaller = dispatchOptions.PayloadMarshalOptions.ResolvePayloadMarshaller(msg, sender.Context.PooledRecycler);
-            var payload = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
+            var payload           = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
             payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is enqueued
             foreach (var routeResult in selectionResult)
             {
                 var destinationEventQueue = routeResult.MessageQueue;
-                var destinationRule = routeResult.Rule;
-                destinationEventQueue.EnqueuePayloadBody(payload, sender, MessageType.Publish, publishAddress, destinationRule?.AppliesToThisRule
-                    , payLoadMarshaller);
+                var destinationRule       = routeResult.Rule;
+                destinationEventQueue.EnqueuePayloadBody
+                    (payload, sender, MessageType.Publish, publishAddress, destinationRule?.AppliesToThisRule, payLoadMarshaller);
             }
 
             payLoadMarshaller?.DecrementRefCount();
@@ -249,29 +260,31 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
     }
 
-    public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg
-        , DispatchOptions dispatchOptions)
+    public ValueTask<IDispatchResult> PublishAsync<T>
+    (IRule sender, string publishAddress, T msg
+      , DispatchOptions dispatchOptions)
     {
         var selectionStrategy = strategySelector.SelectDispatchStrategy(sender, dispatchOptions, publishAddress);
-        var selectionResult = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
+        var selectionResult   = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
         if (selectionResult is { HasItems: true })
         {
-            var processorRegistry = sender.Context.PooledRecycler.Borrow<ProcessorRegistry>();
-            processorRegistry.DispatchResult = sender.Context.PooledRecycler.Borrow<DispatchResult>();
-            processorRegistry.DispatchResult.DispatchSelectionResultSet = selectionResult;
+            var processorRegistry = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+            processorRegistry.Result                            = sender.Context.PooledRecycler.Borrow<DispatchResult>();
+            processorRegistry.Result.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
-            processorRegistry.DispatchResult.SentTime = DateTime.Now;
+            processorRegistry.Result.SentTime                = DateTime.Now;
             processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
             var payLoadMarshaller = dispatchOptions.PayloadMarshalOptions.ResolvePayloadMarshaller(msg, sender.Context.PooledRecycler);
-            var payload = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
-            payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is enqueued
+            var payload           = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
+            payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is queued
 
             foreach (var routeResult in selectionResult)
             {
                 var destinationEventQueue = routeResult.MessageQueue;
-                var destinationRule = routeResult.Rule;
-                var _ = destinationEventQueue.EnqueuePayloadBodyWithStatsAsync(payload, sender, MessageType.Publish, publishAddress
-                    , processorRegistry, destinationRule?.AppliesToThisRule, payLoadMarshaller);
+                var destinationRule       = routeResult.Rule;
+                var _ = destinationEventQueue.EnqueuePayloadBodyWithStatsAsync
+                    (payload, sender, MessageType.Publish, publishAddress, processorRegistry
+                   , destinationRule?.AppliesToThisRule, payLoadMarshaller);
             }
 
             payLoadMarshaller?.DecrementRefCount();
@@ -336,13 +349,16 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     {
         var queueGroup = item.QueueType;
 
-        var hasResult = queueGroup switch
-        {
-            IOOutbound => IOOutboundMessageQueueGroup.Contains(item)
-            , IOInbound => IOInboundMessageQueueGroup.Contains(item)
-            , Event => EventMessageQueueGroup.Contains(item), Worker => WorkerMessageQueueGroup.Contains(item)
-            , Custom => CustomMessageQueueGroup.Contains(item), _ => false
-        };
+        var hasResult =
+            queueGroup switch
+            {
+                IOOutbound => IOOutboundMessageQueueGroup.Contains(item)
+              , IOInbound  => IOInboundMessageQueueGroup.Contains(item)
+              , Event      => EventMessageQueueGroup.Contains(item)
+              , Worker     => WorkerMessageQueueGroup.Contains(item)
+              , Custom     => CustomMessageQueueGroup.Contains(item)
+              , _          => false
+            };
         return hasResult;
     }
 
@@ -351,16 +367,11 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var queueGroup = item.QueueType;
         switch (queueGroup)
         {
-            case IOOutbound:
-                return IOOutboundMessageQueueGroup.StopRemoveEventQueue((IIOOutboundMessageQueue)item);
-            case IOInbound:
-                return IOInboundMessageQueueGroup.StopRemoveEventQueue((IIOInboundMessageQueue)item);
-            case Event:
-                return EventMessageQueueGroup.StopRemoveEventQueue(item);
-            case Worker:
-                return WorkerMessageQueueGroup.StopRemoveEventQueue(item);
-            case Custom:
-                return CustomMessageQueueGroup.StopRemoveEventQueue(item);
+            case IOOutbound: return IOOutboundMessageQueueGroup.StopRemoveEventQueue((IIOOutboundMessageQueue)item);
+            case IOInbound:  return IOInboundMessageQueueGroup.StopRemoveEventQueue((IIOInboundMessageQueue)item);
+            case Event:      return EventMessageQueueGroup.StopRemoveEventQueue(item);
+            case Worker:     return WorkerMessageQueueGroup.StopRemoveEventQueue(item);
+            case Custom:     return CustomMessageQueueGroup.StopRemoveEventQueue(item);
             default:
                 var message = $"Can not add queue of type {queueGroup} to EventBus ";
                 Logger.Warn(message);
@@ -369,13 +380,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     }
 
     public int Count =>
-        EventMessageQueueGroup.Count + WorkerMessageQueueGroup.Count + IOInboundMessageQueueGroup.Count + IOOutboundMessageQueueGroup.Count +
-        CustomMessageQueueGroup.Count;
+        EventMessageQueueGroup.Count + WorkerMessageQueueGroup.Count + IOInboundMessageQueueGroup.Count
+      + IOOutboundMessageQueueGroup.Count + CustomMessageQueueGroup.Count;
 
     public bool HasStarted =>
         EventMessageQueueGroup.HasStarted || WorkerMessageQueueGroup.HasStarted || IOInboundMessageQueueGroup.HasStarted ||
-        IOOutboundMessageQueueGroup.HasStarted ||
-        CustomMessageQueueGroup.HasStarted;
+        IOOutboundMessageQueueGroup.HasStarted || CustomMessageQueueGroup.HasStarted;
 
     public IMessageQueueGroupContainer AddRange(IEnumerable<IMessageQueue> eventQueue)
     {
@@ -384,26 +394,26 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         return this;
     }
 
-    public IMessageQueueTypeGroup EventMessageQueueGroup { get; }
-    public IMessageQueueTypeGroup WorkerMessageQueueGroup { get; }
-    public IIOInboundMessageTypeGroup IOInboundMessageQueueGroup { get; }
+    public IMessageQueueTypeGroup      EventMessageQueueGroup      { get; }
+    public IMessageQueueTypeGroup      WorkerMessageQueueGroup     { get; }
+    public IIOInboundMessageTypeGroup  IOInboundMessageQueueGroup  { get; }
     public IIOOutboundMessageTypeGroup IOOutboundMessageQueueGroup { get; }
-    public IMessageQueueTypeGroup CustomMessageQueueGroup { get; }
+    public IMessageQueueTypeGroup      CustomMessageQueueGroup     { get; }
 
     public IMessageQueueTypeGroup SelectEventQueueGroup(IMessageQueue childOfGroup) => SelectEventQueueGroup(childOfGroup.QueueType);
 
     public IMessageQueueTypeGroup SelectEventQueueGroup(MessageQueueType selector)
     {
         return selector switch
-        {
-            IOOutbound => IOOutboundMessageQueueGroup
-            , IOInbound => IOInboundMessageQueueGroup
-            , Event => EventMessageQueueGroup
-            , Worker => WorkerMessageQueueGroup
-            , Custom => CustomMessageQueueGroup
-            , _ => throw new ArgumentException(
-                $"Unexpected selector EventQueueType selector value '{selector}' when selecting a specific event group type")
-        };
+               {
+                   IOOutbound => IOOutboundMessageQueueGroup
+                 , IOInbound  => IOInboundMessageQueueGroup
+                 , Event      => EventMessageQueueGroup
+                 , Worker     => WorkerMessageQueueGroup
+                 , Custom     => CustomMessageQueueGroup
+                 , _ => throw new ArgumentException
+                       ($"Unexpected selector EventQueueType selector value '{selector}' when selecting a specific event group type")
+               };
     }
 
     public IMessageQueueList<IMessageQueue> SelectEventQueues(MessageQueueType selector)
@@ -418,8 +428,9 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         return result;
     }
 
-    public async ValueTask AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
-        , MessageQueueType onQueueTypes)
+    public async ValueTask AddListenSubscribeInterceptor
+    (IRule sender, IListenSubscribeInterceptor interceptor
+      , MessageQueueType onQueueTypes)
     {
         var asyncDispatchResults = sender.Context.PooledRecycler.Borrow<ReusableList<ValueTask<IDispatchResult>>>();
         foreach (var messageQueue in SelectEventQueues(onQueueTypes))
@@ -428,8 +439,9 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         foreach (var asyncDispatchResult in asyncDispatchResults) await asyncDispatchResult;
     }
 
-    public async ValueTask RemoveListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor
-        , MessageQueueType onQueueTypes)
+    public async ValueTask RemoveListenSubscribeInterceptor
+    (IRule sender, IListenSubscribeInterceptor interceptor
+      , MessageQueueType onQueueTypes)
     {
         var asyncDispatchResults = sender.Context.PooledRecycler.Borrow<ReusableList<ValueTask<IDispatchResult>>>();
         foreach (var messageQueue in SelectEventQueues(onQueueTypes))

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeCommon.DataStructures.Memory;
@@ -13,30 +16,31 @@ namespace FortitudeBusRules.BusMessaging.Messages;
 
 public enum PayloadRequestType
 {
-    Dispatch // perform marshalling before queued to any queues
-    , QueueSend // perform marshalling on each queue before it is sent
-    , QueueReceive // perform marshalling when being read anyway where on the queue during processing
-    , CalleeRetrieve // perform marshalling when read by any rule.
+    Dispatch       // perform marshalling before queued to any queues
+  , QueueSend      // perform marshalling on each queue before it is sent
+  , QueueReceive   // perform marshalling when being read anyway where on the queue during processing
+  , CalleeRetrieve // perform marshalling when read by any rule.
 }
 
 public enum MarshallerType
 {
-    DefaultForType // will look at the sender payload instance and pick the most appropriate marshaller for the type
-    , PassThrough // this should not create a Marshaller so the original sender instance is passed around
-    , RefCountIncrementer // increment recyclable.RefCount at the marshall point
-    , NonDecrementingCloner // will not decrement even if is recyclable
-    , CloneRecyclable // clone and decrement at end of each queue or dispatch
-    , BorrowReusable // each will uses context recycler to create and copy details on each queue
-    , NoQueueDecrement // disable queue processing incrementing and decrementing
-    , SerdeCaller // will marshall via a Serde passed marshaller.
+    DefaultForType        // will look at the sender payload instance and pick the most appropriate marshaller for the type
+  , PassThrough           // this should not create a Marshaller so the original sender instance is passed around
+  , RefCountIncrementer   // increment recyclable.RefCount at the marshall point
+  , NonDecrementingCloner // will not decrement even if is recyclable
+  , CloneRecyclable       // clone and decrement at end of each queue or dispatch
+  , BorrowReusable        // each will uses context recycler to create and copy details on each queue
+  , NoQueueDecrement      // disable queue processing incrementing and decrementing
+  , SerdeCaller           // will marshall via a Serde passed marshaller.
 }
 
 public struct PayloadMarshalOptions
 {
-    public PayloadMarshalOptions(PayloadRequestType marshalOn = QueueSend, MarshallerType marshallerType = DefaultForType,
+    public PayloadMarshalOptions
+    (PayloadRequestType marshalOn = QueueSend, MarshallerType marshallerType = DefaultForType,
         ISerdesMarshaller? serdesMarshaller = null)
     {
-        MarshalOn = marshalOn;
+        MarshalOn      = marshalOn;
         MarshallerType = marshallerType;
     }
 
@@ -49,8 +53,9 @@ public struct PayloadMarshalOptions
 
 public static class PayloadMarshallerExtensions
 {
-    public static IPayloadMarshaller<T>? ResolvePayloadMarshaller<T>(this PayloadMarshalOptions payloadMarshalOptions, T senderInstance
-        , IRecycler recycler) =>
+    public static IPayloadMarshaller<T>? ResolvePayloadMarshaller<T>
+    (this PayloadMarshalOptions payloadMarshalOptions, T senderInstance
+      , IRecycler recycler) =>
         TypePayloadMarshallerExtensions<T>.ResolvePayloadMarshaller(payloadMarshalOptions, senderInstance, recycler);
 
     // ReSharper disable once ClassNeverInstantiated.Local
@@ -58,11 +63,12 @@ public static class PayloadMarshallerExtensions
     {
         private static readonly Type GenericIReusableOfT = typeof(IReusableObject<>).MakeGenericType(typeof(T));
 
-        public static IPayloadMarshaller<T>? ResolvePayloadMarshaller(PayloadMarshalOptions payloadMarshalOptions, T senderInstance
-            , IRecycler recycler)
+        public static IPayloadMarshaller<T>? ResolvePayloadMarshaller
+        (PayloadMarshalOptions payloadMarshalOptions, T senderInstance
+          , IRecycler recycler)
         {
             var typeofT = typeof(T);
-            if (typeofT.IsValueType || payloadMarshalOptions.MarshallerType == PassThrough ||
+            if (typeofT.IsValueType || typeofT.IsInterface || payloadMarshalOptions.MarshallerType == PassThrough ||
                 (typeofT.GetInterfaces().All(t => t != GenericIReusableOfT) &&
                  senderInstance is not (IRecyclableObject or ICloneable)))
                 return null;
@@ -77,9 +83,12 @@ public static class PayloadMarshallerExtensions
 public interface IPayloadMarshaller : IRecyclableObject
 {
     MarshallerType MarshallerType { get; }
+
     IPayloadMarshaller Configure(PayloadMarshalOptions payloadMarshalOpts, object senderInstance, IRecycler? senderRecycler = null);
-    object GetMarshalled(object input, PayloadRequestType payloadRequestType);
     IPayloadMarshaller QueueMarshaller(IMessageQueue messageQueue);
+
+    object GetMarshalled(object input, PayloadRequestType payloadRequestType);
+
     void PayloadRefCountDecrement(object? payload);
     void PayloadRefCountIncrement(object? payload);
 }
@@ -99,15 +108,18 @@ public interface IPayloadMarshaller<T> : IReusableObject<IPayloadMarshaller<T>>,
 public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayloadMarshaller<T>, IPayloadMarshaller
 {
     private static readonly Type GenericIReusableOfT = typeof(IReusableObject<>).MakeGenericType(typeof(T));
+
     private T? dispatchMarshalledInstance;
+
     private PayloadMarshaller<T>? parentMarshaller;
     private PayloadMarshalOptions payloadMarshalOptions;
-    private T? queueMarshalledInstance;
+
+    private T?   queueMarshalledInstance;
     private bool queuePayloadHasBeenReplaced;
 
     public PayloadMarshaller()
     {
-        payloadMarshalOptions = new PayloadMarshalOptions();
+        payloadMarshalOptions      = new PayloadMarshalOptions();
         dispatchMarshalledInstance = default;
     }
 
@@ -118,14 +130,14 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
 
     public PayloadMarshaller(PayloadMarshaller<T> toClone)
     {
-        payloadMarshalOptions = toClone.payloadMarshalOptions;
-        SenderRecycler = toClone.SenderRecycler;
-        ReceiverRecycler = toClone.ReceiverRecycler;
+        payloadMarshalOptions      = toClone.payloadMarshalOptions;
+        SenderRecycler             = toClone.SenderRecycler;
+        ReceiverRecycler           = toClone.ReceiverRecycler;
         dispatchMarshalledInstance = toClone.dispatchMarshalledInstance;
-        queueMarshalledInstance = toClone.queueMarshalledInstance;
+        queueMarshalledInstance    = toClone.queueMarshalledInstance;
     }
 
-    public IRecycler SenderRecycler { get; set; } = null!;
+    public IRecycler  SenderRecycler   { get; set; } = null!;
     public IRecycler? ReceiverRecycler { get; set; }
 
     public bool CloneMarshallerOnEachQueue =>
@@ -179,9 +191,9 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
     {
         if (source is PayloadMarshaller<T> copyMarshaller)
         {
-            payloadMarshalOptions = copyMarshaller.payloadMarshalOptions;
-            SenderRecycler = copyMarshaller.SenderRecycler;
-            ReceiverRecycler = copyMarshaller.ReceiverRecycler;
+            payloadMarshalOptions      = copyMarshaller.payloadMarshalOptions;
+            SenderRecycler             = copyMarshaller.SenderRecycler;
+            ReceiverRecycler           = copyMarshaller.ReceiverRecycler;
             dispatchMarshalledInstance = copyMarshaller.dispatchMarshalledInstance;
         }
 
@@ -208,19 +220,20 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
     {
         if (MarshallerType == PassThrough || input == null) return input;
         return payloadRequestType switch
-        {
-            Dispatch => DispatchSelector(input)
-            , QueueSend => QueueSendSelector(input)
-            , QueueReceive => QueueReceiveSelector(input)
-            , _ => CalleeRetrieveSelector(input)
-        };
+               {
+                   Dispatch     => DispatchSelector(input)
+                 , QueueSend    => QueueSendSelector(input)
+                 , QueueReceive => QueueReceiveSelector(input)
+                 , _            => CalleeRetrieveSelector(input)
+               };
     }
 
     public void PayloadRefCountIncrement(T? payload)
     {
         if ((payloadMarshalOptions.MarshalOn == Dispatch && MarshallerType is CloneRecyclable or BorrowReusable or NonDecrementingCloner)
-            || MarshallerType is NoQueueDecrement
-            || payload is not IRecyclableObject recyclableObject) return;
+         || MarshallerType is NoQueueDecrement
+         || payload is not IRecyclableObject recyclableObject)
+            return;
 
         recyclableObject.IncrementRefCount();
     }
@@ -228,8 +241,9 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
     public void PayloadRefCountDecrement(T? payload)
     {
         if ((payloadMarshalOptions.MarshalOn == Dispatch && MarshallerType is CloneRecyclable or BorrowReusable or NonDecrementingCloner)
-            || MarshallerType is NoQueueDecrement
-            || payload is not IRecyclableObject recyclableObject) return;
+         || MarshallerType is NoQueueDecrement
+         || payload is not IRecyclableObject recyclableObject)
+            return;
 
         recyclableObject.DecrementRefCount();
     }
@@ -298,12 +312,10 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
         switch (MarshallerType)
         {
             case RefCountIncrementer:
-                if (input is IRecyclableObject recyclableObject)
-                    recyclableObject.IncrementRefCount();
+                if (input is IRecyclableObject recyclableObject) recyclableObject.IncrementRefCount();
                 break;
             case NonDecrementingCloner:
-                if (input is ICloneable cloneable)
-                    result = (T)cloneable.Clone();
+                if (input is ICloneable cloneable) result = (T)cloneable.Clone();
                 break;
             case CloneRecyclable:
                 if (input is ICloneable cloneableRecycler)
@@ -326,7 +338,7 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
                 if (payloadMarshalOptions.SerdesMarshaller is ISerdesMarshaller<T> typedSerdesMarshaller)
                     result = typedSerdesMarshaller.Marshall(input);
                 break;
-            case PassThrough: break;
+            case PassThrough:      break;
             case NoQueueDecrement: break;
         }
 

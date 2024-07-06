@@ -79,17 +79,19 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     [Timeout(20_000)]
     public async Task StartPQPricingServerFeedRule_PublishPrices_ClientReceivesPrices()
     {
-        await EventQueue1.LaunchRuleAsync(pricingServerFeedRule, pricingServerFeedRule, EventQueue1SelectionResult);
+        await using var serverDeploy = await EventQueue1.LaunchRuleAsync(pricingServerFeedRule, pricingServerFeedRule, EventQueue1SelectionResult);
         Logger.Info("Deployed pricing server");
         publishQuoteEvent.PublishQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(serverConfig.FirstTickerQuoteInfo);
         await MessageBus.PublishAsync(pricingServerFeedRule, feedName.FeedTickerPublishAddress(), publishQuoteEvent, new DispatchOptions());
 
-        await EventQueue1.LaunchRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule, EventQueue1SelectionResult);
+        await using var clientDeploy
+            = await EventQueue1.LaunchRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule, EventQueue1SelectionResult);
         Logger.Info("Deployed pricing client");
 
         await Task.Delay(50);
 
-        await CustomQueue1.LaunchRuleAsync(testSubscribeToTickerRule, testSubscribeToTickerRule, CustomQueue1SelectionResult);
+        await using var testSubscribe
+            = await CustomQueue1.LaunchRuleAsync(testSubscribeToTickerRule, testSubscribeToTickerRule, CustomQueue1SelectionResult);
         Logger.Info("Deployed client listening rule");
         await Task.Delay(1); // NEED this to allow tasks above to dispatch any callbacks
 
@@ -116,12 +118,5 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         Logger.Info("Received update ");
         Assert.IsTrue(receivedUpdateTick, "Did not receive update tick from the client before timeout was reached");
-
-        await EventQueue1.StopRuleAsync(testSubscribeToTickerRule, testSubscribeToTickerRule);
-        Logger.Info("Stopped test subscriber ");
-        await EventQueue1.StopRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule);
-        Logger.Info("Stopped pricing client");
-        await EventQueue1.StopRuleAsync(pricingServerFeedRule, pricingServerFeedRule);
-        Logger.Info("Stopped pricing server");
     }
 }

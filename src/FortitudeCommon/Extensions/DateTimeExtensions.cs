@@ -5,35 +5,40 @@ namespace FortitudeCommon.Extensions;
 
 public static class DateTimeExtensions
 {
-    public static  long MinTicks           = DateTime.MinValue.Ticks;
-    public static  long MaxTicks           = DateTime.MaxValue.Ticks;
-    private static long fiveMinuteTicks    = TimeSpan.TicksPerMinute * 5;
-    private static long tenMinuteTicks     = TimeSpan.TicksPerMinute * 10;
-    private static long fifteenMinuteTicks = TimeSpan.TicksPerMinute * 15;
-    private static long thirtyMinuteTicks  = TimeSpan.TicksPerMinute * 30;
-    private static long fourHourTicks      = TimeSpan.TicksPerHour * 4;
-    private static long twelveHourTicks    = TimeSpan.TicksPerHour * 12;
+    private const long FiveSecondsTicks    = TimeSpan.TicksPerSecond * 5;
+    private const long TenSecondsTicks     = TimeSpan.TicksPerSecond * 10;
+    private const long FifteenSecondsTicks = TimeSpan.TicksPerSecond * 15;
+    private const long ThirtySecondsTicks  = TimeSpan.TicksPerSecond * 30;
+    private const long FiveMinuteTicks     = TimeSpan.TicksPerMinute * 5;
+    private const long TenMinuteTicks      = TimeSpan.TicksPerMinute * 10;
+    private const long FifteenMinuteTicks  = TimeSpan.TicksPerMinute * 15;
+    private const long ThirtyMinuteTicks   = TimeSpan.TicksPerMinute * 30;
+    private const long FourHourTicks       = TimeSpan.TicksPerHour * 4;
+    private const long TwelveHourTicks     = TimeSpan.TicksPerHour * 12;
+
+    public static readonly long MinTicks = DateTime.MinValue.Ticks;
+    public static readonly long MaxTicks = DateTime.MaxValue.Ticks;
 
     public static DateTime TruncToSecondBoundary(this DateTime allTicks)   => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerSecond));
-    public static DateTime TruncTo5SecondBoundary(this DateTime allTicks)  => allTicks.AddTicks(-(allTicks.Ticks % 5 * TimeSpan.TicksPerSecond));
-    public static DateTime TruncTo10SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 10 * TimeSpan.TicksPerSecond));
-    public static DateTime TruncTo15SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 15 * TimeSpan.TicksPerSecond));
-    public static DateTime TruncTo30SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % 30 * TimeSpan.TicksPerSecond));
+    public static DateTime TruncTo5SecondBoundary(this DateTime allTicks)  => allTicks.AddTicks(-(allTicks.Ticks % FiveSecondsTicks));
+    public static DateTime TruncTo10SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TenSecondsTicks));
+    public static DateTime TruncTo15SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % FifteenSecondsTicks));
+    public static DateTime TruncTo30SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % ThirtySecondsTicks));
 
     public static DateTime TruncToMinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerMinute));
 
-    public static DateTime TruncTo5MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % fiveMinuteTicks));
+    public static DateTime TruncTo5MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % FiveMinuteTicks));
 
-    public static DateTime TruncTo10MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % tenMinuteTicks));
+    public static DateTime TruncTo10MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TenMinuteTicks));
 
-    public static DateTime TruncTo15MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % fifteenMinuteTicks));
+    public static DateTime TruncTo15MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % FifteenMinuteTicks));
 
-    public static DateTime TruncTo30MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % thirtyMinuteTicks));
+    public static DateTime TruncTo30MinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % ThirtyMinuteTicks));
 
     public static DateTime TruncTo1HourBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerHour));
 
-    public static DateTime TruncTo4HourBoundary(this DateTime allTicks)  => allTicks.AddTicks(-(allTicks.Ticks % fourHourTicks));
-    public static DateTime TruncTo12HourBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % twelveHourTicks));
+    public static DateTime TruncTo4HourBoundary(this DateTime allTicks)  => allTicks.AddTicks(-(allTicks.Ticks % FourHourTicks));
+    public static DateTime TruncTo12HourBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TwelveHourTicks));
 
     public static DateTime TruncToDayBoundary(this DateTime allTicks) => allTicks.Date;
 

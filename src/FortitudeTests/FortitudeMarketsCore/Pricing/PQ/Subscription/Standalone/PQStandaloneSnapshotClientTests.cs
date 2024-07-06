@@ -81,7 +81,7 @@ public class PQStandaloneSnapshotClientTests
 
     private string sessionDescription = null!;
 
-    private TimeContextTests.StubTimeContext stubContext = null!;
+    private StubTimeContext stubContext = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -119,7 +119,7 @@ public class PQStandaloneSnapshotClientTests
         moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
 
         moqOsSocket          = new Mock<IOSSocket>();
-        stubContext          = new TimeContextTests.StubTimeContext();
+        stubContext          = new StubTimeContext();
         TimeContext.Provider = stubContext;
         stubContext.UtcNow   = new DateTime(2018, 01, 29, 19, 54, 12);
         moqFlogger           = new Mock<IFLogger>();
@@ -206,7 +206,7 @@ public class PQStandaloneSnapshotClientTests
         OSParallelControllerFactory.Instance = new OSParallelControllerFactory();
 
         FLoggerFactory.Instance = new FLoggerFactory();
-        TimeContext.Provider    = new HighPrecisionTimeContext();
+        stubContext.Dispose();
     }
 
 

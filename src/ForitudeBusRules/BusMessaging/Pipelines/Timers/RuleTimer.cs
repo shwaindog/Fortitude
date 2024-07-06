@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -15,16 +18,18 @@ public interface IRuleTimer : IActionTimer, IAsyncValueTaskDisposable { }
 public class RuleTimer : IRuleTimer
 {
     private static readonly NoOpTimerUpdate NoOpTimerUpdate = new();
-    private readonly ActionTimer backingTimer;
-    private readonly IRule owningRule;
+
+    private readonly ActionTimer        backingTimer;
+    private readonly IRule              owningRule;
     private readonly List<ITimerUpdate> registeredRuleTimers = new();
+
     private bool isClosing;
 
     public RuleTimer(IRule owningRule, ActionTimer backingTimer)
     {
-        this.owningRule = owningRule;
-        this.backingTimer = backingTimer;
-        this.backingTimer.OneOffWaitCallback = OneOffTimerEnqueueAsMessage;
+        this.owningRule                        = owningRule;
+        this.backingTimer                      = backingTimer;
+        this.backingTimer.OneOffWaitCallback   = OneOffTimerEnqueueAsMessage;
         this.backingTimer.IntervalWaitCallback = IntervalTimerEnqueueAsMessage;
     }
 
@@ -110,6 +115,8 @@ public class RuleTimer : IRuleTimer
         isClosing = true;
         foreach (var registeredRuleTimer in registeredRuleTimers) await registeredRuleTimer.Dispose();
     }
+
+    public ValueTask DisposeAsync() => Dispose();
 
     public void OneOffTimerEnqueueAsMessage(object? state)
     {

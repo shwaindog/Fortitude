@@ -33,4 +33,17 @@ public class IndicatorServicesConfigTests
 
         return config;
     }
+
+    public static IndicatorServicesConfig UnitTestNoRepositoryConfig()
+    {
+        var serverConfig = new LocalHostPQTestSetupCommon
+        {
+            LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize
+          , LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
+                              LastTradedFlags.LastTradedTime
+        };
+        var config = new IndicatorServicesConfig(serverConfig.DefaultServerMarketsConfig);
+
+        return config;
+    }
 }

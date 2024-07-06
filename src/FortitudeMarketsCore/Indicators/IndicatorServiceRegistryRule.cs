@@ -34,6 +34,7 @@ public enum ServiceType
   , LiveQuote
   , HistoricalQuoteResolver
   , LivePricePeriodSummary
+  , HistoricalPricePeriodSummaryRetriever
   , HistoricalPricePeriodSummaryResolver
   , PricePeriodSummaryFilePersister
   , LiveMovingAverage
@@ -232,6 +233,7 @@ public class IndicatorServiceRegistryRule : Rule
             { ServiceType.ServiceRegistry, SimpleGlobalServiceLookup }
           , { ServiceType.TimeSeriesFileRepositoryInfo, SimpleGlobalServiceLookup }
           , { ServiceType.HistoricalQuotesRetriever, SimpleGlobalServiceLookup }
+          , { ServiceType.HistoricalPricePeriodSummaryRetriever, SimpleGlobalServiceLookup }
         };
         TickerServiceFactoryLookup = new Dictionary<ServiceType, Func<TickerPeriodServiceRequest, ServiceRuntimeState>>
         {
@@ -259,6 +261,7 @@ public class IndicatorServiceRegistryRule : Rule
         {
             await LaunchGlobalService(ServiceType.TimeSeriesFileRepositoryInfo);
             await LaunchGlobalService(ServiceType.HistoricalQuotesRetriever);
+            await LaunchGlobalService(ServiceType.HistoricalPricePeriodSummaryRetriever);
         }
         await base.StartAsync();
     }
@@ -274,8 +277,8 @@ public class IndicatorServiceRegistryRule : Rule
 
     public override async ValueTask StopAsync()
     {
-        if (tickerPeriodServiceRequestSubscription != null) await tickerPeriodServiceRequestSubscription.UnsubscribeAsync();
-        if (globalServiceRequestSubscription != null) await globalServiceRequestSubscription.UnsubscribeAsync();
+        await tickerPeriodServiceRequestSubscription.NullSafeUnsubscribe();
+        await globalServiceRequestSubscription.NullSafeUnsubscribe();
         await base.StopAsync();
     }
 
@@ -291,6 +294,10 @@ public class IndicatorServiceRegistryRule : Rule
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new HistoricalQuotesRetrievalRule(config.TimeSeriesFileRepositoryConfig!), ServiceRunStatus.NotStarted));
+            case ServiceType.HistoricalPricePeriodSummaryRetriever:
+                return new ServiceRuntimeState
+                    (new ServiceRunStateResponse
+                        (new HistoricalPricePeriodSummaryRetrievalRule(config.TimeSeriesFileRepositoryConfig!), ServiceRunStatus.NotStarted));
         }
         return new ServiceRuntimeState();
     }

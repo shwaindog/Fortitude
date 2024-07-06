@@ -1,5 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using System.ComponentModel;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
@@ -8,10 +12,8 @@ using FortitudeCommon.AsyncProcessing.Tasks;
 
 namespace FortitudeBusRules.BusMessaging.Messages;
 
-public interface IProcessorRegistry : IReusableAsyncResponseSource<IDispatchResult>
+public interface IProcessorRegistry : IAsyncResponseSource
 {
-    DispatchResult? DispatchResult { get; set; }
-
     IRule? RulePayload { get; set; }
 
     void ProcessingComplete();
@@ -20,23 +22,31 @@ public interface IProcessorRegistry : IReusableAsyncResponseSource<IDispatchResu
     void RegisterFinish(IRule processor);
 }
 
+public interface IProcessorRegistry<TResult, TInterface> : IProcessorRegistry, IReusableAsyncResponseSource<TInterface>
+    where TInterface : IDispatchResult where TResult : TInterface
+{
+    TResult Result { get; set; }
+}
+
 internal enum TimeType
 {
     Start
-    , Awaiting
-    , Completed
+  , Awaiting
+  , Completed
 }
 
-public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProcessorRegistry
+public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TInterface>, IProcessorRegistry<TResult, TInterface>
+    where TInterface : IDispatchResult where TResult : TInterface
 {
-    private DispatchResult? dispatchResult;
-    private bool havePublishedResults;
+    private bool     havePublishedResults;
+    private TResult? result;
+
     private List<RuleTime> ruleTimes = new();
 
-    public DispatchResult? DispatchResult
+    public TResult Result
     {
-        get => dispatchResult;
-        set => dispatchResult = value;
+        get => result ?? throw new InvalidAsynchronousStateException("Expected result to be set before being called");
+        set => result = value;
     }
 
     public IRule? RulePayload { get; set; }
@@ -48,7 +58,7 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
 
     public void RegisterStart(IRule processor)
     {
-        if (dispatchResult != null)
+        if (result != null)
         {
             IncrementRefCount();
             ruleTimes.Add(new RuleTime(processor, TimeType.Start, DateTime.Now));
@@ -57,12 +67,12 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
 
     public void RegisterAwaiting(IRule processor)
     {
-        if (dispatchResult != null) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
+        if (result != null) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
     }
 
     public void RegisterFinish(IRule processor)
     {
-        if (dispatchResult != null)
+        if (result != null)
         {
             DecrementRefCount();
             ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
@@ -80,10 +90,10 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
     {
         havePublishedResults = false;
         ruleTimes.Clear();
-        if (dispatchResult != null)
+        if (result != null)
         {
-            dispatchResult.StateReset();
-            dispatchResult.SentTime = DateTime.Now;
+            result?.DecrementRefCount();
+            result = default;
         }
 
         base.StateReset();
@@ -91,12 +101,13 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
 
     private void CollectDispatchStats()
     {
-        if (!havePublishedResults && dispatchResult != null)
+        if (!havePublishedResults && result != null)
         {
             havePublishedResults = true;
             var finishTime = DateTime.Now;
-            long totalTaskTimeTicks = 0;
-            long totalAwaitTimeTicks = 0;
+
+            long totalTaskTimeTicks         = 0;
+            long totalAwaitTimeTicks        = 0;
             long totalExecuteAwaitTimeTicks = 0;
             for (var i = 0; i < ruleTimes.Count; i++)
             {
@@ -111,34 +122,34 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
                         if (ruleStart.Rule == awaitOrComplete.Rule && ruleStart.TimeType is TimeType.Awaiting)
                         {
                             totalTaskTimeTicks += awaitOrComplete.Instant.Ticks - ruleStart.Instant.Ticks;
-                            awaitDateTime = awaitOrComplete.Instant;
+                            awaitDateTime      =  awaitOrComplete.Instant;
                         }
 
                         if (ruleStart.Rule == awaitOrComplete.Rule && ruleStart.TimeType == TimeType.Completed)
                         {
                             totalExecuteAwaitTimeTicks += awaitOrComplete.Instant.Ticks - ruleStart.Instant.Ticks;
-                            if (awaitDateTime != null)
-                                totalAwaitTimeTicks += awaitOrComplete.Instant.Ticks - awaitDateTime.Value.Ticks;
-                            dispatchResult.AddRuleTime(new RuleExecutionTime(ruleStart.Rule, ruleStart.Instant
-                                , awaitDateTime
-                                , awaitOrComplete.Instant));
+                            if (awaitDateTime != null) totalAwaitTimeTicks += awaitOrComplete.Instant.Ticks - awaitDateTime.Value.Ticks;
+                            result.AddRuleTime
+                                (new RuleExecutionTime
+                                    (ruleStart.Rule, ruleStart.Instant, awaitDateTime, awaitOrComplete.Instant));
                             break;
                         }
                     }
                 }
             }
 
-            dispatchResult.TotalExecutionAwaitingTimeTicks = totalExecuteAwaitTimeTicks;
-            dispatchResult.TotalAwaitingTimeTicks = totalAwaitTimeTicks;
-            dispatchResult.TotalExecutionTimeTicks = totalTaskTimeTicks;
-            dispatchResult.FinishedDispatchTime = finishTime;
-            TrySetResult(dispatchResult);
+            result.TotalExecutionAwaitingTimeTicks = totalExecuteAwaitTimeTicks;
+
+            result.TotalAwaitingTimeTicks  = totalAwaitTimeTicks;
+            result.TotalExecutionTimeTicks = totalTaskTimeTicks;
+            result.FinishedDispatchTime    = finishTime;
+            TrySetResult(result);
         }
     }
 
     public override string ToString() =>
         $"{GetType().Name}({nameof(InstanceNumber)}: {InstanceNumber}, {nameof(Version)}: {Version}, {nameof(RefCount)}: {RefCount}, " +
-        $"{nameof(IsInRecycler)}: {IsInRecycler}, {nameof(IsCompleted)}: {IsCompleted}, {nameof(dispatchResult)}: {dispatchResult}, " +
+        $"{nameof(IsInRecycler)}: {IsInRecycler}, {nameof(IsCompleted)}: {IsCompleted}, {nameof(result)}: {result}, " +
         $"{nameof(havePublishedResults)}: {havePublishedResults}, {nameof(RulePayload)}: {RulePayload})";
 
 
@@ -146,13 +157,23 @@ public class ProcessorRegistry : ReusableValueTaskSource<IDispatchResult>, IProc
     {
         public RuleTime(IRule rule, TimeType timeType, DateTime instant)
         {
-            Rule = rule;
+            Rule     = rule;
             TimeType = timeType;
-            Instant = instant;
+            Instant  = instant;
         }
 
-        public readonly IRule Rule;
+        public readonly IRule    Rule;
         public readonly DateTime Instant;
         public readonly TimeType TimeType;
     }
+}
+
+public class DispatchProcessorRegistry : ProcessorRegistry<DispatchResult, IDispatchResult>
+{
+    public DispatchProcessorRegistry() { }
+}
+
+public class DeploymentLifeTimeProcessorRegistry : ProcessorRegistry<RuleDeploymentLifeTime, IRuleDeploymentLifeTime>
+{
+    public DeploymentLifeTimeProcessorRegistry() { }
 }

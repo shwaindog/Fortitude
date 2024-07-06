@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -12,14 +15,17 @@ namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 
 public interface IMessageListenerRegistration : IAsyncValueTaskDisposable
 {
-    string SubscriberId { get; }
     IEnumerable<IListenSubscribeInterceptor> ActiveListenSubscribeInterceptors { get; }
-    IQueueContext RegisteredContext { get; }
-    IListeningRule SubscriberRule { get; }
-    string PublishAddress { get; }
-    IAddressMatcher? Matcher { get; }
+
+    string           SubscriberId      { get; }
+    IQueueContext    RegisteredContext { get; }
+    IListeningRule   SubscriberRule    { get; }
+    string           PublishAddress    { get; }
+    IAddressMatcher? Matcher           { get; }
+    Type             PayloadType       { get; }
+
     Func<BusMessage, ValueTask> Handler { get; }
-    Type PayloadType { get; }
+
     void AddRunListenSubscriptionInterceptor(IListenSubscribeInterceptor interceptor);
     void RemoveListenSubscriptionInterceptor(string name);
 
@@ -31,24 +37,24 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
     private static readonly IFLogger Logger
         = FLoggerFactory.Instance.GetLogger(typeof(MessageListenerRegistration<TPayload, TResponse>));
 
+    private readonly IList<IListenSubscribeInterceptor> subscribeInterceptors = new List<IListenSubscribeInterceptor>();
+
     private string publishAddress = null!;
-
-    private IList<IListenSubscribeInterceptor> subscribeInterceptors = new List<IListenSubscribeInterceptor>();
-
 
     public MessageListenerRegistration() { }
 
     public MessageListenerRegistration(IListeningRule subscriberRule, string publishAddress, string subscriberId) :
         this()
     {
-        SubscriberId = subscriberId;
+        SubscriberId   = subscriberId;
         SubscriberRule = subscriberRule;
         PublishAddress = publishAddress;
     }
 
     public string SubscriberId { get; set; } = null!;
-    public IQueueContext RegisteredContext => SubscriberRule.Context;
-    public IListeningRule SubscriberRule { get; set; } = null!;
+
+    public IQueueContext  RegisteredContext => SubscriberRule.Context;
+    public IListeningRule SubscriberRule    { get; set; } = null!;
 
     public Type PayloadType => typeof(TPayload);
 
@@ -58,7 +64,7 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         set
         {
             publishAddress = value;
-            Matcher = AddressMatcher.IsMatcherPattern(publishAddress) ? new AddressMatcher(publishAddress) : null;
+            Matcher        = AddressMatcher.IsMatcherPattern(publishAddress) ? new AddressMatcher(publishAddress) : null;
         }
     }
 
@@ -76,6 +82,7 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
     }
 
     public IAddressMatcher? Matcher { get; set; }
+
     public Func<BusMessage, ValueTask> Handler { get; private set; } = null!;
 
     public ValueTask DisposeAwaitValueTask { get; set; }
@@ -85,9 +92,12 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         if (Unsubscribed != null) await Unsubscribed.Invoke(SubscriberRule, this, PublishAddress);
     }
 
+    public ValueTask DisposeAsync() => Dispose();
+
     public event Func<IRule, IMessageListenerRegistration, string, ValueTask>? Unsubscribed;
 
-    public void SetHandlerFromSpecificMessageHandler(
+    public void SetHandlerFromSpecificMessageHandler
+    (
         Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
@@ -106,12 +116,11 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) " +
-                        "listening on '{2}' with MessageType.Publish on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
-                        ,
-                        typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName,
-                        message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) " +
+                         "listening on '{2}' with MessageType.Publish on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
+                       , typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName
+                       , message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
                 }
                 finally
                 {
@@ -126,18 +135,17 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 try
                 {
                     var typedResponse = typeBusMessage.Response;
-                    var response = await wrapHandler(typeBusMessage);
+                    var response      = await wrapHandler(typeBusMessage);
                     message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
                     typedResponse.SetResult(response);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) " +
-                        "listening on '{2}' with MessageType.RequestResponse on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
-                        ,
-                        typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName,
-                        message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, ValueTask<{1}>> wrapHandler) " +
+                         "listening on '{2}' with MessageType.RequestResponse on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
+                       , typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName
+                       , message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
                     message.Response.SetException(ex);
                 }
                 finally
@@ -155,7 +163,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler(
+    public void SetHandlerFromSpecificMessageHandler
+    (
         Func<IBusMessage<TPayload>, ValueTask> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
@@ -172,12 +181,11 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Func<IBusMessage<{0}>, ValueTask> wrapHandler) " +
-                        "listening on '{1}' with MessageType.Publish on Rule {2} when processing message IBusRespondingMessage<{3},{4}> caught exception {5}"
-                        ,
-                        typeof(TPayload).Name, PublishAddress, SubscriberRule.FriendlyName,
-                        message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Func<IBusMessage<{0}>, ValueTask> wrapHandler) " +
+                         "listening on '{1}' with MessageType.Publish on Rule {2} when processing message IBusRespondingMessage<{3},{4}> caught exception {5}"
+                       , typeof(TPayload).Name, PublishAddress, SubscriberRule.FriendlyName
+                       , message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
                 }
                 finally
                 {
@@ -190,7 +198,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler(
+    public void SetHandlerFromSpecificMessageHandler
+    (
         Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
@@ -208,12 +217,11 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) " +
-                        "listening on '{2}' with MessageType.Publish on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
-                        ,
-                        typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName,
-                        message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) " +
+                         "listening on '{2}' with MessageType.Publish on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
+                       , typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName
+                       , message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
                 }
                 finally
                 {
@@ -228,18 +236,17 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 try
                 {
                     var typedResponse = typeBusMessage.Response;
-                    var response = await wrapHandler(typeBusMessage);
+                    var response      = await wrapHandler(typeBusMessage);
                     message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
                     typedResponse.SetResult(response);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) " +
-                        "listening on '{2}' with MessageType.RequestResponse on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
-                        ,
-                        typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName,
-                        message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, Task<{1}>> wrapHandler) " +
+                         "listening on '{2}' with MessageType.RequestResponse on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
+                       , typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName
+                       , message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
                     message.Response.SetException(ex);
                 }
                 finally
@@ -257,7 +264,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler(
+    public void SetHandlerFromSpecificMessageHandler
+    (
         Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> wrapHandler)
     {
         ValueTask HandlerWrapper(BusMessage message)
@@ -275,12 +283,11 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler) " +
-                        "listening on '{2}' with MessageType.Publish on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
-                        ,
-                        typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName,
-                        message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler) " +
+                         "listening on '{2}' with MessageType.Publish on Rule {3} when processing message IBusRespondingMessage<{4},{5}> caught exception {6}"
+                       , typeof(TPayload).Name, typeof(TResponse).Name, PublishAddress, SubscriberRule.FriendlyName
+                       , message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
                 }
                 finally
                 {
@@ -295,16 +302,16 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 try
                 {
                     var typedResponse = typeBusMessage.Response;
-                    var response = wrapHandler(typeBusMessage);
+                    var response      = wrapHandler(typeBusMessage);
                     message.ProcessorRegistry?.RegisterAwaiting(SubscriberRule);
                     typedResponse.SetResult(response);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler)" +
-                        " MessageType.RequestResponse on Rule {2} caught exception {3}"
-                        , typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Func<IRespondingMessage<{0}, {1}>, {1}> wrapHandler)" +
+                         " MessageType.RequestResponse on Rule {2} caught exception {3}"
+                       , typeof(TPayload).Name, typeof(TResponse).Name, SubscriberRule.FriendlyName, ex);
                     message.Response.SetException(ex);
                 }
                 finally
@@ -320,7 +327,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler(
+    public void SetHandlerFromSpecificMessageHandler
+    (
         Action<IBusMessage<TPayload>> wrapHandler)
     {
         ValueTask HandlerWrapper(BusMessage message)
@@ -337,12 +345,11 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(
-                        "SetHandlerFromSpecificMessageHandler(Action<IBusMessage<{0}>> wrapHandler) " +
-                        "listening on '{1}' with MessageType.Publish on Rule {2} when processing message IBusRespondingMessage<{3},{4}> caught exception {5}"
-                        ,
-                        typeof(TPayload).Name, PublishAddress, SubscriberRule.FriendlyName,
-                        message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
+                    Logger.Warn
+                        ("SetHandlerFromSpecificMessageHandler(Action<IBusMessage<{0}>> wrapHandler) " +
+                         "listening on '{1}' with MessageType.Publish on Rule {2} when processing message IBusRespondingMessage<{3},{4}> caught exception {5}"
+                       , typeof(TPayload).Name, PublishAddress, SubscriberRule.FriendlyName
+                       , message.Payload.BodyType.Name, message.Response.GetType().Name, ex);
                 }
                 finally
                 {

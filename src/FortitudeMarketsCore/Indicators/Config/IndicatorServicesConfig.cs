@@ -30,6 +30,8 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
     public IndicatorServicesConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public IndicatorServicesConfig() { }
 
+    public IndicatorServicesConfig(IMarketsConfig marketsConfig) => MarketsConfig = marketsConfig;
+
     public IndicatorServicesConfig(IMarketsConfig marketsConfig, IFileRepositoryConfig repositoryConfig, IPersistenceConfig persistenceConfig)
     {
         MarketsConfig     = marketsConfig;

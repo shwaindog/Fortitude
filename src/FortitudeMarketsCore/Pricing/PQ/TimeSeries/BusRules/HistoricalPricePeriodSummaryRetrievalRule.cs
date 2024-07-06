@@ -61,9 +61,9 @@ public struct HistoricalPricePeriodSummaryRequestResponse
 
 public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAccessRule
 {
-    private static readonly IFLogger       Logger = FLoggerFactory.Instance.GetLogger(typeof(HistoricalPricePeriodSummaryRetrievalRule));
-    private                 ISubscription? requestResponseSubscription;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(HistoricalPricePeriodSummaryRetrievalRule));
 
+    private ISubscription? requestResponseSubscription;
     private ISubscription? requestStreamSubscription;
 
     public HistoricalPricePeriodSummaryRetrievalRule
@@ -80,15 +80,15 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         await base.StartAsync();
         requestStreamSubscription = await this.RegisterRequestListenerAsync<HistoricalPricePeriodSummaryStreamRequest, bool>
             (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoStreamRequest, HandleHistoricalPriceStreamRequest);
-        requestResponseSubscription = await this.RegisterRequestListenerAsync<HistoricalPricePeriodSummaryRequestResponse, List<IPricePeriodSummary>>
+        requestResponseSubscription = await this.RegisterRequestListenerAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
             (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, HandleHistoricalPricePublishRequestResponse);
         Logger.Info("Started {0} ", nameof(HistoricalPricePeriodSummaryRetrievalRule));
     }
 
     public override async ValueTask StopAsync()
     {
-        if (requestStreamSubscription != null) await requestStreamSubscription.UnsubscribeAsync();
-        if (requestResponseSubscription != null) await requestResponseSubscription.UnsubscribeAsync();
+        await requestStreamSubscription.NullSafeUnsubscribe();
+        await requestResponseSubscription.NullSafeUnsubscribe();
         Logger.Info("Stopped {0} ", nameof(HistoricalPricePeriodSummaryRetrievalRule));
         await base.StopAsync();
     }
@@ -100,8 +100,8 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private List<IPricePeriodSummary> HandleHistoricalPricePublishRequestResponse
-        (IBusRespondingMessage<HistoricalPricePeriodSummaryRequestResponse, List<IPricePeriodSummary>> requestResponseMessage)
+    private List<PricePeriodSummary> HandleHistoricalPricePublishRequestResponse
+        (IBusRespondingMessage<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>> requestResponseMessage)
     {
         var quoteRequest = requestResponseMessage.Payload.Body();
         return GetResultsImmediately(quoteRequest).ToList();
@@ -110,19 +110,21 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
     private IInstrument? FindInstrumentFor(ISourceTickerIdentifier tickerId, TimeSeriesPeriod entryPeriod)
     {
         var matchingInstruments =
-            TimeSeriesRepository!.InstrumentFilesMap.Keys
-                                 .Where(i => i.InstrumentName == tickerId.Ticker && i[nameof(RepositoryPathName.SourceName)] == tickerId.Source &&
-                                             i.EntryPeriod == entryPeriod)
-                                 .ToList();
+            TimeSeriesRepository
+                !.InstrumentFilesMap.Keys
+                 .Where(i => i.InstrumentName == tickerId.Ticker
+                          && i[nameof(RepositoryPathName.SourceName)] == tickerId.Source &&
+                             i.EntryPeriod == entryPeriod)
+                 .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }
 
-    private IEnumerable<IPricePeriodSummary> GetResultsImmediately(HistoricalPricePeriodSummaryRequestResponse responseRequest)
+    private IEnumerable<PricePeriodSummary> GetResultsImmediately(HistoricalPricePeriodSummaryRequestResponse responseRequest)
     {
         var instrument = FindInstrumentFor(responseRequest.TickerId, responseRequest.EntryPeriod);
-        if (instrument == null) return Enumerable.Empty<IPricePeriodSummary>();
-        var readerSession = TimeSeriesRepository!.GetReaderSession<IPricePeriodSummary>(instrument, responseRequest.TimeRange);
-        if (readerSession == null) return Enumerable.Empty<IPricePeriodSummary>();
+        if (instrument == null) return Enumerable.Empty<PricePeriodSummary>();
+        var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, responseRequest.TimeRange);
+        if (readerSession == null) return Enumerable.Empty<PricePeriodSummary>();
         var readerContext = readerSession.GetEntriesBetweenReader(responseRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited
                                                                 , () => new PricePeriodSummary());
 
@@ -133,7 +135,7 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
     {
         var instrument = FindInstrumentFor(streamRequest.TickerId, streamRequest.EntryPeriod);
         if (instrument == null) return false;
-        var readerSession = TimeSeriesRepository!.GetReaderSession<IPricePeriodSummary>(instrument, streamRequest.TimeRange);
+        var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, streamRequest.TimeRange);
         if (readerSession == null) return false;
         var readerContext = readerSession.GetEntriesBetweenReader
             (streamRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited
@@ -141,15 +143,16 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
 
         if (streamRequest.ChannelRequest.BatchSize > 1) readerContext.BatchLimit   = streamRequest.ChannelRequest.BatchSize;
         if (streamRequest.ChannelRequest.ResultLimit > 0) readerContext.MaxResults = streamRequest.ChannelRequest.ResultLimit;
-        var launchContext = Context.GetEventQueues(MessageQueueType.Worker)
-                                   .SelectEventQueue(QueueSelectionStrategy.EarliestStarted)
-                                   .GetExecutionContextAction<IReaderContext<IPricePeriodSummary>, HistoricalPricePeriodSummaryStreamRequest>(this);
+        var launchContext =
+            Context.GetEventQueues(MessageQueueType.Worker)
+                   .SelectEventQueue(QueueSelectionStrategy.EarliestStarted)
+                   .GetExecutionContextAction<IReaderContext<PricePeriodSummary>, HistoricalPricePeriodSummaryStreamRequest>(this);
 
         launchContext.Execute(ProcessResults, readerContext, streamRequest);
         return true;
     }
 
-    private void ProcessResults(IReaderContext<IPricePeriodSummary> readerContext, HistoricalPricePeriodSummaryStreamRequest streamRequest)
+    private void ProcessResults(IReaderContext<PricePeriodSummary> readerContext, HistoricalPricePeriodSummaryStreamRequest streamRequest)
     {
         var channel = streamRequest.ChannelRequest.PublishChannel;
         try
