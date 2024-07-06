@@ -104,7 +104,7 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
     public override async ValueTask StopAsync()
     {
         if (writerSession?.IsOpen == true) writerSession.Close();
-        if (appendEntrySubscription != null) await appendEntrySubscription.UnsubscribeAsync();
+        await appendEntrySubscription.NullSafeUnsubscribe();
         await base.StopAsync();
     }
 

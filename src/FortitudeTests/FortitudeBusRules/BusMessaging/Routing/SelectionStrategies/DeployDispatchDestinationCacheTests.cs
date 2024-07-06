@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
@@ -18,68 +21,73 @@ namespace FortitudeTests.FortitudeBusRules.BusMessaging.Routing.SelectionStrateg
 [TestClass]
 public class DeployDispatchDestinationCacheTests
 {
-    private const int OneHundred = 100;
-    private const int MoreThan100 = OneHundred + 2;
-    private const string FirstStrategyName = "FirstSelectionStrategy";
-    private const string SecondStrategyName = "SecondSelectionStrategy";
+    private const int    OneHundred              = 100;
+    private const int    MoreThan100             = OneHundred + 2;
+    private const string FirstStrategyName       = "FirstSelectionStrategy";
+    private const string SecondStrategyName      = "SecondSelectionStrategy";
     private const string FirstDestinationAddress = "FirstDestinationAddress";
-    private readonly DateTime createResultTime = new(2023, 12, 19, 8, 0, 0);
-    private readonly DateTime oneMinOneSecondAfterCreateResultTime = new(2023, 12, 19, 8, 1, 1);
-    private DeployDispatchDestinationCache cache = null!;
-    private IRule deployRule = null!;
-    private IDispatchSelectionResultSet firstResultSet = null!;
-    private RouteSelectionResult firstRouteSelectionResult = default;
 
-    private IRule firstSenderRule = null!;
-    private Mock<IMessageQueue> moqFirstEventQueue = null!;
-    private Mock<IMessageQueue> moqSecondEventQueue = null!;
+    private readonly DateTime createResultTime                     = new(2023, 12, 19, 8, 0, 0);
+    private readonly DateTime oneMinOneSecondAfterCreateResultTime = new(2023, 12, 19, 8, 1, 1);
+
+    private DeployDispatchDestinationCache cache = null!;
+
+    private IRule deployRule = null!;
+
+    private IDispatchSelectionResultSet firstResultSet = null!;
+
+    private RouteSelectionResult firstRouteSelectionResult = default;
+    private IRule                firstSenderRule           = null!;
+    private Mock<IMessageQueue>  moqFirstEventQueue        = null!;
+    private Mock<IMessageQueue>  moqSecondEventQueue       = null!;
+
     private IDispatchSelectionResultSet secondResultSet = null!;
+
     private RouteSelectionResult secondRouteSelectionResult = default;
-    private IRule secondSenderRule = null!;
-    private TimeContextTests.StubTimeContext stubTime = null!;
+    private IRule                secondSenderRule           = null!;
+    private StubTimeContext      stubTime                   = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        stubTime = new TimeContextTests.StubTimeContext
+        stubTime = new StubTimeContext
         {
             UtcNow = createResultTime
         };
         TimeContext.Provider = stubTime;
-        firstSenderRule = new IncrementingRule();
-        secondSenderRule = new RespondingRule();
-        deployRule = new IncrementingRule();
-        cache = new DeployDispatchDestinationCache();
-        moqFirstEventQueue = new Mock<IMessageQueue>();
-        moqSecondEventQueue = new Mock<IMessageQueue>();
+        firstSenderRule      = new IncrementingRule();
+        secondSenderRule     = new RespondingRule();
+        deployRule           = new IncrementingRule();
+        cache                = new DeployDispatchDestinationCache();
+        moqFirstEventQueue   = new Mock<IMessageQueue>();
+        moqSecondEventQueue  = new Mock<IMessageQueue>();
 
         moqFirstEventQueue.Setup(eq => eq.QueueType).Returns(Event);
         moqSecondEventQueue.Setup(eq => eq.QueueType).Returns(Worker);
-        firstRouteSelectionResult = new RouteSelectionResult(moqFirstEventQueue.Object, FirstStrategyName
-            , RoutingFlags.None
-            , firstSenderRule);
-        secondRouteSelectionResult = new RouteSelectionResult(moqSecondEventQueue.Object, SecondStrategyName
-            , DefaultPublish, secondSenderRule);
-        firstResultSet = new DispatchSelectionResultSet();
+        firstRouteSelectionResult = new RouteSelectionResult
+            (moqFirstEventQueue.Object, FirstStrategyName, RoutingFlags.None, firstSenderRule);
+        secondRouteSelectionResult = new RouteSelectionResult
+            (moqSecondEventQueue.Object, SecondStrategyName, DefaultPublish, secondSenderRule);
+        firstResultSet                  = new DispatchSelectionResultSet();
         firstResultSet.MaxUniqueResults = 1;
-        firstResultSet.StrategyName = FirstStrategyName;
+        firstResultSet.StrategyName     = FirstStrategyName;
         firstResultSet.Add(firstRouteSelectionResult);
-        secondResultSet = new DispatchSelectionResultSet();
+        secondResultSet                  = new DispatchSelectionResultSet();
         secondResultSet.MaxUniqueResults = 2;
-        secondResultSet.StrategyName = SecondStrategyName;
+        secondResultSet.StrategyName     = SecondStrategyName;
         secondResultSet.Add(secondRouteSelectionResult);
     }
 
     [TestCleanup]
     public void TearDown()
     {
-        TimeContext.Provider = new HighPrecisionTimeContext();
+        stubTime.Dispose();
     }
 
     [TestMethod]
     public void SaveDispatchSenderDestinationWithNoExpiryButNotDestinationSavesJustExpectedEntry()
     {
-        var flags = SenderCacheLast;
+        var flags                 = SenderCacheLast;
         var onlySenderSaveOptions = new DispatchOptions(flags);
         firstResultSet.Clear();
         firstResultSet.DispatchOptions = onlySenderSaveOptions;
@@ -91,11 +99,10 @@ public class DeployDispatchDestinationCacheTests
         stubTime.UtcNow = oneMinOneSecondAfterCreateResultTime;
         for (var i = 0; i < MoreThan100; i++)
         {
-            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet(firstSenderRule
-                , FirstDestinationAddress
-                , onlySenderSaveOptions);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet
+                (firstSenderRule, FirstDestinationAddress, onlySenderSaveOptions);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
         }
 
         var noRetrieval = cache.LastDestinationSelectionResultSet(FirstDestinationAddress, onlySenderSaveOptions);
@@ -106,6 +113,7 @@ public class DeployDispatchDestinationCacheTests
     public void SaveDispatchDestinationWithNoExpiryButNotSenderDestinationSavesJustExpectedEntry()
     {
         var flags = DestinationCacheLast;
+
         var onlyDestinationSaveOptions = new DispatchOptions(flags);
         firstResultSet.Clear();
         firstResultSet.DispatchOptions = onlyDestinationSaveOptions;
@@ -119,12 +127,12 @@ public class DeployDispatchDestinationCacheTests
         {
             var selectionResultSet
                 = cache.LastDestinationSelectionResultSet(FirstDestinationAddress, onlyDestinationSaveOptions);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
         }
 
-        var noRetrieval = cache.LastSenderDestinationSelectionResultSet(firstSenderRule, FirstDestinationAddress
-            , onlyDestinationSaveOptions);
+        var noRetrieval = cache.LastSenderDestinationSelectionResultSet
+            (firstSenderRule, FirstDestinationAddress, onlyDestinationSaveOptions);
         Assert.IsNull(noRetrieval);
     }
 
@@ -132,6 +140,7 @@ public class DeployDispatchDestinationCacheTests
     public void SaveDispatchBothDestinationAndSendDestinationWithNoExpirySavesBoth()
     {
         var flags = DestinationCacheLast | SenderCacheLast;
+
         var saveBothNoExpiryOptions = new DispatchOptions(flags);
         firstResultSet.Clear();
         firstResultSet.DispatchOptions = saveBothNoExpiryOptions;
@@ -143,16 +152,15 @@ public class DeployDispatchDestinationCacheTests
         stubTime.UtcNow = oneMinOneSecondAfterCreateResultTime;
         for (var i = 0; i < MoreThan100; i++)
         {
-            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet(firstSenderRule
-                , FirstDestinationAddress
-                , saveBothNoExpiryOptions);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet
+                (firstSenderRule, FirstDestinationAddress, saveBothNoExpiryOptions);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
 
             selectionResultSet
                 = cache.LastDestinationSelectionResultSet(FirstDestinationAddress, saveBothNoExpiryOptions);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
         }
     }
 
@@ -160,6 +168,7 @@ public class DeployDispatchDestinationCacheTests
     public void SaveDispatchBothDestinationAndSendDestinationWith100ExpirySavesBothUntilRetrievedMoreThan100Times()
     {
         var flags = DestinationCacheLast | SenderCacheLast | ExpireCacheAfter100Reads;
+
         var senderCacheWith100Expiry = new DispatchOptions(flags);
         firstResultSet.Clear();
         firstResultSet.DispatchOptions = senderCacheWith100Expiry;
@@ -171,22 +180,21 @@ public class DeployDispatchDestinationCacheTests
         stubTime.UtcNow = oneMinOneSecondAfterCreateResultTime;
         for (var i = 0; i < OneHundred; i++)
         {
-            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet(firstSenderRule
-                , FirstDestinationAddress
-                , senderCacheWith100Expiry);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet
+                (firstSenderRule, FirstDestinationAddress, senderCacheWith100Expiry);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
 
             selectionResultSet
                 = cache.LastDestinationSelectionResultSet(FirstDestinationAddress, senderCacheWith100Expiry);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
         }
 
         var noRetrieval = cache.LastDestinationSelectionResultSet(FirstDestinationAddress, senderCacheWith100Expiry);
         Assert.IsNull(noRetrieval);
-        noRetrieval = cache.LastSenderDestinationSelectionResultSet(firstSenderRule, FirstDestinationAddress
-            , senderCacheWith100Expiry);
+        noRetrieval = cache.LastSenderDestinationSelectionResultSet
+            (firstSenderRule, FirstDestinationAddress, senderCacheWith100Expiry);
         Assert.IsNull(noRetrieval);
     }
 
@@ -194,6 +202,7 @@ public class DeployDispatchDestinationCacheTests
     public void SaveDispatchBothDestinationAndSendDestinationWith1MinExpirySavesBothUntilTimeExpires()
     {
         var flags = DestinationCacheLast | SenderCacheLast | ExpireCacheAfterAMinute;
+
         var senderCacheWith1MinExpiry = new DispatchOptions(flags);
         firstResultSet.Clear();
         firstResultSet.DispatchOptions = senderCacheWith1MinExpiry;
@@ -204,32 +213,31 @@ public class DeployDispatchDestinationCacheTests
 
         for (var i = 0; i < MoreThan100; i++)
         {
-            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet(firstSenderRule
-                , FirstDestinationAddress
-                , senderCacheWith1MinExpiry);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            var selectionResultSet = cache.LastSenderDestinationSelectionResultSet
+                (firstSenderRule, FirstDestinationAddress, senderCacheWith1MinExpiry);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
 
             selectionResultSet
                 = cache.LastDestinationSelectionResultSet(FirstDestinationAddress, senderCacheWith1MinExpiry);
-            selectionResultSet.AssertSingleResultIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            selectionResultSet.AssertSingleResultIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
         }
 
         stubTime.UtcNow = oneMinOneSecondAfterCreateResultTime;
 
         var noRetrieval = cache.LastDestinationSelectionResultSet(FirstDestinationAddress, senderCacheWith1MinExpiry);
         Assert.IsNull(noRetrieval);
-        noRetrieval = cache.LastSenderDestinationSelectionResultSet(firstSenderRule, FirstDestinationAddress
-            , senderCacheWith1MinExpiry);
+        noRetrieval = cache.LastSenderDestinationSelectionResultSet
+            (firstSenderRule, FirstDestinationAddress, senderCacheWith1MinExpiry);
         Assert.IsNull(noRetrieval);
     }
-
 
     [TestMethod]
     public void SaveDeployDestinationWithNoExpiryButNotCacheSenderDestinationSavesJustExpectedEntry()
     {
         var flags = DestinationCacheLast;
+
         var onlySenderSaveOptions = new DeploymentOptions(flags);
         firstRouteSelectionResult
             = new RouteSelectionResult(moqFirstEventQueue.Object, FirstStrategyName, flags, firstSenderRule);
@@ -240,8 +248,8 @@ public class DeployDispatchDestinationCacheTests
         {
             var routeSelectionResult = cache.LastDeploySelectionResult(Event, onlySenderSaveOptions);
 
-            routeSelectionResult.AssertIsExpected(Event, moqFirstEventQueue.Object, flags, FirstStrategyName
-                , firstSenderRule);
+            routeSelectionResult.AssertIsExpected
+                (Event, moqFirstEventQueue.Object, flags, FirstStrategyName, firstSenderRule);
         }
 
         var onlySenderSaveDispatchOptions = new DispatchOptions(flags);

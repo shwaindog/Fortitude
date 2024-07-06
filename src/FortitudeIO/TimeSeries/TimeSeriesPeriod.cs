@@ -135,8 +135,9 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
-    public static DateTime PreviousPeriodStart(this TimeSeriesPeriod period, DateTime startTime)
+    public static DateTime PreviousPeriodStart(this TimeSeriesPeriod period, DateTime periodTime)
     {
+        var startTime = period.ContainingPeriodBoundaryStart(periodTime);
         return period switch
                {
                    OneSecond      => startTime.AddSeconds(-1)

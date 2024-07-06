@@ -70,7 +70,7 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
 
     public int Id { get; }
 
-    public bool ReceiverAlive => receiverRule.LifeCycleState == RuleLifeCycle.Started;
+    public bool ReceiverAlive => receiverRule.LifeCycleState is RuleLifeCycle.Starting or RuleLifeCycle.Started;
 
     public int MaxInflight { get; set; }
 

@@ -103,12 +103,17 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
     public InstrumentFileInfo GetInstrumentFileInfo(IInstrument instrument)
     {
         if (!InstrumentFilesMap.TryGetValue(instrument, out var instrumentFiles))
-            if (instrumentFiles == null || !instrumentFiles.Any())
-            {
-                var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-                var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
-                return new InstrumentFileInfo(instrument, fileStructurePeriod);
-            }
+        {
+            var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
+            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            return new InstrumentFileInfo(instrument, fileStructurePeriod);
+        }
+        if (instrumentFiles == null || !instrumentFiles.Any())
+        {
+            var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
+            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            return new InstrumentFileInfo(instrument, fileStructurePeriod);
+        }
         var earliestFile           = instrumentFiles.First();
         var earliestTimeSeriesFile = earliestFile.TimeSeriesFile;
         var earliestEntryTime      = earliestTimeSeriesFile.Header.EarliestEntryTime;
@@ -123,12 +128,17 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
     public InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument)
     {
         if (!InstrumentFilesMap.TryGetValue(instrument, out var instrumentFiles))
-            if (instrumentFiles == null || !instrumentFiles.Any())
-            {
-                var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-                var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
-                return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
-            }
+        {
+            var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
+            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
+        }
+        if (instrumentFiles == null || !instrumentFiles.Any())
+        {
+            var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
+            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
+        }
         var totalCount  = 0L;
         var fileDetails = new List<FileEntryInfo>(instrumentFiles.Count);
         foreach (var instrumentFile in instrumentFiles)

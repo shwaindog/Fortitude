@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
@@ -20,10 +23,15 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientFeedRuleTests));
+
     private ManualResetEvent haveReceivedPriceAutoResetEvent = null!;
+
     private PQPricingClientFeedRule pqPricingClientFeedRule = null!;
+
     private PQPublisher<PQLevel3Quote> pqPublisher = null!;
+
     private LocalHostPQServerLevel3QuoteTestSetup pqServerL3QuoteServerSetup = null!;
+
     private TestSubscribeToTickerRule testSubscribeToTickerRule = null!;
 
     [TestInitialize]
@@ -34,13 +42,13 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         PQPricingClientUpdatesConversationSubscriber.SocketFactories = SocketFactoryResolver.GetRealSocketFactories();
 
         pqServerL3QuoteServerSetup = new LocalHostPQServerLevel3QuoteTestSetup();
-        pqPublisher = pqServerL3QuoteServerSetup.CreatePQPublisher();
+        pqPublisher                = pqServerL3QuoteServerSetup.CreatePQPublisher();
         var clientMarketConfig
             = pqServerL3QuoteServerSetup.DefaultServerMarketConnectionConfig.ToggleProtocolDirection("PQClientSourceFeedRuleTestsClient");
-        clientMarketConfig.Name = "PQClientSourceFeedRuleTests";
-        pqPricingClientFeedRule = new PQPricingClientFeedRule(clientMarketConfig);
+        clientMarketConfig.Name         = "PQClientSourceFeedRuleTests";
+        pqPricingClientFeedRule         = new PQPricingClientFeedRule(clientMarketConfig);
         haveReceivedPriceAutoResetEvent = new ManualResetEvent(false);
-        testSubscribeToTickerRule = new TestSubscribeToTickerRule(clientMarketConfig.Name, "EUR/USD", haveReceivedPriceAutoResetEvent);
+        testSubscribeToTickerRule       = new TestSubscribeToTickerRule(clientMarketConfig.Name, "EUR/USD", haveReceivedPriceAutoResetEvent);
     }
 
     [TestCleanup]
@@ -57,9 +65,11 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     [Timeout(20_000)]
     public async Task StartedPQServer_DeployPQClientFeedRule_ClientSubscribingToDefaultAddressReceivesPrice()
     {
-        await EventQueue1.LaunchRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule, EventQueue1SelectionResult);
+        await using var clientDeploy
+            = await EventQueue1.LaunchRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule, EventQueue1SelectionResult);
         logger.Info("Deployed pricing client");
-        await CustomQueue1.LaunchRuleAsync(pqPricingClientFeedRule, testSubscribeToTickerRule, CustomQueue1SelectionResult);
+        await using var testSubscribeDeploy
+            = await CustomQueue1.LaunchRuleAsync(pqPricingClientFeedRule, testSubscribeToTickerRule, CustomQueue1SelectionResult);
         logger.Info("Deployed client listening rule");
         await Task.Delay(1); // NEED this to allow tasks above to dispatch any callbacks
         var receivedSnapshotTick = haveReceivedPriceAutoResetEvent.WaitOne(8_000);
@@ -71,48 +81,49 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         var receivedUpdateTick = haveReceivedPriceAutoResetEvent.WaitOne(8_000);
         logger.Info("Received update ");
         Assert.IsTrue(receivedUpdateTick, "Did not receive update tick from the client before timeout was reached");
-        await EventQueue1.StopRuleAsync(pqPricingClientFeedRule, testSubscribeToTickerRule);
-        await EventQueue1.StopRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule);
     }
 }
 
 public class TestSubscribeToTickerRule : Rule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TestSubscribeToTickerRule));
+
     private readonly string feedName;
     private readonly string feedTickerListenAddress;
+
     private readonly ManualResetEvent haveRecievedTick;
+
     private readonly string tickerToSubscribeTo;
 
-    private ISubscription tickerListenSubscription = null!;
+    private ISubscription? tickerListenSubscription;
 
     public TestSubscribeToTickerRule(string feedName, string tickerToSubscribeTo, ManualResetEvent haveRecievedTick) : base(
-        "TestSubscribeToTickerRule_" + feedName + "_" +
-        tickerToSubscribeTo)
+     "TestSubscribeToTickerRule_" + feedName + "_" +
+     tickerToSubscribeTo)
     {
-        this.feedName = feedName;
+        this.feedName            = feedName;
         this.tickerToSubscribeTo = tickerToSubscribeTo;
-        this.haveRecievedTick = haveRecievedTick;
-        feedTickerListenAddress = $"Markets.Pricing.Subscription.Feed.{feedName}.Ticker.{tickerToSubscribeTo}";
+        this.haveRecievedTick    = haveRecievedTick;
+        feedTickerListenAddress  = $"Markets.Pricing.Subscription.Feed.{feedName}.Ticker.{tickerToSubscribeTo}";
     }
 
     public override async ValueTask StartAsync()
     {
         tickerListenSubscription = await Context.MessageBus.RegisterListenerAsync<PQLevel3Quote>(this
-            , feedTickerListenAddress, Handler);
+                                                                                               , feedTickerListenAddress, Handler);
         Logger.Info("Rule {0} has subscribed to address {1} on Thread Name {2}", FriendlyName, feedTickerListenAddress, Thread.CurrentThread.Name);
     }
 
     public override async ValueTask StopAsync()
     {
-        await tickerListenSubscription.UnsubscribeAsync();
+        await tickerListenSubscription.NullSafeUnsubscribe();
     }
 
     private void Handler(IBusMessage<PQLevel3Quote> priceQuote)
     {
         var pqL3Quote = priceQuote.Payload.Body();
         Logger.Info("Rule {0} listening on {1} received {2} with Sequence Number {3} on Thread Name {4}", FriendlyName, feedTickerListenAddress
-            , pqL3Quote.GetType().Name, pqL3Quote.PQSequenceId, Thread.CurrentThread.Name);
+                  , pqL3Quote.GetType().Name, pqL3Quote.PQSequenceId, Thread.CurrentThread.Name);
         haveRecievedTick.Set();
     }
 }

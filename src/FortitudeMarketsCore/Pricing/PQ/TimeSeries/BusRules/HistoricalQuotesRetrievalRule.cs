@@ -89,15 +89,15 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         l2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level2PriceQuote>, bool>
             (PricingRepoRetrieveL2Request, HandleL2HistoricalPriceRequest);
         l3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level3PriceQuote>, bool>
-            (PricingRepoRetrieveL2Request, HandleL3HistoricalPriceRequest);
+            (PricingRepoRetrieveL3Request, HandleL3HistoricalPriceRequest);
         pql0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel0Quote>, bool>
-            (PricingRepoRetrieveL0Request, HandlePqL0HistoricalPriceRequest);
+            (PricingRepoRetrievePqL0Request, HandlePqL0HistoricalPriceRequest);
         pql1RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
-            (PricingRepoRetrieveL1Request, HandlePqL1HistoricalPriceRequest);
+            (PricingRepoRetrievePqL1Request, HandlePqL1HistoricalPriceRequest);
         pql2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel2Quote>, bool>
-            (PricingRepoRetrieveL2Request, HandlePqL2HistoricalPriceRequest);
+            (PricingRepoRetrievePqL2Request, HandlePqL2HistoricalPriceRequest);
         pql3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel3Quote>, bool>
-            (PricingRepoRetrieveL2Request, HandlePqL3HistoricalPriceRequest);
+            (PricingRepoRetrievePqL3Request, HandlePqL3HistoricalPriceRequest);
         Logger.Info("Started {0} ", nameof(HistoricalQuotesRetrievalRule));
     }
 

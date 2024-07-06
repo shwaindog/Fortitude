@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -18,9 +21,11 @@ public interface IQueueTimer : IActionTimer, IAsyncValueTaskDisposable
 public class QueueTimer : Rule, IQueueTimer
 {
     private static readonly NoOpTimerUpdate NoOpTimerUpdate = new();
-    private readonly ActionTimer actionTimer;
+
+    private readonly ActionTimer        actionTimer;
     private readonly List<ITimerUpdate> registeredRuleTimers = new();
-    private readonly IUpdateableTimer updateableTimer;
+    private readonly IUpdateableTimer   updateableTimer;
+
     private bool isClosing;
 
     public QueueTimer(IUpdateableTimer updateableTimer, IQueueContext context)
@@ -30,10 +35,10 @@ public class QueueTimer : Rule, IQueueTimer
         {
             OneOffWaitCallback = OneOffTimerEnqueueAsMessage, IntervalWaitCallback = IntervalTimerEnqueueAsMessage
         };
-        Context = context;
-        Id = "QueueTimer_" + Context.RegisteredOn.Name;
+        Context      = context;
+        Id           = "QueueTimer_" + Context.RegisteredOn.Name;
         FriendlyName = Id;
-        ParentRule = this;
+        ParentRule   = this;
     }
 
     public IRuleTimer CreateRuleTimer(IRule owningRule) =>
@@ -47,6 +52,8 @@ public class QueueTimer : Rule, IQueueTimer
         actionTimer.StopAllTimers();
         foreach (var registeredRuleTimer in registeredRuleTimers) await registeredRuleTimer.Dispose();
     }
+
+    public ValueTask DisposeAsync() => Dispose();
 
     public virtual ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback) =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(actionTimer.RunIn(waitTimeSpan, callback));

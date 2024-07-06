@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -41,7 +44,7 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
     public ITimer RegisteredTimer => updateableTimer!;
 
     public bool IsFinished => CallBackRunInfo!.IsFinished;
-    public bool IsPaused => CallBackRunInfo!.IsPaused;
+    public bool IsPaused   => CallBackRunInfo!.IsPaused;
 
     public DateTime NextScheduleDateTime => CallBackRunInfo!.NextScheduleTime;
 
@@ -60,7 +63,7 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
 
     public virtual bool Cancel()
     {
-        CallBackRunInfo!.IsPaused = true;
+        CallBackRunInfo!.IsPaused        = true;
         CallBackRunInfo.MaxNumberOfCalls = CallBackRunInfo.CurrentNumberOfCalls;
         var removed = UpdateableTimer.Remove(CallBackRunInfo);
         UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
@@ -100,9 +103,9 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
     public virtual bool UpdateWaitPeriod(TimeSpan newWaitFromNowTimeSpan)
     {
         var originalPause = CallBackRunInfo!.IsPaused;
-        CallBackRunInfo.IsPaused = true;
+        CallBackRunInfo.IsPaused         = true;
         CallBackRunInfo.NextScheduleTime = TimeContext.UtcNow + newWaitFromNowTimeSpan;
-        CallBackRunInfo.IsPaused = originalPause;
+        CallBackRunInfo.IsPaused         = originalPause;
         UpdateableTimer.CheckNextOneOffLaunchTimeStillCorrect(CallBackRunInfo);
         return !CallBackRunInfo.IsFinished;
     }
@@ -137,6 +140,8 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
         DecrementRefCount();
         return ValueTask.CompletedTask;
     }
+
+    public ValueTask DisposeAsync() => Dispose();
 
     public override void StateReset()
     {

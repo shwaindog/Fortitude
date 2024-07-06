@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
@@ -21,7 +24,7 @@ public class SocketDataLatencyLoggerTests
         "startDataDectectionToAllSocketUpdatesFinishedCallStatsLogger";
 
     private const string DataDetectedToBeforeSocketReadFieldName = "dataDetectedToBeforeSocketReadCallStatsLogger";
-    private const string DataDetectedToAfterSocketReadFieldName = "dataDetectedToAfterSocketReadCallStatsLogger";
+    private const string DataDetectedToAfterSocketReadFieldName  = "dataDetectedToAfterSocketReadCallStatsLogger";
 
     private const string DataDetectedToEnterDeserializerFieldName =
         "dataDetectedToEnterDeserializerCallStatsLogger";
@@ -31,49 +34,54 @@ public class SocketDataLatencyLoggerTests
     private const string BeforeSocketReadToAfterSocketReadFieldName =
         "beforeSocketReadToAfterSocketReadCallStatsLogger";
 
-    private const string BeforeSocketReadToPublishFieldName = "beforeSocketReadToPublishCallStatsLogger";
-    private const string AfterSocketReadToPublishFieldName = "afterSocketReadToPublishCallStatsLogger";
+    private const string BeforeSocketReadToPublishFieldName  = "beforeSocketReadToPublishCallStatsLogger";
+    private const string AfterSocketReadToPublishFieldName   = "afterSocketReadToPublishCallStatsLogger";
     private const string EnterDeserializerToPublishFieldName = "enterDeserializerToPublishCallStatsLogger";
-    private ICallStatsLogger afterSocketReadToPublishCallStatsLogger = null!;
-    private string baseLoggerNameSpace = null!;
-    private DateTime baseTime;
-    private ICallStatsLogger beforeSocketReadToAfterSocketReadCallStatsLogger = null!;
-    private ICallStatsLogger beforeSocketReadToPublishCallStatsLogger = null!;
-    private ICallStatsLogger dataDetectedToAfterSocketReadCallStatsLogger = null!;
-    private ICallStatsLogger dataDetectedToBeforeSocketReadCallStatsLogger = null!;
-    private ICallStatsLogger dataDetectedToEnterDeserializerCallStatsLogger = null!;
-    private ICallStatsLogger dataDetectedToPublishCallStatsLogger = null!;
-    private ICallStatsLogger enterDeserializerToPublishCallStatsLogger = null!;
-    private string instanceName = null!;
-    private Mock<ICallStatsLogger> moqAfterSocketReadToPublishCallStatsLogger = null!;
-    private Mock<ICallStatsLogger> moqBeforeSocketReadToAfterSocketReadCallStatsLogger = null!;
-    private Mock<ICallStatsLogger> moqBeforeSocketReadToPublishCallStatsLogger = null!;
-    private Mock<ICallStatsLogger> moqDataDetectedToAfterSocketReadCallStatsLogger = null!;
-    private Mock<ICallStatsLogger> moqDataDetectedToBeforeSocketReadCallStatsLogger = null!;
-    private Mock<ICallStatsLogger> moqDataDetectedToEnterDeserializerCallStatsLogger = null!;
-    private Mock<ICallStatsLogger> moqDataDetectedToPublishCallStatsLogger = null!;
-    private Mock<ICallStatsLogger> moqEnterDeserializerToPublishCallStatsLogger = null!;
 
+    private ICallStatsLogger afterSocketReadToPublishCallStatsLogger = null!;
+    private string           baseLoggerNameSpace                     = null!;
+    private DateTime         baseTime;
+
+    private ICallStatsLogger beforeSocketReadToAfterSocketReadCallStatsLogger = null!;
+    private ICallStatsLogger beforeSocketReadToPublishCallStatsLogger         = null!;
+    private ICallStatsLogger dataDetectedToAfterSocketReadCallStatsLogger     = null!;
+    private ICallStatsLogger dataDetectedToBeforeSocketReadCallStatsLogger    = null!;
+    private ICallStatsLogger dataDetectedToEnterDeserializerCallStatsLogger   = null!;
+    private ICallStatsLogger dataDetectedToPublishCallStatsLogger             = null!;
+    private ICallStatsLogger enterDeserializerToPublishCallStatsLogger        = null!;
+
+    private string instanceName = null!;
+
+    private Mock<ICallStatsLogger> moqAfterSocketReadToPublishCallStatsLogger                      = null!;
+    private Mock<ICallStatsLogger> moqBeforeSocketReadToAfterSocketReadCallStatsLogger             = null!;
+    private Mock<ICallStatsLogger> moqBeforeSocketReadToPublishCallStatsLogger                     = null!;
+    private Mock<ICallStatsLogger> moqDataDetectedToAfterSocketReadCallStatsLogger                 = null!;
+    private Mock<ICallStatsLogger> moqDataDetectedToBeforeSocketReadCallStatsLogger                = null!;
+    private Mock<ICallStatsLogger> moqDataDetectedToEnterDeserializerCallStatsLogger               = null!;
+    private Mock<ICallStatsLogger> moqDataDetectedToPublishCallStatsLogger                         = null!;
+    private Mock<ICallStatsLogger> moqEnterDeserializerToPublishCallStatsLogger                    = null!;
     private Mock<ICallStatsLogger> moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger = null!;
-    private ICallStatsLogger startDataDectectionToAllSocketUpdatesFinishedCallStatsLogger = null!;
+    private ICallStatsLogger       startDataDectectionToAllSocketUpdatesFinishedCallStatsLogger    = null!;
+
     private SocketDataLatencyLogger testSocketDataLatencyLogger = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        instanceName = "TestSocketDataLatencyLogger";
+        instanceName                = "TestSocketDataLatencyLogger";
         testSocketDataLatencyLogger = new SocketDataLatencyLogger(instanceName);
-        baseLoggerNameSpace = typeof(SocketDataLatencyLogger).FullName + "." + instanceName;
+        baseLoggerNameSpace         = typeof(SocketDataLatencyLogger).FullName + "." + instanceName;
 
         moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger = new Mock<ICallStatsLogger>();
-        moqDataDetectedToBeforeSocketReadCallStatsLogger = new Mock<ICallStatsLogger>();
-        moqDataDetectedToAfterSocketReadCallStatsLogger = new Mock<ICallStatsLogger>();
-        moqDataDetectedToEnterDeserializerCallStatsLogger = new Mock<ICallStatsLogger>();
-        moqDataDetectedToPublishCallStatsLogger = new Mock<ICallStatsLogger>();
+
+        moqDataDetectedToBeforeSocketReadCallStatsLogger    = new Mock<ICallStatsLogger>();
+        moqDataDetectedToAfterSocketReadCallStatsLogger     = new Mock<ICallStatsLogger>();
+        moqDataDetectedToEnterDeserializerCallStatsLogger   = new Mock<ICallStatsLogger>();
+        moqDataDetectedToPublishCallStatsLogger             = new Mock<ICallStatsLogger>();
         moqBeforeSocketReadToAfterSocketReadCallStatsLogger = new Mock<ICallStatsLogger>();
-        moqBeforeSocketReadToPublishCallStatsLogger = new Mock<ICallStatsLogger>();
-        moqAfterSocketReadToPublishCallStatsLogger = new Mock<ICallStatsLogger>();
-        moqEnterDeserializerToPublishCallStatsLogger = new Mock<ICallStatsLogger>();
+        moqBeforeSocketReadToPublishCallStatsLogger         = new Mock<ICallStatsLogger>();
+        moqAfterSocketReadToPublishCallStatsLogger          = new Mock<ICallStatsLogger>();
+        moqEnterDeserializerToPublishCallStatsLogger        = new Mock<ICallStatsLogger>();
 
 
         baseTime = new DateTime(2018, 1, 24, 21, 02, 11).AddTicks(500_500_0);
@@ -95,23 +103,23 @@ public class SocketDataLatencyLoggerTests
         Assert.IsNotNull(enterDeserializerToPublishCallStatsLogger);
 
         Assert.AreEqual(baseLoggerNameSpace + "." + "StartDataDectectionToAllSocketUpdatesFinished",
-            startDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.FullNameOfLogger);
+                        startDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "DataDetectedToBeforeSocketRead",
-            dataDetectedToBeforeSocketReadCallStatsLogger.FullNameOfLogger);
+                        dataDetectedToBeforeSocketReadCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "DataDetectedToAfterSocketRead",
-            dataDetectedToAfterSocketReadCallStatsLogger.FullNameOfLogger);
+                        dataDetectedToAfterSocketReadCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "DataDetectedToEnterDeserializer",
-            dataDetectedToEnterDeserializerCallStatsLogger.FullNameOfLogger);
+                        dataDetectedToEnterDeserializerCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "DataDetectedToPublish",
-            dataDetectedToPublishCallStatsLogger.FullNameOfLogger);
+                        dataDetectedToPublishCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "BeforeSocketReadToAfterSocketRead",
-            beforeSocketReadToAfterSocketReadCallStatsLogger.FullNameOfLogger);
+                        beforeSocketReadToAfterSocketReadCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "BeforeSocketReadToPublish",
-            beforeSocketReadToPublishCallStatsLogger.FullNameOfLogger);
+                        beforeSocketReadToPublishCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "AfterSocketReadToPublish",
-            afterSocketReadToPublishCallStatsLogger.FullNameOfLogger);
+                        afterSocketReadToPublishCallStatsLogger.FullNameOfLogger);
         Assert.AreEqual(baseLoggerNameSpace + "." + "EnterDeserializerToPublish",
-            enterDeserializerToPublishCallStatsLogger.FullNameOfLogger);
+                        enterDeserializerToPublishCallStatsLogger.FullNameOfLogger);
 
         Assert.AreEqual(baseLoggerNameSpace, testSocketDataLatencyLogger.FullNameOfLogger);
     }
@@ -123,7 +131,8 @@ public class SocketDataLatencyLoggerTests
         Assert.IsFalse(testSocketDataLatencyLogger.Enabled);
 
         foreach (var activationKeyWord in HierarchicalConfigurationUpdater.ActivationKeyWords
-                     .Concat(HierarchicalConfigurationUpdater.ActivationKeyWords.Select(ak => ak.ToUpper())))
+                                                                          .Concat(HierarchicalConfigurationUpdater.ActivationKeyWords
+                                                                                      .Select(ak => ak.ToUpper())))
         {
             testSocketDataLatencyLogger.SettingTranslation(testSocketDataLatencyLogger, activationKeyWord);
             Assert.IsTrue(testSocketDataLatencyLogger.Enabled);
@@ -174,21 +183,28 @@ public class SocketDataLatencyLoggerTests
 
         var expectedNewBatchSize = 45_789;
 
-        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.SetupSet(ddtbsr =>
-            ddtbsr.BatchSize = expectedNewBatchSize).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
+        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize).Verifiable();
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
             .Verifiable();
-        moqDataDetectedToEnterDeserializerCallStatsLogger.SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
+        moqDataDetectedToEnterDeserializerCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
             .Verifiable();
-        moqDataDetectedToPublishCallStatsLogger.SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
+        moqDataDetectedToPublishCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
             .Verifiable();
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
             .Verifiable();
-        moqBeforeSocketReadToPublishCallStatsLogger.SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
+        moqBeforeSocketReadToPublishCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
             .Verifiable();
-        moqAfterSocketReadToPublishCallStatsLogger.SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
+        moqAfterSocketReadToPublishCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
             .Verifiable();
-        moqEnterDeserializerToPublishCallStatsLogger.SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
+        moqEnterDeserializerToPublishCallStatsLogger
+            .SetupSet(ddtbsr => ddtbsr.BatchSize = expectedNewBatchSize)
             .Verifiable();
 
         testSocketDataLatencyLogger.BatchSize = expectedNewBatchSize;
@@ -233,70 +249,79 @@ public class SocketDataLatencyLoggerTests
         SetCallStatsToMocks();
         moqDataDetectedToBeforeSocketReadCallStatsLogger.SetupProperty(ddtbsr => ddtbsr.BatchSize, 10_000);
 
-        var expectedFinishTime = baseTime.AddTicks(2_000_540_1);
-        var expectedDataDetectionTime = baseTime.AddTicks(2_000_500_1);
-        var expectedSocket2BeforePublishTime = baseTime.AddTicks(2_000_536_1);
+        var expectedFinishTime                   = baseTime.AddTicks(2_000_540_1);
+        var expectedDataDetectionTime            = baseTime.AddTicks(2_000_500_1);
+        var expectedSocket2BeforePublishTime     = baseTime.AddTicks(2_000_536_1);
         var expectedSocket2EnterDeserializerTime = baseTime.AddTicks(2_000_528_1);
-        var expectedSocket2AfterSocketReadTime = baseTime.AddTicks(2_000_521_1);
-        var expectedSocket2BeforeSocketReadTime = baseTime.AddTicks(2_000_515_1);
+        var expectedSocket2AfterSocketReadTime   = baseTime.AddTicks(2_000_521_1);
+        var expectedSocket2BeforeSocketReadTime  = baseTime.AddTicks(2_000_515_1);
 
-        var expectedSocket1BeforePublishTime = baseTime.AddTicks(2_000_510_1);
+        var expectedSocket1BeforePublishTime     = baseTime.AddTicks(2_000_510_1);
         var expectedSocket1EnterDeserializerTime = baseTime.AddTicks(2_000_506_1);
-        var expectedSocket1AfterSocketReadTime = baseTime.AddTicks(2_000_503_1);
-        var expectedSocket1BeforeSocketReadTime = baseTime.AddTicks(2_000_501_1);
+        var expectedSocket1AfterSocketReadTime   = baseTime.AddTicks(2_000_503_1);
+        var expectedSocket1BeforeSocketReadTime  = baseTime.AddTicks(2_000_501_1);
 
-        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.Setup(
-            cs => cs.AddCallStat(baseTime, expectedFinishTime)).Verifiable();
+        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger
+            .Setup(cs => cs.AddCallStat(baseTime, expectedFinishTime)).Verifiable();
 
-        moqDataDetectedToPublishCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforePublishTime)).Verifiable();
-        moqDataDetectedToEnterDeserializerCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2EnterDeserializerTime)).Verifiable();
-        moqEnterDeserializerToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket2EnterDeserializerTime, expectedSocket2BeforePublishTime))
+        moqDataDetectedToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforePublishTime)).Verifiable();
+        moqDataDetectedToEnterDeserializerCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2EnterDeserializerTime))
             .Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2AfterSocketReadTime)).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddContextMeasurement(50)).Verifiable();
-        moqAfterSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket2AfterSocketReadTime, expectedSocket2BeforePublishTime))
+        moqEnterDeserializerToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket2EnterDeserializerTime, expectedSocket2BeforePublishTime))
             .Verifiable();
-        moqDataDetectedToBeforeSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforeSocketReadTime)).Verifiable();
-        moqBeforeSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2BeforePublishTime))
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2AfterSocketReadTime))
             .Verifiable();
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2AfterSocketReadTime))
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddContextMeasurement(50))
+            .Verifiable();
+        moqAfterSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket2AfterSocketReadTime, expectedSocket2BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToBeforeSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforeSocketReadTime))
+            .Verifiable();
+        moqBeforeSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2BeforePublishTime))
+            .Verifiable();
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2AfterSocketReadTime))
             .Verifiable();
 
-        moqDataDetectedToPublishCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforePublishTime)).Verifiable();
-        moqDataDetectedToEnterDeserializerCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1EnterDeserializerTime)).Verifiable();
-        moqEnterDeserializerToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1EnterDeserializerTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforePublishTime))
             .Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1AfterSocketReadTime)).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddContextMeasurement(50)).Verifiable();
-        moqAfterSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1AfterSocketReadTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToEnterDeserializerCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1EnterDeserializerTime))
             .Verifiable();
-        moqDataDetectedToBeforeSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforeSocketReadTime)).Verifiable();
-        moqBeforeSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1BeforePublishTime))
+        moqEnterDeserializerToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1EnterDeserializerTime, expectedSocket1BeforePublishTime))
             .Verifiable();
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1AfterSocketReadTime))
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1AfterSocketReadTime))
+            .Verifiable();
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddContextMeasurement(50))
+            .Verifiable();
+        moqAfterSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1AfterSocketReadTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToBeforeSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforeSocketReadTime))
+            .Verifiable();
+        moqBeforeSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1AfterSocketReadTime))
             .Verifiable();
 
         var traceLog = BuildMultiSocketMatchingPlacesReceive();
 
-        var timeStub = new TimeContextTests.StubTimeContext();
+        var timeStub = new StubTimeContext();
 
         NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer", timeStub, true);
         try
@@ -306,8 +331,8 @@ public class SocketDataLatencyLoggerTests
         }
         finally
         {
-            NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer",
-                new HighPrecisionTimeContext(), true);
+            NonPublicInvocator.SetStaticField
+                (typeof(TraceLogger), "ConsistentTimer", new HighPrecisionTimeContext(), true);
         }
 
         AssertMoqMethodsHit();
@@ -319,55 +344,64 @@ public class SocketDataLatencyLoggerTests
         SetCallStatsToMocks();
         moqDataDetectedToBeforeSocketReadCallStatsLogger.SetupProperty(ddtbsr => ddtbsr.BatchSize, 10_000);
 
-        var expectedFinishTime = baseTime.AddTicks(2_000_523_1);
-        var expectedDataDetectionTime = baseTime.AddTicks(2_000_500_1);
-        var expectedSocket2AfterSocketReadTime = baseTime.AddTicks(2_000_521_1);
+        var expectedFinishTime                  = baseTime.AddTicks(2_000_523_1);
+        var expectedDataDetectionTime           = baseTime.AddTicks(2_000_500_1);
+        var expectedSocket2AfterSocketReadTime  = baseTime.AddTicks(2_000_521_1);
         var expectedSocket2BeforeSocketReadTime = baseTime.AddTicks(2_000_515_1);
 
-        var expectedSocket1BeforePublishTime = baseTime.AddTicks(2_000_510_1);
+        var expectedSocket1BeforePublishTime     = baseTime.AddTicks(2_000_510_1);
         var expectedSocket1EnterDeserializerTime = baseTime.AddTicks(2_000_506_1);
-        var expectedSocket1AfterSocketReadTime = baseTime.AddTicks(2_000_503_1);
-        var expectedSocket1BeforeSocketReadTime = baseTime.AddTicks(2_000_501_1);
+        var expectedSocket1AfterSocketReadTime   = baseTime.AddTicks(2_000_503_1);
+        var expectedSocket1BeforeSocketReadTime  = baseTime.AddTicks(2_000_501_1);
 
-        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.Setup(
-            cs => cs.AddCallStat(baseTime, expectedFinishTime)).Verifiable();
-
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2AfterSocketReadTime)).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddContextMeasurement(50)).Verifiable();
-        moqDataDetectedToBeforeSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforeSocketReadTime)).Verifiable();
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2AfterSocketReadTime))
+        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger
+            .Setup(cs => cs.AddCallStat(baseTime, expectedFinishTime))
             .Verifiable();
 
-        moqDataDetectedToPublishCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforePublishTime)).Verifiable();
-        moqDataDetectedToEnterDeserializerCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1EnterDeserializerTime)).Verifiable();
-        moqEnterDeserializerToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1EnterDeserializerTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2AfterSocketReadTime))
             .Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1AfterSocketReadTime)).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddContextMeasurement(50)).Verifiable();
-        moqAfterSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1AfterSocketReadTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddContextMeasurement(50))
             .Verifiable();
-        moqDataDetectedToBeforeSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforeSocketReadTime)).Verifiable();
-        moqBeforeSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToBeforeSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforeSocketReadTime))
             .Verifiable();
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1AfterSocketReadTime))
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2AfterSocketReadTime))
+            .Verifiable();
+
+        moqDataDetectedToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToEnterDeserializerCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1EnterDeserializerTime))
+            .Verifiable();
+        moqEnterDeserializerToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1EnterDeserializerTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1AfterSocketReadTime))
+            .Verifiable();
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddContextMeasurement(50))
+            .Verifiable();
+        moqAfterSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1AfterSocketReadTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToBeforeSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforeSocketReadTime))
+            .Verifiable();
+        moqBeforeSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1AfterSocketReadTime))
             .Verifiable();
 
         var traceLog = BuildNoDeserializerMultiSocketMatchingPlacesReceive();
 
-        var timeStub = new TimeContextTests.StubTimeContext();
+        var timeStub = new StubTimeContext();
 
         NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer", timeStub, true);
         try
@@ -377,8 +411,8 @@ public class SocketDataLatencyLoggerTests
         }
         finally
         {
-            NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer",
-                new HighPrecisionTimeContext(), true);
+            NonPublicInvocator.SetStaticField
+                (typeof(TraceLogger), "ConsistentTimer", new HighPrecisionTimeContext(), true);
         }
 
         AssertMoqMethodsHit();
@@ -390,58 +424,68 @@ public class SocketDataLatencyLoggerTests
         SetCallStatsToMocks();
         moqDataDetectedToBeforeSocketReadCallStatsLogger.SetupProperty(ddtbsr => ddtbsr.BatchSize, 10_000);
 
-        var expectedFinishTime = baseTime.AddTicks(2_000_530_1);
-        var expectedDataDetectionTime = baseTime.AddTicks(2_000_500_1);
+        var expectedFinishTime                   = baseTime.AddTicks(2_000_530_1);
+        var expectedDataDetectionTime            = baseTime.AddTicks(2_000_500_1);
         var expectedSocket2EnterDeserializerTime = baseTime.AddTicks(2_000_528_1);
-        var expectedSocket2AfterSocketReadTime = baseTime.AddTicks(2_000_521_1);
-        var expectedSocket2BeforeSocketReadTime = baseTime.AddTicks(2_000_515_1);
+        var expectedSocket2AfterSocketReadTime   = baseTime.AddTicks(2_000_521_1);
+        var expectedSocket2BeforeSocketReadTime  = baseTime.AddTicks(2_000_515_1);
 
-        var expectedSocket1BeforePublishTime = baseTime.AddTicks(2_000_510_1);
+        var expectedSocket1BeforePublishTime     = baseTime.AddTicks(2_000_510_1);
         var expectedSocket1EnterDeserializerTime = baseTime.AddTicks(2_000_506_1);
-        var expectedSocket1AfterSocketReadTime = baseTime.AddTicks(2_000_503_1);
-        var expectedSocket1BeforeSocketReadTime = baseTime.AddTicks(2_000_501_1);
+        var expectedSocket1AfterSocketReadTime   = baseTime.AddTicks(2_000_503_1);
+        var expectedSocket1BeforeSocketReadTime  = baseTime.AddTicks(2_000_501_1);
 
-        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.Setup(
-            cs => cs.AddCallStat(baseTime, expectedFinishTime)).Verifiable();
-
-        moqDataDetectedToEnterDeserializerCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2EnterDeserializerTime)).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2AfterSocketReadTime)).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddContextMeasurement(50)).Verifiable();
-        moqDataDetectedToBeforeSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforeSocketReadTime)).Verifiable();
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2AfterSocketReadTime))
+        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger
+            .Setup(cs => cs.AddCallStat(baseTime, expectedFinishTime))
             .Verifiable();
 
-        moqDataDetectedToPublishCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforePublishTime)).Verifiable();
-        moqDataDetectedToEnterDeserializerCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1EnterDeserializerTime)).Verifiable();
-        moqEnterDeserializerToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1EnterDeserializerTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToEnterDeserializerCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2EnterDeserializerTime))
             .Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1AfterSocketReadTime)).Verifiable();
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Setup(
-            cs => cs.AddContextMeasurement(50)).Verifiable();
-        moqAfterSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1AfterSocketReadTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2AfterSocketReadTime))
             .Verifiable();
-        moqDataDetectedToBeforeSocketReadCallStatsLogger.Setup(
-            cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforeSocketReadTime)).Verifiable();
-        moqBeforeSocketReadToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1BeforePublishTime))
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddContextMeasurement(50))
             .Verifiable();
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Setup(
-                cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1AfterSocketReadTime))
+        moqDataDetectedToBeforeSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket2BeforeSocketReadTime))
+            .Verifiable();
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket2BeforeSocketReadTime, expectedSocket2AfterSocketReadTime))
+            .Verifiable();
+
+        moqDataDetectedToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToEnterDeserializerCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1EnterDeserializerTime))
+            .Verifiable();
+        moqEnterDeserializerToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1EnterDeserializerTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1AfterSocketReadTime))
+            .Verifiable();
+        moqDataDetectedToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddContextMeasurement(50))
+            .Verifiable();
+        moqAfterSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1AfterSocketReadTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqDataDetectedToBeforeSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedDataDetectionTime, expectedSocket1BeforeSocketReadTime))
+            .Verifiable();
+        moqBeforeSocketReadToPublishCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1BeforePublishTime))
+            .Verifiable();
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger
+            .Setup(cs => cs.AddCallStat(expectedSocket1BeforeSocketReadTime, expectedSocket1AfterSocketReadTime))
             .Verifiable();
 
         var traceLog = BuildNotValidForPublishMultiSocketMatchingPlacesReceive();
 
-        var timeStub = new TimeContextTests.StubTimeContext();
+        var timeStub = new StubTimeContext();
 
         NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer", timeStub, true);
         try
@@ -451,8 +495,8 @@ public class SocketDataLatencyLoggerTests
         }
         finally
         {
-            NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer",
-                new HighPrecisionTimeContext(), true);
+            NonPublicInvocator.SetStaticField
+                (typeof(TraceLogger), "ConsistentTimer", new HighPrecisionTimeContext(), true);
         }
 
         AssertMoqMethodsHit();
@@ -466,9 +510,10 @@ public class SocketDataLatencyLoggerTests
         //not enabled
 
         var traceLog = BuildMultiSocketMatchingPlacesReceive();
+
         var expectedFinishTime = baseTime.AddTicks(2_000_540_1);
 
-        var timeStub = new TimeContextTests.StubTimeContext();
+        var timeStub = new StubTimeContext();
         NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer", timeStub, true);
         try
         {
@@ -477,31 +522,31 @@ public class SocketDataLatencyLoggerTests
         }
         finally
         {
-            NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer",
-                new HighPrecisionTimeContext(), true);
+            NonPublicInvocator.SetStaticField
+                (typeof(TraceLogger), "ConsistentTimer", new HighPrecisionTimeContext(), true);
         }
 
-        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
 
-        moqDataDetectedToPublishCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-        moqDataDetectedToEnterDeserializerCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-        moqEnterDeserializerToPublishCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-        moqDataDetectedToAfterSocketReadCallStatsLogger.Verify(
-            cs => cs.AddContextMeasurement(It.IsAny<double>()), Times.Never);
-        moqAfterSocketReadToPublishCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-        moqDataDetectedToBeforeSocketReadCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-        moqBeforeSocketReadToPublishCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Verify(
-            cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqDataDetectedToPublishCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqDataDetectedToEnterDeserializerCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqEnterDeserializerToPublishCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqDataDetectedToAfterSocketReadCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqDataDetectedToAfterSocketReadCallStatsLogger.Verify
+            (cs => cs.AddContextMeasurement(It.IsAny<double>()), Times.Never);
+        moqAfterSocketReadToPublishCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqDataDetectedToBeforeSocketReadCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqBeforeSocketReadToPublishCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+        moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Verify
+            (cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
     }
 
     [TestMethod]
@@ -510,13 +555,15 @@ public class SocketDataLatencyLoggerTests
         SetCallStatsToMocks();
         moqDataDetectedToBeforeSocketReadCallStatsLogger.SetupProperty(ddtbsr => ddtbsr.BatchSize, 10_000);
 
-        moqDataDetectedToPublishCallStatsLogger.Setup(
-                cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>())).Throws<NullReferenceException>()
+        moqDataDetectedToPublishCallStatsLogger
+            .Setup(
+                   cs => cs.AddCallStat(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Throws<NullReferenceException>()
             .Verifiable();
 
         var moqLogger = new Mock<IFLogger>();
         moqLogger.Setup(fl => fl.Warn("Error processing PQ latency stats got {0} when processing [{1}]",
-            It.IsAny<NullReferenceException>(), It.IsAny<string>())).Verifiable();
+                                      It.IsAny<NullReferenceException>(), It.IsAny<string>())).Verifiable();
 
         NonPublicInvocator.SetStaticField(typeof(SocketDataLatencyLogger), "Logger", moqLogger.Object);
 
@@ -524,8 +571,8 @@ public class SocketDataLatencyLoggerTests
 
         testSocketDataLatencyLogger.ParseTraceLog(traceLog);
 
-        NonPublicInvocator.SetStaticField(typeof(SocketDataLatencyLogger), "Logger",
-            FLoggerFactory.Instance.GetLogger("DiagnosticSettings"));
+        NonPublicInvocator.SetStaticField
+            (typeof(SocketDataLatencyLogger), "Logger", FLoggerFactory.Instance.GetLogger("DiagnosticSettings"));
 
         AssertMoqMethodsHit();
         moqLogger.Verify();
@@ -533,7 +580,7 @@ public class SocketDataLatencyLoggerTests
 
     private ITraceLogger BuildMultiSocketMatchingPlacesReceive()
     {
-        var timeStub = new TimeContextTests.StubTimeContext();
+        var timeStub = new StubTimeContext();
 
         var populatedTraceLogger = new TraceLogger("ignored", GetType())
         {
@@ -554,7 +601,7 @@ public class SocketDataLatencyLoggerTests
             populatedTraceLogger.Add(SocketDataLatencyLogger.AfterSocketRead, 25D);
             timeStub.UtcNow = timeStub.UtcNow.AddTicks(10);
             populatedTraceLogger.Add("High outburst of incoming data received read ",
-                34567);
+                                     34567);
             timeStub.UtcNow = timeStub.UtcNow.AddTicks(10);
             populatedTraceLogger.Add("Data detected but not decoded");
             timeStub.UtcNow = timeStub.UtcNow.AddTicks(10);
@@ -579,7 +626,7 @@ public class SocketDataLatencyLoggerTests
         finally
         {
             NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer",
-                new HighPrecisionTimeContext(), true);
+                                              new HighPrecisionTimeContext(), true);
         }
 
         return populatedTraceLogger;
@@ -587,7 +634,7 @@ public class SocketDataLatencyLoggerTests
 
     private ITraceLogger BuildNoDeserializerMultiSocketMatchingPlacesReceive()
     {
-        var timeStub = new TimeContextTests.StubTimeContext();
+        var timeStub = new StubTimeContext();
 
         var populatedTraceLogger = new TraceLogger("ignored", GetType())
         {
@@ -616,7 +663,7 @@ public class SocketDataLatencyLoggerTests
         finally
         {
             NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer",
-                new HighPrecisionTimeContext(), true);
+                                              new HighPrecisionTimeContext(), true);
         }
 
         return populatedTraceLogger;
@@ -624,7 +671,7 @@ public class SocketDataLatencyLoggerTests
 
     private ITraceLogger BuildNotValidForPublishMultiSocketMatchingPlacesReceive()
     {
-        var timeStub = new TimeContextTests.StubTimeContext();
+        var timeStub = new StubTimeContext();
 
         var populatedTraceLogger = new TraceLogger("ignored", GetType())
         {
@@ -655,7 +702,7 @@ public class SocketDataLatencyLoggerTests
         finally
         {
             NonPublicInvocator.SetStaticField(typeof(TraceLogger), "ConsistentTimer",
-                new HighPrecisionTimeContext(), true);
+                                              new HighPrecisionTimeContext(), true);
         }
 
         return populatedTraceLogger;
@@ -665,23 +712,24 @@ public class SocketDataLatencyLoggerTests
     {
         startDataDectectionToAllSocketUpdatesFinishedCallStatsLogger =
             NonPublicInvocator.GetInstanceField<CallStatsLogger>(testSocketDataLatencyLogger,
-                StartDataDectectionToAllSocketUpdatesFinishedFieldName);
+                                                                 StartDataDectectionToAllSocketUpdatesFinishedFieldName);
         dataDetectedToBeforeSocketReadCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, DataDetectedToBeforeSocketReadFieldName);
+         testSocketDataLatencyLogger, DataDetectedToBeforeSocketReadFieldName);
         dataDetectedToAfterSocketReadCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, DataDetectedToAfterSocketReadFieldName);
+         testSocketDataLatencyLogger, DataDetectedToAfterSocketReadFieldName);
         dataDetectedToEnterDeserializerCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, DataDetectedToEnterDeserializerFieldName);
+         testSocketDataLatencyLogger, DataDetectedToEnterDeserializerFieldName);
         dataDetectedToPublishCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, DataDetectedToPublishFieldName);
+                                                                                                    testSocketDataLatencyLogger
+                                                                                                  , DataDetectedToPublishFieldName);
         beforeSocketReadToAfterSocketReadCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, BeforeSocketReadToAfterSocketReadFieldName);
+         testSocketDataLatencyLogger, BeforeSocketReadToAfterSocketReadFieldName);
         beforeSocketReadToPublishCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, BeforeSocketReadToPublishFieldName);
+         testSocketDataLatencyLogger, BeforeSocketReadToPublishFieldName);
         afterSocketReadToPublishCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, AfterSocketReadToPublishFieldName);
+         testSocketDataLatencyLogger, AfterSocketReadToPublishFieldName);
         enterDeserializerToPublishCallStatsLogger = NonPublicInvocator.GetInstanceField<CallStatsLogger>(
-            testSocketDataLatencyLogger, EnterDeserializerToPublishFieldName);
+         testSocketDataLatencyLogger, EnterDeserializerToPublishFieldName);
     }
 
     private void AssertMoqMethodsHit()
@@ -699,32 +747,32 @@ public class SocketDataLatencyLoggerTests
 
     private void SetCallStatsToMocks()
     {
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, StartDataDectectionToAllSocketUpdatesFinishedFieldName,
-            moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, DataDetectedToBeforeSocketReadFieldName,
-            moqDataDetectedToBeforeSocketReadCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, DataDetectedToAfterSocketReadFieldName,
-            moqDataDetectedToAfterSocketReadCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, DataDetectedToEnterDeserializerFieldName,
-            moqDataDetectedToEnterDeserializerCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, DataDetectedToPublishFieldName,
-            moqDataDetectedToPublishCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, BeforeSocketReadToAfterSocketReadFieldName,
-            moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, BeforeSocketReadToPublishFieldName,
-            moqBeforeSocketReadToPublishCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, AfterSocketReadToPublishFieldName,
-            moqAfterSocketReadToPublishCallStatsLogger.Object);
-        NonPublicInvocator.SetInstanceField(
-            testSocketDataLatencyLogger, EnterDeserializerToPublishFieldName,
-            moqEnterDeserializerToPublishCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, StartDataDectectionToAllSocketUpdatesFinishedFieldName
+           , moqStartDataDectectionToAllSocketUpdatesFinishedCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, DataDetectedToBeforeSocketReadFieldName
+           , moqDataDetectedToBeforeSocketReadCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, DataDetectedToAfterSocketReadFieldName
+           , moqDataDetectedToAfterSocketReadCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, DataDetectedToEnterDeserializerFieldName
+           , moqDataDetectedToEnterDeserializerCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, DataDetectedToPublishFieldName
+           , moqDataDetectedToPublishCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, BeforeSocketReadToAfterSocketReadFieldName
+           , moqBeforeSocketReadToAfterSocketReadCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, BeforeSocketReadToPublishFieldName
+           , moqBeforeSocketReadToPublishCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, AfterSocketReadToPublishFieldName
+           , moqAfterSocketReadToPublishCallStatsLogger.Object);
+        NonPublicInvocator.SetInstanceField
+            (testSocketDataLatencyLogger, EnterDeserializerToPublishFieldName
+           , moqEnterDeserializerToPublishCallStatsLogger.Object);
     }
 }

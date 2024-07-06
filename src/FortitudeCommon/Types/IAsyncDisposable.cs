@@ -1,6 +1,9 @@
-﻿namespace FortitudeCommon.Types;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-public interface IAsyncValueTaskDisposable : IDisposable
+namespace FortitudeCommon.Types;
+
+public interface IAsyncValueTaskDisposable : IDisposable, IAsyncDisposable
 {
     ValueTask DisposeAwaitValueTask { get; set; }
 
@@ -12,7 +15,7 @@ public interface IAsyncValueTaskDisposable : IDisposable
     new ValueTask Dispose();
 }
 
-public interface IAsyncTaskDisposable : IDisposable
+public interface IAsyncTaskDisposable : IDisposable, IAsyncDisposable
 {
     Task DisposeResult { get; set; }
 
