@@ -101,6 +101,7 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
 
     public override void StateReset()
     {
+        Next = Previous = null;
         level1Quote?.DecrementRefCount();
         level1Quote = null;
         base.StateReset();

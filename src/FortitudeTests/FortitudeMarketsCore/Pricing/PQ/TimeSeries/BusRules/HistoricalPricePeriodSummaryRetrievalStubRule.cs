@@ -10,6 +10,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Summaries;
@@ -25,14 +26,14 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
     private ISubscription? requestResponseSubscription;
     private ISubscription? requestStreamSubscription;
 
-    private Func<ISourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
+    private Func<ISourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
 
     public HistoricalPricePeriodSummaryRetrievalStubRule
-        (Func<ISourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
+        (Func<ISourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
         : base(nameof(HistoricalPricePeriodSummaryRetrievalStubRule)) =>
         summariesCallback = stubRetrieveSummariesCallback;
 
-    public Func<ISourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
+    public Func<ISourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
     {
         get => summariesCallback;
         set => summariesCallback = value ?? throw new ArgumentNullException(nameof(value));
@@ -58,12 +59,12 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
         (IBusRespondingMessage<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>> requestResponseMessage)
     {
         var summaryRequest = requestResponseMessage.Payload.Body();
-        return summariesCallback(summaryRequest.TickerId, summaryRequest.TimeRange).ToList();
+        return summariesCallback(summaryRequest.TickerId, summaryRequest.EntryPeriod, summaryRequest.TimeRange).ToList();
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults(HistoricalPricePeriodSummaryStreamRequest streamRequest)
     {
-        var results = summariesCallback(streamRequest.TickerId, streamRequest.TimeRange);
+        var results = summariesCallback(streamRequest.TickerId, streamRequest.EntryPeriod, streamRequest.TimeRange);
 
         if (!results.Any()) return false;
 

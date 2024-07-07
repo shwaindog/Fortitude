@@ -184,9 +184,10 @@ public struct ServiceStatusUpdate
     }
 
     public TickerPeriodServiceRequest TickerPeriodServiceRequestInfo { get; }
-    public IRule                      Rule                           { get; }
-    public ServiceRunStatus           RunStatus                      { get; }
-    public DateTime?                  AtTime                         { get; }
+
+    public IRule            Rule      { get; }
+    public ServiceRunStatus RunStatus { get; }
+    public DateTime?        AtTime    { get; }
 }
 
 public struct IndicatorServiceRegistryParams
@@ -205,22 +206,29 @@ public struct IndicatorServiceRegistryParams
 
     public Dictionary<ServiceType, Func<TickerPeriodServiceRequest, ServiceRuntimeState>> TickerPeriodServiceFactoryOverrides { get; }
     public Dictionary<ServiceType, Func<GlobalServiceRequest, ServiceRuntimeState>>       GlobalServiceFactoryOverrides       { get; }
-    public IIndicatorServicesConfig                                                       IndicatorServiceConfig              { get; }
+
+    public IIndicatorServicesConfig IndicatorServiceConfig { get; }
 }
 
 public class IndicatorServiceRegistryRule : Rule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(IndicatorServiceRegistryRule));
 
-    private readonly   IIndicatorServicesConfig                                                 config;
+    private readonly IIndicatorServicesConfig config;
+
+    protected readonly List<IRuleDeploymentLifeTime> DeployedServices = new();
+
     protected readonly Dictionary<ServiceType, Func<GlobalServiceRequest, ServiceRuntimeState>> GlobalServiceFactoryLookup;
-    protected readonly Dictionary<ServiceType, ServiceRuntimeState>                             GlobalServiceStateLookup = new();
-    private readonly   IndicatorServiceRegistryParams                                           indicatorServiceParams;
+
+    protected readonly Dictionary<ServiceType, ServiceRuntimeState> GlobalServiceStateLookup = new();
+
+    private readonly IndicatorServiceRegistryParams indicatorServiceParams;
 
     protected readonly Dictionary<TickerPeriodServiceInfo, ServiceRuntimeState> TickerPeriodServiceStateLookup = new();
 
     protected readonly Dictionary<ServiceType, Func<TickerPeriodServiceRequest, ServiceRuntimeState>> TickerServiceFactoryLookup;
-    private            ISubscription?                                                                 globalServiceRequestSubscription;
+
+    private ISubscription? globalServiceRequestSubscription;
 
     private ISubscription? tickerPeriodServiceRequestSubscription;
 
@@ -309,35 +317,38 @@ public class IndicatorServiceRegistryRule : Rule
         switch (tickerServiceInfo.QuoteLevel)
         {
             case QuoteLevel.Level1 when tickerServiceInfo.UsePqQuote:
-                if (tickerServiceInfo.UsePqQuote)
-                    return new ServiceRuntimeState
-                        (new ServiceRunStateResponse(new LivePricePeriodSummaryPublisherRule<PQLevel1Quote>
-                                                         (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
-                                                   , ServiceRunStatus.NotStarted));
+                return new ServiceRuntimeState
+                    (new ServiceRunStateResponse
+                        (new LivePricePeriodSummaryPublisherRule<PQLevel1Quote>
+                             (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
+                       , ServiceRunStatus.NotStarted));
+            case QuoteLevel.Level1 when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>
                             (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId)), ServiceRunStatus.NotStarted));
             case QuoteLevel.Level2 when tickerServiceInfo.UsePqQuote:
-                if (tickerServiceInfo.UsePqQuote)
-                    return new ServiceRuntimeState
-                        (new ServiceRunStateResponse(new LivePricePeriodSummaryPublisherRule<PQLevel2Quote>
-                                                         (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
-                                                   , ServiceRunStatus.NotStarted));
                 return new ServiceRuntimeState
-                    (new ServiceRunStateResponse(new LivePricePeriodSummaryPublisherRule<Level2PriceQuote>
-                                                     (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
-                                               , ServiceRunStatus.NotStarted));
+                    (new ServiceRunStateResponse
+                        (new LivePricePeriodSummaryPublisherRule<PQLevel2Quote>
+                             (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
+                       , ServiceRunStatus.NotStarted));
+            case QuoteLevel.Level2 when !tickerServiceInfo.UsePqQuote:
+                return new ServiceRuntimeState
+                    (new ServiceRunStateResponse
+                        (new LivePricePeriodSummaryPublisherRule<Level2PriceQuote>
+                            (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId)), ServiceRunStatus.NotStarted));
             case QuoteLevel.Level3 when tickerServiceInfo.UsePqQuote:
-                if (tickerServiceInfo.UsePqQuote)
-                    return new ServiceRuntimeState
-                        (new ServiceRunStateResponse(new LivePricePeriodSummaryPublisherRule<PQLevel3Quote>
-                                                         (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
-                                                   , ServiceRunStatus.NotStarted));
                 return new ServiceRuntimeState
-                    (new ServiceRunStateResponse(new LivePricePeriodSummaryPublisherRule<Level3PriceQuote>
-                                                     (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
-                                               , ServiceRunStatus.NotStarted));
+                    (new ServiceRunStateResponse
+                        (new LivePricePeriodSummaryPublisherRule<PQLevel3Quote>
+                             (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId))
+                       , ServiceRunStatus.NotStarted));
+            case QuoteLevel.Level3 when !tickerServiceInfo.UsePqQuote:
+                return new ServiceRuntimeState
+                    (new ServiceRunStateResponse
+                        (new LivePricePeriodSummaryPublisherRule<Level3PriceQuote>
+                            (new TimeSeriesPricePeriodParams(tickerServiceInfo.Period, tickerServiceInfo.TickerId)), ServiceRunStatus.NotStarted));
         }
         return new ServiceRuntimeState();
     }
@@ -349,46 +360,52 @@ public class IndicatorServiceRegistryRule : Rule
         switch (tickerServiceInfo.QuoteLevel)
         {
             case QuoteLevel.Level1 when tickerServiceInfo.UsePqQuote:
-                if (tickerServiceInfo.UsePqQuote)
-                    return new ServiceRuntimeState
-                        (new ServiceRunStateResponse
-                            (new HistoricalPeriodSummariesResolverRule<PQLevel1Quote>
-                                 (new HistoricalPeriodParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period
-                                                           , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
-                           , ServiceRunStatus.NotStarted));
+                return new ServiceRuntimeState
+                    (new ServiceRunStateResponse
+                        (new HistoricalPeriodSummariesResolverRule<PQLevel1Quote>
+                             (new HistoricalPeriodParams
+                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                       , ServiceRunStatus.NotStarted));
+            case QuoteLevel.Level1 when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>
-                             (new HistoricalPeriodParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period
-                                                       , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                             (new HistoricalPeriodParams
+                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level2 when tickerServiceInfo.UsePqQuote:
-                if (tickerServiceInfo.UsePqQuote)
-                    return new ServiceRuntimeState
-                        (new ServiceRunStateResponse
-                            (new HistoricalPeriodSummariesResolverRule<PQLevel2Quote>
-                                 (new HistoricalPeriodParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period
-                                                           , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
-                           , ServiceRunStatus.NotStarted));
+                return new ServiceRuntimeState
+                    (new ServiceRunStateResponse
+                        (new HistoricalPeriodSummariesResolverRule<PQLevel2Quote>
+                             (new HistoricalPeriodParams
+                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                       , ServiceRunStatus.NotStarted));
+            case QuoteLevel.Level2 when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<Level2PriceQuote>
-                             (new HistoricalPeriodParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period
-                                                       , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                             (new HistoricalPeriodParams
+                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level3 when tickerServiceInfo.UsePqQuote:
-                if (tickerServiceInfo.UsePqQuote)
-                    return new ServiceRuntimeState
-                        (new ServiceRunStateResponse
-                            (new HistoricalPeriodSummariesResolverRule<PQLevel3Quote>
-                                 (new HistoricalPeriodParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period
-                                                           , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
-                           , ServiceRunStatus.NotStarted));
+                return new ServiceRuntimeState
+                    (new ServiceRunStateResponse
+                        (new HistoricalPeriodSummariesResolverRule<PQLevel3Quote>
+                             (new HistoricalPeriodParams
+                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                       , ServiceRunStatus.NotStarted));
+            case QuoteLevel.Level3 when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<Level3PriceQuote>
-                             (new HistoricalPeriodParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period
-                                                       , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                             (new HistoricalPeriodParams
+                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
         }
         return new ServiceRuntimeState();
@@ -459,7 +476,8 @@ public class IndicatorServiceRegistryRule : Rule
                 existing is null or { RunStatus: ServiceRunStatus.ServiceStopped })
                 try
                 {
-                    await this.DeployRuleAsync(serviceInfo.Rule!);
+                    var ruleDeployment = await this.DeployRuleAsync(serviceInfo.Rule!);
+                    DeployedServices.Add(ruleDeployment);
                     if (Equals(existing, default))
                         return GlobalServiceStateLookup[serviceReq.ServiceType].LastStartResult
                             = new ServiceRunStateResponse(serviceInfo.Rule!, ServiceRunStatus.ServiceStarted, DateTime.UtcNow);
@@ -494,7 +512,8 @@ public class IndicatorServiceRegistryRule : Rule
                 existing is null or { RunStatus: ServiceRunStatus.ServiceStopped })
                 try
                 {
-                    await this.DeployRuleAsync(serviceInfo.Rule!);
+                    var ruleDeployment = await this.DeployRuleAsync(serviceInfo.Rule!);
+                    DeployedServices.Add(ruleDeployment);
                     if (Equals(existing, default))
                         return TickerPeriodServiceStateLookup[serviceReq.TickerPeriodServiceInfo].LastStartResult
                             = new ServiceRunStateResponse(serviceInfo.Rule!, ServiceRunStatus.ServiceStarted, DateTime.UtcNow);

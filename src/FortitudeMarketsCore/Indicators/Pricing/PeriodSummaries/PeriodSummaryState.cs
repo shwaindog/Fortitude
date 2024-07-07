@@ -44,7 +44,7 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
         TimeSeriesPeriod = timeSeriesPeriod;
     }
 
-    public IPricePeriodSummary BuildPeriodSummary(IRecycler recycler, DateTime? atTime = null)
+    public PricePeriodSummary BuildPeriodSummary(IRecycler recycler, DateTime? atTime = null)
     {
         var toPopulate = recycler.Borrow<PricePeriodSummary>();
         toPopulate.TimeSeriesPeriod = TimeSeriesPeriod;
