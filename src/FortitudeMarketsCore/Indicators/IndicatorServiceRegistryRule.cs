@@ -17,6 +17,7 @@ using FortitudeMarketsCore.Indicators.Persistence;
 using FortitudeMarketsCore.Indicators.Pricing;
 using FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;
+using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Quotes;

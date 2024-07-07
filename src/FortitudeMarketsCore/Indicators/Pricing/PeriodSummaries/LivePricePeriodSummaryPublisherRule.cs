@@ -12,6 +12,7 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
+using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 using FortitudeMarketsCore.Pricing.Summaries;
 
 #endregion
