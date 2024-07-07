@@ -52,20 +52,28 @@ public static class PricePeriodSummaryExtensions
     public static int AddReplace
         (this IDoublyLinkedList<IPricePeriodSummary> existing, IPricePeriodSummary toAddReplace, IRecycler? recycler = null)
     {
-        var removedCount    = 0;
         var currentExisting = existing.Head;
+        if (currentExisting == null)
+        {
+            existing.AddFirst(toAddReplace);
+            return 0;
+        }
+        var removedCount = 0;
         while (currentExisting != null)
         {
+            if (ReferenceEquals(currentExisting, toAddReplace)) break;
             if (currentExisting.PeriodStartTime > toAddReplace.PeriodStartTime)
             {
                 var insertAfter = currentExisting.Previous;
                 while (currentExisting != null && currentExisting.IsWhollyBoundedBy(toAddReplace))
                 {
+                    if (ReferenceEquals(currentExisting, toAddReplace)) return removedCount;
                     var removed = existing.Remove(currentExisting);
                     recycler?.Recycle(removed);
                     removedCount++;
                     currentExisting = currentExisting.Next;
                 }
+                if (ReferenceEquals(insertAfter, toAddReplace)) break;
                 if (insertAfter != null)
                 {
                     insertAfter.Next      = toAddReplace;
@@ -84,7 +92,11 @@ public static class PricePeriodSummaryExtensions
                 {
                     toAddReplace.Next = null;
                 }
-                break;
+            }
+            if (currentExisting.Next == null)
+            {
+                existing.AddLast(toAddReplace);
+                return removedCount;
             }
 
             currentExisting = currentExisting.Next;

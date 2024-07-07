@@ -21,8 +21,6 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(IndicatorServiceRegistryStubRule));
 
-    private readonly List<IAsyncDisposable> undeploy = new();
-
     public IndicatorServiceRegistryStubRule(IndicatorServiceRegistryParams overrideParams)
         : base(overrideParams) { }
 
@@ -38,7 +36,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 
     public override async ValueTask StopAsync()
     {
-        foreach (var asyncDisposable in undeploy) await asyncDisposable.DisposeAsync();
+        foreach (var asyncDisposable in DeployedServices) await asyncDisposable.DisposeAsync();
     }
 
     public async ValueTask RegisterAndDeployGlobalService(ServiceType service, IRule rule)
@@ -46,7 +44,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         try
         {
             var deployLifeTime = await this.DeployRuleAsync(rule);
-            undeploy.Add(deployLifeTime);
+            DeployedServices.Add(deployLifeTime);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStarted);
             GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }
@@ -65,7 +63,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         try
         {
             var deployLifeTime = await this.DeployRuleAsync(rule);
-            undeploy.Add(deployLifeTime);
+            DeployedServices.Add(deployLifeTime);
             var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, tickerId, period, quoteLevel, usePQQuote);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStarted);
             TickerPeriodServiceStateLookup.Add(tickerPeriodServiceInfo, new ServiceRuntimeState(serviceRunStateResponse));

@@ -29,18 +29,41 @@ The following are a list of features found in the Fortitude Libraries
   * Collection Extensions Methods
   * Doubly Linked Lists
   * Garbage Free Maps (Dictionary)
-  * Reusable Enumerator 
+  * Reusable Enumerator
+  * Recyclable and Reusable Ref Counted Objects and Pools 
 * OS Abstractions
   * Networking
   * Multi-threading
+  * Virtual Memory
 * Low Garbage Metric Collection
   * Tracing
   * StopWatch
   * Latency Trigger Logs
   * Low latency logging 
-* Low Garbage Actor library
+* File System Hierarchical Time Series Storage
+  * Manage data from your terminal
+  * Copy data locally for rapid backtesting
+  * Memory Mapped Indexed Buckets
+    * Sliding (If VM allocation allows) Memory Mapped File View
+  * Constrainable Result Set Generation
+  * Batched Retrieval
+  * Throttled Retrieval
+  * LZMA (7Zip) bucket compression
+* Indicator Generation
+  * Time Weighted Moving Average
+  * Candles  
+* Low Garbage Actor Framework
+  * Non-Locking and Blocking Disruption Message Queues
+  * Task Parallel Enabled
+  * Paritition Queues Types
+  * Address Inteceptors
+  * Target / Deploy to Queues based on Load
+  * ValueTask Native (Low Garbage)
+  * Integrated with Pricing Client And Server
+  * Supporting Request/Response, Pub/Sub and Private Channels
+  * Auto Object InterQueue Marshalling  
 * Reflection Helpers
-* Reusable String Replacement
+* Reusable/Mutable String Alternative
 * Low Garbage Socket Send Receive
   * Fast TCP
   * Fast UDP / UDP Multicast 
@@ -53,13 +76,22 @@ The following are a list of features found in the Fortitude Libraries
   * Efficent Delta UDP mutlicast updates
   * Snapshot Request  
   * Support 20+ Book Depth with many attributes
+  * Price Period Summaries (Candles)
+  * Time series storage and retrieval
 * Order and Execution transmission
   
 ## Whats going to be in future releases
 * Add Low Garbage IO library to Actor library
   * Connect different Actor library together as a cluster 
   * Lowest Garbage and Latency event bus
-  * Topic/Channel request response and pub sub messaging
+* Sample Venue Adapter
+* Sample Pricing and Trading Client  
+* Indicator Signals
+  * Moving Average Velocity Threshold
+  * Volatility Calculation
+  * Aggregated Instrument Trend
+  * Support and Resistance Tracking
+  * Peak and Trough
 * Example client server implementations
 * Execution results on standard cloud machines
 * wiki how to guides

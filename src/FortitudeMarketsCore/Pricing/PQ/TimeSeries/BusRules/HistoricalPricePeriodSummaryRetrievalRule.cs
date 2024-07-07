@@ -18,7 +18,6 @@ using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Summaries;
 
 #endregion
@@ -28,7 +27,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 public struct HistoricalPricePeriodSummaryStreamRequest
 {
     public HistoricalPricePeriodSummaryStreamRequest
-    (ISourceTickerIdentifier tickerId, TimeSeriesPeriod entryPeriod, ChannelPublishRequest<IPricePeriodSummary> channelRequest
+    (ISourceTickerIdentifier tickerId, TimeSeriesPeriod entryPeriod, ChannelPublishRequest<PricePeriodSummary> channelRequest
       , UnboundedTimeRange? timeRange = null)
     {
         TickerId       = tickerId;
@@ -41,7 +40,7 @@ public struct HistoricalPricePeriodSummaryStreamRequest
     public TimeSeriesPeriod        EntryPeriod { get; }
     public UnboundedTimeRange?     TimeRange   { get; }
 
-    public ChannelPublishRequest<IPricePeriodSummary> ChannelRequest { get; }
+    public ChannelPublishRequest<PricePeriodSummary> ChannelRequest { get; }
 }
 
 public struct HistoricalPricePeriodSummaryRequestResponse

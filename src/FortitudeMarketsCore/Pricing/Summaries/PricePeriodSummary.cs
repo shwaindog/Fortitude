@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -34,6 +35,7 @@ public struct Candle
 }
 
 public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutablePricePeriodSummary, ITimeSeriesEntry<PricePeriodSummary>
+  , IDoublyLinkedListNode<PricePeriodSummary>
 {
     public PricePeriodSummary()
     {
@@ -92,6 +94,9 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         AverageBidPrice    = toClone.AverageBidAsk.BidPrice;
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
     }
+
+    public PricePeriodSummary? Previous { get; set; }
+    public PricePeriodSummary? Next     { get; set; }
 
     public bool IsEmpty
     {
@@ -177,15 +182,14 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 
-    public IPricePeriodSummary? Previous { get; set; }
-    public IPricePeriodSummary? Next     { get; set; }
+    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous { get; set; }
+    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next     { get; set; }
 
     object ICloneable.Clone() => Clone();
 
     IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
-    public override IMutablePricePeriodSummary Clone() =>
-        Recycler?.Borrow<PricePeriodSummary>().CopyFrom(this) as IMutablePricePeriodSummary ?? new PricePeriodSummary(this);
+    IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() => Clone();
 
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {
@@ -217,11 +221,18 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
 
     public override void StateReset()
     {
+        ((IPricePeriodSummary)this).Next     = null;
+        ((IPricePeriodSummary)this).Previous = null;
+
+        Next    = Previous = null;
         IsEmpty = true;
         base.StateReset();
     }
 
     public DateTime StorageTime(IStorageTimeResolver<PricePeriodSummary>? resolver = null) => PeriodEndTime;
+
+    public override PricePeriodSummary Clone() =>
+        Recycler?.Borrow<PricePeriodSummary>().CopyFrom(this) as PricePeriodSummary ?? new PricePeriodSummary(this);
 
     public void Configure
     (TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,

@@ -594,6 +594,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
     public override void StateReset()
     {
+        Next       = Previous = null;
         IsEmpty    = true;
         HasUpdates = false;
         base.StateReset();

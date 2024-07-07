@@ -771,6 +771,17 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
 
     IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
+    public override void StateReset()
+    {
+        ((IDoublyLinkedListNode<IPricePeriodSummary>)this).Next     = null;
+        ((IDoublyLinkedListNode<IPricePeriodSummary>)this).Previous = null;
+
+        Next       = Previous = null;
+        IsEmpty    = true;
+        HasUpdates = false;
+        base.StateReset();
+    }
+
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {
         if (other == null) return false;

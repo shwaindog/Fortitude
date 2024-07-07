@@ -151,7 +151,7 @@ public static class TimeSeriesPeriodRangeExtensions
     public static bool CompletelyContains(this BoundedTimeRange timeRange, ITimeSeriesPeriodRange range) => range.IsContainedBy(timeRange);
 
     public static bool IsContainedBy(this ITimeSeriesPeriodRange range, UnboundedTimeRange timeRange) =>
-        range.PeriodStartTime <= (timeRange.FromTime ?? DateTime.MaxValue) && range.PeriodEnd() > (timeRange.ToTime ?? DateTime.MinValue);
+        range.PeriodStartTime >= (timeRange.FromTime ?? DateTime.MinValue) && range.PeriodEnd() <= (timeRange.ToTime ?? DateTime.MaxValue);
 
     public static bool CompletelyContains(this UnboundedTimeRange timeRange, ITimeSeriesPeriodRange range) => range.IsContainedBy(timeRange);
 

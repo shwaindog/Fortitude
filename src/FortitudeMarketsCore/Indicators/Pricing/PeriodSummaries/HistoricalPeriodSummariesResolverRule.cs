@@ -66,10 +66,11 @@ public struct HistoricalPeriodResponseRequest
 
 public class HistoricalPeriodRequestState
 {
-    public HistoricalPeriodRequestState(HistoricalPeriodStreamRequest periodStreamRequest, IChannel publishChannel)
+    public HistoricalPeriodRequestState(HistoricalPeriodStreamRequest periodStreamRequest, IChannel publishChannel, DateTime generateToTime)
     {
         HistoricalPeriodStreamRequest = periodStreamRequest;
         PublishChannel                = publishChannel;
+        GenerateToTime                = generateToTime;
     }
 
     public HistoricalPeriodStreamRequest HistoricalPeriodStreamRequest { get; set; }
@@ -79,6 +80,7 @@ public class HistoricalPeriodRequestState
     public PeriodSummaryState? PreviousPeriodState { get; set; }
 
     public IChannel? PublishChannel { get; set; }
+    public DateTime  GenerateToTime { get; }
 }
 
 public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote : class, ITimeSeriesEntry<TQuote>, ILevel1Quote, new()
@@ -87,7 +89,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
 
     private readonly TimeSeriesPeriod buildPeriod;
 
-    private readonly IDoublyLinkedList<IPricePeriodSummary> cacheLatest = new DoublyLinkedList<IPricePeriodSummary>();
+    private readonly IDoublyLinkedList<PricePeriodSummary> cacheLatest = new DoublyLinkedList<PricePeriodSummary>();
 
     private readonly Task<bool> generateHistoricalComplete;
 
@@ -110,7 +112,6 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
 
     private TaskCompletionSource<bool>? historicalSummariesUpToDate;
     private DateTime                    nextStorageCheckTime;
-
 
     private InstrumentFileInfo? quotesFileInfo;
     private BoundedTimeRange    quotesHistoricalRange;
@@ -135,7 +136,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
         historicalSummariesUpToDate = new TaskCompletionSource<bool>();
         generateHistoricalComplete  = historicalSummariesUpToDate.Task;
 
-        cacheTimeSpan = buildPeriod != Tick
+        cacheTimeSpan = period >= PricePeriodSummaryConstants.PersistPeriodsFrom
             ? historicalPeriod.CacheLength.LargerPeriodOf(period, 32)
             : historicalPeriod.CacheLength.ToTimeSpan().Max(TimeSpan.FromHours(4));
     }
@@ -143,12 +144,12 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
     public override async ValueTask StartAsync()
     {
         recentlyCompletedSummariesSubscription
-            = await this.RegisterListenerAsync<IPricePeriodSummary>
+            = await this.RegisterListenerAsync<PricePeriodSummary>
                 (tickerId.CompletePeriodSummaryAddress(period), CacheRecentlyCompletedSummariesHandler);
         historicalPriceStreamRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalPeriodStreamRequest, bool>
             (tickerId.HistoricalPeriodSummaryStreamRequest(period), HistoricalPeriodStreamRequestHandler);
         historicalPriceResponseRequestSubscription
-            = await this.RegisterRequestListenerAsync<HistoricalPeriodResponseRequest, List<IPricePeriodSummary>>
+            = await this.RegisterRequestListenerAsync<HistoricalPeriodResponseRequest, List<PricePeriodSummary>>
                 (tickerId.HistoricalPeriodSummaryResponseRequest(period), HistoricalPeriodResponseRequestHandler);
         if (period is >= PricePeriodSummaryConstants.PersistPeriodsFrom and <= PricePeriodSummaryConstants.PersistPeriodsTo)
         {
@@ -209,7 +210,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
                             (subPeriodFileInfo.Value.EarliestEntry!.Value, subPeriodFileInfo.Value.LatestEntry!.Value.Min(now));
 
                         var searchRange = new UnboundedTimeRange
-                            (existingSummariesHistoricalRange.ToTime, subPeriodsHistoricalRange.ToTime.Min(maxPreviousTimeRange));
+                            (existingSummariesHistoricalRange.ToTime.AddMicroseconds(1), subPeriodsHistoricalRange.ToTime.Min(maxPreviousTimeRange));
 
                         await CheckLaunchSubPeriodFactory
                             (new HistoricalPeriodStreamRequest
@@ -225,9 +226,16 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
             else
             {
                 subPeriodsHistoricalRange = quotesHistoricalRange;
+
+                if (existingSummariesHistoricalRange.ToTime >= quotesHistoricalRange.ToTime.Min(maxPreviousTimeRange))
+                {
+                    historicalSummariesUpToDate?.SetResult(true);
+                    historicalSummariesUpToDate = null;
+                    return;
+                }
                 await GetHistoricalTicksToConvert
                     (new HistoricalPeriodStreamRequest
-                        (new UnboundedTimeRange(quotesHistoricalRange.FromTime, existingSummariesHistoricalRange.ToTime.Min(maxPreviousTimeRange))
+                        (new UnboundedTimeRange(existingSummariesHistoricalRange.ToTime.AddMicroseconds(1), quotesHistoricalRange.ToTime.Min(maxPreviousTimeRange))
                        , new ResponsePublishParams(tickerId.PersistAppendPeriodSummaryPublish(period))));
             }
         }
@@ -238,7 +246,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
         }
     }
 
-    private async ValueTask CacheRecentlyCompletedSummariesHandler(IBusMessage<IPricePeriodSummary> recentlyCompletedSummaryMsg)
+    private async ValueTask CacheRecentlyCompletedSummariesHandler(IBusMessage<PricePeriodSummary> recentlyCompletedSummaryMsg)
     {
         var summary = recentlyCompletedSummaryMsg.Payload.Body();
         summary.IncrementRefCount();
@@ -280,58 +288,64 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
         await base.StopAsync();
     }
 
-    private async ValueTask<List<IPricePeriodSummary>> HistoricalPeriodResponseRequestHandler
-        (IBusRespondingMessage<HistoricalPeriodResponseRequest, List<IPricePeriodSummary>> reqMsg)
+    private async ValueTask<List<PricePeriodSummary>> HistoricalPeriodResponseRequestHandler
+        (IBusRespondingMessage<HistoricalPeriodResponseRequest, List<PricePeriodSummary>> reqMsg)
     {
         await generateHistoricalComplete;
         await CheckLoadCache();
 
         var timeRange = reqMsg.Payload.Body().RequestTimeRange;
 
-        var dateFirstCached = cacheLatest.Head?.PeriodStartTime ?? DateTimeConstants.UnixEpoch;
+        var maxPreviousTimeRange = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
+        var requestMax           = maxPreviousTimeRange.Min(timeRange.ToTime);
+        var dateFirstCached      = cacheLatest.Head?.PeriodStartTime ?? requestMax;
 
         var currentSummary = cacheLatest.Head;
-        var cacheResults   = new List<IPricePeriodSummary>();
+        var cacheResults   = new List<PricePeriodSummary>();
         while (currentSummary != null)
         {
-            if (currentSummary.PeriodEndTime >= timeRange.FromTime && currentSummary.PeriodEndTime < timeRange.ToTime)
-                cacheResults.Add(currentSummary);
+            if (currentSummary.PeriodEndTime >= timeRange.FromTime && currentSummary.PeriodEndTime <= requestMax)
+                cacheResults.Add(new PricePeriodSummary(currentSummary));
             currentSummary = currentSummary.Next;
         }
         if (timeRange.FromTime >= dateFirstCached) return cacheResults;
 
         var unmatchedRange = new BoundedTimeRange(timeRange.FromTime, dateFirstCached);
 
-        if (period >= PricePeriodSummaryConstants.PersistPeriodsFrom)
+        if (existingSummariesHistoricalRange.ToTime >= unmatchedRange.FromTime && period >= PricePeriodSummaryConstants.PersistPeriodsFrom)
         {
             var retrieveUncachedRequest = new HistoricalPricePeriodSummaryRequestResponse(tickerId, period, unmatchedRange);
 
-            var remainingPeriods = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<IPricePeriodSummary>>
+            var remainingPeriods = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
                 (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, retrieveUncachedRequest);
             remainingPeriods.AddRange(cacheResults);
             return remainingPeriods;
         }
-        if (subPeriod > Tick)
+        if (buildPeriod > Tick)
         {
             var subPeriodRequest = new HistoricalPeriodResponseRequest(unmatchedRange);
             var subPeriodsInRange
-                = await this.RequestAsync<HistoricalPeriodResponseRequest, List<IPricePeriodSummary>>
+                = await this.RequestAsync<HistoricalPeriodResponseRequest, List<PricePeriodSummary>>
                     (tickerId.HistoricalPeriodSummaryResponseRequest(subPeriod), subPeriodRequest);
 
             if (subPeriodsInRange.Count == 0) return cacheResults;
-            var remainingPeriods = new List<IPricePeriodSummary>();
+            var remainingPeriods = new List<PricePeriodSummary>();
             var firstSubPeriod   = subPeriodsInRange[0];
+            var keepFrom         = (TimeContext.UtcNow - cacheTimeSpan).Min(existingSummariesHistoricalRange.ToTime - cacheTimeSpan);
             var currentPeriod    = new PricePeriodSummary(period, period.ContainingPeriodBoundaryStart(firstSubPeriod.PeriodStartTime));
             foreach (var subPeriodHistory in subPeriodsInRange)
             {
                 if (!subPeriodHistory.IsWhollyBoundedBy(currentPeriod))
                 {
-                    remainingPeriods.Add(currentPeriod.Clone());
+                    if (currentPeriod.PeriodEndTime > keepFrom) cacheLatest.AddReplace(currentPeriod);
+                    remainingPeriods.Add(currentPeriod);
                     currentPeriod = new PricePeriodSummary(period, period.ContainingPeriodBoundaryStart(subPeriodHistory.PeriodStartTime));
                 }
                 currentPeriod.MergeBoundaries(subPeriodHistory);
             }
-            remainingPeriods.AddRange(cacheResults.Select(pps => pps.Clone()));
+            if (currentPeriod.PeriodEndTime > keepFrom) cacheLatest.AddReplace(currentPeriod);
+            remainingPeriods.Add(currentPeriod);
+            remainingPeriods.AddRange(cacheResults);
             return remainingPeriods;
         }
         else
@@ -339,7 +353,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
             // request ticks build PricePeriodSummaries
             var limitedRecycler = Context.PooledRecycler.Borrow<LimitedBlockingRecycler>();
             limitedRecycler.MaxTypeBorrowLimit = 200;
-            var remainingPeriods      = new List<IPricePeriodSummary>();
+            var remainingPeriods      = new List<PricePeriodSummary>();
             var rebuildCompleteSource = new TaskCompletionSource<bool>();
             var rebuildCompleteTask   = rebuildCompleteSource.Task;
 
@@ -353,7 +367,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
                 else
                 {
                     if (ce.Event.PeriodEndTime > keepFrom) cacheLatest.AddReplace(ce.Event);
-                    remainingPeriods.Add(ce.Event.Clone());
+                    remainingPeriods.Add(ce.Event);
                 }
                 return !ce.IsLastEvent;
             }, limitedRecycler);
@@ -361,7 +375,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
             var tickChannel        = this.CreateChannelFactory<TQuote>(ReceiveHistoricalQuote, new LimitedBlockingRecycler(200));
             var tickChannelRequest = tickChannel.ToChannelPublishRequest(-1, 50);
             var req                = new HistoricalPeriodStreamRequest(unmatchedRange, new ResponsePublishParams(rebuildRequest));
-            historicalPeriodsPublishLookup.Add(tickChannel.Id, new HistoricalPeriodRequestState(req, tickChannel));
+            historicalPeriodsPublishLookup.Add(tickChannel.Id, new HistoricalPeriodRequestState(req, tickChannel, dateFirstCached));
             var request = tickChannelRequest.ToHistoricalQuotesRequest(tickerId, unmatchedRange);
 
             var expectResult
@@ -369,6 +383,8 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
 
             if (!expectResult)
             {
+                await tickChannel.PublishComplete(this);
+                historicalPeriodsPublishLookup.Remove(tickChannel.Id);
                 Context.PooledRecycler.Recycle(limitedRecycler);
                 return cacheResults;
             }
@@ -394,7 +410,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
         var maxPreviousTimeRange = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
         var requestMax           = maxPreviousTimeRange.Min(rangeReq?.ToTime);
 
-        var dateFirstCached = cacheLatest.Head?.PeriodStartTime;
+        var dateFirstCached = cacheLatest.Head?.PeriodEndTime ?? requestMax;
 
         var timeRange = new BoundedTimeRange(quotesHistoricalRange.FromTime.Max(rangeReq?.FromTime), requestMax);
 
@@ -412,19 +428,41 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
             #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             return true;
         }
+        var unmatchedRange = new BoundedTimeRange(timeRange.FromTime, dateFirstCached);
 
+        if (existingSummariesHistoricalRange.ToTime >= unmatchedRange.FromTime && period >= PricePeriodSummaryConstants.PersistPeriodsFrom)
+        {
+            var limitedRecycler = Context.PooledRecycler.Borrow<LimitedBlockingRecycler>();
+            limitedRecycler.MaxTypeBorrowLimit = req.PublishParams.MaxInflightEvents;
+            var tickChannel    = this.CreateChannelFactory(ReceiveHistoricalPeriod, limitedRecycler);
+            var channelRequest = tickChannel.ToChannelPublishRequest(-1, 50);
+            historicalPeriodsPublishLookup.Add(tickChannel.Id, new HistoricalPeriodRequestState(req, tickChannel, dateFirstCached));
+            var retrieveUncachedRequest = new HistoricalPricePeriodSummaryStreamRequest
+                (tickerId, period, channelRequest, unmatchedRange);
+
+            var expectResults = await this.RequestAsync<HistoricalPricePeriodSummaryStreamRequest, bool>
+                (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoStreamRequest, retrieveUncachedRequest);
+
+            if (!expectResults)
+            {
+                await tickChannel.PublishComplete(this);
+                historicalPeriodsPublishLookup.Remove(tickChannel.Id);
+                Context.PooledRecycler.Recycle(limitedRecycler);
+            }
+            return expectResults;
+        }
         if (buildPeriod > Tick)
         {
             if (!subPeriodResolverStarted) await EnsureSubPeriodResolverRunning();
 
             await generateHistoricalComplete;
-            var historicalRetrieveRange = new UnboundedTimeRange(rangeReq?.FromTime, dateFirstCached ?? maxPreviousTimeRange);
+            var historicalRetrieveRange = new UnboundedTimeRange(unmatchedRange.FromTime, dateFirstCached);
 
             var limitedRecycler = Context.PooledRecycler.Borrow<LimitedBlockingRecycler>();
             limitedRecycler.MaxTypeBorrowLimit = req.PublishParams.MaxInflightEvents;
-            var tickChannel    = this.CreateChannelFactory(ReceiveHistoricalPeriod, limitedRecycler);
+            var tickChannel    = this.CreateChannelFactory(ReceiveHistoricalSubPeriod, limitedRecycler);
             var channelRequest = tickChannel.ToChannelPublishRequest(-1, 50);
-            historicalPeriodsPublishLookup.Add(tickChannel.Id, new HistoricalPeriodRequestState(req, tickChannel));
+            historicalPeriodsPublishLookup.Add(tickChannel.Id, new HistoricalPeriodRequestState(req, tickChannel, dateFirstCached));
             var request = new HistoricalPeriodStreamRequest(historicalRetrieveRange, new ResponsePublishParams(channelRequest));
 
             var expectResult
@@ -442,45 +480,45 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
         var currentSummary = cacheLatest.Head;
         while (currentSummary != null && sendMore)
         {
-            if (currentSummary.PeriodEndTime > timeRange.FromTime && currentSummary.PeriodEndTime <= timeRange.ToTime)
+            if (currentSummary.PeriodEndTime >= timeRange.FromTime && currentSummary.PeriodEndTime <= timeRange.ToTime)
                 sendMore = await PublishHistoricalSummary(currentSummary, req.PublishParams);
             currentSummary = currentSummary.Next;
         }
         if (req.PublishParams.ResponsePublishMethod == ResponsePublishMethod.ReceiverChannel)
         {
-            var publishChannel = (IChannel<IPricePeriodSummary>)req.PublishParams.ChannelRequest!.Channel;
+            var publishChannel = (IChannel<PricePeriodSummary>)req.PublishParams.ChannelRequest!.Channel;
             await publishChannel.PublishComplete(this);
         }
     }
 
-    private async ValueTask<bool> PublishHistoricalSummary(int channelId, IPricePeriodSummary periodSummary)
+    private async ValueTask<bool> PublishHistoricalSummary(int channelId, PricePeriodSummary periodSummary, bool shouldCache = true)
     {
         var publishParams = historicalPeriodsPublishLookup[channelId].HistoricalPeriodStreamRequest.PublishParams;
-        return await PublishHistoricalSummary(periodSummary, publishParams);
+        return await PublishHistoricalSummary(periodSummary, publishParams, shouldCache);
     }
 
-    private async Task<bool> PublishHistoricalSummary(IPricePeriodSummary periodSummary, ResponsePublishParams publishParams)
+    private async Task<bool> PublishHistoricalSummary(PricePeriodSummary periodSummary, ResponsePublishParams publishParams, bool shouldCache = true)
     {
         var keepFrom = (TimeContext.UtcNow - cacheTimeSpan).Min(existingSummariesHistoricalRange.ToTime - cacheTimeSpan);
-        if (periodSummary.PeriodEndTime > keepFrom) cacheLatest.AddReplace(periodSummary);
+        if (shouldCache && periodSummary.PeriodEndTime > keepFrom) cacheLatest.AddReplace(periodSummary);
         if (publishParams.ResponsePublishMethod == ResponsePublishMethod.ListenerDefaultBroadcastAddress)
         {
-            await this.PublishAsync(tickerId.PeriodSummaryRepublish(period), periodSummary.Clone());
+            await this.PublishAsync(tickerId.PeriodSummaryRepublish(period), periodSummary);
         }
         else if (publishParams.ResponsePublishMethod == ResponsePublishMethod.AlternativeBroadcastAddress)
         {
-            this.Publish(publishParams.AlternativePublishAddress!, periodSummary.Clone(), publishParams.PublishDispatchOptions);
+            this.Publish(publishParams.AlternativePublishAddress!, periodSummary, publishParams.PublishDispatchOptions);
         }
         else
         {
-            var publishChannel = (IChannel<IPricePeriodSummary>)publishParams.ChannelRequest!.Channel;
-            var getMore        = await publishChannel.Publish(this, periodSummary.Clone());
+            var publishChannel = (IChannel<PricePeriodSummary>)publishParams.ChannelRequest!.Channel;
+            var getMore        = await publishChannel.Publish(this, periodSummary);
             return getMore;
         }
         return true;
     }
 
-    private async ValueTask<bool> ReceiveHistoricalPeriod(ChannelEvent<IPricePeriodSummary> channelEvent)
+    private async ValueTask<bool> ReceiveHistoricalPeriod(ChannelEvent<PricePeriodSummary> channelEvent)
     {
         if (channelEvent.IsLastEvent)
         {
@@ -495,22 +533,21 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
     private async ValueTask<bool> GetHistoricalTicksToConvert(HistoricalPeriodStreamRequest rangeReq)
     {
         if (Equals(quotesHistoricalRange, default)) return false;
-        var endHistoricalPeriods   = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
-        var requestHistoricalRange = quotesHistoricalRange;
-        if (existingSummariesHistoricalRange.ToTime >= requestHistoricalRange.ToTime) return false;
-
-        if (existingSummariesHistoricalRange.ToTime < requestHistoricalRange.ToTime)
-            requestHistoricalRange
-                = new BoundedTimeRange(existingSummariesHistoricalRange.ToTime, requestHistoricalRange.ToTime.Min(endHistoricalPeriods));
+        var endHistoricalPeriods = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
+        var requestHistoricalRange = new BoundedTimeRange
+            (rangeReq.RequestTimeRange?.FromTime ?? quotesHistoricalRange.FromTime, endHistoricalPeriods.Min(rangeReq.RequestTimeRange?.ToTime));
 
         var historicalQuotesChannel = this.CreateChannelFactory<TQuote>(ReceiveHistoricalQuote, new LimitedBlockingRecycler(200));
         var channelRequest          = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
-        historicalPeriodsPublishLookup.Add(historicalQuotesChannel.Id, new HistoricalPeriodRequestState(rangeReq, historicalQuotesChannel));
+        historicalPeriodsPublishLookup.Add(historicalQuotesChannel.Id
+                                         , new HistoricalPeriodRequestState(rangeReq, historicalQuotesChannel, requestHistoricalRange.ToTime));
         var request = channelRequest.ToHistoricalQuotesRequest(tickerId, requestHistoricalRange);
 
         var retrieving = await this.RequestAsync<HistoricalQuotesRequest<TQuote>, bool>(request.RequestAddress, request);
         if (!retrieving)
         {
+            await historicalQuotesChannel.PublishComplete(this);
+            historicalPeriodsPublishLookup.Remove(historicalQuotesChannel.Id);
             historicalSummariesUpToDate?.SetResult(true);
             historicalSummariesUpToDate = null;
         }
@@ -568,7 +605,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
             else
             {
                 var lastPeriodEnd = previousGeneratePeriodSubSummariesState!.SubSummaryPeriods.Tail?.EndBidAsk;
-                if (previousGeneratePeriodSubSummariesState.HasPublishedComplete)
+                if (!previousGeneratePeriodSubSummariesState.HasPublishedComplete)
                 {
                     sendMore = await PublishHistoricalSummary
                         (channelEvent.ChannelId, previousGeneratePeriodSubSummariesState.BuildPeriodSummary(Context.PooledRecycler
@@ -591,22 +628,27 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
     {
         await EnsureSubPeriodResolverRunning();
         var requestHistoricalRange = streamRequest.RequestTimeRange;
+        var endHistoricalPeriods   = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
+        var generateTo             = endHistoricalPeriods.Min(requestHistoricalRange?.ToTime);
 
-        var historicalQuotesChannel = this.CreateChannelFactory(ReceiveHistoricalSubPeriod, new LimitedBlockingRecycler(200));
-        var channelRequest          = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
-        var request                 = new HistoricalPeriodStreamRequest(requestHistoricalRange, new ResponsePublishParams(channelRequest));
-        historicalPeriodsPublishLookup.Add(historicalQuotesChannel.Id, new HistoricalPeriodRequestState(streamRequest, historicalQuotesChannel));
+        var historicalSummariesChannel = this.CreateChannelFactory(ReceiveHistoricalSubPeriod, new LimitedBlockingRecycler(200));
+        var channelRequest             = historicalSummariesChannel.ToChannelPublishRequest(-1, 50);
+        var request                    = new HistoricalPeriodStreamRequest(requestHistoricalRange, new ResponsePublishParams(channelRequest));
+        historicalPeriodsPublishLookup.Add
+            (historicalSummariesChannel.Id, new HistoricalPeriodRequestState(streamRequest, historicalSummariesChannel, generateTo));
 
         var expectResults
             = await this.RequestAsync<HistoricalPeriodStreamRequest, bool>(tickerId.HistoricalPeriodSummaryStreamRequest(buildPeriod), request);
         if (!expectResults)
         {
+            await historicalSummariesChannel.PublishComplete(this);
+            historicalPeriodsPublishLookup.Remove(historicalSummariesChannel.Id);
             historicalSummariesUpToDate?.SetResult(true);
             historicalSummariesUpToDate = null;
         }
     }
 
-    private async ValueTask<bool> ReceiveHistoricalSubPeriod(ChannelEvent<IPricePeriodSummary> channelEvent)
+    private async ValueTask<bool> ReceiveHistoricalSubPeriod(ChannelEvent<PricePeriodSummary> channelEvent)
     {
         var publishState = historicalPeriodsPublishLookup[channelEvent.ChannelId];
         if (channelEvent.IsLastEvent)
@@ -627,16 +669,16 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
         }
         var subSummaryPeriod = channelEvent.Event;
 
+        var subSummaryBoundaryStart = period.ContainingPeriodBoundaryStart(subSummaryPeriod.PeriodStartTime);
         var currentGeneratePeriodSubSummariesState = publishState.CurrentPeriodState ??=
-            new PeriodSummaryState(period.ContainingPeriodBoundaryStart(subSummaryPeriod.PeriodStartTime), period);
-        var quoteStartPeriod = period.ContainingPeriodBoundaryStart(subSummaryPeriod.PeriodStartTime);
+            new PeriodSummaryState(subSummaryBoundaryStart, period);
 
         var sendMore = true;
-        if (currentGeneratePeriodSubSummariesState.PeriodStartTime == quoteStartPeriod)
+        if (subSummaryPeriod.IsWhollyBoundedBy(currentGeneratePeriodSubSummariesState))
         {
             currentGeneratePeriodSubSummariesState.SubSummaryPeriods.AddLast(subSummaryPeriod);
         }
-        else if (quoteStartPeriod > currentGeneratePeriodSubSummariesState.PeriodStartTime)
+        else if (subSummaryBoundaryStart > currentGeneratePeriodSubSummariesState.PeriodStartTime)
         {
             var previousGeneratePeriodSubSummariesState = publishState.PreviousPeriodState;
             var noLastSummaryPeriod                     = previousGeneratePeriodSubSummariesState == null;
@@ -645,7 +687,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
             if (noLastSummaryPeriod)
             {
                 previousGeneratePeriodSubSummariesState = publishState.PreviousPeriodState = currentGeneratePeriodSubSummariesState;
-                currentGeneratePeriodSubSummariesState = publishState.CurrentPeriodState = new PeriodSummaryState(quoteStartPeriod, period)
+                currentGeneratePeriodSubSummariesState = publishState.CurrentPeriodState = new PeriodSummaryState(subSummaryBoundaryStart, period)
                 {
                     PreviousPeriodBidAskEnd = previousGeneratePeriodSubSummariesState.SubSummaryPeriods.Tail?.EndBidAsk
                 };
@@ -664,7 +706,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
                 var newCurrentPeriodSummaryState = ClearExisting(previousGeneratePeriodSubSummariesState);
                 publishState.PreviousPeriodState       = currentGeneratePeriodSubSummariesState;
                 currentGeneratePeriodSubSummariesState = publishState.CurrentPeriodState = newCurrentPeriodSummaryState;
-                currentGeneratePeriodSubSummariesState.Configure(quoteStartPeriod, period);
+                currentGeneratePeriodSubSummariesState.Configure(subSummaryBoundaryStart, period);
                 currentGeneratePeriodSubSummariesState.PreviousPeriodBidAskEnd = lastPeriodEnd;
             }
             currentGeneratePeriodSubSummariesState.SubSummaryPeriods.AddFirst(subSummaryPeriod);
@@ -677,19 +719,22 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
         if (!historicalPeriodsPublishLookup.TryGetValue(channelId, out var publishState)) return false;
         var cacheRange = timeRange ?? publishState.HistoricalPeriodStreamRequest.RequestTimeRange ?? new UnboundedTimeRange();
 
-        var maxPreviousTimeRange = period.PreviousPeriodStart(TimeContext.UtcNow);
+        var lastPublishedCurrent = publishState.GenerateToTime;
+        var maxPreviousTimeRange = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
         var bounded              = cacheRange.CapUpperTime(maxPreviousTimeRange);
         var cacheCurrent         = cacheLatest.Head;
         var sendMore             = true;
         while (cacheCurrent != null && sendMore)
         {
-            if (bounded.CompletelyContains(cacheCurrent)) sendMore = await PublishHistoricalSummary(channelId, cacheCurrent);
+            if (cacheCurrent.PeriodStartTime >= lastPublishedCurrent
+             && bounded.CompletelyContains(cacheCurrent))
+                sendMore = await PublishHistoricalSummary(channelId, cacheCurrent, false);
             cacheCurrent = cacheCurrent.Next;
         }
         var publishParams = publishState.HistoricalPeriodStreamRequest.PublishParams;
         if (publishParams.ResponsePublishMethod == ResponsePublishMethod.ReceiverChannel)
         {
-            var publishChannel = (IChannel<IPricePeriodSummary>)publishParams.ChannelRequest!.Channel;
+            var publishChannel = (IChannel<PricePeriodSummary>)publishParams.ChannelRequest!.Channel;
             historicalPeriodsPublishLookup.Remove(channelId);
             await publishChannel.PublishComplete(this);
         }
@@ -717,21 +762,47 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
 
     private async ValueTask CheckLoadCache()
     {
-        var currentSummary = cacheLatest.Head;
-        if (currentSummary != null) return;
-        var maxPreviousTimeRange = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
+        var currentSummary         = cacheLatest.Head;
+        var endHistoricalTimeRange = period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
+        var cacheFrom              = endHistoricalTimeRange - cacheTimeSpan;
+        if (currentSummary != null && currentSummary.PeriodStartTime <= cacheFrom && cacheLatest.Tail!.PeriodEndTime >= endHistoricalTimeRange)
+            return;
 
-        var cacheFrom = maxPreviousTimeRange - cacheTimeSpan;
-        var timeRange = new BoundedTimeRange(cacheFrom, maxPreviousTimeRange);
-
-        if (existingSummariesHistoricalRange.ToTime >= timeRange.FromTime)
-            if (currentSummary == null)
+        if (currentSummary != null && currentSummary.PeriodStartTime > cacheFrom)
+        {
+            var timeRange = new BoundedTimeRange(cacheFrom, currentSummary.PeriodStartTime);
+            if (existingSummariesHistoricalRange.ToTime >= timeRange.FromTime)
             {
                 var request = new HistoricalPricePeriodSummaryRequestResponse(tickerId, period, timeRange);
                 var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
                     (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
-                foreach (var repoHistoricalSummary in repoHistoricalSummaries) cacheLatest.AddLast(repoHistoricalSummary);
+                foreach (var repoHistoricalSummary in repoHistoricalSummaries) cacheLatest.AddReplace(repoHistoricalSummary, Context.PooledRecycler);
             }
+        }
+        if (currentSummary != null && cacheLatest.Tail!.PeriodEndTime >= endHistoricalTimeRange)
+        {
+            var timeRange = new BoundedTimeRange(cacheLatest.Tail!.PeriodEndTime, endHistoricalTimeRange);
+            if (existingSummariesHistoricalRange.ToTime >= timeRange.FromTime)
+            {
+                var request = new HistoricalPricePeriodSummaryRequestResponse(tickerId, period, timeRange);
+                var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
+                    (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
+                foreach (var repoHistoricalSummary in repoHistoricalSummaries) cacheLatest.AddReplace(repoHistoricalSummary, Context.PooledRecycler);
+            }
+        }
+        if (currentSummary == null)
+        {
+            var timeRange = new BoundedTimeRange(cacheFrom, endHistoricalTimeRange);
+            if (existingSummariesHistoricalRange.ToTime >= timeRange.FromTime)
+                if (currentSummary == null)
+                {
+                    var request = new HistoricalPricePeriodSummaryRequestResponse(tickerId, period, timeRange);
+                    var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
+                        (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
+                    foreach (var repoHistoricalSummary in repoHistoricalSummaries)
+                        cacheLatest.AddReplace(repoHistoricalSummary, Context.PooledRecycler);
+                }
+        }
     }
 
     private PeriodSummaryState ClearExisting(PeriodSummaryState toClear)
@@ -744,6 +815,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule where TQuote :
 
             currentSummary = currentSummary.Next;
         }
+        toClear.SubSummaryPeriods.Clear();
         toClear.NextPeriodBidAskStart   = null;
         toClear.PreviousPeriodBidAskEnd = null;
         toClear.HasPublishedComplete    = false;
