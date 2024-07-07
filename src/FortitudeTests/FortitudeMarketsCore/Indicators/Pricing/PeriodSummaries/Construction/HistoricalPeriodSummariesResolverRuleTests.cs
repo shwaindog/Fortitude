@@ -17,6 +17,7 @@ using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Indicators;
 using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;
+using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
@@ -32,7 +33,7 @@ using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSu
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;
+namespace FortitudeTests.FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 
 [TestClass]
 public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueTypeTestSetup
@@ -288,6 +289,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(14, lastQuotesRetrieved.Count);
 
+        await test15SHistoricalPeriodClient.BlockUntilToPersistReaches(1);
         var hasResult = await test15SHistoricalPeriodClient.InvokeResponseRequestOnTestClientQueue
             (new HistoricalPeriodResponseRequest(new BoundedTimeRange(testEpochTime - TimeSpan.FromSeconds(15), testEpochTime)));
         Assert.AreEqual(1, test15SHistoricalPeriodClient.ReceivedToPersistEvents.Count);
@@ -319,6 +321,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver30SRule);
+        await test30SHistoricalPeriodClient.BlockUntilToPersistReaches(1);
 
         Assert.AreEqual(5, lastSummariesRetrieved.Count);
         Assert.AreEqual(0, lastQuotesRetrieved.Count);
@@ -536,6 +539,12 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         private ISubscription? toPersistSubscription;
 
         public List<IPricePeriodSummary> ReceivedToPersistEvents { get; } = new();
+
+        public async Task BlockUntilToPersistReaches(int expectedNumber, int timeoutMs = 2_000)
+        {
+            var timeoutTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+            while (ReceivedToPersistEvents.Count < expectedNumber && DateTime.UtcNow < timeoutTime) await Task.Delay(timeoutMs);
+        }
 
         public override async ValueTask StartAsync()
         {

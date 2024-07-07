@@ -6,6 +6,7 @@
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Messages;
+using FortitudeCommon.AsyncProcessing.Tasks;
 
 #endregion
 
@@ -107,5 +108,21 @@ public static class RuleExtensions
         var subscription = await sender.Context.MessageBus.AddListenSubscribeInterceptor(sender, interceptor, onQueueTypes);
         sender.AddOnStopResourceCleanup(subscription);
         return subscription;
+    }
+
+    public static ValueTask<int> CreateRuleStateAwaiter
+        (this IRule rule, RuleLifeCycle awaitState, IMessageQueue messageQueue, TimeSpan? timeout = null)
+    {
+        var reusableValueTaskSource = messageQueue.Context.PooledRecycler.Borrow<ReusableValueTaskSource<int>>();
+        if (timeout != null)
+        {
+            reusableValueTaskSource.ResponseTimeout                = timeout;
+            reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = messageQueue.Context.QueueTimer;
+        }
+        rule.LifeCycleChanged += (_, _, newState) =>
+        {
+            if (newState == awaitState) reusableValueTaskSource.SetResult(1);
+        };
+        return reusableValueTaskSource.GenerateValueTask();
     }
 }

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Linq.Expressions;
 using System.Threading.Tasks.Sources;
@@ -13,7 +16,7 @@ namespace FortitudeCommon.AsyncProcessing.Tasks;
 
 public interface IAsyncResponseSource : IValueTaskSource, IRecyclableObject
 {
-    bool IsCompleted { get; }
+    bool IsCompleted  { get; }
     Type ResponseType { get; }
     void SetException(Exception error);
 }
@@ -21,18 +24,18 @@ public interface IAsyncResponseSource : IValueTaskSource, IRecyclableObject
 public interface IReusableAsyncResponse<in T> : IAsyncResponseSource
 {
     short Version { get; }
-    void TrySetResult(T result);
-    void SetResult(T result);
+    void  TrySetResult(T result);
+    void  SetResult(T result);
 }
 
 public interface IReusableAsyncResponseSource<T> : IReusableAsyncResponse<T>
 {
     // ReSharper disable once UnusedMemberInSuper.Global
-    Task<T> AsTask { get; }
+    Task<T>       AsTask            { get; }
     ValueTask<T>? AwaitingValueTask { get; set; }
-    void TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask);
-    void TrySetResultFromAwaitingTask(Task<T> awaitingTask);
-    ValueTask<T> GenerateValueTask();
+    void          TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask);
+    void          TrySetResultFromAwaitingTask(Task<T> awaitingTask);
+    ValueTask<T>  GenerateValueTask();
 }
 
 // credit here to Microsoft.AspNetCore.Server.Kestrel.Core.Internal.ManualResetValueTaskSource
@@ -43,40 +46,46 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ReusableValueTaskSource<T>));
 
     public static int AfterGetResultRecycleInstanceMs = 60_000;
-    private static readonly Action<IAsyncResponseSource?> DecrementUsageAction = DecrementUsage;
-    private static readonly Action<Task<T>, object?> CheckTaskComplete = CheckAsTaskComplete;
-    private static readonly Action<ReusableValueTaskSource<T>?> CheckTaskCompleteAgain = CheckAsTaskCompleteAgain;
-    private static readonly Action<ReusableValueTaskSource<T>?> ResponseTimedOut = SetResponseTimedOut;
-    private static readonly Action<IAsyncResponseSource?> RecycleReusableValueTaskSource = RecycleCompleted;
 
-    private static readonly Action<Task<T>> ResetTaskAction;
+    private static readonly Action<IAsyncResponseSource?>       DecrementUsageAction           = DecrementUsage;
+    private static readonly Action<Task<T>, object?>            CheckTaskComplete              = CheckAsTaskComplete;
+    private static readonly Action<ReusableValueTaskSource<T>?> CheckTaskCompleteAgain         = CheckAsTaskCompleteAgain;
+    private static readonly Action<ReusableValueTaskSource<T>?> ResponseTimedOut               = SetResponseTimedOut;
+    private static readonly Action<IAsyncResponseSource?>       RecycleReusableValueTaskSource = RecycleCompleted;
+    private static readonly Action<Task<T>>                     ResetTaskAction;
+
     private static int totalInstances;
+
     private readonly TaskCompletionSource<T> taskCompletionSource = new();
+
     protected ManualResetValueTaskSourceCore<T> Core; // mutable struct; do not make this readonly
-    private int decrementCountDownTimerSet;
+
+    private   int decrementCountDownTimerSet;
     protected int InstanceNumber;
+
     private ITimerUpdate? lastTimerActive;
+
     private int shouldRecycle;
 
     static ReusableValueTaskSource()
     {
         var paramTask = Expression.Parameter(typeof(Task<T>));
 
-        Expression mStateFlags = Expression.Field(paramTask, typeof(Task), "m_stateFlags");
-        Expression setMStateFlags = Expression.Assign(mStateFlags, Expression.Constant(0x2000400));
-        Expression mStateObj = Expression.Field(paramTask, typeof(Task), "m_stateObject");
-        Expression setMStateObj = Expression.Assign(mStateObj, Expression.Constant(null));
-        Expression mContinuationObj = Expression.Field(paramTask, typeof(Task), "m_continuationObject");
-        Expression setContinuationObj = Expression.Assign(mContinuationObj, Expression.Constant(null));
+        Expression mStateFlags           = Expression.Field(paramTask, typeof(Task), "m_stateFlags");
+        Expression setMStateFlags        = Expression.Assign(mStateFlags, Expression.Constant(0x2000400));
+        Expression mStateObj             = Expression.Field(paramTask, typeof(Task), "m_stateObject");
+        Expression setMStateObj          = Expression.Assign(mStateObj, Expression.Constant(null));
+        Expression mContinuationObj      = Expression.Field(paramTask, typeof(Task), "m_continuationObject");
+        Expression setContinuationObj    = Expression.Assign(mContinuationObj, Expression.Constant(null));
         Expression mContingentProperties = Expression.Field(paramTask, typeof(Task), "m_contingentProperties");
-        Expression setMContingentProperties = Expression.Assign(mContingentProperties
-            , Expression.Constant(null,
-                NonPublicInvocator.GetNonPublicType(typeof(Task), "System.Threading.Tasks.Task+ContingentProperties")));
-        Expression mResult = Expression.Field(paramTask, typeof(Task<T>), "m_result");
+        Expression setMContingentProperties = Expression.Assign
+            (mContingentProperties, Expression.Constant(null, NonPublicInvocator.GetNonPublicType(typeof(Task)
+                                                                                                , "System.Threading.Tasks.Task+ContingentProperties")));
+        Expression mResult    = Expression.Field(paramTask, typeof(Task<T>), "m_result");
         Expression setMResult = Expression.Assign(mResult, Expression.Constant(default(T), typeof(T)));
 
-        Expression actionBlock = Expression.Block(setMStateFlags, setMStateObj, setContinuationObj
-            , setMContingentProperties, setMResult);
+        Expression actionBlock = Expression.Block
+            (setMStateFlags, setMStateObj, setContinuationObj, setMContingentProperties, setMResult);
 
         ResetTaskAction = Expression.Lambda<Action<Task<T>>>(actionBlock, paramTask).Compile();
     }
@@ -182,8 +191,8 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
                 {
                     if (lastTimerActive != null) lastTimerActive.DecrementRefCount();
 
-                    lastTimerActive = ResponseTimeoutAndRecycleTimer.RunIn(AfterGetResultRecycleInstanceMs, this
-                        , RecycleReusableValueTaskSource);
+                    lastTimerActive = ResponseTimeoutAndRecycleTimer.RunIn
+                        (AfterGetResultRecycleInstanceMs, this, RecycleReusableValueTaskSource);
                 }
                 else
                 {
@@ -228,21 +237,25 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
 
     public override void StateReset()
     {
-        refCount = 0;
-        shouldRecycle = 0;
+        refCount                   = 0;
+        shouldRecycle              = 0;
         decrementCountDownTimerSet = 0;
-        AwaitingValueTask = null;
+        AwaitingValueTask          = null;
         ResetTaskAction(taskCompletionSource.Task);
         RunContinuationsAsynchronously = false;
+        ResponseTimeoutAndRecycleTimer = null;
+        ResponseTimeout                = null;
         Core.Reset();
         base.StateReset();
     }
 
     public T GetResult(short token) => Core.GetResult(token);
+
     public ValueTaskSourceStatus GetStatus(short token) => Core.GetStatus(token);
 
-    public void OnCompleted(Action<object?> continuation, object? state, short token
-        , ValueTaskSourceOnCompletedFlags flags) =>
+    public void OnCompleted
+    (Action<object?> continuation, object? state, short token
+      , ValueTaskSourceOnCompletedFlags flags) =>
         Core.OnCompleted(continuation, state, token, flags);
 
     public void SetResponseTimeout(TimeSpan responseTimeout, IActionTimer? actionTimer)
@@ -279,7 +292,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
                 reusableValueTaskSource.lastTimerActive?.DecrementRefCount();
                 reusableValueTaskSource.lastTimerActive
                     = reusableValueTaskSource.ResponseTimeoutAndRecycleTimer?.RunIn(AfterGetResultRecycleInstanceMs
-                        , reusableValueTaskSource, CheckTaskCompleteAgain);
+                                                                                  , reusableValueTaskSource, CheckTaskCompleteAgain);
             }
         }
     }
@@ -321,13 +334,11 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     public ValueTaskSourceStatus GetStatus()
     {
         var status = Core.GetStatus(Core.Version);
-        if (status == ValueTaskSourceStatus.Canceled || status == ValueTaskSourceStatus.Faulted)
-            StartRecycleDecrementRefCountTimer();
+        if (status == ValueTaskSourceStatus.Canceled || status == ValueTaskSourceStatus.Faulted) StartRecycleDecrementRefCountTimer();
         // logger.Debug("instanceNumber: {0} IncrementRefCount with refCount {1} has status {2}", InstanceNumber
         //     , refCount, status);
         return status;
     }
-
 
     public override string ToString() =>
         $"{GetType().Name}[{typeof(T).Name}]({nameof(InstanceNumber)}: {InstanceNumber}, {nameof(Version)}: {Version}, " +

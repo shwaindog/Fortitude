@@ -130,4 +130,21 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
 
         return currentFlags;
     }
+
+    public PeriodSummaryState Clear()
+    {
+        var currentSummary = SubSummaryPeriods.Head;
+        while (currentSummary != null)
+        {
+            var removed = SubSummaryPeriods.Remove(currentSummary);
+            removed.DecrementRefCount();
+
+            currentSummary = currentSummary.Next;
+        }
+        SubSummaryPeriods.Clear();
+        NextPeriodBidAskStart   = null;
+        PreviousPeriodBidAskEnd = null;
+        HasPublishedComplete    = false;
+        return this;
+    }
 }
