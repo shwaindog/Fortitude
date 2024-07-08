@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 

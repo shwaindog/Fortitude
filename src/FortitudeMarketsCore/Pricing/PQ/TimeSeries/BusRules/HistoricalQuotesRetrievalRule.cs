@@ -17,7 +17,7 @@ using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes;
@@ -30,15 +30,16 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote
 {
     public HistoricalQuotesRequest
-        (ISourceTickerIdentifier tickerId, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
+        (ISourceTickerId tickerId, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
     {
         TickerId       = tickerId;
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
     }
 
-    public ISourceTickerIdentifier       TickerId       { get; }
-    public UnboundedTimeRange?           TimeRange      { get; }
+    public ISourceTickerId     TickerId  { get; }
+    public UnboundedTimeRange? TimeRange { get; }
+
     public ChannelPublishRequest<TEntry> ChannelRequest { get; }
 
     public string RequestAddress { get; } = CalculateRequestAddress();
@@ -115,7 +116,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         base.Stop();
     }
 
-    private IInstrument? FindInstrumentFor(ISourceTickerIdentifier tickerId)
+    private IInstrument? FindInstrumentFor(ISourceTickerId tickerId)
     {
         var matchingInstruments =
             TimeSeriesRepository!.InstrumentFilesMap.Keys

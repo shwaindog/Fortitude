@@ -6,7 +6,6 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -150,8 +149,8 @@ public class PQLevel3QuoteTests
     public void TraderPaidGivenVolumeLevel3Quote_New_BuildsLastTraderPaidGivenEntries()
     {
         AssertLastTradeTypeIsExpected
-            (typeof(PQLastTraderPaidGivenTrade), traderPaidGivenVolumeRecentlyTradedEmptyQuote,
-             traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote);
+            (typeof(PQLastTraderPaidGivenTrade), traderPaidGivenVolumeRecentlyTradedEmptyQuote
+           , traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote);
     }
 
     [TestMethod]
@@ -460,11 +459,10 @@ public class PQLevel3QuoteTests
                 Assert.AreEqual(3, quoteUpdates.Count);
                 var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTrkQtInfo).ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
-                var expectedLastTradeField = new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset,
-                                                               0, (byte)(PQFieldFlags.IsGivenFlag | volumeScale));
-                var expectedQuoteLastTradeField = new PQFieldUpdate(
-                                                                    (byte)(PQFieldKeys.LastTradeVolumeOffset + i),
-                                                                    0, (byte)(PQFieldFlags.IsGivenFlag | volumeScale));
+                var expectedLastTradeField = new PQFieldUpdate
+                    (PQFieldKeys.LastTradeVolumeOffset, 0, (byte)(PQFieldFlags.IsGivenFlag | volumeScale));
+                var expectedQuoteLastTradeField = new PQFieldUpdate
+                    ((byte)(PQFieldKeys.LastTradeVolumeOffset + i), 0, (byte)(PQFieldFlags.IsGivenFlag | volumeScale));
                 Assert.AreEqual(expectedLastTradeField, lastTradeUpdates[0]);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[2]);
 
@@ -746,12 +744,8 @@ public class PQLevel3QuoteTests
                  PQBooleanValuesExtensions
                      .AllExceptExecutableUpdated
                      .Unset
-                         ((populatedL3Quote.IsBidPriceTopUpdated
-                              ? PQBooleanValues.None
-                              : PQBooleanValues.IsBidPriceTopUpdatedSetFlag)
-                        | (populatedL3Quote.IsAskPriceTopUpdated
-                              ? PQBooleanValues.None
-                              : PQBooleanValues.IsAskPriceTopUpdatedSetFlag)));
+                         ((populatedL3Quote.IsBidPriceTopUpdated ? PQBooleanValues.None : PQBooleanValues.IsBidPriceTopUpdatedSetFlag)
+                        | (populatedL3Quote.IsAskPriceTopUpdated ? PQBooleanValues.None : PQBooleanValues.IsAskPriceTopUpdatedSetFlag)));
         }
     }
 
@@ -770,12 +764,8 @@ public class PQLevel3QuoteTests
                  PQBooleanValuesExtensions
                      .AllFields
                      .Unset
-                         ((populatedL3Quote.IsBidPriceTopUpdated
-                              ? PQBooleanValues.None
-                              : PQBooleanValues.IsBidPriceTopUpdatedSetFlag)
-                        | (populatedL3Quote.IsAskPriceTopUpdated
-                              ? PQBooleanValues.None
-                              : PQBooleanValues.IsAskPriceTopUpdatedSetFlag)));
+                         ((populatedL3Quote.IsBidPriceTopUpdated ? PQBooleanValues.None : PQBooleanValues.IsBidPriceTopUpdatedSetFlag)
+                        | (populatedL3Quote.IsAskPriceTopUpdated ? PQBooleanValues.None : PQBooleanValues.IsAskPriceTopUpdatedSetFlag)));
         }
     }
 
@@ -916,14 +906,14 @@ public class PQLevel3QuoteTests
         {
             var clonedQuote = ((ICloneable<ILevel0Quote>)populatedL3Quote).Clone();
             Assert.AreNotSame(clonedQuote, populatedL3Quote);
-            Assert.AreEqual(populatedL3Quote, clonedQuote, "clonedQuote differences are \n '"
-                                                         + clonedQuote.DiffQuotes(populatedL3Quote) + "'");
+            Assert.AreEqual
+                (populatedL3Quote, clonedQuote
+               , "clonedQuote differences are \n '" + clonedQuote.DiffQuotes(populatedL3Quote) + "'");
 
             var cloned2 = (PQLevel3Quote)((ICloneable)populatedL3Quote).Clone();
             Assert.AreNotSame(cloned2, populatedL3Quote);
             if (!cloned2.Equals(populatedL3Quote))
-                Console.Out.WriteLine("clonedQuote differences are \n '"
-                                    + cloned2.DiffQuotes(populatedL3Quote) + "'");
+                Console.Out.WriteLine("clonedQuote differences are \n '" + cloned2.DiffQuotes(populatedL3Quote) + "'");
             Assert.AreEqual(populatedL3Quote, cloned2);
         }
     }

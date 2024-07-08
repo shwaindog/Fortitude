@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
@@ -11,7 +14,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 
@@ -19,19 +22,22 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
-public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConfig marketConnectionConfig,
+public class PQPricingClientRequesterRule
+    (string feedName, IMarketConnectionConfig marketConnectionConfig,
         IMessageDeserializationRepository sharedFeedDeserializationRepo, ISocketDispatcherResolver dispatcherResolver)
     : Rule("PQClient_" + feedName + "_PQClientSnapshotRule")
 {
     private readonly string feedAvailableTickersUpdateAddress = feedName.FeedAvailableTickersUpdateAddress();
+
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientRequesterRule));
 
-    private readonly INetworkTopicConnectionConfig snapshotClientTopicConnectionConfig
-        = marketConnectionConfig.PricingServerConfig!.SnapshotConnectionConfig;
+    private readonly INetworkTopicConnectionConfig snapshotClientTopicConnectionConfig =
+        marketConnectionConfig.PricingServerConfig!.SnapshotConnectionConfig;
 
     private int connectionTimeout;
 
     private List<ISourceTickerQuoteInfo> lastReceivedSourceTickerQuoteInfos = new();
+
     private IRule? remoteMessageBusTopicPublicationAmenderRule;
 
     private PQPricingClientSnapshotConversationRequester? snapshotClient;
@@ -51,9 +57,8 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
     private async ValueTask LaunchSnapshotClient()
     {
         await this.RegisterListenerAsync<string>(feedName.FeedAvailableTickersRequestAddress(), CheckAndPublishChangedFeedTickersHandler);
-        snapshotClient ??= PQPricingClientSnapshotConversationRequester.BuildTcpRequester(marketConnectionConfig, dispatcherResolver, feedName
-            , this
-            , sharedFeedDeserializationRepo);
+        snapshotClient ??= PQPricingClientSnapshotConversationRequester.BuildTcpRequester
+            (marketConnectionConfig, dispatcherResolver, feedName, this, sharedFeedDeserializationRepo);
         await AttemptSnapshotClientStart();
     }
 
@@ -61,16 +66,18 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
     {
         var sourceTickerQuoteInfos = snapshotIdsMessage.Payload.Body().SourceTickerQuoteInfos;
         logger.Info("Received request to publish snapshot ids [{0}]", sourceTickerQuoteInfos.JoinToString());
-        var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
-            .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
+        var workerQueueConnect =
+            Context.GetEventQueues
+                       (MessageQueueType.Worker).SelectEventQueue(QueueSelectionStrategy.EarliestCompleted)
+                   .GetExecutionContextResult<bool, TimeSpan>(this);
         var succeeded = await (snapshotClient?.RequestSnapshots(sourceTickerQuoteInfos, connectionTimeout, workerQueueConnect)
-                               ?? new ValueTask<bool>(false));
+                            ?? new ValueTask<bool>(false));
         if (!succeeded)
-            logger.Warn("{0} did not successfully request snapshots for [{1}]", feedName,
-                string.Join(", ", sourceTickerQuoteInfos.Select(stqi => stqi.Ticker)));
+            logger.Warn("{0} did not successfully request snapshots for [{1}]", feedName
+                      , string.Join(", ", sourceTickerQuoteInfos.Select(stqi => stqi.Ticker)));
         else
-            logger.Info("{0} requested snapshots for [{1}]", feedName,
-                string.Join(", ", sourceTickerQuoteInfos.Select(stqi => stqi.Ticker)));
+            logger.Info("{0} requested snapshots for [{1}]", feedName
+                      , string.Join(", ", sourceTickerQuoteInfos.Select(stqi => stqi.Ticker)));
     }
 
     private async ValueTask AttemptSnapshotClientStart()
@@ -78,6 +85,7 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
         try
         {
             var startedSuccessfully = snapshotClient!.IsStarted;
+
             if (!startedSuccessfully) startedSuccessfully = await CallSnapshotClientStartOnWorkerQueue();
             if (startedSuccessfully)
             {
@@ -94,7 +102,7 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
         {
             var nextAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
             logger.Warn("Warning caught exception and did not connect to PQSnapshot Client will wait {0}ms before trying again. Got {1}"
-                , nextAttemptTime, ex);
+                      , nextAttemptTime, ex);
             Timer.RunIn((int)nextAttemptTime, AttemptSnapshotClientStart);
         }
     }
@@ -108,11 +116,12 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
         if (checkSourceTickerQuoteInfos.Any())
         {
             remoteMessageBusTopicPublicationAmenderRule = new PQPricingClientBusTopicPublicationAmenderRule(
-                feedName, checkSourceTickerQuoteInfos, snapshotClient!.SocketSessionContext, marketConnectionConfig.PricingServerConfig!
-                , new PQtoPQPriceConverterRepository(), sharedFeedDeserializationRepo.Name);
+             feedName, checkSourceTickerQuoteInfos, snapshotClient!.SocketSessionContext, marketConnectionConfig.PricingServerConfig!
+           , new PQtoPQPriceConverterRepository(), sharedFeedDeserializationRepo.Name);
             var deployedSocketListenerQueue = snapshotClient.IOInboundMessageQueue;
-            var dispatchResult = await Context.MessageBus.DeployRuleAsync(this, remoteMessageBusTopicPublicationAmenderRule
-                , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
+            var dispatchResult = await Context.MessageBus.DeployRuleAsync
+                (this, remoteMessageBusTopicPublicationAmenderRule,
+                 new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
 
             // logger.Info("Have deployed PQPricingClientBusTopicPublicationAmenderRule on {0} with dispatchResults {1}"
             //     , deployedSocketListenerQueue.Name, dispatchResult);
@@ -122,7 +131,7 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
 
         var nextRequestAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
         logger.Warn("Warning did not retrieve any SourceTickerQuoteInfos for {0} will wait {1}ms before trying again", feedName
-            , nextRequestAttemptTime);
+                  , nextRequestAttemptTime);
         Timer.RunIn((int)nextRequestAttemptTime, AttemptGetFeedAvailableTickersLaunchTopicAmender);
     }
 
@@ -149,9 +158,9 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
         var lastPQSourceTickerInfoResponse = await snapshotClient.RequestSourceTickerQuoteInfoListAsync();
         if (lastPQSourceTickerInfoResponse == null)
         {
-            logger.Warn(
-                "Got no response when requesting source ticker information from PQSnapshot server for feed name {0}, on connection {1}",
-                feedName, snapshotClientTopicConnectionConfig);
+            logger.Warn
+                ("Got no response when requesting source ticker information from PQSnapshot server for feed name {0}, on connection {1}"
+               , feedName, snapshotClientTopicConnectionConfig);
             return lastReceivedSourceTickerQuoteInfos;
         }
 
@@ -160,8 +169,9 @@ public class PQPricingClientRequesterRule(string feedName, IMarketConnectionConf
 
     private async ValueTask<bool> CallSnapshotClientStartOnWorkerQueue()
     {
-        var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
-            .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
+        var workerQueueConnect =
+            Context.GetEventQueues(MessageQueueType.Worker)
+                   .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
         return await snapshotClient!.StartAsync(connectionTimeout, workerQueueConnect);
     }
 }

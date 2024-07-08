@@ -57,7 +57,8 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     private IPQSnapshotServer? snapshotServer;
     private IPQUpdateServer?   updateServer;
 
-    public PQServer(IMarketConnectionConfig marketConnectionConfig,
+    public PQServer
+    (IMarketConnectionConfig marketConnectionConfig,
         IPQServerHeartBeatSender serverHeartBeatSender,
         ISocketDispatcherResolver socketDispatcherResolver,
         Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> snapShotServerFactory,
@@ -192,8 +193,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
             heartBeatSync.Release();
         }
 
-        if (serverHeartBeatSender.HasStarted)
-            serverHeartBeatSender.StopAndWaitUntilFinished();
+        if (serverHeartBeatSender.HasStarted) serverHeartBeatSender.StopAndWaitUntilFinished();
         if (updateServer != null)
         {
             updateServer.Stop(CloseReason.Completed, "PQServer is closing");
@@ -245,7 +245,8 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         }
     }
 
-    private void OnReceivedSourceTickerInfoRequest(PQSourceTickerInfoRequest sourceTickerInfoRequest
+    private void OnReceivedSourceTickerInfoRequest
+    (PQSourceTickerInfoRequest sourceTickerInfoRequest
       , IConversationRequester clientConversationRequester)
     {
         var response = new PQSourceTickerInfoResponse(marketConnectionConfig.AllSourceTickerInfos);

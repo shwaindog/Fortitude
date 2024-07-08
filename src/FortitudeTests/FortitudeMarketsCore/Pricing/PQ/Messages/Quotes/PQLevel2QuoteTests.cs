@@ -6,7 +6,6 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -144,10 +143,8 @@ public class PQLevel2QuoteTests
                , LayerFlags.Volume | LayerFlags.Price
                , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
         var cappedLevel2Quote = new PQLevel2Quote(tooLargeMaxDepth);
-        Assert.AreEqual(PQFieldKeys.SingleByteFieldIdMaxBookDepth,
-                        cappedLevel2Quote.BidBook.Capacity);
-        Assert.AreEqual(PQFieldKeys.SingleByteFieldIdMaxBookDepth,
-                        cappedLevel2Quote.AskBook.Capacity);
+        Assert.AreEqual(PQFieldKeys.SingleByteFieldIdMaxBookDepth, cappedLevel2Quote.BidBook.Capacity);
+        Assert.AreEqual(PQFieldKeys.SingleByteFieldIdMaxBookDepth, cappedLevel2Quote.AskBook.Capacity);
     }
 
     [TestMethod]
@@ -349,8 +346,8 @@ public class PQLevel2QuoteTests
                     ? emptyQuote.BidBook
                     : emptyQuote.AskBook).AllLayers
                                          .Select((pvl, i) => new { i, pvl })
-                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl,
-                                                                            priceVolumeLayer)).Select(indexPvl => indexPvl.i)
+                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl, priceVolumeLayer))
+                                         .Select(indexPvl => indexPvl.i)
                                          .FirstOrDefault();
 
             Assert.IsFalse(priceVolumeLayer!.IsPriceUpdated);
@@ -370,8 +367,8 @@ public class PQLevel2QuoteTests
             Assert.AreEqual(3, quoteUpdates.Count);
             var layerUpdates = priceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTkrQtInfo).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
-            var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerPriceOffset,
-                                                       PQScaling.Scale(expectedPrice, priceScale), priceScale);
+            var expectedLayerField = new PQFieldUpdate
+                (PQFieldKeys.LayerPriceOffset, PQScaling.Scale(expectedPrice, priceScale), priceScale);
             var expectedSideAdjustedLayerField =
                 new PQFieldUpdate
                     ((byte)(PQFieldKeys.LayerPriceOffset + indexFromTop), expectedLayerField.Value
@@ -421,8 +418,7 @@ public class PQLevel2QuoteTests
                     ? emptyQuote.BidBook
                     : emptyQuote.AskBook).AllLayers
                                          .Select((pvl, i) => new { i, pvl })
-                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl,
-                                                                            priceVolumeLayer))
+                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl, priceVolumeLayer))
                                          .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
             Assert.IsFalse(priceVolumeLayer!.IsVolumeUpdated);
@@ -442,8 +438,8 @@ public class PQLevel2QuoteTests
             Assert.AreEqual(3, quoteUpdates.Count);
             var layerUpdates = priceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTkrQtInfo).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
-            var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerVolumeOffset,
-                                                       PQScaling.Scale(expectedVolume, volumeScale), volumeScale);
+            var expectedLayerField = new PQFieldUpdate
+                (PQFieldKeys.LayerVolumeOffset, PQScaling.Scale(expectedVolume, volumeScale), volumeScale);
             var expectedSideAdjustedLayerField =
                 new PQFieldUpdate
                     ((byte)(PQFieldKeys.LayerVolumeOffset + indexFromTop),
@@ -494,8 +490,8 @@ public class PQLevel2QuoteTests
                     (isBid
                         ? emptyQuote.BidBook
                         : emptyQuote.AskBook).AllLayers
-                                             .Select((pvl, i) => new { i, pvl }).Where(indexPvl =>
-                                                                                           ReferenceEquals(indexPvl.pvl, sourcePriceVolumeLayer))
+                                             .Select((pvl, i) => new { i, pvl })
+                                             .Where(indexPvl => ReferenceEquals(indexPvl.pvl, sourcePriceVolumeLayer))
                                              .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
                 Assert.IsFalse(sourcePriceVolumeLayer.IsSourceNameUpdated);
@@ -532,8 +528,7 @@ public class PQLevel2QuoteTests
                 Assert.IsFalse(Equals(selectedStringUpdate, new PQFieldStringUpdate()));
                 var expectedStringUpdates = new PQFieldStringUpdate
                 {
-                    Field = new PQFieldUpdate(
-                                              PQFieldKeys.LayerNameDictionaryUpsertCommand, 0u, stringUpdatelayerFlags)
+                    Field = new PQFieldUpdate(PQFieldKeys.LayerNameDictionaryUpsertCommand, 0u, stringUpdatelayerFlags)
                   , StringUpdate = new PQStringUpdate
                     {
                         Command      = CrudCommand.Upsert
@@ -566,8 +561,7 @@ public class PQLevel2QuoteTests
                 var diffNameIdLookupSrcTkrQtInfo =
                     new PQSourceTickerQuoteInfo(emptyQuote.SourceTickerQuoteInfo!)
                     {
-                        NameIdLookup = new PQNameIdLookupGenerator(
-                                                                   PQFieldKeys.LayerNameDictionaryUpsertCommand)
+                        NameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand)
                     };
                 var newEmpty = new PQLevel2Quote(diffNameIdLookupSrcTkrQtInfo);
                 newEmpty.UpdateField(quoteUpdates[0]);
@@ -595,8 +589,8 @@ public class PQLevel2QuoteTests
                 (isBid
                     ? emptyQuote.BidBook
                     : emptyQuote.AskBook).AllLayers
-                                         .Select((pvl, i) => new { i, pvl }).Where(indexPvl =>
-                                                                                       ReferenceEquals(indexPvl.pvl, srcPriceVolumeLayer))
+                                         .Select((pvl, i) => new { i, pvl })
+                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl, srcPriceVolumeLayer))
                                          .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
             Assert.IsFalse(srcPriceVolumeLayer.IsExecutableUpdated);
@@ -613,8 +607,7 @@ public class PQLevel2QuoteTests
             Assert.AreEqual(3, quoteUpdates.Count);
             var layerUpdates = srcPriceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
-            var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerBooleanFlagsOffset,
-                                                       PQFieldFlags.LayerExecutableFlag);
+            var expectedLayerField = new PQFieldUpdate(PQFieldKeys.LayerBooleanFlagsOffset, PQFieldFlags.LayerExecutableFlag);
             var expectedSideAdjustedLayerField =
                 new PQFieldUpdate
                     ((byte)(PQFieldKeys.LayerBooleanFlagsOffset + indexFromTop),
@@ -658,14 +651,13 @@ public class PQLevel2QuoteTests
                                                            .OfType<IPQSourceQuoteRefPriceVolumeLayer>())
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var isBid = emptyQuote.BidBook.AllLayers.Any(pvl => ReferenceEquals(pvl,
-                                                                                srcQtRefPriceVolumeLayer));
+            var isBid = emptyQuote.BidBook.AllLayers.Any(pvl => ReferenceEquals(pvl, srcQtRefPriceVolumeLayer));
             var indexFromTop =
                 (isBid
                     ? emptyQuote.BidBook
                     : emptyQuote.AskBook).AllLayers
-                                         .Select((pvl, i) => new { i, pvl }).Where(indexPvl =>
-                                                                                       ReferenceEquals(indexPvl.pvl, srcQtRefPriceVolumeLayer))
+                                         .Select((pvl, i) => new { i, pvl })
+                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl, srcQtRefPriceVolumeLayer))
                                          .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
             Assert.IsFalse(srcQtRefPriceVolumeLayer.IsSourceQuoteReferenceUpdated);
@@ -733,15 +725,15 @@ public class PQLevel2QuoteTests
                 (isBid
                     ? emptyQuote.BidBook
                     : emptyQuote.AskBook).AllLayers
-                                         .Select((pvl, i) => new { i, pvl }).Where(indexPvl =>
-                                                                                       ReferenceEquals(indexPvl.pvl, srcQtRefPriceVolumeLayer))
+                                         .Select((pvl, i) => new { i, pvl })
+                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl, srcQtRefPriceVolumeLayer))
                                          .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
             Assert.IsFalse(srcQtRefPriceVolumeLayer.IsValueDateUpdated);
             Assert.IsFalse(emptyQuote.HasUpdates);
             Assert.AreEqual(DateTimeConstants.UnixEpoch, srcQtRefPriceVolumeLayer.ValueDate);
-            Assert.AreEqual(0, srcQtRefPriceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                                                       .Count());
+            Assert.AreEqual(0, srcQtRefPriceVolumeLayer
+                               .GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
             Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
             var expectedValueDate = new DateTime(2017, 12, 03, 19, 0, 0); //only to the nearest hour
@@ -751,8 +743,8 @@ public class PQLevel2QuoteTests
             Assert.AreEqual(expectedValueDate, srcQtRefPriceVolumeLayer.ValueDate);
             var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(3, quoteUpdates.Count);
-            var layerUpdates = srcQtRefPriceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                                                       .ToList();
+            var layerUpdates = srcQtRefPriceVolumeLayer
+                               .GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             var hoursSinceUnixEpoch = expectedValueDate.GetHoursFromUnixEpoch();
             var expectedLayerField = new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset,
@@ -804,8 +796,8 @@ public class PQLevel2QuoteTests
                 (isBid
                     ? emptyQuote.BidBook
                     : emptyQuote.AskBook).AllLayers
-                                         .Select((pvl, i) => new { i, pvl }).Where(indexPvl =>
-                                                                                       ReferenceEquals(indexPvl.pvl, traderPriceVolumeLayer))
+                                         .Select((pvl, i) => new { i, pvl })
+                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl, traderPriceVolumeLayer))
                                          .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
@@ -879,8 +871,8 @@ public class PQLevel2QuoteTests
                     (isBid
                         ? emptyQuote.BidBook
                         : emptyQuote.AskBook).AllLayers
-                                             .Select((pvl, i) => new { i, pvl }).Where(indexPvl =>
-                                                                                           ReferenceEquals(indexPvl.pvl, traderPriceVolumeLayer))
+                                             .Select((pvl, i) => new { i, pvl })
+                                             .Where(indexPvl => ReferenceEquals(indexPvl.pvl, traderPriceVolumeLayer))
                                              .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
                 for (var i = 0; i < 256; i++)
@@ -993,8 +985,8 @@ public class PQLevel2QuoteTests
                 (isBid
                     ? emptyQuote.BidBook
                     : emptyQuote.AskBook).AllLayers
-                                         .Select((pvl, i) => new { i, pvl }).Where(indexPvl =>
-                                                                                       ReferenceEquals(indexPvl.pvl, traderPriceVolumeLayer))
+                                         .Select((pvl, i) => new { i, pvl })
+                                         .Where(indexPvl => ReferenceEquals(indexPvl.pvl, traderPriceVolumeLayer))
                                          .Select(indexPvl => indexPvl.i).FirstOrDefault();
 
             for (var i = 0; i < 256; i++)
@@ -1007,8 +999,7 @@ public class PQLevel2QuoteTests
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(0m, traderLayerInfo.TraderVolume);
                 Assert.AreEqual(0,
-                                traderPriceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                                                      .Count());
+                                traderPriceVolumeLayer.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
                 Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
                 var expectedTraderVolume = 254682m;
@@ -1172,8 +1163,8 @@ public class PQLevel2QuoteTests
             newEmpty.PQSequenceId        = populatedL2Quote.PQSequenceId;
             newEmpty.LastPublicationTime = populatedL2Quote.LastPublicationTime;
 
-            Assert.AreEqual(populatedL2Quote, newEmpty,
-                            "Expected quotes to be the same but were \n " + populatedL2Quote.DiffQuotes(newEmpty));
+            Assert.AreEqual(populatedL2Quote, newEmpty
+                          , "Expected quotes to be the same but were \n " + populatedL2Quote.DiffQuotes(newEmpty));
         }
     }
 
@@ -1260,15 +1251,13 @@ public class PQLevel2QuoteTests
             var clonedQuote = ((ICloneable<ILevel0Quote>)populatedL2Quote).Clone();
             Assert.AreNotSame(clonedQuote, populatedL2Quote);
             if (!clonedQuote.Equals(populatedL2Quote))
-                Console.Out.WriteLine("clonedQuote differences are \n"
-                                    + clonedQuote.DiffQuotes(populatedL2Quote) + "'");
+                Console.Out.WriteLine("clonedQuote differences are \n" + clonedQuote.DiffQuotes(populatedL2Quote) + "'");
             Assert.AreEqual(populatedL2Quote, clonedQuote);
 
             var cloned2 = (PQLevel2Quote)((ICloneable)populatedL2Quote).Clone();
             Assert.AreNotSame(cloned2, populatedL2Quote);
             if (!cloned2.Equals(populatedL2Quote))
-                Console.Out.WriteLine("clonedQuote differences are \n '"
-                                    + cloned2.DiffQuotes(populatedL2Quote) + "'");
+                Console.Out.WriteLine("clonedQuote differences are \n '" + cloned2.DiffQuotes(populatedL2Quote) + "'");
             Assert.AreEqual(populatedL2Quote, cloned2);
         }
     }
@@ -1347,16 +1336,15 @@ public class PQLevel2QuoteTests
             var bidL2Pvl = l2Q.BidBook[i]!;
             var askL2Pvl = l2Q.AskBook[i]!;
 
-            Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LayerPriceOffset + i), PQScaling.Scale(bidL2Pvl.Price, priceScale), priceScale),
-                            PQLevel0QuoteTests.ExtractFieldUpdateWithId
-                                (checkFieldUpdates, (byte)(PQFieldKeys.LayerPriceOffset + i), priceScale)
+            Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LayerPriceOffset + i), PQScaling.Scale(bidL2Pvl.Price, priceScale), priceScale)
+                          , PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerPriceOffset + i), priceScale)
                           , $"For bidlayer {bidL2Pvl.GetType().Name} level {i}");
             Assert.AreEqual
                 (new PQFieldUpdate
                      ((byte)(PQFieldKeys.LayerPriceOffset + i), PQScaling.Scale(askL2Pvl.Price, priceScale)
                     , (byte)(priceScale | PQFieldFlags.IsAskSideFlag))
-               , PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerPriceOffset + i)
-                                                           , (byte)(priceScale | PQFieldFlags.IsAskSideFlag))
+               , PQLevel0QuoteTests.ExtractFieldUpdateWithId
+                     (checkFieldUpdates, (byte)(PQFieldKeys.LayerPriceOffset + i), (byte)(priceScale | PQFieldFlags.IsAskSideFlag))
                , $"For asklayer {bidL2Pvl.GetType().Name} level {i}");
             Assert.AreEqual
                 (new PQFieldUpdate

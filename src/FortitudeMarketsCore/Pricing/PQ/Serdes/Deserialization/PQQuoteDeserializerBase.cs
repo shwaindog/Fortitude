@@ -12,7 +12,6 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
@@ -235,8 +234,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
             if (tl.Enabled) tl.Add("Ticker", Identifier.Ticker);
             detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforePublish);
             // ReSharper disable once ForCanBeConvertedToForeach
-            for (var i = 0; i < Subscribers.Count; i++)
-                Subscribers[i].OnNext(PublishedQuote);
+            for (var i = 0; i < Subscribers.Count; i++) Subscribers[i].OnNext(PublishedQuote);
             OnNotify(PublishedQuote);
             if (tl.Enabled) tl.Add("Source", Identifier.Source);
             PublishedQuote.HasUpdates = false;

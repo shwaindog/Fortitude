@@ -12,7 +12,7 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -500,8 +500,8 @@ public class PQQuoteDeserializerBaseTests
             const string expectedTicker = "TestTicker";
             const string expectedSource = "TestSource";
 
-            moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().Verify(usti => usti.Ticker, Times.AtLeast(4));
-            moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().Verify(usti => usti.Source, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Ticker, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Source, Times.AtLeast(4));
             moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().SetupGet(usti => usti.Ticker).Returns(expectedTicker);
             moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().SetupGet(usti => usti.Source).Returns(expectedSource);
 
@@ -517,8 +517,10 @@ public class PQQuoteDeserializerBaseTests
 
 
             moqPerfLogger.Verify(ltcsl => ltcsl.Enabled, Times.AtLeast(8));
-            moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().Verify(usti => usti.Ticker, Times.AtLeast(8));
-            moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().Verify(usti => usti.Source, Times.AtLeast(8));
+            moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().Verify(usti => usti.Ticker, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerQuoteInfo>().Verify(usti => usti.Source, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Ticker, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Source, Times.AtLeast(4));
             moqPerfLogger.Verify(ltcsl => ltcsl.Add("Ticker", expectedTicker), Times.AtLeast(4));
             moqPerfLogger.Verify(ltcsl => ltcsl.Add("Source", expectedSource), Times.AtLeast(4));
             moqPerfLoggerPool.Verify(ltcslp => ltcslp.StartNewTrace(), Times.AtLeast(4));

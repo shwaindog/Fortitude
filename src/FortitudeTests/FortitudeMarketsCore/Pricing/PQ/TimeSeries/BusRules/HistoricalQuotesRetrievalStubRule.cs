@@ -10,7 +10,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
@@ -34,13 +34,13 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     private ISubscription? pql2RequestListenerSubscription;
     private ISubscription? pql3RequestListenerSubscription;
 
-    private Func<ISourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback;
+    private Func<ISourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback;
 
-    public HistoricalQuotesRetrievalStubRule(Func<ISourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback)
+    public HistoricalQuotesRetrievalStubRule(Func<ISourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback)
         : base(nameof(HistoricalQuotesRetrievalStubRule)) =>
         this.quotesCallback = quotesCallback;
 
-    public Func<ISourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> QuotesCallback
+    public Func<ISourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> QuotesCallback
     {
         get => quotesCallback;
         set => quotesCallback = value ?? throw new ArgumentNullException(nameof(value));

@@ -13,7 +13,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
@@ -25,9 +25,9 @@ using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 
 namespace FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 
-public struct HistoricalPeriodParams(ISourceTickerIdentifier tickerId, TimeSeriesPeriod period, TimeLength cacheLength)
+public struct HistoricalPeriodParams(ISourceTickerId tickerId, TimeSeriesPeriod period, TimeLength cacheLength)
 {
-    public ISourceTickerIdentifier TickerId { get; set; } = tickerId;
+    public ISourceTickerId TickerId { get; set; } = tickerId;
 
     public TimeSeriesPeriod Period      { get; set; } = period;
     public TimeLength       CacheLength { get; set; } = cacheLength;
@@ -62,7 +62,9 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
     private ISubscription? historicalPriceResponseRequestSubscription;
     private ISubscription? historicalPriceStreamRequestSubscription;
 
-    private DateTime       nextStorageCheckTime;
+    private DateTime nextStorageCheckTime;
+
+    private bool           persisterRunning;
     private ISubscription? recentlyCompletedSummariesSubscription;
 
     private ISummaryStreamRequestAttendant? startupBuildSummariesForPersister;
@@ -88,6 +90,8 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
             : historicalPeriod.CacheLength.ToTimeSpan().Max(TimeSpan.FromHours(4));
     }
 
+    private bool CanTrimCache => !persisterRunning || startupBuildSummariesForPersister?.HasCompleted == true;
+
     public ResolverState State { get; }
 
     public override async ValueTask StartAsync()
@@ -104,16 +108,18 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         {
             var tickerSubPeriodService = new TickerPeriodServiceRequest
                 (RequestType.StartOrStatus, ServiceType.PricePeriodSummaryFilePersister, State.tickerId, State.period
-               , PQQuoteExtensions.GetQuoteLevel<TQuote>());
+               , PQQuoteConverterExtensions.GetQuoteLevel<TQuote>());
 
             var response = await this.RequestAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>
                 (IndicatorServiceConstants.PricePeriodIndicatorsServiceStartRequest, tickerSubPeriodService);
             if (response.RunStatus == ServiceRunStatus.Disabled)
                 Logger.Info("File Persistence for PricePeriodSummary {0} for {1} is disable in this configuration"
                           , State.tickerId.ShortName(), State.period);
+            persisterRunning = response.IsRunning();
         }
 
-        var now                  = TimeContext.UtcNow;
+        var now = TimeContext.UtcNow;
+
         var maxPreviousTimeRange = State.period.ContainingPeriodBoundaryStart(TimeContext.UtcNow);
 
         await GetRepositoryQuoteInfo(now);
@@ -142,7 +148,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         if (subPeriodResolverStarted) return;
         var tickerSubPeriodService = new TickerPeriodServiceRequest
             (RequestType.StartOrStatus, ServiceType.HistoricalPricePeriodSummaryResolver, State.tickerId, buildPeriod
-           , PQQuoteExtensions.GetQuoteLevel<TQuote>());
+           , PQQuoteConverterExtensions.GetQuoteLevel<TQuote>());
 
         var response = await this.RequestAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>
             (IndicatorServiceConstants.PricePeriodIndicatorsServiceStartRequest, tickerSubPeriodService);
@@ -237,7 +243,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         var summary = recentlyCompletedSummaryMsg.Payload.Body();
         summary.IncrementRefCount();
         State.cacheLatest.AddLast(summary);
-        if (startupBuildSummariesForPersister?.HasCompleted == true)
+        if (CanTrimCache)
         {
             var now = TimeContext.UtcNow;
             if (now > nextStorageCheckTime)

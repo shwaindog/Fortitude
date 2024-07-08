@@ -5,7 +5,6 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;

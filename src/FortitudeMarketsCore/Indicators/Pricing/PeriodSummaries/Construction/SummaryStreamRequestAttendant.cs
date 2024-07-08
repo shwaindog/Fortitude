@@ -15,7 +15,7 @@ using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Summaries;
-using static FortitudeMarketsCore.Pricing.PQ.Converters.PQQuoteExtensions;
+using static FortitudeMarketsCore.Pricing.PQ.Converters.PQQuoteConverterExtensions;
 
 #endregion
 

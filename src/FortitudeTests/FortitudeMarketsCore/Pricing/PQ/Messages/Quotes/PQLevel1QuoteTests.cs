@@ -7,7 +7,6 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
@@ -33,12 +32,15 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 [TestClass]
 public class PQLevel1QuoteTests
 {
-    private ISourceTickerQuoteInfo        blankSourceTickerQuoteInfo    = null!;
-    private PQLevel1Quote                 emptyQuote                    = null!;
-    private PQLevel1Quote                 fullyPopulatedPqLevel1Quote   = null!;
+    private ISourceTickerQuoteInfo blankSourceTickerQuoteInfo = null!;
+
+    private PQLevel1Quote emptyQuote                  = null!;
+    private PQLevel1Quote fullyPopulatedPqLevel1Quote = null!;
+
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
     private PQSourceTickerQuoteInfo       sourceTickerQuoteInfo         = null!;
-    private DateTime                      testDateTime;
+
+    private DateTime testDateTime;
 
     [TestInitialize]
     public void SetUp()
@@ -765,12 +767,8 @@ public class PQLevel1QuoteTests
             set { }
         }
 
-        IPricePeriodSummary? ILevel1Quote.      SummaryPeriod => SummaryPeriod;
-        public IPQPricePeriodSummary?           SummaryPeriod { get; set; }
-        IMutableLevel1Quote IMutableLevel1Quote.Clone()       => (IMutableLevel1Quote)Clone();
-        IPQLevel1Quote IPQLevel1Quote.          Clone()       => this;
-        ILevel1Quote ILevel1Quote.              Clone()       => this;
-        ILevel1Quote ICloneable<ILevel1Quote>.  Clone()       => this;
+        IPricePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
+        public IPQPricePeriodSummary?     SummaryPeriod { get; set; }
 
         public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
 
@@ -779,24 +777,32 @@ public class PQLevel1QuoteTests
         public decimal  BidPriceTop     { get; set; }
         public DateTime SourceAskTime   { get; set; }
         public decimal  AskPriceTop     { get; set; }
+        public bool     Executable      { get; set; }
 
-        public bool Executable           { get; set; }
         public bool IsAskPriceTopUpdated { get; set; }
         public bool IsBidPriceTopUpdated { get; set; }
 
-        public bool IsBidPriceTopUpdatedChanged         { get; set; }
-        public bool IsAskPriceTopUpdatedChanged         { get; set; }
-        public bool IsSourceAskTimeDateUpdated          { get; set; }
-        public bool IsSourceAskTimeSubHourUpdated       { get; set; }
-        public bool IsSourceBidTimeDateUpdated          { get; set; }
-        public bool IsSourceBidTimeSubHourUpdated       { get; set; }
-        public bool IsAdapterSentTimeDateUpdated        { get; set; }
+        public bool IsBidPriceTopUpdatedChanged { get; set; }
+        public bool IsAskPriceTopUpdatedChanged { get; set; }
+        public bool IsSourceAskTimeDateUpdated  { get; set; }
+
+        public bool IsSourceAskTimeSubHourUpdated { get; set; }
+        public bool IsSourceBidTimeDateUpdated    { get; set; }
+        public bool IsSourceBidTimeSubHourUpdated { get; set; }
+        public bool IsAdapterSentTimeDateUpdated  { get; set; }
+
         public bool IsAdapterSentTimeSubHourUpdated     { get; set; }
         public bool IsAdapterReceivedTimeDateUpdated    { get; set; }
         public bool IsAdapterReceivedTimeSubHourUpdated { get; set; }
-        public bool IsBidPriceTopChanged                { get; set; }
-        public bool IsAskPriceTopChanged                { get; set; }
-        public bool IsExecutableUpdated                 { get; set; }
+
+        public bool IsBidPriceTopChanged { get; set; }
+        public bool IsAskPriceTopChanged { get; set; }
+        public bool IsExecutableUpdated  { get; set; }
+
+        IMutableLevel1Quote IMutableLevel1Quote.Clone() => (IMutableLevel1Quote)Clone();
+        IPQLevel1Quote IPQLevel1Quote.          Clone() => this;
+        ILevel1Quote ILevel1Quote.              Clone() => this;
+        ILevel1Quote ICloneable<ILevel1Quote>.  Clone() => this;
 
         public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
         {

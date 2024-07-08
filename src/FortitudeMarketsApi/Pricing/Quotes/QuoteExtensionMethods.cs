@@ -6,7 +6,6 @@
 using System.Linq.Expressions;
 using System.Text;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;
@@ -177,9 +176,8 @@ public static class QuoteExtensionMethods
               .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
         if (q1Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ1)
-            areSame = comparableQ1.AreEquivalent(q2Value, exactValue);
-        else if (q2Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ2)
-            areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
+            areSame                                                                             = comparableQ1.AreEquivalent(q2Value, exactValue);
+        else if (q2Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ2) areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")
               .Insert(sb.Length, " ", secondLinePadding).Append("q2=").Append(q2Value).Append("\n");
@@ -201,9 +199,8 @@ public static class QuoteExtensionMethods
               .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
         if (q1Value is IInterfacesComparable<IPricePeriodSummary> comparableQ1)
-            areSame = comparableQ1.AreEquivalent(q2Value, exactValue);
-        else if (q2Value is IInterfacesComparable<IPricePeriodSummary> comparableQ2)
-            areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
+            areSame                                                                          = comparableQ1.AreEquivalent(q2Value, exactValue);
+        else if (q2Value is IInterfacesComparable<IPricePeriodSummary> comparableQ2) areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")
               .Insert(sb.Length, " ", secondLinePadding).Append("q2=").Append(q2Value).Append("\n");

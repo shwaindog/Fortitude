@@ -6,7 +6,6 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
@@ -37,8 +36,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeri
         SourceAskTime        = sourceAskTime ?? DateTimeConstants.UnixEpoch;
         IsAskPriceTopUpdated = isAskPriceTopChanged;
         Executable           = executable;
-        if (periodSummary is not null)
-            SummaryPeriod = new PricePeriodSummary(periodSummary);
+        if (periodSummary is not null) SummaryPeriod = new PricePeriodSummary(periodSummary);
 
         if (this is not ILevel2Quote)
         {
@@ -58,8 +56,7 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeri
             SourceAskTime        = lvl1Quote.SourceAskTime;
             IsAskPriceTopUpdated = lvl1Quote.IsAskPriceTopUpdated;
             Executable           = lvl1Quote.Executable;
-            if (lvl1Quote.SummaryPeriod is { IsEmpty: false })
-                SummaryPeriod = new PricePeriodSummary(lvl1Quote.SummaryPeriod);
+            if (lvl1Quote.SummaryPeriod is { IsEmpty: false }) SummaryPeriod = new PricePeriodSummary(lvl1Quote.SummaryPeriod);
 
             if (this is not ILevel2Quote)
             {
@@ -85,8 +82,6 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeri
     public IMutablePricePeriodSummary? SummaryPeriod { get; set; }
     IPricePeriodSummary? ILevel1Quote. SummaryPeriod => SummaryPeriod;
 
-    DateTime ITimeSeriesEntry<ILevel1Quote>.StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver) => StorageTime(resolver);
-
     public override DateTime SourceTime
     {
         get =>
@@ -94,6 +89,8 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeri
                          Math.Max(SourceBidTime.Ticks, SourceAskTime.Ticks)));
         set => base.SourceTime = value;
     }
+
+    DateTime ITimeSeriesEntry<ILevel1Quote>.StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver) => StorageTime(resolver);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

@@ -128,7 +128,7 @@ public static class PricePeriodSummaryExtensions
                     toAddReplace.Next = null;
                 }
             }
-            if (currentExisting.Next == null)
+            if (currentExisting?.Next == null)
             {
                 existing.AddLast(toAddReplace);
                 return removedCount;

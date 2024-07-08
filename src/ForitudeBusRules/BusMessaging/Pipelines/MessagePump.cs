@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Messages;
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
@@ -22,6 +25,7 @@ public interface IMessagePump
     bool IsListeningOn(string address);
 
     int CopyLivingRulesTo(IAutoRecycleEnumerable<IRule> toCopyTo);
+
     IEnumerable<IMessageListenerRegistration> ListeningSubscriptionsOn(string address);
 
     event Action<QueueEventTime> MessageStartProcessingTime;
@@ -32,19 +36,22 @@ public class MessagePump : IMessagePump
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessagePump));
 
-    private readonly ListenerRegistry listenerRegistry = new();
+    private readonly ListenerRegistry     listenerRegistry = new();
+    private readonly List<IListeningRule> livingRules      = new();
 
-    private readonly List<IListeningRule> livingRules = new();
     private readonly IAsyncValueTaskRingPoller<BusMessage> ringPoller;
 
     public MessagePump(IAsyncValueTaskRingPoller<BusMessage> ringPoller, QueueContext eventContext)
     {
         this.ringPoller = ringPoller;
+
         this.ringPoller.ProcessEvent = Processor;
+
         EventContext = eventContext;
     }
 
     public SyncContextTaskScheduler RingPollerScheduler { get; private set; } = null!;
+
     public QueueContext EventContext { get; set; }
 
     public bool IsRunning => ringPoller.IsRunning;
@@ -132,6 +139,20 @@ public class MessagePump : IMessagePump
 
                     break;
                 }
+                case MessageType.RunAsyncValueTaskPayload:
+                {
+                    try
+                    {
+                        var actionBody = ((Payload<Func<ValueTask>>)data.Payload).Body(PayloadRequestType.QueueReceive);
+                        await actionBody();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn("Caught exception running Func<ValueTask> on {1}.  Got {0}", ringPoller.Ring.Name, ex);
+                    }
+
+                    break;
+                }
                 case MessageType.QueueParamsExecutionPayload:
                 {
                     try
@@ -170,7 +191,7 @@ public class MessagePump : IMessagePump
                 }
                 case MessageType.ListenerSubscribe:
                 {
-                    var subscribePayload = (IMessageListenerRegistration)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
+                    var subscribePayload  = (IMessageListenerRegistration)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
                     var processorRegistry = data.ProcessorRegistry;
                     processorRegistry?.RegisterStart(subscribePayload.SubscriberRule);
                     await listenerRegistry.AddListenerToWatchList(subscribePayload);
@@ -249,8 +270,8 @@ public class MessagePump : IMessagePump
             }
             catch (Exception ex)
             {
-                Logger.Warn("Caught exception processing message {0} on rule handler {1}.  Got {2}", data, matcherListener.SubscriberRule.FriendlyName
-                    , ex);
+                Logger.Warn("Caught exception processing message {0} on rule handler {1}.  Got {2}"
+                          , data, matcherListener.SubscriberRule.FriendlyName, ex);
                 data.ProcessorRegistry?.RegisterFinish(matcherListener.SubscriberRule);
                 data.Response?.SetException(ex);
             }
@@ -259,6 +280,7 @@ public class MessagePump : IMessagePump
     public void InitializeInPollingThread()
     {
         QueueContext.CurrentThreadQueueContext = EventContext;
+
         RingPollerScheduler = new SyncContextTaskScheduler();
     }
 
@@ -310,14 +332,15 @@ public class MessagePump : IMessagePump
                     }
                     catch (Exception ex)
                     {
-                        Logger.Warn("Problem undeploying child rule of {0}.  Child {1}.  Caught {2}", parentRule.FriendlyName, child.FriendlyName
-                            , ex);
+                        Logger.Warn("Problem undeploying child rule of {0}.  Child {1}.  Caught {2}"
+                                  , parentRule.FriendlyName, child.FriendlyName, ex);
                     }
     }
 
     private async ValueTask LoadNewRule(BusMessage data)
     {
         var newRule = (IListeningRule)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
+
         var processorRegistry = data.ProcessorRegistry!;
         processorRegistry.RegisterStart(newRule);
         try

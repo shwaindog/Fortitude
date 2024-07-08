@@ -6,7 +6,6 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
@@ -73,8 +72,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
                 IsBidPriceTopUpdated = l1QToClone.IsBidPriceTopUpdated;
                 IsAskPriceTopUpdated = l1QToClone.IsAskPriceTopUpdated;
             }
-            if (l1QToClone.SummaryPeriod is { IsEmpty: false })
-                SummaryPeriod = new PQPricePeriodSummary(l1QToClone.SummaryPeriod);
+            if (l1QToClone.SummaryPeriod is { IsEmpty: false }) SummaryPeriod = new PQPricePeriodSummary(l1QToClone.SummaryPeriod);
             if (toClone is IPQLevel1Quote ipqL1)
             {
                 IsExecutableUpdated         = ipqL1.IsExecutableUpdated;
@@ -118,7 +116,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         set
         {
             if (value)
-                UpdatedFlags                                  |= QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag;
+
             else if (IsSourceAskTimeDateUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag;
         }
     }
@@ -130,8 +129,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         {
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.SourceAskTimeSubSecondUpdatedFlag;
-            else if (IsSourceAskTimeSubHourUpdated)
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceAskTimeSubSecondUpdatedFlag;
+
+            else if (IsSourceAskTimeSubHourUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceAskTimeSubSecondUpdatedFlag;
         }
     }
 
@@ -142,7 +141,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         set
         {
             if (value)
-                UpdatedFlags                                  |= QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag;
+
             else if (IsSourceBidTimeDateUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag;
         }
     }
@@ -154,8 +154,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         {
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.SourceBidTimeSubSecondUpdatedFlag;
-            else if (IsSourceBidTimeSubHourUpdated)
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceBidTimeSubSecondUpdatedFlag;
+
+            else if (IsSourceBidTimeSubHourUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceBidTimeSubSecondUpdatedFlag;
         }
     }
 
@@ -166,8 +166,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         {
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.AdapterSentTimeDateUpdatedFlag;
-            else if (IsAdapterSentTimeDateUpdated)
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterSentTimeDateUpdatedFlag;
+
+            else if (IsAdapterSentTimeDateUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterSentTimeDateUpdatedFlag;
         }
     }
 
@@ -178,8 +178,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         {
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.AdapterSentTimeSubSecondUpdatedFlag;
-            else if (IsAdapterSentTimeSubHourUpdated)
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterSentTimeSubSecondUpdatedFlag;
+
+            else if (IsAdapterSentTimeSubHourUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterSentTimeSubSecondUpdatedFlag;
         }
     }
 
@@ -191,8 +191,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         {
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.AdapterReceivedTimeDateUpdatedFlag;
-            else if (IsAdapterReceivedTimeDateUpdated)
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterReceivedTimeDateUpdatedFlag;
+
+            else if (IsAdapterReceivedTimeDateUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterReceivedTimeDateUpdatedFlag;
         }
     }
 
@@ -203,8 +203,8 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         {
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.AdapterReceivedTimeSubSecondUpdatedFlag;
-            else if (IsAdapterReceivedTimeSubHourUpdated)
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterReceivedTimeSubSecondUpdatedFlag;
+
+            else if (IsAdapterReceivedTimeSubHourUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AdapterReceivedTimeSubSecondUpdatedFlag;
         }
     }
 
@@ -552,8 +552,7 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
                     IsAskPriceTopUpdatedChanged = previousAskPriceTopUpdatedChanged;
                 }
                 return 0;
-            default:
-                return base.UpdateField(pqFieldUpdate);
+            default: return base.UpdateField(pqFieldUpdate);
         }
     }
 

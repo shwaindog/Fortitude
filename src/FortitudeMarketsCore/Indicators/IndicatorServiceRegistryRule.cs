@@ -9,7 +9,7 @@ using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Indicators.Config;
@@ -67,7 +67,7 @@ public enum ServiceRunStatus
 public struct TickerPeriodServiceRequest
 {
     public TickerPeriodServiceRequest
-    (RequestType requestType, ServiceType serviceType, ISourceTickerIdentifier tickerId, TimeSeriesPeriod period = Tick
+    (RequestType requestType, ServiceType serviceType, ISourceTickerId tickerId, TimeSeriesPeriod period = Tick
       , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
     {
         RequestType             = requestType;
@@ -82,7 +82,8 @@ public struct TickerPeriodServiceRequest
     }
 
     public TickerPeriodServiceInfo TickerPeriodServiceInfo { get; }
-    public RequestType             RequestType             { get; }
+
+    public RequestType RequestType { get; }
 }
 
 public struct GlobalServiceRequest
@@ -101,7 +102,7 @@ public struct GlobalServiceRequest
 public struct TickerPeriodServiceInfo
 {
     public TickerPeriodServiceInfo
-    (ServiceType serviceType, ISourceTickerIdentifier tickerId, TimeSeriesPeriod period = Tick
+    (ServiceType serviceType, ISourceTickerId tickerId, TimeSeriesPeriod period = Tick
       , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
     {
         ServiceType = serviceType;
@@ -111,11 +112,12 @@ public struct TickerPeriodServiceInfo
         UsePqQuote  = usePqQuote;
     }
 
-    public ServiceType             ServiceType { get; }
-    public ISourceTickerIdentifier TickerId    { get; }
-    public TimeSeriesPeriod        Period      { get; }
-    public QuoteLevel              QuoteLevel  { get; set; }
-    public bool                    UsePqQuote  { get; set; }
+    public ServiceType      ServiceType { get; }
+    public ISourceTickerId  TickerId    { get; }
+    public TimeSeriesPeriod Period      { get; }
+
+    public QuoteLevel QuoteLevel { get; set; }
+    public bool       UsePqQuote { get; set; }
 }
 
 public class ServiceRuntimeState
@@ -130,7 +132,8 @@ public class ServiceRuntimeState
     public ServiceRuntimeState(ServiceRunStateResponse lastStartResult) => LastStartResult = lastStartResult;
 
     public ServiceRunStatus RunStatus => LastStatusUpdate?.RunStatus ?? LastStartResult.RunStatus;
-    public IRule?           Rule      => LastStatusUpdate?.Rule ?? LastStartResult.Rule;
+
+    public IRule? Rule => LastStatusUpdate?.Rule ?? LastStartResult.Rule;
 
     public ServiceStatusUpdate? LastStatusUpdate { get; set; }
     public ServiceRunStateResponse LastStartResult
@@ -151,27 +154,40 @@ public struct ServiceRunStateResponse
 {
     public ServiceRunStateResponse(ServiceRunStatus runStatus = ServiceRunStatus.NoServiceFound)
     {
-        RunStatus      = runStatus;
+        RunStatus = runStatus;
+
         LastUpdateTime = DateTime.UtcNow;
     }
 
     public ServiceRunStateResponse(IRule rule, ServiceRunStatus runStatus)
     {
-        Rule           = rule;
-        RunStatus      = runStatus;
+        Rule      = rule;
+        RunStatus = runStatus;
+
         LastUpdateTime = DateTime.UtcNow;
     }
 
     public ServiceRunStateResponse(IRule rule, ServiceRunStatus runStatus, DateTime? lastUpdateTime = null)
     {
-        Rule           = rule;
-        RunStatus      = runStatus;
+        Rule      = rule;
+        RunStatus = runStatus;
+
         LastUpdateTime = lastUpdateTime ?? DateTime.UtcNow;
     }
 
-    public IRule?           Rule           { get; }
-    public ServiceRunStatus RunStatus      { get; }
-    public DateTime         LastUpdateTime { get; }
+    public IRule? Rule { get; }
+
+    public ServiceRunStatus RunStatus { get; }
+
+    public DateTime LastUpdateTime { get; }
+}
+
+public static class ServiceRunStateResponseExtensions
+{
+    public static bool IsRunning(this ServiceRunStateResponse response) =>
+        response.RunStatus is
+            ServiceRunStatus.ServiceRestarted or ServiceRunStatus.HeartbeatResponseReceived or ServiceRunStatus.AwaitingHeartbeatResponse or
+            ServiceRunStatus.ServiceAlreadyRunning or ServiceRunStatus.ServiceStarted;
 }
 
 public struct ServiceStatusUpdate
@@ -179,16 +195,19 @@ public struct ServiceStatusUpdate
     public ServiceStatusUpdate(TickerPeriodServiceRequest tickerPeriodServiceRequestInfo, IRule rule, ServiceRunStatus runStatus, DateTime? atTime)
     {
         TickerPeriodServiceRequestInfo = tickerPeriodServiceRequestInfo;
-        Rule                           = rule;
-        RunStatus                      = runStatus;
-        AtTime                         = atTime ?? DateTime.UtcNow;
+
+        Rule      = rule;
+        RunStatus = runStatus;
+        AtTime    = atTime ?? DateTime.UtcNow;
     }
 
     public TickerPeriodServiceRequest TickerPeriodServiceRequestInfo { get; }
 
-    public IRule            Rule      { get; }
+    public IRule Rule { get; }
+
     public ServiceRunStatus RunStatus { get; }
-    public DateTime?        AtTime    { get; }
+
+    public DateTime? AtTime { get; }
 }
 
 public struct IndicatorServiceRegistryParams
@@ -236,7 +255,9 @@ public class IndicatorServiceRegistryRule : Rule
     public IndicatorServiceRegistryRule(IndicatorServiceRegistryParams indicatorServiceRegistryParams) : base(nameof(IndicatorServiceRegistryRule))
     {
         indicatorServiceParams = indicatorServiceRegistryParams;
-        config                 = indicatorServiceRegistryParams.IndicatorServiceConfig;
+
+        config = indicatorServiceRegistryParams.IndicatorServiceConfig;
+
         GlobalServiceFactoryLookup = new Dictionary<ServiceType, Func<GlobalServiceRequest, ServiceRuntimeState>>
         {
             { ServiceType.ServiceRegistry, SimpleGlobalServiceLookup }

@@ -17,8 +17,8 @@ public static class PQFieldKeys
 
 
     // Source Ticker Info
-    public const byte PublishQuoteLevelType  = 1;
-    public const byte SourceTickerId         = 2;
+    public const byte SourceTickerId         = 1;
+    public const byte PublishQuoteLevelType  = 2;
     public const byte SourceTickerNames      = 3; //StringFieldUpdate
     public const byte MarketClassification   = 4;
     public const byte RoundingPrecision      = 5;

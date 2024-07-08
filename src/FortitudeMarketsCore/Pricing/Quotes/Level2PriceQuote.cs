@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;
@@ -82,9 +81,6 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
     IOrderBook ILevel2Quote. AskBook          => AskBook;
     public bool              IsAskBookChanged { get; set; }
 
-
-    DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
-
     public override decimal BidPriceTop
     {
         get => BidBook.Any() ? BidBook[0]?.Price ?? 0 : 0m;
@@ -122,6 +118,9 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
             }
         }
     }
+
+
+    DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

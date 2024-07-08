@@ -10,7 +10,6 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -551,15 +550,6 @@ public class PQLevel0QuoteTests
 
         public PQMessageFlags? OverrideSerializationFlags { get; set; }
 
-        IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
-
-        ILevel0Quote ICloneable<ILevel0Quote>.  Clone() => Clone();
-        IMutableLevel0Quote IMutableLevel0Quote.Clone() => (IMutableLevel0Quote)Clone();
-        IPQLevel0Quote IPQLevel0Quote.          Clone() => (IPQLevel0Quote)Clone();
-
-        public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-            throw new NotImplementedException();
-
         bool ILevel0Quote.    IsReplay           => false;
         DateTime ILevel0Quote.SourceTime         => DateTime.Now;
         DateTime ILevel0Quote.ClientReceivedTime => DateTime.Now;
@@ -577,6 +567,33 @@ public class PQLevel0QuoteTests
         bool IMutableLevel0Quote.    IsReplay           { get; set; }
         DateTime IMutableLevel0Quote.SourceTime         { get; set; }
         DateTime IMutableLevel0Quote.ClientReceivedTime { get; set; }
+
+        public bool HasUpdates { get; set; }
+
+        public bool IsSourceTimeDateUpdated            { get; set; }
+        public bool IsSourceTimeSubHourUpdated         { get; set; }
+        public bool IsSocketReceivedTimeDateUpdated    { get; set; }
+        public bool IsSocketReceivedTimeSubHourUpdated { get; set; }
+        public bool IsProcessedTimeDateUpdated         { get; set; }
+        public bool IsProcessedTimeSubHourUpdated      { get; set; }
+        public bool IsDispatchedTimeDateUpdated        { get; set; }
+        public bool IsDispatchedTimeSubHourUpdated     { get; set; }
+        public bool IsClientReceivedTimeDateUpdated    { get; set; }
+        public bool IsClientReceivedTimeSubHourUpdated { get; set; }
+        public bool IsReplayUpdated                    { get; set; }
+        public bool IsSinglePriceUpdated               { get; set; }
+        public bool IsSyncStatusUpdated                { get; set; }
+
+        public DateTime LastPublicationTime { get; set; }
+
+        IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
+
+        ILevel0Quote ICloneable<ILevel0Quote>.  Clone() => Clone();
+        IMutableLevel0Quote IMutableLevel0Quote.Clone() => (IMutableLevel0Quote)Clone();
+        IPQLevel0Quote IPQLevel0Quote.          Clone() => (IPQLevel0Quote)Clone();
+
+        public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            throw new NotImplementedException();
 
         public int  UpdateField(PQFieldUpdate updates)                  => -1;
         public bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => false;
@@ -600,24 +617,6 @@ public class PQLevel0QuoteTests
         }
 
         public void ResetFields() { }
-
-        public bool HasUpdates { get; set; }
-
-        public bool IsSourceTimeDateUpdated            { get; set; }
-        public bool IsSourceTimeSubHourUpdated         { get; set; }
-        public bool IsSocketReceivedTimeDateUpdated    { get; set; }
-        public bool IsSocketReceivedTimeSubHourUpdated { get; set; }
-        public bool IsProcessedTimeDateUpdated         { get; set; }
-        public bool IsProcessedTimeSubHourUpdated      { get; set; }
-        public bool IsDispatchedTimeDateUpdated        { get; set; }
-        public bool IsDispatchedTimeSubHourUpdated     { get; set; }
-        public bool IsClientReceivedTimeDateUpdated    { get; set; }
-        public bool IsClientReceivedTimeSubHourUpdated { get; set; }
-        public bool IsReplayUpdated                    { get; set; }
-        public bool IsSinglePriceUpdated               { get; set; }
-        public bool IsSyncStatusUpdated                { get; set; }
-
-        public DateTime LastPublicationTime { get; set; }
 
         public DateTime StorageTime(IStorageTimeResolver<ILevel0Quote>? resolver = null) =>
             QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);

@@ -9,6 +9,7 @@ public interface IDoublyLinkedList<T> : IEnumerable<T> where T : class, IDoublyL
     T?   Tail    { get; }
     bool IsEmpty { get; }
 
+    int  Count { get; }
     void DetachNodes();
     T    AddFirst(T node);
     T    AddLast(T node);

@@ -7,7 +7,6 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -42,8 +41,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
     public PQLevel3Quote(ISourceTickerQuoteInfo uniqueSourceTickerIdentifier)
         : base(uniqueSourceTickerIdentifier)
     {
-        if (PQSourceTickerQuoteInfo!.LastTradedFlags != LastTradedFlags.None)
-            recentlyTraded = new PQRecentlyTraded(PQSourceTickerQuoteInfo);
+        if (PQSourceTickerQuoteInfo!.LastTradedFlags != LastTradedFlags.None) recentlyTraded = new PQRecentlyTraded(PQSourceTickerQuoteInfo);
     }
 
     public PQLevel3Quote(ILevel0Quote toClone) : base(toClone)
@@ -117,8 +115,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
             if (value)
                 UpdatedFlags |= QuoteFieldUpdatedFlags.SourceQuoteReferenceUpdatedFlag;
 
-            else if (IsSourceQuoteReferenceUpdated)
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceQuoteReferenceUpdatedFlag;
+            else if (IsSourceQuoteReferenceUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.SourceQuoteReferenceUpdatedFlag;
         }
     }
 
@@ -196,10 +193,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
                 yield return recentlyTradedFields;
         if (!updatedOnly || IsBatchIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.BatchId, BatchId);
 
-        if (!updatedOnly || IsSourceQuoteReferenceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.SourceQuoteReference, SourceQuoteReference);
-        if (!updatedOnly || IsValueDateUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.ValueDate, valueDate.GetHoursFromUnixEpoch());
+        if (!updatedOnly || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceQuoteReference, SourceQuoteReference);
+        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQFieldKeys.ValueDate, valueDate.GetHoursFromUnixEpoch());
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -232,8 +227,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
 
     public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
-        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
-            yield return pqFieldStringUpdate;
+        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
         if (recentlyTraded != null)
             foreach (var stringUpdate in recentlyTraded.GetStringUpdates(snapShotTime, messageFlags))
                 yield return stringUpdate;
@@ -264,8 +258,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
             // Only copy if changed
             if (recentlyTraded == null && l3Q.RecentlyTraded != null)
                 recentlyTraded = new PQRecentlyTraded(l3Q.RecentlyTraded);
-            else if (l3Q.RecentlyTraded != null)
-                recentlyTraded?.CopyFrom(l3Q.RecentlyTraded, copyMergeFlags);
+            else if (l3Q.RecentlyTraded != null) recentlyTraded?.CopyFrom(l3Q.RecentlyTraded, copyMergeFlags);
             BatchId              = l3Q.BatchId;
             SourceQuoteReference = l3Q.SourceQuoteReference;
             ValueDate            = l3Q.ValueDate;
@@ -275,8 +268,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
             // Only copy if changed
             if (recentlyTraded == null && pql3Q.RecentlyTraded != null)
                 recentlyTraded = pql3Q.RecentlyTraded.Clone();
-            else if (pql3Q.RecentlyTraded != null)
-                recentlyTraded?.CopyFrom(pql3Q.RecentlyTraded, copyMergeFlags);
+            else if (pql3Q.RecentlyTraded != null) recentlyTraded?.CopyFrom(pql3Q.RecentlyTraded, copyMergeFlags);
 
             var hasFullReplace = copyMergeFlags.HasFullReplace();
 
@@ -294,8 +286,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
     public override void EnsureRelatedItemsAreConfigured(ILevel0Quote? quote)
     {
         base.EnsureRelatedItemsAreConfigured(quote);
-        if (quote is IPQLevel3Quote pqLevel3Quote)
-            recentlyTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.RecentlyTraded?.NameIdLookup);
+        if (quote is IPQLevel3Quote pqLevel3Quote) recentlyTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.RecentlyTraded?.NameIdLookup);
     }
 
     DateTime ITimeSeriesEntry<ILevel3Quote>.StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver) => StorageTime(resolver);

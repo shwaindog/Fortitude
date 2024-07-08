@@ -7,7 +7,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries.FileSystem.File;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -69,23 +69,6 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
         SerializationFlags    = priceTimeSeriesFileParameters.SerializationFlags;
     }
 
-    public PQSerializationFlags SerializationFlags
-    {
-        get
-        {
-            if (memoryMappedFileView != null) return cachePriceQuoteSubHeader.SerializationFlags;
-            cachePriceQuoteSubHeader.SerializationFlags = priceQuoteSubHeader->SerializationFlags;
-            return cachePriceQuoteSubHeader.SerializationFlags;
-        }
-
-        set
-        {
-            if (Equals(cachePriceQuoteSubHeader.SerializationFlags, value) || !writable || memoryMappedFileView == null) return;
-            priceQuoteSubHeader->SerializationFlags     = value;
-            cachePriceQuoteSubHeader.SerializationFlags = value;
-        }
-    }
-
 
     public ISourceTickerQuoteInfo SourceTickerQuoteInfo
     {
@@ -106,7 +89,8 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
         set
         {
             if (Equals(cachedSourceTickerQuoteInfo, value) || (!writable &&
-                                                               cachedSourceTickerQuoteInfo != null) || memoryMappedFileView == null) return;
+                                                               cachedSourceTickerQuoteInfo != null) || memoryMappedFileView == null)
+                return;
             messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
 
             sourceTickerQuoteInfoSerializer ??= new SourceTickerQuoteInfoSerializer
@@ -116,6 +100,23 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
             var serializedSize = sourceTickerQuoteInfoSerializer.Serialize(messageBufferContext.EncodedBuffer, value);
             priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes = (ushort)serializedSize;
             cachedSourceTickerQuoteInfo                               = value;
+        }
+    }
+
+    public PQSerializationFlags SerializationFlags
+    {
+        get
+        {
+            if (memoryMappedFileView != null) return cachePriceQuoteSubHeader.SerializationFlags;
+            cachePriceQuoteSubHeader.SerializationFlags = priceQuoteSubHeader->SerializationFlags;
+            return cachePriceQuoteSubHeader.SerializationFlags;
+        }
+
+        set
+        {
+            if (Equals(cachePriceQuoteSubHeader.SerializationFlags, value) || !writable || memoryMappedFileView == null) return;
+            priceQuoteSubHeader->SerializationFlags     = value;
+            cachePriceQuoteSubHeader.SerializationFlags = value;
         }
     }
 

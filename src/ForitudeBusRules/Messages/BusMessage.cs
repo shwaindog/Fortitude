@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Messages;
 using FortitudeBusRules.BusMessaging.Tasks;
@@ -38,6 +41,7 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
     public Payload(Payload<T> toClone)
     {
         body = toClone.body;
+
         PayloadMarshaller = toClone.PayloadMarshaller;
     }
 
@@ -91,12 +95,14 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
     public override void StateReset()
     {
         body = default!;
+
         PayloadMarshaller = null;
     }
 
     public override Payload<T> CopyFrom(Payload<T> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         body = source.body;
+
         PayloadMarshaller = source.PayloadMarshaller;
         return this;
     }
@@ -110,38 +116,44 @@ public delegate bool RuleFilter(IRule appliesToRule);
 
 public interface IBusMessage : IStoreState<IBusMessage>, ICanCarrySocketSenderPayload, ICanCarrySocketReceiverPayload
 {
-    MessageType Type { get; }
-    IRule? Sender { get; }
+    MessageType Type       { get; }
+    IRule?      Sender     { get; }
+    DateTime?   SentTime   { get; }
+    IPayload    Payload    { get; }
+    RuleFilter  RuleFilter { get; }
+
     string? DestinationAddress { get; }
-    DateTime? SentTime { get; }
-    IPayload Payload { get; }
-    IAsyncResponseSource Response { get; }
-    IProcessorRegistry? ProcessorRegistry { get; }
-    RuleFilter RuleFilter { get; }
+
+    IAsyncResponseSource Response          { get; }
+    IProcessorRegistry?  ProcessorRegistry { get; }
+
     void IncrementCargoRefCounts();
     void DecrementCargoRefCounts();
+
     IBusMessage<TAsPayload> BorrowCopy<TAsPayload>(IQueueContext messageContext);
+
     IBusRespondingMessage<TAsPayload, TAsResponse> BorrowCopy<TAsPayload, TAsResponse>(IQueueContext messageContext);
 }
 
 public enum MessageType
 {
     Unknown
-    , Publish
-    , RunActionPayload
-    , TimerPayload
-    , RequestResponse
-    , LoadRule
-    , UnloadRule
-    , ListenerSubscribe
-    , ListenerUnsubscribe
-    , QueueParamsExecutionPayload
-    , ValueTaskCallback
-    , SendToRemote
-    , AddWatchSocket
-    , RemoveWatchSocket
-    , AddListenSubscribeInterceptor
-    , RemoveListenSubscribeInterceptor
+  , Publish
+  , RunActionPayload
+  , RunAsyncValueTaskPayload
+  , TimerPayload
+  , RequestResponse
+  , LoadRule
+  , UnloadRule
+  , ListenerSubscribe
+  , ListenerUnsubscribe
+  , QueueParamsExecutionPayload
+  , ValueTaskCallback
+  , SendToRemote
+  , AddWatchSocket
+  , RemoveWatchSocket
+  , AddListenSubscribeInterceptor
+  , RemoveListenSubscribeInterceptor
 }
 
 public interface IBusMessage<out TPayload> : IBusMessage, IRecyclableObject
@@ -157,18 +169,24 @@ public interface IBusRespondingMessage<out TPayload, in TResponse> : IBusMessage
 public class BusMessage : IBusMessage
 {
     public static readonly Payload<object> ResetStatePayload = new();
+
     public static readonly NoMessageResponseSource NoOpCompletionSource = new();
-    public static readonly RuleFilter AppliesToAll = _ => true;
-    private static readonly Recycler Recycler = new();
+
+    public static readonly  RuleFilter AppliesToAll = _ => true;
+    private static readonly Recycler   Recycler     = new();
 
     static BusMessage() => ResetStatePayload.AutoRecycleAtRefCountZero = false;
 
-    public MessageType Type { get; set; }
-    public IRule? Sender { get; set; }
+    public MessageType Type   { get; set; }
+    public IRule?      Sender { get; set; }
+
     public string? DestinationAddress { get; set; }
+
     public DateTime? SentTime { get; set; }
-    public IPayload Payload { get; set; } = ResetStatePayload;
+    public IPayload  Payload  { get; set; } = ResetStatePayload;
+
     public IAsyncResponseSource Response { get; set; } = NoOpCompletionSource;
+
     public IProcessorRegistry? ProcessorRegistry { get; set; }
 
     public RuleFilter RuleFilter { get; set; } = AppliesToAll;
@@ -199,14 +217,16 @@ public class BusMessage : IBusMessage
 
     public IBusMessage CopyFrom(IBusMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        Type = source.Type;
-        Sender = source.Sender;
-        DestinationAddress = source.DestinationAddress;
+        Type     = source.Type;
+        Sender   = source.Sender;
         SentTime = source.SentTime;
-        Payload = source.Payload;
+        Payload  = source.Payload;
         Response = source.Response;
-        ProcessorRegistry = source.ProcessorRegistry;
+
         RuleFilter = source.RuleFilter;
+
+        DestinationAddress = source.DestinationAddress;
+        ProcessorRegistry  = source.ProcessorRegistry;
         return this;
     }
 
@@ -220,19 +240,21 @@ public class BusMessage : IBusMessage
 
     public void SetAsTaskCallbackItem(SendOrPostCallback callback, object? state)
     {
-        var payLoad = Recycler.Borrow<Payload<TaskPayload>>();
+        var payLoad     = Recycler.Borrow<Payload<TaskPayload>>();
         var taskPayload = Recycler.Borrow<TaskPayload>();
         taskPayload.Callback = callback;
-        taskPayload.State = state;
-        payLoad.SetBody = taskPayload;
-        Type = MessageType.ValueTaskCallback;
-        Payload = payLoad;
-        Sender = Rule.NoKnownSender;
-        DestinationAddress = "NotUsed";
-        SentTime = DateTime.UtcNow;
-        Response = NoOpCompletionSource;
-        ProcessorRegistry = null;
+        taskPayload.State    = state;
+        payLoad.SetBody      = taskPayload;
+
+        Type       = MessageType.ValueTaskCallback;
+        Payload    = payLoad;
+        Sender     = Rule.NoKnownSender;
+        SentTime   = DateTime.UtcNow;
+        Response   = NoOpCompletionSource;
         RuleFilter = AppliesToAll;
+
+        DestinationAddress = "NotUsed";
+        ProcessorRegistry  = null;
     }
 
     public void InvokeTaskCallback()
@@ -241,38 +263,44 @@ public class BusMessage : IBusMessage
     }
 
     public bool IsSocketSenderItem => Type == MessageType.SendToRemote;
+
     public ISocketSender? SocketSender => Payload.BodyObj(PayloadRequestType.QueueReceive) as ISocketSender;
 
     public void SetAsSocketSenderItem(ISocketSender socketSender)
     {
         var payLoad = Recycler.Borrow<Payload<ISocketSender>>();
         payLoad.SetBody = socketSender;
-        Type = MessageType.SendToRemote;
-        Payload = payLoad;
-        Sender = Rule.NoKnownSender;
-        DestinationAddress = "NotUsed";
-        SentTime = DateTime.UtcNow;
-        Response = NoOpCompletionSource;
-        ProcessorRegistry = null;
+
+        Type       = MessageType.SendToRemote;
+        Payload    = payLoad;
+        Sender     = Rule.NoKnownSender;
+        SentTime   = DateTime.UtcNow;
+        Response   = NoOpCompletionSource;
         RuleFilter = AppliesToAll;
+
+        DestinationAddress = "NotUsed";
+        ProcessorRegistry  = null;
     }
 
     public bool IsSocketReceiverItem => Type == MessageType.AddWatchSocket || Type == MessageType.RemoveWatchSocket;
-    public bool IsSocketAdd => Type == MessageType.AddWatchSocket;
+    public bool IsSocketAdd          => Type == MessageType.AddWatchSocket;
+
     public ISocketReceiver? SocketReceiver => Payload.BodyObj(PayloadRequestType.QueueReceive) as ISocketReceiver;
 
     public void SetAsSocketReceiverItem(ISocketReceiver socketReceiver, bool isAdd)
     {
         var payLoad = Recycler.Borrow<Payload<ISocketReceiver>>();
         payLoad.SetBody = socketReceiver;
-        Type = isAdd ? MessageType.AddWatchSocket : MessageType.RemoveWatchSocket;
-        Payload = payLoad;
-        Sender = Rule.NoKnownSender;
-        DestinationAddress = "NotUsed";
-        SentTime = DateTime.UtcNow;
-        Response = NoOpCompletionSource;
-        ProcessorRegistry = null;
+
+        Type       = isAdd ? MessageType.AddWatchSocket : MessageType.RemoveWatchSocket;
+        Payload    = payLoad;
+        Sender     = Rule.NoKnownSender;
+        SentTime   = DateTime.UtcNow;
+        Response   = NoOpCompletionSource;
         RuleFilter = AppliesToAll;
+
+        DestinationAddress = "NotUsed";
+        ProcessorRegistry  = null;
     }
 
     public override string ToString() =>
@@ -287,6 +315,7 @@ public class BusMessage : IBusMessage
 public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage<TPayload, TResponse>
 {
     public static readonly Payload<TPayload> ResetStateTypedPayload = new();
+
     public static readonly NoMessageResponseSource<TResponse> NoTypedOpCompletionSource = new();
 
     private int isInRecycler;
@@ -312,6 +341,7 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
     }
 
     public int RefCount => refCount;
+
     public bool AutoRecycleAtRefCountZero { get; set; }
 
     public bool IsInRecycler
@@ -347,13 +377,15 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
     public void StateReset()
     {
         RuleFilter = AppliesToAll;
-        Type = MessageType.Unknown;
-        Sender = null;
-        DestinationAddress = null;
-        SentTime = DateTimeConstants.UnixEpoch;
-        base.Payload = ResetStateTypedPayload;
+        Type       = MessageType.Unknown;
+        Sender     = null;
+        SentTime   = DateTimeConstants.UnixEpoch;
+        refCount   = 0;
+
+        base.Payload  = ResetStateTypedPayload;
         base.Response = NoOpCompletionSource;
-        refCount = 0;
+
+        DestinationAddress = null;
     }
 
     public override string ToString() =>

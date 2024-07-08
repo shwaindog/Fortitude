@@ -1,6 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+#region
+
+using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 

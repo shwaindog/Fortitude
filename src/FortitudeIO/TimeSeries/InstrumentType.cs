@@ -12,3 +12,10 @@ public enum InstrumentType : ushort
   , AlgoState
   , AlgoSignal
 }
+
+public readonly struct PeriodInstrumentTypePair(InstrumentType instrumentType, TimeSeriesPeriod period)
+{
+    public TimeSeriesPeriod Period { get; } = period;
+
+    public InstrumentType InstrumentType { get; } = instrumentType;
+}

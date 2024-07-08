@@ -520,8 +520,7 @@ public class PQQuoteDeserializerTests
 
     private void AssertDeserializerHasTimedOutAndNeedsSnapshotIs(DateTime currentTime, bool expectedValue)
     {
-        for (var i = 0; i < deserializers.Count; i++)
-            Assert.AreEqual(expectedValue, deserializers[i].HasTimedOutAndNeedsSnapshot(currentTime));
+        for (var i = 0; i < deserializers.Count; i++) Assert.AreEqual(expectedValue, deserializers[i].HasTimedOutAndNeedsSnapshot(currentTime));
     }
 
     private void CallDeserializer(IList<SocketBufferReadContext> deserializeInputList)
