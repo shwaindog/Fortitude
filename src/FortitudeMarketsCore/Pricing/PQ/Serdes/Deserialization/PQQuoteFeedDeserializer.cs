@@ -10,7 +10,6 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
@@ -27,8 +26,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
 
     public PQQuoteFeedDeserializer(ISourceTickerQuoteInfo identifier) : base(identifier)
     {
-        if (!string.IsNullOrEmpty(identifier.Ticker))
-            throw new ArgumentException("Expected no ticker to be specified.");
+        if (!string.IsNullOrEmpty(identifier.Ticker)) throw new ArgumentException("Expected no ticker to be specified.");
     }
 
     public PQQuoteFeedDeserializer(PQQuoteFeedDeserializer<T> toClone) : base(toClone) { }
@@ -38,10 +36,8 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
 
     public override unsafe T Deserialize(ISerdeContext readContext)
     {
-        if ((readContext.Direction & ContextDirection.Read) == 0)
-            throw new ArgumentException("Expected readContext to allow reading");
-        if ((readContext.MarshalType & MarshalType.Binary) == 0)
-            throw new ArgumentException("Expected readContext to be a binary buffer context");
+        if ((readContext.Direction & ContextDirection.Read) == 0) throw new ArgumentException("Expected readContext to allow reading");
+        if ((readContext.MarshalType & MarshalType.Binary) == 0) throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext bufferContext)
         {
             var sockBuffContext                                           = bufferContext as SocketBufferReadContext;

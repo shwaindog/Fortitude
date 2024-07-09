@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Configuration;
@@ -5,6 +8,7 @@ using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -14,14 +18,17 @@ namespace FortitudeMarketsApi.Configuration.ClientServerConfig;
 public interface IMarketConnectionConfig : IConnection, ICloneable<IMarketConnectionConfig>, IInterfacesComparable<IMarketConnectionConfig>
 {
     ushort SourceId { get; set; }
-    string Name { get; set; }
-    MarketConnectionType MarketConnectionType { get; set; }
-    ISourceTickersConfig? SourceTickerConfig { get; set; }
-    IPricingServerConfig? PricingServerConfig { get; set; }
-    ITradingServerConfig? TradingServerConfig { get; set; }
-    IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos { get; }
+    string Name     { get; set; }
+
+    MarketConnectionType  MarketConnectionType { get; set; }
+    ISourceTickersConfig? SourceTickerConfig   { get; set; }
+    IPricingServerConfig? PricingServerConfig  { get; set; }
+    ITradingServerConfig? TradingServerConfig  { get; set; }
+
+    IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos            { get; }
     IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos { get; }
     IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos { get; }
+
     IMarketConnectionConfig ShiftPortsBy(ushort deltaPorts);
 
     ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker);
@@ -36,27 +43,30 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
     public MarketConnectionConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public MarketConnectionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
-
-    public MarketConnectionConfig(ushort sourceId, string name, MarketConnectionType marketConnectionType, ISourceTickersConfig sourceTickersConfig
-        , IPricingServerConfig? pricingServerConfig = null, ITradingServerConfig? tradingServerConfig = null) : this()
+    public MarketConnectionConfig
+    (ushort sourceId, string name, MarketConnectionType marketConnectionType, ISourceTickersConfig sourceTickersConfig
+      , IPricingServerConfig? pricingServerConfig = null, ITradingServerConfig? tradingServerConfig = null) : this()
     {
         SourceId = sourceId;
-        Name = name;
+        Name     = name;
+
         MarketConnectionType = marketConnectionType;
-        SourceTickerConfig = sourceTickersConfig;
-        PricingServerConfig = pricingServerConfig;
-        TradingServerConfig = tradingServerConfig;
+        SourceTickerConfig   = sourceTickersConfig;
+        PricingServerConfig  = pricingServerConfig;
+        TradingServerConfig  = tradingServerConfig;
     }
 
     public MarketConnectionConfig(IMarketConnectionConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
         ConnectionName = ConnectionName;
+
         SourceId = toClone.SourceId;
-        Name = toClone.Name;
+        Name     = toClone.Name;
+
         MarketConnectionType = toClone.MarketConnectionType;
-        SourceTickerConfig = toClone.SourceTickerConfig;
-        PricingServerConfig = toClone.PricingServerConfig;
-        TradingServerConfig = toClone.TradingServerConfig;
+        SourceTickerConfig   = toClone.SourceTickerConfig;
+        PricingServerConfig  = toClone.PricingServerConfig;
+        TradingServerConfig  = toClone.TradingServerConfig;
     }
 
     public MarketConnectionConfig(IMarketConnectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -114,12 +124,12 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             return null;
         }
         set =>
-            lastPricingServerConfig = value != null ?
-                new PricingServerConfig(value, ConfigRoot, Path + ":" + nameof(PricingServerConfig))
+            lastPricingServerConfig = value != null
+                ? new PricingServerConfig(value, ConfigRoot, Path + ":" + nameof(PricingServerConfig))
                 {
                     ConnectionName = ConnectionName
-                } :
-                null;
+                }
+                : null;
     }
 
     public ITradingServerConfig? TradingServerConfig
@@ -131,13 +141,22 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             return null;
         }
         set =>
-            lastTradingServerConfig = value != null ?
-                new TradingServerConfig(value, ConfigRoot, Path + ":" + nameof(TradingServerConfig))
+            lastTradingServerConfig = value != null
+                ? new TradingServerConfig(value, ConfigRoot, Path + ":" + nameof(TradingServerConfig))
                 {
                     ConnectionName = ConnectionName
-                } :
-                null;
+                }
+                : null;
     }
+
+    public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos =>
+        SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+
+    public IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos =>
+        SourceTickerConfig?.PricingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+
+    public IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos =>
+        SourceTickerConfig?.TradingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
 
     public IMarketConnectionConfig ShiftPortsBy(ushort deltaPorts)
     {
@@ -150,15 +169,6 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker) => SourceTickerConfig?.GetSourceTickerInfo(SourceId, Name, ticker);
 
-    public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos =>
-        SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
-
-    public IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos =>
-        SourceTickerConfig?.PricingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
-
-    public IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos =>
-        SourceTickerConfig?.TradingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
-
     public IMarketConnectionConfig Clone() => new MarketConnectionConfig(this);
 
     object ICloneable.Clone() => Clone();
@@ -166,18 +176,21 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
     public IMarketConnectionConfig ToggleProtocolDirection(string connectionName) =>
         new MarketConnectionConfig(this)
         {
-            ConnectionName = connectionName, PricingServerConfig = PricingServerConfig?.ToggleProtocolDirection()
-            , TradingServerConfig = TradingServerConfig?.ToggleProtocolDirection()
+            ConnectionName      = connectionName, PricingServerConfig = PricingServerConfig?.ToggleProtocolDirection()
+          , TradingServerConfig = TradingServerConfig?.ToggleProtocolDirection()
         };
 
     public bool AreEquivalent(IMarketConnectionConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
+
         var connectionNameSame = ConnectionName == other.ConnectionName;
-        var idSame = SourceId == other.SourceId;
-        var nameSame = string.Equals(Name, other.Name);
-        var serverTypeSame = MarketConnectionType == other.MarketConnectionType;
+        var idSame             = SourceId == other.SourceId;
+        var nameSame           = string.Equals(Name, other.Name);
+        var serverTypeSame     = MarketConnectionType == other.MarketConnectionType;
+
         var sourceTickerConfigSame = SourceTickerConfig?.AreEquivalent(other.SourceTickerConfig, exactTypes) ?? other.SourceTickerConfig == null;
+
         var pricingServersSame = PricingServerConfig?.AreEquivalent(other.PricingServerConfig, exactTypes) ?? other.PricingServerConfig == null;
         var tradingServersSame = TradingServerConfig?.AreEquivalent(other.TradingServerConfig, exactTypes) ?? other.TradingServerConfig == null;
 
@@ -186,13 +199,13 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(ConnectionName)] = null;
-        root[path + ":" + nameof(Name)] = null;
-        root[path + ":" + nameof(SourceId)] = "0";
+        root[path + ":" + nameof(ConnectionName)]       = null;
+        root[path + ":" + nameof(Name)]                 = null;
+        root[path + ":" + nameof(SourceId)]             = "0";
         root[path + ":" + nameof(MarketConnectionType)] = "0";
-        root[path + ":" + nameof(SourceTickerConfig)] = null;
-        root[path + ":" + nameof(PricingServerConfig)] = null;
-        root[path + ":" + nameof(TradingServerConfig)] = null;
+        root[path + ":" + nameof(SourceTickerConfig)]   = null;
+        root[path + ":" + nameof(PricingServerConfig)]  = null;
+        root[path + ":" + nameof(TradingServerConfig)]  = null;
     }
 
     protected bool Equals(IMarketConnectionConfig other) => AreEquivalent(other, true);

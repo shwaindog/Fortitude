@@ -17,7 +17,7 @@ using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing.Summaries;
 
 #endregion
@@ -27,7 +27,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 public struct HistoricalPricePeriodSummaryStreamRequest
 {
     public HistoricalPricePeriodSummaryStreamRequest
-    (ISourceTickerIdentifier tickerId, TimeSeriesPeriod entryPeriod, ChannelPublishRequest<PricePeriodSummary> channelRequest
+    (ISourceTickerId tickerId, TimeSeriesPeriod entryPeriod, ChannelPublishRequest<PricePeriodSummary> channelRequest
       , UnboundedTimeRange? timeRange = null)
     {
         TickerId       = tickerId;
@@ -36,9 +36,9 @@ public struct HistoricalPricePeriodSummaryStreamRequest
         ChannelRequest = channelRequest;
     }
 
-    public ISourceTickerIdentifier TickerId    { get; }
-    public TimeSeriesPeriod        EntryPeriod { get; }
-    public UnboundedTimeRange?     TimeRange   { get; }
+    public ISourceTickerId     TickerId    { get; }
+    public TimeSeriesPeriod    EntryPeriod { get; }
+    public UnboundedTimeRange? TimeRange   { get; }
 
     public ChannelPublishRequest<PricePeriodSummary> ChannelRequest { get; }
 }
@@ -46,16 +46,16 @@ public struct HistoricalPricePeriodSummaryStreamRequest
 public struct HistoricalPricePeriodSummaryRequestResponse
 {
     public HistoricalPricePeriodSummaryRequestResponse
-        (ISourceTickerIdentifier tickerId, TimeSeriesPeriod entryPeriod, UnboundedTimeRange? timeRange = null)
+        (ISourceTickerId tickerId, TimeSeriesPeriod entryPeriod, UnboundedTimeRange? timeRange = null)
     {
         TickerId    = tickerId;
         EntryPeriod = entryPeriod;
         TimeRange   = timeRange;
     }
 
-    public ISourceTickerIdentifier TickerId    { get; }
-    public TimeSeriesPeriod        EntryPeriod { get; }
-    public UnboundedTimeRange?     TimeRange   { get; }
+    public ISourceTickerId     TickerId    { get; }
+    public TimeSeriesPeriod    EntryPeriod { get; }
+    public UnboundedTimeRange? TimeRange   { get; }
 }
 
 public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAccessRule
@@ -106,7 +106,7 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         return GetResultsImmediately(quoteRequest).ToList();
     }
 
-    private IInstrument? FindInstrumentFor(ISourceTickerIdentifier tickerId, TimeSeriesPeriod entryPeriod)
+    private IInstrument? FindInstrumentFor(ISourceTickerId tickerId, TimeSeriesPeriod entryPeriod)
     {
         var matchingInstruments =
             TimeSeriesRepository

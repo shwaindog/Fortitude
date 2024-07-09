@@ -10,16 +10,16 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Indicators.Persistence;
 using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarketsCore.Indicators.Config;
 using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 

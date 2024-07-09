@@ -5,68 +5,21 @@
 
 using System.Collections;
 using System.Globalization;
-using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion
 
-namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ISourceTickerIdentifier
-{
-    uint   Id       { get; }
-    ushort SourceId { get; }
-    ushort TickerId { get; }
-    string Source   { get; }
-    string Ticker   { get; }
-}
-
-public static class SourceTickerIdentifierExtensions
-{
-    private static readonly ConcurrentMap<ushort, IMap<ushort, string>> SingleStringShortNameLookup = new();
-
-    public static string ShortName(this ISourceTickerIdentifier identifier)
-    {
-        if (!SingleStringShortNameLookup.TryGetValue(identifier.SourceId, out var tickerMap))
-        {
-            tickerMap = new ConcurrentMap<ushort, string>();
-            SingleStringShortNameLookup.Add(identifier.SourceId, tickerMap);
-        }
-        if (!tickerMap!.TryGetValue(identifier.TickerId, out var shortName))
-        {
-            shortName = $"{identifier.Source}-{identifier.Ticker}";
-            tickerMap.Add(identifier.TickerId, shortName);
-        }
-        return shortName!;
-    }
-}
-
-public struct SourceTickerIdentifier : ISourceTickerIdentifier
-{
-    public SourceTickerIdentifier(ushort sourceId, ushort tickerId, string source, string ticker)
-    {
-        SourceId = sourceId;
-        TickerId = tickerId;
-        Source   = source;
-        Ticker   = ticker;
-    }
-
-    public uint   Id       => (uint)((SourceId << 16) | TickerId);
-    public ushort SourceId { get; }
-    public ushort TickerId { get; }
-    public string Source   { get; }
-    public string Ticker   { get; }
-}
-
-public interface ISourceTickerQuoteInfo : ISourceTickerIdentifier, IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage, IInstrument
+public interface ISourceTickerQuoteInfo : ISourceTickerId, IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage, IInstrument
 {
     new ushort SourceId { get; set; }
     new ushort TickerId { get; set; }
@@ -88,10 +41,12 @@ public interface ISourceTickerQuoteInfo : ISourceTickerIdentifier, IInterfacesCo
     LastTradedFlags LastTradedFlags { get; set; }
     string          FormatPrice     { get; }
 
+    ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+
     new ISourceTickerQuoteInfo Clone();
 }
 
-public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISourceTickerQuoteInfo
+public class SourceTickerQuoteInfo : SourceTickerIdentifier, ISourceTickerQuoteInfo
 {
     private string? category;
 
@@ -107,6 +62,65 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
     {
         Source = null!;
         Ticker = null!;
+    }
+
+    public SourceTickerQuoteInfo(ISourceTickerId sourceTickerId)
+    {
+        SourceId = sourceTickerId.SourceId;
+        TickerId = sourceTickerId.TickerId;
+        Source   = sourceTickerId.Source;
+        Ticker   = sourceTickerId.Ticker;
+
+        PublishedQuoteLevel    = QuoteLevel.Level1;
+        MarketClassification   = MarketClassificationExtensions.Unknown;
+        RoundingPrecision      = 0.00001m;
+        MaximumPublishedLayers = 1;
+        MinSubmitSize          = 0.01m;
+        MaxSubmitSize          = 1_000_000m;
+        IncrementSize          = 0.01m;
+        MinimumQuoteLife       = 100;
+        LayerFlags             = LayerFlags.None;
+        LastTradedFlags        = LastTradedFlags.None;
+    }
+
+    public SourceTickerQuoteInfo(SourceTickerId sourceTickerId)
+    {
+        SourceId = sourceTickerId.SourceId;
+        TickerId = sourceTickerId.TickerId;
+        Source   = sourceTickerId.Source;
+        Ticker   = sourceTickerId.Ticker;
+
+        PublishedQuoteLevel    = QuoteLevel.Level1;
+        MarketClassification   = MarketClassificationExtensions.Unknown;
+        RoundingPrecision      = 0.00001m;
+        MaximumPublishedLayers = 1;
+        MinSubmitSize          = 0.01m;
+        MaxSubmitSize          = 1_000_000m;
+        IncrementSize          = 0.01m;
+        MinimumQuoteLife       = 100;
+        LayerFlags             = LayerFlags.None;
+        LastTradedFlags        = LastTradedFlags.None;
+    }
+
+    public SourceTickerQuoteInfo(PricingInstrumentId pricingInstrumentId)
+    {
+        SourceId    = pricingInstrumentId.SourceId;
+        TickerId    = pricingInstrumentId.TickerId;
+        Source      = pricingInstrumentId.Source;
+        Ticker      = pricingInstrumentId.Ticker;
+        Type        = pricingInstrumentId.InstrumentType;
+        EntryPeriod = pricingInstrumentId.Period;
+
+        PublishedQuoteLevel    = QuoteLevel.Level1;
+        MarketClassification   = MarketClassificationExtensions.Unknown;
+        RoundingPrecision      = 0.00001m;
+        MaximumPublishedLayers = 1;
+        MinSubmitSize          = 0.01m;
+        MaxSubmitSize          = 1_000_000m;
+        IncrementSize          = 0.01m;
+        MinimumQuoteLife       = 100;
+        LayerFlags             = LayerFlags.None;
+        LastTradedFlags        = LastTradedFlags.None;
     }
 
     public SourceTickerQuoteInfo
@@ -168,12 +182,6 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
 
     public uint MessageId => Id;
     public byte Version   => 1;
-    public uint Id        => (uint)((SourceId << 16) | TickerId);
-
-    public ushort SourceId { get; set; }
-    public ushort TickerId { get; set; }
-    public string Source   { get; set; }
-    public string Ticker   { get; set; }
 
     public QuoteLevel           PublishedQuoteLevel  { get; set; }
     public MarketClassification MarketClassification { get; set; }
@@ -319,11 +327,30 @@ public class SourceTickerQuoteInfo : ReusableObject<ISourceTickerQuoteInfo>, ISo
       , CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerQuoteInfo)source, copyMergeFlags);
 
+    ISourceTickerId ICloneable<ISourceTickerId>.Clone() => Clone();
+
     IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
 
-    public override ISourceTickerQuoteInfo Clone() => Recycler?.Borrow<SourceTickerQuoteInfo>()?.CopyFrom(this) ?? new SourceTickerQuoteInfo(this);
+    public override ISourceTickerQuoteInfo Clone() =>
+        Recycler?.Borrow<SourceTickerQuoteInfo>()?.CopyFrom(this) ?? new SourceTickerQuoteInfo((ISourceTickerQuoteInfo)this);
 
-    public override ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    ISourceTickerId IStoreState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
+    {
+        if (source is ISourceTickerQuoteInfo srcTkrQuoteInfo) return CopyFrom(srcTkrQuoteInfo, copyMergeFlags);
+        PublishedQuoteLevel    = QuoteLevel.Level1;
+        MarketClassification   = MarketClassificationExtensions.Unknown;
+        RoundingPrecision      = 0.00001m;
+        MaximumPublishedLayers = 1;
+        MinSubmitSize          = 0.01m;
+        MaxSubmitSize          = 1_000_000m;
+        IncrementSize          = 0.01m;
+        MinimumQuoteLife       = 100;
+        LayerFlags             = LayerFlags.None;
+        LastTradedFlags        = LastTradedFlags.None;
+        return base.CopyFrom(source, copyMergeFlags);
+    }
+
+    public ISourceTickerQuoteInfo CopyFrom(ISourceTickerQuoteInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SourceId = source.SourceId;
         TickerId = source.TickerId;

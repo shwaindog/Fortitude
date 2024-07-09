@@ -7,7 +7,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Indicators;
 
@@ -57,7 +57,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
     }
 
     public async ValueTask RegisterAndDeployTickerPeriodService
-    (ISourceTickerIdentifier tickerId, TimeSeriesPeriod period, ServiceType service, IRule rule, QuoteLevel quoteLevel = QuoteLevel.Level1
+    (ISourceTickerId tickerId, TimeSeriesPeriod period, ServiceType service, IRule rule, QuoteLevel quoteLevel = QuoteLevel.Level1
       , bool usePQQuote = false)
     {
         try

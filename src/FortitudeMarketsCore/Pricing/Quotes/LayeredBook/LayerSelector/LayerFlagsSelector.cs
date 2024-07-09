@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion

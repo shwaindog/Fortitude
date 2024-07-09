@@ -9,7 +9,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
@@ -21,7 +21,7 @@ namespace FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;
 
 public struct TimeSeriesPricePeriodParams
 {
-    public TimeSeriesPricePeriodParams(TimeSeriesPeriod publishPeriod, ISourceTickerIdentifier tickerId)
+    public TimeSeriesPricePeriodParams(TimeSeriesPeriod publishPeriod, ISourceTickerId tickerId)
     {
         PublishPeriod = publishPeriod;
         TickerId      = tickerId;
@@ -31,7 +31,7 @@ public struct TimeSeriesPricePeriodParams
         CompletePublishParams = new ResponsePublishParams();
     }
 
-    public TimeSeriesPricePeriodParams(TimeSeriesPeriod publishPeriod, ISourceTickerIdentifier tickerId, PricePublishInterval livePublishInterval)
+    public TimeSeriesPricePeriodParams(TimeSeriesPeriod publishPeriod, ISourceTickerId tickerId, PricePublishInterval livePublishInterval)
     {
         PublishPeriod = publishPeriod;
         TickerId      = tickerId;
@@ -42,7 +42,7 @@ public struct TimeSeriesPricePeriodParams
     }
 
     public TimeSeriesPricePeriodParams
-    (TimeSeriesPeriod publishPeriod, ISourceTickerIdentifier tickerId, PricePublishInterval livePublishInterval
+    (TimeSeriesPeriod publishPeriod, ISourceTickerId tickerId, PricePublishInterval livePublishInterval
       , ResponsePublishParams livePublishParams)
     {
         PublishPeriod = publishPeriod;
@@ -54,7 +54,7 @@ public struct TimeSeriesPricePeriodParams
     }
 
     public TimeSeriesPricePeriodParams
-    (TimeSeriesPeriod publishPeriod, ISourceTickerIdentifier tickerId, PricePublishInterval livePublishInterval
+    (TimeSeriesPeriod publishPeriod, ISourceTickerId tickerId, PricePublishInterval livePublishInterval
       , ResponsePublishParams livePublishParams, ResponsePublishParams completePublishParams)
     {
         PublishPeriod = publishPeriod;
@@ -65,19 +65,19 @@ public struct TimeSeriesPricePeriodParams
         CompletePublishParams = completePublishParams;
     }
 
-    public ISourceTickerIdentifier TickerId            { get; set; }
-    public TimeSeriesPeriod        PublishPeriod       { get; set; }
-    public PricePublishInterval?   LivePublishInterval { get; set; }
-    public ResponsePublishParams   LivePublishParams   { get; set; }
+    public ISourceTickerId       TickerId            { get; set; }
+    public TimeSeriesPeriod      PublishPeriod       { get; set; }
+    public PricePublishInterval? LivePublishInterval { get; set; }
+    public ResponsePublishParams LivePublishParams   { get; set; }
 
     public ResponsePublishParams CompletePublishParams { get; set; }
 }
 
 public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote> where TQuote : class, ILevel1Quote
 {
-    private readonly ResponsePublishParams   completeResponsePublishParams;
-    private readonly TimeSeriesPeriod        periodToPublish;
-    private readonly ISourceTickerIdentifier tickerId;
+    private readonly ResponsePublishParams completeResponsePublishParams;
+    private readonly TimeSeriesPeriod      periodToPublish;
+    private readonly ISourceTickerId       tickerId;
 
     private PeriodSummaryState  currentPeriodSummaryState = null!;
     private PeriodSummaryState? lastPeriodSummaryState;

@@ -1,9 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 
@@ -26,8 +29,9 @@ public class PQSourceTickerInfoResponse : ResponseMessage
 
     public List<ISourceTickerQuoteInfo> SourceTickerQuoteInfos { get; } = new();
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is PQSourceTickerInfoResponse pqSourceTickerInfoResponse)

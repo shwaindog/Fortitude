@@ -14,6 +14,7 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 
@@ -29,7 +30,8 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
     private readonly IPricingServerConfig         pricingServerConfig;
     private          List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos;
 
-    public PQPricingClientBusTopicPublicationAmenderRule(string feedName, List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos
+    public PQPricingClientBusTopicPublicationAmenderRule
+    (string feedName, List<ISourceTickerQuoteInfo> feedSourceTickerQuoteInfos
       , ISocketSessionContext socketSessionContext
       , IPricingServerConfig pricingServerConfig
       , IConverterRepository? converterRepository = null, string? registrationRepoName = null)

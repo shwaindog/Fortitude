@@ -6,7 +6,7 @@
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
@@ -29,8 +29,7 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
     public RecentlyTraded(IRecentlyTraded toClone)
     {
         LastTrades = new List<IMutableLastTrade?>();
-        for (var i = 0; i < toClone.Count; i++)
-            LastTrades.Add(LastTradeEntrySelector.ConvertToExpectedImplementation(toClone[i], true));
+        for (var i = 0; i < toClone.Count; i++) LastTrades.Add(LastTradeEntrySelector.ConvertToExpectedImplementation(toClone[i], true));
     }
 
     public RecentlyTraded(ISourceTickerQuoteInfo sourceTickerQuoteInfo)

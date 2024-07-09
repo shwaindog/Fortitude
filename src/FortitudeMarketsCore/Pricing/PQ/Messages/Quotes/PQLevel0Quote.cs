@@ -12,7 +12,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
@@ -461,8 +460,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
             yield return new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)booleanFields);
         }
 
-        if (!updatedOnly || IsSyncStatusUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)PQPriceSyncStatus);
+        if (!updatedOnly || IsSyncStatusUpdated) yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)PQPriceSyncStatus);
 
         var includeReceiverTimes = (messageFlags & StorageFlags.IncludeReceiverTimes) > 0;
         if (includeReceiverTimes)
@@ -703,8 +701,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
 
     public virtual void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance)
     {
-        if (referenceInstance?.SourceTickerQuoteInfo is IPQSourceTickerQuoteInfo pqSrcTkrQuoteInfo)
-            SourceTickerQuoteInfo = pqSrcTkrQuoteInfo;
+        if (referenceInstance?.SourceTickerQuoteInfo is IPQSourceTickerQuoteInfo pqSrcTkrQuoteInfo) SourceTickerQuoteInfo = pqSrcTkrQuoteInfo;
     }
 
     ILevel0Quote ICloneable<ILevel0Quote>.          Clone() => Clone();

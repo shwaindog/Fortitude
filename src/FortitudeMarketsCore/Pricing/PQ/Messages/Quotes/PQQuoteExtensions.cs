@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
@@ -20,6 +22,7 @@ public static class PQQuoteExtensions
             case QuoteLevel.Level1:
                 return recycler?.Borrow<PQLevel1Quote>()?.SetSourceTickerQuoteInfo(srcTickerQuoteInfo) ?? new PQLevel1Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level2: return new PQLevel2Quote(srcTickerQuoteInfo);
+
             default: return new PQLevel3Quote(srcTickerQuoteInfo);
         }
     }
@@ -32,34 +35,39 @@ public static class PQQuoteExtensions
             case QuoteLevel.Level0: return new PQLevel0Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level1: return new PQLevel1Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level2: return new PQLevel2Quote(srcTickerQuoteInfo);
+
             default: return new PQLevel3Quote(srcTickerQuoteInfo);
         }
     }
 
-    public static Func<PQLevel0Quote> MostRestrictivePQInstanceFactory(this ISourceTickerQuoteInfo srcTickerQuoteInfo, QuoteLevel upperBound
-        , IRecycler? recycler = null)
+    public static Func<PQLevel0Quote> MostRestrictivePQInstanceFactory
+    (this ISourceTickerQuoteInfo srcTickerQuoteInfo, QuoteLevel upperBound
+      , IRecycler? recycler = null)
     {
         var srcTickerQuoteLevel = srcTickerQuoteInfo.PublishedQuoteLevel;
-        var quoteLevel = (QuoteLevel)Math.Min((byte)srcTickerQuoteLevel, (byte)upperBound);
+        var quoteLevel          = (QuoteLevel)Math.Min((byte)srcTickerQuoteLevel, (byte)upperBound);
         switch (quoteLevel)
         {
             case QuoteLevel.Level0: return () => new PQLevel0Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level1: return () => new PQLevel1Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level2: return () => new PQLevel2Quote(srcTickerQuoteInfo);
+
             default: return () => new PQLevel3Quote(srcTickerQuoteInfo);
         }
     }
 
-    public static Func<PQLevel0Quote> LeastRestrictivePQInstanceFactory(this ISourceTickerQuoteInfo srcTickerQuoteInfo, QuoteLevel lowerBound
-        , IRecycler? recycler = null)
+    public static Func<PQLevel0Quote> LeastRestrictivePQInstanceFactory
+    (this ISourceTickerQuoteInfo srcTickerQuoteInfo, QuoteLevel lowerBound
+      , IRecycler? recycler = null)
     {
         var srcTickerQuoteLevel = srcTickerQuoteInfo.PublishedQuoteLevel;
-        var quoteLevel = (QuoteLevel)Math.Max((byte)srcTickerQuoteLevel, (byte)lowerBound);
+        var quoteLevel          = (QuoteLevel)Math.Max((byte)srcTickerQuoteLevel, (byte)lowerBound);
         switch (quoteLevel)
         {
             case QuoteLevel.Level0: return () => new PQLevel0Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level1: return () => new PQLevel1Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level2: return () => new PQLevel2Quote(srcTickerQuoteInfo);
+
             default: return () => new PQLevel3Quote(srcTickerQuoteInfo);
         }
     }
@@ -72,6 +80,7 @@ public static class PQQuoteExtensions
             case QuoteLevel.Level0: return () => new PQLevel0Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level1: return () => new PQLevel1Quote(srcTickerQuoteInfo);
             case QuoteLevel.Level2: return () => new PQLevel2Quote(srcTickerQuoteInfo);
+
             default: return () => new PQLevel3Quote(srcTickerQuoteInfo);
         }
     }

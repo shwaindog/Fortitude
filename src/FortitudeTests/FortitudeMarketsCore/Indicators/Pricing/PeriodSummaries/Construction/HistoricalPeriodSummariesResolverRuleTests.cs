@@ -12,7 +12,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Indicators;
@@ -28,8 +28,8 @@ using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
+using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
 
 #endregion
 
@@ -226,7 +226,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         return lastFileEntryInfoRetrieved;
     }
 
-    private IEnumerable<ILevel0Quote> GetStubQuotes(ISourceTickerIdentifier srcTickerId, UnboundedTimeRange? requestTimeRange)
+    private IEnumerable<ILevel0Quote> GetStubQuotes(ISourceTickerId srcTickerId, UnboundedTimeRange? requestTimeRange)
     {
         return lastQuotesRetrieved =
             oneSecondLevel1Quotes
@@ -238,7 +238,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     private IEnumerable<PricePeriodSummary> GetStubSummaries
-        (ISourceTickerIdentifier srcTickerId, TimeSeriesPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
+        (ISourceTickerId srcTickerId, TimeSeriesPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
     {
         if (srcTickerId.TickerId == tickerId5SPeriod.TickerId) return Enumerable.Empty<PricePeriodSummary>();
         if (srcTickerId.TickerId == tickerId30SPeriod.TickerId && requestPeriod == FifteenSeconds)
@@ -273,7 +273,6 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     [TestMethod]
     public async Task AllTicksSummary4QuotesOn15sResolver_SendEntriesToPersister_CanRetrieveEntriesFromRepository()
     {
-        // set time to 9 seconds
         stubTimeContext.AddSeconds(5);
         historicalQuotesLatestTime       = stubTimeContext.UtcNow;
         historical15SSummariesLatestTime = FifteenSeconds.PreviousPeriodStart(stubTimeContext.UtcNow);
@@ -299,7 +298,6 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     [TestMethod]
     public async Task MissingOneHistoricalSummary_OnStartupResolverStartsPublishingAvailablePeriods_ReceiveOneHistoricalPeriodToPersist()
     {
-        // set time to 24 seconds past seedTime
         stubTimeContext.AddSeconds(24);
         historicalQuotesLatestTime = stubTimeContext.UtcNow;
         restrictedRetrievalRange   = new BoundedTimeRange(historicalQuotesStartTime, stubTimeContext.UtcNow);
@@ -528,7 +526,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         Assert.AreEqual(720, hasResult.Count);
     }
 
-    private class TestHistoricalPeriodClient(TimeSeriesPeriod period, ISourceTickerIdentifier tickerId) : Rule
+    private class TestHistoricalPeriodClient(TimeSeriesPeriod period, ISourceTickerId tickerId) : Rule
     {
         private const string HistoricalPeriodTestClientInvokeResponseRequestAddress
             = "TestClient.HistoricalPricePeriodSummary.Invoke.RequestResponse";

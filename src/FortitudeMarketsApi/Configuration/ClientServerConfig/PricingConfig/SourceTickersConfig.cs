@@ -46,9 +46,9 @@ public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConf
 
 public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 {
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+    #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
     private object? ignoreSuppressWarnings;
-#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
+    #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 
     private MarketClassificationConfig? lastMarketClassificationConfig;
     public SourceTickersConfig(IConfigurationRoot root, string path) : base(root, path) { }

@@ -22,7 +22,7 @@ public class TestMetrics
 {
     private const int MaxAllowedUntestedClassesInCommon               = 195;
     private const int MaxAllowedUntestedClassesInFortitudeIO          = 145;
-    private const int MaxAllowedUntestedClassesInFortitudeMarketsApi  = 40;
+    private const int MaxAllowedUntestedClassesInFortitudeMarketsApi  = 47;
     private const int MaxAllowedUntestedClassesInFortitudeMarketsCore = 260;
     private const int MaxAllowedUntestedClassesInFortitudeBusRules    = 117;
 

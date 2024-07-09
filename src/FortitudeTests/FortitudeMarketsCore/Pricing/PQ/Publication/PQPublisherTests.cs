@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Types;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Publication;

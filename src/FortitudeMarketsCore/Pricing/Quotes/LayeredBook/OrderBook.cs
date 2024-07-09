@@ -6,7 +6,7 @@
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
@@ -69,8 +69,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         LayersOfType = sourceTickerQuoteInfo.LayerFlags.MostCompactLayerType();
         IsLadder     = sourceTickerQuoteInfo.LayerFlags.HasLadder();
         bookLayers   = new List<IPriceVolumeLayer?>(sourceTickerQuoteInfo.MaximumPublishedLayers);
-        for (var i = 0; i < sourceTickerQuoteInfo.MaximumPublishedLayers; i++)
-            bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
+        for (var i = 0; i < sourceTickerQuoteInfo.MaximumPublishedLayers; i++) bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
     }
 
     public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerQuoteInfo> LayerSelector { get; set; } =

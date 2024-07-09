@@ -30,7 +30,8 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     MessageQueueType QueueType { get; }
     IQueueContext    Context   { get; }
 
-    uint           RecentlyReceivedMessagesCount   { get; }
+    uint RecentlyReceivedMessagesCount { get; }
+
     QueueEventTime LatestMessageStartProcessing    { get; }
     QueueEventTime LatestMessageFinishedProcessing { get; }
 
@@ -54,6 +55,7 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     bool IsListeningToAddress(string destinationAddress);
     int  RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress);
     void RunOn(IRule sender, Action action);
+    void RunOn(IRule sender, Func<ValueTask> action);
 
     ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult);
     ValueTask<IDispatchResult>         StopRuleAsync(IRule sender, IRule rule);
@@ -91,10 +93,12 @@ public class MessageQueue : IMessageQueue
 
     public MessageQueue(IConfigureMessageBus messageBus, MessageQueueType queueType, int id, IAsyncValueTaskRingPoller<BusMessage> ringPoller)
     {
-        QueueType    = queueType;
-        Id           = id;
-        name         = ringPoller.Ring.Name;
-        ring         = ringPoller.Ring;
+        QueueType = queueType;
+
+        Id   = id;
+        name = ringPoller.Ring.Name;
+        ring = ringPoller.Ring;
+
         queueContext = new QueueContext(this, messageBus);
 
         ringPoller.Recycler             = queueContext.PooledRecycler;
@@ -127,14 +131,16 @@ public class MessageQueue : IMessageQueue
         IncrementRecentMessageReceived();
         var seqId = ring.Claim();
         var evt   = ring[seqId];
-        evt.Type               = msg.Type;
-        evt.Payload            = msg.Payload;
-        evt.DestinationAddress = msg.DestinationAddress;
-        evt.Response           = msg.Response;
-        evt.Sender             = msg.Sender;
-        evt.SentTime           = msg.SentTime;
+
+        evt.Type       = msg.Type;
+        evt.Payload    = msg.Payload;
+        evt.Response   = msg.Response;
+        evt.Sender     = msg.Sender;
+        evt.SentTime   = msg.SentTime;
+        evt.RuleFilter = msg.RuleFilter;
+
         evt.ProcessorRegistry  = msg.ProcessorRegistry;
-        evt.RuleFilter         = msg.RuleFilter;
+        evt.DestinationAddress = msg.DestinationAddress;
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
     }
@@ -145,10 +151,12 @@ public class MessageQueue : IMessageQueue
     {
         if (processorRegistry == null)
         {
-            processorRegistry        = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+            processorRegistry = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+
             processorRegistry.Result = sender.Context.PooledRecycler.Borrow<DispatchResult>();
             processorRegistry.IncrementRefCount();
-            processorRegistry.Result.SentTime                = DateTime.Now;
+            processorRegistry.Result.SentTime = DateTime.Now;
+
             processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
         }
 
@@ -160,15 +168,17 @@ public class MessageQueue : IMessageQueue
         payLoadContainer.SetBody = payLoadContainer.PayloadMarshaller != null
             ? payLoadContainer.PayloadMarshaller.GetMarshalled(payload, PayloadRequestType.QueueSend)
             : payload;
-        evt.Type               = msgType;
-        evt.Payload            = payLoadContainer;
-        evt.DestinationAddress = destinationAddress;
-        evt.Response           = BusMessage.NoOpCompletionSource;
-        evt.Sender             = sender;
-        evt.SentTime           = DateTime.Now;
+
+        evt.Type     = msgType;
+        evt.Payload  = payLoadContainer;
+        evt.Response = BusMessage.NoOpCompletionSource;
+        evt.Sender   = sender;
+        evt.SentTime = DateTime.Now;
+
         // logger.Debug("EnqueuePayloadWithStats processorRegistry: {0}", processorRegistry.ToString());
-        evt.ProcessorRegistry = processorRegistry;
-        evt.RuleFilter        = ruleFilter ?? BusMessage.AppliesToAll;
+        evt.DestinationAddress = destinationAddress;
+        evt.ProcessorRegistry  = processorRegistry;
+        evt.RuleFilter         = ruleFilter ?? BusMessage.AppliesToAll;
         // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
@@ -185,10 +195,12 @@ public class MessageQueue : IMessageQueue
     {
         if (processorRegistry == null)
         {
-            processorRegistry        = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+            processorRegistry = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+
             processorRegistry.Result = sender.Context.PooledRecycler.Borrow<DispatchResult>();
             processorRegistry.IncrementRefCount();
-            processorRegistry.Result.SentTime                = DateTime.Now;
+            processorRegistry.Result.SentTime = DateTime.Now;
+
             processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
         }
 
@@ -204,14 +216,15 @@ public class MessageQueue : IMessageQueue
         reusableValueTaskSource.DispatchResult                 = processorRegistry.Result;
         reusableValueTaskSource.ResponseTimeoutAndRecycleTimer = queueContext.QueueTimer;
 
-        evt.Type               = msgType;
-        evt.Payload            = payLoadContainer;
-        evt.DestinationAddress = destinationAddress;
-        evt.Response           = reusableValueTaskSource;
-        evt.Sender             = sender;
-        evt.SentTime           = DateTime.Now;
+        evt.Type       = msgType;
+        evt.Payload    = payLoadContainer;
+        evt.Response   = reusableValueTaskSource;
+        evt.Sender     = sender;
+        evt.SentTime   = DateTime.Now;
+        evt.RuleFilter = ruleFilter ?? BusMessage.AppliesToAll;
+
         evt.ProcessorRegistry  = processorRegistry;
-        evt.RuleFilter         = ruleFilter ?? BusMessage.AppliesToAll;
+        evt.DestinationAddress = destinationAddress;
         // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
@@ -252,6 +265,25 @@ public class MessageQueue : IMessageQueue
         return count;
     }
 
+    public void RunOn(IRule sender, Func<ValueTask> action)
+    {
+        IncrementRecentMessageReceived();
+        var seqId            = ring.Claim();
+        var evt              = ring[seqId];
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<Payload<Func<ValueTask>>>();
+        payLoadContainer.SetBody = action;
+
+        evt.Type     = MessageType.RunAsyncValueTaskPayload;
+        evt.Payload  = payLoadContainer;
+        evt.Response = BusMessage.NoOpCompletionSource;
+        evt.Sender   = sender;
+        evt.SentTime = DateTime.Now;
+        // Logger.Debug("Sending {0} on {1}", evt, Name);
+        evt.DestinationAddress = null;
+        ring.Publish(seqId);
+        MessagePump.WakeIfAsleep();
+    }
+
     public void RunOn(IRule sender, Action action)
     {
         IncrementRecentMessageReceived();
@@ -260,13 +292,13 @@ public class MessageQueue : IMessageQueue
         var payLoadContainer = queueContext.PooledRecycler.Borrow<Payload<Action>>();
         payLoadContainer.SetBody = action;
 
-        evt.Type               = MessageType.RunActionPayload;
-        evt.Payload            = payLoadContainer;
-        evt.DestinationAddress = null;
-        evt.Response           = BusMessage.NoOpCompletionSource;
-        evt.Sender             = sender;
-        evt.SentTime           = DateTime.Now;
+        evt.Type     = MessageType.RunActionPayload;
+        evt.Payload  = payLoadContainer;
+        evt.Response = BusMessage.NoOpCompletionSource;
+        evt.Sender   = sender;
+        evt.SentTime = DateTime.Now;
         // Logger.Debug("Sending {0} on {1}", evt, Name);
+        evt.DestinationAddress = null;
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
     }
@@ -286,14 +318,15 @@ public class MessageQueue : IMessageQueue
             ? payLoadContainer.PayloadMarshaller.GetMarshalled(payload, PayloadRequestType.QueueSend)
             : payload;
 
-        evt.Type               = msgType;
-        evt.Payload            = payLoadContainer;
-        evt.DestinationAddress = destinationAddress;
-        evt.Response           = BusMessage.NoOpCompletionSource;
-        evt.Sender             = sender;
-        evt.SentTime           = DateTime.Now;
+        evt.Type       = msgType;
+        evt.Payload    = payLoadContainer;
+        evt.Response   = BusMessage.NoOpCompletionSource;
+        evt.Sender     = sender;
+        evt.SentTime   = DateTime.Now;
+        evt.RuleFilter = ruleFilter ?? BusMessage.AppliesToAll;
+
         evt.ProcessorRegistry  = null;
-        evt.RuleFilter         = ruleFilter ?? BusMessage.AppliesToAll;
+        evt.DestinationAddress = destinationAddress;
         // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
@@ -402,12 +435,15 @@ public class MessageQueue : IMessageQueue
     {
         if (processorRegistry == null)
         {
-            processorRegistry        = sender.Context.PooledRecycler.Borrow<DeploymentLifeTimeProcessorRegistry>();
+            processorRegistry = sender.Context.PooledRecycler.Borrow<DeploymentLifeTimeProcessorRegistry>();
+
             processorRegistry.Result = sender.Context.PooledRecycler.Borrow<RuleDeploymentLifeTime>();
+
             processorRegistry.IncrementRefCount();
-            processorRegistry.Result.DeployedRule            = deploy;
-            processorRegistry.Result.SenderRule              = deploy;
-            processorRegistry.Result.SentTime                = DateTime.Now;
+            processorRegistry.Result.DeployedRule = deploy;
+            processorRegistry.Result.SenderRule   = deploy;
+            processorRegistry.Result.SentTime     = DateTime.Now;
+
             processorRegistry.ResponseTimeoutAndRecycleTimer = sender.Context.QueueTimer;
         }
 
@@ -419,15 +455,17 @@ public class MessageQueue : IMessageQueue
         payLoadContainer.SetBody = payLoadContainer.PayloadMarshaller != null
             ? payLoadContainer.PayloadMarshaller.GetMarshalled(deploy, PayloadRequestType.QueueSend)
             : deploy;
-        evt.Type               = msgType;
-        evt.Payload            = payLoadContainer;
-        evt.DestinationAddress = destinationAddress;
-        evt.Response           = BusMessage.NoOpCompletionSource;
-        evt.Sender             = sender;
-        evt.SentTime           = DateTime.Now;
+
+        evt.Type       = msgType;
+        evt.Payload    = payLoadContainer;
+        evt.Response   = BusMessage.NoOpCompletionSource;
+        evt.Sender     = sender;
+        evt.SentTime   = DateTime.Now;
+        evt.RuleFilter = ruleFilter ?? BusMessage.AppliesToAll;
+
         // logger.Debug("EnqueuePayloadWithStats processorRegistry: {0}", processorRegistry.ToString());
-        evt.ProcessorRegistry = processorRegistry;
-        evt.RuleFilter        = ruleFilter ?? BusMessage.AppliesToAll;
+        evt.DestinationAddress = destinationAddress;
+        evt.ProcessorRegistry  = processorRegistry;
         // Logger.Debug("Sending {0} on {1}", evt, Name);
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();

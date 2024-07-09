@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using System.Reactive.Disposables;
@@ -17,11 +20,14 @@ public class PQTickerFeedSubscriptionQuoteStream<T> : PQTickerFeedSubscription, 
     IPQTickerFeedSubscriptionQuoteStream<T> where T : class, IPQLevel0Quote
 {
     private readonly ISyncLock quoteLockLight;
+
     private IDisposable? addActionOnUnsubscribe;
-    private Exception? lastException;
+    private Exception?   lastException;
+
     private IList<IObserver<T>>? observers = new List<IObserver<T>>();
 
-    public PQTickerFeedSubscriptionQuoteStream(IPricingServerConfig feedServerConfig,
+    public PQTickerFeedSubscriptionQuoteStream
+    (IPricingServerConfig feedServerConfig,
         ISourceTickerQuoteInfo sourceTickerQuoteInfo, T publishedQuote)
         : base(feedServerConfig, sourceTickerQuoteInfo) =>
         quoteLockLight = publishedQuote.Lock;
@@ -86,8 +92,8 @@ public class PQTickerFeedSubscriptionQuoteStream<T> : PQTickerFeedSubscription, 
 
     public void AddCleanupAction(IDisposable underlyingSubscription)
     {
-        addActionOnUnsubscribe = new CompositeDisposable(underlyingSubscription ?? Disposable.Empty,
-            addActionOnUnsubscribe ?? Disposable.Empty);
+        addActionOnUnsubscribe = new CompositeDisposable
+            (underlyingSubscription, addActionOnUnsubscribe ?? Disposable.Empty);
     }
 
     private void CheckAnyObserversLeft()

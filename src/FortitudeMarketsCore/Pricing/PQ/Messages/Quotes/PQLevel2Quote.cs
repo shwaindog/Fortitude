@@ -6,7 +6,6 @@
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -211,8 +210,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
 
     public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
-        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags))
-            yield return pqFieldStringUpdate;
+        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
         foreach (var pqFieldStringUpdate in bidBook.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
         foreach (var pqFieldStringUpdate in askBook.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
     }

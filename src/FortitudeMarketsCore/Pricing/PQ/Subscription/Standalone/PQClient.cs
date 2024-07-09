@@ -11,6 +11,7 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
@@ -56,6 +57,7 @@ public class PQClient : IDisposable
             new SourceTickerQuoteInfoRegistry
                 ("PQClient", marketsConfig.Markets
                                           .SelectMany(mcc => mcc.AllSourceTickerInfos));
+
         this.marketsConfig         = marketsConfig;
         this.snapshotClientFactory = snapshotClientFactory ?? new PQSnapshotClientRepository(socketDispatcherResolver);
         this.updateClientFactory   = updateClientFactory ?? new PQUpdateClientRepository(socketDispatcherResolver);
@@ -68,8 +70,7 @@ public class PQClient : IDisposable
             foreach (var ssc in sourceSubscriptions.Values)
                 if (ssc.MarketConnectionConfig != null)
                 {
-                    foreach (var sub in ssc.Subscriptions)
-                        Unsubscribe(ssc.MarketConnectionConfig, sub.Ticker);
+                    foreach (var sub in ssc.Subscriptions) Unsubscribe(ssc.MarketConnectionConfig, sub.Ticker);
                     ssc.Subscriptions.Clear();
                 }
 
@@ -96,11 +97,9 @@ public class PQClient : IDisposable
             throw new Exception($"No MarketConnectionConfig exists for source {sourceName}");
         var pricingServerConfig = sourceSubscriptionsContext.MarketConnectionConfig.PricingServerConfig;
 
-        if (pricingServerConfig == null)
-            throw new Exception($"No PricingServerConfig exists for source {sourceName}");
+        if (pricingServerConfig == null) throw new Exception($"No PricingServerConfig exists for source {sourceName}");
 
-        var snapShotClient
-            = snapshotClientFactory.RetrieveOrCreateConversation(pricingServerConfig.SnapshotConnectionConfig);
+        var snapShotClient = snapshotClientFactory.RetrieveOrCreateConversation(pricingServerConfig.SnapshotConnectionConfig);
         snapShotClient.SourceTickerQuoteInfoRegistry = sourceTickerQuoteInfoRegistry;
 
         snapShotClient.RequestSourceTickerQuoteInfoList();
@@ -109,8 +108,7 @@ public class PQClient : IDisposable
 
     public ISourceTickerQuoteInfoRegistry RequestSourceTickerForAllSources()
     {
-        foreach (var marketConnectionConfig in marketsConfig.Markets)
-            RequestSourceTickerForSource(marketConnectionConfig.Name);
+        foreach (var marketConnectionConfig in marketsConfig.Markets) RequestSourceTickerForSource(marketConnectionConfig.Name);
         return sourceTickerQuoteInfoRegistry;
     }
 
@@ -143,8 +141,7 @@ public class PQClient : IDisposable
         sub.AddCleanupAction(Disposable.Create(() =>
         {
             sourceSubscriptionsContext.Subscriptions.Remove(sub);
-            if (sourceSubscriptionsContext.MarketConnectionConfig != null)
-                Unsubscribe(sourceSubscriptionsContext.MarketConnectionConfig, sub.Ticker);
+            if (sourceSubscriptionsContext.MarketConnectionConfig != null) Unsubscribe(sourceSubscriptionsContext.MarketConnectionConfig, sub.Ticker);
             if (sourceSubscriptionsContext.Subscriptions.Count != 0) return;
             lock (sourceSubscriptions)
             {
@@ -158,9 +155,10 @@ public class PQClient : IDisposable
         (ISourceTickerQuoteInfo sourceTickerQuoteInfo, IMarketConnectionConfig? marketConnectionConfig) where T : PQLevel0Quote, new()
     {
         PQTickerFeedSubscriptionQuoteStream<T>? pqTickerFeedSubscriptionQuoteStream = null;
-        IPricingServerConfig?                   pricingServerConfig                 = null;
-        if (marketConnectionConfig != null)
-            pricingServerConfig = marketConnectionConfig.PricingServerConfig;
+
+        IPricingServerConfig? pricingServerConfig = null;
+
+        if (marketConnectionConfig != null) pricingServerConfig = marketConnectionConfig.PricingServerConfig;
         if (pricingServerConfig != null)
         {
             var tickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig(sourceTickerQuoteInfo, pricingServerConfig);
@@ -228,8 +226,7 @@ public class PQClient : IDisposable
 
             deserializationRepository.UnregisterDeserializer(sourceTickerPublicationConfig);
 
-            if (!deserializationRepository.RegisteredMessageIds.Any())
-                pqClientSyncMonitoring.CheckStopMonitoring();
+            if (!deserializationRepository.RegisteredMessageIds.Any()) pqClientSyncMonitoring.CheckStopMonitoring();
 
             Logger.Info($"Unsubscribed from {sourceTickerPublicationConfig}");
         }
@@ -244,8 +241,7 @@ public class PQClient : IDisposable
     {
         var feedRef = marketsConfig.Find(feedName);
         if (feedRef != null) return feedRef;
-        if (++missingRefs == 1)
-            osParallelController.ScheduleWithEarlyTrigger(shutDownSignal, GetMissingMarketConnectionConfig!, 60000);
+        if (++missingRefs == 1) osParallelController.ScheduleWithEarlyTrigger(shutDownSignal, GetMissingMarketConnectionConfig!, 60000);
         return null;
     }
 
@@ -258,12 +254,10 @@ public class PQClient : IDisposable
                 if (feed.Value.MarketConnectionConfig == null)
                 {
                     feed.Value.MarketConnectionConfig = marketsConfig.Find(feed.Key);
-                    if (feed.Value.MarketConnectionConfig != null)
-                        missingRefs--;
+                    if (feed.Value.MarketConnectionConfig != null) missingRefs--;
                 }
 
-            if (missingRefs > 0)
-                osParallelController.ScheduleWithEarlyTrigger(shutDownSignal, GetMissingMarketConnectionConfig!, 60000);
+            if (missingRefs > 0) osParallelController.ScheduleWithEarlyTrigger(shutDownSignal, GetMissingMarketConnectionConfig!, 60000);
         }
     }
 
@@ -272,8 +266,7 @@ public class PQClient : IDisposable
         IMarketConnectionConfig? result = null;
         lock (sourceSubscriptions)
         {
-            if (sourceSubscriptions.TryGetValue(sourceName, out var context))
-                result = context.MarketConnectionConfig;
+            if (sourceSubscriptions.TryGetValue(sourceName, out var context)) result = context.MarketConnectionConfig;
         }
 
         return result;

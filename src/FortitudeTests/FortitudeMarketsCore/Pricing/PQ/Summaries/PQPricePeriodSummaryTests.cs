@@ -7,7 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;

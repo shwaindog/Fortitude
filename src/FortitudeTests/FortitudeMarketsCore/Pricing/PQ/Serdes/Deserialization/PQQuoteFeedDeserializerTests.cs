@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -217,8 +216,7 @@ public class PQQuoteFeedDeserializerTests
 
     private void AssertDeserializerHasTimedOutAndNeedsSnapshotIs(DateTime currentTime, bool expectedValue)
     {
-        for (var i = 0; i < deserializers.Count; i++)
-            Assert.AreEqual(expectedValue, deserializers[i].HasTimedOutAndNeedsSnapshot(currentTime));
+        for (var i = 0; i < deserializers.Count; i++) Assert.AreEqual(expectedValue, deserializers[i].HasTimedOutAndNeedsSnapshot(currentTime));
     }
 
     private void CallDeserializer(IList<SocketBufferReadContext> deserializeInputList)

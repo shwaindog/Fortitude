@@ -7,7 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing.Summaries;
 
 #endregion
@@ -18,8 +18,8 @@ public class ResolverState
 {
     public readonly IDoublyLinkedList<PricePeriodSummary> cacheLatest = new DoublyLinkedList<PricePeriodSummary>();
 
-    public readonly TimeSeriesPeriod        period;
-    public readonly ISourceTickerIdentifier tickerId;
+    public readonly TimeSeriesPeriod period;
+    public readonly ISourceTickerId  tickerId;
 
     public TimeSpan            cacheTimeSpan;
     public BoundedTimeRange    existingSummariesHistoricalRange;
@@ -29,7 +29,7 @@ public class ResolverState
     public InstrumentFileInfo? subPeriodFileInfo;
     public BoundedTimeRange    subPeriodsHistoricalRange;
 
-    public ResolverState(ISourceTickerIdentifier tickerId, TimeSeriesPeriod period)
+    public ResolverState(ISourceTickerId tickerId, TimeSeriesPeriod period)
     {
         this.period   = period;
         this.tickerId = tickerId;

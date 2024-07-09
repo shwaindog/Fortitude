@@ -4,7 +4,7 @@
 #region
 
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 

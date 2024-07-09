@@ -11,7 +11,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 #endregion
@@ -52,7 +52,8 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
     private IOSThread? tasksThread;
 
-    public PQClientSyncMonitoring(Func<string, IMarketConnectionConfig?> getSourceServerConfig,
+    public PQClientSyncMonitoring
+    (Func<string, IMarketConnectionConfig?> getSourceServerConfig,
         Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction)
     {
         osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
@@ -210,8 +211,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
             {
                 pqSeq.Serialize(seq);
                 IPQQuoteDeserializer? pu;
-                if ((pu = syncOk.Head) == null || !pu.HasTimedOutAndNeedsSnapshot(TimeContext.UtcNow))
-                    break;
+                if ((pu = syncOk.Head) == null || !pu.HasTimedOutAndNeedsSnapshot(TimeContext.UtcNow)) break;
                 syncOk.Remove(pu);
                 syncKo.AddFirst(pu);
             }
@@ -235,12 +235,10 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
             try
             {
                 pqSeq.Serialize(seq);
-                if ((pu = syncKo.Head) == null)
-                    break;
+                if ((pu = syncKo.Head) == null) break;
                 if (firstToResync == null)
                     firstToResync = pu;
-                else if (firstToResync == pu)
-                    break;
+                else if (firstToResync == pu) break;
                 resync = pu.CheckResync(TimeContext.UtcNow);
                 syncKo.Remove(pu);
                 syncKo.AddLast(pu);
@@ -255,21 +253,20 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
                                                             out var pqQuoteDeserializerList))
                 deserializersInNeedOfSnapshots[pu.Identifier.Source] =
                     pqQuoteDeserializerList = new List<ISourceTickerQuoteInfo>();
-            if (!pqQuoteDeserializerList.Contains(pu.Identifier))
-                pqQuoteDeserializerList.Add(pu.Identifier);
+            if (!pqQuoteDeserializerList.Contains(pu.Identifier)) pqQuoteDeserializerList.Add(pu.Identifier);
         }
 
         RequestSnapshotsForTickers(deserializersInNeedOfSnapshots);
     }
 
-    private void RequestSnapshotsForTickers(
+    private void RequestSnapshotsForTickers
+    (
         Dictionary<string, List<ISourceTickerQuoteInfo>> deserializersInNeedOfSnapshots)
     {
         foreach (var kv in deserializersInNeedOfSnapshots)
         {
             var feedRef = getSourceServerConfig(kv.Key);
-            if (feedRef != null)
-                snapShotRequestAction(feedRef.PricingServerConfig!.SnapshotConnectionConfig!, kv.Value);
+            if (feedRef != null) snapShotRequestAction(feedRef.PricingServerConfig!.SnapshotConnectionConfig!, kv.Value);
         }
     }
 }

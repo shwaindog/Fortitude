@@ -11,7 +11,7 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Summaries;
 
@@ -26,14 +26,14 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
     private ISubscription? requestResponseSubscription;
     private ISubscription? requestStreamSubscription;
 
-    private Func<ISourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
+    private Func<ISourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
 
     public HistoricalPricePeriodSummaryRetrievalStubRule
-        (Func<ISourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
+        (Func<ISourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
         : base(nameof(HistoricalPricePeriodSummaryRetrievalStubRule)) =>
         summariesCallback = stubRetrieveSummariesCallback;
 
-    public Func<ISourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
+    public Func<ISourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
     {
         get => summariesCallback;
         set => summariesCallback = value ?? throw new ArgumentNullException(nameof(value));

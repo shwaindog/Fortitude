@@ -81,6 +81,22 @@ public class DoublyLinkedList<T> : IDoublyLinkedList<T> where T : class, IDoubly
         return false;
     }
 
+
+    public int Count
+    {
+        get
+        {
+            var count = 0;
+            var next  = Head;
+            for (var node = next; node != null; node = next)
+            {
+                count++;
+                next = node.Next;
+            }
+            return count;
+        }
+    }
+
     public T Remove(T node)
     {
         if (node == Head && node == Tail)

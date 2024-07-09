@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;

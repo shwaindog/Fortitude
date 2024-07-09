@@ -4,7 +4,7 @@
 #region
 
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 
 #endregion
 
@@ -12,8 +12,8 @@ namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
 public struct SharedTicksMovingAveragePublishParams
 {
-    public ISourceTickerIdentifier SourceTickerId    { get; }
-    public ushort                  PublishAsSourceId { get; }
+    public ISourceTickerId SourceTickerId    { get; }
+    public ushort          PublishAsSourceId { get; }
 
     public PricePublishInterval PublishInterval { get; }
 
@@ -23,7 +23,7 @@ public struct SharedTicksMovingAveragePublishParams
 public struct MovingAveragePublisherParams
 {
     public MovingAveragePublisherParams
-    (ushort publishSourceId, ISourceTickerIdentifier sourceTickerId, PricePublishInterval publishInterval
+    (ushort publishSourceId, ISourceTickerId sourceTickerId, PricePublishInterval publishInterval
       , params MovingAverageParams[] periodsToPublish)
     {
         PublishAsSourceId = publishSourceId;
@@ -33,7 +33,7 @@ public struct MovingAveragePublisherParams
     }
 
     public MovingAveragePublisherParams
-    (ushort publishSourceId, ISourceTickerIdentifier sourceTickerId, PricePublishInterval publishInterval
+    (ushort publishSourceId, ISourceTickerId sourceTickerId, PricePublishInterval publishInterval
       , params BatchPricePublishInterval[] batchPeriodsToPublish)
     {
         PublishAsSourceId     = publishSourceId;
@@ -42,7 +42,7 @@ public struct MovingAveragePublisherParams
         BatchPeriodsToPublish = batchPeriodsToPublish;
     }
 
-    public ISourceTickerIdentifier SourceTickerId { get; }
+    public ISourceTickerId SourceTickerId { get; }
 
     public ushort PublishAsSourceId { get; }
 

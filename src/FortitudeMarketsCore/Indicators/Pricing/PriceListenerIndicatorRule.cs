@@ -6,7 +6,7 @@
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
@@ -19,11 +19,11 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
 {
     private readonly string feedTickerListenAddress;
 
-    protected ISourceTickerIdentifier TickerId;
+    protected ISourceTickerId TickerId;
 
     private ISubscription? tickerListenSubscription;
 
-    public PriceListenerIndicatorRule(ISourceTickerIdentifier tickerId, string ruleName) : base(ruleName)
+    public PriceListenerIndicatorRule(ISourceTickerId tickerId, string ruleName) : base(ruleName)
     {
         TickerId = tickerId;
 

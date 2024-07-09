@@ -6,7 +6,6 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -37,9 +36,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeri
         if (recentlyTraded is RecentlyTraded mutableRecentlyTraded)
             RecentlyTraded = mutableRecentlyTraded;
         else if (recentlyTraded != null)
-            RecentlyTraded = new RecentlyTraded(recentlyTraded);
-        else if (sourceTickerQuoteInfo.LastTradedFlags != LastTradedFlags.None)
-            RecentlyTraded = new RecentlyTraded(sourceTickerQuoteInfo);
+            RecentlyTraded                                                                     = new RecentlyTraded(recentlyTraded);
+        else if (sourceTickerQuoteInfo.LastTradedFlags != LastTradedFlags.None) RecentlyTraded = new RecentlyTraded(sourceTickerQuoteInfo);
         BatchId              = batchId;
         SourceQuoteReference = sourceQuoteRef;
         ValueDate            = valueDate ?? DateTimeConstants.UnixEpoch;
@@ -50,9 +48,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeri
         if (toClone is ILevel3Quote level3ToClone)
         {
             if (level3ToClone.RecentlyTraded is RecentlyTraded pqRecentlyTraded)
-                RecentlyTraded = pqRecentlyTraded.Clone();
-            else if (level3ToClone.RecentlyTraded != null)
-                RecentlyTraded = new RecentlyTraded(level3ToClone.RecentlyTraded);
+                RecentlyTraded                                            = pqRecentlyTraded.Clone();
+            else if (level3ToClone.RecentlyTraded != null) RecentlyTraded = new RecentlyTraded(level3ToClone.RecentlyTraded);
 
             BatchId              = level3ToClone.BatchId;
             SourceQuoteReference = level3ToClone.SourceQuoteReference;

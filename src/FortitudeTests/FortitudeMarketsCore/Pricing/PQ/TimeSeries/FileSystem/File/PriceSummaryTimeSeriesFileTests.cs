@@ -12,7 +12,7 @@ using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Generators.Summaries;

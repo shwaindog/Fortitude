@@ -1,8 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 
@@ -11,11 +14,11 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules.BusMessages;
 public enum PricingFeedStatus
 {
     NotStarted
-    , Starting
-    , AvailableForSubscription
-    , Ticking
-    , NothingTicking
-    , Stopping
+  , Starting
+  , AvailableForSubscription
+  , Ticking
+  , NothingTicking
+  , Stopping
 }
 
 public struct PricingFeedStatusRequest
@@ -25,19 +28,22 @@ public struct PricingFeedStatusRequest
 
 public class PricingFeedStatusResponse : RecyclableObject
 {
-    public string FeedName { get; set; } = null!;
+    public string   FeedName  { get; set; } = null!;
+    public DateTime StartTime { get; set; }
 
     public PricingFeedStatus FeedStatus { get; set; }
-    public DateTime StartTime { get; set; }
+
     public DateTime LastTickerRefreshTime { get; set; }
-    public List<ISourceTickerQuoteInfo> AvailableTickersTickers { get; set; } = new();
-    public List<ISourceTickerQuoteInfo> HealthySubscribedTickers { get; set; } = new();
+
+    public List<ISourceTickerQuoteInfo> AvailableTickersTickers    { get; set; } = new();
+    public List<ISourceTickerQuoteInfo> HealthySubscribedTickers   { get; set; } = new();
     public List<ISourceTickerQuoteInfo> UnhealthySubscribedTickers { get; set; } = new();
 
     public override void StateReset()
     {
-        FeedName = null!;
+        FeedName  = null!;
         StartTime = DateTime.MaxValue;
+
         LastTickerRefreshTime = DateTimeConstants.UnixEpoch;
         AvailableTickersTickers.Clear();
         HealthySubscribedTickers.Clear();

@@ -8,7 +8,7 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 #endregion
@@ -28,8 +28,7 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
 
     public void Serialize(ISourceTickerQuoteInfo obj, ISerdeContext writeContext)
     {
-        if ((writeContext.Direction & ContextDirection.Write) == 0)
-            throw new ArgumentException("Expected readContext to support writing");
+        if ((writeContext.Direction & ContextDirection.Write) == 0) throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
             var writeLength                                               = Serialize(bufferContext.EncodedBuffer!, obj);

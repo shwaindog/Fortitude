@@ -8,7 +8,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 

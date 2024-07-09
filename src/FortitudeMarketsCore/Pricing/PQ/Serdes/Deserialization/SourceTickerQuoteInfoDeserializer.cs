@@ -8,7 +8,6 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -27,10 +26,8 @@ internal class SourceTickerQuoteInfoDeserializer : MessageDeserializer<ISourceTi
 
     public override unsafe ISourceTickerQuoteInfo? Deserialize(ISerdeContext readContext)
     {
-        if ((readContext.Direction & ContextDirection.Read) == 0)
-            throw new ArgumentException("Expected readContext to allow reading");
-        if ((readContext.MarshalType & MarshalType.Binary) == 0)
-            throw new ArgumentException("Expected readContext to be a binary buffer context");
+        if ((readContext.Direction & ContextDirection.Read) == 0) throw new ArgumentException("Expected readContext to allow reading");
+        if ((readContext.MarshalType & MarshalType.Binary) == 0) throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext messageBufferContext)
         {
             var deserializedSourceTickerQuoteInfo = recycler.Borrow<SourceTickerQuoteInfo>();

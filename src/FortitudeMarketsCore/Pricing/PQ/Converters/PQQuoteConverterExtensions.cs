@@ -8,7 +8,7 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.TimeSeries;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
@@ -18,7 +18,7 @@ using FortitudeMarketsCore.Pricing.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Converters;
 
-public static class PQQuoteExtensions
+public static class PQQuoteConverterExtensions
 {
     public static IChannelLimitedEventFactory<TQuoteLevel> CreateChannelFactory<TQuoteLevel>
         (this IListeningRule rule, Func<ChannelEvent<TQuoteLevel>, ValueTask<bool>> receiveQuoteHandler, ILimitedRecycler limitedRecycler)
@@ -214,7 +214,7 @@ public static class PQQuoteExtensions
         new(rule.CreateChannelFactory(receiveQuoteHandler, limitedRecycler), resultLimit, batchSize);
 
     public static HistoricalQuotesRequest<TQuoteLevel> ToHistoricalQuotesRequest<TQuoteLevel>
-        (this ChannelPublishRequest<TQuoteLevel> channelRequest, ISourceTickerIdentifier tickerId, UnboundedTimeRange timeRange)
+        (this ChannelPublishRequest<TQuoteLevel> channelRequest, ISourceTickerId tickerId, UnboundedTimeRange timeRange)
         where TQuoteLevel : class, ITimeSeriesEntry<TQuoteLevel>, ILevel0Quote =>
         new(tickerId, channelRequest, timeRange);
 
