@@ -161,7 +161,7 @@ public interface IIOInboundMessageTypeGroup : IMessageQueueTypeGroup<IIOInboundM
 
 class SocketListenerMessageQueueGroup : MessageQueueTypeGroup<IIOInboundMessageQueue>, IIOInboundMessageTypeGroup
 {
-    public static IUpdateableTimer timer = new UpdateableTimer("Fortitude.BusRules.SocketEventQueueListenerGroup.ThreadPoolTimer");
+    public static IUpdateableTimer timer = TimerContext.CreateUpdateableTimer("Fortitude.BusRules.SocketEventQueueListenerGroup.ThreadPoolTimer");
     public SocketListenerMessageQueueGroup(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler
         , IQueuesConfig queuesConfig) : base(owningMessageBus, groupType, recycler, queuesConfig)
     {

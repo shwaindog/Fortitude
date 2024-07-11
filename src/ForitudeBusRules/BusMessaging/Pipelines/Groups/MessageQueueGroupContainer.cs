@@ -224,7 +224,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             var requestResponseSelectionResult = selectionResult.First();
             var destinationEventQueue          = requestResponseSelectionResult.MessageQueue;
             var destinationRule                = requestResponseSelectionResult.Rule;
-            return destinationEventQueue.RequestFromPayloadAsync<T, U>
+            return destinationEventQueue.RequestWithPayloadAsync<T, U>
                 (msg, sender, publishAddress, processorRegistry: processorRegistry
                , ruleFilter: destinationRule?.AppliesToThisRule);
         }

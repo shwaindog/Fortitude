@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeCommon.Chronometry.Timers;
@@ -11,33 +14,37 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
 
 internal class BusPooledSocketDispatcherResolver : ISocketDispatcherResolver
 {
-    private readonly IConfigureMessageBus messageBus;
+    private readonly IConfigureMessageBus   messageBus;
     private readonly QueueSelectionStrategy queueSelectionStrategy;
-    private readonly MessageQueueType resolveFor;
-    private IIOInboundMessageQueue? preferredFirstSelectedInboundQueue;
+    private readonly MessageQueueType       resolveFor;
+
+    private IIOInboundMessageQueue?  preferredFirstSelectedInboundQueue;
     private IIOOutboundMessageQueue? preferredFirstSelectedOutboundQueue;
 
-    public BusPooledSocketDispatcherResolver(IConfigureMessageBus messageBus, QueueSelectionStrategy queueSelectionStrategy
-        , MessageQueueType resolveFor = MessageQueueType.AllIO, IIOInboundMessageQueue? preferredFirstSelectedInboundQueue = null
-        , IIOOutboundMessageQueue? preferredFirstSelectedOutboundQueue = null)
+    public BusPooledSocketDispatcherResolver
+    (IConfigureMessageBus messageBus, QueueSelectionStrategy queueSelectionStrategy
+      , MessageQueueType resolveFor = MessageQueueType.AllIO, IIOInboundMessageQueue? preferredFirstSelectedInboundQueue = null
+      , IIOOutboundMessageQueue? preferredFirstSelectedOutboundQueue = null)
     {
         this.messageBus = messageBus;
-        this.queueSelectionStrategy = queueSelectionStrategy;
         this.resolveFor = resolveFor;
-        this.preferredFirstSelectedInboundQueue = preferredFirstSelectedInboundQueue;
+
+        this.queueSelectionStrategy = queueSelectionStrategy;
+
+        this.preferredFirstSelectedInboundQueue  = preferredFirstSelectedInboundQueue;
         this.preferredFirstSelectedOutboundQueue = preferredFirstSelectedOutboundQueue;
     }
 
-    public IUpdateableTimer RealTimer { get; set; } = null!;
+    public IUpdateableTimer Timer { get; set; } = null!;
 
     public ISocketDispatcher Resolve(INetworkTopicConnectionConfig networkSessionContext)
     {
         var socketDispatcherListener = preferredFirstSelectedInboundQueue?.SocketDispatcherListener;
-        var socketDispatcherSender = preferredFirstSelectedOutboundQueue?.SocketDispatcherSender;
+        var socketDispatcherSender   = preferredFirstSelectedOutboundQueue?.SocketDispatcherSender;
         if ((socketDispatcherListener == null) & ((resolveFor & MessageQueueType.IOInbound) > 0))
         {
             var selectedInbound = messageBus.AllMessageQueues.IOInboundMessageQueueGroup.AsMessageQueueList()
-                .SelectEventQueue(queueSelectionStrategy);
+                                            .SelectEventQueue(queueSelectionStrategy);
             socketDispatcherListener = selectedInbound.SocketDispatcherListener;
         }
         else
@@ -56,7 +63,7 @@ internal class BusPooledSocketDispatcherResolver : ISocketDispatcherResolver
     private ISocketDispatcherSender FindSocketDispatcherSender(QueueSelectionStrategy queueSelectionStrategy)
     {
         var selectedInbound = messageBus.AllMessageQueues.IOOutboundMessageQueueGroup.AsMessageQueueList()
-            .SelectEventQueue(queueSelectionStrategy);
+                                        .SelectEventQueue(queueSelectionStrategy);
         var socketDispatcherSender = selectedInbound.SocketDispatcherSender;
         return socketDispatcherSender;
     }

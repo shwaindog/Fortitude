@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 
@@ -8,7 +11,7 @@ namespace FortitudeCommon.Chronometry.Timers;
 
 internal class ValueTaskActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T : class
 {
-    private WaitCallback? actionAsWaitCallback;
+    private WaitCallback?        actionAsWaitCallback;
     private Func<T?, ValueTask>? backingAction;
 
     public ValueTaskActionStateTimerCallBackRunInfo() { }
@@ -54,13 +57,14 @@ internal class ValueTaskActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInf
 
     public T? State { get; set; }
 
-    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITimerCallBackRunInfo CopyFrom
+    (ITimerCallBackRunInfo source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is ValueTaskActionStateTimerCallBackRunInfo<T> actionTimerCallBackRunInfo)
         {
             ValueTaskActionState = actionTimerCallBackRunInfo.ValueTaskActionState;
-            State = actionTimerCallBackRunInfo.State;
+            State                = actionTimerCallBackRunInfo.State;
         }
 
         return base.CopyFrom(source, copyMergeFlags);
@@ -106,7 +110,7 @@ internal class ValueTaskActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInf
         return false;
     }
 
-    public override TimerCallBackRunInfo Clone() =>
+    public override ITimerCallBackRunInfo Clone() =>
         Recycler?.Borrow<ValueTaskActionStateTimerCallBackRunInfo<T>>().CopyFrom(this) ??
         new ValueTaskActionStateTimerCallBackRunInfo<T>(this);
 }

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
@@ -9,8 +12,8 @@ namespace FortitudeCommon.AsyncProcessing.Tasks;
 
 public abstract class ThreadPoolExecutionContext : RecyclableObject
 {
-    protected static readonly UpdateableTimer Timer = new();
     protected static readonly Action<ThreadPoolExecutionContext?> DecrementExecutionContextAction = DecrementExecutionRefCount;
+
     protected readonly WaitCallback AsyncCallback;
     protected readonly WaitCallback ImmediateCallback;
     protected readonly WaitCallback ImmediateCancellableCallback;
@@ -18,9 +21,12 @@ public abstract class ThreadPoolExecutionContext : RecyclableObject
     protected ThreadPoolExecutionContext()
     {
         ImmediateCallback = RunImmediateCallback;
-        AsyncCallback = RunAsyncCallback;
+        AsyncCallback     = RunAsyncCallback;
+
         ImmediateCancellableCallback = RunImmediateCancellableCallback;
     }
+
+    public static IUpdateableTimer Timer { get; set; } = TimerContext.CreateUpdateableTimer($"ThreadPoolExecutionContext");
 
     protected void EnsureRefCountIsAtLeastTwo() // callers should decrement call this after dispatching
     {
@@ -56,10 +62,12 @@ public abstract class ThreadPoolExecutionContextResultBase<TR> : ThreadPoolExecu
 }
 
 public class ThreadPoolExecutionContextResult<TR> : ThreadPoolExecutionContextResultBase<TR>
-    , IAlternativeExecutionContextResult<TR>
+  , IAlternativeExecutionContextResult<TR>
 {
     private Func<ValueTask<TR>>? asyncMethodToExecute;
+
     private Func<BasicCancellationToken?, TR>? cancellableMethodToExecute;
+
     private Func<TR>? nonAsyncMethodToExecute;
 
     public ValueTask<TR> Execute(Func<TR> methodToExecute)
@@ -82,16 +90,16 @@ public class ThreadPoolExecutionContextResult<TR> : ThreadPoolExecutionContextRe
     {
         EnsureRefCountIsAtLeastTwo();
         cancellableMethodToExecute = methodToExecute;
-        BasicCancellationToken = firstParam;
+        BasicCancellationToken     = firstParam;
         ThreadPool.QueueUserWorkItem(ImmediateCancellableCallback, null);
         return new ValueTask<TR>(ReusableValueTaskSource, ReusableValueTaskSource.Version);
     }
 
     public override void StateReset()
     {
-        asyncMethodToExecute = null;
+        asyncMethodToExecute       = null;
         cancellableMethodToExecute = null;
-        nonAsyncMethodToExecute = null;
+        nonAsyncMethodToExecute    = null;
         base.StateReset();
     }
 
@@ -154,10 +162,12 @@ public class ThreadPoolExecutionContextResult<TR> : ThreadPoolExecutionContextRe
 }
 
 public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionContextResult<TR>
-    , IAlternativeExecutionContextResult<TR, TP>
+  , IAlternativeExecutionContextResult<TR, TP>
 {
     private Func<TP, ValueTask<TR>>? asyncMethodToExecute;
+
     private Func<TP, BasicCancellationToken?, TR>? cancellableMethodToExecute;
+
     private TP? firstParam;
 
     private Func<TP, TR>? nonAsyncMethodToExecute;
@@ -166,6 +176,7 @@ public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionConte
     {
         EnsureRefCountIsAtLeastTwo();
         nonAsyncMethodToExecute = methodToExecute;
+
         firstParam = firstParameter;
         ThreadPool.QueueUserWorkItem(ImmediateCallback, null);
         return new ValueTask<TR>(ReusableValueTaskSource, ReusableValueTaskSource.Version);
@@ -175,6 +186,7 @@ public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionConte
     {
         EnsureRefCountIsAtLeastTwo();
         asyncMethodToExecute = methodToExecute;
+
         firstParam = firstParameter;
         ThreadPool.QueueUserWorkItem(AsyncCallback, null);
         return new ValueTask<TR>(ReusableValueTaskSource, ReusableValueTaskSource.Version);
@@ -184,7 +196,9 @@ public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionConte
     {
         EnsureRefCountIsAtLeastTwo();
         cancellableMethodToExecute = methodToExecute;
+
         firstParam = firstParameter;
+
         BasicCancellationToken = secondParameter;
         ThreadPool.QueueUserWorkItem(ImmediateCancellableCallback, null);
         return new ValueTask<TR>(ReusableValueTaskSource, ReusableValueTaskSource.Version);
@@ -193,8 +207,11 @@ public class ThreadPoolExecutionContextResult<TR, TP> : ThreadPoolExecutionConte
     public override void StateReset()
     {
         asyncMethodToExecute = null;
+
         cancellableMethodToExecute = null;
+
         nonAsyncMethodToExecute = null;
+
         firstParam = default;
         base.StateReset();
     }

@@ -41,7 +41,7 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
         set => updateableTimer = value;
     }
 
-    public ITimer RegisteredTimer => updateableTimer!;
+    public IRunContextTimer RegisteredTimer => updateableTimer!;
 
     public bool IsFinished => CallBackRunInfo!.IsFinished;
     public bool IsPaused   => CallBackRunInfo!.IsPaused;

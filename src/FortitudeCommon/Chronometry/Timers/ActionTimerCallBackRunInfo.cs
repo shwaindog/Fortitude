@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 
@@ -9,7 +12,7 @@ namespace FortitudeCommon.Chronometry.Timers;
 internal class ActionTimerCallBackRunInfo : TimerCallBackRunInfo
 {
     private WaitCallback? actionAsWaitCallback;
-    private Action? backingAction;
+    private Action?       backingAction;
 
     public ActionTimerCallBackRunInfo() { }
 
@@ -52,8 +55,9 @@ internal class ActionTimerCallBackRunInfo : TimerCallBackRunInfo
         }
     }
 
-    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITimerCallBackRunInfo CopyFrom
+    (ITimerCallBackRunInfo source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is ActionTimerCallBackRunInfo actionTimerCallBackRunInfo) Action = actionTimerCallBackRunInfo.Action;
 
@@ -106,6 +110,6 @@ internal class ActionTimerCallBackRunInfo : TimerCallBackRunInfo
         base.StateReset();
     }
 
-    public override TimerCallBackRunInfo Clone() =>
+    public override ITimerCallBackRunInfo Clone() =>
         Recycler?.Borrow<ActionTimerCallBackRunInfo>().CopyFrom(this) ?? new ActionTimerCallBackRunInfo(this);
 }

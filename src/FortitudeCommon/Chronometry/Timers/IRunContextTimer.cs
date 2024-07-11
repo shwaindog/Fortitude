@@ -1,4 +1,7 @@
-﻿namespace FortitudeCommon.Chronometry.Timers;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+namespace FortitudeCommon.Chronometry.Timers;
 
 public interface IActionTimer
 {
@@ -22,6 +25,7 @@ public interface IActionTimer
     ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class;
     ITimerUpdate RunAt(DateTime futureDateTime, Action callback);
     ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<T?> callback) where T : class;
+
     void PauseAllTimers();
     void ResumeAllTimers();
     void StopAllTimers();
@@ -41,14 +45,15 @@ public interface IThreadPoolTimer
     ITimerUpdate RunAt(DateTime futureDateTime, object? state, WaitCallback callback);
 }
 
-public interface ITimer : IActionTimer, IThreadPoolTimer { }
+public interface IRunContextTimer : IActionTimer, IThreadPoolTimer { }
 
-public interface IUpdateableTimer : ITimer
+public interface IUpdateableTimer : IRunContextTimer
 {
-    bool Remove(TimerCallBackRunInfo toRemove);
-    void CheckNextOneOffLaunchTimeStillCorrect(TimerCallBackRunInfo toCheck);
-    TimerCallBackRunInfo? RunNextScheduledOneOffCallbackNow();
-    TimerCallBackRunInfo? RunNextScheduledIntervalCallbackNow();
-    TimerCallBackRunInfo? RunNextScheduledOneOffCallbackNowOnThreadPool();
-    TimerCallBackRunInfo? RunNextScheduledIntervalCallbackNowOnThreadPool();
+    bool Remove(ITimerCallBackRunInfo toRemove);
+    void CheckNextOneOffLaunchTimeStillCorrect(ITimerCallBackRunInfo toCheck);
+
+    ITimerCallBackRunInfo? RunNextScheduledOneOffCallbackNow();
+    ITimerCallBackRunInfo? RunNextScheduledIntervalCallbackNow();
+    ITimerCallBackRunInfo? RunNextScheduledOneOffCallbackNowOnThreadPool();
+    ITimerCallBackRunInfo? RunNextScheduledIntervalCallbackNowOnThreadPool();
 }

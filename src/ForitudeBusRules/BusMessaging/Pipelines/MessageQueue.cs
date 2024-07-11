@@ -46,7 +46,7 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     (TPayload payload, IRule sender, MessageType msgType = MessageType.Publish, string? destinationAddress = null
       , RuleFilter? ruleFilter = null, IPayloadMarshaller<TPayload>? payloadMarshaller = null);
 
-    ValueTask<TResponse> RequestFromPayloadAsync<TPayload, TResponse>
+    ValueTask<TResponse> RequestWithPayloadAsync<TPayload, TResponse>
     (TPayload payload, IRule sender, string? destinationAddress = null, MessageType msgType = MessageType.RequestResponse
       , DispatchProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null);
 
@@ -54,8 +54,13 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     void StopRule(IRule sender, IRule rule);
     bool IsListeningToAddress(string destinationAddress);
     int  RulesListeningToAddress(ISet<IRule> toAddRules, string destinationAddress);
+
     void RunOn(IRule sender, Action action);
     void RunOn(IRule sender, Func<ValueTask> action);
+
+    ValueTask          RunOnAndWait(IRule sender, Func<ValueTask> action);
+    ValueTask<TResult> RunOnFetchResult<TResult>(IRule sender, Func<TResult> action);
+    ValueTask<TResult> RunOnFetchResult<TResult>(IRule sender, Func<ValueTask<TResult>> action);
 
     ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule sender, IRule rule, RouteSelectionResult selectionResult);
     ValueTask<IDispatchResult>         StopRuleAsync(IRule sender, IRule rule);
@@ -185,13 +190,9 @@ public class MessageQueue : IMessageQueue
         return processorRegistry.GenerateValueTask();
     }
 
-    public ValueTask<TResponse> RequestFromPayloadAsync<TPayload, TResponse>
-    (TPayload payload
-      , IRule sender,
-        string? destinationAddress = null
-       ,
-        MessageType msgType = MessageType.RequestResponse,
-        DispatchProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null)
+    public ValueTask<TResponse> RequestWithPayloadAsync<TPayload, TResponse>
+    (TPayload payload, IRule sender, string? destinationAddress = null, MessageType msgType = MessageType.RequestResponse
+      , DispatchProcessorRegistry? processorRegistry = null, RuleFilter? ruleFilter = null)
     {
         if (processorRegistry == null)
         {
@@ -273,7 +274,7 @@ public class MessageQueue : IMessageQueue
         var payLoadContainer = queueContext.PooledRecycler.Borrow<Payload<Func<ValueTask>>>();
         payLoadContainer.SetBody = action;
 
-        evt.Type     = MessageType.RunAsyncValueTaskPayload;
+        evt.Type     = MessageType.RunAsyncActionPayload;
         evt.Payload  = payLoadContainer;
         evt.Response = BusMessage.NoOpCompletionSource;
         evt.Sender   = sender;
@@ -301,6 +302,43 @@ public class MessageQueue : IMessageQueue
         evt.DestinationAddress = null;
         ring.Publish(seqId);
         MessagePump.WakeIfAsleep();
+    }
+
+    public async ValueTask RunOnAndWait(IRule sender, Func<ValueTask> action)
+    {
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<NoParamsAsyncValueTaskResultPayload>();
+        payLoadContainer.IncrementRefCount();
+        payLoadContainer.Configure(action);
+        var asyncResult = payLoadContainer.GenerateValueTask();
+        EnqueuePayloadBody(payLoadContainer, sender, MessageType.QueueParamsExecutionPayload);
+
+        await asyncResult;
+        payLoadContainer.DecrementRefCount();
+    }
+
+    public async ValueTask<TResult> RunOnFetchResult<TResult>(IRule sender, Func<TResult> action)
+    {
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<NoParamsSyncResultPayload<TResult>>();
+        payLoadContainer.IncrementRefCount();
+        payLoadContainer.Configure(action);
+        var asyncResult = payLoadContainer.GenerateValueTask();
+        EnqueuePayloadBody(payLoadContainer, sender, MessageType.QueueParamsExecutionPayload);
+
+        var result = await asyncResult;
+        payLoadContainer.DecrementRefCount();
+        return result;
+    }
+
+    public async ValueTask<TResult> RunOnFetchResult<TResult>(IRule sender, Func<ValueTask<TResult>> action)
+    {
+        var payLoadContainer = queueContext.PooledRecycler.Borrow<NoParamsAsyncResultPayload<TResult>>();
+        payLoadContainer.IncrementRefCount();
+        var asyncResult = payLoadContainer.GenerateValueTask();
+        payLoadContainer.Configure(action);
+
+        var result = await asyncResult;
+        payLoadContainer.DecrementRefCount();
+        return result;
     }
 
     public void EnqueuePayloadBody<TPayload>

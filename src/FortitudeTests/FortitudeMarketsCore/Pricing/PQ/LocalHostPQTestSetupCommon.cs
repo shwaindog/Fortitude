@@ -38,12 +38,12 @@ public class LocalHostPQTestSetupCommon
     public OSNetworkingController NetworkingController = null!;
     public IPricingServerConfig   PricingServerConfig  = null!;
     public ISourceTickersConfig   SourceTickersConfig  = null!;
-    public UpdateableTimer        ThreadPoolTimer      = null!;
+    public IUpdateableTimer       ThreadPoolTimer      = null!;
 
     public void InitializeCommonConfig()
     {
         NetworkingController ??= new OSNetworkingController();
-        ThreadPoolTimer      ??= new UpdateableTimer("LocalHostPQTestSetupCommon");
+        ThreadPoolTimer      ??= TimerContext.CreateUpdateableTimer("LocalHostPQTestSetupCommon");
         SourceTickersConfig ??=
             new SourceTickersConfig
                 (new TickerConfig

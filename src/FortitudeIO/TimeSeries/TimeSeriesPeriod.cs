@@ -104,6 +104,11 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
+    public static DateTime ContainingPeriodEnd(this TimeSeriesPeriod period, DateTime startTime)
+    {
+        return period.PeriodEnd(period.ContainingPeriodBoundaryStart(startTime));
+    }
+
     public static DateTime PeriodEnd(this TimeSeriesPeriod period, DateTime startTime)
     {
         return period switch

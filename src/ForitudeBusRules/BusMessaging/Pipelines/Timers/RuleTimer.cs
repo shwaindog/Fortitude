@@ -19,8 +19,9 @@ public class RuleTimer : IRuleTimer
 {
     private static readonly NoOpTimerUpdate NoOpTimerUpdate = new();
 
-    private readonly ActionTimer        backingTimer;
-    private readonly IRule              owningRule;
+    private readonly ActionTimer backingTimer;
+    private readonly IRule       owningRule;
+
     private readonly List<ITimerUpdate> registeredRuleTimers = new();
 
     private bool isClosing;
