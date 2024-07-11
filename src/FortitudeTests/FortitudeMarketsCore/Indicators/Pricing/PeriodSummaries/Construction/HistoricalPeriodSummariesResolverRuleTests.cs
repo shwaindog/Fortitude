@@ -16,6 +16,7 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Indicators;
+using FortitudeMarketsCore.Indicators.Persistence;
 using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;
 using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 using FortitudeMarketsCore.Pricing.Quotes;
@@ -110,9 +111,11 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         fifteenSecondsHistoricalPeriodParams
             = new HistoricalPeriodParams(tickerId15SPeriod, FifteenSeconds, new TimeLength(TimeSpan.FromMinutes(30)));
         thirtySecondsHistoricalPeriodParams = new HistoricalPeriodParams(tickerId30SPeriod, ThirtySeconds, new TimeLength(TimeSpan.FromMinutes(30)));
+        var unitTestNoRepositoryConfig = IndicatorServicesConfigTests.UnitTestNoRepositoryConfig();
+        unitTestNoRepositoryConfig.PersistenceConfig.PersistPriceSummaries = true;
         indicatorRegistryStubRule
             = new IndicatorServiceRegistryStubRule
-                (new IndicatorServiceRegistryParams(IndicatorServicesConfigTests.UnitTestNoRepositoryConfig()));
+                (new IndicatorServiceRegistryParams(unitTestNoRepositoryConfig));
 
         restrictedRetrievalRange = new BoundedTimeRange(testEpochTime, FifteenSeconds.PeriodEnd(testEpochTime));
 
@@ -124,6 +127,13 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
             = await EventQueue1.Context.RegisteredOn.LaunchRuleAsync
                 (indicatorRegistryStubRule, indicatorRegistryStubRule, EventQueue1SelectionResult);
         undeploy.Add(preqDeploy);
+        indicatorRegistryStubRule.RegisterGlobalServiceStatus(ServiceType.PricePeriodSummaryFilePersister, ServiceRunStatus.ServiceStarted);
+        indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
+            (tickerId15SPeriod, FifteenSeconds, ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
+        indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
+            (tickerId30SPeriod, FifteenSeconds, ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
+        indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
+            (tickerId30SPeriod, ThirtySeconds, ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
         await indicatorRegistryStubRule.RegisterAndDeployGlobalService(ServiceType.TimeSeriesFileRepositoryInfo, repoInfoStubRule);
         await indicatorRegistryStubRule.RegisterAndDeployGlobalService(ServiceType.HistoricalQuotesRetriever, quotesRetrievalStubRule);
         await indicatorRegistryStubRule.RegisterAndDeployGlobalService
@@ -458,7 +468,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
-    public async Task FromSubSummaryLargeHistory_FileUpToDate_ResponseRequestGeneratesResultsFromQuotes()
+    public async Task FromSubSummaryLargeHistory_FileUpToDate_ResponseRequestGeneratesResultsFromRepoSubSummaries()
     {
         Generate15SSummaries(241);
 
@@ -551,8 +561,8 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
                     (HistoricalPeriodTestClientInvokeResponseRequestAddress, TestRequestResponseHandler);
             invokeHistoricalPeriodStreamRequest = await this.RegisterRequestListenerAsync<HistoricalPeriodStreamRequest, List<PricePeriodSummary>>
                 (HistoricalPeriodTestClientInvokeStreamRequestAddress, TestStreamRequestHandler);
-            toPersistSubscription = await this.RegisterListenerAsync<PricePeriodSummary>
-                (tickerId.PersistAppendPeriodSummaryPublish(period), SaveToPersistPeriodSummariesHandler);
+            toPersistSubscription = await this.RegisterListenerAsync<ChainableInstrumentPayload<PricePeriodSummary>>
+                (PricePeriodSummaryConstants.PersistAppendPeriodSummaryPublish(), SaveToPersistPeriodSummariesHandler);
             await base.StartAsync();
         }
 
@@ -566,10 +576,10 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
             await this.RequestAsync<HistoricalPeriodStreamRequest, List<PricePeriodSummary>>
                 (HistoricalPeriodTestClientInvokeStreamRequestAddress, request);
 
-        private void SaveToPersistPeriodSummariesHandler(IBusMessage<PricePeriodSummary> toPersistMsg)
+        private void SaveToPersistPeriodSummariesHandler(IBusMessage<ChainableInstrumentPayload<PricePeriodSummary>> toPersistMsg)
         {
             var pricePeriodSummary = toPersistMsg.Payload.Body();
-            ReceivedToPersistEvents.Add(pricePeriodSummary);
+            ReceivedToPersistEvents.Add(pricePeriodSummary.Entry);
         }
 
         private async ValueTask<List<PricePeriodSummary>> TestRequestResponseHandler

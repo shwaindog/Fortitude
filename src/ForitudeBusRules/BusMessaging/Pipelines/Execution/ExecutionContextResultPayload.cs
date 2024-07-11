@@ -204,6 +204,40 @@ public class NoParamsSyncResultPayload<TR> : ReusableValueTaskSource<TR>, IInvok
     }
 }
 
+public class NoParamsAsyncValueTaskResultPayload : ReusableValueTaskSource<int>, IInvokeablePayload
+{
+    private Func<ValueTask>? toInvoke;
+
+    public bool IsAsyncInvoke => true;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (toInvoke != null)
+        {
+            await toInvoke.Invoke();
+            TrySetResult(0);
+        }
+    }
+
+    public virtual void Invoke()
+    {
+        try
+        {
+            var asyncResult = toInvoke!();
+            if (asyncResult.IsCompletedSuccessfully) TrySetResult(0);
+        }
+        catch (Exception ex)
+        {
+            SetException(ex);
+        }
+    }
+
+    public void Configure(Func<ValueTask> toExecute)
+    {
+        toInvoke = toExecute;
+    }
+}
+
 public class NoParamsAsyncResultPayload<TR> : ReusableValueTaskSource<TR>, IInvokeablePayload
 {
     private Func<ValueTask<TR>>? toInvoke;

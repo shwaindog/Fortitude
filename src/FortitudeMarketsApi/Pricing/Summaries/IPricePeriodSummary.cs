@@ -62,6 +62,7 @@ public static class PricePeriodSummaryExtensions
         while (currentExisting != null)
         {
             if (ReferenceEquals(currentExisting, toAddReplace)) break;
+            if (toAddReplace.IsWhollyBoundedBy(currentExisting)) break;
             if (currentExisting.PeriodStartTime > toAddReplace.PeriodStartTime)
             {
                 var insertAfter = currentExisting.Previous;
@@ -92,6 +93,7 @@ public static class PricePeriodSummaryExtensions
                 {
                     toAddReplace.Next = null;
                 }
+                return removedCount;
             }
             if (currentExisting?.Next == null)
             {
@@ -143,6 +145,22 @@ public static class MutablePricePeriodSummaryExtensions
             mergeInto.LowestBidPrice = open.BidPrice;
             mergeInto.LowestAskPrice = open.AskPrice;
         }
+        return mergeInto;
+    }
+
+    public static IMutablePricePeriodSummary UnchangedClosingState(this IMutablePricePeriodSummary mergeInto, BidAskPair? previousEnd)
+    {
+        if (previousEnd == null) return mergeInto;
+        var open = previousEnd.Value;
+        if (Equals(mergeInto.StartBidAsk, previousEnd) && Equals(mergeInto.EndBidAsk, default(BidAskPair)))
+        {
+            mergeInto.HighestBidPrice = open.BidPrice;
+            mergeInto.HighestAskPrice = open.AskPrice;
+            mergeInto.EndBidPrice     = open.BidPrice;
+            mergeInto.EndAskPrice     = open.AskPrice;
+        }
+        mergeInto.TickCount    = 0;
+        mergeInto.PeriodVolume = 0;
         return mergeInto;
     }
 

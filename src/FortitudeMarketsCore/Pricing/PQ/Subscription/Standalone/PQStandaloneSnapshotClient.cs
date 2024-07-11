@@ -44,7 +44,7 @@ public interface IPQSnapshotClient : IConversationRequester, IPQSnapshotClientCo
 
 public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnapshotClient
 {
-    private static   IUpdateableTimer        timer = new UpdateableTimer();
+    private static   IUpdateableTimer        timer = TimerContext.CreateUpdateableTimer("PQStandaloneSnapshotClient");
     private static   ISocketFactoryResolver? socketFactories;
     private readonly uint                    cxTimeoutMs;
     private readonly IIntraOSThreadSignal    intraOSThreadSignal;

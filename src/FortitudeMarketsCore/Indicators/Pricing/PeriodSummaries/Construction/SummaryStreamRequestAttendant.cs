@@ -83,7 +83,7 @@ public abstract class StreamRequestAttendant : SummaryAttendantBase, ISummaryStr
         if (shouldCache && periodSummary.PeriodEndTime > keepFrom) State.cacheLatest.AddReplace(periodSummary);
         if (publishParams.ResponsePublishMethod == ResponsePublishMethod.ListenerDefaultBroadcastAddress)
         {
-            await ConstructingRule.PublishAsync(State.tickerId.PeriodSummaryRepublish(State.period), periodSummary);
+            await ConstructingRule.PublishAsync(State.tickerId.PeriodSummaryPublish(State.period), periodSummary);
         }
         else if (publishParams.ResponsePublishMethod == ResponsePublishMethod.AlternativeBroadcastAddress)
         {

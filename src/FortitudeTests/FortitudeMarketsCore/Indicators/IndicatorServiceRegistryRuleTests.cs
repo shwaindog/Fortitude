@@ -56,6 +56,12 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         }
     }
 
+    public void RegisterGlobalServiceStatus(ServiceType service, ServiceRunStatus setStatus)
+    {
+        var serviceRunStateResponse = new ServiceRunStateResponse(setStatus);
+        GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
+    }
+
     public async ValueTask RegisterAndDeployTickerPeriodService
     (ISourceTickerId tickerId, TimeSeriesPeriod period, ServiceType service, IRule rule, QuoteLevel quoteLevel = QuoteLevel.Level1
       , bool usePQQuote = false)
@@ -74,6 +80,15 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStartFailed);
             GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }
+    }
+
+    public void RegisterTickerPeriodServiceStatus
+    (ISourceTickerId tickerId, TimeSeriesPeriod period, ServiceType service, ServiceRunStatus setStatus, QuoteLevel quoteLevel = QuoteLevel.Level1
+      , bool usePQQuote = false)
+    {
+        var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, tickerId, period, quoteLevel, usePQQuote);
+        var serviceRunStateResponse = new ServiceRunStateResponse(setStatus);
+        TickerPeriodServiceStateLookup.Add(tickerPeriodServiceInfo, new ServiceRuntimeState(serviceRunStateResponse));
     }
 
     protected override async ValueTask<ServiceRunStateResponse> HandleGlobalServiceStartRequest

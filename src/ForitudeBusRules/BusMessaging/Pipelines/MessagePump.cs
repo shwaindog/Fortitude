@@ -139,7 +139,7 @@ public class MessagePump : IMessagePump
 
                     break;
                 }
-                case MessageType.RunAsyncValueTaskPayload:
+                case MessageType.RunAsyncActionPayload:
                 {
                     try
                     {

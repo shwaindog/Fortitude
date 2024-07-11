@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 
@@ -53,13 +56,14 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
 
     public object? State { get; set; }
 
-    public override TimerCallBackRunInfo CopyFrom(TimerCallBackRunInfo source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITimerCallBackRunInfo CopyFrom
+    (ITimerCallBackRunInfo source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is WaitCallbackTimerCallBackRunInfo waitCallbackTimerCallBackRunInfo)
         {
             WaitCallback = waitCallbackTimerCallBackRunInfo.WaitCallback;
-            State = waitCallbackTimerCallBackRunInfo.State;
+            State        = waitCallbackTimerCallBackRunInfo.State;
         }
 
         return base.CopyFrom(source, copyMergeFlags);
@@ -108,11 +112,11 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
     public override void StateReset()
     {
         WaitCallback = null;
-        State = null;
+        State        = null;
         base.StateReset();
     }
 
-    public override TimerCallBackRunInfo Clone() =>
+    public override ITimerCallBackRunInfo Clone() =>
         Recycler?.Borrow<WaitCallbackTimerCallBackRunInfo>().CopyFrom(this) ??
         new WaitCallbackTimerCallBackRunInfo(this);
 }

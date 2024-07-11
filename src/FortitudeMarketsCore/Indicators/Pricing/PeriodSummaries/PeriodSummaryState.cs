@@ -51,7 +51,7 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
         toPopulate.PeriodStartTime  = PeriodStartTime;
         toPopulate.PeriodEndTime    = this.PeriodEnd();
         toPopulate.OpeningState(PreviousPeriodBidAskEnd);
-        var instant                       = atTime ?? DateTime.UtcNow.Min(toPopulate.PeriodEndTime);
+        var periodLengthAt                = (atTime ?? TimeContext.UtcNow).Min(toPopulate.PeriodEndTime);
         var runningTimeWeightedBidAverage = 0m;
         var runningTimeWeightedAskAverage = 0m;
         var currentPeriodSummary          = SubSummaryPeriods.Head;
@@ -64,9 +64,17 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
             runningTimeWeightedBidAverage = periodToQuoteMs * PreviousPeriodBidAskEnd!.Value.BidPrice;
             runningTimeWeightedAskAverage = periodToQuoteMs * PreviousPeriodBidAskEnd!.Value.AskPrice;
         }
-        while (currentPeriodSummary != null && currentPeriodSummary.PeriodStartTime < instant)
+        else if (this is { PreviousPeriodBidAskEnd: not null } && currentPeriodSummary == null)
         {
-            var currentPeriodBoundedMs = (decimal)currentPeriodSummary.ToBoundedTimeRange(instant).TimeSpan().TotalMilliseconds;
+            averageFrom = PeriodStartTime;
+            var periodToQuoteMs = (decimal)(periodLengthAt - PeriodStartTime).TotalMilliseconds;
+            runningTimeWeightedBidAverage = periodToQuoteMs * PreviousPeriodBidAskEnd!.Value.BidPrice;
+            runningTimeWeightedAskAverage = periodToQuoteMs * PreviousPeriodBidAskEnd!.Value.AskPrice;
+            toPopulate.UnchangedClosingState(PreviousPeriodBidAskEnd);
+        }
+        while (currentPeriodSummary != null && currentPeriodSummary.PeriodStartTime < periodLengthAt)
+        {
+            var currentPeriodBoundedMs = (decimal)currentPeriodSummary.ToBoundedTimeRange(periodLengthAt).TimeSpan().TotalMilliseconds;
 
             runningTimeWeightedBidAverage += currentPeriodBoundedMs * currentPeriodSummary.AverageBidAsk.BidPrice;
             runningTimeWeightedAskAverage += currentPeriodBoundedMs * currentPeriodSummary.AverageBidAsk.AskPrice;
@@ -74,11 +82,25 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
             toPopulate.MergeBoundaries(currentPeriodSummary);
             currentPeriodSummary = currentPeriodSummary.Next;
         }
-        var startNowMs = (decimal)(instant - averageFrom).TotalMilliseconds;
-        toPopulate.AverageBidPrice = runningTimeWeightedBidAverage / startNowMs;
-        toPopulate.AverageAskPrice = runningTimeWeightedAskAverage / startNowMs;
+        var startNowMs = (decimal)(periodLengthAt - averageFrom).TotalMilliseconds;
+        if (startNowMs > 0)
+        {
+            toPopulate.AverageBidPrice = runningTimeWeightedBidAverage / startNowMs;
+            toPopulate.AverageAskPrice = runningTimeWeightedAskAverage / startNowMs;
+        }
+        else if (runningTimeWeightedBidAverage > 0 || runningTimeWeightedAskAverage > 0)
+        {
+            var currentPeriodBoundedMs = (decimal)(periodLengthAt - PeriodStartTime).TotalMilliseconds;
+            toPopulate.AverageBidPrice = runningTimeWeightedBidAverage / currentPeriodBoundedMs;
+            toPopulate.AverageAskPrice = runningTimeWeightedAskAverage / currentPeriodBoundedMs;
+        }
+        else
+        {
+            toPopulate.AverageBidPrice = toPopulate.EndBidPrice;
+            toPopulate.AverageAskPrice = toPopulate.EndAskPrice;
+        }
 
-        toPopulate.PeriodSummaryFlags = SummaryFlagsAsAt(recycler, instant);
+        toPopulate.PeriodSummaryFlags = SummaryFlagsAsAt(recycler, periodLengthAt);
 
         return toPopulate;
     }

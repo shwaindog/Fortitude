@@ -97,6 +97,7 @@ public static class PricePeriodSummaryExtensions
         while (currentExisting != null)
         {
             if (ReferenceEquals(currentExisting, toAddReplace)) break;
+            if (toAddReplace.IsWhollyBoundedBy(currentExisting)) break;
             if (currentExisting.PeriodStartTime > toAddReplace.PeriodStartTime)
             {
                 var insertAfter = currentExisting.Previous;

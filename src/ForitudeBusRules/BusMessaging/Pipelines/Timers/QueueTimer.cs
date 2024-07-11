@@ -22,9 +22,9 @@ public class QueueTimer : Rule, IQueueTimer
 {
     private static readonly NoOpTimerUpdate NoOpTimerUpdate = new();
 
-    private readonly ActionTimer        actionTimer;
-    private readonly List<ITimerUpdate> registeredRuleTimers = new();
-    private readonly IUpdateableTimer   updateableTimer;
+    private readonly ISingleEntryActionTimer actionTimer;
+    private readonly List<ITimerUpdate>      registeredRuleTimers = new();
+    private readonly IUpdateableTimer        updateableTimer;
 
     private bool isClosing;
 

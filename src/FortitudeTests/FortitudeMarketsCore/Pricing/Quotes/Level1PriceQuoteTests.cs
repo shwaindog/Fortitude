@@ -353,7 +353,7 @@ public class Level1PriceQuoteTests
 
 public static class Level1PriceQuoteTestExtensions
 {
-    public static ILevel1Quote CreateLevel1Quote
+    public static Level1PriceQuote CreateLevel1Quote
         (this ISourceTickerQuoteInfo tickerId, DateTime sourceTime, decimal mid, decimal openCloseSpread = 0.02m)
     {
         var halfSpread = openCloseSpread / 2;

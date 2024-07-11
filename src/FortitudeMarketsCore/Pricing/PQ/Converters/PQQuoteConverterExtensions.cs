@@ -237,6 +237,20 @@ public static class PQQuoteConverterExtensions
         throw new Exception("Expected TQuoteLevel to be a known quoteType");
     }
 
+    public static bool IsPQQuoteType<TQuoteLevel>() where TQuoteLevel : class, ILevel0Quote
+    {
+        var quoteLevelType = typeof(TQuoteLevel);
+
+        switch (quoteLevelType.Name)
+        {
+            case nameof(IPQLevel0Quote) or nameof(PQLevel0Quote): return true;
+            case nameof(IPQLevel1Quote) or nameof(PQLevel1Quote): return true;
+            case nameof(IPQLevel2Quote) or nameof(PQLevel2Quote): return true;
+            case nameof(IPQLevel3Quote) or nameof(PQLevel3Quote): return true;
+        }
+        return false;
+    }
+
     public static PQLevel0Quote ToL0PQQuote(this Level0PriceQuote vanillaQuote, IRecycler? recycler = null)
     {
         if (recycler != null)

@@ -15,8 +15,9 @@ public static class PricePeriodSummaryConstants
     public const string PeriodSummaryBase                      = $"{IndicatorServiceConstants.IndicatorsBase}.PricePeriodSummaries";
     public const string PeriodSummaryLiveTemplate              = $"{PeriodSummaryBase}.Live.{{0}}.{{1}}.{{2}}";
     public const string PeriodSummaryCompleteTemplate          = $"{PeriodSummaryBase}.Complete.{{0}}.{{1}}.{{2}}";
-    public const string PeriodSummaryPersistAppendPublish      = $"{PeriodSummaryBase}.Persist.Append.{{0}}.{{1}}.{{2}}";
-    public const string PeriodSummaryPersistRepublish          = $"{PeriodSummaryBase}.Historical.{{0}}.{{1}}.{{2}}.Republish";
+    public const string PeriodSummaryPersistAppendPublish      = $"{PeriodSummaryBase}.Persist.Append";
+    public const string PeriodSummaryPersistPreparePublish     = $"{PeriodSummaryBase}.Persist.{{0}}.{{1}}.{{2}}.Prepare";
+    public const string PeriodSummaryDefaultPublishAddress     = $"{PeriodSummaryBase}.Historical.{{0}}.{{1}}.{{2}}.Publish";
     public const string PeriodSummaryHistoricalStreamRequest   = $"{PeriodSummaryBase}.Historical.{{0}}.{{1}}.{{2}}.Stream.Request";
     public const string PeriodSummaryHistoricalResponseRequest = $"{PeriodSummaryBase}.Historical.{{0}}.{{1}}.{{2}}.RequestResponse";
 
@@ -30,11 +31,13 @@ public static class PricePeriodSummaryConstants
     public static string CompletePeriodSummaryAddress(this ISourceTickerId sourceTickerId, TimeSeriesPeriod period) =>
         string.Format(PeriodSummaryCompleteTemplate, sourceTickerId.Source, sourceTickerId.Ticker, period.ShortName());
 
-    public static string PersistAppendPeriodSummaryPublish(this ISourceTickerId sourceTickerId, TimeSeriesPeriod period) =>
-        string.Format(PeriodSummaryPersistAppendPublish, sourceTickerId.Source, sourceTickerId.Ticker, period.ShortName());
+    public static string PersistPreparePeriodSummaryPublish(this ISourceTickerId sourceTickerId, TimeSeriesPeriod period) =>
+        string.Format(PeriodSummaryPersistPreparePublish, sourceTickerId.Source, sourceTickerId.Ticker, period.ShortName());
 
-    public static string PeriodSummaryRepublish(this ISourceTickerId sourceTickerId, TimeSeriesPeriod period) =>
-        string.Format(PeriodSummaryPersistRepublish, sourceTickerId.Source, sourceTickerId.Ticker, period.ShortName());
+    public static string PersistAppendPeriodSummaryPublish() => string.Format(PeriodSummaryPersistAppendPublish);
+
+    public static string PeriodSummaryPublish(this ISourceTickerId sourceTickerId, TimeSeriesPeriod period) =>
+        string.Format(PeriodSummaryDefaultPublishAddress, sourceTickerId.Source, sourceTickerId.Ticker, period.ShortName());
 
     public static string HistoricalPeriodSummaryStreamRequest(this ISourceTickerId sourceTickerId, TimeSeriesPeriod period) =>
         string.Format(PeriodSummaryHistoricalStreamRequest, sourceTickerId.Source, sourceTickerId.Ticker, period.ShortName());
