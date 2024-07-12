@@ -51,12 +51,16 @@ public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutabl
 
     PriceSyncStatus PQPriceSyncStatus { get; set; }
 
+    new IPQLevel0Quote? Next     { get; set; }
+    new IPQLevel0Quote? Previous { get; set; }
+
     void ResetFields();
 
     new IPQLevel0Quote Clone();
 }
 
-public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITimeSeriesEntry<PQLevel0Quote>
+public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITimeSeriesEntry<PQLevel0Quote>, ICloneable<PQLevel0Quote>
+  , IDoublyLinkedListNode<PQLevel0Quote>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel0Quote));
 
@@ -117,6 +121,45 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
         $"{nameof(IsSinglePriceUpdated)}: {IsSinglePriceUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
         $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
 
+    public override PQLevel0Quote Clone() =>
+        Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQLevel0Quote ?? new PQLevel0Quote(this);
+
+    public PQLevel0Quote? Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as PQLevel0Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    public PQLevel0Quote? Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as PQLevel0Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel0Quote? IPQLevel0Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel0Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel0Quote? IPQLevel0Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel0Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel0Quote? IDoublyLinkedListNode<IPQLevel0Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel0Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel0Quote? IDoublyLinkedListNode<IPQLevel0Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel0Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
     public virtual QuoteLevel QuoteLevel => QuoteLevel.Level0;
 
     public PQMessageFlags? OverrideSerializationFlags { get; set; }
@@ -150,9 +193,8 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
             PQSourceTickerQuoteInfo = ConvertToPQSourceTickerInfo(value!, PQSourceTickerQuoteInfo);
         }
     }
-
-    public IPQLevel0Quote? Previous { get; set; }
-    public IPQLevel0Quote? Next     { get; set; }
+    ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Previous { get; set; }
+    ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Next     { get; set; }
 
     public virtual DateTime SourceTime
     {
@@ -709,9 +751,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
 
     IMutableLevel0Quote IMutableLevel0Quote.Clone() => Clone();
 
-    public override IPQLevel0Quote Clone() =>
-        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
-     ?? new PQLevel0Quote(this);
+    IPQLevel0Quote IPQLevel0Quote.Clone() => Clone();
 
     public virtual bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

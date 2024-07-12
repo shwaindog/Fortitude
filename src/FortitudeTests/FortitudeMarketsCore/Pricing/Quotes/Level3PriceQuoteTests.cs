@@ -435,7 +435,7 @@ public class Level3PriceQuoteTests
     {
         foreach (var populatedQuote in allFullyPopulatedQuotes)
         {
-            var clone = populatedQuote.Clone();
+            IMutableLevel0Quote clone = populatedQuote.Clone();
             Assert.AreNotSame(clone, populatedQuote);
             Assert.AreEqual(populatedQuote, clone);
             clone = (IMutableLevel0Quote)((ICloneable<ILevel0Quote>)populatedQuote).Clone();

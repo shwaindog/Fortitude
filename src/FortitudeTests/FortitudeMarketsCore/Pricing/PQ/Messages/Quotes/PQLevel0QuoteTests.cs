@@ -6,6 +6,7 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
@@ -591,6 +592,9 @@ public class PQLevel0QuoteTests
         ILevel0Quote ICloneable<ILevel0Quote>.  Clone() => Clone();
         IMutableLevel0Quote IMutableLevel0Quote.Clone() => (IMutableLevel0Quote)Clone();
         IPQLevel0Quote IPQLevel0Quote.          Clone() => (IPQLevel0Quote)Clone();
+
+        ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Previous { get; set; }
+        ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Next     { get; set; }
 
         public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();

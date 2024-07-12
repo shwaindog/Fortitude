@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -17,14 +18,20 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
-public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote
+public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote, IDoublyLinkedListNode<IPQLevel2Quote>
 {
-    new IPQOrderBook   BidBook { get; set; }
-    new IPQOrderBook   AskBook { get; set; }
+    new IPQOrderBook BidBook { get; set; }
+    new IPQOrderBook AskBook { get; set; }
+
+
+    new IPQLevel2Quote? Next     { get; set; }
+    new IPQLevel2Quote? Previous { get; set; }
+
     new IPQLevel2Quote Clone();
 }
 
-public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQLevel2Quote>
+public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQLevel2Quote>, ICloneable<PQLevel2Quote>
+  , IDoublyLinkedListNode<PQLevel2Quote>
 {
     // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel2Quote));
@@ -79,6 +86,69 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
 
     protected string Level2ToStringMembers =>
         $"{Level1ToStringMembers}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, {nameof(BidBook)}: {BidBook}, {nameof(AskBook)}: {AskBook}, {nameof(BidPriceTop)}: {BidPriceTop}, {nameof(AskPriceTop)}: {AskPriceTop}";
+
+    public override PQLevel2Quote Clone() =>
+        Recycler?.Borrow<PQLevel2Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQLevel2Quote ?? new PQLevel2Quote(this);
+
+    public new PQLevel2Quote? Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as PQLevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    public new PQLevel2Quote? Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as PQLevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel2Quote? IPQLevel2Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel2Quote? IPQLevel2Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel2Quote? ILevel2Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel2Quote? ILevel2Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel2Quote? IDoublyLinkedListNode<IPQLevel2Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel2Quote? IDoublyLinkedListNode<IPQLevel2Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
 
     public override QuoteLevel QuoteLevel => QuoteLevel.Level2;
 
@@ -228,17 +298,13 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
 
     DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
 
-    ILevel2Quote ICloneable<ILevel2Quote>.Clone() => (ILevel2Quote)Clone();
+    ILevel2Quote ICloneable<ILevel2Quote>.Clone() => Clone();
 
-    ILevel2Quote ILevel2Quote.Clone() => (ILevel2Quote)Clone();
+    ILevel2Quote ILevel2Quote.Clone() => Clone();
 
-    IMutableLevel2Quote IMutableLevel2Quote.Clone() => (IMutableLevel2Quote)Clone();
+    IMutableLevel2Quote IMutableLevel2Quote.Clone() => Clone();
 
-    IPQLevel2Quote IPQLevel2Quote.Clone() => (IPQLevel2Quote)Clone();
-
-    public override IPQLevel0Quote Clone() =>
-        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel2Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
-     ?? new PQLevel2Quote(this);
+    IPQLevel2Quote IPQLevel2Quote.Clone() => Clone();
 
     public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

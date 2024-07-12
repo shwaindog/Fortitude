@@ -5,6 +5,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
@@ -16,9 +17,11 @@ using FortitudeMarketsApi.Pricing.TimeSeries;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quote, ITimeSeriesEntry<Level0PriceQuote>
+public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quote, ITimeSeriesEntry<Level0PriceQuote>, ICloneable<Level0PriceQuote>
+  , IDoublyLinkedListNode<Level0PriceQuote>
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Level0PriceQuote));
+
     public Level0PriceQuote() { }
 
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
@@ -45,6 +48,19 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
         IsReplay           = toClone.IsReplay;
         SinglePrice        = toClone.SinglePrice;
         ClientReceivedTime = toClone.ClientReceivedTime;
+    }
+
+    public override Level0PriceQuote Clone() => Recycler?.Borrow<Level0PriceQuote>().CopyFrom(this) as Level0PriceQuote ?? new Level0PriceQuote(this);
+
+    public Level0PriceQuote? Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as Level0PriceQuote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+    public Level0PriceQuote? Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as Level0PriceQuote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
     }
 
     public virtual QuoteLevel QuoteLevel => QuoteLevel.Level0;
@@ -79,8 +95,10 @@ public class Level0PriceQuote : ReusableObject<ILevel0Quote>, IMutableLevel0Quot
 
     ILevel0Quote ICloneable<ILevel0Quote>.Clone() => Clone();
 
-    public override IMutableLevel0Quote Clone() =>
-        (IMutableLevel0Quote?)Recycler?.Borrow<Level0PriceQuote>().CopyFrom(this) ?? new Level0PriceQuote(this);
+    IMutableLevel0Quote IMutableLevel0Quote.Clone() => Clone();
+
+    ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Previous { get; set; }
+    ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Next     { get; set; }
 
     public virtual bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

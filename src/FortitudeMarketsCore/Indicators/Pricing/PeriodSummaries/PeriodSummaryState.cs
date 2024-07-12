@@ -30,9 +30,11 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
         TimeSeriesPeriod = timeSeriesPeriod;
     }
 
-    public bool             HasPublishedComplete { get; set; }
-    public DateTime         PeriodStartTime      { get; set; }
-    public TimeSeriesPeriod TimeSeriesPeriod     { get; set; }
+    public bool HasPublishedComplete { get; set; }
+
+    public bool             IsEmpty          => SubSummaryPeriods.Head == null && PreviousPeriodBidAskEnd == null;
+    public DateTime         PeriodStartTime  { get; set; }
+    public TimeSeriesPeriod TimeSeriesPeriod { get; set; }
 
     public BoundedTimeRange ToBoundedTimeRange
         (DateTime? maxDateTime = null) =>
@@ -130,16 +132,21 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
                 while (currentPeriodSummary != null && currentPeriodSummary.PeriodStartTime > subRangeCurrentIntersection.ToTime)
                     currentPeriodSummary = currentPeriodSummary.Previous;
 
-                var percentageComplete = 0.0;
-                while (currentPeriodSummary != null && currentPeriodSummary.PeriodEndTime > subRangeCurrentIntersection.FromTime)
+                var hasPreceedingQuote = PreviousPeriodBidAskEnd != null ||
+                                         SubSummaryPeriods.Head?.PeriodStartTime < subRangeCurrentIntersection.FromTime;
+                var percentageComplete = hasPreceedingQuote ? 1.0 : 0.0;
+                if (!hasPreceedingQuote)
                 {
-                    percentageComplete   += currentPeriodSummary.ContributingCompletePercentage(subRangeCurrentIntersection, recycler);
-                    currentPeriodSummary =  currentPeriodSummary.Previous;
-                }
-                if (currentPeriodSummary == null && PreviousPeriodBidAskEnd != null)
-                {
-                    var openToFirstTick = new BoundedTimeRange(PeriodStartTime, SubSummaryPeriods.Head?.PeriodStartTime ?? PeriodStartTime);
-                    percentageComplete += openToFirstTick.ContributingPercentageOfTimeRange(subRange);
+                    while (currentPeriodSummary != null && currentPeriodSummary.PeriodEndTime > subRangeCurrentIntersection.FromTime)
+                    {
+                        percentageComplete   += currentPeriodSummary.ContributingCompletePercentage(subRangeCurrentIntersection, recycler);
+                        currentPeriodSummary =  currentPeriodSummary.Previous;
+                    }
+                    if (currentPeriodSummary == null && PreviousPeriodBidAskEnd != null)
+                    {
+                        var openToFirstTick = new BoundedTimeRange(PeriodStartTime, SubSummaryPeriods.Head?.PeriodStartTime ?? PeriodStartTime);
+                        percentageComplete += openToFirstTick.ContributingPercentageOfTimeRange(subRange);
+                    }
                 }
                 if (percentageComplete < 0.5) missingTickPeriods |= 1;
                 currentPeriodSummary = currentPeriodSummary?.Next;

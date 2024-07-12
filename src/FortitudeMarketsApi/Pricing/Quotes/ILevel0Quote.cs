@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -11,9 +12,8 @@ using FortitudeIO.TimeSeries;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel0Quote : IReusableObject<ILevel0Quote>,
-    IInterfacesComparable<ILevel0Quote>,
-    ITimeSeriesEntry<ILevel0Quote>
+public interface ILevel0Quote : IReusableObject<ILevel0Quote>, IInterfacesComparable<ILevel0Quote>, ITimeSeriesEntry<ILevel0Quote>
+  , IDoublyLinkedListNode<ILevel0Quote>
 {
     QuoteLevel QuoteLevel { get; }
     bool       IsReplay   { get; }

@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -11,12 +12,15 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>, ITimeSeriesEntry<ILevel2Quote>
+public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>, ITimeSeriesEntry<ILevel2Quote>, IDoublyLinkedListNode<ILevel2Quote>
 {
     IOrderBook BidBook          { get; }
     bool       IsBidBookChanged { get; }
     IOrderBook AskBook          { get; }
     bool       IsAskBookChanged { get; }
+
+    new ILevel2Quote? Next     { get; set; }
+    new ILevel2Quote? Previous { get; set; }
 
     new ILevel2Quote Clone();
 }

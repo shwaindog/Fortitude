@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
@@ -18,7 +19,7 @@ using FortitudeMarketsCore.Pricing.PQ.Summaries;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
-public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
+public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote, IDoublyLinkedListNode<IPQLevel1Quote>
 {
     bool IsSourceAskTimeDateUpdated          { get; }
     bool IsSourceAskTimeSubHourUpdated       { get; }
@@ -36,11 +37,16 @@ public interface IPQLevel1Quote : IPQLevel0Quote, IMutableLevel1Quote
     bool IsAskPriceTopChanged { get; }
     bool IsExecutableUpdated  { get; }
 
+
+    new IPQLevel1Quote? Next     { get; set; }
+    new IPQLevel1Quote? Previous { get; set; }
+
     new IPQPricePeriodSummary? SummaryPeriod { get; set; }
     new IPQLevel1Quote         Clone();
 }
 
-public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQLevel1Quote>
+public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQLevel1Quote>, ICloneable<PQLevel1Quote>
+  , IDoublyLinkedListNode<PQLevel1Quote>
 {
     private DateTime adapterReceivedTime = DateTimeConstants.UnixEpoch;
     private DateTime adapterSentTime     = DateTimeConstants.UnixEpoch;
@@ -109,6 +115,69 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         $"{nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(AskPriceTop)}: {AskPriceTop}, " +
         $"{nameof(IsAskPriceTopChanged)}: {IsAskPriceTopChanged}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
         $"{nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: {SummaryPeriod}";
+
+    public override PQLevel1Quote Clone() =>
+        Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQLevel1Quote ?? new PQLevel1Quote(this);
+
+    public new PQLevel1Quote? Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as PQLevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    public new PQLevel1Quote? Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as PQLevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel1Quote? IPQLevel1Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel1Quote? IPQLevel1Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel1Quote? ILevel1Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel1Quote? ILevel1Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel1Quote? IDoublyLinkedListNode<IPQLevel1Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel1Quote? IDoublyLinkedListNode<IPQLevel1Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
 
     public bool IsSourceAskTimeDateUpdated
     {
@@ -673,17 +742,13 @@ public class PQLevel1Quote : PQLevel0Quote, IPQLevel1Quote, ITimeSeriesEntry<PQL
         return this;
     }
 
-    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => (ILevel1Quote)Clone();
+    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
 
-    ILevel1Quote ILevel1Quote.Clone() => (ILevel1Quote)Clone();
+    ILevel1Quote ILevel1Quote.Clone() => Clone();
 
-    IMutableLevel1Quote IMutableLevel1Quote.Clone() => (IMutableLevel1Quote)Clone();
+    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
 
-    IPQLevel1Quote IPQLevel1Quote.Clone() => (IPQLevel1Quote)Clone();
-
-    public override IPQLevel0Quote Clone() =>
-        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
-     ?? new PQLevel1Quote(this);
+    IPQLevel1Quote IPQLevel1Quote.Clone() => Clone();
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

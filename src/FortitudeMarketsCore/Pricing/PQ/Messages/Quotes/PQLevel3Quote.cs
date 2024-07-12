@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -18,16 +19,22 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
-public interface IPQLevel3Quote : IPQLevel2Quote, IMutableLevel3Quote
+public interface IPQLevel3Quote : IPQLevel2Quote, IMutableLevel3Quote, IDoublyLinkedListNode<IPQLevel3Quote>
 {
-    new IPQRecentlyTraded? RecentlyTraded                { get; set; }
-    bool                   IsValueDateUpdated            { get; set; }
-    bool                   IsBatchIdUpdated              { get; set; }
-    bool                   IsSourceQuoteReferenceUpdated { get; set; }
-    new IPQLevel3Quote     Clone();
+    new IPQRecentlyTraded? RecentlyTraded { get; set; }
+
+    bool IsValueDateUpdated            { get; set; }
+    bool IsBatchIdUpdated              { get; set; }
+    bool IsSourceQuoteReferenceUpdated { get; set; }
+
+    new IPQLevel3Quote? Next     { get; set; }
+    new IPQLevel3Quote? Previous { get; set; }
+
+    new IPQLevel3Quote Clone();
 }
 
-public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQLevel3Quote>
+public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQLevel3Quote>, ICloneable<PQLevel3Quote>
+  , IDoublyLinkedListNode<PQLevel3Quote>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));
 
@@ -70,6 +77,69 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference}, " +
         $"{nameof(IsSourceQuoteReferenceUpdated)}: {IsSourceQuoteReferenceUpdated}, {nameof(ValueDate)}: {ValueDate}, " +
         $"{nameof(IsValueDateUpdated)}: {IsValueDateUpdated}, {nameof(RecentlyTraded)}: {RecentlyTraded}";
+
+    public override PQLevel3Quote Clone() =>
+        Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQLevel3Quote ?? new PQLevel3Quote(this);
+
+    public new PQLevel3Quote? Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as PQLevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    public new PQLevel3Quote? Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as PQLevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel3Quote? IPQLevel3Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel3Quote? IPQLevel3Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel3Quote? ILevel3Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel3Quote? ILevel3Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    IPQLevel3Quote? IDoublyLinkedListNode<IPQLevel3Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    IPQLevel3Quote? IDoublyLinkedListNode<IPQLevel3Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
 
     public override QuoteLevel QuoteLevel => QuoteLevel.Level3;
 
@@ -291,17 +361,13 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
 
     DateTime ITimeSeriesEntry<ILevel3Quote>.StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver) => StorageTime(resolver);
 
-    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => (ILevel3Quote)Clone();
+    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => Clone();
 
-    ILevel3Quote ILevel3Quote.Clone() => (ILevel3Quote)Clone();
+    ILevel3Quote ILevel3Quote.Clone() => Clone();
 
-    IMutableLevel3Quote IMutableLevel3Quote.Clone() => (IMutableLevel3Quote)Clone();
+    IMutableLevel3Quote IMutableLevel3Quote.Clone() => Clone();
 
-    IPQLevel3Quote IPQLevel3Quote.Clone() => (IPQLevel3Quote)Clone();
-
-    public override IPQLevel0Quote Clone() =>
-        (IPQLevel0Quote?)Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)
-     ?? new PQLevel3Quote(this);
+    IPQLevel3Quote IPQLevel3Quote.Clone() => Clone();
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

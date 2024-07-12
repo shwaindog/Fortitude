@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Summaries;
@@ -11,7 +12,7 @@ using FortitudeMarketsApi.Pricing.Summaries;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>, ITimeSeriesEntry<ILevel1Quote>
+public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>, ITimeSeriesEntry<ILevel1Quote>, IDoublyLinkedListNode<ILevel1Quote>
 {
     DateTime AdapterReceivedTime { get; }
     DateTime AdapterSentTime     { get; }
@@ -24,6 +25,9 @@ public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>, ITimeSer
     decimal    AskPriceTop          { get; }
     bool       IsAskPriceTopUpdated { get; }
     bool       Executable           { get; }
+
+    new ILevel1Quote? Next     { get; set; }
+    new ILevel1Quote? Previous { get; set; }
 
     IPricePeriodSummary? SummaryPeriod { get; }
     new ILevel1Quote     Clone();

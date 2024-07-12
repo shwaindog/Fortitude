@@ -82,11 +82,15 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(LivePricePeriodSummaryPublisherRule<TQuote>));
 
+    private static readonly TimeSpan LogNoDataPeriod = TimeSpan.FromHours(1);
+
     private readonly ResponsePublishParams completeResponsePublishParams;
     private readonly PricePublishInterval? livePricePublishInterval;
     private readonly ResponsePublishParams liveResponsePublishParams;
 
     private readonly Dictionary<TimeSeriesPeriod, ISubscription> liveSubPeriodCompletePublisherSubscriptions = new();
+
+    private readonly int logInterval;
 
     private readonly TimeSeriesPeriod periodToPublish;
     private readonly ISourceTickerId  tickerId;
@@ -94,6 +98,8 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
     private List<ValueTask>? asyncSubPeriodExecutions = new();
 
     private ITimerUpdate completeIntervalTimer = null!;
+
+    private int continuousEmptyPeriod;
 
     private PeriodSummaryState  currentPeriodSummaryState = null!;
     private PeriodSummaryState? lastPeriodSummaryState;
@@ -122,6 +128,8 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
             if (completeResponsePublishParams.ChannelRequest!.Channel is not IChannel<IPricePeriodSummary>)
                 throw new Exception("Expected channel to be of type IPricePeriodSummary");
         livePricePublishInterval = livePublishPricePeriodSummaryParams.LivePublishInterval;
+        var publishTimeSpan = periodToPublish.AveragePeriodTimeSpan().Min(LogNoDataPeriod / 2).Max(TimeSpan.FromMilliseconds(50));
+        logInterval = (int)(LogNoDataPeriod.Ticks / publishTimeSpan.Ticks);
     }
 
     public void StartLiveTimeSeriesPeriodInterval()
@@ -217,26 +225,35 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
 
     private void PublishLivePeriod()
     {
-        PublishSummaryTo(currentPeriodSummaryState, liveResponsePublishParams, TimeContext.UtcNow);
+        var now = TimeContext.UtcNow;
+
+        var currentPeriodStart = periodToPublish.ContainingPeriodBoundaryStart(now);
+        if (currentPeriodSummaryState is { IsEmpty: false } && currentPeriodSummaryState.PeriodStartTime <= currentPeriodStart)
+        {
+            var priceSummary = currentPeriodSummaryState.BuildPeriodSummary(Context.PooledRecycler, now);
+            PublishSummaryTo(priceSummary, liveResponsePublishParams);
+        }
     }
 
     private void PublishCompletePeriod()
     {
         var now = TimeContext.UtcNow;
-        if (lastPeriodSummaryState is { HasPublishedComplete: false, SubSummaryPeriods.Head: not null }
-                                   or { HasPublishedComplete: false, PreviousPeriodBidAskEnd: not null })
+        if (lastPeriodSummaryState is { HasPublishedComplete: false, IsEmpty: false })
         {
-            PublishSummaryTo(lastPeriodSummaryState!, completeResponsePublishParams, now);
+            var priceSummary = lastPeriodSummaryState.BuildPeriodSummary(Context.PooledRecycler, now);
+            if (priceSummary.TickCount == 0) continuousEmptyPeriod++;
+            PublishSummaryTo(priceSummary, completeResponsePublishParams);
             lastPeriodSummaryState.HasPublishedComplete = true;
         }
         else
         {
             var currentPeriodStart = periodToPublish.ContainingPeriodBoundaryStart(now);
-            if (currentPeriodSummaryState is { HasPublishedComplete: false, SubSummaryPeriods.Head: not null }
-                                          or { HasPublishedComplete: false, PreviousPeriodBidAskEnd: not null }
-             && currentPeriodSummaryState.PeriodStartTime < currentPeriodStart)
+            if (currentPeriodSummaryState is { HasPublishedComplete: false, IsEmpty: false }
+             && currentPeriodSummaryState.PeriodStartTime <= currentPeriodStart)
             {
-                PublishSummaryTo(currentPeriodSummaryState!, completeResponsePublishParams, now);
+                var priceSummary = currentPeriodSummaryState.BuildPeriodSummary(Context.PooledRecycler, now);
+                if (priceSummary.TickCount == 0) continuousEmptyPeriod++;
+                PublishSummaryTo(priceSummary, completeResponsePublishParams);
                 currentPeriodSummaryState.HasPublishedComplete = true;
 
                 var lastPeriodEnd                = lastPeriodSummaryState!.SubSummaryPeriods.Tail?.EndBidAsk;
@@ -247,12 +264,12 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
                 currentPeriodSummaryState.PreviousPeriodBidAskEnd = lastPeriodEnd;
             }
         }
+        if (continuousEmptyPeriod > 0 && continuousEmptyPeriod % logInterval == 0)
+            Logger.Warn("Have received {0} empty live price periods for {1} {2}", continuousEmptyPeriod, tickerId.ShortName(), periodToPublish);
     }
 
-    private void PublishSummaryTo(PeriodSummaryState periodState, ResponsePublishParams responsePublishParams, DateTime? atTime = null)
+    private void PublishSummaryTo(PricePeriodSummary priceSummary, ResponsePublishParams responsePublishParams)
     {
-        if (periodState.SubSummaryPeriods.Head == null && periodState.PreviousPeriodBidAskEnd == null) return;
-        var priceSummary = periodState.BuildPeriodSummary(Context.PooledRecycler, atTime);
         if (responsePublishParams.ResponsePublishMethod is ResponsePublishMethod.AlternativeBroadcastAddress
                                                         or ResponsePublishMethod.ListenerDefaultBroadcastAddress)
         {
@@ -316,20 +333,23 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
 
     private ValueTask AddToCurrentOrPreviousState(IPricePeriodSummary subPeriod)
     {
-        var quoteStartPeriod = periodToPublish.ContainingPeriodBoundaryStart(subPeriod.PeriodStartTime);
-        if (currentPeriodSummaryState.PeriodStartTime == quoteStartPeriod)
+        var subPeriodContainerStart = periodToPublish.ContainingPeriodBoundaryStart(subPeriod.PeriodStartTime);
+        if (currentPeriodSummaryState.PeriodStartTime == subPeriodContainerStart)
         {
             currentPeriodSummaryState.SubSummaryPeriods.AddReplace(subPeriod, Context.PooledRecycler);
         }
-        else if (quoteStartPeriod > currentPeriodSummaryState.PeriodStartTime)
+        else if (subPeriodContainerStart > currentPeriodSummaryState.PeriodStartTime)
         {
-            var noLastSummaryPeriod = lastPeriodSummaryState == null;
-            currentPeriodSummaryState.NextPeriodBidAskStart = subPeriod.EndBidAsk;
+            var noLastSummaryPeriod                                                                 = lastPeriodSummaryState == null;
+            if (!currentPeriodSummaryState.IsEmpty) currentPeriodSummaryState.NextPeriodBidAskStart = subPeriod.EndBidAsk;
 
             if (noLastSummaryPeriod)
             {
                 lastPeriodSummaryState = currentPeriodSummaryState;
-                currentPeriodSummaryState = new PeriodSummaryState(quoteStartPeriod, periodToPublish)
+                if (lastPeriodSummaryState.IsEmpty &&
+                    lastPeriodSummaryState.PeriodStartTime != periodToPublish.PreviousPeriodStart(subPeriodContainerStart))
+                    lastPeriodSummaryState.PeriodStartTime = periodToPublish.PreviousPeriodStart(subPeriodContainerStart);
+                currentPeriodSummaryState = new PeriodSummaryState(subPeriodContainerStart, periodToPublish)
                 {
                     PreviousPeriodBidAskEnd = lastPeriodSummaryState.SubSummaryPeriods.Tail?.EndBidAsk
                 };
@@ -337,12 +357,13 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
             else
             {
                 var lastPeriodEnd = lastPeriodSummaryState!.SubSummaryPeriods.Tail?.EndBidAsk;
-                if (!lastPeriodSummaryState.HasPublishedComplete) PublishCompletePeriod();
+
+                if (!lastPeriodSummaryState.IsEmpty && !lastPeriodSummaryState.HasPublishedComplete) PublishCompletePeriod();
 
                 var newCurrentPeriodSummaryState = ClearExisting(lastPeriodSummaryState);
                 lastPeriodSummaryState    = currentPeriodSummaryState;
                 currentPeriodSummaryState = newCurrentPeriodSummaryState;
-                currentPeriodSummaryState.Configure(quoteStartPeriod, periodToPublish);
+                currentPeriodSummaryState.Configure(subPeriodContainerStart, periodToPublish);
                 currentPeriodSummaryState.PreviousPeriodBidAskEnd = lastPeriodEnd;
             }
             currentPeriodSummaryState.SubSummaryPeriods.AddFirst(subPeriod);
