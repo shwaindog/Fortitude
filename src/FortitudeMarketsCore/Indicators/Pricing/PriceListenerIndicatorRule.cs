@@ -19,11 +19,11 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
 {
     private readonly string feedTickerListenAddress;
 
-    protected ISourceTickerId TickerId;
+    protected SourceTickerId TickerId;
 
     private ISubscription? tickerListenSubscription;
 
-    public PriceListenerIndicatorRule(ISourceTickerId tickerId, string ruleName) : base(ruleName)
+    public PriceListenerIndicatorRule(SourceTickerId tickerId, string ruleName) : base(ruleName)
     {
         TickerId = tickerId;
 

@@ -9,7 +9,6 @@ using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -74,8 +73,7 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
         await base.StartAsync();
 
         var existingInstruments = InstrumentFileInfos
-            (tickerId.Ticker, instrumentType, entryPeriod
-           , new KeyValuePair<string, string>(nameof(RepositoryPathName.SourceName), tickerId.Source)).ToList();
+            (tickerId.Ticker, tickerId.Source, instrumentType, entryPeriod).ToList();
         if (existingInstruments.Any())
         {
             if (existingInstruments.Count == 1)
@@ -87,8 +85,8 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
         {
             var priceSummaryTickerInstrument = new SourceTickerQuoteInfo(tickerId)
             {
-                EntryPeriod = entryPeriod
-              , Type        = instrumentType
+                EntryPeriod    = entryPeriod
+              , InstrumentType = instrumentType
             };
             var fileInfo = TimeSeriesRepository.GetInstrumentFileInfo(priceSummaryTickerInstrument);
 

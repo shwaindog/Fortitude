@@ -33,7 +33,7 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
 
     public PQPriceStoragePeriodSummaryDeserializer
         (IPQPriceVolumePublicationPrecisionSettings precisionSettings) =>
-        DeserializedPriceSummary = new PQPriceStoragePeriodSummary(precisionSettings);
+        DeserializedPriceSummary = new PQPriceStoragePeriodSummary();
 
     public IPQPriceStoragePeriodSummary DeserializedPriceSummary { get; }
 
@@ -41,10 +41,8 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
 
     public IPricePeriodSummary? Deserialize(ISerdeContext readContext)
     {
-        if ((readContext.Direction & ContextDirection.Read) == 0)
-            throw new ArgumentException("Expected readContext to allow reading");
-        if ((readContext.MarshalType & MarshalType.Binary) == 0)
-            throw new ArgumentException("Expected readContext to be a binary buffer context");
+        if ((readContext.Direction & ContextDirection.Read) == 0) throw new ArgumentException("Expected readContext to allow reading");
+        if ((readContext.MarshalType & MarshalType.Binary) == 0) throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IBufferContext bufferContext)
         {
             using var fixedBuffer = bufferContext.EncodedBuffer!;
@@ -54,6 +52,8 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
             if (bytesRead > 0)
             {
                 fixedBuffer.ReadCursor += bytesRead;
+
+                DeserializedPriceSummary.HasUpdates = false;
                 return DeserializedPriceSummary;
             }
             return null;
@@ -66,15 +66,11 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
     {
         using var fixedBuffer = buffer;
 
-        var readStart        = fixedBuffer.ReadBuffer + buffer.BufferRelativeReadCursor;
-        var ptr              = readStart;
-        var flags            = (PQPriceStorageSummaryFlags)StreamByteOps.ToUInt(ref ptr);
-        var priceScale       = (byte)(((uint)(flags & PriceScaleMask) >> 24) & 0x0F);
-        var volumeScale      = (byte)(((uint)(flags & VolumeScaleMask) >> 28) & 0x0F);
-        var precisionSetting = ent.PrecisionSettings;
-        if (precisionSetting == null || (precisionSetting.PriceScalingPrecision & 0x0F) != priceScale
-                                     || (precisionSetting.VolumeScalingPrecision & 0x0F) != volumeScale)
-            ent.PrecisionSettings = new PQPriceVolumePublicationPrecisionSettings(priceScale, volumeScale);
+        var readStart   = fixedBuffer.ReadBuffer + buffer.BufferRelativeReadCursor;
+        var ptr         = readStart;
+        var flags       = (PQPriceStorageSummaryFlags)StreamByteOps.ToUInt(ref ptr);
+        var priceScale  = (byte)(((uint)(flags & PriceScaleMask) >> 24) & 0x0F);
+        var volumeScale = (byte)(((uint)(flags & VolumeScaleMask) >> 28) & 0x0F);
 
         var isSnapshot = flags.HasSnapshotFlag();
         ent.HasUpdates = false;

@@ -7,10 +7,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
-using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
 
 #endregion
@@ -52,7 +49,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
                     return null;
                 }
 
-                deserializedSourceTickerInfoResponse.SourceTickerQuoteInfos.Add(DeserializeSourceTickerQuoteInfo(ref ptr));
+                deserializedSourceTickerInfoResponse.SourceTickerQuoteInfos.Add(DeserializeSourceTickerQuoteInfo(ref ptr, fixedBuffer));
             }
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
@@ -63,25 +60,12 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
         throw new ArgumentException("Expected readContext to be of type IMessageBufferContext");
     }
 
-    private unsafe ISourceTickerQuoteInfo DeserializeSourceTickerQuoteInfo(ref byte* currPtr)
+    private unsafe ISourceTickerQuoteInfo DeserializeSourceTickerQuoteInfo(ref byte* currPtr, IBuffer fixedBuffer)
     {
-        var deserializedSourceTickerQuoteInfo = recycler.Borrow<SourceTickerQuoteInfo>();
-        deserializedSourceTickerQuoteInfo.SourceId               = StreamByteOps.ToUShort(ref currPtr);
-        deserializedSourceTickerQuoteInfo.TickerId               = StreamByteOps.ToUShort(ref currPtr);
-        deserializedSourceTickerQuoteInfo.PublishedQuoteLevel    = (QuoteLevel)(*currPtr++);
-        deserializedSourceTickerQuoteInfo.MarketClassification   = new MarketClassification(StreamByteOps.ToUInt(ref currPtr));
-        deserializedSourceTickerQuoteInfo.RoundingPrecision      = StreamByteOps.ToDecimal(ref currPtr);
-        deserializedSourceTickerQuoteInfo.MinSubmitSize          = StreamByteOps.ToDecimal(ref currPtr);
-        deserializedSourceTickerQuoteInfo.MaxSubmitSize          = StreamByteOps.ToDecimal(ref currPtr);
-        deserializedSourceTickerQuoteInfo.IncrementSize          = StreamByteOps.ToDecimal(ref currPtr);
-        deserializedSourceTickerQuoteInfo.MinimumQuoteLife       = StreamByteOps.ToUShort(ref currPtr);
-        deserializedSourceTickerQuoteInfo.LayerFlags             = (LayerFlags)StreamByteOps.ToUInt(ref currPtr);
-        deserializedSourceTickerQuoteInfo.MaximumPublishedLayers = *currPtr++;
-        deserializedSourceTickerQuoteInfo.LastTradedFlags        = (LastTradedFlags)StreamByteOps.ToUShort(ref currPtr);
-        deserializedSourceTickerQuoteInfo.Source                 = StreamByteOps.ToStringWithSizeHeader(ref currPtr)!;
-        deserializedSourceTickerQuoteInfo.Ticker                 = StreamByteOps.ToStringWithSizeHeader(ref currPtr)!;
+        var srcTkrQtInfo = recycler.Borrow<SourceTickerQuoteInfo>();
+        SourceTickerQuoteInfoDeserializer.DeserializeSourceTickerQuoteInfo(srcTkrQtInfo, ref currPtr, fixedBuffer);
 
-        return deserializedSourceTickerQuoteInfo;
+        return srcTkrQtInfo;
     }
 
     public override IMessageDeserializer Clone() => new PQSourceTickerInfoResponseDeserializer(this);

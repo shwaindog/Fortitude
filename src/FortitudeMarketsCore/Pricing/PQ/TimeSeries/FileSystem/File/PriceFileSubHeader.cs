@@ -6,7 +6,9 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -25,16 +27,18 @@ public struct PriceQuoteSubHeader
 {
     public PQSerializationFlags SerializationFlags;
 
-    public ushort SourceTickerQuoteSerializedSizeBytes;
-    public ushort SourceTickerQuoteSubHeaderBytesOffset;
+    public ushort PricingInstrumentIdSerializedSizeBytes;
+    public ushort PricingInstrumentSubHeaderBytesOffset;
 }
 
 public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
 {
     private static IRecycler recycler = new Recycler();
 
-    private readonly MemoryMappedFileBuffer memoryMappedFileBuffer;
-    private readonly IMessageBufferContext  messageBufferContext;
+    private readonly InstrumentType                instrumentType;
+    private readonly MemoryMappedFileBuffer        memoryMappedFileBuffer;
+    private readonly IMessageBufferContext         messageBufferContext;
+    private readonly PricingInstrumentDeserializer pricingInstrumentDeserializer = new(recycler);
     private readonly SourceTickerQuoteInfoDeserializer sourceTickerQuoteInfoDeserializer = new(recycler)
     {
         ReadMessageHeader = false
@@ -42,14 +46,17 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
     private readonly ushort subHeaderFileOffset;
     private readonly bool   writable;
 
-    private ISourceTickerQuoteInfo?          cachedSourceTickerQuoteInfo;
+    private IPricingInstrumentId?            cachedPricingInstrumentId;
     private PriceQuoteSubHeader              cachePriceQuoteSubHeader;
     private ShiftableMemoryMappedFileView?   memoryMappedFileView;
     private PriceQuoteSubHeader*             priceQuoteSubHeader;
+    private PricingInstrumentSerializer?     pricingInstrumentSerializer;
     private SourceTickerQuoteInfoSerializer? sourceTickerQuoteInfoSerializer;
 
-    public PriceFileSubHeader(ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
+    public PriceFileSubHeader
+        (InstrumentType instrumentType, ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
     {
+        this.instrumentType      = instrumentType;
         memoryMappedFileView     = headerMappedFileView;
         this.subHeaderFileOffset = subHeaderFileOffset;
         this.writable            = writable;
@@ -57,49 +64,60 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
         memoryMappedFileBuffer   = new MemoryMappedFileBuffer(memoryMappedFileView, false);
         messageBufferContext     = new MessageBufferContext(memoryMappedFileBuffer);
 
-        priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset = 100;
+        priceQuoteSubHeader->PricingInstrumentSubHeaderBytesOffset = 100;
     }
 
     public PriceFileSubHeader
     (PriceTimeSeriesFileParameters priceTimeSeriesFileParameters,
         ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
-        : this(headerMappedFileView, subHeaderFileOffset, writable)
+        : this(priceTimeSeriesFileParameters.PricingInstrumentId.InstrumentType, headerMappedFileView, subHeaderFileOffset, writable)
     {
-        SourceTickerQuoteInfo = priceTimeSeriesFileParameters.SourceTickerQuoteInfo;
-        SerializationFlags    = priceTimeSeriesFileParameters.SerializationFlags;
+        PricingInstrumentId = priceTimeSeriesFileParameters.PricingInstrumentId;
+        SerializationFlags  = priceTimeSeriesFileParameters.SerializationFlags;
     }
 
-
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo
+    public IPricingInstrumentId PricingInstrumentId
     {
         get
         {
-            if (memoryMappedFileView == null && cachedSourceTickerQuoteInfo != null) return cachedSourceTickerQuoteInfo;
-            if (priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes == 0 || priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset == 0)
+            if (memoryMappedFileView == null && cachedPricingInstrumentId != null) return cachedPricingInstrumentId;
+            if (priceQuoteSubHeader->PricingInstrumentIdSerializedSizeBytes == 0 || priceQuoteSubHeader->PricingInstrumentSubHeaderBytesOffset == 0)
                 throw new Exception(
                                     "Expected PriceQuoteFileSubHeader to have a value for SourceTickerQuoteSerializedSizeBytes and SourceTickerQuoteSubHeaderBytesOffset");
 
-            messageBufferContext.EncodedBuffer!.ReadCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
-            messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset
-                                                                                  + priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes;
+            messageBufferContext.EncodedBuffer!.ReadCursor = subHeaderFileOffset + priceQuoteSubHeader->PricingInstrumentSubHeaderBytesOffset;
+            messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->PricingInstrumentSubHeaderBytesOffset
+                                                                                  + priceQuoteSubHeader->PricingInstrumentIdSerializedSizeBytes;
 
-            cachedSourceTickerQuoteInfo = sourceTickerQuoteInfoDeserializer.Deserialize(messageBufferContext);
-            return cachedSourceTickerQuoteInfo!;
+            cachedPricingInstrumentId = instrumentType == InstrumentType.Price
+                ? sourceTickerQuoteInfoDeserializer.Deserialize(messageBufferContext)
+                : pricingInstrumentDeserializer.Deserialize(messageBufferContext);
+            return cachedPricingInstrumentId!;
         }
         set
         {
-            if (Equals(cachedSourceTickerQuoteInfo, value) || (!writable &&
-                                                               cachedSourceTickerQuoteInfo != null) || memoryMappedFileView == null)
+            if (Equals(cachedPricingInstrumentId, value) || (!writable &&
+                                                             cachedPricingInstrumentId != null) || memoryMappedFileView == null)
                 return;
-            messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->SourceTickerQuoteSubHeaderBytesOffset;
+            messageBufferContext.EncodedBuffer!.WriteCursor = subHeaderFileOffset + priceQuoteSubHeader->PricingInstrumentSubHeaderBytesOffset;
 
-            sourceTickerQuoteInfoSerializer ??= new SourceTickerQuoteInfoSerializer
+            int serializedSize;
+            if (instrumentType == InstrumentType.Price)
             {
-                AddMessageHeader = false
-            };
-            var serializedSize = sourceTickerQuoteInfoSerializer.Serialize(messageBufferContext.EncodedBuffer, value);
-            priceQuoteSubHeader->SourceTickerQuoteSerializedSizeBytes = (ushort)serializedSize;
-            cachedSourceTickerQuoteInfo                               = value;
+                sourceTickerQuoteInfoSerializer ??= new SourceTickerQuoteInfoSerializer()
+                {
+                    AddMessageHeader = false
+                };
+                serializedSize = sourceTickerQuoteInfoSerializer.Serialize(messageBufferContext.EncodedBuffer, (ISourceTickerQuoteInfo)value);
+            }
+            else
+            {
+                pricingInstrumentSerializer ??= new PricingInstrumentSerializer();
+                serializedSize              =   pricingInstrumentSerializer.Serialize(messageBufferContext.EncodedBuffer, value);
+            }
+            priceQuoteSubHeader->PricingInstrumentIdSerializedSizeBytes = (ushort)serializedSize;
+
+            cachedPricingInstrumentId = value;
         }
     }
 

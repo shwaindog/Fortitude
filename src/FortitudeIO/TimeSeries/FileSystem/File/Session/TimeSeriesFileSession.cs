@@ -182,7 +182,8 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         for (var i = parentBucketsHeaderAndIndexViews.Count; i < depth; i++)
         {
             var headerAndIndex
-                = timeSeriesFile.TimeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView("bucketContainerHeaderView_" + i);
+                = timeSeriesFile.TimeSeriesMemoryMappedFile!.CreateShiftableMemoryMappedFileView("bucketContainerHeaderView_" + i
+                                                                                               , closePagedMemoryMappedFileOnDispose: false);
             headerAndIndex.UpperViewTriggerChunkShiftTolerance = requiredViewSize;
             parentBucketsHeaderAndIndexViews.Add(headerAndIndex);
         }

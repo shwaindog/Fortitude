@@ -4,7 +4,6 @@
 #region
 
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
-using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 
@@ -12,5 +11,5 @@ namespace FortitudeMarketsApi.Pricing.TimeSeries.FileSystem.File;
 
 public interface IPriceFileHeader : IFileSubHeader
 {
-    ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; }
+    IPricingInstrumentId PricingInstrumentId { get; }
 }

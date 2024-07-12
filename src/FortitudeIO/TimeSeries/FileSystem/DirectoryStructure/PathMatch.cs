@@ -48,11 +48,11 @@ public class PathFileMatch
     public string[] OptionalFields { get; set; }
 
     public bool HasInstrument =>
-        InstrumentNameMatch != null && HasValuesForKeys(RequiredFields) && EntryPeriodMatch != null
+        InstrumentNameMatch != null && InstrumentSourceMatch != null && HasValuesForKeys(RequiredFields) && EntryPeriodMatch != null
      && InstrumentTypeMatch != null;
 
     public IInstrument Instrument =>
-        new Instrument(InstrumentNameMatch!, InstrumentTypeMatch!.Value, EntryPeriodMatch!.Value
+        new Instrument(InstrumentNameMatch!, InstrumentSourceMatch!, InstrumentTypeMatch!.Value, EntryPeriodMatch!.Value
                      , ExtractKeyValuePairs(RequiredFields), ExtractKeyValuePairs(OptionalFields));
 
     public DateTime              PeriodStart     { get; set; }
@@ -61,7 +61,8 @@ public class PathFileMatch
     public List<string> MatchedPath   { get; set; } = new();
     public List<string> RemainingPath { get; set; } = null!;
 
-    public string? InstrumentNameMatch { get; set; }
+    public string? InstrumentNameMatch   { get; set; }
+    public string? InstrumentSourceMatch { get; set; }
 
     public string? this[string key]
     {

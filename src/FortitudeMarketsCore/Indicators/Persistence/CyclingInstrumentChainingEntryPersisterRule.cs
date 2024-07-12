@@ -13,10 +13,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeMarketsApi.Pricing;
-using FortitudeMarketsApi.Pricing.Quotes;
 
 #endregion
 
@@ -46,12 +44,12 @@ public struct CyclingInstrumentChainingEntryPersisterParams
 public readonly struct ChainableInstrumentPayload<TEntry>(PricingInstrumentId instrumentId, TEntry entry)
     where TEntry : class, ITimeSeriesEntry<TEntry>, IDoublyLinkedListNode<TEntry>, new()
 {
-    public PricingInstrumentId InstrumentId { get; } = instrumentId;
+    public PricingInstrumentId PricingInstrumentId { get; } = instrumentId;
 
     public TEntry Entry { get; } = entry;
 }
 
-public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFileInfo, PricingInstrumentId instrumentId)
+public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFileInfo, PricingInstrumentId pricingInstrumentId)
     where TEntry : class, ITimeSeriesEntry<TEntry>, IDoublyLinkedListNode<TEntry>, new()
 {
     public double   AverageBatchSize;
@@ -59,12 +57,12 @@ public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFil
     public TimeSpan BackOffNextTimeSpan = TimeSpan.FromSeconds(2);
     public int      ConsecutiveFailuresCount;
 
-    public InstrumentFileInfo  InstrumentFileInfo = instrumentFileInfo;
-    public PricingInstrumentId InstrumentId       = instrumentId;
+    public InstrumentFileInfo InstrumentFileInfo = instrumentFileInfo;
 
-    public List<string>? LastFailures;
-    public DateTime      LastPersistTime = DateTime.MinValue;
-    public DateTime      LastQueueTime   = DateTime.MinValue;
+    public List<string>?       LastFailures;
+    public DateTime            LastPersistTime     = DateTime.MinValue;
+    public DateTime            LastQueueTime       = DateTime.MinValue;
+    public PricingInstrumentId PricingInstrumentId = pricingInstrumentId;
 
     public IDoublyLinkedList<TEntry> Queue = new DoublyLinkedList<TEntry>();
     public int                       SessionPersistCounter;
@@ -91,18 +89,23 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
     private readonly CyclingInstrumentChainingEntryPersisterParams persisterParams;
 
     private ISubscription? appendEntrySubscription;
-    private DateTime?      lastAppendTime;
-    private long           lastTotalPersistedCount;
+
+    private ISubscription? fullDrainRequestSubscription;
+
+    private DateTime? lastAppendTime;
+    private long      lastTotalPersistedCount;
 
     private ITimerUpdate? monitorTimerUpdate;
 
-    private int           noPersistCount;
-    private double        persistRatio = 1.0;
+    private int    noPersistCount;
+    private double persistRatio = 1.0;
+
     private ITimerUpdate? persistTimerUpdate;
 
     private DateTime? previousLastAppendTime;
-    private bool      shouldRunPersist;
-    private long      totalPersistedCount;
+
+    private bool shouldRunPersist;
+    private long totalPersistedCount;
 
     public CyclingInstrumentChainingEntryPersisterRule(CyclingInstrumentChainingEntryPersisterParams persisterParams)
         : base(persisterParams.RepositoryParams
@@ -112,9 +115,13 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
         shouldRunPersist     = persisterParams.RunInstrumentsPersist;
     }
 
+    public static string FullDrainRequestAddress => IndicatorPersisterConstants.FullDrainRequest<TEntry>();
+
     public override async ValueTask StartAsync()
     {
         await base.StartAsync();
+
+        fullDrainRequestSubscription = await this.RegisterRequestListenerAsync<string, int>(FullDrainRequestAddress, FullDrainRequestHandler);
 
         monitorTimerUpdate = Timer.RunEvery(20_000, MonitorPersist);
         persistTimerUpdate = Timer.RunEvery(persisterParams.AutoAdjustTargetRunMs * 2, RunPersist);
@@ -123,11 +130,20 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
             = await this.RegisterListenerAsync<ChainableInstrumentPayload<TEntry>>(persisterParams.AppendListenAddress, ReceiveEntryToPersist);
     }
 
+    private int FullDrainRequestHandler(IBusRespondingMessage<string, int> fullDrainRequestMsg)
+    {
+        var requester = fullDrainRequestMsg.Payload.Body();
+        Logger.Info(" {0} requested full drain of CyclingInstrumentChainingEntryPersisterRule<{1}>", requester, typeof(TEntry).Name);
+        return Persist(true);
+    }
+
     public override async ValueTask StopAsync()
     {
+        await appendEntrySubscription.NullSafeUnsubscribe();
+        await fullDrainRequestSubscription.NullSafeUnsubscribe();
         monitorTimerUpdate?.Cancel();
         persistTimerUpdate?.Cancel();
-        await appendEntrySubscription.NullSafeUnsubscribe();
+        Persist(true);
         await base.StopAsync();
     }
 
@@ -145,12 +161,12 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
     private void ReceiveEntryToPersist(IBusMessage<ChainableInstrumentPayload<TEntry>> appendEntryMsg)
     {
         var instrumentPayload = appendEntryMsg.Payload.Body();
-        var pricingId         = instrumentPayload.InstrumentId;
+        var pricingId         = instrumentPayload.PricingInstrumentId;
         if (!persistBacklog.TryGetValue(pricingId, out var state))
         {
-            var existingInstruments = InstrumentFileInfos
-                (pricingId.Ticker, pricingId.InstrumentType, pricingId.Period
-               , new KeyValuePair<string, string>(nameof(RepositoryPathName.SourceName), pricingId.Source)).ToList();
+            var existingInstruments =
+                InstrumentFileInfos(pricingId.Ticker, pricingId.Source, pricingId.InstrumentType, pricingId.EntryPeriod)
+                    .ToList();
             InstrumentFileInfo instrumentFileInfo = default;
             if (existingInstruments.Any())
             {
@@ -158,20 +174,19 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
                     instrumentFileInfo = existingInstruments[0];
                 else
                     throw new Exception
-                        ($"More than one instrument exists for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.Period}");
+                        ($"More than one instrument exists for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.EntryPeriod}");
             }
             else
             {
-                var priceSummaryTickerInstrument = new SourceTickerQuoteInfo(pricingId);
-                var fileInfo                     = TimeSeriesRepository.GetInstrumentFileInfo(priceSummaryTickerInstrument);
+                var instrument = new PricingInstrument(pricingId);
+                var fileInfo   = TimeSeriesRepository.GetInstrumentFileInfo(instrument);
 
-                if (fileInfo.FilePeriod > TimeSeriesPeriod.None)
-                    instrumentFileInfo = new InstrumentFileInfo(priceSummaryTickerInstrument, fileInfo.FilePeriod);
+                if (fileInfo.FilePeriod > TimeSeriesPeriod.None) instrumentFileInfo = new InstrumentFileInfo(instrument, fileInfo.FilePeriod);
             }
             if (Equals(instrumentFileInfo, default(InstrumentFileInfo)))
                 throw new
-                    Exception($"Could not locate a repository structure for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.Period}");
-            state = new InstrumentPersistenceState<TEntry>(instrumentFileInfo, instrumentPayload.InstrumentId);
+                    Exception($"Could not locate a repository structure for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.EntryPeriod}");
+            state = new InstrumentPersistenceState<TEntry>(instrumentFileInfo, pricingId);
             persistBacklog.Add(pricingId, state);
         }
         var instrumentQueueLength = state.Add(instrumentPayload.Entry);
@@ -183,13 +198,18 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
 
     private void RunPersist()
     {
-        if (!shouldRunPersist) return;
+        Persist(false);
+    }
+
+    private int Persist(bool fullDrain)
+    {
+        if (!shouldRunPersist) return 0;
         var startTime = DateTime.Now;
         forNextRunPersist.Clear();
         var runMax                 = (int)(persisterParams.RunMaxTotalPersist * persistRatio);
         var perInstrumentToPersist = (int)(persisterParams.RunMaxInstrumentPersist * persistRatio);
         var runCurrent             = 0;
-        for (; runCurrent < runMax && entriesToPersist.Count > 0; runCurrent++)
+        for (; (fullDrain || runCurrent < runMax) && entriesToPersist.Count > 0; runCurrent++)
         {
             var pricingId    = entriesToPersist[0];
             var persistState = persistBacklog[pricingId];
@@ -250,5 +270,6 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
             persistRatio = (persistRatio * 19 + Math.Max(0.1, persisterParams.AutoAdjustTargetRunMs / totalMs)) / 20;
         if (persisterParams.AutoAdjustRatioUp && totalMs < persisterParams.AutoAdjustTargetRunMs)
             persistRatio = (persistRatio * 19 + Math.Min(100, persisterParams.AutoAdjustTargetRunMs / totalMs)) / 20;
+        return runCurrent;
     }
 }

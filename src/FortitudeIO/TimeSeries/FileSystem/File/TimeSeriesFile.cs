@@ -19,19 +19,21 @@ namespace FortitudeIO.TimeSeries.FileSystem.File;
 
 public interface ITimeSeriesFile : IDisposable
 {
-    ushort                FileVersion           { get; }
+    ushort FileVersion { get; }
+
     ITimeSeriesFileHeader Header                { get; }
     TimeSeriesPeriodRange TimeSeriesPeriodRange { get; }
 
     bool AutoCloseOnZeroSessions { get; set; }
 
-    int            SessionCount   { get; }
     InstrumentType InstrumentType { get; }
-    string         InstrumentName { get; }
-    string         Category       { get; }
-    string         SourceName     { get; }
-    string         FileName       { get; }
-    bool           IsOpen         { get; }
+
+    int    SessionCount   { get; }
+    string InstrumentName { get; }
+    string Category       { get; }
+    string SourceName     { get; }
+    string FileName       { get; }
+    bool   IsOpen         { get; }
 
     Type                EntryType { get; }
     ITimeSeriesSession? GetWriterSession();
@@ -80,9 +82,11 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
 
     protected IBucketFactory<TBucket>? FileBucketFactory;
 
-    private IBucketIndexDictionary?     fileBucketIndexOffsets;
     private IFileReaderSession<TEntry>? infoSession;
-    private int                         numberOfOpenSessions;
+
+    private bool isClosing;
+    private int  numberOfOpenSessions;
+
     private IFileWriterSession<TEntry>? writerSession;
 
     // derived classes should implement equivalent parameter constructor to be open with OpenExistingTimeSeriesFile(string filePath)
@@ -119,8 +123,10 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     }
 
     public virtual IStorageTimeResolver<TEntry>? StorageTimeResolver => null!;
-    private        TimeSeriesPeriod              TimeSeriesPeriod    => Header.FilePeriod;
-    private        DateTime                      PeriodStartTime     => Header.FileStartPeriod;
+
+    private TimeSeriesPeriod TimeSeriesPeriod => Header.FilePeriod;
+
+    private DateTime PeriodStartTime => Header.FileStartPeriod;
 
     public IMutableTimeSeriesFileHeader Header { get; }
 
@@ -190,13 +196,14 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
 
     public void Dispose()
     {
-        Close();
+        if (!isClosing) Close();
     }
 
     public ushort FileVersion { get; }
 
     public bool AutoCloseOnZeroSessions { get; set; } = true;
-    public int  SessionCount            => numberOfOpenSessions;
+
+    public int SessionCount => numberOfOpenSessions;
 
     public InstrumentType InstrumentType => Header.InstrumentType;
 
@@ -230,16 +237,15 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     public bool Intersects(UnboundedTimeRange? periodRange = null) => TimeSeriesPeriodRange.Intersects(periodRange);
 
     public string FileName { get; }
-    public bool   IsOpen   => Header.FileIsOpen || numberOfOpenSessions > 0;
+    public bool   IsOpen   => !isClosing && (Header.FileIsOpen || numberOfOpenSessions > 0);
 
     public void Close()
     {
         if (!IsOpen) return;
+        isClosing = true;
         writerSession?.Close();
         foreach (var readerSession in readerSessions) readerSession.Close();
         infoSession?.Close();
-        fileBucketIndexOffsets?.CacheAndCloseFileView();
-        fileBucketIndexOffsets = null;
         Header.CloseFileView();
         TimeSeriesMemoryMappedFile = null;
     }
@@ -247,6 +253,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     public bool ReopenFile(FileFlags fileFlags = FileFlags.None)
     {
         if (Header.FileIsOpen) return true;
+        isClosing = false;
         if (TimeSeriesMemoryMappedFile is not { IsOpen: true }) TimeSeriesMemoryMappedFile = new PagedMemoryMappedFile(FileName);
         var headerFileView = TimeSeriesMemoryMappedFile.CreateShiftableMemoryMappedFileView("header");
         Header.ReopenFileView(headerFileView, fileFlags);

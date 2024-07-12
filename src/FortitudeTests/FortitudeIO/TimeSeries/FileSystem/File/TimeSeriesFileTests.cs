@@ -55,8 +55,9 @@ public class TimeSeriesFileTests
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var instrumentFields = new Dictionary<string, string>
         {
-            { nameof(RepositoryPathName.SourceName), "TestSourceName" }, { nameof(RepositoryPathName.MarketType), "Unknown" }
-          , { nameof(RepositoryPathName.MarketProductType), "Unknown" }, { nameof(RepositoryPathName.MarketRegion), "Unknown" }
+            { nameof(RepositoryPathName.MarketType), "Unknown" }
+          , { nameof(RepositoryPathName.MarketProductType), "Unknown" }
+          , { nameof(RepositoryPathName.MarketRegion), "Unknown" }
         };
         var optionalInstrumentFields = new Dictionary<string, string>
         {
@@ -64,7 +65,8 @@ public class TimeSeriesFileTests
         };
         testTimeSeriesFileParameters =
             new TimeSeriesFileParameters
-                (timeSeriesFile, new Instrument("TestInstrumentName", Price, TimeSeriesPeriod.Tick, instrumentFields, optionalInstrumentFields),
+                (timeSeriesFile, new Instrument("TestInstrumentName", "TestSourceName", Price, TimeSeriesPeriod.Tick
+                                              , instrumentFields, optionalInstrumentFields),
                  TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
         oneWeekFile   = new TestWeeklyLevel1StructsTimeSeriesFile(testTimeSeriesFileParameters);
         writerSession = oneWeekFile.GetWriterSession()!;

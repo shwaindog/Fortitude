@@ -214,12 +214,12 @@ public static class PQQuoteConverterExtensions
         new(rule.CreateChannelFactory(receiveQuoteHandler, limitedRecycler), resultLimit, batchSize);
 
     public static HistoricalQuotesRequest<TQuoteLevel> ToHistoricalQuotesRequest<TQuoteLevel>
-        (this ChannelPublishRequest<TQuoteLevel> channelRequest, ISourceTickerId tickerId, UnboundedTimeRange timeRange)
+        (this ChannelPublishRequest<TQuoteLevel> channelRequest, SourceTickerId tickerId, UnboundedTimeRange timeRange)
         where TQuoteLevel : class, ITimeSeriesEntry<TQuoteLevel>, ILevel0Quote =>
         new(tickerId, channelRequest, timeRange);
 
 
-    public static QuoteLevel GetQuoteLevel<TQuoteLevel>() where TQuoteLevel : class, ILevel0Quote
+    public static QuoteLevel GetQuoteLevel<TQuoteLevel>() where TQuoteLevel : ILevel0Quote
     {
         var quoteLevelType = typeof(TQuoteLevel);
 

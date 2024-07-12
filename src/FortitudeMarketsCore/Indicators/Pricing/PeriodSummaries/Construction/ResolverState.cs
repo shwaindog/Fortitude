@@ -14,24 +14,22 @@ using FortitudeMarketsCore.Pricing.Summaries;
 
 namespace FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 
-public class ResolverState
+public class ResolverState(PricingInstrumentId pricingInstrumentId)
 {
-    public readonly IDoublyLinkedList<PricePeriodSummary> cacheLatest = new DoublyLinkedList<PricePeriodSummary>();
+    public readonly IDoublyLinkedList<PricePeriodSummary> Cache = new DoublyLinkedList<PricePeriodSummary>();
 
-    public readonly TimeSeriesPeriod period;
-    public readonly ISourceTickerId  tickerId;
+    public readonly PricingInstrumentId PricingInstrumentId = pricingInstrumentId;
 
-    public TimeSpan            cacheTimeSpan;
-    public BoundedTimeRange    existingSummariesHistoricalRange;
-    public InstrumentFileInfo? existingSummariesInfo;
-    public InstrumentFileInfo? quotesFileInfo;
-    public BoundedTimeRange    quotesHistoricalRange;
-    public InstrumentFileInfo? subPeriodFileInfo;
-    public BoundedTimeRange    subPeriodsHistoricalRange;
+    public TimeSpan            CacheTimeSpan;
+    public InstrumentFileInfo? ExistingRepoInfo;
+    public BoundedTimeRange    ExistingRepoRange;
+    public InstrumentFileInfo? QuotesRepoInfo;
+    public BoundedTimeRange    QuotesRepoRange;
+    public InstrumentFileInfo? SubPeriodRepoInfo;
+    public BoundedTimeRange    SubPeriodsRepoRange;
 
-    public ResolverState(ISourceTickerId tickerId, TimeSeriesPeriod period)
-    {
-        this.period   = period;
-        this.tickerId = tickerId;
-    }
+    public string Ticker => PricingInstrumentId.Ticker;
+    public string Source => PricingInstrumentId.Source;
+
+    public TimeSeriesPeriod Period => PricingInstrumentId.EntryPeriod;
 }

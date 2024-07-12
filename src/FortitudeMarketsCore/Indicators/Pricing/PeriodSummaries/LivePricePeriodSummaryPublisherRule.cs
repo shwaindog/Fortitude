@@ -27,20 +27,30 @@ namespace FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;
 
 public struct LivePublishPricePeriodSummaryParams
 {
-    public LivePublishPricePeriodSummaryParams(ISourceTickerId tickerId, TimeSeriesPeriod publishPeriod)
+    public LivePublishPricePeriodSummaryParams(PricingInstrumentId pricingInstrumentId)
     {
-        PublishPeriod = publishPeriod;
-        TickerId      = tickerId;
+        TickerId = pricingInstrumentId;
+        Period   = pricingInstrumentId.EntryPeriod;
 
         LivePublishInterval   = new PricePublishInterval(OneSecond);
         LivePublishParams     = new ResponsePublishParams();
         CompletePublishParams = new ResponsePublishParams();
     }
 
-    public LivePublishPricePeriodSummaryParams(ISourceTickerId tickerId, TimeSeriesPeriod publishPeriod, PricePublishInterval livePublishInterval)
+    public LivePublishPricePeriodSummaryParams(PricingInstrumentId pricingInstrumentId, PricePublishInterval livePublishInterval)
     {
-        PublishPeriod = publishPeriod;
-        TickerId      = tickerId;
+        TickerId = pricingInstrumentId;
+        Period   = pricingInstrumentId.EntryPeriod;
+
+        LivePublishInterval   = livePublishInterval;
+        LivePublishParams     = new ResponsePublishParams();
+        CompletePublishParams = new ResponsePublishParams();
+    }
+
+    public LivePublishPricePeriodSummaryParams(SourceTickerId sourceTickerId, TimeSeriesPeriod period, PricePublishInterval livePublishInterval)
+    {
+        TickerId = sourceTickerId;
+        Period   = period;
 
         LivePublishInterval   = livePublishInterval;
         LivePublishParams     = new ResponsePublishParams();
@@ -48,10 +58,10 @@ public struct LivePublishPricePeriodSummaryParams
     }
 
     public LivePublishPricePeriodSummaryParams
-        (ISourceTickerId tickerId, TimeSeriesPeriod publishPeriod, PricePublishInterval livePublishInterval, ResponsePublishParams livePublishParams)
+        (PricingInstrumentId pricingInstrumentId, PricePublishInterval livePublishInterval, ResponsePublishParams livePublishParams)
     {
-        PublishPeriod = publishPeriod;
-        TickerId      = tickerId;
+        TickerId = pricingInstrumentId;
+        Period   = pricingInstrumentId.EntryPeriod;
 
         LivePublishInterval   = livePublishInterval;
         LivePublishParams     = livePublishParams;
@@ -59,19 +69,19 @@ public struct LivePublishPricePeriodSummaryParams
     }
 
     public LivePublishPricePeriodSummaryParams
-    (ISourceTickerId tickerId, TimeSeriesPeriod publishPeriod, PricePublishInterval livePublishInterval
-      , ResponsePublishParams livePublishParams, ResponsePublishParams completePublishParams)
+    (SourceTickerId tickerId, TimeSeriesPeriod period, PricePublishInterval livePublishInterval
+      , ResponsePublishParams livePublishParams)
     {
-        PublishPeriod = publishPeriod;
-        TickerId      = tickerId;
+        TickerId = tickerId;
+        Period   = period;
 
         LivePublishInterval   = livePublishInterval;
         LivePublishParams     = livePublishParams;
-        CompletePublishParams = completePublishParams;
+        CompletePublishParams = new ResponsePublishParams();
     }
 
-    public ISourceTickerId       TickerId            { get; set; }
-    public TimeSeriesPeriod      PublishPeriod       { get; set; }
+    public SourceTickerId        TickerId            { get; set; }
+    public TimeSeriesPeriod      Period              { get; set; }
     public PricePublishInterval? LivePublishInterval { get; set; }
     public ResponsePublishParams LivePublishParams   { get; set; }
 
@@ -92,8 +102,9 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
 
     private readonly int logInterval;
 
-    private readonly TimeSeriesPeriod periodToPublish;
-    private readonly ISourceTickerId  tickerId;
+    private readonly TimeSeriesPeriod    periodToPublish;
+    private readonly PricingInstrumentId pricingInstrumentId;
+    private readonly SourceTickerId      tickerId;
 
     private List<ValueTask>? asyncSubPeriodExecutions = new();
 
@@ -109,21 +120,24 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
     public LivePricePeriodSummaryPublisherRule(LivePublishPricePeriodSummaryParams livePublishPricePeriodSummaryParams)
         : base(livePublishPricePeriodSummaryParams.TickerId
              , nameof(LivePricePeriodSummaryPublisherRule<TQuote>)
-             + $"_{livePublishPricePeriodSummaryParams.TickerId.Source}_{livePublishPricePeriodSummaryParams.TickerId.Source}" +
-               $"_{livePublishPricePeriodSummaryParams.PublishPeriod.ShortName()}")
+             + $"_{livePublishPricePeriodSummaryParams.TickerId.Source}_{livePublishPricePeriodSummaryParams.TickerId.Ticker}" +
+               $"_{livePublishPricePeriodSummaryParams.Period.ShortName()}")
     {
+        pricingInstrumentId = new PricingInstrumentId(livePublishPricePeriodSummaryParams.TickerId
+                                                    , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod
+                                                                                 , livePublishPricePeriodSummaryParams.Period));
         tickerId                  = livePublishPricePeriodSummaryParams.TickerId;
-        periodToPublish           = livePublishPricePeriodSummaryParams.PublishPeriod;
+        periodToPublish           = livePublishPricePeriodSummaryParams.Period;
         liveResponsePublishParams = livePublishPricePeriodSummaryParams.LivePublishParams;
         if (liveResponsePublishParams.ResponsePublishMethod == ResponsePublishMethod.ListenerDefaultBroadcastAddress)
-            liveResponsePublishParams.AlternativePublishAddress = tickerId.LivePeriodSummaryAddress(periodToPublish);
+            liveResponsePublishParams.AlternativePublishAddress = pricingInstrumentId.LivePeriodSummaryAddress();
         else if (liveResponsePublishParams.ResponsePublishMethod == ResponsePublishMethod.ReceiverChannel)
             if (liveResponsePublishParams.ChannelRequest!.Channel is not IChannel<IPricePeriodSummary>)
                 throw new Exception("Expected channel to be of type IPricePeriodSummary");
         completeResponsePublishParams = livePublishPricePeriodSummaryParams.CompletePublishParams;
 
         if (completeResponsePublishParams.ResponsePublishMethod == ResponsePublishMethod.ListenerDefaultBroadcastAddress)
-            completeResponsePublishParams.AlternativePublishAddress = tickerId.CompletePeriodSummaryAddress(periodToPublish);
+            completeResponsePublishParams.AlternativePublishAddress = pricingInstrumentId.CompletePeriodSummaryAddress();
         else if (completeResponsePublishParams.ResponsePublishMethod == ResponsePublishMethod.ReceiverChannel)
             if (completeResponsePublishParams.ChannelRequest!.Channel is not IChannel<IPricePeriodSummary>)
                 throw new Exception("Expected channel to be of type IPricePeriodSummary");

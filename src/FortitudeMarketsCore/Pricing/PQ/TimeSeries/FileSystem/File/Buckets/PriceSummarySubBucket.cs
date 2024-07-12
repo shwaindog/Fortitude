@@ -7,7 +7,7 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Summaries;
 
 #endregion
@@ -24,8 +24,8 @@ public abstract class PriceSummarySubBucket<TBucket, TSubBucket, TEntry> : SubBu
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
-    protected override IBucketFactory<TSubBucket> SubBucketFactory => SubBucketFac ??= new PriceBucketFactory<TSubBucket>(SourceTickerQuoteInfo);
+    protected override IBucketFactory<TSubBucket> SubBucketFactory => SubBucketFac ??= new PriceBucketFactory<TSubBucket>(PricingInstrumentId);
 
 
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; } = null!;
+    public IPricingInstrumentId PricingInstrumentId { get; set; } = null!;
 }

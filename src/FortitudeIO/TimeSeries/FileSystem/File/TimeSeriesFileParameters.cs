@@ -10,7 +10,8 @@ public interface IDirectoryFileNameResolver
 
 public struct TimeSeriesFileParameters
 {
-    public TimeSeriesFileParameters(FileInfo timeSeriesFileInfo, IInstrument instrument,
+    public TimeSeriesFileParameters
+    (FileInfo timeSeriesFileInfo, IInstrument instrument,
         TimeSeriesPeriod filePeriod, DateTime fileStartPeriod, uint internalIndexSize = 0,
         FileFlags initialFileFlags = FileFlags.None, int initialFileSize = ushort.MaxValue * 2, ushort maxStringSizeBytes = byte.MaxValue
       , ushort maxTypeStringSizeBytes = 512)
@@ -70,9 +71,9 @@ public static class CreateFileParametersExtensions
 
     public static TimeSeriesFileParameters AssertTimeSeriesEntryType(this TimeSeriesFileParameters input, InstrumentType instrumentType)
     {
-        if (input.Instrument.Type != instrumentType)
+        if (input.Instrument.InstrumentType != instrumentType)
             throw new Exception($"Expected TimeSeriesFileParameters.TimeSeriesType to be of " +
-                                $"type {instrumentType} but it was {input.Instrument.Type}");
+                                $"type {instrumentType} but it was {input.Instrument.InstrumentType}");
         return input;
     }
 

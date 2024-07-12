@@ -28,8 +28,9 @@ namespace FortitudeTests.FortitudeMarketsCore.Indicators.Persistence;
 [TestClass]
 public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
-    private const           string   TestEntriesToPersistAddress = "TestEntriesToPersistAddress";
-    private static readonly IFLogger Logger                      = FLoggerFactory.Instance.GetLogger(typeof(PriceSummarizingFilePersisterRuleTests));
+    private const string TestEntriesToPersistAddress = "TestEntriesToPersistAddress";
+
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PriceSummarizingFilePersisterRuleTests));
 
     private decimal highLowSpread;
     private decimal mid1;

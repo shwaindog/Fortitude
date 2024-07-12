@@ -15,13 +15,13 @@ public enum RepositoryPathName
   , Day
   , Hour
   , InstrumentName
+  , InstrumentSource
+  , InstrumentType
+  , EntryPeriod
   , MarketType
   , MarketProductType
   , MarketRegion
   , Category
   , FilePeriod
   , DirectoryStartDate
-  , EntryPeriod
-  , SourceName
-  , TimeSeriesType
 }

@@ -3,14 +3,10 @@
 
 #region
 
-using System.Collections;
 using System.Globalization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
-using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeMarketsApi.Configuration.ClientServerConfig;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -19,15 +15,8 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ISourceTickerQuoteInfo : ISourceTickerId, IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage, IInstrument
+public interface ISourceTickerQuoteInfo : IPricingInstrumentId, IInterfacesComparable<ISourceTickerQuoteInfo>, IVersionedMessage
 {
-    new ushort SourceId { get; set; }
-    new ushort TickerId { get; set; }
-    new string Source   { get; set; }
-    new string Ticker   { get; set; }
-
-    MarketClassification MarketClassification { get; set; }
-
     QuoteLevel PublishedQuoteLevel { get; set; }
 
     decimal    RoundingPrecision      { get; set; }
@@ -46,22 +35,22 @@ public interface ISourceTickerQuoteInfo : ISourceTickerId, IInterfacesComparable
     new ISourceTickerQuoteInfo Clone();
 }
 
-public class SourceTickerQuoteInfo : SourceTickerIdentifier, ISourceTickerQuoteInfo
+public class SourceTickerQuoteInfo : PricingInstrument, ISourceTickerQuoteInfo, ICloneable<SourceTickerQuoteInfo>
 {
-    private string? category;
-
-    private TimeSeriesPeriod? entryPeriod;
-
-    private string?   formatPrice;
-    private string[]? optionalKeys;
-    private string[]? requiredKeys;
-
-    private InstrumentType? timeSeriesType;
+    private string? formatPrice;
 
     public SourceTickerQuoteInfo()
     {
-        Source = null!;
-        Ticker = null!;
+        PublishedQuoteLevel    = QuoteLevel.Level1;
+        MarketClassification   = MarketClassificationExtensions.Unknown;
+        RoundingPrecision      = 0.00001m;
+        MaximumPublishedLayers = 1;
+        MinSubmitSize          = 0.01m;
+        MaxSubmitSize          = 1_000_000m;
+        IncrementSize          = 0.01m;
+        MinimumQuoteLife       = 100;
+        LayerFlags             = LayerFlags.None;
+        LastTradedFlags        = LastTradedFlags.None;
     }
 
     public SourceTickerQuoteInfo(ISourceTickerId sourceTickerId)
@@ -102,17 +91,42 @@ public class SourceTickerQuoteInfo : SourceTickerIdentifier, ISourceTickerQuoteI
         LastTradedFlags        = LastTradedFlags.None;
     }
 
-    public SourceTickerQuoteInfo(PricingInstrumentId pricingInstrumentId)
+    public SourceTickerQuoteInfo(IPricingInstrumentId pricingInstrumentId, QuoteLevel quoteLevel = QuoteLevel.Level1)
     {
-        SourceId    = pricingInstrumentId.SourceId;
-        TickerId    = pricingInstrumentId.TickerId;
-        Source      = pricingInstrumentId.Source;
-        Ticker      = pricingInstrumentId.Ticker;
-        Type        = pricingInstrumentId.InstrumentType;
-        EntryPeriod = pricingInstrumentId.Period;
+        SourceId       = pricingInstrumentId.SourceId;
+        TickerId       = pricingInstrumentId.TickerId;
+        Source         = pricingInstrumentId.Source;
+        Ticker         = pricingInstrumentId.Ticker;
+        InstrumentType = pricingInstrumentId.InstrumentType;
+        EntryPeriod    = pricingInstrumentId.EntryPeriod;
+        Category       = pricingInstrumentId.Category;
 
-        PublishedQuoteLevel    = QuoteLevel.Level1;
-        MarketClassification   = MarketClassificationExtensions.Unknown;
+        MarketClassification = pricingInstrumentId.MarketClassification;
+
+        PublishedQuoteLevel    = quoteLevel;
+        RoundingPrecision      = 0.00001m;
+        MaximumPublishedLayers = 1;
+        MinSubmitSize          = 0.01m;
+        MaxSubmitSize          = 1_000_000m;
+        IncrementSize          = 0.01m;
+        MinimumQuoteLife       = 100;
+        LayerFlags             = LayerFlags.None;
+        LastTradedFlags        = LastTradedFlags.None;
+    }
+
+    public SourceTickerQuoteInfo(PricingInstrumentId pricingInstrumentId, QuoteLevel quoteLevel = QuoteLevel.Level1)
+    {
+        SourceId       = pricingInstrumentId.SourceId;
+        TickerId       = pricingInstrumentId.TickerId;
+        Source         = pricingInstrumentId.Source;
+        Ticker         = pricingInstrumentId.Ticker;
+        InstrumentType = pricingInstrumentId.InstrumentType;
+        EntryPeriod    = pricingInstrumentId.EntryPeriod;
+        Category       = pricingInstrumentId.Category;
+
+        MarketClassification = pricingInstrumentId.MarketClassification;
+
+        PublishedQuoteLevel    = quoteLevel;
         RoundingPrecision      = 0.00001m;
         MaximumPublishedLayers = 1;
         MinSubmitSize          = 0.01m;
@@ -172,19 +186,15 @@ public class SourceTickerQuoteInfo : SourceTickerIdentifier, ISourceTickerQuoteI
         foreach (var instrumentFields in toClone) this[instrumentFields.Key] = instrumentFields.Value;
     }
 
-    public string? Category
-    {
-        get => category ?? PublishedQuoteLevel.ToString();
-        set => category = value;
-    }
+    public override SourceTickerQuoteInfo Clone() =>
+        Recycler?.Borrow<SourceTickerQuoteInfo>()?.CopyFrom(this) as SourceTickerQuoteInfo ?? new SourceTickerQuoteInfo((ISourceTickerQuoteInfo)this);
 
     object ICloneable.Clone() => Clone();
 
     public uint MessageId => Id;
     public byte Version   => 1;
 
-    public QuoteLevel           PublishedQuoteLevel  { get; set; }
-    public MarketClassification MarketClassification { get; set; }
+    public QuoteLevel PublishedQuoteLevel { get; set; }
 
     public byte       MaximumPublishedLayers { get; set; }
     public decimal    RoundingPrecision      { get; set; }
@@ -196,92 +206,6 @@ public class SourceTickerQuoteInfo : SourceTickerIdentifier, ISourceTickerQuoteI
 
     public LastTradedFlags LastTradedFlags { get; set; }
 
-    string IInstrument.InstrumentName => Ticker;
-
-    public TimeSeriesPeriod EntryPeriod
-    {
-        get => entryPeriod ?? TimeSeriesPeriod.Tick;
-        set => entryPeriod = value;
-    }
-    public InstrumentType Type
-    {
-        get => timeSeriesType ?? InstrumentType.Price;
-        set => timeSeriesType = value;
-    }
-
-    public string? this[string key]
-    {
-        get
-        {
-            switch (key)
-            {
-                case nameof(RepositoryPathName.MarketType):        return MarketClassification.MarketType.ToString();
-                case nameof(RepositoryPathName.MarketProductType): return MarketClassification.ProductType.ToString();
-                case nameof(RepositoryPathName.MarketRegion):      return MarketClassification.MarketRegion.ToString();
-                case nameof(RepositoryPathName.SourceName):        return Source;
-                case nameof(RepositoryPathName.Category):          return Category ?? PublishedQuoteLevel.ToString();
-            }
-            return null;
-        }
-        set
-        {
-            switch (key)
-            {
-                case nameof(RepositoryPathName.MarketType):
-                    if (Enum.TryParse<MarketType>(value, true, out var marketType))
-                        if (MarketClassification.MarketType == MarketType.Unknown)
-                            MarketClassification = MarketClassification.SetMarketType(marketType);
-                    break;
-                case nameof(RepositoryPathName.MarketProductType):
-                    if (Enum.TryParse<ProductType>(value, true, out var productType))
-                        if (MarketClassification.ProductType == ProductType.Unknown)
-                            MarketClassification = MarketClassification.SetProductType(productType);
-                    break;
-                case nameof(RepositoryPathName.MarketRegion):
-                    if (Enum.TryParse<MarketRegion>(value, true, out var marketRegion))
-                        if (MarketClassification.MarketRegion == MarketRegion.Unknown)
-                            MarketClassification = MarketClassification.SetMarketRegion(marketRegion);
-                    break;
-                case nameof(RepositoryPathName.SourceName):
-                    if (Source.IsNullOrEmpty()) Source = value ?? "";
-                    break;
-                case nameof(RepositoryPathName.Category):
-                    if (Category.IsNullOrEmpty()) Category = value ?? "";
-                    break;
-            }
-        }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
-    {
-        if (Source.IsNotNullOrEmpty()) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.SourceName), Source);
-        if (category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), category);
-        if (MarketClassification.MarketType != MarketType.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
-        if (MarketClassification.ProductType != ProductType.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
-        if (MarketClassification.MarketRegion != MarketRegion.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
-    }
-
-    public IEnumerable<string> RequiredInstrumentKeys
-    {
-        get => requiredKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiRequiredInstrumentKeys;
-        set => requiredKeys = value.ToArray();
-    }
-
-    public IEnumerable<string> OptionalInstrumentKeys
-    {
-        get => optionalKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiOptionalInstrumentKeys;
-        set => optionalKeys = value.ToArray();
-    }
-
-    public bool HasAllRequiredKeys =>
-        Source.IsNotNullOrEmpty() && MarketClassification.MarketType != MarketType.Unknown
-                                  && MarketClassification.ProductType != ProductType.Unknown &&
-                                     MarketClassification.MarketRegion != MarketRegion.Unknown;
 
     public string FormatPrice =>
         formatPrice ??= RoundingPrecision
@@ -331,8 +255,8 @@ public class SourceTickerQuoteInfo : SourceTickerIdentifier, ISourceTickerQuoteI
 
     IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
 
-    public override ISourceTickerQuoteInfo Clone() =>
-        Recycler?.Borrow<SourceTickerQuoteInfo>()?.CopyFrom(this) ?? new SourceTickerQuoteInfo((ISourceTickerQuoteInfo)this);
+    IPricingInstrumentId IPricingInstrumentId.    Clone() => Clone();
+    ISourceTickerQuoteInfo ISourceTickerQuoteInfo.Clone() => Clone();
 
     ISourceTickerId IStoreState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
     {
@@ -405,4 +329,10 @@ public class SourceTickerQuoteInfo : SourceTickerIdentifier, ISourceTickerQuoteI
         $"{nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, " +
         $"{nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, {nameof(LayerFlags)}: {LayerFlags:F}, " +
         $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags} }}";
+
+
+    public static implicit operator PricingInstrumentId(SourceTickerQuoteInfo sourceTickerId) =>
+        new(sourceTickerId, sourceTickerId.EntryPeriod, sourceTickerId.InstrumentType);
+
+    public static implicit operator SourceTickerId(SourceTickerQuoteInfo sourceTickerId) => new(sourceTickerId);
 }

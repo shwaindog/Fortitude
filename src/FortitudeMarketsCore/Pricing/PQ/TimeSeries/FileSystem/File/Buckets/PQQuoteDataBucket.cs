@@ -11,6 +11,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
@@ -43,7 +44,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         {
             if (messageDeserializer == null)
             {
-                var srcTkrQtInfo = SourceTickerQuoteInfo;
+                var srcTkrQtInfo = PricingInstrumentId as ISourceTickerQuoteInfo ?? new SourceTickerQuoteInfo(PricingInstrumentId);
                 messageDeserializer = new PQQuoteStorageDeserializer<TSerializeType>(srcTkrQtInfo);
             }
 
@@ -57,7 +58,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
     public PQQuoteSerializer RepeatedEntryMessageSerializer =>
         repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorageIncludeReceiverTimes);
 
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; } = null!;
+    public IPricingInstrumentId PricingInstrumentId { get; set; } = null!;
 
     public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext)
     {
@@ -73,8 +74,8 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
     {
         var pqContext = entryContext as IPQQuoteAppendContext<TEntry, TSerializeType>;
         var entry     = entryContext.CurrentEntry;
-        if (entry!.SourceTickerQuoteInfo!.SourceId != SourceTickerQuoteInfo.SourceId
-         || entry.SourceTickerQuoteInfo.TickerId != SourceTickerQuoteInfo.TickerId || pqContext == null)
+        if (entry!.SourceTickerQuoteInfo!.SourceId != PricingInstrumentId.SourceId
+         || entry.SourceTickerQuoteInfo.TickerId != PricingInstrumentId.TickerId || pqContext == null)
             return new AppendResult(StorageAttemptResult.EntryNotCompatible);
 
         bufferContext ??= new MessageBufferContext(writeBuffer);

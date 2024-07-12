@@ -78,8 +78,9 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var instrumentFields = new Dictionary<string, string>
         {
-            { nameof(RepositoryPathName.SourceName), "TestSourceName" }, { nameof(RepositoryPathName.MarketType), "Unknown" }
-          , { nameof(RepositoryPathName.MarketProductType), "Unknown" }, { nameof(RepositoryPathName.MarketRegion), "Unknown" }
+            { nameof(RepositoryPathName.MarketType), "Unknown" }
+          , { nameof(RepositoryPathName.MarketProductType), "Unknown" }
+          , { nameof(RepositoryPathName.MarketRegion), "Unknown" }
         };
         var optionalInstrumentFields = new Dictionary<string, string>
         {
@@ -88,7 +89,8 @@ public class WeeklyLevel0QuoteTimeSeriesFileTests
         var createTestCreateFileParameters =
             new TimeSeriesFileParameters
                 (timeSeriesFile
-               , new Instrument("TestInstrumentName", InstrumentType.Price, TimeSeriesPeriod.Tick, instrumentFields, optionalInstrumentFields),
+               , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, TimeSeriesPeriod.Tick, instrumentFields
+                              , optionalInstrumentFields),
                  TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
         var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level0SrcTkrQtInfo, createTestCreateFileParameters);
         level0OneWeekFile   = new WeeklyLevel0QuoteTimeSeriesFile(createPriceQuoteFile);

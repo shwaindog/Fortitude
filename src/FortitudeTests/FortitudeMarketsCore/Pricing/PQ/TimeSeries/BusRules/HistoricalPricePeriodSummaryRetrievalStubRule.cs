@@ -26,14 +26,14 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
     private ISubscription? requestResponseSubscription;
     private ISubscription? requestStreamSubscription;
 
-    private Func<ISourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
+    private Func<SourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
 
     public HistoricalPricePeriodSummaryRetrievalStubRule
-        (Func<ISourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
+        (Func<SourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
         : base(nameof(HistoricalPricePeriodSummaryRetrievalStubRule)) =>
         summariesCallback = stubRetrieveSummariesCallback;
 
-    public Func<ISourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
+    public Func<SourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
     {
         get => summariesCallback;
         set => summariesCallback = value ?? throw new ArgumentNullException(nameof(value));

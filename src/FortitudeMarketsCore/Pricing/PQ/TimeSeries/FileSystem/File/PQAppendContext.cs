@@ -6,10 +6,10 @@
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
 
 #endregion
@@ -42,8 +42,8 @@ public class PQPricePeriodSummaryAppendContext<TEntry, TBucket> : AppendContext<
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     public PQPricePeriodSummaryAppendContext
-        (ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-        SerializeEntry = new PQPriceStoragePeriodSummary(new PQSourceTickerQuoteInfo(sourceTickerQuoteInfo));
+        (IPricingInstrumentId pricingInstrumentId) =>
+        SerializeEntry = new PQPriceStoragePeriodSummary();
 
     public IPQPriceStoragePeriodSummary SerializeEntry { get; }
 }
