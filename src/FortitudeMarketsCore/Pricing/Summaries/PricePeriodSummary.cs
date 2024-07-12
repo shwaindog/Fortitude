@@ -35,7 +35,7 @@ public struct Candle
 }
 
 public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutablePricePeriodSummary, ITimeSeriesEntry<PricePeriodSummary>
-  , IDoublyLinkedListNode<PricePeriodSummary>
+  , IDoublyLinkedListNode<PricePeriodSummary>, ICloneable<PricePeriodSummary>
 {
     public PricePeriodSummary()
     {
@@ -95,8 +95,34 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
     }
 
-    public PricePeriodSummary? Previous { get; set; }
-    public PricePeriodSummary? Next     { get; set; }
+    public override PricePeriodSummary Clone() =>
+        Recycler?.Borrow<PricePeriodSummary>().CopyFrom(this) as PricePeriodSummary ?? new PricePeriodSummary(this);
+
+    public PricePeriodSummary? Previous
+    {
+        get => ((IPricePeriodSummary)this).Previous as PricePeriodSummary;
+        set => ((IPricePeriodSummary)this).Previous = value;
+    }
+
+    public PricePeriodSummary? Next
+    {
+        get => ((IPricePeriodSummary)this).Next as PricePeriodSummary;
+        set => ((IPricePeriodSummary)this).Next = value;
+    }
+
+    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous
+    {
+        get => ((IPricePeriodSummary)this).Previous;
+        set => ((IPricePeriodSummary)this).Previous = value;
+    }
+    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next
+    {
+        get => ((IPricePeriodSummary)this).Next;
+        set => ((IPricePeriodSummary)this).Next = value;
+    }
+
+    IPricePeriodSummary? IPricePeriodSummary.Previous { get; set; }
+    IPricePeriodSummary? IPricePeriodSummary.Next     { get; set; }
 
     public bool IsEmpty
     {
@@ -182,9 +208,6 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous { get; set; }
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next     { get; set; }
-
     object ICloneable.Clone() => Clone();
 
     IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
@@ -221,18 +244,12 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
 
     public override void StateReset()
     {
-        ((IPricePeriodSummary)this).Next     = null;
-        ((IPricePeriodSummary)this).Previous = null;
-
         Next    = Previous = null;
         IsEmpty = true;
         base.StateReset();
     }
 
     public DateTime StorageTime(IStorageTimeResolver<PricePeriodSummary>? resolver = null) => PeriodEndTime;
-
-    public override PricePeriodSummary Clone() =>
-        Recycler?.Borrow<PricePeriodSummary>().CopyFrom(this) as PricePeriodSummary ?? new PricePeriodSummary(this);
 
     public void Configure
     (TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,

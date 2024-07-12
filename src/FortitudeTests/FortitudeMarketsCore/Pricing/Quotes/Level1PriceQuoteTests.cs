@@ -230,7 +230,7 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void FromInterfacePopulatedNameLookupId_Cloned_ReturnsNewIdenticalCopy()
     {
-        var clone = fullyPopulatedLevel1Quote.Clone();
+        IMutableLevel0Quote clone = fullyPopulatedLevel1Quote.Clone();
         Assert.AreNotSame(clone, fullyPopulatedLevel1Quote);
         Assert.AreEqual(fullyPopulatedLevel1Quote, clone);
         clone = (IMutableLevel0Quote)((ICloneable<ILevel0Quote>)fullyPopulatedLevel1Quote).Clone();

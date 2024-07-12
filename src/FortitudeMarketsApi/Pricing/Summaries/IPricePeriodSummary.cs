@@ -28,6 +28,9 @@ public interface IPricePeriodSummary : IInterfacesComparable<IPricePeriodSummary
     long       PeriodVolume  { get; }
     BidAskPair AverageBidAsk { get; }
 
+    new IPricePeriodSummary? Next     { get; set; }
+    new IPricePeriodSummary? Previous { get; set; }
+
     double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler);
     bool   IsWhollyBoundedBy(ITimeSeriesPeriodRange parentRange);
 }

@@ -50,6 +50,7 @@ public interface IPQPricePeriodSummary : IMutablePricePeriodSummary, IPQSupports
 }
 
 public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPricePeriodSummary, ITimeSeriesEntry<PQPricePeriodSummary>
+  , ICloneable<PQPricePeriodSummary>
 {
     private decimal  averageAskPrice;
     private decimal  averageBidPrice;
@@ -93,6 +94,9 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         AverageBidPrice    = toClone.AverageBidAsk.BidPrice;
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
     }
+
+    public override PQPricePeriodSummary Clone() =>
+        Recycler?.Borrow<PQPricePeriodSummary>().CopyFrom(this) as PQPricePeriodSummary ?? new PQPricePeriodSummary(this);
 
     public TimeSeriesPeriod TimeSeriesPeriod
     {
@@ -550,11 +554,32 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous { get; set; }
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next     { get; set; }
+    public IPQPricePeriodSummary? Previous
+    {
+        get => ((IPricePeriodSummary)this).Previous as IPQPricePeriodSummary;
+        set => ((IPricePeriodSummary)this).Previous = value;
+    }
 
-    public IPQPricePeriodSummary? Previous { get; set; }
-    public IPQPricePeriodSummary? Next     { get; set; }
+    public IPQPricePeriodSummary? Next
+    {
+        get => ((IPricePeriodSummary)this).Next as IPQPricePeriodSummary;
+        set => ((IPricePeriodSummary)this).Next = value;
+    }
+
+    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous
+    {
+        get => ((IPricePeriodSummary)this).Previous;
+        set => ((IPricePeriodSummary)this).Previous = value;
+    }
+
+    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next
+    {
+        get => ((IPricePeriodSummary)this).Next;
+        set => ((IPricePeriodSummary)this).Next = value;
+    }
+
+    IPricePeriodSummary? IPricePeriodSummary.Previous { get; set; }
+    IPricePeriodSummary? IPricePeriodSummary.Next     { get; set; }
 
     public bool HasUpdates
     {
@@ -762,10 +787,9 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
 
     IStoreState IStoreState.CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
-    IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() =>
-        Recycler?.Borrow<PQPricePeriodSummary>().CopyFrom(this) as IMutablePricePeriodSummary ?? new PQPricePeriodSummary(this);
+    IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() => Clone();
 
-    public override IPQPricePeriodSummary Clone() => Recycler?.Borrow<PQPricePeriodSummary>().CopyFrom(this) ?? new PQPricePeriodSummary(this);
+    IPQPricePeriodSummary IPQPricePeriodSummary.Clone() => Clone();
 
     object ICloneable.Clone() => Clone();
 
@@ -773,9 +797,6 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
 
     public override void StateReset()
     {
-        ((IDoublyLinkedListNode<IPricePeriodSummary>)this).Next     = null;
-        ((IDoublyLinkedListNode<IPricePeriodSummary>)this).Previous = null;
-
         Next       = Previous = null;
         IsEmpty    = true;
         HasUpdates = false;

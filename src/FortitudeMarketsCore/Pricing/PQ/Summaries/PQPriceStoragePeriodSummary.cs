@@ -83,7 +83,7 @@ public interface IPQPriceStoragePeriodSummary : IMutablePricePeriodSummary, ITra
 }
 
 public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPriceStoragePeriodSummary
-  , ITimeSeriesEntry<PQPriceStoragePeriodSummary>
+  , ITimeSeriesEntry<PQPriceStoragePeriodSummary>, ICloneable<PQPriceStoragePeriodSummary>
 {
     private decimal                 averageAskPrice;
     private decimal                 averageBidPrice;
@@ -133,6 +133,9 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         AverageBidPrice    = toClone.AverageBidPrice;
         AverageAskPrice    = toClone.AverageBidPrice;
     }
+
+    public override PQPriceStoragePeriodSummary Clone() =>
+        Recycler?.Borrow<PQPriceStoragePeriodSummary>().CopyFrom(this) as PQPriceStoragePeriodSummary ?? new PQPriceStoragePeriodSummary(this);
 
     public PQPriceStorageSummaryFlags SummaryStorageFlags { get; private set; }
 
@@ -609,8 +612,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 
-    public override IPQPriceStoragePeriodSummary Clone() =>
-        Recycler?.Borrow<PQPriceStoragePeriodSummary>().CopyFrom(this) ?? new PQPriceStoragePeriodSummary(this);
+    IPQPriceStoragePeriodSummary IPQPriceStoragePeriodSummary.Clone() => Clone();
 
     object ICloneable.Clone() => Clone();
 

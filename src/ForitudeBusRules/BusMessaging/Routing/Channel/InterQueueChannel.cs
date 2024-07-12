@@ -7,6 +7,7 @@ using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
@@ -84,7 +85,10 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
         bool sendMore;
         if (ReceiverIsSameQueueAs(sender))
         {
-            sendMore = await CallReceiver(new ChannelEvent<TEvent>(Id, toPublish, NexMsgNum));
+            if (toPublish is IDoublyLinkedListNode and ICloneable<TEvent> cloneable)
+                sendMore = await CallReceiver(new ChannelEvent<TEvent>(Id, cloneable.Clone(), NexMsgNum));
+            else
+                sendMore = await CallReceiver(new ChannelEvent<TEvent>(Id, toPublish, NexMsgNum));
         }
         else
         {

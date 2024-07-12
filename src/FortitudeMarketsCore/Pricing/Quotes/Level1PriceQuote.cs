@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
@@ -16,7 +17,8 @@ using FortitudeMarketsCore.Pricing.Summaries;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeriesEntry<Level1PriceQuote>
+public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeriesEntry<Level1PriceQuote>, ICloneable<Level1PriceQuote>
+  , IDoublyLinkedListNode<Level1PriceQuote>
 {
     public Level1PriceQuote() { }
 
@@ -64,6 +66,43 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeri
                 AskPriceTop = lvl1Quote.AskPriceTop;
             }
         }
+    }
+
+    public override Level1PriceQuote Clone() => Recycler?.Borrow<Level1PriceQuote>().CopyFrom(this) as Level1PriceQuote ?? new Level1PriceQuote(this);
+
+    public new Level1PriceQuote? Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as Level1PriceQuote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+    public new Level1PriceQuote? Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as Level1PriceQuote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel1Quote? ILevel1Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel1Quote? ILevel1Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel1Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
     }
 
     public override QuoteLevel QuoteLevel          => QuoteLevel.Level1;
@@ -124,14 +163,11 @@ public class Level1PriceQuote : Level0PriceQuote, IMutableLevel1Quote, ITimeSeri
         return this;
     }
 
-    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => (ILevel1Quote)Clone();
+    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
 
-    ILevel1Quote ILevel1Quote.Clone() => (ILevel1Quote)Clone();
+    ILevel1Quote ILevel1Quote.Clone() => Clone();
 
-    IMutableLevel1Quote IMutableLevel1Quote.Clone() => (IMutableLevel1Quote)Clone();
-
-    public override IMutableLevel0Quote Clone() =>
-        (IMutableLevel0Quote?)Recycler?.Borrow<Level1PriceQuote>().CopyFrom(this) ?? new Level1PriceQuote(this);
+    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

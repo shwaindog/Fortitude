@@ -16,7 +16,7 @@ using FortitudeMarketsApi.Pricing.Summaries;
 
 namespace FortitudeMarketsCore.Pricing.Summaries;
 
-public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPricePeriodSummary
+public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPricePeriodSummary, ICloneable<QuoteWrappingPricePeriodSummary>
 {
     private ILevel1Quote? level1Quote;
 
@@ -25,6 +25,10 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
     public QuoteWrappingPricePeriodSummary(ILevel1Quote level1Quote) => this.level1Quote = level1Quote;
     public QuoteWrappingPricePeriodSummary(QuoteWrappingPricePeriodSummary toClone) => level1Quote = toClone.level1Quote;
 
+    public override QuoteWrappingPricePeriodSummary Clone() =>
+        Recycler?.Borrow<QuoteWrappingPricePeriodSummary>().CopyFrom(this) as QuoteWrappingPricePeriodSummary ??
+        new QuoteWrappingPricePeriodSummary(this);
+
     public override IPricePeriodSummary CopyFrom
         (IPricePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -32,8 +36,7 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
         return this;
     }
 
-    public override IPricePeriodSummary Clone() =>
-        Recycler?.Borrow<QuoteWrappingPricePeriodSummary>().CopyFrom(this) ?? new QuoteWrappingPricePeriodSummary(this);
+    IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {
@@ -96,7 +99,7 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
     {
         if (level1Quote == null) return 0;
 
-        return ToBoundedTimeRange().ContributingPercentageOfTimeRange(timeRange);
+        return ToBoundedTimeRange(timeRange.ToTime).ContributingPercentageOfTimeRange(timeRange);
     }
 
     public override void StateReset()

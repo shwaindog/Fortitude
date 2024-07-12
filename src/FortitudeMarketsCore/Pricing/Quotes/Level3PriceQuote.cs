@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -17,7 +18,8 @@ using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeriesEntry<Level3PriceQuote>
+public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeriesEntry<Level3PriceQuote>, ICloneable<Level3PriceQuote>
+  , IDoublyLinkedListNode<Level3PriceQuote>
 {
     public Level3PriceQuote() { }
 
@@ -57,6 +59,43 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeri
         }
     }
 
+    public override Level3PriceQuote Clone() => Recycler?.Borrow<Level3PriceQuote>().CopyFrom(this) as Level3PriceQuote ?? new Level3PriceQuote(this);
+
+    public new Level3PriceQuote? Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as Level3PriceQuote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+    public new Level3PriceQuote? Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as Level3PriceQuote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel3Quote? ILevel3Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel3Quote? ILevel3Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
+    ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+    }
+
+    ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+    }
+
     public override QuoteLevel QuoteLevel => QuoteLevel.Level3;
 
     public IMutableRecentlyTraded? RecentlyTraded { get; set; }
@@ -68,7 +107,6 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeri
 
     public DateTime ValueDate { get; set; } = DateTimeConstants.UnixEpoch;
 
-    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => (ILevel3Quote)Clone();
 
     DateTime ITimeSeriesEntry<ILevel3Quote>.StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver) => StorageTime(resolver);
 
@@ -98,12 +136,11 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeri
         return this;
     }
 
-    ILevel3Quote ILevel3Quote.Clone() => (ILevel3Quote)Clone();
+    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => Clone();
 
-    IMutableLevel3Quote IMutableLevel3Quote.Clone() => (IMutableLevel3Quote)Clone();
+    ILevel3Quote ILevel3Quote.Clone() => Clone();
 
-    public override IMutableLevel0Quote Clone() =>
-        (IMutableLevel0Quote?)Recycler?.Borrow<Level3PriceQuote>().CopyFrom(this) ?? new Level3PriceQuote(this);
+    IMutableLevel3Quote IMutableLevel3Quote.Clone() => Clone();
 
     public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
     {

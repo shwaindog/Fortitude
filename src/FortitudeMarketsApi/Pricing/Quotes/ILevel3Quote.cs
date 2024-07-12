@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
@@ -11,13 +12,16 @@ using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>, ITimeSeriesEntry<ILevel3Quote>
+public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>, ITimeSeriesEntry<ILevel3Quote>, IDoublyLinkedListNode<ILevel3Quote>
 {
     IRecentlyTraded? RecentlyTraded { get; }
 
     uint     BatchId              { get; }
     uint     SourceQuoteReference { get; }
     DateTime ValueDate            { get; }
+
+    new ILevel3Quote? Next     { get; set; }
+    new ILevel3Quote? Previous { get; set; }
 
     new ILevel3Quote Clone();
 }

@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
@@ -803,6 +804,16 @@ public class PQLevel1QuoteTests
         IPQLevel1Quote IPQLevel1Quote.          Clone() => this;
         ILevel1Quote ILevel1Quote.              Clone() => this;
         ILevel1Quote ICloneable<ILevel1Quote>.  Clone() => this;
+
+        ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.    Previous { get; set; }
+        ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.    Next     { get; set; }
+        IPQLevel1Quote? IDoublyLinkedListNode<IPQLevel1Quote>.Previous { get; set; }
+        IPQLevel1Quote? IDoublyLinkedListNode<IPQLevel1Quote>.Next     { get; set; }
+
+        ILevel1Quote? ILevel1Quote.    Next     { get; set; }
+        ILevel1Quote? ILevel1Quote.    Previous { get; set; }
+        IPQLevel1Quote? IPQLevel1Quote.Next     { get; set; }
+        IPQLevel1Quote? IPQLevel1Quote.Previous { get; set; }
 
         public DateTime StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver = null)
         {

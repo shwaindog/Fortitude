@@ -60,8 +60,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
     private LivePublishPricePeriodSummaryParams fiveSecondsLivePeriodParams;
 
-    private decimal  highLowSpread;
-    private DateTime historicalQuotesStartTime;
+    private decimal highLowSpread;
 
     private IndicatorServiceRegistryStubRule indicatorRegistryStubRule = null!;
 
@@ -186,7 +185,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
 
         var progressTime = stubTimeContext.ProgressTimeWithoutEvents;
-        await test5SLivePeriodClient.SendPricesToLivePeriodRule(oneSecondLevel1Quotes.Take(11).ToList(), progressTime);
+        await test5SLivePeriodClient.SendPricesToLivePeriodRule(oneSecondLevel1Quotes.Take(12).ToList(), progressTime);
 
         var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults();
         Assert.AreEqual(1, receivedCompletePeriods.Count);
@@ -238,7 +237,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             var quote = quotesToSend[i];
             test5SLivePeriodClient.CreateNewWait();
             await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
-            var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i);
+            var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count, $"For Loop {i} ");
         }
         await stubTimeContext.AddSecondsAsync(2);
@@ -249,7 +248,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     [TestMethod]
     public async Task NewLivePeriodSummary_RequestsSubPeriodReturnsWithinSamePeriod_PublishesQuotesToNextPeriod()
     {
-        await stubTimeContext.AddSecondsAsync(47);
+        await stubTimeContext.AddSecondsAsync(45);
         var test1MLivePeriodClient = new TestLivePeriodClient(OneMinute, tickerId1MPeriod);
         test1MLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds
@@ -269,7 +268,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             await live1MRule.Context.RegisteredOn.RunOnAndWait(live1MRule, () => ValueTask.CompletedTask);
         };
 
-        var quotesToSend = oneSecondLevel1Quotes.Skip(48).Take(10).ToList();
+        var quotesToSend = oneSecondLevel1Quotes.Skip(46).Take(14).ToList();
         await test1MLivePeriodClient.SendPricesToLivePeriodRule
             (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
@@ -277,12 +276,14 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             var quote = quotesToSend[i];
             test1MLivePeriodClient.CreateNewWait();
             await test1MLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
-            var receivedLivePeriods = await test1MLivePeriodClient.GetPopulatedLiveResults(i);
+            var receivedLivePeriods = await test1MLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
-        await stubTimeContext.AddSecondsAsync(9);
+        await stubTimeContext.AddSecondsAsync(6);
         var receivedCompletePeriods = await test1MLivePeriodClient.GetPopulatedCompleteResults(1);
         Assert.AreEqual(1, receivedCompletePeriods.Count);
+        var summary = receivedCompletePeriods.First();
+        Assert.AreEqual((ushort)0, (ushort)((uint)summary.PeriodSummaryFlags >> 16));
     }
 
     [TestMethod]
@@ -310,7 +311,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             await live30SRule.Context.RegisteredOn.RunOnAndWait(live30SRule, () => ValueTask.CompletedTask);
         };
 
-        var quotesToSend = oneSecondLevel1Quotes.Skip(16).Take(15).ToList();
+        var quotesToSend = oneSecondLevel1Quotes.Skip(16).Take(17).ToList();
         await test30SLivePeriodClient.SendPricesToLivePeriodRule
             (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
@@ -318,13 +319,110 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             var quote = quotesToSend[i];
             test30SLivePeriodClient.CreateNewWait();
             await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
-            var receivedLivePeriods = await test30SLivePeriodClient.GetPopulatedLiveResults(i);
+            var receivedLivePeriods = await test30SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
         taskCompletionsSource.SetResult(0);
-        await stubTimeContext.AddSecondsAsync(5);
+        await stubTimeContext.AddSecondsAsync(4);
         var receivedCompletePeriods = await test30SLivePeriodClient.GetPopulatedCompleteResults(1);
         Assert.AreEqual(1, receivedCompletePeriods.Count);
+        var summary = receivedCompletePeriods.First();
+        Assert.AreEqual((ushort)0, (ushort)((uint)summary.PeriodSummaryFlags >> 16));
+    }
+
+    [TestMethod]
+    public async Task NewLivePeriodSummary_FirstSubPeriodReturnsNoSubPeriodData_PublishesQuotesWithMissingData()
+    {
+        await stubTimeContext.AddSecondsAsync(15);
+        var test30SLivePeriodClient = new TestLivePeriodClient(ThirtySeconds, tickerId30SPeriod);
+        test30SLivePeriodClient.RegisterSubPeriodResponse
+            (FifteenSeconds, () => new ValueTask<List<PricePeriodSummary>>(new List<PricePeriodSummary>()));
+        await indicatorRegistryStubRule.DeployRuleAsync(test30SLivePeriodClient);
+
+        var live30SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(thirtySecondsLivePeriodParams);
+
+        await using var live30SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(live30SRule);
+
+        stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
+        {
+            // Between each event fire and await the queue to run an empty callback to give rule time to update next timer;
+            await live30SRule.Context.RegisteredOn.RunOnAndWait(live30SRule, () => ValueTask.CompletedTask);
+        };
+
+        var quotesToSend = oneSecondLevel1Quotes.Skip(16).Take(17).ToList();
+        await test30SLivePeriodClient.SendPricesToLivePeriodRule
+            (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+        for (var i = 0; i < quotesToSend.Count; i++)
+        {
+            var quote = quotesToSend[i];
+            test30SLivePeriodClient.CreateNewWait();
+            await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
+            var receivedLivePeriods = await test30SLivePeriodClient.GetPopulatedLiveResults(i + 1);
+            Assert.AreEqual(i + 1, receivedLivePeriods.Count);
+        }
+        await stubTimeContext.AddSecondsAsync(4);
+        var receivedCompletePeriods = await test30SLivePeriodClient.GetPopulatedCompleteResults(1);
+        Assert.AreEqual(1, receivedCompletePeriods.Count);
+        var summary = receivedCompletePeriods.First();
+        Assert.AreEqual((ushort)0x01FF, (ushort)((uint)summary.PeriodSummaryFlags >> 16));
+    }
+
+    [TestMethod]
+    public async Task NewLivePeriodSummaryOnStartup_ReceivesNoQuotesOrSubPeriods_PublishesNothing()
+    {
+        var test5SLivePeriodClient = new TestLivePeriodClient(FiveSeconds, tickerId5SPeriod);
+        await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
+
+        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
+
+        await using var live5SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
+
+        await stubTimeContext.UpdateTime(stubTimeContext.UtcNow.AddSeconds(20));
+
+        var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults(0);
+        Assert.AreEqual(0, receivedCompletePeriods.Count);
+        var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(0);
+        Assert.AreEqual(0, receivedLivePeriods.Count);
+    }
+
+    [TestMethod]
+    public async Task NewLivePeriodSummaryOnStartup_ReceivesNoQuotesOrSubPeriods_StartReceivingAndPublishing()
+    {
+        var test5SLivePeriodClient = new TestLivePeriodClient(FiveSeconds, tickerId5SPeriod);
+        await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
+
+        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
+
+        await using var live5SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
+
+        stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
+        {
+            // Between each event fire and await the queue to run an empty callback to give rule time to update next timer;
+            await liveResolver5SRule.Context.RegisteredOn.RunOnAndWait(liveResolver5SRule, () => ValueTask.CompletedTask);
+        };
+        await stubTimeContext.UpdateTime(stubTimeContext.UtcNow.AddSeconds(20));
+
+        var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults(0);
+        Assert.AreEqual(0, receivedCompletePeriods.Count);
+        var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(0);
+        Assert.AreEqual(0, receivedLivePeriods.Count);
+
+        var quotesToSend = oneSecondLevel1Quotes.Skip(22).Take(7).ToList();
+        await test5SLivePeriodClient.SendPricesToLivePeriodRule
+            (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+        for (var i = 0; i < quotesToSend.Count; i++)
+        {
+            var quote = quotesToSend[i];
+            test5SLivePeriodClient.CreateNewWait();
+            await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
+            receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i + 1);
+            Assert.AreEqual(i + 1, receivedLivePeriods.Count);
+        }
+
+        receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults(1);
+        Assert.AreEqual(1, receivedCompletePeriods.Count);
+        receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(7);
+        Assert.AreEqual(7, receivedLivePeriods.Count);
     }
 
     private struct PublishQuotesWithTimeProgress
@@ -404,14 +502,14 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
         public async ValueTask<List<IPricePeriodSummary>> GetPopulatedLiveResults(int waitNumber = 1)
         {
             waitNumberForLive = waitNumber;
-            await Task.WhenAny(awaitLiveSource.Task, Task.Delay(2_000));
+            if (ReceivedLivePublishEvents.Count < waitNumber) await Task.WhenAny(awaitLiveSource.Task, Task.Delay(2_000));
             return ReceivedLivePublishEvents;
         }
 
         public async ValueTask<List<IPricePeriodSummary>> GetPopulatedCompleteResults(int waitNumber = 1)
         {
             waitNumberForCompleted = waitNumber;
-            await Task.WhenAny(awaitCompleteSource.Task, Task.Delay(2_000));
+            if (ReceivedCompletePublishEvents.Count < waitNumber) await Task.WhenAny(awaitCompleteSource.Task, Task.Delay(2_000));
             return ReceivedCompletePublishEvents;
         }
 
