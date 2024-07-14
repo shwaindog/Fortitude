@@ -53,22 +53,24 @@ public class TimeSeriesRepositoryAccessRule : Rule
         return base.StopAsync();
     }
 
-    protected List<InstrumentFileInfo> InstrumentFileInfos(string instrumentName, InstrumentType? instrumentType, TimeSeriesPeriod? entryPeriod)
+    protected List<InstrumentFileInfo> InstrumentFileInfos
+        (string instrumentName, string instrumentSource, InstrumentType? instrumentType, TimeSeriesPeriod? entryPeriod)
     {
         var matchingFileInfos =
             timeSeriesRepository!
-                .AvailableInstrumentsMatching(instrumentName, instrumentType, entryPeriod)
+                .AvailableInstrumentsMatching(instrumentName, instrumentSource, instrumentType, entryPeriod)
                 .Select(i => timeSeriesRepository.GetInstrumentFileInfo(i))
                 .ToList();
         return matchingFileInfos;
     }
 
     protected List<InstrumentFileInfo> InstrumentFileInfos
-        (string instrumentName, InstrumentType? instrumentType, TimeSeriesPeriod? entryPeriod, params KeyValuePair<string, string>[] filterPairs)
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType, TimeSeriesPeriod? entryPeriod
+      , params KeyValuePair<string, string>[] filterPairs)
     {
         var matchingFileInfos =
             timeSeriesRepository!
-                .AvailableInstrumentsMatching(instrumentName, instrumentType, entryPeriod)
+                .AvailableInstrumentsMatching(instrumentName, instrumentSource, instrumentType, entryPeriod)
                 .Where(i => filterPairs.All(kvp => i[kvp.Key] == kvp.Value))
                 .Select(i => timeSeriesRepository.GetInstrumentFileInfo(i))
                 .ToList();
@@ -76,11 +78,11 @@ public class TimeSeriesRepositoryAccessRule : Rule
     }
 
     protected List<InstrumentFileEntryInfo> InstrumentFileEntryInfos
-        (string instrumentName, InstrumentType? instrumentType, TimeSeriesPeriod? entryPeriod)
+        (string instrumentName, string instrumentSource, InstrumentType? instrumentType, TimeSeriesPeriod? entryPeriod)
     {
         var matchingFileInfos =
             timeSeriesRepository!
-                .AvailableInstrumentsMatching(instrumentName, instrumentType, entryPeriod)
+                .AvailableInstrumentsMatching(instrumentName, instrumentSource, instrumentType, entryPeriod)
                 .Select(i => timeSeriesRepository.GetInstrumentFileEntryInfo(i))
                 .ToList();
         return matchingFileInfos;

@@ -3,46 +3,246 @@
 
 #region
 
+using System.Collections;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeMarketsApi.Configuration.ClientServerConfig;
 
 #endregion
 
 namespace FortitudeMarketsApi.Pricing;
 
-public interface IPricingInstrumentId : IReusableObject<IPricingInstrumentId>, ISourceTickerId
+public interface IPricingInstrumentId : IReusableObject<IPricingInstrumentId>, ISourceTickerId, IInstrument
 {
-    TimeSeriesPeriod Period { get; }
+    MarketClassification MarketClassification { get; set; }
+    string?              Category             { get; set; }
 
-    InstrumentType InstrumentType { get; }
+    new ushort SourceId { get; set; }
+    new ushort TickerId { get; set; }
+    new string Source   { get; set; }
+    new string Ticker   { get; set; }
+
+    new TimeSeriesPeriod EntryPeriod    { get; set; }
+    new InstrumentType   InstrumentType { get; set; }
 
     new IPricingInstrumentId Clone();
 }
 
-public class PricingInstrumentIdentifier : SourceTickerIdentifier, IPricingInstrumentId
+public class PricingInstrument : SourceTickerIdentifier, IPricingInstrumentId
 {
-    public PricingInstrumentIdentifier() { }
+    private TimeSeriesPeriod? entryPeriod;
 
-    public PricingInstrumentIdentifier
-        (ushort sourceId, ushort tickerId, string source, string ticker, TimeSeriesPeriod period, InstrumentType instrumentType) :
-        base(sourceId, tickerId, source, ticker)
+    private string[]? optionalKeys;
+    private string[]? requiredKeys;
+
+    private InstrumentType? timeSeriesType;
+
+    public PricingInstrument()
     {
-        Period         = period;
-        InstrumentType = instrumentType;
+        EntryPeriod          = TimeSeriesPeriod.Tick;
+        MarketClassification = MarketClassificationExtensions.Unknown;
+        InstrumentType       = InstrumentType.Price;
     }
 
-    public PricingInstrumentIdentifier(IPricingInstrumentId toClone) : base(toClone) => Period = toClone.Period;
+    public PricingInstrument
+    (ushort sourceId, ushort tickerId, string source, string ticker, TimeSeriesPeriod period, InstrumentType instrumentType
+      , MarketClassification marketClassification, string? category = null) :
+        base(sourceId, tickerId, source, ticker)
+    {
+        EntryPeriod          = period;
+        MarketClassification = marketClassification;
+        Category             = category;
+        InstrumentType       = instrumentType;
+    }
 
-    public TimeSeriesPeriod Period { get; set; }
+    public PricingInstrument(IPricingInstrumentId toClone) : base(toClone)
+    {
+        EntryPeriod          = toClone.EntryPeriod;
+        InstrumentType       = toClone.InstrumentType;
+        MarketClassification = toClone.MarketClassification;
+        Category             = toClone.Category;
+    }
 
-    public InstrumentType InstrumentType { get; set; }
+    public PricingInstrument(PricingInstrumentId toClone) : base(toClone)
+    {
+        EntryPeriod          = toClone.EntryPeriod;
+        InstrumentType       = toClone.InstrumentType;
+        MarketClassification = toClone.MarketClassification;
+        Category             = toClone.Category;
+    }
+
+    public PricingInstrument(Instrument toClone)
+    {
+        EntryPeriod    = toClone.EntryPeriod;
+        InstrumentType = toClone.InstrumentType;
+        var marketType   = toClone[nameof(RepositoryPathName.MarketType)] ?? "Unknown";
+        var productType  = toClone[nameof(RepositoryPathName.MarketProductType)] ?? "Unknown";
+        var marketRegion = toClone[nameof(RepositoryPathName.MarketRegion)] ?? "Unknown";
+        var marketClassification = new MarketClassification
+            (Enum.Parse<MarketType>(marketType), Enum.Parse<ProductType>(productType), Enum.Parse<MarketRegion>(marketRegion));
+        MarketClassification = marketClassification;
+        Category             = toClone[nameof(RepositoryPathName.Category)];
+    }
+
+    string IInstrument.InstrumentName   => Ticker;
+    string IInstrument.InstrumentSource => Source;
+
+    public InstrumentType InstrumentType
+    {
+        get => timeSeriesType ?? InstrumentType.Price;
+        set => timeSeriesType = value;
+    }
+
+    public string? this[string key]
+    {
+        get
+        {
+            switch (key)
+            {
+                case nameof(RepositoryPathName.MarketType):        return MarketClassification.MarketType.ToString();
+                case nameof(RepositoryPathName.MarketProductType): return MarketClassification.ProductType.ToString();
+                case nameof(RepositoryPathName.MarketRegion):      return MarketClassification.MarketRegion.ToString();
+                case nameof(RepositoryPathName.Category):          return Category;
+            }
+            return null;
+        }
+        set
+        {
+            switch (key)
+            {
+                case nameof(RepositoryPathName.MarketType):
+                    if (Enum.TryParse<MarketType>(value, true, out var marketType))
+                        if (MarketClassification.MarketType == MarketType.Unknown)
+                            MarketClassification = MarketClassification.SetMarketType(marketType);
+                    break;
+                case nameof(RepositoryPathName.MarketProductType):
+                    if (Enum.TryParse<ProductType>(value, true, out var productType))
+                        if (MarketClassification.ProductType == ProductType.Unknown)
+                            MarketClassification = MarketClassification.SetProductType(productType);
+                    break;
+                case nameof(RepositoryPathName.MarketRegion):
+                    if (Enum.TryParse<MarketRegion>(value, true, out var marketRegion))
+                        if (MarketClassification.MarketRegion == MarketRegion.Unknown)
+                            MarketClassification = MarketClassification.SetMarketRegion(marketRegion);
+                    break;
+                case nameof(RepositoryPathName.Category):
+                    if (Category.IsNullOrEmpty()) Category = value ?? "";
+                    break;
+            }
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+    {
+        if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
+        if (MarketClassification.MarketType != MarketType.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+        if (MarketClassification.ProductType != ProductType.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
+        if (MarketClassification.MarketRegion != MarketRegion.Unknown)
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+    }
+
+    public void Add(KeyValuePair<string, string> instrumentAttribute)
+    {
+        this[instrumentAttribute.Key] = instrumentAttribute.Value;
+    }
+
+    public void Add(string name, string value)
+    {
+        this[name] = value;
+    }
+
+    public bool Remove(string name)
+    {
+        switch (name)
+        {
+            case nameof(RepositoryPathName.MarketType):
+                MarketClassification = MarketClassification.SetMarketType(MarketType.Unknown);
+                return true;
+            case nameof(RepositoryPathName.MarketProductType):
+                MarketClassification = MarketClassification.SetProductType(ProductType.Unknown);
+                return true;
+            case nameof(RepositoryPathName.MarketRegion):
+                MarketClassification = MarketClassification.SetMarketRegion(MarketRegion.Unknown);
+                return true;
+            case nameof(RepositoryPathName.Category):
+                Category = null;
+                return true;
+        }
+        return false;
+    }
+
+    public IEnumerable<string> RequiredAttributeKeys
+    {
+        get => requiredKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiRequiredInstrumentKeys;
+        set => requiredKeys = value.ToArray();
+    }
+
+    public IEnumerable<string> OptionalAttributeKeys
+    {
+        get => optionalKeys ??= DymwiTimeSeriesDirectoryRepository.DymwiOptionalInstrumentKeys;
+        set => optionalKeys = value.ToArray();
+    }
+
+    public IEnumerable<KeyValuePair<string, string>> AllAttributes
+    {
+        get
+        {
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+            if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
+        }
+    }
+
+    public IEnumerable<KeyValuePair<string, string>> RequiredAttributes
+    {
+        get
+        {
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+        }
+    }
+
+    public IEnumerable<KeyValuePair<string, string>> OptionalAttributes
+    {
+        get
+        {
+            if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
+        }
+    }
+
+
+    public bool HasAllRequiredKeys =>
+        Source.IsNotNullOrEmpty() && MarketClassification.MarketType != MarketType.Unknown
+                                  && MarketClassification.ProductType != ProductType.Unknown &&
+                                     MarketClassification.MarketRegion != MarketRegion.Unknown;
+
+    public MarketClassification MarketClassification { get; set; }
+
+    public TimeSeriesPeriod EntryPeriod
+    {
+        get => entryPeriod ?? TimeSeriesPeriod.Tick;
+        set => entryPeriod = value;
+    }
+
+    public string? Category { get; set; }
+
 
     public IPricingInstrumentId CopyFrom(IPricingInstrumentId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        Period = source.Period;
+        EntryPeriod          = source.EntryPeriod;
+        MarketClassification = source.MarketClassification;
+        InstrumentType       = source.InstrumentType;
         return this;
     }
 
@@ -52,88 +252,138 @@ public class PricingInstrumentIdentifier : SourceTickerIdentifier, IPricingInstr
 
     IPricingInstrumentId ICloneable<IPricingInstrumentId>.Clone() => Clone();
 
-    public override IPricingInstrumentId Clone() =>
-        Recycler?.Borrow<PricingInstrumentIdentifier>().CopyFrom(this) ?? new PricingInstrumentIdentifier(this);
+    public override IPricingInstrumentId Clone() => Recycler?.Borrow<PricingInstrument>().CopyFrom(this) ?? new PricingInstrument(this);
 
     public override void StateReset()
     {
-        Period = TimeSeriesPeriod.None;
+        MarketClassification = new MarketClassification();
+        Category             = null;
+        EntryPeriod          = TimeSeriesPeriod.None;
+
         base.StateReset();
     }
+
+
+    public override bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
+    {
+        if (other is not IPricingInstrumentId pricingInstrumentId) return false;
+        var baseSame = base.AreEquivalent(other, exactTypes);
+
+        var marketClassificationSame = Equals(MarketClassification, pricingInstrumentId?.MarketClassification);
+        var entryPeriodSame          = entryPeriod == pricingInstrumentId?.EntryPeriod;
+        var instrumentTypeSame       = timeSeriesType == pricingInstrumentId?.InstrumentType;
+        var categorySame             = true;
+        if (exactTypes) categorySame = Category == pricingInstrumentId?.Category;
+
+        return baseSame && entryPeriodSame && marketClassificationSame && instrumentTypeSame && categorySame;
+    }
+
+    protected bool Equals(PricingInstrument other) => AreEquivalent(other, true);
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((PricingInstrument)obj);
+    }
+
+    public override int GetHashCode() => HashCode.Combine(entryPeriod, timeSeriesType, MarketClassification);
 }
 
 public readonly struct PricingInstrumentId // not inheriting from ISourceTickerId to prevent accidental boxing unboxing
 {
     public PricingInstrumentId(IPricingInstrumentId pricingInstrumentId)
     {
-        SourceId = pricingInstrumentId.SourceId;
-        TickerId = pricingInstrumentId.TickerId;
-        Period   = pricingInstrumentId.Period;
+        SourceId    = pricingInstrumentId.SourceId;
+        TickerId    = pricingInstrumentId.TickerId;
+        EntryPeriod = pricingInstrumentId.EntryPeriod;
+        Category    = pricingInstrumentId.Category;
+
+        MarketClassification = pricingInstrumentId.MarketClassification;
 
         InstrumentType = pricingInstrumentId.InstrumentType;
     }
 
-    public PricingInstrumentId(ushort sourceId, ushort tickerId, TimeSeriesPeriod period, InstrumentType instrumentType)
+    public PricingInstrumentId
+    (ushort sourceId, ushort tickerId, TimeSeriesPeriod entryPeriod, InstrumentType instrumentType
+      , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId = sourceId;
-        TickerId = tickerId;
-        Period   = period;
+        SourceId    = sourceId;
+        TickerId    = tickerId;
+        EntryPeriod = entryPeriod;
+        Category    = category;
 
         InstrumentType = instrumentType;
+
+        MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId(ISourceTickerId sourceTickerId, TimeSeriesPeriod period, InstrumentType instrumentType)
+    public PricingInstrumentId
+    (SourceTickerId sourceTickerId, TimeSeriesPeriod entryPeriod, InstrumentType instrumentType
+      , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
-        Period   = period;
+        SourceId    = sourceTickerId.SourceId;
+        TickerId    = sourceTickerId.TickerId;
+        EntryPeriod = entryPeriod;
+        Category    = category;
 
         InstrumentType = instrumentType;
+
+        MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId(SourceTickerId sourceTickerId, TimeSeriesPeriod period, InstrumentType instrumentType)
+    public PricingInstrumentId
+    (ushort sourceId, ushort tickerId, PeriodInstrumentTypePair periodInstrumentTypePair
+      , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
-        Period   = period;
-
-        InstrumentType = instrumentType;
-    }
-
-    public PricingInstrumentId(ushort sourceId, ushort tickerId, PeriodInstrumentTypePair periodInstrumentTypePair)
-    {
-        SourceId = sourceId;
-        TickerId = tickerId;
-        Period   = periodInstrumentTypePair.Period;
+        SourceId    = sourceId;
+        TickerId    = tickerId;
+        EntryPeriod = periodInstrumentTypePair.EntryPeriod;
+        Category    = category;
 
         InstrumentType = periodInstrumentTypePair.InstrumentType;
+
+        MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId(ISourceTickerId sourceTickerId, PeriodInstrumentTypePair periodInstrumentTypePair)
+    public PricingInstrumentId
+    (ISourceTickerId sourceTickerId, PeriodInstrumentTypePair periodInstrumentTypePair
+      , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
-        Period   = periodInstrumentTypePair.Period;
+        SourceId    = sourceTickerId.SourceId;
+        TickerId    = sourceTickerId.TickerId;
+        EntryPeriod = periodInstrumentTypePair.EntryPeriod;
+        Category    = category;
 
         InstrumentType = periodInstrumentTypePair.InstrumentType;
+
+        MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId(SourceTickerId sourceTickerId, PeriodInstrumentTypePair periodInstrumentTypePair)
+    public PricingInstrumentId
+    (SourceTickerId sourceTickerId, PeriodInstrumentTypePair periodInstrumentTypePair
+      , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
-        Period   = periodInstrumentTypePair.Period;
+        SourceId    = sourceTickerId.SourceId;
+        TickerId    = sourceTickerId.TickerId;
+        EntryPeriod = periodInstrumentTypePair.EntryPeriod;
+        Category    = category;
 
         InstrumentType = periodInstrumentTypePair.InstrumentType;
+
+        MarketClassification = marketClassification;
     }
 
-    public uint   Id       => (uint)((SourceId << 16) | TickerId);
-    public ushort SourceId { get; }
-    public ushort TickerId { get; }
+    public uint Id => (uint)((SourceId << 16) | TickerId);
 
-    public TimeSeriesPeriod Period { get; }
+    public ushort               SourceId             { get; }
+    public ushort               TickerId             { get; }
+    public TimeSeriesPeriod     EntryPeriod          { get; }
+    public InstrumentType       InstrumentType       { get; }
+    public MarketClassification MarketClassification { get; }
 
-    public InstrumentType InstrumentType { get; }
+    public string? Category { get; }
 
     public string Ticker => SourceTickerIdentifierExtensions.GetRegisteredTickerName(SourceId, TickerId);
     public string Source => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
@@ -141,9 +391,8 @@ public readonly struct PricingInstrumentId // not inheriting from ISourceTickerI
 
     public static implicit operator SourceTickerId(PricingInstrumentId sourceTickerId) => new(sourceTickerId.SourceId, sourceTickerId.TickerId);
 
-    public static implicit operator PeriodInstrumentTypePair
-        (PricingInstrumentId sourceTickerId) =>
-        new(sourceTickerId.InstrumentType, sourceTickerId.Period);
+    public static implicit operator PeriodInstrumentTypePair(PricingInstrumentId sourceTickerId) =>
+        new(sourceTickerId.InstrumentType, sourceTickerId.EntryPeriod);
 }
 
 public static class PricingInstrumentIdExtensions
@@ -164,12 +413,12 @@ public static class PricingInstrumentIdExtensions
         {
             if (id.Source != SourceTickerIdentifierExtensions.NoSourceNameValue && id.Ticker != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
-                shortName = $"{id.Source}-{id.Ticker}_{id.InstrumentType}_{id.Period.ShortName()}";
+                shortName = $"{id.Source}-{id.Ticker}_{id.InstrumentType}_{id.EntryPeriod.ShortName()}";
                 tickerMap.Add(id, shortName);
             }
             else
             {
-                shortName = $"{id.SourceId}-{id.TickerId}_{id.InstrumentType}_{id.Period.ShortName()}";
+                shortName = $"{id.SourceId}-{id.TickerId}_{id.InstrumentType}_{id.EntryPeriod.ShortName()}";
             }
         }
         return shortName!;
@@ -185,9 +434,6 @@ public static class PricingInstrumentIdExtensions
 
     public static PricingInstrumentId ToPricingInstrumentId(this SourceTickerIdValue id, PeriodInstrumentTypePair periodInstrumentType) =>
         new(id.SourceId, id.TickerId, periodInstrumentType);
-
-    public static PricingInstrumentId ToPricingInstrumentId(this ISourceTickerId id, TimeSeriesPeriod period, InstrumentType instrumentType) =>
-        new(id, period, instrumentType);
 
     public static PricingInstrumentId ToPricingInstrumentId(this SourceTickerId id, TimeSeriesPeriod period, InstrumentType instrumentType) =>
         new(id, period, instrumentType);

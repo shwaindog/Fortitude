@@ -7,7 +7,6 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Summaries;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
@@ -40,7 +39,7 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
         readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
         bufferContext   = new BufferContext(readWriteBuffer);
 
-        pqPriceStoragePeriodSummary = new PQPriceStoragePeriodSummary(new PQPriceVolumePublicationPrecisionSettings(0x3, 0x9));
+        pqPriceStoragePeriodSummary = new PQPriceStoragePeriodSummary();
 
         snapshotSerializer = new PQPriceStoragePeriodSummarySerializer(StorageFlags.Snapshot);
         updateSerializer   = new PQPriceStoragePeriodSummarySerializer(StorageFlags.Update);
@@ -77,7 +76,7 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
             var original     = originalSummaries[i];
             var deserialized = deserializer.Deserialize(bufferContext);
 
-            Assert.IsTrue(deserialized!.AreEquivalent(original));
+            Assert.IsTrue(deserialized!.AreEquivalent(original), $"Expected {deserialized} to be equivalent to {original}");
         }
     }
 

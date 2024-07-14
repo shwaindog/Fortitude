@@ -1,8 +1,10 @@
 ﻿#region
 
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 #endregion
@@ -165,6 +167,8 @@ public struct TimeSeriesFileHeaderBodyV1
 
 public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimeSeriesFileHeaderFromV1));
+
     public const int SubHeaderReservedSpaceSizeBytes = 1024;
     public const ushort NewFileDefaultVersion = 1;
     public static readonly ushort[] SupportedFileVersions = [1];
@@ -175,6 +179,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     private const int HeaderStringCount = 6;
     private const int HeaderTypeStringCount = 3;
 
+    private bool   isClosing;
     private ushort headerVersion;
 
     private TimeSeriesFileHeaderBodyV1* writableV1HeaderBody;
@@ -230,7 +235,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset    = CalculateStringStart(5);
 
         InstrumentName                = timeSeriesFileParameters.Instrument.InstrumentName;
-        SourceName                    = timeSeriesFileParameters.Instrument[nameof(SourceName)];
+        SourceName                    = timeSeriesFileParameters.Instrument.InstrumentSource;
         Category                      = timeSeriesFileParameters.Instrument[nameof(Category)];
         OriginSourceText              = timeSeriesFileParameters.OriginSourceText;
 
@@ -239,7 +244,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 
         FilePeriod = timeSeriesFileParameters.FilePeriod;
         FileStartPeriod = timeSeriesFileParameters.FilePeriod.ContainingPeriodBoundaryStart(timeSeriesFileParameters.FileStartPeriod);
-        InstrumentType = timeSeriesFileParameters.Instrument.Type;
+        InstrumentType = timeSeriesFileParameters.Instrument.InstrumentType;
 
         TotalHeaderSizeBytes  = FileHeaderSize + 2;
 
@@ -298,7 +303,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     public virtual long EndOfHeaderSectionFileOffset => StartOfIndexFileOffset + 
           BucketIndexDictionary.CalculateDictionarySizeInBytes(InternalIndexMaxSize, EndOfStringValuesFileOffset);
 
-    public bool FileIsOpen => headerMemoryMappedFileView != null;
+    public bool FileIsOpen => !isClosing && headerMemoryMappedFileView != null;
 
     public void Dispose()
     {
@@ -1133,6 +1138,9 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
 
     public void CloseFileView()
     {
+        if (!FileIsOpen) return;
+        
+        isClosing = true;
         headerMemoryMappedFileView?.FlushCursorDataToDisk(0, (int)FileHeaderSize + 2);
         if (HasSubHeader && SubHeader != null)
         {
@@ -1145,8 +1153,9 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
     public bool ReopenFileView(ShiftableMemoryMappedFileView memoryMappedFileView, FileFlags fileFlags = FileFlags.None)
     {
         if (FileIsOpen) return true;
+        isClosing                  = false;
         headerMemoryMappedFileView = memoryMappedFileView;
-        isWritable = fileFlags.HasWriterOpenedFlag();
+        isWritable                 = fileFlags.HasWriterOpenedFlag();
         internalWritableIndexDictionary?.OpenWithFileView(memoryMappedFileView, !isWritable);
         writableV1HeaderBody = (TimeSeriesFileHeaderBodyV1*)(memoryMappedFileView.StartAddress + 2);
         writableV1HeaderBody->FileFlags = FileFlags | fileFlags.Unset(FileFlags.HasInternalIndexInHeader);

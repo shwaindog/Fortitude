@@ -39,19 +39,19 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 {
     private readonly DateTime testEpochTime = new(2024, 7, 11);
 
-    private readonly ISourceTickerQuoteInfo tickerId15SPeriod = new SourceTickerQuoteInfo
+    private readonly SourceTickerQuoteInfo tickerId15SPeriod = new
         (2, "SourceName", 2, "TickerName2", Level1, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly ISourceTickerQuoteInfo tickerId1MPeriod = new SourceTickerQuoteInfo
+    private readonly SourceTickerQuoteInfo tickerId1MPeriod = new
         (2, "SourceName", 2, "TickerName4", Level1, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly ISourceTickerQuoteInfo tickerId30SPeriod = new SourceTickerQuoteInfo
+    private readonly SourceTickerQuoteInfo tickerId30SPeriod = new
         (3, "SourceName", 3, "TickerName3", Level1, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly ISourceTickerQuoteInfo tickerId5SPeriod = new SourceTickerQuoteInfo
+    private readonly SourceTickerQuoteInfo tickerId5SPeriod = new
         (1, "SourceName", 1, "TickerName1", Level1, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
@@ -95,7 +95,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
         Generate30SSummaries();
 
         fiveSecondsLivePeriodParams = new LivePublishPricePeriodSummaryParams
-            (tickerId5SPeriod, FiveSeconds, new PricePublishInterval(TimeSpan.FromSeconds(1)), new ResponsePublishParams());
+            ((SourceTickerId)tickerId5SPeriod, FiveSeconds, new PricePublishInterval(TimeSpan.FromSeconds(1)), new ResponsePublishParams());
         fifteenSecondsLivePeriodParams
             = new LivePublishPricePeriodSummaryParams(tickerId15SPeriod, FifteenSeconds, new PricePublishInterval(TimeSpan.FromSeconds(1))
                                                     , new ResponsePublishParams());
@@ -177,7 +177,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     [TestMethod]
     public async Task NewLivePeriodSummary_SendTwoPeriodsOfQuotes_PublishingNextTickSendsCompleteOfFirstPeriod()
     {
-        var test5SLivePeriodClient = new TestLivePeriodClient(FiveSeconds, tickerId5SPeriod);
+        var test5SLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId5SPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, FiveSeconds)));
         await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -194,7 +197,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     [TestMethod]
     public async Task NewLivePeriodSummary_SendOnePeriodsOfQuotes_IncrementingTimeTriggersOnCompleteTimer()
     {
-        var test5SLivePeriodClient = new TestLivePeriodClient(FiveSeconds, tickerId5SPeriod);
+        var test5SLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId5SPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, FiveSeconds)));
         await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -217,7 +223,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     [TestMethod]
     public async Task NewLivePeriodSummary_SendSingleQuotes_LivePeriodUpdateReceivedBetweenEach()
     {
-        var test5SLivePeriodClient = new TestLivePeriodClient(FiveSeconds, tickerId5SPeriod);
+        var test5SLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId5SPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, FiveSeconds)));
         await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -249,7 +258,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     public async Task NewLivePeriodSummary_RequestsSubPeriodReturnsWithinSamePeriod_PublishesQuotesToNextPeriod()
     {
         await stubTimeContext.AddSecondsAsync(45);
-        var test1MLivePeriodClient = new TestLivePeriodClient(OneMinute, tickerId1MPeriod);
+        var test1MLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId1MPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, OneMinute)));
         test1MLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds
            , () => new ValueTask<List<PricePeriodSummary>>(fifteenSecondPeriodSummaries.Skip(2).Take(1).ToList()));
@@ -290,8 +302,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     public async Task NewLivePeriodSummary_RequestsSubPeriodReturnsWithinNextPeriod_PublishesQuotesToNextPeriod()
     {
         await stubTimeContext.AddSecondsAsync(15);
-        var test30SLivePeriodClient = new TestLivePeriodClient(ThirtySeconds, tickerId30SPeriod);
-        var taskCompletionsSource   = new TaskCompletionSource<int>();
+        var test30SLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId30SPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, ThirtySeconds)));
+        var taskCompletionsSource = new TaskCompletionSource<int>();
         test30SLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds
            , async () =>
@@ -334,7 +349,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     public async Task NewLivePeriodSummary_FirstSubPeriodReturnsNoSubPeriodData_PublishesQuotesWithMissingData()
     {
         await stubTimeContext.AddSecondsAsync(15);
-        var test30SLivePeriodClient = new TestLivePeriodClient(ThirtySeconds, tickerId30SPeriod);
+        var test30SLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId30SPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, ThirtySeconds)));
         test30SLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds, () => new ValueTask<List<PricePeriodSummary>>(new List<PricePeriodSummary>()));
         await indicatorRegistryStubRule.DeployRuleAsync(test30SLivePeriodClient);
@@ -370,7 +388,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     [TestMethod]
     public async Task NewLivePeriodSummaryOnStartup_ReceivesNoQuotesOrSubPeriods_PublishesNothing()
     {
-        var test5SLivePeriodClient = new TestLivePeriodClient(FiveSeconds, tickerId5SPeriod);
+        var test5SLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId5SPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, FiveSeconds)));
         await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -388,7 +409,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     [TestMethod]
     public async Task NewLivePeriodSummaryOnStartup_ReceivesNoQuotesOrSubPeriods_StartReceivingAndPublishing()
     {
-        var test5SLivePeriodClient = new TestLivePeriodClient(FiveSeconds, tickerId5SPeriod);
+        var test5SLivePeriodClient = new TestLivePeriodClient
+            (new PricingInstrumentId
+                ((SourceTickerId)tickerId5SPeriod
+               , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, FiveSeconds)));
         await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -438,7 +462,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     private class TestLivePeriodClient
-        (TimeSeriesPeriod period, ISourceTickerId tickerId, int waitNumberForCompleted = 1, int waitNumberForLive = 1) : Rule
+        (PricingInstrumentId pricingInstrumentId, int waitNumberForCompleted = 1, int waitNumberForLive = 1) : Rule
     {
         private const string LivePeriodTestClientPublishPricesAddress
             = "TestClient.LivePricePeriodSummary.Publish.Quotes";
@@ -469,24 +493,27 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
         public override async ValueTask StartAsync()
         {
-            quoteListenAddress = tickerId.Source.SubscribeToTickerQuotes(tickerId.Ticker);
+            quoteListenAddress = pricingInstrumentId.Source.SubscribeToTickerQuotes(pricingInstrumentId.Ticker);
             listenForPublishPricesSubscription = await this.RegisterRequestListenerAsync<PublishQuotesWithTimeProgress, ValueTask>
                 (LivePeriodTestClientPublishPricesAddress, PublishPriceQuotesHandler);
             livePublishSubscription = await this.RegisterListenerAsync<PricePeriodSummary>
-                (tickerId.LivePeriodSummaryAddress(period), ReceivedLivePricePeriodSummaries);
+                (pricingInstrumentId.LivePeriodSummaryAddress(), ReceivedLivePricePeriodSummaries);
             completePublishSubscription = await this.RegisterListenerAsync<PricePeriodSummary>
-                (tickerId.CompletePeriodSummaryAddress(period), ReceivedCompletePricePeriodSummaries);
-            foreach (var subPeriod in period.ConstructingDivisiblePeriods()
-                                            .Where(tsp => tsp >= PricePeriodSummaryConstants.PersistPeriodsFrom))
+                (pricingInstrumentId.CompletePeriodSummaryAddress(), ReceivedCompletePricePeriodSummaries);
+            foreach (var subPeriod in pricingInstrumentId.EntryPeriod.ConstructingDivisiblePeriods()
+                                                         .Where(tsp => tsp >= PricePeriodSummaryConstants.PersistPeriodsFrom))
             {
                 historicalSubPeriodRequestSubscriptions.Add
                     (subPeriod, await this.RegisterRequestListenerAsync<HistoricalPeriodResponseRequest, List<PricePeriodSummary>>
-                        (tickerId.HistoricalPeriodSummaryResponseRequest(subPeriod), ReceivedHistoricalSubPeriodResponseRequest));
-                historicalSubPeriodAddressToSubPeriodLookup.Add(tickerId.HistoricalPeriodSummaryResponseRequest(subPeriod), subPeriod);
+                        (((SourceTickerId)pricingInstrumentId).HistoricalPeriodSummaryResponseRequest(subPeriod)
+                       , ReceivedHistoricalSubPeriodResponseRequest));
+                historicalSubPeriodAddressToSubPeriodLookup
+                    .Add(((SourceTickerId)pricingInstrumentId).HistoricalPeriodSummaryResponseRequest(subPeriod), subPeriod);
                 liveSubPeriodCompletePublisherSubscriptions.Add
                     (subPeriod, await this.RegisterListenerAsync<PricePeriodSummary>
-                        (tickerId.CompletePeriodSummaryAddress(subPeriod), ReceivedCompleteSubPricePeriodSummaries));
-                liveSubPeriodAddressToSubReceivedHistorical.Add(tickerId.CompletePeriodSummaryAddress(subPeriod), subPeriod);
+                        (((SourceTickerId)pricingInstrumentId).CompletePeriodSummaryAddress(subPeriod), ReceivedCompleteSubPricePeriodSummaries));
+                liveSubPeriodAddressToSubReceivedHistorical.Add(((SourceTickerId)pricingInstrumentId).CompletePeriodSummaryAddress(subPeriod)
+                                                              , subPeriod);
             }
             await base.StartAsync();
         }

@@ -23,7 +23,8 @@ public interface IReaderSession<TEntry> : ITimeSeriesSession
     where TEntry : ITimeSeriesEntry<TEntry>
 {
     IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext);
-    void                VisitChildrenCacheAndClose();
+
+    void VisitChildrenCacheAndClose();
 
     IReaderContext<TEntry> GetAllEntriesReader
     (EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject

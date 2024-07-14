@@ -25,7 +25,7 @@ public class PriceSummaryTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile
     public PriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header)
     {
-        Header.SubHeaderFactory = (view, offset, writable) => new PriceFileSubHeader(view, offset, writable);
+        Header.SubHeaderFactory = (view, offset, writable) => new PriceFileSubHeader(header.InstrumentType, view, offset, writable);
         PriceFileHeader         = (IPriceFileHeader)Header.SubHeader!;
     }
 
@@ -39,7 +39,7 @@ public class PriceSummaryTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile
 
     public override IBucketFactory<TBucket> RootBucketFactory
     {
-        get { return FileBucketFactory ??= new PriceBucketFactory<TBucket>(PriceFileHeader.SourceTickerQuoteInfo, true); }
+        get { return FileBucketFactory ??= new PriceBucketFactory<TBucket>(PriceFileHeader.PricingInstrumentId, true); }
         set => FileBucketFactory = value;
     }
 
@@ -47,5 +47,5 @@ public class PriceSummaryTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile
 
     public override ISessionAppendContext<TEntry, TBucket>
         CreateAppendContext() =>
-        new PQPricePeriodSummaryAppendContext<TEntry, TBucket>(PriceFileHeader.SourceTickerQuoteInfo);
+        new PQPricePeriodSummaryAppendContext<TEntry, TBucket>(PriceFileHeader.PricingInstrumentId);
 }

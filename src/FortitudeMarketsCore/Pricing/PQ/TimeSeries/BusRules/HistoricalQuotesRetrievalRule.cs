@@ -15,7 +15,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Config;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -30,14 +29,14 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote
 {
     public HistoricalQuotesRequest
-        (ISourceTickerId tickerId, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
+        (SourceTickerId tickerId, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
     {
         TickerId       = tickerId;
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
     }
 
-    public ISourceTickerId     TickerId  { get; }
+    public SourceTickerId      TickerId  { get; }
     public UnboundedTimeRange? TimeRange { get; }
 
     public ChannelPublishRequest<TEntry> ChannelRequest { get; }
@@ -116,11 +115,11 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         base.Stop();
     }
 
-    private IInstrument? FindInstrumentFor(ISourceTickerId tickerId)
+    private IInstrument? FindInstrumentFor(SourceTickerId tickerId)
     {
         var matchingInstruments =
             TimeSeriesRepository!.InstrumentFilesMap.Keys
-                                 .Where(i => i.InstrumentName == tickerId.Ticker && i[nameof(RepositoryPathName.SourceName)] == tickerId.Source)
+                                 .Where(i => i.InstrumentName == tickerId.Ticker && i.InstrumentSource == tickerId.Source)
                                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }

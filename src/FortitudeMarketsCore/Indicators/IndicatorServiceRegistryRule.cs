@@ -67,7 +67,16 @@ public enum ServiceRunStatus
 public struct TickerPeriodServiceRequest
 {
     public TickerPeriodServiceRequest
-    (RequestType requestType, ServiceType serviceType, ISourceTickerId tickerId, TimeSeriesPeriod period = Tick
+    (RequestType requestType, ServiceType serviceType, PricingInstrumentId pricingInstrumentId
+      , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
+    {
+        RequestType = requestType;
+        TickerPeriodServiceInfo
+            = new TickerPeriodServiceInfo(serviceType, pricingInstrumentId, pricingInstrumentId.EntryPeriod, quoteLevel, usePqQuote);
+    }
+
+    public TickerPeriodServiceRequest
+    (RequestType requestType, ServiceType serviceType, SourceTickerId tickerId, TimeSeriesPeriod period = Tick
       , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
     {
         RequestType             = requestType;
@@ -102,19 +111,27 @@ public struct GlobalServiceRequest
 public struct TickerPeriodServiceInfo
 {
     public TickerPeriodServiceInfo
-    (ServiceType serviceType, ISourceTickerId tickerId, TimeSeriesPeriod period = Tick
+    (ServiceType serviceType, PricingInstrumentId pricingInstrumentId
       , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
     {
-        ServiceType = serviceType;
-        TickerId    = tickerId;
-        Period      = period;
-        QuoteLevel  = quoteLevel;
-        UsePqQuote  = usePqQuote;
+        ServiceType         = serviceType;
+        PricingInstrumentId = pricingInstrumentId;
+        QuoteLevel          = quoteLevel;
+        UsePqQuote          = usePqQuote;
     }
 
-    public ServiceType      ServiceType { get; }
-    public ISourceTickerId  TickerId    { get; }
-    public TimeSeriesPeriod Period      { get; }
+    public TickerPeriodServiceInfo
+    (ServiceType serviceType, SourceTickerId tickerId, TimeSeriesPeriod period = Tick
+      , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
+    {
+        ServiceType         = serviceType;
+        PricingInstrumentId = new PricingInstrumentId(tickerId, new PeriodInstrumentTypePair(InstrumentType.Custom, period));
+        QuoteLevel          = quoteLevel;
+        UsePqQuote          = usePqQuote;
+    }
+
+    public ServiceType         ServiceType         { get; }
+    public PricingInstrumentId PricingInstrumentId { get; }
 
     public QuoteLevel QuoteLevel { get; set; }
     public bool       UsePqQuote { get; set; }
@@ -343,44 +360,44 @@ public class IndicatorServiceRegistryRule : Rule
     protected ServiceRuntimeState LivePriceSummaryFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
-        if (tickerServiceInfo.Period is Tick or > OneYear) return new ServiceRuntimeState();
+        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is Tick or > OneYear) return new ServiceRuntimeState();
         switch (tickerServiceInfo.QuoteLevel)
         {
             case QuoteLevel.Level1 when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new LivePricePeriodSummaryPublisherRule<PQLevel1Quote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period))
+                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level1 when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period))
+                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level2 when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new LivePricePeriodSummaryPublisherRule<PQLevel2Quote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period))
+                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level2 when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new LivePricePeriodSummaryPublisherRule<Level2PriceQuote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period))
+                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level3 when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new LivePricePeriodSummaryPublisherRule<PQLevel3Quote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period))
+                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level3 when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new LivePricePeriodSummaryPublisherRule<Level3PriceQuote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.TickerId, tickerServiceInfo.Period))
+                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
         }
         return new ServiceRuntimeState();
@@ -389,7 +406,7 @@ public class IndicatorServiceRegistryRule : Rule
     protected ServiceRuntimeState HistoricalPricePeriodSummaryResolverFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
-        if (tickerServiceInfo.Period is Tick) return new ServiceRuntimeState();
+        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is Tick) return new ServiceRuntimeState();
         switch (tickerServiceInfo.QuoteLevel)
         {
             case QuoteLevel.Level1 when tickerServiceInfo.UsePqQuote:
@@ -397,7 +414,7 @@ public class IndicatorServiceRegistryRule : Rule
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<PQLevel1Quote>
                              (new HistoricalPeriodParams
-                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                 (tickerServiceInfo.PricingInstrumentId
                                 , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level1 when !tickerServiceInfo.UsePqQuote:
@@ -405,7 +422,7 @@ public class IndicatorServiceRegistryRule : Rule
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>
                              (new HistoricalPeriodParams
-                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                 (tickerServiceInfo.PricingInstrumentId
                                 , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level2 when tickerServiceInfo.UsePqQuote:
@@ -413,7 +430,7 @@ public class IndicatorServiceRegistryRule : Rule
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<PQLevel2Quote>
                              (new HistoricalPeriodParams
-                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                 (tickerServiceInfo.PricingInstrumentId
                                 , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level2 when !tickerServiceInfo.UsePqQuote:
@@ -421,7 +438,7 @@ public class IndicatorServiceRegistryRule : Rule
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<Level2PriceQuote>
                              (new HistoricalPeriodParams
-                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                 (tickerServiceInfo.PricingInstrumentId
                                 , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level3 when tickerServiceInfo.UsePqQuote:
@@ -429,7 +446,7 @@ public class IndicatorServiceRegistryRule : Rule
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<PQLevel3Quote>
                              (new HistoricalPeriodParams
-                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                 (tickerServiceInfo.PricingInstrumentId
                                 , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case QuoteLevel.Level3 when !tickerServiceInfo.UsePqQuote:
@@ -437,7 +454,7 @@ public class IndicatorServiceRegistryRule : Rule
                     (new ServiceRunStateResponse
                         (new HistoricalPeriodSummariesResolverRule<Level3PriceQuote>
                              (new HistoricalPeriodParams
-                                 (tickerServiceInfo.TickerId, tickerServiceInfo.Period
+                                 (tickerServiceInfo.PricingInstrumentId
                                 , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
         }
@@ -447,13 +464,14 @@ public class IndicatorServiceRegistryRule : Rule
     protected ServiceRuntimeState LiveMovingAverageFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
-        if (tickerServiceInfo.Period is >= Tick and <= FifteenMinutes)
+        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is >= Tick and <= FifteenMinutes)
         {
             // shared ticks moving Average
             var anyExisting =
                 TickerPeriodServiceStateLookup
                     .FirstOrDefault
-                        (kvp => Equals(kvp.Key.TickerId, tickerServiceInfo.TickerId) && kvp.Key.Period is >= Tick and <= FifteenMinutes);
+                        (kvp => Equals(kvp.Key.PricingInstrumentId, tickerServiceInfo.PricingInstrumentId) &&
+                                kvp.Key.PricingInstrumentId.EntryPeriod is >= Tick and <= FifteenMinutes);
             if (!Equals(anyExisting, default(KeyValuePair<TickerPeriodServiceInfo, ServiceRuntimeState>)))
             {
                 TickerPeriodServiceStateLookup[anyExisting.Key] = anyExisting.Value;
@@ -463,11 +481,12 @@ public class IndicatorServiceRegistryRule : Rule
             return new ServiceRuntimeState
                 (new ServiceRunStateResponse
                     (new LiveSharedTicksMovingAveragePublisherRule
-                        (new MovingAveragePublisherParams
-                            (tickerServiceInfo.TickerId.SourceId, tickerServiceInfo.TickerId
-                           , new PricePublishInterval(OneSecond), new MovingAverageParams(tickerServiceInfo.Period!))), ServiceRunStatus.NotStarted));
+                         (new MovingAveragePublisherParams
+                             (tickerServiceInfo.PricingInstrumentId.SourceId, tickerServiceInfo.PricingInstrumentId
+                            , new PricePublishInterval(OneSecond), new MovingAverageParams(tickerServiceInfo.PricingInstrumentId.EntryPeriod!)))
+                   , ServiceRunStatus.NotStarted));
         }
-        if (tickerServiceInfo.Period is > FifteenMinutes and <= OneYear)
+        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is > FifteenMinutes and <= OneYear)
         {
             // TODO implement period summary moving average calculator
         }

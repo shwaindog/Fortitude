@@ -13,8 +13,9 @@ public interface IPathPart
 {
     PathName[] NameParts { get; set; }
 
-    TimeSeriesPeriod         PathTimeSeriesPeriod    { get; }
-    IPathDirectory?          ParentDirectory         { get; set; }
+    TimeSeriesPeriod PathTimeSeriesPeriod { get; }
+    IPathDirectory?  ParentDirectory      { get; set; }
+
     IRepositoryRootDirectory RepositoryRootDirectory { get; }
 
     string NamePartSeparator { get; }
@@ -66,7 +67,8 @@ public abstract class PathPart : IPathPart
                         case Year:   return TimeSeriesPeriod.OneYear;
                         case Month:  return TimeSeriesPeriod.OneMonth;
                         case WeekOfYear:
-                        case WeekOfMonth: return TimeSeriesPeriod.OneWeek;
+                        case WeekOfMonth:
+                            return TimeSeriesPeriod.OneWeek;
                         case Day:  return TimeSeriesPeriod.OneDay;
                         case Hour: return TimeSeriesPeriod.OneHour;
                     }
@@ -92,10 +94,11 @@ public abstract class PathPart : IPathPart
 
     public virtual PathFileMatch PathMatch(PathFileMatch currentMatch)
     {
-        currentMatch.InstrumentNameMatch = ExtractInstrumentName(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentNameMatch;
-        currentMatch.InstrumentTypeMatch = ExtractInstrumentType(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentTypeMatch;
-        currentMatch.EntryPeriodMatch    = ExtractEntryPeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.EntryPeriodMatch;
-        currentMatch.FilePeriodMatch     = ExtractFilePeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.FilePeriodMatch;
+        currentMatch.InstrumentNameMatch   = ExtractInstrumentName(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentNameMatch;
+        currentMatch.InstrumentSourceMatch = ExtractInstrumentSource(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentNameMatch;
+        currentMatch.InstrumentTypeMatch   = ExtractInstrumentType(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentTypeMatch;
+        currentMatch.EntryPeriodMatch      = ExtractEntryPeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.EntryPeriodMatch;
+        currentMatch.FilePeriodMatch       = ExtractFilePeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.FilePeriodMatch;
         foreach (var field in currentMatch.RequiredFields)
             currentMatch[field] = ExtractInstrumentField(field, currentMatch.MatchedPath[^1]) ?? currentMatch[field];
         foreach (var field in currentMatch.OptionalFields)
@@ -112,7 +115,7 @@ public abstract class PathPart : IPathPart
     {
         var fileNameSplit = pathPart.Split(NamePartSeparator);
         for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == TimeSeriesType && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
+            if (NameParts[i].PathPart == RepositoryPathName.InstrumentType && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
                 return Enum.Parse<InstrumentType>(fileNameSplit[i]);
         return null;
     }
@@ -140,6 +143,15 @@ public abstract class PathPart : IPathPart
         var fileNameSplit = pathPart.Split(NamePartSeparator);
         for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
             if (NameParts[i].PathPart == InstrumentName && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
+                return fileNameSplit[i];
+        return null;
+    }
+
+    public string? ExtractInstrumentSource(string pathPart)
+    {
+        var fileNameSplit = pathPart.Split(NamePartSeparator);
+        for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
+            if (NameParts[i].PathPart == InstrumentSource && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
                 return fileNameSplit[i];
         return null;
     }

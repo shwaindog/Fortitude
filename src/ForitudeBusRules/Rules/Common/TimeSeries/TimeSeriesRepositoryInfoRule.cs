@@ -21,18 +21,20 @@ namespace FortitudeBusRules.Rules.Common.TimeSeries;
 public struct TimeSeriesRepositoryInstrumentFileInfoRequest
 {
     public TimeSeriesRepositoryInstrumentFileInfoRequest
-    (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryPeriod = null
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryPeriod = null
       , Dictionary<string, string>? matchFields = null)
     {
-        InstrumentName = instrumentName;
-        EntryPeriod    = entryPeriod;
-        InstrumentType = instrumentType;
-        MatchFields    = matchFields;
+        InstrumentName   = instrumentName;
+        InstrumentSource = instrumentSource;
+        EntryPeriod      = entryPeriod;
+        InstrumentType   = instrumentType;
+        MatchFields      = matchFields;
     }
 
-    public string            InstrumentName { get; }
-    public TimeSeriesPeriod? EntryPeriod    { get; }
-    public InstrumentType?   InstrumentType { get; }
+    public string            InstrumentName   { get; }
+    public string            InstrumentSource { get; }
+    public TimeSeriesPeriod? EntryPeriod      { get; }
+    public InstrumentType?   InstrumentType   { get; }
 
     public Dictionary<string, string>? MatchFields { get; }
 }
@@ -90,7 +92,7 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
 
     private List<InstrumentFileEntryInfo> GetFileEntryInfo
         (TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
-        InstrumentFileEntryInfos(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
+        InstrumentFileEntryInfos(req.InstrumentName, req.InstrumentSource, req.InstrumentType, req.EntryPeriod);
 
 
     private async ValueTask<List<InstrumentFileInfo>> HandleInstrumentFileInfo
@@ -110,7 +112,7 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
 
     private List<InstrumentFileInfo> GetFileInfo
         (TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
-        InstrumentFileInfos(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
+        InstrumentFileInfos(req.InstrumentName, req.InstrumentSource, req.InstrumentType, req.EntryPeriod);
 
     private void HandleRequestListAllAvailableInstruments(IBusMessage<ResponsePublishParams> publishParamsMsg)
     {

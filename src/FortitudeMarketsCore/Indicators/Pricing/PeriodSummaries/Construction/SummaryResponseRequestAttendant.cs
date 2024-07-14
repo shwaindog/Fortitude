@@ -9,6 +9,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Summaries;
@@ -35,25 +36,25 @@ public class SubSummaryRequestResponseAttendant
         var subPeriodRequest = new HistoricalPeriodResponseRequest(requestRange);
         var subPeriodsInRange
             = await ConstructingRule.RequestAsync<HistoricalPeriodResponseRequest, List<PricePeriodSummary>>
-                (State.tickerId.HistoricalPeriodSummaryResponseRequest(subSummaryPeriod), subPeriodRequest);
+                (((SourceTickerId)State.PricingInstrumentId).HistoricalPeriodSummaryResponseRequest(subSummaryPeriod), subPeriodRequest);
 
         if (subPeriodsInRange.Count == 0) return new List<PricePeriodSummary>();
         var remainingPeriods = new List<PricePeriodSummary>();
         var firstSubPeriod   = subPeriodsInRange[0];
-        var keepFrom         = (TimeContext.UtcNow - State.cacheTimeSpan).Min(State.existingSummariesHistoricalRange.ToTime - State.cacheTimeSpan);
-        var currentPeriod    = new PricePeriodSummary(State.period, State.period.ContainingPeriodBoundaryStart(firstSubPeriod.PeriodStartTime));
+        var keepFrom         = (TimeContext.UtcNow - State.CacheTimeSpan).Min(State.ExistingRepoRange.ToTime - State.CacheTimeSpan);
+        var currentPeriod    = new PricePeriodSummary(State.Period, State.Period.ContainingPeriodBoundaryStart(firstSubPeriod.PeriodStartTime));
         foreach (var subPeriodHistory in subPeriodsInRange)
         {
             if (!subPeriodHistory.IsWhollyBoundedBy(currentPeriod))
             {
-                if (currentPeriod.PeriodEndTime > keepFrom) State.cacheLatest.AddReplace(currentPeriod);
+                if (currentPeriod.PeriodEndTime > keepFrom) State.Cache.AddReplace(currentPeriod);
                 remainingPeriods.Add(currentPeriod);
-                currentPeriod = new PricePeriodSummary(State.period
-                                                     , State.period.ContainingPeriodBoundaryStart(subPeriodHistory.PeriodStartTime));
+                currentPeriod = new PricePeriodSummary(State.Period
+                                                     , State.Period.ContainingPeriodBoundaryStart(subPeriodHistory.PeriodStartTime));
             }
             currentPeriod.MergeBoundaries(subPeriodHistory);
         }
-        if (currentPeriod.PeriodEndTime > keepFrom) State.cacheLatest.AddReplace(currentPeriod);
+        if (currentPeriod.PeriodEndTime > keepFrom) State.Cache.AddReplace(currentPeriod);
         remainingPeriods.Add(currentPeriod);
         return remainingPeriods;
     }
@@ -73,7 +74,7 @@ public class QuoteToSummaryRequestResponseAttendant<TQuote>
         var rebuildCompleteSource = new TaskCompletionSource<bool>();
         var rebuildCompleteTask   = rebuildCompleteSource.Task;
 
-        var keepFrom = (TimeContext.UtcNow - State.cacheTimeSpan).Min(State.existingSummariesHistoricalRange.ToTime - State.cacheTimeSpan);
+        var keepFrom = (TimeContext.UtcNow - State.CacheTimeSpan).Min(State.ExistingRepoRange.ToTime - State.CacheTimeSpan);
         var summaryPopulateChannel = ConstructingRule.CreateChannelFactory(ce =>
         {
             if (ce.IsLastEvent)
@@ -82,7 +83,7 @@ public class QuoteToSummaryRequestResponseAttendant<TQuote>
             }
             else
             {
-                if (ce.Event.PeriodEndTime > keepFrom) State.cacheLatest.AddReplace(ce.Event);
+                if (ce.Event.PeriodEndTime > keepFrom) State.Cache.AddReplace(ce.Event);
                 remainingPeriods.Add(ce.Event);
             }
             return !ce.IsLastEvent;

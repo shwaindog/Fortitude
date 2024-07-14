@@ -6,7 +6,7 @@
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing;
 
 #endregion
 
@@ -16,18 +16,18 @@ public class PriceBucketFactory<TBucket> : BucketFactory<TBucket>
     where TBucket : class, IBucketNavigation<TBucket>, IPriceBucket, IMutableBucket
 {
     public PriceBucketFactory
-    (ISourceTickerQuoteInfo sourceTickerQuoteInfo,
+    (IPricingInstrumentId pricingInstrumentId,
         bool isFileRootBucketType = false) : base(isFileRootBucketType) =>
-        SourceTickerQuoteInfo = sourceTickerQuoteInfo;
+        PricingInstrumentId = pricingInstrumentId;
 
-    private ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; }
+    private IPricingInstrumentId PricingInstrumentId { get; }
 
     protected override TBucket NewBucketObject
     (IMutableBucketContainer bucketContainer, long currentFileOffset, bool isWritable
       , ShiftableMemoryMappedFileView? alternativeMappedFileView = null)
     {
         var newBucket = base.NewBucketObject(bucketContainer, currentFileOffset, isWritable, alternativeMappedFileView);
-        newBucket.SourceTickerQuoteInfo = SourceTickerQuoteInfo;
+        newBucket.PricingInstrumentId = PricingInstrumentId;
         return newBucket;
     }
 }

@@ -64,7 +64,7 @@ public interface ITimeSeriesRepository
     InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument);
 
     IEnumerable<IInstrument> AvailableInstrumentsMatching
-    (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
       , IEnumerable<KeyValuePair<string, string>>? attributes = null);
 
     IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
@@ -154,14 +154,14 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
     }
 
     public IEnumerable<IInstrument> AvailableInstrumentsMatching
-    (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
       , IEnumerable<KeyValuePair<string, string>>? attributes = null)
     {
         foreach (var instrument in InstrumentFilesMap.Keys)
         {
-            var isMatch = instrument.InstrumentName == instrumentName;
+            var isMatch = instrument.InstrumentName == instrumentName && instrument.InstrumentSource == instrumentSource;
             if (!isMatch) continue;
-            if (instrumentType != null && instrumentType != instrument.Type) continue;
+            if (instrumentType != null && instrumentType != instrument.InstrumentType) continue;
             if (entryType != null && entryType != instrument.EntryPeriod) continue;
             if (attributes != null && attributes.Any(kvp => instrument[kvp.Key] != kvp.Value)) continue;
             yield return instrument;

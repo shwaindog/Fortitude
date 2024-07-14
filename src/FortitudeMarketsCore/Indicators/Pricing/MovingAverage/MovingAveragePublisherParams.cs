@@ -23,7 +23,7 @@ public struct SharedTicksMovingAveragePublishParams
 public struct MovingAveragePublisherParams
 {
     public MovingAveragePublisherParams
-    (ushort publishSourceId, ISourceTickerId sourceTickerId, PricePublishInterval publishInterval
+    (ushort publishSourceId, SourceTickerId sourceTickerId, PricePublishInterval publishInterval
       , params MovingAverageParams[] periodsToPublish)
     {
         PublishAsSourceId = publishSourceId;
@@ -33,7 +33,7 @@ public struct MovingAveragePublisherParams
     }
 
     public MovingAveragePublisherParams
-    (ushort publishSourceId, ISourceTickerId sourceTickerId, PricePublishInterval publishInterval
+    (ushort publishSourceId, SourceTickerId sourceTickerId, PricePublishInterval publishInterval
       , params BatchPricePublishInterval[] batchPeriodsToPublish)
     {
         PublishAsSourceId     = publishSourceId;
@@ -42,7 +42,7 @@ public struct MovingAveragePublisherParams
         BatchPeriodsToPublish = batchPeriodsToPublish;
     }
 
-    public ISourceTickerId SourceTickerId { get; }
+    public SourceTickerId SourceTickerId { get; }
 
     public ushort PublishAsSourceId { get; }
 

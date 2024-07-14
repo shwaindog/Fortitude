@@ -20,7 +20,7 @@ public interface ISourceTickerId : IReusableObject<ISourceTickerId>
     string Ticker   { get; }
 }
 
-public class SourceTickerIdentifier : ReusableObject<ISourceTickerId>, ISourceTickerId
+public class SourceTickerIdentifier : ReusableObject<ISourceTickerId>, ISourceTickerId, IInterfacesComparable<ISourceTickerId>
 {
     public SourceTickerIdentifier() { }
 
@@ -38,6 +38,26 @@ public class SourceTickerIdentifier : ReusableObject<ISourceTickerId>, ISourceTi
         TickerId = toClone.TickerId;
         Source   = toClone.Source;
         Ticker   = toClone.Ticker;
+    }
+
+    public SourceTickerIdentifier(SourceTickerId toClone)
+    {
+        SourceId = toClone.SourceId;
+        TickerId = toClone.TickerId;
+        Source   = toClone.Source;
+        Ticker   = toClone.Ticker;
+    }
+
+
+    public virtual bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
+    {
+        var sourceIdSame = SourceId == other?.SourceId;
+        var tickerIdSame = TickerId == other?.TickerId;
+        var sourceSame   = Source == other?.Source;
+        var tickerSame   = Ticker == other?.Ticker;
+
+
+        return sourceIdSame && tickerIdSame && sourceSame && tickerSame;
     }
 
     public uint   Id       => (uint)((SourceId << 16) | TickerId);
@@ -64,7 +84,20 @@ public class SourceTickerIdentifier : ReusableObject<ISourceTickerId>, ISourceTi
         base.StateReset();
     }
 
-    public override ISourceTickerId Clone() => Recycler?.Borrow<SourceTickerIdentifier>().CopyFrom(this) ?? new SourceTickerIdentifier(this);
+    public override ISourceTickerId Clone() =>
+        Recycler?.Borrow<SourceTickerIdentifier>().CopyFrom(this) ?? new SourceTickerIdentifier((ISourceTickerId)this);
+
+    protected bool Equals(SourceTickerIdentifier other) => AreEquivalent(other, true);
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((SourceTickerIdentifier)obj);
+    }
+
+    public override int GetHashCode() => HashCode.Combine(SourceId, TickerId, Source, Ticker);
 
     public static implicit operator SourceTickerId(SourceTickerIdentifier sourceTickerId) => new(sourceTickerId);
 }

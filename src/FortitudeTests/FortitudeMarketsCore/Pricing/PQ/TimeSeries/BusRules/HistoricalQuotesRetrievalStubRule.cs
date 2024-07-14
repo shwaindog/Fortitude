@@ -34,13 +34,13 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     private ISubscription? pql2RequestListenerSubscription;
     private ISubscription? pql3RequestListenerSubscription;
 
-    private Func<ISourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback;
+    private Func<SourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback;
 
-    public HistoricalQuotesRetrievalStubRule(Func<ISourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback)
+    public HistoricalQuotesRetrievalStubRule(Func<SourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback)
         : base(nameof(HistoricalQuotesRetrievalStubRule)) =>
         this.quotesCallback = quotesCallback;
 
-    public Func<ISourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> QuotesCallback
+    public Func<SourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> QuotesCallback
     {
         get => quotesCallback;
         set => quotesCallback = value ?? throw new ArgumentNullException(nameof(value));

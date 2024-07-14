@@ -31,10 +31,10 @@ public class PathFile : PathPart, IPathFile
     private readonly        string   fileExtension;
 
     public PathFile(string fileExtension, InstrumentEntryRangeMatch instrumentEntryRangeFileMatch)
-        : base(new PathName(TimeSeriesType),
+        : base(new PathName(RepositoryPathName.InstrumentType),
                new PathName(EntryPeriod),
                new PathName(MarketProductType),
-               new PathName(SourceName),
+               new PathName(InstrumentSource),
                new PathName(InstrumentName),
                new PathName(DirectoryStartDate),
                new PathName(FilePeriod),

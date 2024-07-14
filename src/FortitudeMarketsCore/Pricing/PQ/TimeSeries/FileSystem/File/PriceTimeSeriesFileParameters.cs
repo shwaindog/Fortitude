@@ -5,7 +5,7 @@
 
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
@@ -15,7 +15,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 public struct PriceTimeSeriesFileParameters
 {
     public PriceTimeSeriesFileParameters
-    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, FileInfo fileInfo,
+    (IPricingInstrumentId pricingInstrumentId, FileInfo fileInfo,
         IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime fileStartPeriod,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage,
         uint internalIndexSize = 0, FileFlags initialFileFlags = FileFlags.None, int initialFileSize = ushort.MaxValue * 2,
@@ -24,20 +24,20 @@ public struct PriceTimeSeriesFileParameters
         TimeSeriesFileParameters = new TimeSeriesFileParameters(fileInfo, instrument, filePeriod,
                                                                 fileStartPeriod, internalIndexSize, initialFileFlags,
                                                                 initialFileSize, maxStringSizeBytes, maxTypeStringSizeBytes);
-        SourceTickerQuoteInfo = sourceTickerQuoteInfo;
-        SerializationFlags    = serializationFlags;
+        PricingInstrumentId = pricingInstrumentId;
+        SerializationFlags  = serializationFlags;
     }
 
     public PriceTimeSeriesFileParameters
-    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, TimeSeriesFileParameters timeSeriesFileParameters,
+    (IPricingInstrumentId pricingInstrumentId, TimeSeriesFileParameters timeSeriesFileParameters,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage)
     {
         TimeSeriesFileParameters = timeSeriesFileParameters;
-        SourceTickerQuoteInfo    = sourceTickerQuoteInfo;
+        PricingInstrumentId      = pricingInstrumentId;
         SerializationFlags       = serializationFlags;
     }
 
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo;
+    public IPricingInstrumentId PricingInstrumentId;
 
     public PQSerializationFlags SerializationFlags;
 

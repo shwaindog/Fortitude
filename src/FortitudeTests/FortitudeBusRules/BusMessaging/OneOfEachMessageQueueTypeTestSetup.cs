@@ -26,7 +26,7 @@ namespace FortitudeTests.FortitudeBusRules.BusMessaging;
 [NoMatchingProductionClass]
 public class OneOfEachMessageQueueTypeTestSetup
 {
-    public const int AsyncRingPollerSize = 2550;
+    public const int DefaultRingPollerSize = 2550;
 
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OneOfEachMessageQueueTypeTestSetup));
 
@@ -42,6 +42,8 @@ public class OneOfEachMessageQueueTypeTestSetup
     public    MessageQueue           WorkerQueue1 = null!;
     protected RouteSelectionResult   WorkerQueue1SelectionResult;
 
+    protected virtual int RingPollerSize => DefaultRingPollerSize;
+
 
     [TestInitialize]
     public void SetupMessageBus()
@@ -56,8 +58,8 @@ public class OneOfEachMessageQueueTypeTestSetup
     {
         var defaultQueuesConfig = new QueuesConfig
         {
-            DefaultQueueSize         = AsyncRingPollerSize
-          , EventQueueSize           = AsyncRingPollerSize
+            DefaultQueueSize         = RingPollerSize
+          , EventQueueSize           = RingPollerSize
           , RequiredIOInboundQueues  = 1
           , RequiredIOOutboundQueues = 1
         };
@@ -107,15 +109,17 @@ public class OneOfEachMessageQueueTypeTestSetup
         Logger.Info("OneOfEachMessageQueueTypeTestSetup MessageBus stopped");
     }
 
-    protected IAsyncValueTaskRingPoller<BusMessage> RingPoller(string name) => new AsyncValueTaskRingPoller<BusMessage>(PollingRing(name), 1);
+    protected IAsyncValueTaskRingPoller<BusMessage> RingPoller
+        (string name) =>
+        new AsyncValueTaskRingPoller<BusMessage>(PollingRing(name, RingPollerSize), 1);
 
     protected ISocketSenderMessageQueueRingPoller SocketSenderRingPoller() =>
-        new SocketAsyncValueTaskEventQueueSender(PollingRing("MessageBusSocketSender"), 1);
+        new SocketAsyncValueTaskEventQueueSender(PollingRing("MessageBusSocketSender", RingPollerSize), 1);
 
     protected ISocketListenerMessageQueueRingPoller SocketListenerRingPoller(IUpdateableTimer timer) =>
-        new SocketAsyncValueTaskEventQueueListener(PollingRing("MessageBusSocketListener"), 1, new SocketSelector(1), timer);
+        new SocketAsyncValueTaskEventQueueListener(PollingRing("MessageBusSocketListener", RingPollerSize), 1, new SocketSelector(1), timer);
 
-    protected IAsyncValueTaskPollingRing<BusMessage> PollingRing(string name, int size = AsyncRingPollerSize)
+    protected IAsyncValueTaskPollingRing<BusMessage> PollingRing(string name, int size)
     {
         return new AsyncValueValueTaskPollingRing<BusMessage>
             (name, size, () => new BusMessage(), ClaimStrategyType.MultiProducers, null, false);

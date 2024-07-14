@@ -3,9 +3,11 @@
 
 namespace FortitudeIO.TimeSeries;
 
-public enum InstrumentType : ushort
+public enum InstrumentType : byte
 {
-    Custom
+    Unknown
+  , Any
+  , Custom
   , Price
   , PriceSummaryPeriod
   , Indicator
@@ -15,7 +17,7 @@ public enum InstrumentType : ushort
 
 public readonly struct PeriodInstrumentTypePair(InstrumentType instrumentType, TimeSeriesPeriod period)
 {
-    public TimeSeriesPeriod Period { get; } = period;
+    public TimeSeriesPeriod EntryPeriod { get; } = period;
 
     public InstrumentType InstrumentType { get; } = instrumentType;
 }

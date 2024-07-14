@@ -6,6 +6,7 @@ namespace FortitudeMarketsApi.Configuration.ClientServerConfig;
 public enum MarketRegion : byte
 {
     Unknown = 0
+  , Any
   , Global
   , Local
   , US
@@ -34,6 +35,7 @@ public enum MarketRegion : byte
 public enum MarketType : byte
 {
     Unknown = 0
+  , Any
   , Internal
   , None
   , Other
@@ -61,6 +63,7 @@ public enum MarketType : byte
 public enum ProductType : byte
 {
     Unknown = 0
+  , Any
   , Internal
   , None
   , Spot

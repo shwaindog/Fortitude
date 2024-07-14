@@ -60,7 +60,7 @@ public interface IPQPriceStoragePeriodSummary : IMutablePricePeriodSummary, ITra
 {
     PQPriceStorageSummaryFlags SummaryStorageFlags { get; }
 
-    IPQPriceVolumePublicationPrecisionSettings? PrecisionSettings { get; set; }
+    IPQPriceVolumePublicationPrecisionSettings? PrecisionSettings { get; }
 
     uint DeltaPeriodsFromPrevious    { get; set; }
     uint DeltaStartBidPrice          { get; set; }
@@ -79,43 +79,51 @@ public interface IPQPriceStoragePeriodSummary : IMutablePricePeriodSummary, ITra
     uint DeltaAverageAskPrice        { get; set; }
     byte VolumePricePrecisionScale   { get; }
 
+    void CalculatedScaledDeltas();
+    void CalculateAllFromNewDeltas();
+
     new IPQPriceStoragePeriodSummary Clone();
 }
 
 public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPriceStoragePeriodSummary
   , ITimeSeriesEntry<PQPriceStoragePeriodSummary>, ICloneable<PQPriceStoragePeriodSummary>
 {
-    private decimal                 averageAskPrice;
-    private decimal                 averageBidPrice;
-    private uint                    deltaPeriodsFromPrevious;
-    private decimal                 endAskPrice;
-    private decimal                 endBidPrice;
-    private decimal                 highestAskPrice;
-    private decimal                 highestBidPrice;
-    private decimal                 lowestAskPrice;
-    private decimal                 lowestBidPrice;
+    private decimal averageAskPrice;
+    private decimal averageBidPrice;
+    private uint    deltaPeriodsFromPrevious;
+    private decimal endAskPrice;
+    private decimal endBidPrice;
+    private decimal highestAskPrice;
+    private decimal highestBidPrice;
+    private decimal lowestAskPrice;
+    private decimal lowestBidPrice;
+
     private PricePeriodSummaryFlags periodSummaryFlags;
-    private long                    periodVolume;
 
-    private IPQPriceVolumePublicationPrecisionSettings? precisionSettings;
+    private long periodVolume;
 
-    private decimal  startAskPrice;
-    private decimal  startBidPrice;
+    private decimal previousAverageAskPrice;
+    private decimal previousAverageBidPrice;
+    private decimal previousEndAskPrice;
+    private decimal previousEndBidPrice;
+    private decimal previousHighestAskPrice;
+    private decimal previousHighestBidPrice;
+    private decimal previousLowestAskPrice;
+    private decimal previousLowestBidPrice;
+    private long    previousPeriodVolume;
+
     private DateTime startTime = DateTimeConstants.UnixEpoch;
     private uint     tickCount;
 
-    public PQPriceStoragePeriodSummary() => PeriodSummaryFlags = PricePeriodSummaryFlags.FromStorage;
-
-    public PQPriceStoragePeriodSummary(IPQPriceVolumePublicationPrecisionSettings precisionSettings)
+    public PQPriceStoragePeriodSummary()
     {
-        PrecisionSettings   =  precisionSettings;
         SummaryStorageFlags |= Snapshot;
-        periodSummaryFlags  =  PricePeriodSummaryFlags.FromStorage;
+        PeriodSummaryFlags  =  PricePeriodSummaryFlags.FromStorage;
     }
 
     public PQPriceStoragePeriodSummary(IPQPriceStoragePeriodSummary toClone)
     {
-        precisionSettings  = toClone.PrecisionSettings;
+        PrecisionSettings  = toClone.PrecisionSettings;
         TimeSeriesPeriod   = toClone.TimeSeriesPeriod;
         PeriodStartTime    = toClone.PeriodStartTime;
         PeriodEndTime      = toClone.PeriodEndTime;
@@ -203,16 +211,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     public uint DeltaEndBidPrice     { get; set; }
     public uint DeltaEndAskPrice     { get; set; }
 
-    public IPQPriceVolumePublicationPrecisionSettings? PrecisionSettings
-    {
-        get => precisionSettings;
-        set
-        {
-            precisionSettings   =  value;
-            SummaryStorageFlags &= AllFlags & ~PriceScaleMask & ~VolumeScaleMask;
-            SummaryStorageFlags |= (PQPriceStorageSummaryFlags)((uint)VolumePricePrecisionScale << 24);
-        }
-    }
+    public IPQPriceVolumePublicationPrecisionSettings? PrecisionSettings { get; private set; }
 
     public byte VolumePricePrecisionScale =>
         PrecisionSettings != null
@@ -249,8 +248,13 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         set
         {
             if (!value) return;
-            StartBidPrice       = StartAskPrice  = HighestBidPrice = HighestAskPrice = AverageBidPrice = decimal.Zero;
-            LowestBidPrice      = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
+            StartBidPrice  = StartAskPrice  = HighestBidPrice = HighestAskPrice = AverageBidPrice = decimal.Zero;
+            LowestBidPrice = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
+
+            previousHighestBidPrice = previousHighestAskPrice = previousLowestBidPrice  = previousLowestAskPrice  = -1m;
+            previousEndBidPrice     = previousEndAskPrice     = previousAverageBidPrice = previousAverageAskPrice = -1m;
+            previousPeriodVolume    = -1L;
+
             TickCount           = 0;
             PeriodVolume        = 0;
             TimeSeriesPeriod    = TimeSeriesPeriod.None;
@@ -274,7 +278,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
                 {
                     currentStartTime = TimeSeriesPeriod.PeriodEnd(currentStartTime);
                     countPeriod++;
-                    haveFoundStartTime = currentStartTime == value;
+                    haveFoundStartTime = currentStartTime >= value;
                 }
                 DeltaPeriodsFromPrevious = countPeriod;
             }
@@ -292,17 +296,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => averageBidPrice;
         set
         {
-            var current  = PQScaling.Scale(averageBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaAverageBidPrice) * DeltaAverageBidPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaAverageBidPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaAverageBidPrice;
-            DeltaAverageBidPrice = (uint)Math.Abs(delta);
-            averageBidPrice      = value;
+            if (previousAverageBidPrice < 0) previousAverageBidPrice = averageBidPrice;
+            averageBidPrice = value;
         }
     }
     public decimal AverageAskPrice
@@ -310,92 +305,22 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => averageAskPrice;
         set
         {
-            var current  = PQScaling.Scale(averageAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaAverageAskPrice) * DeltaAverageAskPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaAverageAskPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaAverageAskPrice;
-            DeltaAverageAskPrice = (uint)Math.Abs(delta);
-            averageAskPrice      = value;
+            if (previousAverageAskPrice < 0) previousAverageAskPrice = averageAskPrice;
+            averageAskPrice = value;
         }
     }
 
-    public decimal StartBidPrice
-    {
-        get => startBidPrice;
-        set
-        {
-            var current  = PQScaling.Scale(endBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaStartBidPrice) * DeltaStartBidPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-            {
-                SummaryStorageFlags &= AllFlags & ~PricesStartSameAsLastEndPrices;
-                SummaryStorageFlags |= NegateDeltaStartBidPrice;
-            }
-            else if (delta > 0)
-            {
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaStartBidPrice & ~PricesStartSameAsLastEndPrices;
-            }
-            else if (DeltaStartAskPrice == 0)
-            {
-                SummaryStorageFlags |= PricesStartSameAsLastEndPrices;
-            }
-            DeltaStartBidPrice = (uint)Math.Abs(delta);
-            startBidPrice      = value;
-        }
-    }
+    public decimal StartBidPrice { get; set; }
 
-    public decimal StartAskPrice
-    {
-        get => startAskPrice;
-        set
-        {
-            var current  = PQScaling.Scale(endAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaStartAskPrice) * DeltaStartAskPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-            {
-                SummaryStorageFlags &= AllFlags & ~PricesStartSameAsLastEndPrices;
-                SummaryStorageFlags |= NegateDeltaStartAskPrice;
-            }
-            else if (delta > 0)
-            {
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaStartAskPrice & ~PricesStartSameAsLastEndPrices;
-            }
-            else if (DeltaStartBidPrice == 0)
-            {
-                SummaryStorageFlags |= PricesStartSameAsLastEndPrices;
-            }
-            DeltaStartAskPrice = (uint)Math.Abs(delta);
-            startAskPrice      = value;
-        }
-    }
+    public decimal StartAskPrice { get; set; }
 
     public decimal HighestBidPrice
     {
         get => highestBidPrice;
         set
         {
-            var current  = PQScaling.Scale(highestBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaHighestBidPrice) * DeltaHighestBidPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaHighestBidPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaHighestBidPrice;
-            DeltaHighestBidPrice = (uint)Math.Abs(delta);
-            highestBidPrice      = value;
+            if (previousHighestBidPrice < 0) previousHighestBidPrice = highestBidPrice;
+            highestBidPrice = value;
         }
     }
 
@@ -404,17 +329,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => highestAskPrice;
         set
         {
-            var current  = PQScaling.Scale(highestAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaHighestAskPrice) * DeltaHighestAskPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaHighestAskPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaHighestAskPrice;
-            DeltaHighestAskPrice = (uint)Math.Abs(delta);
-            highestAskPrice      = value;
+            if (previousHighestAskPrice < 0) previousHighestAskPrice = highestAskPrice;
+            highestAskPrice = value;
         }
     }
 
@@ -423,17 +339,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => lowestBidPrice;
         set
         {
-            var current  = PQScaling.Scale(lowestBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaLowestBidPrice) * DeltaLowestBidPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaLowestBidPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaLowestBidPrice;
-            DeltaLowestBidPrice = (uint)Math.Abs(delta);
-            lowestBidPrice      = value;
+            if (previousLowestBidPrice < 0) previousLowestBidPrice = lowestBidPrice;
+            lowestBidPrice = value;
         }
     }
 
@@ -442,17 +349,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => lowestAskPrice;
         set
         {
-            var current  = PQScaling.Scale(lowestAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaLowestAskPrice) * DeltaLowestAskPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaLowestAskPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaLowestAskPrice;
-            DeltaLowestAskPrice = (uint)Math.Abs(delta);
-            lowestAskPrice      = value;
+            if (previousLowestAskPrice < 0) previousLowestAskPrice = lowestAskPrice;
+            lowestAskPrice = value;
         }
     }
 
@@ -461,17 +359,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => endBidPrice;
         set
         {
-            var current  = PQScaling.Scale(endBidPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaEndBidPrice) * DeltaEndBidPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaEndBidPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaEndBidPrice;
-            DeltaEndBidPrice = (uint)Math.Abs(delta);
-            endBidPrice      = value;
+            if (previousEndBidPrice < 0) previousEndBidPrice = endBidPrice;
+            endBidPrice = value;
         }
     }
 
@@ -480,17 +369,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => endAskPrice;
         set
         {
-            var current  = PQScaling.Scale(endAskPrice, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.PriceScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaEndAskPrice) * DeltaEndAskPrice
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaEndAskPrice;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaEndAskPrice;
-            DeltaEndAskPrice = (uint)Math.Abs(delta);
-            endAskPrice      = value;
+            if (previousEndAskPrice < 0) previousEndAskPrice = endAskPrice;
+            endAskPrice = value;
         }
     }
 
@@ -527,17 +407,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         get => periodVolume;
         set
         {
-            var current  = PQScaling.Scale(periodVolume, (byte)(PrecisionSettings!.VolumeScalingPrecision & 0x1F));
-            var newValue = PQScaling.Scale(value, (byte)(PrecisionSettings.VolumeScalingPrecision & 0x1F));
-            var delta =
-                SummaryStorageFlags.SignMultiplier(NegateDeltaPeriodVolume) * DeltaPeriodVolume
-              + (int)newValue - (int)current;
-            if (delta < 0)
-                SummaryStorageFlags |= NegateDeltaPeriodVolume;
-            else
-                SummaryStorageFlags &= AllFlags & ~NegateDeltaPeriodVolume;
-            DeltaPeriodVolume = (uint)Math.Abs(delta);
-            periodVolume      = value;
+            if (previousPeriodVolume < 0) previousPeriodVolume = periodVolume;
+            periodVolume = value;
         }
     }
 
@@ -548,7 +419,10 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         {
             if (value) return;
             SummaryStorageFlags = None;
-            SummaryStorageFlags = (PQPriceStorageSummaryFlags)((uint)VolumePricePrecisionScale << 24);
+
+            previousHighestBidPrice = previousHighestAskPrice = previousLowestBidPrice  = previousLowestAskPrice  = -1m;
+            previousEndBidPrice     = previousEndAskPrice     = previousAverageBidPrice = previousAverageAskPrice = -1m;
+            previousPeriodVolume    = -1L;
 
             DeltaStartBidPrice          = DeltaStartAskPrice          = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
             DeltaLowestBidPrice         = DeltaLowestAskPrice         = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
@@ -568,6 +442,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
     public override IPricePeriodSummary CopyFrom(IPricePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        if (copyMergeFlags.HasFullReplace()) IsEmpty = true;
         TimeSeriesPeriod   = ps.TimeSeriesPeriod;
         PeriodStartTime    = ps.PeriodStartTime;
         StartBidPrice      = ps.StartBidAsk.BidPrice;
@@ -584,9 +459,6 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         AverageBidPrice    = ps.AverageBidAsk.BidPrice;
         AverageAskPrice    = ps.AverageBidAsk.AskPrice;
 
-        if (ps is IPQPriceStoragePeriodSummary storageSummary)
-            if (PrecisionSettings != storageSummary.PrecisionSettings)
-                PrecisionSettings = storageSummary.PrecisionSettings;
         if (copyMergeFlags.HasFullReplace())
             SummaryStorageFlags |= Snapshot;
         else
@@ -670,7 +542,109 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         return allAreSame;
     }
 
+    public void CalculateAllFromNewDeltas()
+    {
+        DeltaStartBidPrice          = DeltaStartAskPrice          = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
+        DeltaLowestBidPrice         = DeltaLowestAskPrice         = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
+        DeltaTickCount              = DeltaPeriodVolume           = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
+        DeltaSummaryFlagsLowerBytes = DeltaSummaryFlagsUpperBytes = 0;
+
+        previousHighestBidPrice = previousHighestAskPrice = previousLowestBidPrice  = previousLowestAskPrice  = 0m;
+        previousEndBidPrice     = previousEndAskPrice     = previousAverageBidPrice = previousAverageAskPrice = 0m;
+        previousPeriodVolume    = 0;
+
+        CalculatedScaledDeltas();
+        DeltaTickCount = TickCount;
+    }
+
+    public void CalculatedScaledDeltas()
+    {
+        PrecisionSettings  = GetProposedVolumeScaleFactor();
+        DeltaStartBidPrice = GetPriceDecimalDeltaAndFlags(StartBidPrice, previousEndBidPrice, NegateDeltaStartBidPrice, DeltaStartBidPrice);
+        DeltaStartAskPrice = GetPriceDecimalDeltaAndFlags(StartAskPrice, previousEndAskPrice, NegateDeltaStartAskPrice, DeltaStartAskPrice);
+        if (DeltaStartAskPrice + DeltaStartBidPrice == 0) SummaryStorageFlags |= PricesStartSameAsLastEndPrices;
+        DeltaHighestBidPrice
+            = GetPriceDecimalDeltaAndFlags(highestBidPrice, previousHighestBidPrice, NegateDeltaHighestBidPrice, DeltaHighestBidPrice);
+        DeltaHighestAskPrice
+            = GetPriceDecimalDeltaAndFlags(highestAskPrice, previousHighestAskPrice, NegateDeltaHighestAskPrice, DeltaHighestAskPrice);
+        DeltaLowestBidPrice = GetPriceDecimalDeltaAndFlags(lowestBidPrice, previousLowestBidPrice, NegateDeltaLowestBidPrice, DeltaLowestBidPrice);
+        DeltaLowestAskPrice = GetPriceDecimalDeltaAndFlags(lowestAskPrice, previousLowestAskPrice, NegateDeltaLowestAskPrice, DeltaLowestAskPrice);
+        DeltaEndBidPrice    = GetPriceDecimalDeltaAndFlags(endBidPrice, previousEndBidPrice, NegateDeltaEndBidPrice, DeltaEndBidPrice);
+        DeltaEndAskPrice    = GetPriceDecimalDeltaAndFlags(endAskPrice, previousEndAskPrice, NegateDeltaEndAskPrice, DeltaEndAskPrice);
+        DeltaAverageBidPrice
+            = GetPriceDecimalDeltaAndFlags(averageBidPrice, previousAverageBidPrice, NegateDeltaAverageBidPrice, DeltaAverageBidPrice);
+        DeltaAverageAskPrice
+            = GetPriceDecimalDeltaAndFlags(averageAskPrice, previousAverageAskPrice, NegateDeltaAverageAskPrice, DeltaAverageAskPrice);
+        DeltaPeriodVolume = GetVolumeLongDeltaAndFlags(periodVolume, previousPeriodVolume, NegateDeltaPeriodVolume, DeltaPeriodVolume);
+    }
+
     public DateTime StorageTime(IStorageTimeResolver<PQPriceStoragePeriodSummary>? resolver = null) => PeriodEndTime;
+
+    private uint GetPriceDecimalDeltaAndFlags(decimal newValue, decimal oldValue, PQPriceStorageSummaryFlags negateFlag, uint previousDelta)
+    {
+        var oldScaled = PQScaling.Scale(oldValue, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
+        var newScaled = PQScaling.Scale(newValue, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
+        var delta =
+            SummaryStorageFlags.SignMultiplier(negateFlag) * previousDelta + (int)newScaled - (int)oldScaled;
+        if (delta < 0)
+            SummaryStorageFlags |= negateFlag;
+        else
+            SummaryStorageFlags &= AllFlags & ~negateFlag;
+        return (uint)Math.Abs(delta);
+    }
+
+    private uint GetVolumeLongDeltaAndFlags(long newValue, long oldValue, PQPriceStorageSummaryFlags negateFlag, uint previousDelta)
+    {
+        var oldScaled = PQScaling.Scale(oldValue, (byte)(PrecisionSettings!.VolumeScalingPrecision & 0x1F));
+        var newScaled = PQScaling.Scale(newValue, (byte)(PrecisionSettings!.VolumeScalingPrecision & 0x1F));
+        var delta =
+            SummaryStorageFlags.SignMultiplier(negateFlag) * previousDelta + (int)newScaled - (int)oldScaled;
+        if (delta < 0)
+            SummaryStorageFlags |= negateFlag;
+        else
+            SummaryStorageFlags &= AllFlags & ~negateFlag;
+        return (uint)Math.Abs(delta);
+    }
+
+    private IPQPriceVolumePublicationPrecisionSettings GetProposedVolumeScaleFactor()
+    {
+        var priceScale = (byte)((PrecisionSettings?.PriceScalingPrecision ?? 15) & 0x0F);
+        if (PrecisionSettings == null || DeltaStartBidPrice + DeltaStartAskPrice + DeltaHighestBidPrice
+          + DeltaHighestAskPrice + DeltaLowestBidPrice + DeltaLowestAskPrice + DeltaEndBidPrice + DeltaEndAskPrice <= 0)
+        {
+            priceScale = StartBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(StartBidPrice)) : priceScale;
+            priceScale = StartAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(StartAskPrice)) : priceScale;
+            priceScale = HighestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(HighestBidPrice)) : priceScale;
+            priceScale = HighestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(HighestAskPrice)) : priceScale;
+            priceScale = LowestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(LowestBidPrice)) : priceScale;
+            priceScale = LowestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(LowestAskPrice)) : priceScale;
+            priceScale = EndBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(EndBidPrice)) : priceScale;
+            priceScale = EndAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(EndAskPrice)) : priceScale;
+            priceScale = previousHighestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousHighestBidPrice)) : priceScale;
+            priceScale = previousHighestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousHighestAskPrice)) : priceScale;
+            priceScale = previousLowestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousLowestBidPrice)) : priceScale;
+            priceScale = previousLowestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousLowestAskPrice)) : priceScale;
+            priceScale = previousEndBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousEndBidPrice)) : priceScale;
+            priceScale = previousEndAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousEndAskPrice)) : priceScale;
+            // don't use AverageBidAsk as it may have many fractional decimals places
+        }
+
+        var volumeScale = (byte)((PrecisionSettings?.VolumeScalingPrecision ?? 15) & 0x0F);
+
+        if (PrecisionSettings == null || DeltaPeriodVolume <= 0)
+        {
+            volumeScale = previousPeriodVolume > 0 ? Math.Min(volumeScale, PQScaling.FindVolumeScaleFactor(previousPeriodVolume)) : volumeScale;
+            volumeScale = periodVolume > 0 ? Math.Min(volumeScale, PQScaling.FindVolumeScaleFactor(periodVolume)) : volumeScale;
+        }
+
+        if (PrecisionSettings == null || (PrecisionSettings.PriceScalingPrecision & 0x0F) != priceScale
+                                      || (PrecisionSettings.VolumeScalingPrecision & 0x0F) != volumeScale)
+            PrecisionSettings = new PQPriceVolumePublicationPrecisionSettings(priceScale, volumeScale);
+
+        SummaryStorageFlags &= AllFlags & ~PriceVolumeScaleMask;
+        SummaryStorageFlags |= (PQPriceStorageSummaryFlags)((uint)VolumePricePrecisionScale << 24);
+        return PrecisionSettings;
+    }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPricePeriodSummary?)obj, true);
 
@@ -681,8 +655,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
             var hashCode = TimeSeriesPeriod.GetHashCode();
             hashCode = (hashCode * 397) ^ startTime.GetHashCode();
             hashCode = (hashCode * 397) ^ PeriodEndTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ startBidPrice.GetHashCode();
-            hashCode = (hashCode * 397) ^ startAskPrice.GetHashCode();
+            hashCode = (hashCode * 397) ^ StartBidPrice.GetHashCode();
+            hashCode = (hashCode * 397) ^ StartAskPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ highestBidPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ highestAskPrice.GetHashCode();
             hashCode = (hashCode * 397) ^ lowestBidPrice.GetHashCode();

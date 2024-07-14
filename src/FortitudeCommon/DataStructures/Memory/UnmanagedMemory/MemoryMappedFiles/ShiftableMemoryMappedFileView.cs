@@ -16,28 +16,36 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
     private const long MaxViewSizeBytes                = PagedMemoryMappedFile.MaxFileCursorOffset; // 16Gb;
     public const  long DefaultMinimumShiftableViewSize = ushort.MaxValue * 2;
 
-    private static readonly IFLogger              Logger               = FLoggerFactory.Instance.GetLogger(typeof(ShiftableMemoryMappedFileView));
-    private static readonly EndOfFileEmptyChunk   BeyondEndOfFileChunk = new();
-    private readonly        IOSDirectMemoryApi    osDirectMemoryApi;
-    private readonly        PagedMemoryMappedFile pagedMemoryMappedFile;
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(ShiftableMemoryMappedFileView));
 
-    private readonly int               reserveRegionViewMultiple;
-    private          bool              closePagedMemoryMappedFileOnDispose;
-    private          void*             foundTwoChunkVirtualMemoryRegion;
-    private          long              halfViewSizeBytes;
-    private          bool              isDisposed;
-    private          MappedViewRegion? lowerViewContiguousChunk;
-    private          MappedViewRegion? upperViewContiguousChunk;
+    private static readonly EndOfFileEmptyChunk BeyondEndOfFileChunk = new();
 
-    public ShiftableMemoryMappedFileView(string viewName, PagedMemoryMappedFile pagedMemoryMappedFile, int startChunkNumber, int halfViewNumberOfPages
+    private readonly IOSDirectMemoryApi    osDirectMemoryApi;
+    private readonly PagedMemoryMappedFile pagedMemoryMappedFile;
+
+    private readonly int reserveRegionViewMultiple;
+
+    private bool  closePagedMemoryMappedFileOnDispose;
+    private void* foundTwoChunkVirtualMemoryRegion;
+    private long  halfViewSizeBytes;
+    private bool  isDisposed;
+
+    private MappedViewRegion? lowerViewContiguousChunk;
+    private MappedViewRegion? upperViewContiguousChunk;
+
+    public ShiftableMemoryMappedFileView
+    (string viewName, PagedMemoryMappedFile pagedMemoryMappedFile, int startChunkNumber, int halfViewNumberOfPages
       , int reserveRegionViewMultiple
       , bool closePagedMemoryMappedFileOnDispose)
     {
-        ViewName                                 = viewName;
-        this.reserveRegionViewMultiple           = reserveRegionViewMultiple;
+        ViewName = viewName;
+
+        this.reserveRegionViewMultiple = reserveRegionViewMultiple;
+
         this.closePagedMemoryMappedFileOnDispose = closePagedMemoryMappedFileOnDispose;
-        HalfViewPageSize                         = halfViewNumberOfPages;
-        HalfViewSizeBytes                        = halfViewNumberOfPages * PagedMemoryMappedFile.PageSize;
+
+        HalfViewPageSize  = halfViewNumberOfPages;
+        HalfViewSizeBytes = halfViewNumberOfPages * PagedMemoryMappedFile.PageSize;
         try
         {
             this.pagedMemoryMappedFile          = pagedMemoryMappedFile;
@@ -53,8 +61,8 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
                 return;
             }
 
-            upperViewContiguousChunk = pagedMemoryMappedFile.CreatePagedFileChunk(viewName, startChunkNumber + 1, HalfViewPageSize,
-                                                                                  lowerViewContiguousChunk.EndAddress)!;
+            upperViewContiguousChunk = pagedMemoryMappedFile.CreatePagedFileChunk
+                (viewName, startChunkNumber + 1, HalfViewPageSize, lowerViewContiguousChunk.EndAddress)!;
         }
         catch (Exception ex)
         {
@@ -125,7 +133,7 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
     public void Dispose()
     {
         if (isDisposed) return;
-        Logger.Debug("Close TwoContiguousPagedFileChunks to file {0}-{1}", pagedMemoryMappedFile.FileStream.Name, ViewName);
+        Logger.Debug("Close TwoContiguousPagedFileChunks to file {0}-{1}.", pagedMemoryMappedFile.FileStream.Name, ViewName);
         isDisposed = true;
         lowerViewContiguousChunk?.Dispose();
         upperViewContiguousChunk?.Dispose();
@@ -182,7 +190,8 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
     public bool ShiftFileUpByHalfOfViewSize(bool shouldGrow = false)
     {
         if (upperViewContiguousChunk is null or EndOfFileEmptyChunk) return false;
-        var               requiredFileSize = (upperViewContiguousChunk.FilePageOrChunkNumber + 1) * HalfViewSizeBytes + HalfViewSizeBytes;
+        var requiredFileSize = (upperViewContiguousChunk.FilePageOrChunkNumber + 1) * HalfViewSizeBytes + HalfViewSizeBytes;
+
         MappedViewRegion? nextChunk;
         if (pagedMemoryMappedFile.FileStream.Length < requiredFileSize)
         {
@@ -195,13 +204,13 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
                 return true;
             }
 
-            nextChunk = pagedMemoryMappedFile.GrowAndReturnChunk(ViewName, upperViewContiguousChunk.FilePageOrChunkNumber + 1, HalfViewPageSize,
-                                                                 upperViewContiguousChunk.EndAddress);
+            nextChunk = pagedMemoryMappedFile.GrowAndReturnChunk
+                (ViewName, upperViewContiguousChunk.FilePageOrChunkNumber + 1, HalfViewPageSize, upperViewContiguousChunk.EndAddress);
         }
         else
         {
-            nextChunk = pagedMemoryMappedFile.CreatePagedFileChunk(ViewName, upperViewContiguousChunk.FilePageOrChunkNumber + 1,
-                                                                   HalfViewPageSize, upperViewContiguousChunk.EndAddress);
+            nextChunk = pagedMemoryMappedFile.CreatePagedFileChunk
+                (ViewName, upperViewContiguousChunk.FilePageOrChunkNumber + 1, HalfViewPageSize, upperViewContiguousChunk.EndAddress);
         }
 
         if (nextChunk == null) return AttemptRemapViewOnContiguousVirtualMemoryRegion(upperViewContiguousChunk.FilePageOrChunkNumber);

@@ -24,7 +24,8 @@ public class PriceQuoteTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<T
     public PriceQuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header)
     {
-        Header.SubHeaderFactory = (view, offset, writable) => new PriceFileSubHeader(view, offset, writable);
+        var instrumentType = header.InstrumentType;
+        Header.SubHeaderFactory = (view, offset, writable) => new PriceFileSubHeader(instrumentType, view, offset, writable);
         PriceFileHeader         = (IPriceFileHeader)Header.SubHeader!;
     }
 
@@ -38,7 +39,7 @@ public class PriceQuoteTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<T
 
     public override IBucketFactory<TBucket> RootBucketFactory
     {
-        get { return FileBucketFactory ??= new PriceBucketFactory<TBucket>(PriceFileHeader.SourceTickerQuoteInfo, true); }
+        get { return FileBucketFactory ??= new PriceBucketFactory<TBucket>(PriceFileHeader.PricingInstrumentId, true); }
         set => FileBucketFactory = value;
     }
 

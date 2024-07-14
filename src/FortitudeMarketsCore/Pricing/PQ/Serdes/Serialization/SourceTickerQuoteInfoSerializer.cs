@@ -17,6 +17,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQuoteInfo>
 {
+    private readonly List<KeyValuePair<string, string>> instrumentAttributes = new();
+
     public MarshalType MarshalType => MarshalType.Binary;
 
     public bool AddMessageHeader { get; set; } = true;
@@ -51,36 +53,42 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
         if (MessageHeader.SerializationSize > remainingBytes) return -1;
 
         var   writeStart  = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
-        var   currPtr     = writeStart;
+        var   ptr         = writeStart;
         byte* messageSize = null;
 
         if (AddMessageHeader)
         {
-            *currPtr++ = message.Version;
-            *currPtr++ = (byte)PQMessageFlags.None; // header flags
-            StreamByteOps.ToBytes(ref currPtr, message.MessageId);
-            messageSize =  currPtr;
-            currPtr     += sizeof(uint);
+            *ptr++ = message.Version;
+            *ptr++ = (byte)PQMessageFlags.None; // header flags
+            StreamByteOps.ToBytes(ref ptr, message.MessageId);
+            messageSize =  ptr;
+            ptr         += sizeof(uint);
         }
-        remainingBytes -= MessageHeader.SerializationSize;
 
-        StreamByteOps.ToBytes(ref currPtr, message.SourceId);
-        StreamByteOps.ToBytes(ref currPtr, message.TickerId);
-        *currPtr++ = (byte)message.PublishedQuoteLevel;
-        StreamByteOps.ToBytes(ref currPtr, message.MarketClassification.CompoundedClassification);
-        StreamByteOps.ToBytes(ref currPtr, message.RoundingPrecision);
-        StreamByteOps.ToBytes(ref currPtr, message.MinSubmitSize);
-        StreamByteOps.ToBytes(ref currPtr, message.MaxSubmitSize);
-        StreamByteOps.ToBytes(ref currPtr, message.IncrementSize);
-        StreamByteOps.ToBytes(ref currPtr, message.MinimumQuoteLife);
-        StreamByteOps.ToBytes(ref currPtr, (uint)message.LayerFlags);
-        *currPtr++ = message.MaximumPublishedLayers;
-        StreamByteOps.ToBytes(ref currPtr, (ushort)message.LastTradedFlags);
-        StreamByteOps.ToBytesWithAutoSizeHeader(ref currPtr, message.Source, remainingBytes);
-        StreamByteOps.ToBytesWithAutoSizeHeader(ref currPtr, message.Ticker, remainingBytes);
-        var amtWritten = currPtr - writeStart;
+        SerializeSourceTickerQuoteInfo(message, ref ptr, fixedBuffer, instrumentAttributes);
+        var amtWritten = ptr - writeStart;
         if (AddMessageHeader) StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
         message.DecrementRefCount();
         return (int)amtWritten;
+    }
+
+    public static unsafe void SerializeSourceTickerQuoteInfo
+        (ISourceTickerQuoteInfo message, ref byte* ptr, IBuffer fixedBuffer, List<KeyValuePair<string, string>> instrumentAttributes)
+    {
+        PricingInstrumentSerializer.SerializePricingInstrument(message, ref ptr, fixedBuffer, instrumentAttributes);
+        SerializeQuoteInfo(message, ref ptr);
+    }
+
+    private static unsafe void SerializeQuoteInfo(ISourceTickerQuoteInfo message, ref byte* ptr)
+    {
+        *ptr++ = (byte)message.PublishedQuoteLevel;
+        *ptr++ = message.MaximumPublishedLayers;
+        StreamByteOps.ToBytes(ref ptr, message.RoundingPrecision);
+        StreamByteOps.ToBytes(ref ptr, message.MinSubmitSize);
+        StreamByteOps.ToBytes(ref ptr, message.MaxSubmitSize);
+        StreamByteOps.ToBytes(ref ptr, message.IncrementSize);
+        StreamByteOps.ToBytes(ref ptr, message.MinimumQuoteLife);
+        StreamByteOps.ToBytes(ref ptr, (uint)message.LayerFlags);
+        StreamByteOps.ToBytes(ref ptr, (ushort)message.LastTradedFlags);
     }
 }

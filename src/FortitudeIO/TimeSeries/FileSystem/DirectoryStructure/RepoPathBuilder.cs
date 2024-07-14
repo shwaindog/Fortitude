@@ -12,9 +12,10 @@ namespace FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 public interface IRepoPathBuilder
 {
     DirectoryInfo RepositoryRootDirectory { get; }
-    bool          CreateIfNotExists       { get; }
-    string?       RepositoryName          { get; }
-    string        TimeSeriesFileExtension { get; }
+
+    bool    CreateIfNotExists       { get; }
+    string? RepositoryName          { get; }
+    string  TimeSeriesFileExtension { get; }
 
     RepositoryProximity Proximity { get; }
 

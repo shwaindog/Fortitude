@@ -43,17 +43,17 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     private readonly List<InstrumentFileInfo>      lastFileInfoRetrieved      = new();
     private readonly DateTime                      testEpochTime              = new(2024, 6, 19);
 
-    private readonly ISourceTickerQuoteInfo tickerId15SPeriod = new SourceTickerQuoteInfo
+    private readonly SourceTickerQuoteInfo tickerId15SPeriod = new
         (2, "SourceName", 2, "TickerName2", Level1, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly ISourceTickerQuoteInfo tickerId30SPeriod = new SourceTickerQuoteInfo
-        (3, "SourceName", 3, "TickerName3", Level1, Unknown
-       , 1, 0.001m, 10m, 100m, 10m);
+    private readonly SourceTickerQuoteInfo tickerId30SPeriod =
+        new(3, "SourceName", 3, "TickerName3", Level1, Unknown
+          , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly ISourceTickerQuoteInfo tickerId5SPeriod = new SourceTickerQuoteInfo
-        (1, "SourceName", 1, "TickerName1", Level1, Unknown
-       , 1, 0.001m, 10m, 100m, 10m);
+    private readonly SourceTickerQuoteInfo tickerId5SPeriod =
+        new(1, "SourceName", 1, "TickerName1", Level1, Unknown
+          , 1, 0.001m, 10m, 100m, 10m);
 
     private List<PricePeriodSummary> fifteenSecondPeriodSummaries = null!;
     private HistoricalPeriodParams   fifteenSecondsHistoricalPeriodParams;
@@ -236,7 +236,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         return lastFileEntryInfoRetrieved;
     }
 
-    private IEnumerable<ILevel0Quote> GetStubQuotes(ISourceTickerId srcTickerId, UnboundedTimeRange? requestTimeRange)
+    private IEnumerable<ILevel0Quote> GetStubQuotes(SourceTickerId srcTickerId, UnboundedTimeRange? requestTimeRange)
     {
         return lastQuotesRetrieved =
             oneSecondLevel1Quotes
@@ -248,7 +248,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     private IEnumerable<PricePeriodSummary> GetStubSummaries
-        (ISourceTickerId srcTickerId, TimeSeriesPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
+        (SourceTickerId srcTickerId, TimeSeriesPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
     {
         if (srcTickerId.TickerId == tickerId5SPeriod.TickerId) return Enumerable.Empty<PricePeriodSummary>();
         if (srcTickerId.TickerId == tickerId30SPeriod.TickerId && requestPeriod == FifteenSeconds)
@@ -536,7 +536,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         Assert.AreEqual(720, hasResult.Count);
     }
 
-    private class TestHistoricalPeriodClient(TimeSeriesPeriod period, ISourceTickerId tickerId) : Rule
+    private class TestHistoricalPeriodClient(TimeSeriesPeriod period, SourceTickerId tickerId) : Rule
     {
         private const string HistoricalPeriodTestClientInvokeResponseRequestAddress
             = "TestClient.HistoricalPricePeriodSummary.Invoke.RequestResponse";
@@ -548,7 +548,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         public List<IPricePeriodSummary> ReceivedToPersistEvents { get; } = new();
 
-        public async Task BlockUntilToPersistReaches(int expectedNumber, int timeoutMs = 2_000)
+        public async Task BlockUntilToPersistReaches(int expectedNumber, int timeoutMs = 20)
         {
             var timeoutTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
             while (ReceivedToPersistEvents.Count < expectedNumber && DateTime.UtcNow < timeoutTime) await Task.Delay(timeoutMs);

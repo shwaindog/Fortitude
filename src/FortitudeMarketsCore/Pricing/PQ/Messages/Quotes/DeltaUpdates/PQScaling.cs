@@ -39,13 +39,30 @@ public static class PQScaling
 
     public static uint Scale(decimal value, byte flag) => (uint)(Math.Abs(value) * Factors[16 - (flag & FactorMask)]);
 
-    public static byte FindScaleFactor(decimal precisionExample)
+    public static byte FindPriceScaleFactor(decimal precisionExample)
     {
-        if (precisionExample < 1m && precisionExample.Scale is > 0 and < 8) return (byte)(8 - precisionExample.Scale);
+        if (precisionExample == 0m) return 8;
+        if (precisionExample < 1_000_000m && precisionExample.Scale is > 0 and < 8) return (byte)(8 - precisionExample.Scale);
         if (precisionExample is >= 1m and < 10m) return 8;
         var currentScale = precisionExample;
-        var count        = 1;
-        while (currentScale > 10m)
+        var count        = 0;
+        while (currentScale % 10 == 0 && currentScale > 1_000_000_000)
+        {
+            count++;
+            currentScale /= 10;
+        }
+        if (count < 8) return (byte)(8 + count);
+        return 15;
+    }
+
+    public static byte FindVolumeScaleFactor(decimal precisionExample)
+    {
+        if (precisionExample == 0m) return 8;
+        if (precisionExample < 10m && precisionExample.Scale is > 0 and < 8) return (byte)(8 - precisionExample.Scale);
+        if (precisionExample is >= 1m and < 10m) return 8;
+        var currentScale = precisionExample;
+        var count        = 0;
+        while (currentScale % 10 == 0 && currentScale > 0)
         {
             count++;
             currentScale /= 10;

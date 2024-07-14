@@ -29,14 +29,14 @@ public class PathName
                              , Day                => "{0:dd}"
                              , DirectoryStartDate => "{0:yyyy-MM-dd}"
                              , Hour               => "{0:HH}"
-                             , InstrumentName or SourceName
+                             , InstrumentName or InstrumentSource
                                               or Category
                                               or EntryPeriod
                                               or FilePeriod
-                                              or TimeSeriesType
-                                              or RepositoryPathName.MarketRegion
+                                              or RepositoryPathName.InstrumentType
+                                              or MarketRegion
                                               or MarketProductType
-                                              or RepositoryPathName.MarketType => "{0}"
+                                              or MarketType => "{0}"
                              , _ => throw new Exception($"No default formatting defined for {pathPart}")
                            };
         else
@@ -88,26 +88,16 @@ public class PathName
             case Day:
             case Hour:
                 return string.Format(FormatString, timeInPeriod);
-            case InstrumentName:
-                return string.Format(FormatString, instrument.InstrumentName);
-            case SourceName:
-                return string.Format(FormatString, instrument[nameof(SourceName)]);
-            case TimeSeriesType:
-                return string.Format(FormatString, instrument.Type);
-            case MarketProductType:
-                return string.Format(FormatString, instrument[nameof(MarketProductType)]);
-            case RepositoryPathName.MarketRegion:
-                return string.Format(FormatString, instrument[nameof(RepositoryPathName.MarketRegion)]);
-            case RepositoryPathName.MarketType:
-                return string.Format(FormatString, instrument[nameof(RepositoryPathName.MarketType)]);
-            case Category:
-                return instrument[nameof(Category)] != null ? string.Format(FormatString, instrument[nameof(Category)]) : null;
-            case EntryPeriod:
-                return string.Format(FormatString, instrument.EntryPeriod.ShortName());
-            case Constant:
-                return FormatString;
-            case FilePeriod:
-                return string.Format(FormatString, forTimeSeriesPeriod.ShortName());
+            case InstrumentName: return string.Format(FormatString, instrument.InstrumentName);
+            case InstrumentSource: return string.Format(FormatString, instrument.InstrumentSource);
+            case RepositoryPathName.InstrumentType: return string.Format(FormatString, instrument.InstrumentType);
+            case MarketProductType: return string.Format(FormatString, instrument[nameof(MarketProductType)]);
+            case MarketRegion: return string.Format(FormatString, instrument[nameof(MarketRegion)]);
+            case MarketType: return string.Format(FormatString, instrument[nameof(MarketType)]);
+            case Category: return instrument[nameof(Category)] != null ? string.Format(FormatString, instrument[nameof(Category)]) : null;
+            case EntryPeriod: return string.Format(FormatString, instrument.EntryPeriod.ShortName());
+            case Constant: return FormatString;
+            case FilePeriod: return string.Format(FormatString, forTimeSeriesPeriod.ShortName());
             default: throw new Exception($"TimeSeriesFilePathType {PathPart} can not be converted to a TimeSeriesFilePathFormat");
         }
     }
@@ -142,11 +132,10 @@ public class PathName
                 return checkHour is >= 0 and < 25;
             case InstrumentName:
             case Category:
-            case SourceName:
+            case InstrumentSource:
             case Constant:
                 return true;
-            case TimeSeriesType:
-                return Enum.TryParse<InstrumentType>(check, true, out var ignored);
+            case RepositoryPathName.InstrumentType: return Enum.TryParse<InstrumentType>(check, true, out var ignored);
             case FilePeriod:
             case EntryPeriod:
                 return check.FromShortName() != TimeSeriesPeriod.None;

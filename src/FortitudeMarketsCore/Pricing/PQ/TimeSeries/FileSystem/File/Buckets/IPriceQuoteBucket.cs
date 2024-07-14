@@ -5,6 +5,7 @@
 
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 
@@ -14,7 +15,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 public interface IPriceBucket
 {
-    ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; set; }
+    IPricingInstrumentId PricingInstrumentId { get; set; }
 }
 
 public interface IPriceQuoteBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
