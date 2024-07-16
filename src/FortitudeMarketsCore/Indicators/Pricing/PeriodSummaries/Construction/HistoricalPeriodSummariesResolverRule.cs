@@ -27,15 +27,15 @@ using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 
 namespace FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 
-public struct HistoricalPeriodParams(SourceTickerId tickerId, TimeSeriesPeriod period, TimeLength cacheLength)
+public struct HistoricalPeriodParams(SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period, TimeLength cacheLength)
 {
     public HistoricalPeriodParams
         (PricingInstrumentId pricingInstrumentId, TimeLength cacheLength) :
         this(pricingInstrumentId, pricingInstrumentId.EntryPeriod, cacheLength) { }
 
-    public SourceTickerId      TickerId            { get; set; } = tickerId;
-    public TimeSeriesPeriod    Period              { get; set; } = period;
-    public PricingInstrumentId PricingInstrumentId => new(TickerId, new PeriodInstrumentTypePair(PriceSummaryPeriod, Period));
+    public SourceTickerIdentifier SourceTickerIdentifier { get; set; } = sourceTickerIdentifier;
+    public TimeSeriesPeriod       Period                 { get; set; } = period;
+    public PricingInstrumentId    PricingInstrumentId    => new(SourceTickerIdentifier, new PeriodInstrumentTypePair(PriceSummaryPeriod, Period));
 
     public TimeLength CacheLength { get; set; } = cacheLength;
 }

@@ -52,7 +52,7 @@ public class PQClientQuoteSerializerRepositoryTests
     [TestMethod]
     public void NoEnteredDeserializer_GetSerializerNonSupportedType_ReturnsNull()
     {
-        var result = pqClientQuoteSerializerRepository.GetSerializer<PQLevel0Quote>(sourceTickerQuoteInfo.Id);
+        var result = pqClientQuoteSerializerRepository.GetSerializer<PQLevel0Quote>(sourceTickerQuoteInfo.SourceTickerId);
         Assert.IsNull(result);
     }
 }

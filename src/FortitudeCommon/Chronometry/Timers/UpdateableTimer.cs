@@ -129,6 +129,44 @@ public class UpdateableTimer : IUpdateableTimer
         return timerUpdate;
     }
 
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<IScheduleActualTime?, ValueTask> callback)
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var now           = TimeContext.UtcNow;
+        var runAt         = now + waitTimeSpan;
+        var timerCallBack = GetScheduledActualValueTaskActionOneOffTimerRunInfo(runAt, callback);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var now           = TimeContext.UtcNow;
+        var runAt         = now + waitTimeSpan;
+        var timerCallBack = GetScheduledActualValueTaskActionStateOneOffTimerRunInfo(runAt, callback, state);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunIn(int waitMs, Func<IScheduleActualTime?, ValueTask> callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
+
+    public ITimerUpdate RunIn<T>
+        (int waitMs, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
+
     public ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
 
     public ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class =>
@@ -162,6 +200,44 @@ public class UpdateableTimer : IUpdateableTimer
         return timerUpdate;
     }
 
+
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<IScheduleActualTime?, ValueTask> callback)
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack = GetScheduledActualValueTaskValueTaskActionIntervalTimerRunInfo(periodTimeSpan, callback);
+        var intervalTimer = CreateIntervalTimer(timerCallBack, periodTimeSpan);
+        timerCallBack.RegisteredTimer = intervalTimer;
+        intervalCallBacks.Add(timerCallBack);
+        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack = GetScheduledActualValueTaskActionStateIntervalTimerRunInfo(periodTimeSpan, callback, state);
+        var intervalTimer = CreateIntervalTimer(timerCallBack, periodTimeSpan);
+        timerCallBack.RegisteredTimer = intervalTimer;
+        intervalCallBacks.Add(timerCallBack);
+        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunEvery
+        (int intervalMs, Func<IScheduleActualTime?, ValueTask> callback) =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+
+    public ITimerUpdate RunEvery<T>
+        (int intervalMs, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
+
+
     public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
 
     public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class =>
@@ -187,6 +263,36 @@ public class UpdateableTimer : IUpdateableTimer
         if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
         var timerCallBack
             = GetValueTaskActionStateOneOffTimerRunInfo(futureDateTime, callback, state);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunAt(DateTime futureDateTime, Func<IScheduleActualTime?, ValueTask> callback)
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack
+            = GetScheduledActualValueTaskActionOneOffTimerRunInfo(futureDateTime, callback);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack
+            = GetScheduledActualValueTaskActionStateOneOffTimerRunInfo(futureDateTime, callback, state);
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
@@ -249,6 +355,46 @@ public class UpdateableTimer : IUpdateableTimer
         return timerUpdate;
     }
 
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action<IScheduleActualTime?> callback)
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var now   = TimeContext.UtcNow;
+        var runAt = now + waitTimeSpan;
+        var timerCallBack
+            = GetScheduledActualActionOneOffTimerRunInfo(runAt, callback);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<IScheduleActualTime<T>?> callback) where T : class
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var now   = TimeContext.UtcNow;
+        var runAt = now + waitTimeSpan;
+        var timerCallBack
+            = GetScheduledActualActionStateOneOffTimerRunInfo(runAt, callback, state);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunIn(int waitMs, Action<IScheduleActualTime?> callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
+
+    public ITimerUpdate RunIn<T>
+        (int waitMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
+
     public ITimerUpdate RunIn(int waitMs, WaitCallback callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
 
     public ITimerUpdate RunIn(int waitMs, Action callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
@@ -302,6 +448,45 @@ public class UpdateableTimer : IUpdateableTimer
         return timerUpdate;
     }
 
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action<IScheduleActualTime?> callback)
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack
+            = GetScheduledActualActionIntervalTimerRunInfo(periodTimeSpan, callback);
+        var intervalTimer
+            = CreateIntervalTimer(timerCallBack, periodTimeSpan);
+        timerCallBack.RegisteredTimer = intervalTimer;
+        intervalCallBacks.Add(timerCallBack);
+        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<IScheduleActualTime<T>?> callback) where T : class
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack
+            = GetScheduledActualActionStateIntervalTimerRunInfo(periodTimeSpan, callback, state);
+        var intervalTimer
+            = CreateIntervalTimer(timerCallBack, periodTimeSpan);
+        timerCallBack.RegisteredTimer = intervalTimer;
+        intervalCallBacks.Add(timerCallBack);
+        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+
+    public ITimerUpdate RunEvery(int intervalMs, Action<IScheduleActualTime?> callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+
+    public ITimerUpdate RunEvery<T>
+        (int intervalMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
+
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, object? state, WaitCallback callback)
     {
         if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
@@ -317,7 +502,6 @@ public class UpdateableTimer : IUpdateableTimer
         timerUpdate.UpdateableTimer = this;
         return timerUpdate;
     }
-
 
     public ITimerUpdate RunAt(DateTime futureDateTime, WaitCallback callback) => RunAt(futureDateTime, null, callback);
 
@@ -341,6 +525,36 @@ public class UpdateableTimer : IUpdateableTimer
         if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
         var timerCallBack
             = GetActionStateOneOffTimerRunInfo(futureDateTime, callback, state);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunAt(DateTime futureDateTime, Action<IScheduleActualTime?> callback)
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack
+            = GetScheduledActualActionOneOffTimerRunInfo(futureDateTime, callback);
+        timerCallBack.RegisteredTimer = OneOffTimer;
+        RegisterCallback(timerCallBack);
+        CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
+        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        timerCallBack.IncrementRefCount();
+        timerUpdate.CallBackRunInfo = timerCallBack;
+        timerUpdate.UpdateableTimer = this;
+        return timerUpdate;
+    }
+
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<IScheduleActualTime<T>?> callback) where T : class
+    {
+        if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
+        var timerCallBack
+            = GetScheduledActualActionStateOneOffTimerRunInfo(futureDateTime, callback, state);
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
@@ -555,12 +769,29 @@ public class UpdateableTimer : IUpdateableTimer
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
 
+    private TimerCallBackRunInfo GetScheduledActualActionIntervalTimerRunInfo
+        (TimeSpan intervalPeriod, Action<IScheduleActualTime?> callback)
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo>();
+        callBackInfo.Action = callback;
+        return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
+    }
+
     private TimerCallBackRunInfo GetActionStateIntervalTimerRunInfo<T>
         (TimeSpan intervalPeriod, Action<T?> callback, T? state) where T : class
     {
         var callBackInfo = recycler.Borrow<ActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.Action = callback;
         callBackInfo.State  = state;
+        return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
+    }
+
+    private TimerCallBackRunInfo GetScheduledActualActionStateIntervalTimerRunInfo<T>
+        (TimeSpan intervalPeriod, Action<IScheduleActualTime<T>?> callback, T? state) where T : class
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<T>>();
+        callBackInfo.Action    = callback;
+        callBackInfo.SendState = state;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
 
@@ -572,12 +803,29 @@ public class UpdateableTimer : IUpdateableTimer
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
 
+    private TimerCallBackRunInfo GetScheduledActualValueTaskValueTaskActionIntervalTimerRunInfo
+        (TimeSpan intervalPeriod, Func<IScheduleActualTime?, ValueTask> callback)
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionTimerCallBackRunInfo>();
+        callBackInfo.ValueTaskActionState = callback;
+        return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
+    }
+
     private TimerCallBackRunInfo GetValueTaskActionStateIntervalTimerRunInfo<T>
         (TimeSpan intervalPeriod, Func<T?, ValueTask> callback, T? state) where T : class
     {
         var callBackInfo = recycler.Borrow<ValueTaskActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.ValueTaskActionState = callback;
         callBackInfo.State                = state;
+        return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
+    }
+
+    private TimerCallBackRunInfo GetScheduledActualValueTaskActionStateIntervalTimerRunInfo<T>
+        (TimeSpan intervalPeriod, Func<IScheduleActualTime<T>?, ValueTask> callback, T? state) where T : class
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<T>>();
+        callBackInfo.ValueTaskActionState = callback;
+        callBackInfo.SendState            = state;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
 
@@ -610,12 +858,28 @@ public class UpdateableTimer : IUpdateableTimer
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
     }
 
+    private TimerCallBackRunInfo GetScheduledActualActionOneOffTimerRunInfo(DateTime runAt, Action<IScheduleActualTime?> callback)
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<IScheduleActualTime>>();
+        callBackInfo.Action = callback;
+        return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
+    }
+
     private TimerCallBackRunInfo GetActionStateOneOffTimerRunInfo<T>
         (DateTime runAt, Action<T?> callback, T? state) where T : class
     {
         var callBackInfo = recycler.Borrow<ActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.Action = callback;
         callBackInfo.State  = state;
+        return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
+    }
+
+    private TimerCallBackRunInfo GetScheduledActualActionStateOneOffTimerRunInfo<T>
+        (DateTime runAt, Action<IScheduleActualTime<T>?> callback, T? state) where T : class
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<T>>();
+        callBackInfo.Action    = callback;
+        callBackInfo.SendState = state;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
     }
 
@@ -632,6 +896,23 @@ public class UpdateableTimer : IUpdateableTimer
         var callBackInfo = recycler.Borrow<ValueTaskActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.ValueTaskActionState = callback;
         callBackInfo.State                = state;
+        return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
+    }
+
+    private TimerCallBackRunInfo GetScheduledActualValueTaskActionStateOneOffTimerRunInfo<T>
+        (DateTime runAt, Func<IScheduleActualTime<T>?, ValueTask> callback, T? state) where T : class
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<T>>();
+        callBackInfo.ValueTaskActionState = callback;
+        callBackInfo.SendState            = state;
+        return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
+    }
+
+    private TimerCallBackRunInfo GetScheduledActualValueTaskActionOneOffTimerRunInfo
+        (DateTime runAt, Func<IScheduleActualTime?, ValueTask> callback)
+    {
+        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<IScheduleActualTime>>();
+        callBackInfo.ValueTaskActionState = callback;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
     }
 

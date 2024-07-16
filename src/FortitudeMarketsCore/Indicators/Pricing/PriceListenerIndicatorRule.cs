@@ -19,15 +19,15 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
 {
     private readonly string feedTickerListenAddress;
 
-    protected SourceTickerId TickerId;
+    protected SourceTickerIdentifier SourceTickerIdentifier;
 
     private ISubscription? tickerListenSubscription;
 
-    public PriceListenerIndicatorRule(SourceTickerId tickerId, string ruleName) : base(ruleName)
+    public PriceListenerIndicatorRule(SourceTickerIdentifier sourceTickerIdentifier, string ruleName) : base(ruleName)
     {
-        TickerId = tickerId;
+        SourceTickerIdentifier = sourceTickerIdentifier;
 
-        feedTickerListenAddress = tickerId.Source.SubscribeToTickerQuotes(tickerId.Ticker);
+        feedTickerListenAddress = sourceTickerIdentifier.Source.SubscribeToTickerQuotes(sourceTickerIdentifier.Ticker);
     }
 
     public override async ValueTask StartAsync()

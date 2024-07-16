@@ -72,8 +72,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 
     public void Serialize(PQLevel0Quote obj, ISerdeContext writeContext)
     {
-        if ((writeContext.Direction & ContextDirection.Write) == 0)
-            throw new ArgumentException("Expected readContext to support writing");
+        if ((writeContext.Direction & ContextDirection.Write) == 0) throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
             var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
@@ -116,7 +115,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQLevel0Quote>
 
             var flagsPtr = currentPtr++;
             if (serializationFlags == PQSerializationFlags.ForSocketPublish)
-                StreamByteOps.ToBytes(ref currentPtr, pqL0Quote.SourceTickerQuoteInfo!.Id);
+                StreamByteOps.ToBytes(ref currentPtr, pqL0Quote.SourceTickerQuoteInfo!.SourceTickerId);
 
             var messageSizePtr   = currentPtr;
             var messageSizeBytes = 4;

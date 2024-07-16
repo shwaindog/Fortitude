@@ -157,34 +157,34 @@ public class PQQuoteSerializerTests
 
         deserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest1", new Recycler());
         deserializerRepository.RegisterDeserializer
-            (level0QuoteInfo.Id,
+            (level0QuoteInfo.SourceTickerId,
              new PQQuoteDeserializer<PQLevel0Quote>
                  (new TickerPricingSubscriptionConfig(level0QuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (level1QuoteInfo.Id
+            (level1QuoteInfo.SourceTickerId
            , new PQQuoteDeserializer<PQLevel1Quote>(new TickerPricingSubscriptionConfig(level1QuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (valueDateQuoteInfo.Id,
+            (valueDateQuoteInfo.SourceTickerId,
              new PQQuoteDeserializer<PQLevel2Quote>
                  (new TickerPricingSubscriptionConfig(valueDateQuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (everyLayerQuoteInfo.Id,
+            (everyLayerQuoteInfo.SourceTickerId,
              new PQQuoteDeserializer<PQLevel2Quote>
                  (new TickerPricingSubscriptionConfig(everyLayerQuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (simpleNoRecentlyTradedQuoteInfo.Id,
+            (simpleNoRecentlyTradedQuoteInfo.SourceTickerId,
              new PQQuoteDeserializer<PQLevel3Quote>
                  (new TickerPricingSubscriptionConfig(simpleNoRecentlyTradedQuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (srcNmLstTrdQuoteInfo.Id,
+            (srcNmLstTrdQuoteInfo.SourceTickerId,
              new PQQuoteDeserializer<PQLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcNmLstTrdQuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (srcQtRfPdGvnVlmQuoteInfo.Id,
+            (srcQtRfPdGvnVlmQuoteInfo.SourceTickerId,
              new PQQuoteDeserializer<PQLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcQtRfPdGvnVlmQuoteInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (trdrLyrTrdrPdGvnVlmDtlsQuoteInfo.Id,
+            (trdrLyrTrdrPdGvnVlmDtlsQuoteInfo.SourceTickerId,
              new PQQuoteDeserializer<PQLevel3Quote>
                  (new TickerPricingSubscriptionConfig(trdrLyrTrdrPdGvnVlmDtlsQuoteInfo, pricingServerConfig)));
 
@@ -271,7 +271,7 @@ public class PQQuoteSerializerTests
 
             Assert.AreEqual(amtWritten, bytesConsumed);
 
-            var deserializedQuote = deserializerRepository.GetDeserializer(pqQuote.SourceTickerQuoteInfo!.Id);
+            var deserializedQuote = deserializerRepository.GetDeserializer(pqQuote.SourceTickerQuoteInfo!.SourceTickerId);
 
             Assert.IsNotNull(deserializedQuote);
             IPQLevel0Quote? clientSideQuote = null;
@@ -336,7 +336,7 @@ public class PQQuoteSerializerTests
 
         Assert.AreEqual((byte)(isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update), messageFlags);
         var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-        Assert.AreEqual(originalQuote.SourceTickerQuoteInfo.Id, sourceTickerId);
+        Assert.AreEqual(originalQuote.SourceTickerQuoteInfo.SourceTickerId, sourceTickerId);
         var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
         Assert.AreEqual((uint)amtWritten, messagesTotalSize);
         var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);

@@ -12,24 +12,27 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsApi.Pricing;
 
-public interface IBidAskInstantPair : IBidAskPair, IInterfacesComparable<IBidAskInstantPair>
+public interface IBidAskInstantPair : IBidAskPair, IReusableObject<IBidAskInstantPair>, IInterfacesComparable<IBidAskInstantPair>
 {
-    DateTime AtTime         { get; }
-    ushort   SourceId       { get; set; }
-    uint     SequenceNumber { get; set; }
+    DateTime AtTime { get; }
 }
 
-public struct BidAskInstantPair : IBidAskInstantPair
+public readonly struct BidAskInstantPair // not inheriting from IBidAskInstantPair to prevent accidental boxing unboxing
 {
     public BidAskInstantPair() { }
 
     public BidAskInstantPair(BidAskInstantPair toClone)
     {
-        BidPrice       = toClone.BidPrice;
-        AskPrice       = toClone.AskPrice;
-        AtTime         = toClone.AtTime;
-        SourceId       = toClone.SourceId;
-        SequenceNumber = toClone.SequenceNumber;
+        BidPrice = toClone.BidPrice;
+        AskPrice = toClone.AskPrice;
+        AtTime   = toClone.AtTime;
+    }
+
+    public BidAskInstantPair(IBidAskInstantPair toClone)
+    {
+        BidPrice = toClone.BidPrice;
+        AskPrice = toClone.AskPrice;
+        AtTime   = toClone.AtTime;
     }
 
     public BidAskInstantPair(ILevel1Quote toCapture)
@@ -37,98 +40,90 @@ public struct BidAskInstantPair : IBidAskInstantPair
         BidPrice = toCapture.BidPriceTop;
         AskPrice = toCapture.AskPriceTop;
         AtTime   = toCapture.SourceTime;
-        SourceId = toCapture.SourceTickerQuoteInfo?.SourceId ?? 0;
     }
 
-    public BidAskInstantPair(decimal bidPrice, decimal askPrice, DateTime? atTime = null, ushort sourceId = 0, uint sequenceNumber = 0)
+    public BidAskInstantPair(decimal bidPrice, decimal askPrice, DateTime? atTime = null)
     {
-        BidPrice       = bidPrice;
-        AskPrice       = askPrice;
-        AtTime         = atTime ?? DateTime.UtcNow;
-        SourceId       = sourceId;
-        SequenceNumber = sequenceNumber;
+        BidPrice = bidPrice;
+        AskPrice = askPrice;
+        AtTime   = atTime ?? DateTime.UtcNow;
     }
 
-    public decimal  BidPrice       { get; set; }
-    public decimal  AskPrice       { get; set; }
-    public DateTime AtTime         { get; set; }
-    public ushort   SourceId       { get; set; }
-    public uint     SequenceNumber { get; set; }
-
-    public bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
-    {
-        if (other == null) return false;
-        var bidPriceSame       = BidPrice == other.BidPrice;
-        var askPriceSame       = AskPrice == other.AskPrice;
-        var atTimeSame         = AtTime == other.AtTime;
-        var sourceIdSame       = SourceId == other.SourceId;
-        var sequenceNumberSame = true;
-
-        if (exactTypes) sequenceNumberSame = SequenceNumber == other.SequenceNumber;
-
-        var allAreSame = bidPriceSame && askPriceSame && atTimeSame && sourceIdSame && sequenceNumberSame;
-        return allAreSame;
-    }
+    public decimal  BidPrice { get; }
+    public decimal  AskPrice { get; }
+    public DateTime AtTime   { get; }
 }
 
-public interface IBidAskInstant : IBidAskInstantPair, IDoublyLinkedListNode<IBidAskInstant> { }
+public static class BidAskInstantPairExtensions
+{
+    public static BidAskInstant ToBidAskInstant(this BidAskInstantPair pair, IRecycler? recycler = null)
+    {
+        var instant = recycler?.Borrow<BidAskInstant>() ?? new BidAskInstant();
+        instant.Configure(pair);
+        return instant;
+    }
+
+    public static BidAskInstantPair SetBidPrice(this BidAskInstantPair pair, decimal bidPrice) => new(bidPrice, pair.AskPrice, pair.AtTime);
+
+    public static BidAskInstantPair SetAskPrice(this BidAskInstantPair pair, decimal askPrice) => new(pair.BidPrice, askPrice, pair.AtTime);
+
+    public static BidAskInstantPair SetAtTime(this BidAskInstantPair pair, DateTime atTime) => new(pair.BidPrice, pair.AskPrice, atTime);
+}
+
+public interface IBidAskInstant : IBidAskInstantPair, IDoublyLinkedListNode<IBidAskInstant>
+{
+    new decimal  BidPrice { get; set; }
+    new decimal  AskPrice { get; set; }
+    new DateTime AtTime   { get; set; }
+}
 
 public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
 {
-    private BidAskInstantPair bidAskInstantPairState;
+    protected BidAskInstantPair BidAskInstantPairState;
 
     public BidAskInstant() { }
-    public BidAskInstant(BidAskInstantPair bidAskInstantPair) => bidAskInstantPairState = bidAskInstantPair;
+    public BidAskInstant(BidAskInstantPair bidAskInstantPair) => BidAskInstantPairState = bidAskInstantPair;
 
-    public BidAskInstant(BidAskInstant bidAskInstant) => bidAskInstantPairState = bidAskInstant.bidAskInstantPairState;
+    public BidAskInstant(BidAskInstant bidAskInstant) => BidAskInstantPairState = bidAskInstant.BidAskInstantPairState;
 
-    public BidAskInstant(ILevel1Quote toCapture) => bidAskInstantPairState = new BidAskInstantPair(toCapture);
+    public BidAskInstant(ILevel1Quote toCapture) => BidAskInstantPairState = new BidAskInstantPair(toCapture);
+
+    public BidAskInstant(decimal bidPrice, decimal askPrice, DateTime? atTime = null)
+    {
+        BidPrice = bidPrice;
+        AskPrice = askPrice;
+        AtTime   = atTime ?? DateTime.UtcNow;
+    }
 
     public decimal BidPrice
     {
-        get => bidAskInstantPairState.BidPrice;
-        set => bidAskInstantPairState.BidPrice = value;
+        get => BidAskInstantPairState.BidPrice;
+        set => BidAskInstantPairState = BidAskInstantPairState.SetBidPrice(value);
     }
 
     public decimal AskPrice
     {
-        get => bidAskInstantPairState.AskPrice;
-        set => bidAskInstantPairState.AskPrice = value;
+        get => BidAskInstantPairState.AskPrice;
+        set => BidAskInstantPairState = BidAskInstantPairState.SetAskPrice(value);
     }
 
     public DateTime AtTime
     {
-        get => bidAskInstantPairState.AtTime;
-        set => bidAskInstantPairState.AtTime = value;
-    }
-
-    public ushort SourceId
-    {
-        get => bidAskInstantPairState.SourceId;
-        set => bidAskInstantPairState.SourceId = value;
-    }
-
-    public uint SequenceNumber
-    {
-        get => bidAskInstantPairState.SequenceNumber;
-        set => bidAskInstantPairState.SequenceNumber = value;
+        get => BidAskInstantPairState.AtTime;
+        set => BidAskInstantPairState = BidAskInstantPairState.SetAtTime(value);
     }
 
     public IBidAskInstant? Previous { get; set; }
     public IBidAskInstant? Next     { get; set; }
 
-    public bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
     {
         if (other == null) return false;
-        var bidPriceSame       = BidPrice == other.BidPrice;
-        var askPriceSame       = AskPrice == other.AskPrice;
-        var atTimeSame         = AtTime == other.AtTime;
-        var sourceIdSame       = SourceId == other.SourceId;
-        var sequenceNumberSame = true;
+        var bidPriceSame = BidPrice == other.BidPrice;
+        var askPriceSame = AskPrice == other.AskPrice;
+        var atTimeSame   = AtTime == other.AtTime;
 
-        if (exactTypes) sequenceNumberSame = SequenceNumber == other.SequenceNumber;
-
-        var allAreSame = bidPriceSame && askPriceSame && atTimeSame && sourceIdSame && sequenceNumberSame;
+        var allAreSame = bidPriceSame && askPriceSame && atTimeSame;
         return allAreSame;
     }
 
@@ -137,10 +132,22 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
         BidPrice = source.BidPrice;
         AskPrice = source.AskPrice;
         AtTime   = source.AtTime;
-        SourceId = source.SourceId;
-
-        SequenceNumber = source.SequenceNumber;
         return this;
+    }
+
+    public override IBidAskInstantPair Clone() => Recycler?.Borrow<BidAskInstant>().CopyFrom(this) ?? new BidAskInstant(this);
+
+    public void Configure(BidAskInstantPair bidAskInstantPair) => BidAskInstantPairState = bidAskInstantPair;
+
+    public void Configure(BidAskInstant bidAskInstant) => BidAskInstantPairState = bidAskInstant.BidAskInstantPairState;
+
+    public void Configure(ILevel1Quote toCapture) => BidAskInstantPairState = new BidAskInstantPair(toCapture);
+
+    public void Configure(decimal bidPrice, decimal askPrice, DateTime? atTime = null)
+    {
+        BidPrice = bidPrice;
+        AskPrice = askPrice;
+        AtTime   = atTime ?? DateTime.UtcNow;
     }
 
     public IBidAskInstantPair CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -148,13 +155,9 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
         BidPrice = source.BidPriceTop;
         AskPrice = source.AskPriceTop;
         AtTime   = source.SourceTime;
-        SourceId = source.SourceTickerQuoteInfo?.SourceId ?? 0;
 
         return this;
     }
-
-
-    public override IBidAskInstantPair Clone() => Recycler?.Borrow<BidAskInstant>().CopyFrom(this) ?? new BidAskInstant(this);
 
     protected bool Equals(BidAskInstant other) => AreEquivalent(other, true);
 
@@ -166,10 +169,13 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
         return Equals((BidAskInstant)obj);
     }
 
-    public override int GetHashCode() => bidAskInstantPairState.GetHashCode();
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => BidAskInstantPairState.GetHashCode();
 
     public override string ToString() =>
-        $"{nameof(BidAskInstant)}{nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice}, " +
-        $"{nameof(AtTime)}: {AtTime}, {nameof(SourceId)}: {SourceId}, " +
-        $"{nameof(SequenceNumber)}: {SequenceNumber}";
+        $"{nameof(BidAskInstant)}({nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice}, " +
+        $"{nameof(AtTime)}: {AtTime})";
+
+
+    public static implicit operator BidAskInstantPair(BidAskInstant pricePoint) => pricePoint.BidAskInstantPairState;
 }

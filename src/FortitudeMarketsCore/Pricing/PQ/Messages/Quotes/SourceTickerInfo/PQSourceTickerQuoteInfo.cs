@@ -130,7 +130,7 @@ public class PQSourceTickerQuoteInfo : PQPricingInstrument, IPQSourceTickerQuote
     public byte PriceScalingPrecision  { get; } = 3;
     public byte VolumeScalingPrecision { get; } = 6;
 
-    public uint MessageId => Id;
+    public uint MessageId => SourceTickerId;
     public byte Version   => 1;
 
     public QuoteLevel PublishedQuoteLevel

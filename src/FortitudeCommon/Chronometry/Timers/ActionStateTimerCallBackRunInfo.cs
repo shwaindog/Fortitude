@@ -114,3 +114,64 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
         Recycler?.Borrow<ActionStateTimerCallBackRunInfo<T>>().CopyFrom(this) ??
         new ActionStateTimerCallBackRunInfo<T>(this);
 }
+
+internal class ScheduledActualActionStateTimerCallBackRunInfo : ActionStateTimerCallBackRunInfo<IScheduleActualTime>, ITimerUpdateCallBackRunInfo
+{
+    private int callCount;
+
+    public ITimerUpdate? TimerUpdate { get; set; }
+
+    public override bool RunCallbackOnThreadPool()
+    {
+        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime>() ?? new ScheduleActualTime();
+        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, callCount++);
+        State = scheduleActualState;
+        return base.RunCallbackOnThreadPool();
+    }
+
+    public override bool RunCallbackOnThisThread()
+    {
+        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime>() ?? new ScheduleActualTime();
+        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, callCount++);
+        State = scheduleActualState;
+        return base.RunCallbackOnThisThread();
+    }
+
+    public override void StateReset()
+    {
+        TimerUpdate = null;
+        base.StateReset();
+    }
+}
+
+internal class ScheduledActualActionStateTimerCallBackRunInfo<T> : ActionStateTimerCallBackRunInfo<IScheduleActualTime<T>>
+  , ITimerUpdateCallBackRunInfo where T : class
+{
+    private int callCount;
+
+    public T? SendState { get; set; }
+
+    public ITimerUpdate? TimerUpdate { get; set; }
+
+    public override bool RunCallbackOnThreadPool()
+    {
+        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime<T>>() ?? new ScheduleActualTime<T>();
+        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, SendState, callCount++);
+        State = scheduleActualState;
+        return base.RunCallbackOnThreadPool();
+    }
+
+    public override bool RunCallbackOnThisThread()
+    {
+        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime<T>>() ?? new ScheduleActualTime<T>();
+        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, SendState, callCount++);
+        State = scheduleActualState;
+        return base.RunCallbackOnThisThread();
+    }
+
+    public override void StateReset()
+    {
+        TimerUpdate = null;
+        base.StateReset();
+    }
+}

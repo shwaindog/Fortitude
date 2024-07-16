@@ -1,4 +1,7 @@
-﻿namespace FortitudeCommon.DataStructures.Memory;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+namespace FortitudeCommon.DataStructures.Memory;
 
 public interface IUsesRecycler
 {
@@ -12,11 +15,13 @@ public class UsesRecycler : IUsesRecycler
 
 public interface IRecyclableObject : IUsesRecycler
 {
-    int RefCount { get; }
     bool AutoRecycleAtRefCountZero { get; set; }
+
+    int  RefCount     { get; }
     bool IsInRecycler { get; set; }
-    int DecrementRefCount();
-    int IncrementRefCount();
+
+    int  DecrementRefCount();
+    int  IncrementRefCount();
     bool Recycle();
     void StateReset();
 }
@@ -25,13 +30,14 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
 {
     private const int NumRecentRecycleTimes = 5;
 
-    private int isInRecycler;
+    private   int        isInRecycler;
     protected DateTime[] LastRecycleTimes = new DateTime[NumRecentRecycleTimes];
-    protected int RecycleCount;
+    protected int        RecycleCount;
 
     // ReSharper disable once InconsistentNaming
     protected int refCount = 1;
-    public int RefCount => refCount;
+
+    public int  RefCount                  => refCount;
     public bool AutoRecycleAtRefCountZero { get; set; }
 
     public bool IsInRecycler

@@ -10,34 +10,49 @@ using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 
 namespace FortitudeIO.TimeSeries;
 
-[Flags]
-public enum TimeSeriesPeriod : uint
+public enum TimeSeriesPeriod : byte
 {
-    None           = 0
-  , Tick           = 0x00_00_01
-  , OneSecond      = 0x00_00_02
-  , FiveSeconds    = 0x00_00_04
-  , TenSeconds     = 0x00_00_08
-  , FifteenSeconds = 0x00_00_10
-  , ThirtySeconds  = 0x00_00_20
-  , OneMinute      = 0x00_00_40
-  , FiveMinutes    = 0x00_00_80
-  , TenMinutes     = 0x00_01_00
-  , FifteenMinutes = 0x00_02_00
-  , ThirtyMinutes  = 0x00_04_00
-  , OneHour        = 0x00_08_00
-  , FourHours      = 0x00_10_00
-  , TwelveHours    = 0x00_20_00
-  , OneDay         = 0x00_40_00
-  , OneWeek        = 0x00_80_00
-  , OneMonth       = 0x01_00_00
-  , OneQuarter     = 0x02_00_00
-  , OneYear        = 0x04_00_00
-  , FiveYears      = 0x08_00_00
-  , OneDecade      = 0x10_00_00
-  , OneCentury     = 0x20_00_00
-  , OneMillennium  = 0x40_00_00
-  , Eternity       = 0x80_00_00
+    None = 0
+  , Any  = 1 
+  , Tick           
+  , OneSecond      
+  , FiveSeconds    
+  , TenSeconds     
+  , FifteenSeconds 
+  , ThirtySeconds  
+  , OneMinute      
+  , FiveMinutes    
+  , TenMinutes     
+  , FifteenMinutes 
+  , ThirtyMinutes  
+  , OneHour        
+  , FourHours      
+  , TwelveHours    
+  , OneDay         
+  , OneWeek        
+  , OneMonth       
+  , OneQuarter     
+  , OneYear        
+  , FiveYears      
+  , OneDecade      
+  , OneCentury     
+  , OneMillennium  
+  , Eternity       
+}
+
+public readonly struct TimePeriod
+{
+    public TimePeriod() => NullableTimeSpan = TimeSpan.Zero;
+
+    public TimePeriod(TimeSpan? nullableTimeSpan) => NullableTimeSpan = nullableTimeSpan;
+
+    public TimePeriod(TimeSeriesPeriod? nullableTimeSeriesPeriod) => NullableTimeSeriesPeriod = nullableTimeSeriesPeriod;
+
+    internal readonly TimeSpan?         NullableTimeSpan;
+    internal readonly TimeSeriesPeriod? NullableTimeSeriesPeriod;
+
+    public TimeSpan         TimeSpan         => NullableTimeSpan!.Value;
+    public TimeSeriesPeriod TimeSeriesPeriod => NullableTimeSeriesPeriod!.Value;
 }
 
 public static class TimeSeriesPeriodExtensions
@@ -71,6 +86,28 @@ public static class TimeSeriesPeriodExtensions
                  , Eternity       => DateTime.MinValue
                  , _              => anyPeriodTime
                };
+    }
+
+    public static bool IsTimeSpan(this TimePeriod spanOrPeriod)
+    {
+        return spanOrPeriod.NullableTimeSpan != null;
+    }
+
+    public static bool IsTimeSeriesPeriod(this TimePeriod spanOrPeriod)
+    {
+        return spanOrPeriod.NullableTimeSeriesPeriod != null;
+    }
+
+    public static bool IsTickPeriod(this TimePeriod spanOrPeriod)
+    {
+        return spanOrPeriod.IsTimeSeriesPeriod() && spanOrPeriod.TimeSeriesPeriod == Tick;
+    }
+
+    public static TimeSpan AveragePeriodTimeSpan(this TimePeriod spanOrPeriod)
+    {
+        return spanOrPeriod.IsTimeSpan()
+            ? spanOrPeriod.TimeSpan
+            : spanOrPeriod.TimeSeriesPeriod.AveragePeriodTimeSpan();
     }
 
     public static TimeSpan AveragePeriodTimeSpan(this TimeSeriesPeriod period)
@@ -288,6 +325,24 @@ public static class TimeSeriesPeriodExtensions
         }
         periodRanges.Add(new TimeSeriesPeriodRange(currentTime, Tick));
         return periodRanges;
+    }
+
+    public static string ShortName(this TimePeriod timePeriod)
+    {
+        if (timePeriod.IsTimeSeriesPeriod()) return timePeriod.TimeSeriesPeriod.ShortName();
+        var ts = timePeriod.TimeSpan;
+        if (ts == TimeSpan.Zero) return "0s";
+        var totalMs            = ts.TotalMilliseconds;
+        switch (totalMs)
+        {
+            case < 1000.0 :                                   return $"{(int)totalMs}ms";
+            case >= 1000.0 and < 60_000.0 :                   return $"{(int)ts.TotalSeconds}s";
+            case >= 60_000.0 and < 3_600_000.0 :              return $"{(int)ts.TotalMinutes}m";
+            case >= 3_600_000.0 and < 24*3_600_000.0 :        return $"{(int)ts.TotalHours}h";
+            case >= 24*3_600_000.0 and < 365*24*3_600_000.0 : return $"{(int)ts.TotalDays}d";
+            case >= 365*24*3_600_000.0 :                      return $"{(int)ts.TotalDays/365}y";
+        }
+        return ts.ToString();
     }
 
     public static string ShortName(this TimeSeriesPeriod period)

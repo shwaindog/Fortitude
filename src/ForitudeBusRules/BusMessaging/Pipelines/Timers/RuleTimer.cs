@@ -40,17 +40,23 @@ public class RuleTimer : IRuleTimer
     public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitTimeSpan, state, callback));
 
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<IScheduleActualTime?, ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitTimeSpan, callback));
+
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitTimeSpan, state, callback));
+
+    public ITimerUpdate RunIn(int waitMs, Func<IScheduleActualTime?, ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, callback));
+
+    public ITimerUpdate RunIn<T>(int waitMs, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, state, callback));
+
     public ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback) =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, callback));
 
     public ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, state, callback));
-
-    public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback) =>
-        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, callback));
-
-    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class =>
-        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, state, callback));
 
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<ValueTask> callback) =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, callback));
@@ -58,10 +64,34 @@ public class RuleTimer : IRuleTimer
     public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<T?, ValueTask> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, state, callback));
 
+    public ITimerUpdate RunEvery(int intervalMs, Func<IScheduleActualTime?, ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, callback));
+
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, state, callback));
+
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<IScheduleActualTime?, ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, callback));
+
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, state, callback));
+
+    public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, callback));
+
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, state, callback));
+
     public ITimerUpdate RunAt(DateTime futureDateTime, Func<ValueTask> callback) =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, callback));
 
     public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<T?, ValueTask> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, state, callback));
+
+    public ITimerUpdate RunAt(DateTime futureDateTime, Func<IScheduleActualTime?, ValueTask> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, callback));
+
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, state, callback));
 
     public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action callback) =>
@@ -70,17 +100,23 @@ public class RuleTimer : IRuleTimer
     public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<T?> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitTimeSpan, state, callback));
 
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action<IScheduleActualTime?> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitTimeSpan, callback));
+
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitTimeSpan, state, callback));
+
+    public ITimerUpdate RunIn(int waitMs, Action<IScheduleActualTime?> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, callback));
+
+    public ITimerUpdate RunIn<T>(int waitMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, state, callback));
+
     public ITimerUpdate RunIn(int waitMs, Action callback) =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, callback));
 
     public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunIn(waitMs, state, callback));
-
-    public ITimerUpdate RunEvery(int intervalMs, Action callback) =>
-        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, callback));
-
-    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class =>
-        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, state, callback));
 
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback) =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, callback));
@@ -88,10 +124,34 @@ public class RuleTimer : IRuleTimer
     public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<T?> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, state, callback));
 
+    public ITimerUpdate RunEvery(int intervalMs, Action<IScheduleActualTime?> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, callback));
+
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, state, callback));
+
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action<IScheduleActualTime?> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, callback));
+
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(periodTimeSpan, state, callback));
+
+    public ITimerUpdate RunEvery(int intervalMs, Action callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, callback));
+
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunEvery(intervalMs, state, callback));
+
     public ITimerUpdate RunAt(DateTime futureDateTime, Action callback) =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, callback));
 
     public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<T?> callback) where T : class =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, state, callback));
+
+    public ITimerUpdate RunAt(DateTime futureDateTime, Action<IScheduleActualTime?> callback) =>
+        isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, callback));
+
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
         isClosing ? NoOpTimerUpdate : registeredRuleTimers.AddReturn(backingTimer.RunAt(futureDateTime, state, callback));
 
     public void PauseAllTimers()

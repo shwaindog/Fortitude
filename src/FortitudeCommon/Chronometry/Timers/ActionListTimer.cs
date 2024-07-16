@@ -29,11 +29,13 @@ public class TimerCallbackPayload<T> : ReusableObject<TimerCallbackPayload<T>>, 
         CopyFrom(toClone);
     }
 
-    public Action?              Action               { get; set; }
+    public Action?     Action      { get; set; }
+    public Action<T?>? ActionState { get; set; }
+
     public Func<ValueTask>?     ValueTaskAction      { get; set; }
-    public Action<T?>?          ActionState          { get; set; }
     public Func<T?, ValueTask>? ValueTaskActionState { get; set; }
-    public T?                   State                { get; set; }
+
+    public T? State { get; set; }
 
     public bool IsAsyncInvoke() => ValueTaskAction != null || ValueTaskActionState != null;
 
@@ -88,6 +90,175 @@ public class TimerCallbackPayload<T> : ReusableObject<TimerCallbackPayload<T>>, 
         Recycler?.Borrow<TimerCallbackPayload<T>>().CopyFrom(this) ?? new TimerCallbackPayload<T>(this);
 }
 
+public interface IScheduledActualTimerCallbackPayload : ITimerCallbackPayload
+{
+    IScheduleActualTime ScheduleActualTime { get; }
+}
+
+public class ScheduledActualTimerStateCallbackPayload<T> : ReusableObject<ScheduledActualTimerStateCallbackPayload<T>>
+  , IScheduledActualTimerCallbackPayload
+    where T : class
+{
+    public ScheduledActualTimerStateCallbackPayload() { }
+
+    private ScheduledActualTimerStateCallbackPayload(ScheduledActualTimerStateCallbackPayload<T> toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
+    public Action<IScheduleActualTime<T>?>? Action      { get; set; }
+    public Action<IScheduleActualTime<T>?>? ActionState { get; set; }
+
+    public Func<IScheduleActualTime<T>?, ValueTask>? ValueTaskAction      { get; set; }
+    public Func<IScheduleActualTime<T>?, ValueTask>? ValueTaskActionState { get; set; }
+
+    public T? SendState { get; set; }
+
+    public IScheduleActualTime<T>? State { get; set; }
+
+    public IScheduleActualTime ScheduleActualTime => State!;
+
+    public bool IsAsyncInvoke() => ValueTaskAction != null || ValueTaskActionState != null;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (ValueTaskAction != null && ValueTaskActionState != null)
+            throw new InvalidDataException("Only expect ValueTaskAction or ValueTaskState to be set");
+        if (ValueTaskAction != null)
+        {
+            await ValueTaskAction(State);
+        }
+        else if (ValueTaskActionState != null)
+        {
+            if (State != null) State.State = SendState;
+            await ValueTaskActionState(State);
+        }
+        else
+        {
+            throw new InvalidDataException("Expected either Action or ActionState to be set");
+        }
+    }
+
+    public void Invoke()
+    {
+        if (Action != null && ActionState != null) throw new InvalidDataException("Only expect Action or ActionState to be set");
+        if (Action != null)
+        {
+            Action(State);
+        }
+        else if (ActionState != null)
+        {
+            if (State != null) State.State = SendState;
+            ActionState(State);
+        }
+        else
+        {
+            throw new InvalidDataException("Expected either Action or ActionState to be set");
+        }
+    }
+
+    public override void StateReset()
+    {
+        ValueTaskAction      = null;
+        ValueTaskActionState = null;
+
+        Action      = null;
+        ActionState = null;
+        State       = null;
+        base.StateReset();
+    }
+
+    public override ScheduledActualTimerStateCallbackPayload<T> CopyFrom
+    (ScheduledActualTimerStateCallbackPayload<T> source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        ValueTaskAction      = source.ValueTaskAction;
+        ValueTaskActionState = source.ValueTaskActionState;
+
+        Action      = source.Action;
+        ActionState = source.ActionState;
+        State       = source.State;
+        return this;
+    }
+
+    public override ScheduledActualTimerStateCallbackPayload<T> Clone() =>
+        Recycler?.Borrow<ScheduledActualTimerStateCallbackPayload<T>>().CopyFrom(this) ?? new ScheduledActualTimerStateCallbackPayload<T>(this);
+}
+
+public class ScheduledActualTimerStateCallbackPayload : ReusableObject<ScheduledActualTimerStateCallbackPayload>, IScheduledActualTimerCallbackPayload
+{
+    public ScheduledActualTimerStateCallbackPayload() { }
+
+    private ScheduledActualTimerStateCallbackPayload(ScheduledActualTimerStateCallbackPayload toClone)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CopyFrom(toClone);
+    }
+
+    public Action<IScheduleActualTime?>? Action      { get; set; }
+    public Action<IScheduleActualTime?>? ActionState { get; set; }
+
+    public Func<IScheduleActualTime?, ValueTask>? ValueTaskAction      { get; set; }
+    public Func<IScheduleActualTime?, ValueTask>? ValueTaskActionState { get; set; }
+
+    public IScheduleActualTime? State { get; set; }
+
+    public IScheduleActualTime ScheduleActualTime => State!;
+
+    public bool IsAsyncInvoke() => ValueTaskAction != null || ValueTaskActionState != null;
+
+    public async ValueTask InvokeAsync()
+    {
+        if (ValueTaskAction != null && ValueTaskActionState != null)
+            throw new InvalidDataException("Only expect ValueTaskAction or ValueTaskState to be set");
+        if (ValueTaskAction != null)
+            await ValueTaskAction(State);
+        else if (ValueTaskActionState != null)
+            await ValueTaskActionState(State);
+        else
+            throw new InvalidDataException("Expected either Action or ActionState to be set");
+    }
+
+    public void Invoke()
+    {
+        if (Action != null && ActionState != null) throw new InvalidDataException("Only expect Action or ActionState to be set");
+        if (Action != null)
+            Action(State);
+        else if (ActionState != null)
+            ActionState(State);
+        else
+            throw new InvalidDataException("Expected either Action or ActionState to be set");
+    }
+
+    public override void StateReset()
+    {
+        ValueTaskAction      = null;
+        ValueTaskActionState = null;
+
+        Action      = null;
+        ActionState = null;
+        State       = null;
+        base.StateReset();
+    }
+
+    public override ScheduledActualTimerStateCallbackPayload CopyFrom
+    (ScheduledActualTimerStateCallbackPayload source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        ValueTaskAction      = source.ValueTaskAction;
+        ValueTaskActionState = source.ValueTaskActionState;
+
+        Action      = source.Action;
+        ActionState = source.ActionState;
+        State       = source.State;
+        return this;
+    }
+
+    public override ScheduledActualTimerStateCallbackPayload Clone() =>
+        Recycler?.Borrow<ScheduledActualTimerStateCallbackPayload>().CopyFrom(this) ?? new ScheduledActualTimerStateCallbackPayload(this);
+}
+
 public interface ISingleEntryActionTimer : IActionTimer
 {
     WaitCallback IntervalWaitCallback { get; set; }
@@ -124,35 +295,33 @@ public class ActionTimer : ISingleEntryActionTimer
         return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
 
-    public ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback)
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<IScheduleActualTime?, ValueTask> callback)
     {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.ValueTaskAction = callback;
-        return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
-    }
-
-    public ITimerUpdate RunIn<T>(int waitMs, T state, Func<T?, ValueTask> callback) where T : class
-    {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload>();
         actionPayload.ValueTaskActionState = callback;
-        actionPayload.State                = state;
-        return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
+        return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
 
-    public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback)
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class
     {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.ValueTaskAction = callback;
-        return backingTimer.RunEvery(intervalMs, actionPayload, IntervalWaitCallback);
-    }
-
-    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Func<T?, ValueTask> callback) where T : class
-    {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload<T>>();
         actionPayload.ValueTaskActionState = callback;
-        actionPayload.State                = state;
-        return backingTimer.RunEvery(intervalMs, actionPayload, IntervalWaitCallback);
+        actionPayload.SendState            = state;
+        return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
+
+    public ITimerUpdate RunIn(int waitMs, Func<IScheduleActualTime?, ValueTask> callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
+
+    public ITimerUpdate RunIn<T>
+        (int waitMs, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
+
+    public ITimerUpdate RunIn(int waitMs, Func<ValueTask> callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
+
+    public ITimerUpdate RunIn<T>
+        (int waitMs, T state, Func<T?, ValueTask> callback) where T : class =>
+        RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
+
 
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<ValueTask> callback)
     {
@@ -169,6 +338,35 @@ public class ActionTimer : ISingleEntryActionTimer
         return backingTimer.RunEvery(periodTimeSpan, actionPayload, IntervalWaitCallback);
     }
 
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Func<IScheduleActualTime?, ValueTask> callback)
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload>();
+        actionPayload.ValueTaskAction = callback;
+        return backingTimer.RunEvery(periodTimeSpan, actionPayload, IntervalWaitCallback);
+    }
+
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload<T>>();
+        actionPayload.ValueTaskActionState = callback;
+        actionPayload.SendState            = state;
+        return backingTimer.RunEvery(periodTimeSpan, actionPayload, IntervalWaitCallback);
+    }
+
+    public ITimerUpdate RunEvery
+        (int intervalMs, Func<IScheduleActualTime?, ValueTask> callback) =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+
+    public ITimerUpdate RunEvery<T>
+        (int intervalMs, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
+
+    public ITimerUpdate RunEvery(int intervalMs, Func<ValueTask> callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+
+    public ITimerUpdate RunEvery<T>
+        (int intervalMs, T state, Func<T?, ValueTask> callback) where T : class =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
+
     public ITimerUpdate RunAt(DateTime futureDateTime, Func<ValueTask> callback)
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
@@ -181,6 +379,21 @@ public class ActionTimer : ISingleEntryActionTimer
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
         actionPayload.ValueTaskActionState = callback;
         actionPayload.State                = state;
+        return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
+    }
+
+    public ITimerUpdate RunAt(DateTime futureDateTime, Func<IScheduleActualTime?, ValueTask> callback)
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload>();
+        actionPayload.ValueTaskAction = callback;
+        return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
+    }
+
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Func<IScheduleActualTime<T>?, ValueTask> callback) where T : class
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload<T>>();
+        actionPayload.ValueTaskActionState = callback;
+        actionPayload.SendState            = state;
         return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
     }
 
@@ -199,35 +412,33 @@ public class ActionTimer : ISingleEntryActionTimer
         return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
 
-    public ITimerUpdate RunIn(int waitMs, Action callback)
+    public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Action<IScheduleActualTime?> callback)
     {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.Action = callback;
-        return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
-    }
-
-    public ITimerUpdate RunIn<T>(int waitMs, T state, Action<T?> callback) where T : class
-    {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload>();
         actionPayload.ActionState = callback;
-        actionPayload.State       = state;
-        return backingTimer.RunIn(waitMs, actionPayload, OneOffWaitCallback);
+        return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
 
-    public ITimerUpdate RunEvery(int intervalMs, Action callback)
+    public ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Action<IScheduleActualTime<T>?> callback) where T : class
     {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
-        actionPayload.Action = callback;
-        return backingTimer.RunEvery(intervalMs, actionPayload, IntervalWaitCallback);
-    }
-
-    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<T?> callback) where T : class
-    {
-        var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload<T>>();
         actionPayload.ActionState = callback;
-        actionPayload.State       = state;
-        return backingTimer.RunEvery(intervalMs, actionPayload, IntervalWaitCallback);
+        actionPayload.SendState   = state;
+        return backingTimer.RunIn(waitTimeSpan, actionPayload, OneOffWaitCallback);
     }
+
+    public ITimerUpdate RunIn(int waitMs, Action<IScheduleActualTime?> callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
+
+    public ITimerUpdate RunIn<T>
+        (int waitMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
+
+    public ITimerUpdate RunIn(int waitMs, Action callback) => RunIn(TimeSpan.FromMilliseconds(waitMs), callback);
+
+    public ITimerUpdate RunIn<T>
+        (int waitMs, T state, Action<T?> callback) where T : class =>
+        RunIn(TimeSpan.FromMilliseconds(waitMs), state, callback);
+
 
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action callback)
     {
@@ -244,6 +455,33 @@ public class ActionTimer : ISingleEntryActionTimer
         return backingTimer.RunEvery(periodTimeSpan, actionPayload, IntervalWaitCallback);
     }
 
+    public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, Action<IScheduleActualTime?> callback)
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload>();
+        actionPayload.ActionState = callback;
+        return backingTimer.RunEvery(periodTimeSpan, actionPayload, IntervalWaitCallback);
+    }
+
+    public ITimerUpdate RunEvery<T>(TimeSpan periodTimeSpan, T state, Action<IScheduleActualTime<T>?> callback) where T : class
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload<T>>();
+        actionPayload.ActionState = callback;
+        actionPayload.SendState   = state;
+        return backingTimer.RunEvery(periodTimeSpan, actionPayload, IntervalWaitCallback);
+    }
+
+    public ITimerUpdate RunEvery(int intervalMs, Action<IScheduleActualTime?> callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+
+    public ITimerUpdate RunEvery<T>
+        (int intervalMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
+
+    public ITimerUpdate RunEvery(int intervalMs, Action callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
+
+    public ITimerUpdate RunEvery<T>
+        (int intervalMs, T state, Action<T?> callback) where T : class =>
+        RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
+
     public ITimerUpdate RunAt(DateTime futureDateTime, Action callback)
     {
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<object>>();
@@ -256,6 +494,21 @@ public class ActionTimer : ISingleEntryActionTimer
         var actionPayload = Recycler.Borrow<TimerCallbackPayload<T>>();
         actionPayload.ActionState = callback;
         actionPayload.State       = state;
+        return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
+    }
+
+    public ITimerUpdate RunAt(DateTime futureDateTime, Action<IScheduleActualTime?> callback)
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload>();
+        actionPayload.ActionState = callback;
+        return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
+    }
+
+    public ITimerUpdate RunAt<T>(DateTime futureDateTime, T state, Action<IScheduleActualTime<T>?> callback) where T : class
+    {
+        var actionPayload = Recycler.Borrow<ScheduledActualTimerStateCallbackPayload<T>>();
+        actionPayload.ActionState = callback;
+        actionPayload.SendState   = state;
         return backingTimer.RunAt(futureDateTime, actionPayload, OneOffWaitCallback);
     }
 
@@ -277,7 +530,8 @@ public class ActionTimer : ISingleEntryActionTimer
 
 public interface IProcessListConsumer : IDisposable
 {
-    bool                        ShouldProcess { get; }
+    bool ShouldProcess { get; }
+
     List<ITimerCallbackPayload> TimerPayloads { get; }
 }
 

@@ -29,14 +29,16 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote
 {
     public HistoricalQuotesRequest
-        (SourceTickerId tickerId, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
+        (SourceTickerIdentifier sourceTickerIdentifier, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
     {
-        TickerId       = tickerId;
+        SourceTickerIdentifier = sourceTickerIdentifier;
+
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
     }
 
-    public SourceTickerId      TickerId  { get; }
+    public SourceTickerIdentifier SourceTickerIdentifier { get; }
+
     public UnboundedTimeRange? TimeRange { get; }
 
     public ChannelPublishRequest<TEntry> ChannelRequest { get; }
@@ -115,11 +117,11 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         base.Stop();
     }
 
-    private IInstrument? FindInstrumentFor(SourceTickerId tickerId)
+    private IInstrument? FindInstrumentFor(SourceTickerIdentifier sourceTickerIdentifier)
     {
         var matchingInstruments =
             TimeSeriesRepository!.InstrumentFilesMap.Keys
-                                 .Where(i => i.InstrumentName == tickerId.Ticker && i.InstrumentSource == tickerId.Source)
+                                 .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker && i.InstrumentSource == sourceTickerIdentifier.Source)
                                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }
@@ -175,7 +177,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     private bool MakeTimeSeriesRepoCallReturnExpectResults<TEntry>
         (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, new()
     {
-        var instrument = FindInstrumentFor(request.TickerId);
+        var instrument = FindInstrumentFor(request.SourceTickerIdentifier);
         if (instrument == null) return false;
         var readerSession = TimeSeriesRepository!.GetReaderSession<TEntry>(instrument, request.TimeRange);
         if (readerSession == null) return false;

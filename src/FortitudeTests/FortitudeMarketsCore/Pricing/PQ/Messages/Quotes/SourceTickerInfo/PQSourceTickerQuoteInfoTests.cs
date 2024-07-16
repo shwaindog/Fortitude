@@ -52,7 +52,7 @@ public class PQSourceTickerQuoteInfoTests
     {
         Assert.IsFalse(emptySrcTkrQtInfo.IsIdUpdated);
         Assert.IsFalse(emptySrcTkrQtInfo.HasUpdates);
-        Assert.AreEqual(0u, emptySrcTkrQtInfo.Id);
+        Assert.AreEqual(0u, emptySrcTkrQtInfo.SourceTickerId);
         Assert.IsTrue(emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         var expectedId = ushort.MaxValue;
@@ -60,7 +60,7 @@ public class PQSourceTickerQuoteInfoTests
         Assert.IsTrue(emptySrcTkrQtInfo.IsIdUpdated);
         Assert.IsTrue(emptySrcTkrQtInfo.HasUpdates);
         var expectedStreamId = (uint)expectedId << 16;
-        Assert.AreEqual(expectedStreamId, emptySrcTkrQtInfo.Id);
+        Assert.AreEqual(expectedStreamId, emptySrcTkrQtInfo.SourceTickerId);
         var sourceUpdates = emptySrcTkrQtInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.SourceTickerId, expectedStreamId);
@@ -79,7 +79,7 @@ public class PQSourceTickerQuoteInfoTests
 
         var newEmpty = new PQSourceTickerQuoteInfo(emptySrcTkrQtInfo);
         newEmpty.UpdateField(sourceUpdates[0]);
-        Assert.AreEqual(expectedStreamId, newEmpty.Id);
+        Assert.AreEqual(expectedStreamId, newEmpty.SourceTickerId);
         Assert.IsFalse(newEmpty.IsIdUpdated);
     }
 
@@ -656,7 +656,7 @@ public class PQSourceTickerQuoteInfoTests
     (IList<PQFieldUpdate> checkFieldUpdates,
         ISourceTickerQuoteInfo srcTkrInfo)
     {
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceTickerId, srcTkrInfo.Id),
+        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceTickerId, srcTkrInfo.SourceTickerId),
                         PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.SourceTickerId));
         var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(
                                                                   srcTkrInfo.RoundingPrecision)[3])[2];

@@ -26,14 +26,14 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
     private ISubscription? requestResponseSubscription;
     private ISubscription? requestStreamSubscription;
 
-    private Func<SourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
+    private Func<SourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
 
     public HistoricalPricePeriodSummaryRetrievalStubRule
-        (Func<SourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
+        (Func<SourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
         : base(nameof(HistoricalPricePeriodSummaryRetrievalStubRule)) =>
         summariesCallback = stubRetrieveSummariesCallback;
 
-    public Func<SourceTickerId, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
+    public Func<SourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
     {
         get => summariesCallback;
         set => summariesCallback = value ?? throw new ArgumentNullException(nameof(value));
@@ -59,12 +59,12 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
         (IBusRespondingMessage<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>> requestResponseMessage)
     {
         var summaryRequest = requestResponseMessage.Payload.Body();
-        return summariesCallback(summaryRequest.TickerId, summaryRequest.EntryPeriod, summaryRequest.TimeRange).ToList();
+        return summariesCallback(summaryRequest.SourceTickerIdentifier, summaryRequest.EntryPeriod, summaryRequest.TimeRange).ToList();
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults(HistoricalPricePeriodSummaryStreamRequest streamRequest)
     {
-        var results = summariesCallback(streamRequest.TickerId, streamRequest.EntryPeriod, streamRequest.TimeRange);
+        var results = summariesCallback(streamRequest.SourceTickerIdentifier, streamRequest.EntryPeriod, streamRequest.TimeRange);
 
         if (!results.Any()) return false;
 
