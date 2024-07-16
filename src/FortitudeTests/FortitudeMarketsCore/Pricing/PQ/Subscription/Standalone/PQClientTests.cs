@@ -117,7 +117,7 @@ public class PQClientTests
         moqFirstTestSourceTickerQuoteInfo.Setup(stqi => stqi.GetEnumerator()).Returns(Enumerable.Empty<KeyValuePair<string, string>>().GetEnumerator);
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Source).Returns(firstTestSourceName);
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Ticker).Returns(firstTestTicker);
-        moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Id).Returns(FirstSourceTickerId);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(FirstSourceTickerId);
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.SourceId).Returns(FirstSourceId);
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.TickerId).Returns(FirstTickerId);
 
@@ -125,7 +125,7 @@ public class PQClientTests
 
         moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Source).Returns(secondTestSourceName);
         moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Ticker).Returns(secondTestTicker);
-        moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Id).Returns(SecondSourceTickerId);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(SecondSourceTickerId);
         moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.SourceId).Returns(SecondSourceId);
         moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.TickerId).Returns(SecondTickerId);
 
@@ -398,7 +398,7 @@ public class PQClientTests
         moqFirstTestSourceTickerQuoteInfo.Reset();
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Ticker)
                                          .Returns(firstTestTicker);
-        moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Id).Returns(FirstSourceTickerId);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(FirstSourceTickerId);
 
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Source).Returns(secondTestSourceName);
         moqPQQuoteDeserializerRepo.Setup(qdr => qdr.GetDeserializer(
@@ -437,12 +437,12 @@ public class PQClientTests
         moqPQQuoteSerializer.Reset();
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Ticker)
                                          .Returns(firstTestTicker);
-        moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Id).Returns(FirstSourceTickerId);
+        moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(FirstSourceTickerId);
 
         moqFirstTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Source).Returns(firstTestSourceName);
         moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Ticker)
                                           .Returns(secondTestSourceName);
-        moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Id).Returns(SecondSourceTickerId);
+        moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(SecondSourceTickerId);
 
         moqSecondTestSourceTickerQuoteInfo.SetupGet(stqi => stqi.Source).Returns(secondTestSourceName);
         moqPQQuoteDeserializerRepo.SetupGet(qdr => qdr.RegisteredMessageIds).Returns(Array.Empty<uint>()).Verifiable();

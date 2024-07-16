@@ -12,45 +12,49 @@ namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
 public struct SharedTicksMovingAveragePublishParams
 {
-    public ISourceTickerId SourceTickerId    { get; }
-    public ushort          PublishAsSourceId { get; }
+    public SharedTicksMovingAveragePublishParams
+    (SourceTickerIdentifier sourceTickerIdentifier, IndicatorPublishInterval publishInterval
+      , params MovingAverageOffset[] initialPeriodsToPublish)
+    {
+        InitialPeriodsToPublish = initialPeriodsToPublish;
+        PublishInterval         = publishInterval;
+        SourceTickerIdentifier  = sourceTickerIdentifier;
+    }
 
-    public PricePublishInterval PublishInterval { get; }
+    public SourceTickerIdentifier SourceTickerIdentifier { get; }
 
-    public MovingAverageParams[]? InitialPeriodsToPublish { get; }
+    public IndicatorPublishInterval PublishInterval { get; }
+
+    public MovingAverageOffset[]? InitialPeriodsToPublish { get; }
 }
 
 public struct MovingAveragePublisherParams
 {
     public MovingAveragePublisherParams
-    (ushort publishSourceId, SourceTickerId sourceTickerId, PricePublishInterval publishInterval
-      , params MovingAverageParams[] periodsToPublish)
+    (SourceTickerIdentifier sourceTickerIdentifier, IndicatorPublishInterval publishFrequency
+      , params MovingAverageOffset[] periodsToPublish)
     {
-        PublishAsSourceId = publishSourceId;
-        SourceTickerId    = sourceTickerId;
-        PublishInterval   = publishInterval;
-        PeriodsToPublish  = periodsToPublish;
+        SourceTickerIdentifier = sourceTickerIdentifier;
+        PublishFrequency       = publishFrequency;
+        PeriodsToPublish       = periodsToPublish;
     }
 
     public MovingAveragePublisherParams
-    (ushort publishSourceId, SourceTickerId sourceTickerId, PricePublishInterval publishInterval
-      , params BatchPricePublishInterval[] batchPeriodsToPublish)
+    (SourceTickerIdentifier sourceTickerIdentifier, IndicatorPublishInterval publishFrequency
+      , params BatchIndicatorPublishInterval[] batchPeriodsToPublish)
     {
-        PublishAsSourceId     = publishSourceId;
-        SourceTickerId        = sourceTickerId;
-        PublishInterval       = publishInterval;
-        BatchPeriodsToPublish = batchPeriodsToPublish;
+        SourceTickerIdentifier = sourceTickerIdentifier;
+        PublishFrequency       = publishFrequency;
+        BatchPeriodsToPublish  = batchPeriodsToPublish;
     }
 
-    public SourceTickerId SourceTickerId { get; }
+    public SourceTickerIdentifier SourceTickerIdentifier { get; }
 
-    public ushort PublishAsSourceId { get; }
+    public MovingAverageOffset[]? PeriodsToPublish { get; }
 
-    public MovingAverageParams[]? PeriodsToPublish { get; }
+    public BatchIndicatorPublishInterval[]? BatchPeriodsToPublish { get; }
 
-    public BatchPricePublishInterval[]? BatchPeriodsToPublish { get; }
-
-    public PricePublishInterval PublishInterval { get; }
+    public IndicatorPublishInterval PublishFrequency { get; }
 }
 
 public static class MovingAveragePublisherParamsExtensions
@@ -59,14 +63,14 @@ public static class MovingAveragePublisherParamsExtensions
     {
         var calcStartTime = lastPublishTime;
         var calcEndTime   = lastPublishTime;
-        if (movingAvg.PublishInterval.PriceIndicatorPublishType == PriceIndicatorPublishType.TimeSeriesPeriod)
+        if (movingAvg.PublishFrequency.PublishInterval.IsTimeSeriesPeriod())
         {
-            calcStartTime = movingAvg.PublishInterval.PublishPeriod!.Value.ContainingPeriodBoundaryStart(lastPublishTime);
-            calcEndTime   = movingAvg.PublishInterval.PublishPeriod!.Value.PeriodEnd(calcStartTime);
+            calcStartTime = movingAvg.PublishFrequency.PublishInterval.TimeSeriesPeriod.ContainingPeriodBoundaryStart(lastPublishTime);
+            calcEndTime   = movingAvg.PublishFrequency.PublishInterval.TimeSeriesPeriod.PeriodEnd(calcStartTime);
         }
-        else if (movingAvg.PublishInterval.PriceIndicatorPublishType == PriceIndicatorPublishType.SetTimeSpan)
+        else if (movingAvg.PublishFrequency.PublishInterval.IsTimeSeriesPeriod())
         {
-            calcEndTime = lastPublishTime.Add(movingAvg.PublishInterval.PublishTimeSpan!.Value);
+            calcEndTime = lastPublishTime.Add(movingAvg.PublishFrequency.PublishInterval.AveragePeriodTimeSpan());
         }
         return calcEndTime;
     }

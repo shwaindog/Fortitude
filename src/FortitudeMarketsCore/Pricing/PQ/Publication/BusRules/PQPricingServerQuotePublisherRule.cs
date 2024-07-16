@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
@@ -26,24 +29,28 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication.BusRules;
 public class PQPricingServerQuotePublisherRule : Rule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingServerQuotePublisherRule));
+
     private readonly string feedName;
-    private readonly int heartBeatPublishIntervalMs;
-    private readonly int heartBeatPublishToleranceRangeMs;
+    private readonly int    heartBeatPublishIntervalMs;
+    private readonly int    heartBeatPublishToleranceRangeMs;
+
     private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
-    private readonly IPricingServerConfig pricingServerConfig;
-    private readonly IMap<uint, PQLevel0Quote> publishedQuotesMap = new ConcurrentMap<uint, PQLevel0Quote>();
-    private readonly INetworkTopicConnectionConfig updatesConnectionConfig;
+    private readonly IPricingServerConfig              pricingServerConfig;
+    private readonly IMap<uint, PQLevel0Quote>         publishedQuotesMap = new ConcurrentMap<uint, PQLevel0Quote>();
+    private readonly INetworkTopicConnectionConfig     updatesConnectionConfig;
+
     private ITimerUpdate? heartBestRunner;
+
     private PQPricingServerQuoteUpdatePublisher updatePublisher = null!;
 
     public PQPricingServerQuotePublisherRule(string feedName, IPricingServerConfig pricingServerConfig)
         : base(feedName + "_" + nameof(PQPricingServerQuotePublisherRule))
     {
-        this.feedName = feedName;
-        this.pricingServerConfig = pricingServerConfig;
-        updatesConnectionConfig = pricingServerConfig!.UpdateConnectionConfig;
+        this.feedName                    = feedName;
+        this.pricingServerConfig         = pricingServerConfig;
+        updatesConnectionConfig          = pricingServerConfig!.UpdateConnectionConfig;
         heartBeatPublishToleranceRangeMs = pricingServerConfig.HeartBeatServerToleranceRangeMs;
-        heartBeatPublishIntervalMs = pricingServerConfig.HeartBeatPublishIntervalMs;
+        heartBeatPublishIntervalMs       = pricingServerConfig.HeartBeatPublishIntervalMs;
     }
 
     public override async ValueTask StartAsync()
@@ -51,12 +58,12 @@ public class PQPricingServerQuotePublisherRule : Rule
         await AttemptStartUpdatePublisher();
         await this.RegisterListenerAsync<PublishQuoteEvent>(feedName.FeedTickerPublishAddress(), PublishReceivedTickerHandler);
         await this.RegisterRequestListenerAsync<IList<uint>, IList<IPQLevel0Quote>>(feedName.FeedTickerLastPublishedQuotesRequestAddress()
-            , ReceivedQuoteLastPublishedRequest);
+                                                                                  , ReceivedQuoteLastPublishedRequest);
     }
 
     private IList<IPQLevel0Quote> ReceivedQuoteLastPublishedRequest(IBusRespondingMessage<IList<uint>, IList<IPQLevel0Quote>> arg)
     {
-        var response = Context.PooledRecycler.Borrow<ReusableList<IPQLevel0Quote>>();
+        var response           = Context.PooledRecycler.Borrow<ReusableList<IPQLevel0Quote>>();
         var quotesIdsToReturns = arg.Payload.Body();
         foreach (var quotesIdsToReturn in quotesIdsToReturns)
         {
@@ -72,20 +79,20 @@ public class PQPricingServerQuotePublisherRule : Rule
     private void PublishReceivedTickerHandler(IBusMessage<PublishQuoteEvent> pricePublishRequestMessage)
     {
         var quotePublishEvent = pricePublishRequestMessage.Payload.Body();
-        var quoteToPublish = quotePublishEvent.PublishQuote;
+        var quoteToPublish    = quotePublishEvent.PublishQuote;
         // if (quoteToPublish.SinglePrice > 0) Logger.Info("PublishReceivedTickerHandler received {0}", quoteToPublish);
-        var tickerQuoteInfo = quoteToPublish.SourceTickerQuoteInfo;
+        var tickerQuoteInfo        = quoteToPublish.SourceTickerQuoteInfo;
         var overrideSequenceNumber = quotePublishEvent.OverrideSequenceNumber;
-        var overrideMessageFlags = quotePublishEvent.MessageFlags;
-        if (!publishedQuotesMap.TryGetValue(tickerQuoteInfo!.Id, out var sendToSerializer))
+        var overrideMessageFlags   = quotePublishEvent.MessageFlags;
+        if (!publishedQuotesMap.TryGetValue(tickerQuoteInfo!.SourceTickerId, out var sendToSerializer))
         {
-            sendToSerializer = tickerQuoteInfo.PublishedTypePQInstance();
-            sendToSerializer.PQSequenceId = uint.MaxValue;
+            sendToSerializer                            = tickerQuoteInfo.PublishedTypePQInstance();
+            sendToSerializer.PQSequenceId               = uint.MaxValue;
             sendToSerializer.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
-            sendToSerializer.AutoRecycleAtRefCountZero = false;
-            sendToSerializer.Recycler = Context.PooledRecycler;
+            sendToSerializer.AutoRecycleAtRefCountZero  = false;
+            sendToSerializer.Recycler                   = Context.PooledRecycler;
             sendToSerializer.CopyFrom(quoteToPublish);
-            publishedQuotesMap.Add(tickerQuoteInfo.Id, sendToSerializer);
+            publishedQuotesMap.Add(tickerQuoteInfo.SourceTickerId, sendToSerializer);
             if (quoteToPublish.QuoteLevel.LessThan(sendToSerializer!.QuoteLevel))
             {
                 Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");
@@ -126,13 +133,13 @@ public class PQPricingServerQuotePublisherRule : Rule
     public void HeartBeatIntervalCheck()
     {
         var heartBeatQuotesMessage = Context.PooledRecycler.Borrow<PQHeartBeatQuotesMessage>();
-        var heartBeatsToSend = heartBeatQuotesMessage.QuotesToSendHeartBeats;
+        var heartBeatsToSend       = heartBeatQuotesMessage.QuotesToSendHeartBeats;
 
         while (!heartbeatQuotes.IsEmpty)
         {
             IPQLevel0Quote? level0Quote;
             if ((level0Quote = heartbeatQuotes.Head) == null
-                || (TimeContext.UtcNow - level0Quote.LastPublicationTime).TotalMilliseconds <
+             || (TimeContext.UtcNow - level0Quote.LastPublicationTime).TotalMilliseconds <
                 heartBeatPublishIntervalMs - heartBeatPublishToleranceRangeMs)
                 break;
             heartbeatQuotes.Remove(level0Quote);
@@ -145,8 +152,9 @@ public class PQPricingServerQuotePublisherRule : Rule
         if (heartBeatsToSend.Count > 0 && updatePublisher.IsStarted)
         {
             Logger.Info("Publishing heartbeats for [{0}]"
-                , heartBeatQuotesMessage.QuotesToSendHeartBeats
-                    .Select(q => $"MessageId: {q.SourceTickerQuoteInfo!.Id}, PQSequenceId {q.PQSequenceId}").JoinToString());
+                      , heartBeatQuotesMessage.QuotesToSendHeartBeats
+                                              .Select(q => $"MessageId: {q.SourceTickerQuoteInfo!.SourceTickerId}, PQSequenceId {q.PQSequenceId}")
+                                              .JoinToString());
             updatePublisher.Send(heartBeatQuotesMessage);
         }
     }
@@ -156,11 +164,11 @@ public class PQPricingServerQuotePublisherRule : Rule
         var thisQueue = Context.RegisteredOn;
         if (thisQueue is not IIOOutboundMessageQueue)
             Logger.Warn("Expected this rule to be deployed on an IOOutboundQueue so that it can reduce Queue hops.  Was deployed on {0}"
-                , thisQueue.Name);
+                      , thisQueue.Name);
         var updateServerDispatcher = Context.MessageBus.BusIOResolver.GetOutboundDispatcherResolver(thisQueue as IIOOutboundMessageQueue);
         updatePublisher = PQPricingServerQuoteUpdatePublisher.BuildUdpMulticastPublisher(feedName, updatesConnectionConfig, updateServerDispatcher);
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
-            .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
+                                        .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
         var connected = await updatePublisher.StartAsync(10_000, workerQueueConnect);
         if (connected)
         {
@@ -169,7 +177,7 @@ public class PQPricingServerQuotePublisherRule : Rule
         }
 
         Logger.Error(
-            "Warning did not connect to the configured adapter and port typically this means there is a misconfiguration between your configuration " +
-            "and environment and will not auto resolve.");
+                     "Warning did not connect to the configured adapter and port typically this means there is a misconfiguration between your configuration " +
+                     "and environment and will not auto resolve.");
     }
 }

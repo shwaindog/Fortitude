@@ -32,8 +32,8 @@ public static class PricePeriodSummaryConstants
         string.Format(PeriodSummaryCompleteTemplate, pricingInstrumentId.Source, pricingInstrumentId.Ticker
                     , pricingInstrumentId.EntryPeriod.ShortName());
 
-    public static string CompletePeriodSummaryAddress(this SourceTickerId tickerId, TimeSeriesPeriod period) =>
-        string.Format(PeriodSummaryCompleteTemplate, tickerId.Source, tickerId.Ticker, period.ShortName());
+    public static string CompletePeriodSummaryAddress(this SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period) =>
+        string.Format(PeriodSummaryCompleteTemplate, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
 
     public static string PersistPreparePeriodSummaryPublish(this PricingInstrumentId pricingInstrumentId) =>
         string.Format(PeriodSummaryPersistPreparePublish, pricingInstrumentId.Source, pricingInstrumentId.Ticker
@@ -49,15 +49,15 @@ public static class PricePeriodSummaryConstants
         string.Format(PeriodSummaryHistoricalStreamRequest, pricingInstrumentId.Source, pricingInstrumentId.Ticker
                     , pricingInstrumentId.EntryPeriod.ShortName());
 
-    public static string HistoricalPeriodSummaryStreamRequest(this SourceTickerId tickerId, TimeSeriesPeriod period) =>
-        string.Format(PeriodSummaryHistoricalStreamRequest, tickerId.Source, tickerId.Ticker, period.ShortName());
+    public static string HistoricalPeriodSummaryStreamRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period) =>
+        string.Format(PeriodSummaryHistoricalStreamRequest, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
 
     public static string HistoricalPeriodSummaryResponseRequest(this PricingInstrumentId pricingInstrumentId) =>
         string.Format(PeriodSummaryHistoricalResponseRequest, pricingInstrumentId.Source, pricingInstrumentId.Ticker
                     , pricingInstrumentId.EntryPeriod.ShortName());
 
-    public static string HistoricalPeriodSummaryResponseRequest(this SourceTickerId tickerId, TimeSeriesPeriod period) =>
-        string.Format(PeriodSummaryHistoricalResponseRequest, tickerId.Source, tickerId.Ticker, period.ShortName());
+    public static string HistoricalPeriodSummaryResponseRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period) =>
+        string.Format(PeriodSummaryHistoricalResponseRequest, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
 
     public static TimeSeriesPeriod RoundNonPersistPeriodsToTick(this TimeSeriesPeriod checkSmallPeriod)
     {

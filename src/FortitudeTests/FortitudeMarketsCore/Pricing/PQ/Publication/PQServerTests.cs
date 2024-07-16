@@ -298,7 +298,7 @@ public class PQServerTests
                                   .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Verifiable();
         moqSyncLock.Setup(sl => sl.Release()).Callback(() => { isInQuoteSyncLock = false; }).Verifiable();
 
-        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);
+        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.SourceTickerId, moqRegisteredPqLevel0Quote.Object);
 
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
 
@@ -333,7 +333,7 @@ public class PQServerTests
         };
         moqQuoteSyncLock.Setup(sl => sl.Release());
 
-        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, ticker1RegisteredPqLevel0Quote);
+        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.SourceTickerId, ticker1RegisteredPqLevel0Quote);
 
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
         var moqHeartBeatSyncLock = new Mock<ISyncLock>();
@@ -385,7 +385,7 @@ public class PQServerTests
         moqRegisteredPqLevel0Quote.Setup(l0Q => l0Q.CopyFrom((ILevel0Quote)stubLevel1Quote, CopyMergeFlags.Default));
         moqQuoteSyncLock.Setup(sl => sl.Release());
 
-        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);
+        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.SourceTickerId, moqRegisteredPqLevel0Quote.Object);
 
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
         var isInHeartBeatSyncLock = false;
@@ -466,7 +466,7 @@ public class PQServerTests
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release());
 
-        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);
+        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.SourceTickerId, moqRegisteredPqLevel0Quote.Object);
 
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
 
@@ -504,8 +504,13 @@ public class PQServerTests
         pqServer.Register(TestTicker2);
         pqServer.Register(TestTicker3);
 
-        moqSnapshotService.Raise(sss => sss.OnSnapshotRequest += null, moqConvoRequester.Object
-                               , new PQSnapshotIdsRequest(new[] { sourceTickerQuoteInfo1.Id, sourceTickerQuoteInfo2.Id, sourceTickerQuoteInfo3.Id }));
+        moqSnapshotService.Raise
+            (sss => sss.OnSnapshotRequest += null, moqConvoRequester.Object
+           , new PQSnapshotIdsRequest(new[]
+             {
+                 sourceTickerQuoteInfo1.SourceTickerId, sourceTickerQuoteInfo2.SourceTickerId
+               , sourceTickerQuoteInfo3.SourceTickerId
+             }));
 
         moqConvoRequester.Verify();
     }
@@ -539,7 +544,7 @@ public class PQServerTests
         moqRegisteredPqLevel0Quote.SetupProperty(l0Q => l0Q.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release());
 
-        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object);
+        replaceWithPQServerInstance.Add(sourceTickerQuoteInfo1.SourceTickerId, moqRegisteredPqLevel0Quote.Object);
 
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
 
@@ -580,7 +585,7 @@ public class PQServerTests
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel1Quote>
         {
-            { sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object }
+            { sourceTickerQuoteInfo1.SourceTickerId, moqRegisteredPqLevel0Quote.Object }
         };
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
 
@@ -616,7 +621,7 @@ public class PQServerTests
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel1Quote>
         {
-            { sourceTickerQuoteInfo1.Id, moqRegisteredPqLevel0Quote.Object }
+            { sourceTickerQuoteInfo1.SourceTickerId, moqRegisteredPqLevel0Quote.Object }
         };
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
 

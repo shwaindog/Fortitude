@@ -81,11 +81,11 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (!entities.TryGetValue(tickerInfo.Id, out var ent))
+            if (!entities.TryGetValue(tickerInfo.SourceTickerId, out var ent))
             {
                 ent              = quoteFactory(tickerInfo);
                 ent.PQSequenceId = uint.MaxValue;
-                entities.Add(tickerInfo.Id, ent);
+                entities.Add(tickerInfo.SourceTickerId, ent);
                 // publish identical quote leaving next quote to also be zero.
                 var quote = quoteFactory(tickerInfo);
                 quote.PQSequenceId = uint.MaxValue;
@@ -104,18 +104,18 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (entities.TryGetValue(tickerInfo.Id, out var ent))
+            if (entities.TryGetValue(tickerInfo.SourceTickerId, out var ent))
                 ent!.PQSequenceId = uint.MaxValue;
     }
 
     public void Unregister(T quote)
     {
-        if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.Id, out var ent))
+        if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.SourceTickerId, out var ent))
         {
             quote.ResetFields();
             quote.HasUpdates = true;
             Publish(quote);
-            entities.Remove(quote.SourceTickerQuoteInfo.Id);
+            entities.Remove(quote.SourceTickerQuoteInfo.SourceTickerId);
             heartBeatSync.Acquire();
             try
             {
@@ -135,7 +135,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     public void Publish(T quote)
     {
         if (!quote.HasUpdates) return;
-        if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.Id, out var ent))
+        if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.SourceTickerId, out var ent))
         {
             ent!.Lock.Acquire();
             try
@@ -213,7 +213,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (entities.TryGetValue(tickerInfo.Id, out var ent))
+            if (entities.TryGetValue(tickerInfo.SourceTickerId, out var ent))
                 ent!.HasUpdates = true;
     }
 

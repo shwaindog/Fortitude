@@ -134,7 +134,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
 
     private IEnumerable<PricePeriodSummary> GenerateSummaries(TimeSeriesPeriod timeSeriesPeriod, int numberToGenerate = 4)
     {
-        runningTime = timeSeriesPeriod.PeriodEnd(runningTime);
+        runningTime = timeSeriesPeriod.ContainingPeriodEnd(runningTime);
 
         for (var i = 0; i < numberToGenerate; i++)
             yield return CreatePricePeriodSummary
@@ -175,6 +175,8 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
                                            return cip.Entry;
                                        })
                                        .ToList();
+
+            Console.Out.WriteLine($"Persisted {pricingInstrumentId} it has {entriesForInstrument.Count} instruments");
             var instrument = new PricingInstrument(pricingInstrumentId);
 
             var fileInfo = timeSeriesRepository.GetInstrumentFileEntryInfo(instrument);
@@ -183,6 +185,8 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
 
             var entryReader = reader!.GetAllEntriesReader(EntryResultSourcing.NewEachEntryUnlimited, () => new PricePeriodSummary());
             var readEntries = entryReader.ResultEnumerable.ToList();
+
+            Console.Out.WriteLine($"Read for  {pricingInstrumentId} it has {readEntries.Count} instruments");
             Assert.AreEqual(entriesForInstrument.Count, readEntries.Count);
 
             foreach (var pricePeriodSummary in readEntries) entriesForInstrument.Remove(pricePeriodSummary);

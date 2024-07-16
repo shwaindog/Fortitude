@@ -245,7 +245,7 @@ public class SubSummaryStreamRequestAttendant : StreamRequestAttendant, ISummary
             = await
                 ConstructingRule
                     .RequestAsync<HistoricalPeriodStreamRequest, bool>
-                        (((SourceTickerId)State.PricingInstrumentId).HistoricalPeriodSummaryStreamRequest(subSummaryPeriod), request);
+                        (((SourceTickerIdentifier)State.PricingInstrumentId).HistoricalPeriodSummaryStreamRequest(subSummaryPeriod), request);
         if (!expectResults) await historicalSummariesChannel.PublishComplete(ConstructingRule);
         return expectResults;
     }

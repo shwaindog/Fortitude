@@ -41,7 +41,7 @@ public class SourceTickerQuoteInfoTests
 
         expectedId = ((uint)srcId << 16) + tkrId;
 
-        Assert.AreEqual(expectedId, firstUniSrcTkrId.Id);
+        Assert.AreEqual(expectedId, firstUniSrcTkrId.SourceTickerId);
         Assert.AreEqual("TestTicker", firstUniSrcTkrId.Ticker);
         Assert.AreEqual("TestSource", firstUniSrcTkrId.Source);
 
@@ -54,7 +54,7 @@ public class SourceTickerQuoteInfoTests
     public void DummySourceTickerQuoteInfo_New_PropertiesAreAsExpected()
     {
         expectedId = ((uint)sourceTickerQuoteInfo.SourceId << 16) + sourceTickerQuoteInfo.TickerId;
-        Assert.AreEqual(expectedId, sourceTickerQuoteInfo.Id);
+        Assert.AreEqual(expectedId, sourceTickerQuoteInfo.SourceTickerId);
         Assert.AreEqual("TestSource", sourceTickerQuoteInfo.Source);
         Assert.AreEqual("TestTicker", sourceTickerQuoteInfo.Ticker);
         Assert.AreEqual(10, sourceTickerQuoteInfo.MaximumPublishedLayers);
@@ -76,7 +76,7 @@ public class SourceTickerQuoteInfoTests
             (1, "MinimalSource", 1, "MinalTicker", QuoteLevel.Level2, Unknown);
 
         expectedId = ((uint)minimalSrcTkrQtInfo.SourceId << 16) + minimalSrcTkrQtInfo.TickerId;
-        Assert.AreEqual(expectedId, minimalSrcTkrQtInfo.Id);
+        Assert.AreEqual(expectedId, minimalSrcTkrQtInfo.SourceTickerId);
         Assert.AreEqual("MinimalSource", minimalSrcTkrQtInfo.Source);
         Assert.AreEqual("MinalTicker", minimalSrcTkrQtInfo.Ticker);
         Assert.AreEqual(20, minimalSrcTkrQtInfo.MaximumPublishedLayers);

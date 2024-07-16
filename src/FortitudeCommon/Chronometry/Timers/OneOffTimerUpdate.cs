@@ -31,6 +31,7 @@ public class OneOffTimerUpdate : ReusableObject<ITimerUpdate>, IThreadPoolTimerU
         {
             if (value == callBackRunInfo) return;
             if (value != null) value.IncrementRefCount();
+            if (value is ITimerUpdateCallBackRunInfo timerUpdateRunInfo) timerUpdateRunInfo.TimerUpdate = this;
             callBackRunInfo = value;
         }
     }

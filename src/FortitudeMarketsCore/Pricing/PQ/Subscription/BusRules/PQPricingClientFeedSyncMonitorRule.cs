@@ -47,13 +47,14 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
     public override async ValueTask StartAsync()
     {
         await this.RegisterRequestListenerAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>(
-             feedName.FeedTickerHealthRequestAddress(), ReceivedTickerHealthStatusRequest);
+         feedName.FeedTickerHealthRequestAddress(), ReceivedTickerHealthStatusRequest);
         sharedFeedDeserializationRepo.MessageDeserializerRegistered   += NewDeserializerRegistered;
         sharedFeedDeserializationRepo.MessageDeserializerUnregistered += ExistingDeserializerUnregistered;
         Timer.RunEvery(TasksFrequencyMs, MonitorDeserializersForSnapshotResync);
     }
 
-    private PricingFeedStatusResponse? ReceivedTickerHealthStatusRequest(
+    private PricingFeedStatusResponse? ReceivedTickerHealthStatusRequest
+    (
         IBusRespondingMessage<PricingFeedStatusRequest, PricingFeedStatusResponse?> busRequestMessage)
     {
         var pricingFeedStatusResponse = Context.PooledRecycler.Borrow<PricingFeedStatusResponse>();
@@ -87,7 +88,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
               , ReceivedUpdate = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnReceivedUpdate)
               , OutOfSync      = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnOutOfSync)
             };
-            registeredDeserializers[pqDeserializer.Identifier.Id] = deserializerRegistration;
+            registeredDeserializers[pqDeserializer.Identifier.SourceTickerId] = deserializerRegistration;
 
             pqDeserializer.SyncOk         += deserializerRegistration.SyncOk;
             pqDeserializer.ReceivedUpdate += deserializerRegistration.ReceivedUpdate;
@@ -101,7 +102,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
     {
         if (removedMessageDeserializer is IPQQuoteDeserializer pqDeserializer)
         {
-            if (registeredDeserializers.TryGetValue(pqDeserializer.Identifier.Id, out var deserializerRegistration))
+            if (registeredDeserializers.TryGetValue(pqDeserializer.Identifier.SourceTickerId, out var deserializerRegistration))
             {
                 pqDeserializer.SyncOk         -= deserializerRegistration.SyncOk;
                 pqDeserializer.ReceivedUpdate -= deserializerRegistration.ReceivedUpdate;
@@ -149,19 +150,16 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
         {
             IPQQuoteDeserializer? pqMd;
             bool                  resync;
-            if ((pqMd = syncKo.Head) == null)
-                break;
+            if ((pqMd = syncKo.Head) == null) break;
             if (firstToResync == null)
                 firstToResync = pqMd;
-            else if (firstToResync == pqMd)
-                break;
+            else if (firstToResync == pqMd) break;
             resync = pqMd.CheckResync(TimeContext.UtcNow);
             syncKo.Remove(pqMd);
             syncKo.AddLast(pqMd);
 
             if (!resync) continue;
-            if (!requestList.SourceTickerQuoteInfos.Contains(pqMd.Identifier))
-                requestList.SourceTickerQuoteInfos.Add(pqMd.Identifier);
+            if (!requestList.SourceTickerQuoteInfos.Contains(pqMd.Identifier)) requestList.SourceTickerQuoteInfos.Add(pqMd.Identifier);
         }
 
         RequestSnapshotsForTickers(requestList);

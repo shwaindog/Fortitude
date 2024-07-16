@@ -65,7 +65,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         }
     }
 
-    public uint Id => ((uint)SourceId << 16) | TickerId;
+    public uint SourceTickerId => ((uint)SourceId << 16) | TickerId;
     public ushort SourceId
     {
         get => sourceId;
@@ -161,7 +161,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
     {
         var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
 
-        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, Id);
+        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, SourceTickerId);
     }
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)

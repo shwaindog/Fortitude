@@ -31,8 +31,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
 
     public void Serialize(PQHeartBeatQuotesMessage obj, ISerdeContext writeContext)
     {
-        if ((writeContext.Direction & ContextDirection.Write) == 0)
-            throw new ArgumentException("Expected readContext to support writing");
+        if ((writeContext.Direction & ContextDirection.Write) == 0) throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
         {
             var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);
@@ -61,7 +60,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
                 {
                     *ptr++ = message.Version;
                     *ptr++ = (byte)PQMessageFlags.None;
-                    StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.Id);
+                    StreamByteOps.ToBytes(ref ptr, quote.SourceTickerQuoteInfo!.SourceTickerId);
                     messageSize = ptr;
 
                     ptr += sizeof(uint);

@@ -34,13 +34,13 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     private ISubscription? pql2RequestListenerSubscription;
     private ISubscription? pql3RequestListenerSubscription;
 
-    private Func<SourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback;
+    private Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback;
 
-    public HistoricalQuotesRetrievalStubRule(Func<SourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback)
+    public HistoricalQuotesRetrievalStubRule(Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback)
         : base(nameof(HistoricalQuotesRetrievalStubRule)) =>
         this.quotesCallback = quotesCallback;
 
-    public Func<SourceTickerId, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> QuotesCallback
+    public Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> QuotesCallback
     {
         get => quotesCallback;
         set => quotesCallback = value ?? throw new ArgumentNullException(nameof(value));
@@ -139,7 +139,7 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     private bool MakeTimeSeriesRepoCallReturnExpectResults<TEntry>
         (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, new()
     {
-        var results = quotesCallback(request.TickerId, request.TimeRange);
+        var results = quotesCallback(request.SourceTickerIdentifier, request.TimeRange);
 
         if (!results.Any()) return false;
 

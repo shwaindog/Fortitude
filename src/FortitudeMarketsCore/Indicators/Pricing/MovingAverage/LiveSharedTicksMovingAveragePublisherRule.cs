@@ -11,6 +11,7 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Indicators;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing;
 using FortitudeMarketsCore.Pricing.PQ.Converters;
@@ -31,6 +32,8 @@ public class LiveSharedTicksMovingAveragePublisherRule : PriceListenerIndicatorR
     private List<MovingAverageCalculationState>         averagesToCalculate;
     private IChannelLimitedEventFactory<PQLevel1Quote>? historicalQuotesChannel;
 
+    private long indicatorSourceTickerId;
+
     private ITimerUpdate? intervalTimer;
 
     private DateTime? lastPublishDateTime;
@@ -41,14 +44,18 @@ public class LiveSharedTicksMovingAveragePublisherRule : PriceListenerIndicatorR
     private uint sequenceNumber;
 
     public LiveSharedTicksMovingAveragePublisherRule(MovingAveragePublisherParams movingAverageParams)
-        : base(movingAverageParams.SourceTickerId
-             , $"MovingAveragePublisherRule_{movingAverageParams.SourceTickerId.Ticker}_{movingAverageParams.SourceTickerId.Source}")
+        : base(movingAverageParams.SourceTickerIdentifier
+             , $"MovingAveragePublisherRule_{movingAverageParams.SourceTickerIdentifier.Ticker}_{movingAverageParams.SourceTickerIdentifier.Source}")
     {
         this.movingAverageParams = movingAverageParams;
-        averagesToCalculate = (movingAverageParams.PeriodsToPublish ?? Enumerable.Empty<MovingAverageParams>())
-                              .Concat(movingAverageParams.BatchPeriodsToPublish?
-                                          .SelectMany(bppi => bppi.Flatten()) ?? Enumerable.Empty<MovingAverageParams>())
-                              .Select(map => new MovingAverageCalculationState(map, movingAverageParams.PublishAsSourceId))
+        indicatorSourceTickerId  = ((long)movingAverageParams.SourceTickerIdentifier.SourceTickerId << 32) | IndicatorConstants.BidAskMovingAverageId;
+        averagesToCalculate = (movingAverageParams.PeriodsToPublish ?? Enumerable.Empty<MovingAverageOffset>())
+                              .Select(map => new MovingAverageCalculationState(indicatorSourceTickerId, map
+                                                                             , movingAverageParams.SourceTickerIdentifier.SourceId))
+                              .Concat((movingAverageParams.BatchPeriodsToPublish ?? Enumerable.Empty<BatchIndicatorPublishInterval>())
+                                      .Select(bppi => new MovingAverageCalculationState
+                                                  (indicatorSourceTickerId, bppi.Flatten().ToArray()
+                                                 , movingAverageParams.SourceTickerIdentifier.SourceId)))
                               .ToList();
     }
 
@@ -62,19 +69,21 @@ public class LiveSharedTicksMovingAveragePublisherRule : PriceListenerIndicatorR
         var channelRequest = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
         var now            = DateTime.UtcNow;
         var earliestTime   = averagesToCalculate.Select(map => map.EarliestTime(now)).Min();
-        var request        = channelRequest.ToHistoricalQuotesRequest(movingAverageParams.SourceTickerId, new UnboundedTimeRange(earliestTime, null));
+        var request = channelRequest.ToHistoricalQuotesRequest(movingAverageParams.SourceTickerIdentifier
+                                                             , new UnboundedTimeRange(earliestTime, null));
 
         var retrieving = await this.RequestAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>(request.RequestAddress, request);
         if (!retrieving) retrievingHistoricalPrices = false;
-        if (movingAverageParams.PublishInterval.PriceIndicatorPublishType == PriceIndicatorPublishType.SetTimeSpan)
-            intervalTimer = Timer.RunEvery(movingAverageParams.PublishInterval.PublishTimeSpan!.Value, CalculateAndPublishMovingAverages);
-        if (movingAverageParams.PublishInterval.PriceIndicatorPublishType == PriceIndicatorPublishType.TimeSeriesPeriod)
-            Timer.RunAt(movingAverageParams.PublishInterval.PublishPeriod!.Value.PeriodEnd(DateTime.UtcNow), StartTimeSeriesPeriodInterval);
+        if (movingAverageParams.PublishFrequency.PublishInterval.IsTimeSpan())
+            intervalTimer = Timer.RunEvery(movingAverageParams.PublishFrequency.PublishInterval.TimeSpan, CalculateAndPublishMovingAverages);
+        if (movingAverageParams.PublishFrequency.PublishInterval.IsTimeSeriesPeriod())
+            Timer.RunAt(movingAverageParams.PublishFrequency.PublishInterval.TimeSeriesPeriod.PeriodEnd(DateTime.UtcNow)
+                      , StartTimeSeriesPeriodInterval);
     }
 
     public void StartTimeSeriesPeriodInterval()
     {
-        intervalTimer = Timer.RunEvery(movingAverageParams.PublishInterval.PublishPeriod!.Value.AveragePeriodTimeSpan()
+        intervalTimer = Timer.RunEvery(movingAverageParams.PublishFrequency.PublishInterval.TimeSeriesPeriod.AveragePeriodTimeSpan()
                                      , CalculateAndPublishMovingAverages);
         CalculateAndPublishMovingAverages();
     }
@@ -133,17 +142,21 @@ public class LiveSharedTicksMovingAveragePublisherRule : PriceListenerIndicatorR
             startupCachePrices.AddLast(bidAsk);
         else
             periodTopOfBookChain.AddLast(bidAsk);
-        if (!retrievingHistoricalPrices && movingAverageParams.PublishInterval.PriceIndicatorPublishType == PriceIndicatorPublishType.Tick)
-            CalculateAndRepublish(bidAsk.AtTime);
+        if (!retrievingHistoricalPrices && movingAverageParams.PublishFrequency.PublishInterval.IsTickPeriod()) CalculateAndRepublish(bidAsk.AtTime);
         return ValueTask.CompletedTask;
     }
 
     private void CalculateAndRepublish(DateTime publishTime)
     {
         foreach (var movingAvgCalc in averagesToCalculate)
-        {
-            var movingAverage = movingAvgCalc.Calculate(periodTopOfBookChain, publishTime, sequenceNumber);
-        }
+            if (movingAvgCalc.IsBatchRequest)
+            {
+                var movingAverageChain = movingAvgCalc.CalculateBatch(periodTopOfBookChain, publishTime, Context.PooledRecycler);
+            }
+            else
+            {
+                var movingAverageIndicatorInstant = movingAvgCalc.CalculateSingle(periodTopOfBookChain, publishTime, Context.PooledRecycler);
+            }
         sequenceNumber++;
     }
 }

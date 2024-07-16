@@ -9,6 +9,7 @@ using FortitudeBusRules.BusMessaging.Tasks;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
@@ -176,6 +177,8 @@ public class MessagePump : IMessagePump
                     try
                     {
                         var timerCallbackPayload = (ITimerCallbackPayload)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
+                        if (timerCallbackPayload is IScheduledActualTimerCallbackPayload scheduleActual)
+                            scheduleActual.ScheduleActualTime.ReceivedAt = TimeContext.UtcNow;
                         if (timerCallbackPayload.IsAsyncInvoke())
                             await timerCallbackPayload.InvokeAsync();
                         else

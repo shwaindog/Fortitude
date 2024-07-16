@@ -72,12 +72,12 @@ public class SourceTickerQuoteInfo : PricingInstrument, ISourceTickerQuoteInfo, 
         LastTradedFlags        = LastTradedFlags.None;
     }
 
-    public SourceTickerQuoteInfo(SourceTickerId sourceTickerId)
+    public SourceTickerQuoteInfo(SourceTickerIdentifier sourceTickerIdentifier)
     {
-        SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
-        Source   = sourceTickerId.Source;
-        Ticker   = sourceTickerId.Ticker;
+        SourceId = sourceTickerIdentifier.SourceId;
+        TickerId = sourceTickerIdentifier.TickerId;
+        Source   = sourceTickerIdentifier.Source;
+        Ticker   = sourceTickerIdentifier.Ticker;
 
         PublishedQuoteLevel    = QuoteLevel.Level1;
         MarketClassification   = MarketClassificationExtensions.Unknown;
@@ -191,7 +191,7 @@ public class SourceTickerQuoteInfo : PricingInstrument, ISourceTickerQuoteInfo, 
 
     object ICloneable.Clone() => Clone();
 
-    public uint MessageId => Id;
+    public uint MessageId => SourceTickerId;
     public byte Version   => 1;
 
     public QuoteLevel PublishedQuoteLevel { get; set; }
@@ -323,7 +323,7 @@ public class SourceTickerQuoteInfo : PricingInstrument, ISourceTickerQuoteInfo, 
     }
 
     public override string ToString() =>
-        $"SourceTickerQuoteInfo {{{nameof(Id)}: {Id}, {nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, " +
+        $"SourceTickerQuoteInfo {{{nameof(SourceTickerId)}: {SourceTickerId}, {nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, " +
         $"{nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker},  {nameof(PublishedQuoteLevel)}: {PublishedQuoteLevel},  " +
         $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(RoundingPrecision)}: {RoundingPrecision}, " +
         $"{nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, " +
@@ -334,5 +334,5 @@ public class SourceTickerQuoteInfo : PricingInstrument, ISourceTickerQuoteInfo, 
     public static implicit operator PricingInstrumentId(SourceTickerQuoteInfo sourceTickerId) =>
         new(sourceTickerId, sourceTickerId.EntryPeriod, sourceTickerId.InstrumentType);
 
-    public static implicit operator SourceTickerId(SourceTickerQuoteInfo sourceTickerId) => new(sourceTickerId);
+    public static implicit operator SourceTickerIdentifier(SourceTickerQuoteInfo sourceTickerId) => new(sourceTickerId);
 }

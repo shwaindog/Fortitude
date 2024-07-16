@@ -33,6 +33,11 @@ public interface ITimerCallBackRunInfo : IReusableObject<ITimerCallBackRunInfo>,
     bool RunCallbackOnThisThread();
 }
 
+public interface ITimerUpdateCallBackRunInfo : ITimerCallBackRunInfo
+{
+    ITimerUpdate? TimerUpdate { get; set; }
+}
+
 public abstract class TimerCallBackRunInfo : ReusableObject<ITimerCallBackRunInfo>, ITimerCallBackRunInfo
 {
     protected static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TimerCallBackRunInfo));

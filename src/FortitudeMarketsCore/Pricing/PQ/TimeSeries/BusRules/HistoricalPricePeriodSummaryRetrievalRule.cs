@@ -26,26 +26,29 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 public struct HistoricalPricePeriodSummaryStreamRequest
 {
     public HistoricalPricePeriodSummaryStreamRequest
-    (SourceTickerId tickerId, TimeSeriesPeriod entryPeriod, ChannelPublishRequest<PricePeriodSummary> channelRequest
+    (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod, ChannelPublishRequest<PricePeriodSummary> channelRequest
       , UnboundedTimeRange? timeRange = null)
     {
-        TickerId       = tickerId;
+        SourceTickerIdentifier = sourceTickerIdentifier;
+
         EntryPeriod    = entryPeriod;
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
     }
 
     public HistoricalPricePeriodSummaryStreamRequest
-    (PricingInstrumentId pricingInstrumentId, ChannelPublishRequest<PricePeriodSummary> channelRequest
+    (PricingInstrumentId pricingInstrument, ChannelPublishRequest<PricePeriodSummary> channelRequest
       , UnboundedTimeRange? timeRange = null)
     {
-        TickerId       = pricingInstrumentId;
-        EntryPeriod    = pricingInstrumentId.EntryPeriod;
+        SourceTickerIdentifier = pricingInstrument;
+
+        EntryPeriod    = pricingInstrument.EntryPeriod;
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
     }
 
-    public SourceTickerId      TickerId    { get; }
+    public SourceTickerIdentifier SourceTickerIdentifier { get; }
+
     public TimeSeriesPeriod    EntryPeriod { get; }
     public UnboundedTimeRange? TimeRange   { get; }
 
@@ -55,22 +58,25 @@ public struct HistoricalPricePeriodSummaryStreamRequest
 public struct HistoricalPricePeriodSummaryRequestResponse
 {
     public HistoricalPricePeriodSummaryRequestResponse
-        (SourceTickerId tickerId, TimeSeriesPeriod entryPeriod, UnboundedTimeRange? timeRange = null)
+        (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod, UnboundedTimeRange? timeRange = null)
     {
-        TickerId    = tickerId;
+        SourceTickerIdentifier = sourceTickerIdentifier;
+
         EntryPeriod = entryPeriod;
         TimeRange   = timeRange;
     }
 
     public HistoricalPricePeriodSummaryRequestResponse
-        (PricingInstrumentId pricingInstrumentId, UnboundedTimeRange? timeRange = null)
+        (PricingInstrumentId pricingInstrument, UnboundedTimeRange? timeRange = null)
     {
-        TickerId    = pricingInstrumentId;
-        EntryPeriod = pricingInstrumentId.EntryPeriod;
+        SourceTickerIdentifier = pricingInstrument;
+
+        EntryPeriod = pricingInstrument.EntryPeriod;
         TimeRange   = timeRange;
     }
 
-    public SourceTickerId      TickerId    { get; }
+    public SourceTickerIdentifier SourceTickerIdentifier { get; }
+
     public TimeSeriesPeriod    EntryPeriod { get; }
     public UnboundedTimeRange? TimeRange   { get; }
 }
@@ -123,20 +129,20 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         return GetResultsImmediately(quoteRequest).ToList();
     }
 
-    private IInstrument? FindInstrumentFor(SourceTickerId tickerId, TimeSeriesPeriod entryPeriod)
+    private IInstrument? FindInstrumentFor(SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod)
     {
         var matchingInstruments =
             TimeSeriesRepository
                 !.InstrumentFilesMap.Keys
-                 .Where(i => i.InstrumentName == tickerId.Ticker
-                          && i.InstrumentSource == tickerId.Source && i.EntryPeriod == entryPeriod)
+                 .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker
+                          && i.InstrumentSource == sourceTickerIdentifier.Source && i.EntryPeriod == entryPeriod)
                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }
 
     private IEnumerable<PricePeriodSummary> GetResultsImmediately(HistoricalPricePeriodSummaryRequestResponse responseRequest)
     {
-        var instrument = FindInstrumentFor(responseRequest.TickerId, responseRequest.EntryPeriod);
+        var instrument = FindInstrumentFor(responseRequest.SourceTickerIdentifier, responseRequest.EntryPeriod);
         if (instrument == null) return Enumerable.Empty<PricePeriodSummary>();
         var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, responseRequest.TimeRange);
         if (readerSession == null) return Enumerable.Empty<PricePeriodSummary>();
@@ -148,7 +154,7 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults(HistoricalPricePeriodSummaryStreamRequest streamRequest)
     {
-        var instrument = FindInstrumentFor(streamRequest.TickerId, streamRequest.EntryPeriod);
+        var instrument = FindInstrumentFor(streamRequest.SourceTickerIdentifier, streamRequest.EntryPeriod);
         if (instrument == null) return false;
         var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, streamRequest.TimeRange);
         if (readerSession == null) return false;

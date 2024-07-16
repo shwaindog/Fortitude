@@ -59,7 +59,7 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
 
     public PriceSummarizingFilePersisterRule(SummarizingPricePersisterParams persisterParams)
         : base(persisterParams.RepositoryParams
-             , $"{nameof(PriceSummarizingFilePersisterRule<TEntry>)}_{persisterParams.TickerId.ShortName()}_{persisterParams.EntryPeriod}")
+             , $"{nameof(PriceSummarizingFilePersisterRule<TEntry>)}_{persisterParams.TickerId.SourceTickerShortName()}_{persisterParams.EntryPeriod}")
     {
         this.persisterParams = persisterParams;
         tickerId             = persisterParams.TickerId;

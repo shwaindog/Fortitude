@@ -36,7 +36,7 @@ public class SubSummaryRequestResponseAttendant
         var subPeriodRequest = new HistoricalPeriodResponseRequest(requestRange);
         var subPeriodsInRange
             = await ConstructingRule.RequestAsync<HistoricalPeriodResponseRequest, List<PricePeriodSummary>>
-                (((SourceTickerId)State.PricingInstrumentId).HistoricalPeriodSummaryResponseRequest(subSummaryPeriod), subPeriodRequest);
+                (((SourceTickerIdentifier)State.PricingInstrumentId).HistoricalPeriodSummaryResponseRequest(subSummaryPeriod), subPeriodRequest);
 
         if (subPeriodsInRange.Count == 0) return new List<PricePeriodSummary>();
         var remainingPeriods = new List<PricePeriodSummary>();

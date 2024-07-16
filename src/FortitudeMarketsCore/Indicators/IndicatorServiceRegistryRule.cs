@@ -76,11 +76,11 @@ public struct TickerPeriodServiceRequest
     }
 
     public TickerPeriodServiceRequest
-    (RequestType requestType, ServiceType serviceType, SourceTickerId tickerId, TimeSeriesPeriod period = Tick
+    (RequestType requestType, ServiceType serviceType, SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period = Tick
       , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
     {
         RequestType             = requestType;
-        TickerPeriodServiceInfo = new TickerPeriodServiceInfo(serviceType, tickerId, period, quoteLevel, usePqQuote);
+        TickerPeriodServiceInfo = new TickerPeriodServiceInfo(serviceType, sourceTickerIdentifier, period, quoteLevel, usePqQuote);
     }
 
     public TickerPeriodServiceRequest
@@ -121,11 +121,11 @@ public struct TickerPeriodServiceInfo
     }
 
     public TickerPeriodServiceInfo
-    (ServiceType serviceType, SourceTickerId tickerId, TimeSeriesPeriod period = Tick
+    (ServiceType serviceType, SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period = Tick
       , QuoteLevel quoteLevel = QuoteLevel.Level1, bool usePqQuote = false)
     {
         ServiceType         = serviceType;
-        PricingInstrumentId = new PricingInstrumentId(tickerId, new PeriodInstrumentTypePair(InstrumentType.Custom, period));
+        PricingInstrumentId = new PricingInstrumentId(sourceTickerIdentifier, new PeriodInstrumentTypePair(InstrumentType.Custom, period));
         QuoteLevel          = quoteLevel;
         UsePqQuote          = usePqQuote;
     }
@@ -482,8 +482,9 @@ public class IndicatorServiceRegistryRule : Rule
                 (new ServiceRunStateResponse
                     (new LiveSharedTicksMovingAveragePublisherRule
                          (new MovingAveragePublisherParams
-                             (tickerServiceInfo.PricingInstrumentId.SourceId, tickerServiceInfo.PricingInstrumentId
-                            , new PricePublishInterval(OneSecond), new MovingAverageParams(tickerServiceInfo.PricingInstrumentId.EntryPeriod!)))
+                             (tickerServiceInfo.PricingInstrumentId
+                            , new IndicatorPublishInterval(OneSecond)
+                            , new MovingAverageOffset(new TimePeriod(tickerServiceInfo.PricingInstrumentId.EntryPeriod!))))
                    , ServiceRunStatus.NotStarted));
         }
         if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is > FifteenMinutes and <= OneYear)
