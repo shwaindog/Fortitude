@@ -10,27 +10,27 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
-public interface ISourceTickerQuoteInfoRegistry
+public interface ISourceTickerInfoRegistry
 {
     string Name { get; }
 
-    IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos { get; }
+    IEnumerable<ISourceTickerInfo> AllSourceTickerInfos { get; }
 
-    event Action<IEnumerable<ISourceTickerQuoteInfo>> UpdatedSourceTickerInfos;
+    event Action<IEnumerable<ISourceTickerInfo>> UpdatedSourceTickerInfos;
 
-    IEnumerable<ISourceTickerQuoteInfo> GetAllSourceTickerInfoForTicker(string ticker);
-    IEnumerable<ISourceTickerQuoteInfo> GetAllSourceTickerInfoForSource(string source);
+    IEnumerable<ISourceTickerInfo> GetAllSourceTickerInfoForTicker(string ticker);
+    IEnumerable<ISourceTickerInfo> GetAllSourceTickerInfoForSource(string source);
 
-    ISourceTickerQuoteInfo? GetSourceTickerInfo(string sourceName, string ticker);
+    ISourceTickerInfo? GetSourceTickerInfo(string sourceName, string ticker);
 
-    void AppendReplace(IEnumerable<ISourceTickerQuoteInfo> toAmendAdd);
+    void AppendReplace(IEnumerable<ISourceTickerInfo> toAmendAdd);
 }
 
-public class SourceTickerQuoteInfoRegistry : ISourceTickerQuoteInfoRegistry
+public class SourceTickerInfoRegistry : ISourceTickerInfoRegistry
 {
-    private readonly IMap<string, List<ISourceTickerQuoteInfo>> sourceTickerMap = new ConcurrentMap<string, List<ISourceTickerQuoteInfo>>();
+    private readonly IMap<string, List<ISourceTickerInfo>> sourceTickerMap = new ConcurrentMap<string, List<ISourceTickerInfo>>();
 
-    public SourceTickerQuoteInfoRegistry(string name, IEnumerable<ISourceTickerQuoteInfo>? initialization = null)
+    public SourceTickerInfoRegistry(string name, IEnumerable<ISourceTickerInfo>? initialization = null)
     {
         Name = name;
         if (initialization != null) AppendReplace(initialization);
@@ -39,36 +39,36 @@ public class SourceTickerQuoteInfoRegistry : ISourceTickerQuoteInfoRegistry
     public string Name { get; }
 
 
-    public event Action<IEnumerable<ISourceTickerQuoteInfo>>? UpdatedSourceTickerInfos;
+    public event Action<IEnumerable<ISourceTickerInfo>>? UpdatedSourceTickerInfos;
 
-    public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos => sourceTickerMap.SelectMany(kvp => kvp.Value);
+    public IEnumerable<ISourceTickerInfo> AllSourceTickerInfos => sourceTickerMap.SelectMany(kvp => kvp.Value);
 
-    public IEnumerable<ISourceTickerQuoteInfo> GetAllSourceTickerInfoForTicker(string ticker) =>
+    public IEnumerable<ISourceTickerInfo> GetAllSourceTickerInfoForTicker(string ticker) =>
         sourceTickerMap.SelectMany(kvp => kvp.Value).Where(stqi => stqi.Ticker == ticker);
 
-    public IEnumerable<ISourceTickerQuoteInfo> GetAllSourceTickerInfoForSource(string source) =>
+    public IEnumerable<ISourceTickerInfo> GetAllSourceTickerInfoForSource(string source) =>
         sourceTickerMap.SelectMany(kvp => kvp.Value).Where(stqi => stqi.Source == source);
 
-    public ISourceTickerQuoteInfo? GetSourceTickerInfo(string sourceName, string ticker) =>
-        sourceTickerMap.TryGetValue(sourceName, out List<ISourceTickerQuoteInfo>? sourceTickerList)
+    public ISourceTickerInfo? GetSourceTickerInfo(string sourceName, string ticker) =>
+        sourceTickerMap.TryGetValue(sourceName, out List<ISourceTickerInfo>? sourceTickerList)
             ? sourceTickerList!.FirstOrDefault(stqi => stqi.Ticker == ticker)
             : null;
 
-    public void AppendReplace(IEnumerable<ISourceTickerQuoteInfo> toAmendAdd)
+    public void AppendReplace(IEnumerable<ISourceTickerInfo> toAmendAdd)
     {
-        foreach (var sourceTickerQuoteInfo in toAmendAdd)
+        foreach (var sourceTickerInfo in toAmendAdd)
         {
-            List<ISourceTickerQuoteInfo>? sourceTickerList;
-            if (!sourceTickerMap.TryGetValue(sourceTickerQuoteInfo.Source, out sourceTickerList))
+            List<ISourceTickerInfo>? sourceTickerList;
+            if (!sourceTickerMap.TryGetValue(sourceTickerInfo.Source, out sourceTickerList))
             {
-                sourceTickerList = new List<ISourceTickerQuoteInfo> { sourceTickerQuoteInfo };
-                sourceTickerMap.Add(sourceTickerQuoteInfo.Source, sourceTickerList);
+                sourceTickerList = new List<ISourceTickerInfo> { sourceTickerInfo };
+                sourceTickerMap.Add(sourceTickerInfo.Source, sourceTickerList);
             }
             else
             {
-                var foundExisting = sourceTickerList!.FirstOrDefault(stqi => stqi.Ticker == sourceTickerQuoteInfo.Ticker);
+                var foundExisting = sourceTickerList!.FirstOrDefault(stqi => stqi.Ticker == sourceTickerInfo.Ticker);
                 if (foundExisting != null) sourceTickerList!.Remove(foundExisting);
-                sourceTickerList!.Add(sourceTickerQuoteInfo);
+                sourceTickerList!.Add(sourceTickerInfo);
             }
         }
 

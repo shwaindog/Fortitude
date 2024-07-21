@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
 
 #endregion
@@ -22,6 +22,10 @@ namespace FortitudeTests.FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries
 [TestClass]
 public class PeriodSummaryStateTests
 {
+    private readonly ISourceTickerInfo tickerInfo = new SourceTickerInfo
+        (1, "SourceName", 1, "TickerName", Level1Quote, Unknown
+       , 1, 0.001m, 10m, 100m, 10m);
+
     private List<ILevel1Quote> alternatingLevel1Quotes = null!;
 
     private List<IPricePeriodSummary> alternatingPeriodSummaries = null!;
@@ -32,10 +36,6 @@ public class PeriodSummaryStateTests
     private IRecycler recycler = null!;
     private DateTime  seedDateTime;
     private decimal   spread;
-
-    private ISourceTickerQuoteInfo tickerId = new SourceTickerQuoteInfo
-        (1, "SourceName", 1, "TickerName", Level1, Unknown
-       , 1, 0.001m, 10m, 100m, 10m);
 
     [TestInitialize]
     public void Setup()
@@ -68,7 +68,7 @@ public class PeriodSummaryStateTests
 
         alternatingLevel1Quotes = new List<ILevel1Quote>();
         for (var i = 0; i < alternatingPeriodSummaries.Count * 5 + 15; i++)
-            alternatingLevel1Quotes.Add(tickerId.CreateLevel1Quote(time = tsp.PeriodEnd(time), i % 2 == 0 ? mid1 : mid2, spread));
+            alternatingLevel1Quotes.Add(tickerInfo.CreateLevel1Quote(time = tsp.PeriodEnd(time), i % 2 == 0 ? mid1 : mid2, spread));
     }
 
     [TestMethod]

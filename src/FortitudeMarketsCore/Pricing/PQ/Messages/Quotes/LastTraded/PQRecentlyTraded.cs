@@ -12,7 +12,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded.LastTradeEntrySelector;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
@@ -21,7 +21,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 
 public interface IPQRecentlyTraded : IMutableRecentlyTraded,
     IPQSupportsFieldUpdates<IRecentlyTraded>, IPQSupportsStringUpdates<IRecentlyTraded>,
-    IEnumerable<IPQLastTrade>, IRelatedItem<IPQNameIdLookupGenerator>, IRelatedItem<IPQSourceTickerQuoteInfo>
+    IEnumerable<IPQLastTrade>, IRelatedItem<IPQNameIdLookupGenerator>, IRelatedItem<IPQSourceTickerInfo>
   , ISupportsPQNameIdLookupGenerator
 {
     new IPQLastTrade? this[int index] { get; set; }
@@ -40,13 +40,13 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
         NameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
     }
 
-    public PQRecentlyTraded(IPQSourceTickerQuoteInfo sourceTickerQuoteInfo)
+    public PQRecentlyTraded(IPQSourceTickerInfo sourceTickerInfo)
     {
-        LastTradesSupportFlags = sourceTickerQuoteInfo.LastTradedFlags;
+        LastTradesSupportFlags = sourceTickerInfo.LastTradedFlags;
         LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
         lastTrades             = new List<IPQLastTrade?>();
         NameIdLookup           = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
-        EnsureRelatedItemsAreConfigured(sourceTickerQuoteInfo);
+        EnsureRelatedItemsAreConfigured(sourceTickerInfo);
     }
 
     public PQRecentlyTraded(IEnumerable<IPQLastTrade?> lastTrades) : this(lastTrades.ToList()) { }
@@ -78,8 +78,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
         {
             nameIdLookupGenerator  = value;
             LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
-            foreach (var pqLastTrade in lastTrades.OfType<ISupportsPQNameIdLookupGenerator>())
-                pqLastTrade.NameIdLookup = value;
+            foreach (var pqLastTrade in lastTrades.OfType<ISupportsPQNameIdLookupGenerator>()) pqLastTrade.NameIdLookup = value;
         }
     }
 
@@ -255,7 +254,7 @@ public class PQRecentlyTraded : ReusableObject<IRecentlyTraded>, IPQRecentlyTrad
         return this;
     }
 
-    public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
+    public void EnsureRelatedItemsAreConfigured(IPQSourceTickerInfo? referenceInstance)
     {
         NameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
         var entriesFactory = LastTradeEntrySelector.FindForLastTradeFlags(referenceInstance?.LastTradedFlags ?? LastTradedFlags.LastTradedPrice);

@@ -25,7 +25,8 @@ public class PricingIndicator : PricingInstrument, IPricingIndicator
     public PricingIndicator()
     {
         IndicatorName = null!;
-        Description   = null!;
+
+        IndicatorDescription = null!;
     }
 
     public PricingIndicator
@@ -37,8 +38,9 @@ public class PricingIndicator : PricingInstrument, IPricingIndicator
         IndicatorId    = indicatorId;
         IndicatorName  = indicatorName;
         IndicatorType  = indicatorType;
-        Description    = instrumentDescription;
         CoveringPeriod = coveringPeriod;
+
+        IndicatorDescription = instrumentDescription;
     }
 
     public PricingIndicator(IPricingIndicator toClone) : base(toClone)
@@ -46,8 +48,9 @@ public class PricingIndicator : PricingInstrument, IPricingIndicator
         IndicatorId    = toClone.IndicatorId;
         IndicatorName  = toClone.IndicatorName;
         IndicatorType  = toClone.IndicatorType;
-        Description    = toClone.Description;
         CoveringPeriod = toClone.CoveringPeriod;
+
+        IndicatorDescription = toClone.IndicatorDescription;
     }
 
     public PricingIndicator(PricingIndicatorId toClone) : base(toClone)
@@ -55,15 +58,17 @@ public class PricingIndicator : PricingInstrument, IPricingIndicator
         IndicatorId    = toClone.IndicatorId;
         IndicatorName  = toClone.IndicatorName;
         IndicatorType  = toClone.IndicatorType;
-        Description    = toClone.Description;
         CoveringPeriod = toClone.CoveringPeriod;
+
+        IndicatorDescription = toClone.InstrumentDescription;
     }
 
     public long IndicatorSourceTickerId => ((long)SourceTickerId << 32) | ((long)IndicatorId << 8);
 
     public ushort IndicatorId   { get; }
     public string IndicatorName { get; }
-    public string Description   { get; set; }
+
+    public string IndicatorDescription { get; set; }
 
     public TimePeriod CoveringPeriod { get; }
 
@@ -268,10 +273,10 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
 
     public string? Category { get; }
 
-    public string Description   => IndicatorSourceTickerId.GetReferenceIndicatorDescription();
-    public string IndicatorName => IndicatorSourceTickerId.GetReferenceIndicatorName();
+    public string InstrumentDescription => IndicatorSourceTickerId.GetReferenceIndicatorDescription();
+    public string IndicatorName         => IndicatorSourceTickerId.GetReferenceIndicatorName();
 
-    public string Ticker => SourceTickerId.GetRegisteredTickerName();
+    public string Ticker => SourceTickerIdentifierExtensions.GetRegisteredTickerName(SourceTickerId);
     public string Source => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 
 
@@ -301,8 +306,9 @@ public static class PricingIndicatorExtensions
         var returnResult = false;
         if (!InstrumentNameLookup.ContainsKey(pricingIndicator.IndicatorSourceTickerId) && pricingIndicator.IndicatorName.IsNotNullOrEmpty())
             InstrumentNameLookup.AddOrUpdate(pricingIndicator.IndicatorSourceTickerId, pricingIndicator.IndicatorName);
-        if (!InstrumentDescriptionLookup.ContainsKey(pricingIndicator.IndicatorSourceTickerId) && pricingIndicator.Description.IsNotNullOrEmpty())
-            InstrumentDescriptionLookup.AddOrUpdate(pricingIndicator.IndicatorSourceTickerId, pricingIndicator.Description);
+        if (!InstrumentDescriptionLookup.ContainsKey(pricingIndicator.IndicatorSourceTickerId) &&
+            pricingIndicator.IndicatorDescription.IsNotNullOrEmpty())
+            InstrumentDescriptionLookup.AddOrUpdate(pricingIndicator.IndicatorSourceTickerId, pricingIndicator.IndicatorDescription);
         if (!PricingInstrumentShortNameLookup.ContainsKey(pricingIndicator.IndicatorSourceTickerId))
             if (pricingIndicator.Source != SourceTickerIdentifierExtensions.NoSourceNameValue &&
                 pricingIndicator.Ticker != SourceTickerIdentifierExtensions.NoTickerNameValue

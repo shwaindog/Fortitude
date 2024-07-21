@@ -71,7 +71,8 @@ The following are a list of features found in the Fortitude Libraries
 * Network Clients And Server
 * Pricing Implementation
   * Library Compression 
-  * Level 0, 1, 2 & 3 Quotes
+  * Single value tick updates
+  * Level 1, 2 & 3 Quotes
   * Recently Traded Info
   * Efficent Delta UDP mutlicast updates
   * Snapshot Request  

@@ -22,31 +22,32 @@ public static class PQQuoteConverterExtensions
 {
     public static IChannelLimitedEventFactory<TQuoteLevel> CreateChannelFactory<TQuoteLevel>
         (this IListeningRule rule, Func<ChannelEvent<TQuoteLevel>, ValueTask<bool>> receiveQuoteHandler, ILimitedRecycler limitedRecycler)
-        where TQuoteLevel : class, ILevel0Quote
+        where TQuoteLevel : class, ITickInstant
     {
         var quoteLevelType = typeof(TQuoteLevel);
 
         switch (quoteLevelType.Name)
         {
-            case nameof(ILevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<ILevel0Quote, Level0PriceQuote>
-                    (new InterQueueChannel<ILevel0Quote>(rule, (Func<ChannelEvent<ILevel0Quote>, ValueTask<bool>>)(object)receiveQuoteHandler)
+            case nameof(ITickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<ITickInstant, TickInstant>
+                    (new InterQueueChannel<ITickInstant>(rule, (Func<ChannelEvent<ITickInstant>, ValueTask<bool>>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(IMutableLevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<IMutableLevel0Quote, Level0PriceQuote>
-                    (new InterQueueChannel<IMutableLevel0Quote>(rule, (Func<ChannelEvent<IMutableLevel0Quote>, ValueTask<bool>>)(object)receiveQuoteHandler)
+            case nameof(IMutableTickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new
+                    ChannelWrappingLimitedEventFactory<IMutableTickInstant, TickInstant>
+                    (new InterQueueChannel<IMutableTickInstant>(rule, (Func<ChannelEvent<IMutableTickInstant>, ValueTask<bool>>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(Level0PriceQuote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<Level0PriceQuote>
-                    (new InterQueueChannel<Level0PriceQuote>(rule, (Func<ChannelEvent<Level0PriceQuote>, ValueTask<bool>>)(object)receiveQuoteHandler)
+            case nameof(TickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<TickInstant>
+                    (new InterQueueChannel<TickInstant>(rule, (Func<ChannelEvent<TickInstant>, ValueTask<bool>>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(IPQLevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<IPQLevel0Quote, PQLevel0Quote>
-                    (new InterQueueChannel<IPQLevel0Quote>(rule, (Func<ChannelEvent<IPQLevel0Quote>, ValueTask<bool>>)(object)receiveQuoteHandler)
+            case nameof(IPQTickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<IPQTickInstant, PQTickInstant>
+                    (new InterQueueChannel<IPQTickInstant>(rule, (Func<ChannelEvent<IPQTickInstant>, ValueTask<bool>>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(PQLevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<PQLevel0Quote>
-                    (new InterQueueChannel<PQLevel0Quote>(rule, (Func<ChannelEvent<PQLevel0Quote>, ValueTask<bool>>)(object)receiveQuoteHandler)
+            case nameof(PQTickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<PQTickInstant>
+                    (new InterQueueChannel<PQTickInstant>(rule, (Func<ChannelEvent<PQTickInstant>, ValueTask<bool>>)(object)receiveQuoteHandler)
                    , limitedRecycler);
             case nameof(ILevel1Quote):
                 return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<ILevel1Quote, Level1PriceQuote>
@@ -114,31 +115,32 @@ public static class PQQuoteConverterExtensions
 
     public static IChannelLimitedEventFactory<TQuoteLevel> CreateChannelFactory<TQuoteLevel>
         (this IListeningRule rule, Func<ChannelEvent<TQuoteLevel>, bool> receiveQuoteHandler, ILimitedRecycler limitedRecycler)
-        where TQuoteLevel : class, ILevel0Quote
+        where TQuoteLevel : class, ITickInstant
     {
         var quoteLevelType = typeof(TQuoteLevel);
 
         switch (quoteLevelType.Name)
         {
-            case nameof(ILevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<ILevel0Quote, Level0PriceQuote>
-                    (new InterQueueChannel<ILevel0Quote>(rule, (Func<ChannelEvent<ILevel0Quote>, bool>)(object)receiveQuoteHandler)
+            case nameof(ITickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<ITickInstant, TickInstant>
+                    (new InterQueueChannel<ITickInstant>(rule, (Func<ChannelEvent<ITickInstant>, bool>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(IMutableLevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<IMutableLevel0Quote, Level0PriceQuote>
-                    (new InterQueueChannel<IMutableLevel0Quote>(rule, (Func<ChannelEvent<IMutableLevel0Quote>, bool>)(object)receiveQuoteHandler)
+            case nameof(IMutableTickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new
+                    ChannelWrappingLimitedEventFactory<IMutableTickInstant, TickInstant>
+                    (new InterQueueChannel<IMutableTickInstant>(rule, (Func<ChannelEvent<IMutableTickInstant>, bool>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(Level0PriceQuote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<Level0PriceQuote>
-                    (new InterQueueChannel<Level0PriceQuote>(rule, (Func<ChannelEvent<Level0PriceQuote>, bool>)(object)receiveQuoteHandler)
+            case nameof(TickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<TickInstant>
+                    (new InterQueueChannel<TickInstant>(rule, (Func<ChannelEvent<TickInstant>, bool>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(IPQLevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<IPQLevel0Quote, PQLevel0Quote>
-                    (new InterQueueChannel<IPQLevel0Quote>(rule, (Func<ChannelEvent<IPQLevel0Quote>, bool>)(object)receiveQuoteHandler)
+            case nameof(IPQTickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<IPQTickInstant, PQTickInstant>
+                    (new InterQueueChannel<IPQTickInstant>(rule, (Func<ChannelEvent<IPQTickInstant>, bool>)(object)receiveQuoteHandler)
                    , limitedRecycler);
-            case nameof(PQLevel0Quote):
-                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<PQLevel0Quote>
-                    (new InterQueueChannel<PQLevel0Quote>(rule, (Func<ChannelEvent<PQLevel0Quote>, bool>)(object)receiveQuoteHandler)
+            case nameof(PQTickInstant):
+                return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<PQTickInstant>
+                    (new InterQueueChannel<PQTickInstant>(rule, (Func<ChannelEvent<PQTickInstant>, bool>)(object)receiveQuoteHandler)
                    , limitedRecycler);
             case nameof(ILevel1Quote):
                 return (IChannelLimitedEventFactory<TQuoteLevel>)new ChannelWrappingLimitedEventFactory<ILevel1Quote, Level1PriceQuote>
@@ -205,45 +207,46 @@ public static class PQQuoteConverterExtensions
     }
 
     public static ChannelPublishRequest<TQuoteLevel> ToChannelPublishRequest<TQuoteLevel>
-        (this IChannel<TQuoteLevel> channelFactory, int resultLimit = -1, int batchSize = 1) where TQuoteLevel : class, ILevel0Quote =>
+        (this IChannel<TQuoteLevel> channelFactory, int resultLimit = -1, int batchSize = 1) where TQuoteLevel : class, ITickInstant =>
         new(channelFactory, resultLimit, batchSize);
 
     public static ChannelPublishRequest<TQuoteLevel> CreateChannelFactoryPublishRequest<TQuoteLevel>
     (this IListeningRule rule, Func<ChannelEvent<TQuoteLevel>, bool> receiveQuoteHandler, ILimitedRecycler limitedRecycler
-      , int resultLimit = -1, int batchSize = 1) where TQuoteLevel : class, ILevel0Quote =>
+      , int resultLimit = -1, int batchSize = 1) where TQuoteLevel : class, ITickInstant =>
         new(rule.CreateChannelFactory(receiveQuoteHandler, limitedRecycler), resultLimit, batchSize);
 
     public static HistoricalQuotesRequest<TQuoteLevel> ToHistoricalQuotesRequest<TQuoteLevel>
         (this ChannelPublishRequest<TQuoteLevel> channelRequest, SourceTickerIdentifier sourceTickerIdentifier, UnboundedTimeRange timeRange)
-        where TQuoteLevel : class, ITimeSeriesEntry<TQuoteLevel>, ILevel0Quote =>
+        where TQuoteLevel : class, ITimeSeriesEntry<TQuoteLevel>, ITickInstant =>
         new(sourceTickerIdentifier, channelRequest, timeRange);
 
 
-    public static QuoteLevel GetQuoteLevel<TQuoteLevel>() where TQuoteLevel : ILevel0Quote
+    public static TickerDetailLevel GetQuoteLevel<TQuoteLevel>() where TQuoteLevel : ITickInstant
     {
         var quoteLevelType = typeof(TQuoteLevel);
 
         switch (quoteLevelType.Name)
         {
-            case nameof(ILevel0Quote) or nameof(IMutableLevel0Quote) or nameof(Level0PriceQuote) or nameof(IPQLevel0Quote) or nameof(PQLevel0Quote):
-                return QuoteLevel.Level0;
+            case nameof(ITickInstant) or nameof(IMutableTickInstant) or nameof(TickInstant) or nameof(IPQTickInstant)
+              or nameof(PQTickInstant):
+                return TickerDetailLevel.SingleValue;
             case nameof(ILevel1Quote) or nameof(IMutableLevel1Quote) or nameof(Level1PriceQuote) or nameof(IPQLevel1Quote) or nameof(PQLevel1Quote):
-                return QuoteLevel.Level1;
+                return TickerDetailLevel.Level1Quote;
             case nameof(ILevel2Quote) or nameof(IMutableLevel2Quote) or nameof(Level2PriceQuote) or nameof(IPQLevel2Quote) or nameof(PQLevel2Quote):
-                return QuoteLevel.Level2;
+                return TickerDetailLevel.Level2Quote;
             case nameof(ILevel3Quote) or nameof(IMutableLevel3Quote) or nameof(Level3PriceQuote) or nameof(IPQLevel3Quote) or nameof(PQLevel3Quote):
-                return QuoteLevel.Level3;
+                return TickerDetailLevel.Level3Quote;
         }
         throw new Exception("Expected TQuoteLevel to be a known quoteType");
     }
 
-    public static bool IsPQQuoteType<TQuoteLevel>() where TQuoteLevel : class, ILevel0Quote
+    public static bool IsPQQuoteType<TQuoteLevel>() where TQuoteLevel : class, ITickInstant
     {
         var quoteLevelType = typeof(TQuoteLevel);
 
         switch (quoteLevelType.Name)
         {
-            case nameof(IPQLevel0Quote) or nameof(PQLevel0Quote): return true;
+            case nameof(IPQTickInstant) or nameof(PQTickInstant): return true;
             case nameof(IPQLevel1Quote) or nameof(PQLevel1Quote): return true;
             case nameof(IPQLevel2Quote) or nameof(PQLevel2Quote): return true;
             case nameof(IPQLevel3Quote) or nameof(PQLevel3Quote): return true;
@@ -251,16 +254,16 @@ public static class PQQuoteConverterExtensions
         return false;
     }
 
-    public static PQLevel0Quote ToL0PQQuote(this Level0PriceQuote vanillaQuote, IRecycler? recycler = null)
+    public static PQTickInstant ToL0PQQuote(this TickInstant vanillaQuote, IRecycler? recycler = null)
     {
         if (recycler != null)
         {
-            var borrowed = recycler.Borrow<PQLevel0Quote>();
+            var borrowed = recycler.Borrow<PQTickInstant>();
             borrowed.CopyFrom(vanillaQuote);
             return borrowed;
         }
 
-        return new PQLevel0Quote(vanillaQuote);
+        return new PQTickInstant(vanillaQuote);
     }
 
     public static PQLevel1Quote ToL1PQQuote(this Level1PriceQuote vanillaQuote, IRecycler? recycler = null)
@@ -299,16 +302,16 @@ public static class PQQuoteConverterExtensions
         return new PQLevel3Quote(vanillaQuote);
     }
 
-    public static Level0PriceQuote ToL0PriceQuote(this Level0PriceQuote pqQuote, IRecycler? recycler = null)
+    public static TickInstant ToL0PriceQuote(this TickInstant pqQuote, IRecycler? recycler = null)
     {
         if (recycler != null)
         {
-            var borrowed = recycler.Borrow<Level0PriceQuote>();
+            var borrowed = recycler.Borrow<TickInstant>();
             borrowed.CopyFrom(pqQuote);
             return borrowed;
         }
 
-        return new Level0PriceQuote(pqQuote);
+        return new TickInstant(pqQuote);
     }
 
     public static Level1PriceQuote ToL1PriceQuote(this PQLevel1Quote pqQuote, IRecycler? recycler = null)

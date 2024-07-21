@@ -11,7 +11,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 
-public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLayer, ISourceTickerQuoteInfo>
+public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLayer, ISourceTickerInfo>
 {
     static OrderBookLayerFactorySelector()
     {
@@ -22,19 +22,18 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
         }
     }
 
-    protected override IPriceVolumeLayer SelectSimplePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new PriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectSimplePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new PriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectValueDatePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-        new ValueDatePriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectValueDatePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new ValueDatePriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectSourcePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new SourcePriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectSourcePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new SourcePriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectSourceQuoteRefPriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
+    protected override IPriceVolumeLayer SelectSourceQuoteRefPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) =>
         new SourceQuoteRefPriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectTraderPriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => new TraderPriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectTraderPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new TraderPriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
+    protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) =>
         new SourceQuoteRefTraderValueDatePriceVolumeLayer();
 
     public override IPriceVolumeLayer CreateExpectedImplementation

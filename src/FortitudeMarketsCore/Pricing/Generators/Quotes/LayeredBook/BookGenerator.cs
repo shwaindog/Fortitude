@@ -104,10 +104,9 @@ public class BookGenerator : IBookGenerator
         var roundedTopBid = decimal.Round(mid - topBidAskSpread / 2);
         var roundedTopAsk = decimal.Round(mid + topBidAskSpread / 2);
 
-        while (roundedTopAsk - roundedTopBid > bookGenerationInfo.TightestSpreadPips)
-            roundedTopBid -= bookGenerationInfo.SmallestPriceLayerPips;
+        while (roundedTopAsk - roundedTopBid > bookGenerationInfo.TightestSpreadPips) roundedTopBid -= bookGenerationInfo.SmallestPriceLayerPips;
 
-        var maxLayersToGenerate = Math.Min(level2Quote.SourceTickerQuoteInfo!.MaximumPublishedLayers, bookGenerationInfo.NumberOfBookLayers);
+        var maxLayersToGenerate = Math.Min(level2Quote.SourceTickerInfo!.MaximumPublishedLayers, bookGenerationInfo.NumberOfBookLayers);
         PopulateBook(level2Quote.BidBook, roundedTopBid, maxLayersToGenerate, previousCurrentMidPriceTime);
         PopulateBook(level2Quote.AskBook, roundedTopAsk, maxLayersToGenerate, previousCurrentMidPriceTime);
     }

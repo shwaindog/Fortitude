@@ -9,6 +9,7 @@ using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.Channel;
 using FortitudeBusRules.BusMessaging.Routing.Response;
 using FortitudeBusRules.Messages;
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Config;
@@ -39,6 +40,29 @@ public struct TimeSeriesRepositoryInstrumentFileInfoRequest
     public Dictionary<string, string>? MatchFields { get; }
 }
 
+public struct TimeSeriesRepositoryInstrumentFileEntryInfoRequest
+{
+    public TimeSeriesRepositoryInstrumentFileEntryInfoRequest
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryPeriod = null
+      , UnboundedTimeRange? limitEntryRangeResults = null, Dictionary<string, string>? matchFields = null)
+    {
+        InstrumentName    = instrumentName;
+        InstrumentSource  = instrumentSource;
+        EntryPeriod       = entryPeriod;
+        InstrumentType    = instrumentType;
+        LimitResultPeriod = limitEntryRangeResults;
+        MatchFields       = matchFields;
+    }
+
+    public string              InstrumentName    { get; }
+    public string              InstrumentSource  { get; }
+    public TimeSeriesPeriod?   EntryPeriod       { get; }
+    public InstrumentType?     InstrumentType    { get; }
+    public UnboundedTimeRange? LimitResultPeriod { get; }
+
+    public Dictionary<string, string>? MatchFields { get; }
+}
+
 public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
 {
     private ISubscription? instrumentFileEntriesInfoRequestListenSubscription;
@@ -61,7 +85,7 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
             = await this.RegisterRequestListenerAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
                 (TimeSeriesInstrumentFileInfoRequestResponse, HandleInstrumentFileInfo);
         instrumentFileEntriesInfoRequestListenSubscription
-            = await this.RegisterRequestListenerAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileEntryInfo>>
+            = await this.RegisterRequestListenerAsync<TimeSeriesRepositoryInstrumentFileEntryInfoRequest, List<InstrumentFileEntryInfo>>
                 (TimeSeriesInstrumentEntryFileInfoRequestResponse, HandleInstrumentFileEntryInfoRequest);
     }
 
@@ -76,14 +100,14 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
     }
 
     private async ValueTask<List<InstrumentFileEntryInfo>> HandleInstrumentFileEntryInfoRequest
-        (IBusRespondingMessage<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileEntryInfo>> instrumentRequestMsg)
+        (IBusRespondingMessage<TimeSeriesRepositoryInstrumentFileEntryInfoRequest, List<InstrumentFileEntryInfo>> instrumentRequestMsg)
     {
         var req = instrumentRequestMsg.Payload.Body();
 
         var launchContext =
             Context.GetEventQueues(MessageQueueType.Worker)
                    .SelectEventQueue(QueueSelectionStrategy.EarliestStarted)
-                   .GetExecutionContextResult<List<InstrumentFileEntryInfo>, TimeSeriesRepositoryInstrumentFileInfoRequest>(this);
+                   .GetExecutionContextResult<List<InstrumentFileEntryInfo>, TimeSeriesRepositoryInstrumentFileEntryInfoRequest>(this);
 
         var result = await launchContext.Execute(GetFileEntryInfo, req);
 
@@ -91,7 +115,7 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
     }
 
     private List<InstrumentFileEntryInfo> GetFileEntryInfo
-        (TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
+        (TimeSeriesRepositoryInstrumentFileEntryInfoRequest req) =>
         InstrumentFileEntryInfos(req.InstrumentName, req.InstrumentSource, req.InstrumentType, req.EntryPeriod);
 
 

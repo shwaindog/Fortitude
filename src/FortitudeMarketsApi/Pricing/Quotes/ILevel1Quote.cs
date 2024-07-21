@@ -12,7 +12,8 @@ using FortitudeMarketsApi.Pricing.Summaries;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>, ITimeSeriesEntry<ILevel1Quote>, IDoublyLinkedListNode<ILevel1Quote>
+public interface ILevel1Quote : ITickInstant, IBidAskInstant, ICloneable<ILevel1Quote>, ITimeSeriesEntry<ILevel1Quote>
+  , IDoublyLinkedListNode<ILevel1Quote>
 {
     DateTime AdapterReceivedTime { get; }
     DateTime AdapterSentTime     { get; }
@@ -25,15 +26,20 @@ public interface ILevel1Quote : ILevel0Quote, ICloneable<ILevel1Quote>, ITimeSer
     decimal    AskPriceTop          { get; }
     bool       IsAskPriceTopUpdated { get; }
     bool       Executable           { get; }
+    DateTime   ValidFrom            { get; }
+    DateTime   ValidTo              { get; }
 
     new ILevel1Quote? Next     { get; set; }
     new ILevel1Quote? Previous { get; set; }
 
     IPricePeriodSummary? SummaryPeriod { get; }
-    new ILevel1Quote     Clone();
+
+    new bool AreEquivalent(ITickInstant? other, bool exactTypes = false);
+
+    new ILevel1Quote Clone();
 }
 
-public interface IMutableLevel1Quote : ILevel1Quote, IMutableLevel0Quote
+public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant
 {
     new DateTime AdapterSentTime      { get; set; }
     new DateTime AdapterReceivedTime  { get; set; }
@@ -44,16 +50,19 @@ public interface IMutableLevel1Quote : ILevel1Quote, IMutableLevel0Quote
     new decimal  AskPriceTop          { get; set; }
     new bool     IsAskPriceTopUpdated { get; set; }
     new bool     Executable           { get; set; }
+    new DateTime ValidFrom            { get; set; }
+    new DateTime ValidTo              { get; set; }
 
     new IMutablePricePeriodSummary? SummaryPeriod { get; set; }
-    new IMutableLevel1Quote         Clone();
+
+    new IMutableLevel1Quote Clone();
 }
 
 // last level of QuoteStructs as Level2+ has variable length data.
 public struct Level1QuoteStruct : ITimeSeriesEntry<Level1QuoteStruct>
 {
     public Level1QuoteStruct
-    (DateTime sourceTime, decimal singlePrice, DateTime clientReceivedTime,
+    (DateTime sourceTime, decimal singleTickValue, DateTime clientReceivedTime,
         decimal bidPriceTop, decimal askPriceTop, bool executable, bool isReplay = false,
         DateTime? adapterReceiveTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null,
         DateTime? sourceAskTime = null)
@@ -61,7 +70,7 @@ public struct Level1QuoteStruct : ITimeSeriesEntry<Level1QuoteStruct>
         IsReplay            = isReplay;
         SourceTime          = sourceTime;
         ClientReceivedTime  = clientReceivedTime;
-        SinglePrice         = singlePrice;
+        SingleTickValue     = singleTickValue;
         BidPriceTop         = bidPriceTop;
         AskPriceTop         = askPriceTop;
         Executable          = executable;
@@ -72,7 +81,7 @@ public struct Level1QuoteStruct : ITimeSeriesEntry<Level1QuoteStruct>
     }
 
     public DateTime SourceTime;
-    public decimal  SinglePrice;
+    public decimal  SingleTickValue;
     public bool     IsReplay;
     public DateTime ClientReceivedTime;
 
@@ -86,7 +95,7 @@ public struct Level1QuoteStruct : ITimeSeriesEntry<Level1QuoteStruct>
     public DateTime StorageTime(IStorageTimeResolver<Level1QuoteStruct>? resolver = null) => SourceTime;
 
     public override string ToString() =>
-        $"{nameof(Level1QuoteStruct)}({nameof(SourceTime)}: {SourceTime}, {nameof(SinglePrice)}: {SinglePrice}, " +
+        $"{nameof(Level1QuoteStruct)}({nameof(SourceTime)}: {SourceTime}, {nameof(SingleTickValue)}: {SingleTickValue}, " +
         $"{nameof(IsReplay)}: {IsReplay}, {nameof(ClientReceivedTime)}: {ClientReceivedTime}, " +
         $"{nameof(AdapterReceivedTime)}: {AdapterReceivedTime}, {nameof(AdapterSentTime)}: {AdapterSentTime}, " +
         $"{nameof(SourceBidTime)}: {SourceBidTime}, {nameof(SourceAskTime)}: {SourceAskTime}, " +

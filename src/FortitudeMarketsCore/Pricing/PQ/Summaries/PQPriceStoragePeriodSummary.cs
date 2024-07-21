@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -431,9 +432,25 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         }
     }
 
-    public IPricePeriodSummary? Previous { get; set; }
-    public IPricePeriodSummary? Next     { get; set; }
+    public IPricePeriodSummary? Previous
+    {
+        get => ((IBidAskInstant)this).Previous as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
+    }
 
+    public IPricePeriodSummary? Next
+    {
+        get => ((IBidAskInstant)this).Next as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
+    }
+
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
+
+    decimal IBidAskPair.BidPrice => AverageBidPrice;
+    decimal IBidAskPair.AskPrice => AverageAskPrice;
+
+    DateTime IBidAskInstant.AtTime => PeriodStartTime;
 
     public IPQPriceStoragePeriodSummary CopyFrom
         (IPQPriceStoragePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
@@ -484,11 +501,20 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 
+    IReusableObject<IBidAskInstant> IStoreState<IReusableObject<IBidAskInstant>>.CopyFrom
+        (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+
+    IBidAskInstant IStoreState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+
     IPQPriceStoragePeriodSummary IPQPriceStoragePeriodSummary.Clone() => Clone();
 
     object ICloneable.Clone() => Clone();
 
     IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
+
+    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
 
     public double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler)
     {
@@ -505,6 +531,18 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
             currentRangeMissing =   (missingTickPeriods & checkBitMask) > 0;
         }
         return totalCompletePercentage;
+    }
+
+    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes)
+    {
+        if (other == null) return false;
+        if (exactTypes && other.GetType() != GetType()) return false;
+        var startTimeSame       = PeriodStartTime.Equals(other.AtTime);
+        var averageBidPriceSame = AverageBidPrice == other.BidPrice;
+        var averageAskPriceSame = AverageAskPrice == other.AskPrice;
+
+        var allAreSame = startTimeSame && averageBidPriceSame && averageAskPriceSame;
+        return allAreSame;
     }
 
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)

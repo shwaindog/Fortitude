@@ -38,7 +38,7 @@ public class Level3QuoteGenerator : Level3QuoteGeneratorBase<Level3PriceQuote>
 
     public override Level3PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
     {
-        var toPopulate = new Level3PriceQuote(GenerateQuoteInfo.SourceTickerQuoteInfo);
+        var toPopulate = new Level3PriceQuote(GenerateQuoteInfo.SourceTickerInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);
         return toPopulate;
     }

@@ -556,30 +556,47 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
 
     public IPQPricePeriodSummary? Previous
     {
-        get => ((IPricePeriodSummary)this).Previous as IPQPricePeriodSummary;
-        set => ((IPricePeriodSummary)this).Previous = value;
+        get => ((IBidAskInstant)this).Previous as IPQPricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
     }
 
     public IPQPricePeriodSummary? Next
     {
-        get => ((IPricePeriodSummary)this).Next as IPQPricePeriodSummary;
-        set => ((IPricePeriodSummary)this).Next = value;
+        get => ((IBidAskInstant)this).Next as IPQPricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
     }
 
     IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous
     {
-        get => ((IPricePeriodSummary)this).Previous;
-        set => ((IPricePeriodSummary)this).Previous = value;
+        get => ((IBidAskInstant)this).Previous as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
     }
 
     IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next
     {
-        get => ((IPricePeriodSummary)this).Next;
-        set => ((IPricePeriodSummary)this).Next = value;
+        get => ((IBidAskInstant)this).Next as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
     }
 
-    IPricePeriodSummary? IPricePeriodSummary.Previous { get; set; }
-    IPricePeriodSummary? IPricePeriodSummary.Next     { get; set; }
+    IPricePeriodSummary? IPricePeriodSummary.Previous
+    {
+        get => ((IBidAskInstant)this).Previous as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
+    }
+
+    IPricePeriodSummary? IPricePeriodSummary.Next
+    {
+        get => ((IBidAskInstant)this).Next as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
+    }
+
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
+
+    decimal IBidAskPair.BidPrice => AverageBidPrice;
+    decimal IBidAskPair.AskPrice => AverageAskPrice;
+
+    DateTime IBidAskInstant.AtTime => PeriodStartTime;
 
     public bool HasUpdates
     {
@@ -787,6 +804,13 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
 
     IStoreState IStoreState.CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
+    IReusableObject<IBidAskInstant> IStoreState<IReusableObject<IBidAskInstant>>.CopyFrom
+        (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+
+    IBidAskInstant IStoreState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+
     IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() => Clone();
 
     IPQPricePeriodSummary IPQPricePeriodSummary.Clone() => Clone();
@@ -795,12 +819,26 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
 
     IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
+    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
+
     public override void StateReset()
     {
         Next       = Previous = null;
         IsEmpty    = true;
         HasUpdates = false;
         base.StateReset();
+    }
+
+    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes)
+    {
+        if (other == null) return false;
+        if (exactTypes && other.GetType() != GetType()) return false;
+        var startTimeSame       = PeriodStartTime.Equals(other.AtTime);
+        var averageBidPriceSame = AverageBidPrice == other.BidPrice;
+        var averageAskPriceSame = AverageAskPrice == other.AskPrice;
+
+        var allAreSame = startTimeSame && averageBidPriceSame && averageAskPriceSame;
+        return allAreSame;
     }
 
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)

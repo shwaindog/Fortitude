@@ -13,10 +13,10 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class HourlyLevel0QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel0QuoteDataBucket<TEntry>, PQLevel0Quote>
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
+public class HourlyTickInstantDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyTickInstantDataBucket<TEntry>, PQTickInstant>
+    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
 {
-    public HourlyLevel0QuoteDataBucket
+    public HourlyTickInstantDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }

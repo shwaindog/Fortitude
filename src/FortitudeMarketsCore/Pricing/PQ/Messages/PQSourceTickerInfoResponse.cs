@@ -16,8 +16,8 @@ public class PQSourceTickerInfoResponse : ResponseMessage
 {
     public PQSourceTickerInfoResponse() => Version = 1;
 
-    public PQSourceTickerInfoResponse(IEnumerable<ISourceTickerQuoteInfo> requestSourceTickerIds) : this() =>
-        SourceTickerQuoteInfos.AddRange(requestSourceTickerIds);
+    public PQSourceTickerInfoResponse(IEnumerable<ISourceTickerInfo> requestSourceTickerIds) : this() =>
+        SourceTickerInfos.AddRange(requestSourceTickerIds);
 
     private PQSourceTickerInfoResponse(PQSourceTickerInfoResponse toClone) : this()
     {
@@ -27,7 +27,7 @@ public class PQSourceTickerInfoResponse : ResponseMessage
 
     public override uint MessageId => (uint)PQMessageIds.SourceTickerInfoResponse;
 
-    public List<ISourceTickerQuoteInfo> SourceTickerQuoteInfos { get; } = new();
+    public List<ISourceTickerInfo> SourceTickerInfos { get; } = new();
 
     public override IVersionedMessage CopyFrom
     (IVersionedMessage source
@@ -36,8 +36,8 @@ public class PQSourceTickerInfoResponse : ResponseMessage
         base.CopyFrom(source, copyMergeFlags);
         if (source is PQSourceTickerInfoResponse pqSourceTickerInfoResponse)
         {
-            SourceTickerQuoteInfos.Clear();
-            SourceTickerQuoteInfos.AddRange(pqSourceTickerInfoResponse.SourceTickerQuoteInfos);
+            SourceTickerInfos.Clear();
+            SourceTickerInfos.AddRange(pqSourceTickerInfoResponse.SourceTickerInfos);
         }
 
         return this;
@@ -45,7 +45,7 @@ public class PQSourceTickerInfoResponse : ResponseMessage
 
     public override void StateReset()
     {
-        SourceTickerQuoteInfos.Clear();
+        SourceTickerInfos.Clear();
         base.StateReset();
     }
 
@@ -55,7 +55,7 @@ public class PQSourceTickerInfoResponse : ResponseMessage
 
     protected bool Equals(PQSourceTickerInfoResponse other)
     {
-        var arraysSame = SourceTickerQuoteInfos.SequenceEqual(other.SourceTickerQuoteInfos);
+        var arraysSame = SourceTickerInfos.SequenceEqual(other.SourceTickerInfos);
         return arraysSame;
     }
 
@@ -67,8 +67,8 @@ public class PQSourceTickerInfoResponse : ResponseMessage
         return Equals((IPQSnapshotIdsRequest)obj);
     }
 
-    public override int GetHashCode() => SourceTickerQuoteInfos.GetHashCode();
+    public override int GetHashCode() => SourceTickerInfos.GetHashCode();
 
     public override string ToString() =>
-        $"{nameof(PQSourceTickerInfoResponse)} ({MembersToString}, {nameof(SourceTickerQuoteInfos)}: [{SourceTickerQuoteInfos.JoinToString()}])";
+        $"{nameof(PQSourceTickerInfoResponse)} ({MembersToString}, {nameof(SourceTickerInfos)}: [{SourceTickerInfos.JoinToString()}])";
 }

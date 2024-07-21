@@ -42,17 +42,17 @@ public static class BidAskPairExtensions
     public static BidAskPair SetAskPrice(this BidAskPair pair, decimal askPrice) => new(pair.BidPrice, askPrice);
 }
 
-public interface IBidAsk : IBidAskPair, IReusableObject<IBidAskPair>
+public interface IMutableBidAsk : IBidAskPair, IReusableObject<IBidAskPair>
 {
     new decimal BidPrice { get; set; }
     new decimal AskPrice { get; set; }
 }
 
-public class BidAsk : ReusableObject<IBidAsk>, IBidAsk
+public class BidAsk : ReusableObject<IMutableBidAsk>, IMutableBidAsk
 {
     public BidAsk() { }
 
-    public BidAsk(IBidAsk bidAsk)
+    public BidAsk(IMutableBidAsk bidAsk)
     {
         AskPrice = bidAsk.AskPrice;
         BidPrice = bidAsk.BidPrice;
@@ -73,11 +73,13 @@ public class BidAsk : ReusableObject<IBidAsk>, IBidAsk
     public decimal BidPrice { get; set; }
     public decimal AskPrice { get; set; }
 
-    IBidAskPair IStoreState<IBidAskPair>.CopyFrom(IBidAskPair source, CopyMergeFlags copyMergeFlags) => CopyFrom((IBidAsk)source, copyMergeFlags);
+    IBidAskPair IStoreState<IBidAskPair>.CopyFrom
+        (IBidAskPair source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IMutableBidAsk)source, copyMergeFlags);
 
     IReusableObject<IBidAskPair> IStoreState<IReusableObject<IBidAskPair>>.CopyFrom
         (IReusableObject<IBidAskPair> source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IBidAsk)source, copyMergeFlags);
+        CopyFrom((IMutableBidAsk)source, copyMergeFlags);
 
     IBidAskPair ICloneable<IBidAskPair>.Clone() => Clone();
 
@@ -101,14 +103,14 @@ public class BidAsk : ReusableObject<IBidAsk>, IBidAsk
     }
 
 
-    public override IBidAsk CopyFrom(IBidAsk source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IMutableBidAsk CopyFrom(IMutableBidAsk source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         BidPrice = source.BidPrice;
         AskPrice = source.AskPrice;
         return this;
     }
 
-    public override IBidAsk Clone() => Recycler?.Borrow<BidAsk>() ?? new BidAsk((IBidAsk)this);
+    public override IMutableBidAsk Clone() => Recycler?.Borrow<BidAsk>() ?? new BidAsk((IMutableBidAsk)this);
 
     public override string ToString() => $"{nameof(BidAsk)}({nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice})";
 

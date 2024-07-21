@@ -3,7 +3,7 @@
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public enum PriceSyncStatus : byte
+public enum FeedSyncStatus : byte
 {
     OutOfSync = 0
   , Good      = 1

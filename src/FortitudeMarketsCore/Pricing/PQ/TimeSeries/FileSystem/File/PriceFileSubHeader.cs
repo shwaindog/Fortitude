@@ -39,19 +39,19 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
     private readonly MemoryMappedFileBuffer        memoryMappedFileBuffer;
     private readonly IMessageBufferContext         messageBufferContext;
     private readonly PricingInstrumentDeserializer pricingInstrumentDeserializer = new(recycler);
-    private readonly SourceTickerQuoteInfoDeserializer sourceTickerQuoteInfoDeserializer = new(recycler)
+    private readonly SourceTickerInfoDeserializer sourceTickerInfoDeserializer = new(recycler)
     {
         ReadMessageHeader = false
     };
     private readonly ushort subHeaderFileOffset;
     private readonly bool   writable;
 
-    private IPricingInstrumentId?            cachedPricingInstrumentId;
-    private PriceQuoteSubHeader              cachePriceQuoteSubHeader;
-    private ShiftableMemoryMappedFileView?   memoryMappedFileView;
-    private PriceQuoteSubHeader*             priceQuoteSubHeader;
-    private PricingInstrumentSerializer?     pricingInstrumentSerializer;
-    private SourceTickerQuoteInfoSerializer? sourceTickerQuoteInfoSerializer;
+    private IPricingInstrumentId?          cachedPricingInstrumentId;
+    private PriceQuoteSubHeader            cachePriceQuoteSubHeader;
+    private ShiftableMemoryMappedFileView? memoryMappedFileView;
+    private PriceQuoteSubHeader*           priceQuoteSubHeader;
+    private PricingInstrumentSerializer?   pricingInstrumentSerializer;
+    private SourceTickerInfoSerializer?    sourceTickerInfoSerializer;
 
     public PriceFileSubHeader
         (InstrumentType instrumentType, ShiftableMemoryMappedFileView headerMappedFileView, ushort subHeaderFileOffset, bool writable)
@@ -90,7 +90,7 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
                                                                                   + priceQuoteSubHeader->PricingInstrumentIdSerializedSizeBytes;
 
             cachedPricingInstrumentId = instrumentType == InstrumentType.Price
-                ? sourceTickerQuoteInfoDeserializer.Deserialize(messageBufferContext)
+                ? sourceTickerInfoDeserializer.Deserialize(messageBufferContext)
                 : pricingInstrumentDeserializer.Deserialize(messageBufferContext);
             return cachedPricingInstrumentId!;
         }
@@ -104,11 +104,11 @@ public unsafe class PriceFileSubHeader : ISerializationPriceFileHeader
             int serializedSize;
             if (instrumentType == InstrumentType.Price)
             {
-                sourceTickerQuoteInfoSerializer ??= new SourceTickerQuoteInfoSerializer()
+                sourceTickerInfoSerializer ??= new SourceTickerInfoSerializer()
                 {
                     AddMessageHeader = false
                 };
-                serializedSize = sourceTickerQuoteInfoSerializer.Serialize(messageBufferContext.EncodedBuffer, (ISourceTickerQuoteInfo)value);
+                serializedSize = sourceTickerInfoSerializer.Serialize(messageBufferContext.EncodedBuffer, (ISourceTickerInfo)value);
             }
             else
             {

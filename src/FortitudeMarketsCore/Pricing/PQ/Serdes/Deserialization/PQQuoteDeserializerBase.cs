@@ -22,7 +22,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
 public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQuoteDeserializer<T>
-    where T : class, IPQLevel0Quote
+    where T : class, IPQTickInstant
 {
     private const byte SupportFromVersion = 1;
     private const byte SupportToVersion   = 1;
@@ -31,10 +31,10 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     protected readonly IList<IObserver<T>> Subscribers = new List<IObserver<T>>();
 
-    protected Func<ISourceTickerQuoteInfo, T> QuoteFactory;
+    protected Func<ISourceTickerInfo, T> QuoteFactory;
 
     protected PQQuoteDeserializerBase
-    (ISourceTickerQuoteInfo tickerPricingSubscriptionConfig,
+    (ISourceTickerInfo tickerPricingSubscriptionConfig,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
     {
         this.serializationFlags = serializationFlags;
@@ -62,9 +62,9 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     public T PublishedQuote { get; protected set; }
 
-    public ISourceTickerQuoteInfo Identifier { get; }
-    public IPQQuoteDeserializer?  Previous   { get; set; }
-    public IPQQuoteDeserializer?  Next       { get; set; }
+    public ISourceTickerInfo     Identifier { get; }
+    public IPQQuoteDeserializer? Previous   { get; set; }
+    public IPQQuoteDeserializer? Next       { get; set; }
 
 
     public event Action<IPQQuoteDeserializer>? ReceivedUpdate;
@@ -220,7 +220,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
     }
 
     public void PushQuoteToSubscribers
-    (PriceSyncStatus syncStatus,
+    (FeedSyncStatus syncStatus,
         IPerfLogger? detectionToPublishLatencyTraceLogger = null)
     {
         if (!Subscribers.Any() && !AllDeserializedNotifiers.Any()) return;
@@ -228,7 +228,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
         PublishedQuote.Lock.Acquire();
         try
         {
-            PublishedQuote.PQPriceSyncStatus = syncStatus;
+            PublishedQuote.FeedSyncStatus = syncStatus;
             if (!ShouldPublish) return;
             PublishedQuote.DispatchedTime = TimeContext.UtcNow;
             if (tl.Enabled) tl.Add("Ticker", Identifier.Ticker);

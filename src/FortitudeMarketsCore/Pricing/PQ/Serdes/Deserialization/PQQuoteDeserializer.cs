@@ -20,17 +20,20 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublishingDeserializer<T>
-    where T : PQLevel0Quote, new()
+public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublishingDeserializer<T> where T : PQTickInstant, new()
 {
-    public const            int                                  MaxBufferedUpdates = 128;
-    private static readonly IFLogger                             Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializer<T>));
-    private readonly        DeserializeStateTransitionFactory<T> stateTransitionFactory;
-    private readonly        StaticRing<T>                        syncRing;
-    private                 SyncStateBase<T>                     currentSyncState;
+    public const int MaxBufferedUpdates = 128;
 
-    public PQQuoteDeserializer(ITickerPricingSubscriptionConfig tickerPricingSubscriptionConfig) : base(tickerPricingSubscriptionConfig
-             .SourceTickerQuoteInfo)
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializer<T>));
+
+    private readonly DeserializeStateTransitionFactory<T> stateTransitionFactory;
+
+    private readonly StaticRing<T> syncRing;
+
+    private SyncStateBase<T> currentSyncState;
+
+    public PQQuoteDeserializer(ITickerPricingSubscriptionConfig tickerPricingSubscriptionConfig)
+        : base(tickerPricingSubscriptionConfig.SourceTickerInfo)
     {
         SyncRetryMs            = tickerPricingSubscriptionConfig.PricingServerConfig.SyncRetryIntervalMs;
         currentSyncState       = new InitializationState<T>(this);
@@ -38,7 +41,7 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
         AllowUpdatesCatchup    = tickerPricingSubscriptionConfig.PricingServerConfig.AllowUpdatesCatchup;
         syncRing = new StaticRing<T>(MaxBufferedUpdates, () =>
         {
-            var newQuote = QuoteFactory(tickerPricingSubscriptionConfig.SourceTickerQuoteInfo);
+            var newQuote = QuoteFactory(tickerPricingSubscriptionConfig.SourceTickerInfo);
             newQuote.EnsureRelatedItemsAreConfigured(PublishedQuote);
             return newQuote;
         }, true);
@@ -107,7 +110,7 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
                     continue;
                 }
 
-                PublishedQuote.CopyFrom((ILevel0Quote)ent);
+                PublishedQuote.CopyFrom((ITickInstant)ent);
                 PublishedQuote.ClientReceivedTime = ent.ClientReceivedTime;
                 PublishedQuote.ProcessedTime      = ent.ProcessedTime;
             }

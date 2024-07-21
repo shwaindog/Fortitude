@@ -556,8 +556,7 @@ public class PQRecentlyTradedTests
     private Type GetExpectedType(Type originalType, Type copyType)
     {
         if (copyType == typeof(PQLastTrade)) return originalType;
-        if (originalType == typeof(PQLastPaidGivenTrade) && copyType == typeof(PQLastPaidGivenTrade))
-            return typeof(PQLastPaidGivenTrade);
+        if (originalType == typeof(PQLastPaidGivenTrade) && copyType == typeof(PQLastPaidGivenTrade)) return typeof(PQLastPaidGivenTrade);
         return typeof(PQLastTraderPaidGivenTrade);
     }
 
@@ -611,17 +610,17 @@ public class PQRecentlyTradedTests
             var lastTrade = recentlyTraded[i]!;
 
             Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LastTradePriceOffset + i), lastTrade.TradePrice,
-                                              1), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                              1), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                                               (byte)(PQFieldKeys.LastTradePriceOffset + i), 1),
                             $"For lastTradeType {lastTrade.GetType().Name} level {i}");
             Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LastTradeTimeHourOffset + i),
                                               lastTrade.TradeTime.GetHoursFromUnixEpoch()),
-                            PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                         (byte)(PQFieldKeys.LastTradeTimeHourOffset + i)),
                             $"For bidlayer {lastTrade.GetType().Name} level {i}");
             var flag = lastTrade.TradeTime.GetSubHourComponent().BreakLongToByteAndUint(out var subHourBase);
             Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LastTradeTimeSubHourOffset + i), subHourBase, flag)
-                          , PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                          , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                         (byte)(PQFieldKeys.LastTradeTimeSubHourOffset + i), flag),
                             $"For asklayer {lastTrade.GetType().Name} level {i}");
 
@@ -635,14 +634,14 @@ public class PQRecentlyTradedTests
 
                 Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LastTradeVolumeOffset + i),
                                                   pqPaidGivenTrade.TradeVolume, expectedFlag),
-                                PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                             (byte)(PQFieldKeys.LastTradeVolumeOffset + i), expectedFlag),
                                 $"For asklayer {lastTrade.GetType().Name} level {i}");
             }
 
             if (lastTrade is IPQLastTraderPaidGivenTrade pqTraderPaidGivenTrade)
                 Assert.AreEqual(new PQFieldUpdate((byte)(PQFieldKeys.LastTraderIdOffset + i), pqTraderPaidGivenTrade.TraderId),
-                                PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                             (byte)(PQFieldKeys.LastTraderIdOffset + i)),
                                 $"For asklayer {lastTrade.GetType().Name} level {i}");
         }

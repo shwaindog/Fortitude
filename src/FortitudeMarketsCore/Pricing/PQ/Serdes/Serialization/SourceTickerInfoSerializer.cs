@@ -10,12 +10,13 @@ using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
-public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQuoteInfo>
+public class SourceTickerInfoSerializer : IMessageSerializer<ISourceTickerInfo>
 {
     private readonly List<KeyValuePair<string, string>> instrumentAttributes = new();
 
@@ -25,10 +26,10 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
 
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
-        Serialize((ISourceTickerQuoteInfo)message, (ISerdeContext)writeContext);
+        Serialize((ISourceTickerInfo)message, (ISerdeContext)writeContext);
     }
 
-    public void Serialize(ISourceTickerQuoteInfo obj, ISerdeContext writeContext)
+    public void Serialize(ISourceTickerInfo obj, ISerdeContext writeContext)
     {
         if ((writeContext.Direction & ContextDirection.Write) == 0) throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
@@ -43,7 +44,7 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
         }
     }
 
-    public unsafe int Serialize(IBuffer buffer, ISourceTickerQuoteInfo message)
+    public unsafe int Serialize(IBuffer buffer, ISourceTickerInfo message)
     {
         buffer.LimitNextSerialize = byte.MaxValue;
 
@@ -65,29 +66,33 @@ public class SourceTickerQuoteInfoSerializer : IMessageSerializer<ISourceTickerQ
             ptr         += sizeof(uint);
         }
 
-        SerializeSourceTickerQuoteInfo(message, ref ptr, fixedBuffer, instrumentAttributes);
+        SerializeSourceTickerInfo(message, ref ptr, fixedBuffer, instrumentAttributes);
         var amtWritten = ptr - writeStart;
         if (AddMessageHeader) StreamByteOps.ToBytes(ref messageSize, (uint)amtWritten);
         message.DecrementRefCount();
         return (int)amtWritten;
     }
 
-    public static unsafe void SerializeSourceTickerQuoteInfo
-        (ISourceTickerQuoteInfo message, ref byte* ptr, IBuffer fixedBuffer, List<KeyValuePair<string, string>> instrumentAttributes)
+    public static unsafe void SerializeSourceTickerInfo
+        (ISourceTickerInfo message, ref byte* ptr, IBuffer fixedBuffer, List<KeyValuePair<string, string>> instrumentAttributes)
     {
         PricingInstrumentSerializer.SerializePricingInstrument(message, ref ptr, fixedBuffer, instrumentAttributes);
         SerializeQuoteInfo(message, ref ptr);
     }
 
-    private static unsafe void SerializeQuoteInfo(ISourceTickerQuoteInfo message, ref byte* ptr)
+    private static unsafe void SerializeQuoteInfo(ISourceTickerInfo message, ref byte* ptr)
     {
-        *ptr++ = (byte)message.PublishedQuoteLevel;
+        *ptr++ = (byte)message.PublishedTickerDetailLevel;
         *ptr++ = message.MaximumPublishedLayers;
+        var booleanValues = message.GetSourceTickerInfoBooleanFlagsEnum();
         StreamByteOps.ToBytes(ref ptr, message.RoundingPrecision);
+        StreamByteOps.ToBytes(ref ptr, message.Pip);
+        StreamByteOps.ToBytes(ref ptr, (uint)booleanValues);
         StreamByteOps.ToBytes(ref ptr, message.MinSubmitSize);
         StreamByteOps.ToBytes(ref ptr, message.MaxSubmitSize);
         StreamByteOps.ToBytes(ref ptr, message.IncrementSize);
         StreamByteOps.ToBytes(ref ptr, message.MinimumQuoteLife);
+        StreamByteOps.ToBytes(ref ptr, message.DefaultMaxValidMs);
         StreamByteOps.ToBytes(ref ptr, (uint)message.LayerFlags);
         StreamByteOps.ToBytes(ref ptr, (ushort)message.LastTradedFlags);
     }

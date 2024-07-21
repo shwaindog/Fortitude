@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
 using FortitudeBusRules.Messages;
@@ -20,13 +23,16 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication.BusRules;
 public class PQPricingServerClientSessionRule : Rule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingServerClientSessionRule));
+
     private readonly string feedName;
+
     private readonly IConversationRequester snapshotResponderClient;
 
     public PQPricingServerClientSessionRule(string feedName, IConversationRequester snapshotResponderClient)
         : base(feedName + "_" + nameof(PQPricingServerClientSessionRule))
     {
         this.feedName = feedName;
+
         this.snapshotResponderClient = snapshotResponderClient;
     }
 
@@ -34,20 +40,21 @@ public class PQPricingServerClientSessionRule : Rule
     {
         Logger.Info("New PQSnapshot Client Session Rule started {0}", snapshotResponderClient);
         var clientSocketReceiver = (ISocketReceiver)snapshotResponderClient.StreamListener!;
-        var clientDecoder = (IPQServerMessageStreamDecoder)clientSocketReceiver.Decoder!;
+        var clientDecoder        = (IPQServerMessageStreamDecoder)clientSocketReceiver.Decoder!;
         clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSnapshotIdsRequest>()
-            .AddDeserializedNotifier(
-                new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>(
-                    $"{nameof(PQPricingServerClientSessionRule)}.{nameof(OnSnapshotIdsRequest)}", DeserializeNotifyTypeFlags.JustMessage,
-                    new InvokeRuleCallbackListenContext<PQSnapshotIdsRequest>(
-                        $"{nameof(OnSnapshotIdsRequest)}", this, OnSnapshotIdsRequest)));
+                     .AddDeserializedNotifier
+                         (new PassThroughDeserializedNotifier<PQSnapshotIdsRequest>
+                             ($"{nameof(PQPricingServerClientSessionRule)}.{nameof(OnSnapshotIdsRequest)}"
+                            , DeserializeNotifyTypeFlags.JustMessage,
+                              new InvokeRuleCallbackListenContext<PQSnapshotIdsRequest>
+                                  ($"{nameof(OnSnapshotIdsRequest)}", this, OnSnapshotIdsRequest)));
         clientDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoRequest>()
-            .AddDeserializedNotifier(
-                new PassThroughDeserializedNotifier<PQSourceTickerInfoRequest>(
-                    $"{nameof(PQPricingServerClientSessionRule)}.{nameof(OnSourceTickerInfoRequest)}"
-                    , DeserializeNotifyTypeFlags.JustMessage,
-                    new InvokeRuleCallbackListenContext<PQSourceTickerInfoRequest>(
-                        $"{nameof(OnSourceTickerInfoRequest)}", this, OnSourceTickerInfoRequest)));
+                     .AddDeserializedNotifier
+                         (new PassThroughDeserializedNotifier<PQSourceTickerInfoRequest>
+                             ($"{nameof(PQPricingServerClientSessionRule)}.{nameof(OnSourceTickerInfoRequest)}"
+                            , DeserializeNotifyTypeFlags.JustMessage,
+                              new InvokeRuleCallbackListenContext<PQSourceTickerInfoRequest>
+                                  ($"{nameof(OnSourceTickerInfoRequest)}", this, OnSourceTickerInfoRequest)));
         snapshotResponderClient.Stopped += ReceivedClientStopped;
         snapshotResponderClient.Start(); // not started automatically waits for rule to set deserializers before registering for listen.
         IncrementLifeTimeCount();
@@ -64,18 +71,18 @@ public class PQPricingServerClientSessionRule : Rule
     {
         var reusableList = Context.PooledRecycler.Borrow<ReusableList<uint>>();
         reusableList.AddRange(snapshotIdsRequestMsg.RequestSourceTickerIds);
-        var lastPublishedQuotesResponse = await this.RequestAsync<IList<uint>, IList<IPQLevel0Quote>>(
-            feedName.FeedTickerLastPublishedQuotesRequestAddress(), reusableList, new DispatchOptions());
-        foreach (var level0Quote in lastPublishedQuotesResponse) snapshotResponderClient.Send(level0Quote);
+        var lastPublishedQuotesResponse = await this.RequestAsync<IList<uint>, IList<IPQTickInstant>>(
+             feedName.FeedTickerLastPublishedQuotesRequestAddress(), reusableList, new DispatchOptions());
+        foreach (var pqTickInstant in lastPublishedQuotesResponse) snapshotResponderClient.Send(pqTickInstant);
     }
 
     private async ValueTask OnSourceTickerInfoRequest(PQSourceTickerInfoRequest sourceTickerInfoRequest)
     {
         var lastPublishedQuotesResponse = await this.RequestAsync<string, FeedSourceTickerInfoUpdate>(
-            feedName.FeedPricingConfiguredTickersRequestAddress(), feedName, new DispatchOptions());
+             feedName.FeedPricingConfiguredTickersRequestAddress(), feedName, new DispatchOptions());
         var clientResponse = Context.PooledRecycler.Borrow<PQSourceTickerInfoResponse>();
-        clientResponse.SourceTickerQuoteInfos.AddRange(lastPublishedQuotesResponse.SourceTickerQuoteInfos);
-        clientResponse.RequestId = sourceTickerInfoRequest.RequestId;
+        clientResponse.SourceTickerInfos.AddRange(lastPublishedQuotesResponse.SourceTickerInfos);
+        clientResponse.RequestId  = sourceTickerInfoRequest.RequestId;
         clientResponse.ResponseId = sourceTickerInfoRequest.RequestId;
         snapshotResponderClient.Send(clientResponse);
     }

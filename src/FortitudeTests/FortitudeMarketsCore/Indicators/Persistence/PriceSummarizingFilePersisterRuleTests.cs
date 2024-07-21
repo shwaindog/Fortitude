@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
@@ -19,7 +18,7 @@ using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -32,24 +31,26 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
 
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PriceSummarizingFilePersisterRuleTests));
 
+    private readonly ISourceTickerInfo tickerInfo = new SourceTickerInfo
+        (1, "SourceName", 1, "TickerName", Level1Quote, Unknown
+       , 1, 0.001m, 0.1m, 10m, 100m, 10m);
+
     private decimal highLowSpread;
     private decimal mid1;
     private decimal mid2;
 
     private TimeSeriesPeriod period;
 
-    private SummarizingPricePersisterParams                        persisterParams;
-    private PriceSummarizingFilePersisterRule<PricePeriodSummary>? persisterRule;
-    private DateTime                                               persistStartTime;
+    private SummarizingPricePersisterParams persisterParams;
 
+    private PriceSummarizingFilePersisterRule<PricePeriodSummary>? persisterRule;
+
+    private DateTime      persistStartTime;
     private IRecycler     recycler    = null!;
     private DirectoryInfo repoRootDir = null!;
     private DateTime      seedDateTime;
     private decimal       spread;
 
-    private ISourceTickerQuoteInfo tickerId = new SourceTickerQuoteInfo
-        (1, "SourceName", 1, "TickerName", Level1, Unknown
-       , 1, 0.001m, 10m, 100m, 10m);
     private ITimeSeriesRepository timeSeriesRepository = null!;
 
     private List<PricePeriodSummary> toPersistPeriodSummaries = null!;
@@ -83,9 +84,11 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
         repoRootDir = UniqueNewTestDirectory("PersisterRuleTests");
         var serviceConfig = IndicatorServicesConfigTests.UnitTestConfig(repoRootDir);
 
-        timeSeriesRepository = serviceConfig.TimeSeriesFileRepositoryConfig!.BuildRepository();
+        timeSeriesRepository      = serviceConfig.TimeSeriesFileRepositoryConfig!.BuildRepository();
+        tickerInfo.EntryPeriod    = FiveMinutes;
+        tickerInfo.InstrumentType = InstrumentType.PriceSummaryPeriod;
         persisterParams = new SummarizingPricePersisterParams
-            (new TimeSeriesRepositoryParams(timeSeriesRepository), tickerId, InstrumentType.PriceSummaryPeriod
+            (new TimeSeriesRepositoryParams(timeSeriesRepository), tickerInfo, InstrumentType.PriceSummaryPeriod
            , period, TestEntriesToPersistAddress, TimeSpan.FromSeconds(5));
     }
 
@@ -105,9 +108,9 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
         await using var childDeployment = await CustomQueue1.LaunchRuleAsync(persisterRule, persisterRule, CustomQueue1SelectionResult);
 
         foreach (var periodSummary in toPersistPeriodSummaries)
-            await MessageBus.PublishAsync(persisterRule, TestEntriesToPersistAddress, periodSummary, new DispatchOptions());
+            await MessageBus.PublishAsync(persisterRule, TestEntriesToPersistAddress, periodSummary);
 
-        var fileInfo = timeSeriesRepository.GetInstrumentFileEntryInfo(tickerId);
+        var fileInfo = timeSeriesRepository.GetInstrumentFileEntryInfo(tickerInfo);
         Assert.IsTrue(fileInfo.HasInstrument);
 
         persisterRule = null;

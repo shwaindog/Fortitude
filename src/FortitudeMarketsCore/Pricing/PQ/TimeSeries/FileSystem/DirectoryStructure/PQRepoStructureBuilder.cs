@@ -24,15 +24,15 @@ public class PQRepoPathBuilder : RepoPathBuilder
     public override IPathFile PriceFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null)
     {
         var priceFileStructure = base.PriceFile(from, to);
-        priceFileStructure.FileEntryFactoryRegistry[typeof(ILevel0Quote)]     = new PQOneWeekQuoteRepoFileFactory<ILevel0Quote>();
+        priceFileStructure.FileEntryFactoryRegistry[typeof(ITickInstant)]     = new PQOneWeekQuoteRepoFileFactory<ITickInstant>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(ILevel1Quote)]     = new PQOneWeekQuoteRepoFileFactory<ILevel1Quote>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(ILevel2Quote)]     = new PQOneWeekQuoteRepoFileFactory<ILevel2Quote>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(ILevel3Quote)]     = new PQOneWeekQuoteRepoFileFactory<ILevel3Quote>();
-        priceFileStructure.FileEntryFactoryRegistry[typeof(Level0PriceQuote)] = new PQOneWeekQuoteRepoFileFactory<Level0PriceQuote>();
+        priceFileStructure.FileEntryFactoryRegistry[typeof(TickInstant)]      = new PQOneWeekQuoteRepoFileFactory<TickInstant>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(Level1PriceQuote)] = new PQOneWeekQuoteRepoFileFactory<Level1PriceQuote>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(Level2PriceQuote)] = new PQOneWeekQuoteRepoFileFactory<Level2PriceQuote>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(Level3PriceQuote)] = new PQOneWeekQuoteRepoFileFactory<Level3PriceQuote>();
-        priceFileStructure.FileEntryFactoryRegistry[typeof(PQLevel0Quote)]    = new PQOneWeekQuoteRepoFileFactory<PQLevel0Quote>();
+        priceFileStructure.FileEntryFactoryRegistry[typeof(PQTickInstant)]    = new PQOneWeekQuoteRepoFileFactory<PQTickInstant>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(PQLevel1Quote)]    = new PQOneWeekQuoteRepoFileFactory<PQLevel1Quote>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(PQLevel2Quote)]    = new PQOneWeekQuoteRepoFileFactory<PQLevel2Quote>();
         priceFileStructure.FileEntryFactoryRegistry[typeof(PQLevel3Quote)]    = new PQOneWeekQuoteRepoFileFactory<PQLevel3Quote>();

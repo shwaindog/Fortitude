@@ -33,13 +33,13 @@ public struct TimeStampGenerationInfo
 public struct GenerateQuoteInfo
 {
     public GenerateQuoteInfo
-    (ISourceTickerQuoteInfo sourceTickerQuoteInfo,
+    (ISourceTickerInfo sourceTickerInfo,
         IMidPriceGenerator? midPriceGenerator = null,
         BookGenerationInfo? bookGenerationInfo = null,
         TimeStampGenerationInfo? timeStampGenerationInfo = null,
         GenerateLastTradeInfo? lastTradeInfo = null)
     {
-        SourceTickerQuoteInfo   = sourceTickerQuoteInfo;
+        SourceTickerInfo        = sourceTickerInfo;
         MidPriceGenerator       = midPriceGenerator ?? new SyntheticRepeatableMidPriceGenerator(1.0m, DateTime.Now);
         BookGenerationInfo      = bookGenerationInfo ?? new BookGenerationInfo();
         TimeStampGenerationInfo = timeStampGenerationInfo ?? new TimeStampGenerationInfo();
@@ -52,7 +52,7 @@ public struct GenerateQuoteInfo
 
     public int SingleQuoteStartSequenceNumber = 0;
 
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo;
+    public ISourceTickerInfo SourceTickerInfo;
 
     public IMidPriceGenerator MidPriceGenerator;
 
@@ -63,14 +63,14 @@ public struct GenerateQuoteInfo
     public GenerateLastTradeInfo LastTradeInfo;
 }
 
-public interface IQuoteGenerator<out TQuote> where TQuote : IMutableLevel0Quote
+public interface ITickGenerator<out TDetailLevel> where TDetailLevel : IMutableTickInstant
 {
-    TQuote Next { get; }
+    TDetailLevel Next { get; }
 
-    IEnumerable<TQuote> Quotes(DateTime startDateTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0);
+    IEnumerable<TDetailLevel> Quotes(DateTime startDateTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0);
 }
 
-public abstract class QuoteGenerator<TQuote> : IQuoteGenerator<TQuote> where TQuote : IMutableLevel0Quote
+public abstract class TickGenerator<TDetailLevel> : ITickGenerator<TDetailLevel> where TDetailLevel : IMutableTickInstant
 {
     protected readonly GenerateQuoteInfo GenerateQuoteInfo;
     private readonly   TimeSpan          singleQuoteInterval;
@@ -79,11 +79,11 @@ public abstract class QuoteGenerator<TQuote> : IQuoteGenerator<TQuote> where TQu
 
     private DateTime nextSingleQuoteStartTime;
 
-    protected Normal  NormalDist = null!;
-    protected TQuote? PreviousReturnedQuote;
-    protected Random  PseudoRandom = null!;
+    protected Normal        NormalDist = null!;
+    protected TDetailLevel? PreviousReturnedQuote;
+    protected Random        PseudoRandom = null!;
 
-    protected QuoteGenerator(GenerateQuoteInfo generateQuoteInfo)
+    protected TickGenerator(GenerateQuoteInfo generateQuoteInfo)
     {
         GenerateQuoteInfo             = generateQuoteInfo;
         nextSingleQuoteStartTime      = generateQuoteInfo.SingleQuoteStartTime;
@@ -91,7 +91,7 @@ public abstract class QuoteGenerator<TQuote> : IQuoteGenerator<TQuote> where TQu
         nextSingleQuoteSequenceNumber = generateQuoteInfo.SingleQuoteStartSequenceNumber;
     }
 
-    public TQuote Next
+    public TDetailLevel Next
     {
         get
         {
@@ -107,7 +107,7 @@ public abstract class QuoteGenerator<TQuote> : IQuoteGenerator<TQuote> where TQu
         }
     }
 
-    public IEnumerable<TQuote> Quotes(DateTime startingFromTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0)
+    public IEnumerable<TDetailLevel> Quotes(DateTime startingFromTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0)
     {
         var currentSeqNum = sequenceNumber;
         foreach (var prevCurrMids in GenerateQuoteInfo.MidPriceGenerator
@@ -120,5 +120,5 @@ public abstract class QuoteGenerator<TQuote> : IQuoteGenerator<TQuote> where TQu
         }
     }
 
-    public abstract TQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber);
+    public abstract TDetailLevel BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber);
 }

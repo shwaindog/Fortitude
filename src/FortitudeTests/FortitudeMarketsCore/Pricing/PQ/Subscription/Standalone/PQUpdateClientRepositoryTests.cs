@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
@@ -22,20 +25,29 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone
 public class PQUpdateClientRepositoryTests
 {
     private Mock<Action<SocketSessionState>> moqAction = null!;
-    private Mock<IFLogger> moqFlogger = null!;
+
+    private Mock<IFLogger>  moqFlogger  = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
+
     private Mock<IOSParallelController> moqParallelController = null!;
-    private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteSerializationRepo = null!;
+
+    private Mock<IOSParallelControllerFactory>         moqParallelControllerFactory = null!;
+    private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteSerializationRepo  = null!;
+
     private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
-    private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
-    private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
-    private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
-    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
+
+    private Mock<INotifyingMessageDeserializer<PQTickInstant>> moqSocketBinaryDeserializer = null!;
+
+    private Mock<ISocketConnectivityChanged>    moqSocketConnectivityChanged   = null!;
+    private Mock<ISocketDispatcherResolver>     moqSocketDispatcherResolver    = null!;
+    private Mock<ISocketFactoryResolver>        moqSocketFactories             = null!;
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
-    private Mock<IStreamControls> moqStreamControls = null!;
+
+    private Mock<IStreamControls>        moqStreamControls        = null!;
     private Mock<IStreamControlsFactory> moqStreamControlsFactory = null!;
+
     private PQUpdateClientRepository pqUpdateClientRegFactory = null!;
+
     private string testHostName = null!;
     private ushort testHostPort;
 
@@ -43,34 +55,39 @@ public class PQUpdateClientRepositoryTests
     public void SetUp()
     {
         moqFlogger = new Mock<IFLogger>();
+
         moqParallelController = new Mock<IOSParallelController>();
+
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
-            .Returns(moqParallelController.Object);
+                                    .Returns(moqParallelController.Object);
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();
+
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
+
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
-        moqServerConnectionConfig = new Mock<IEndpointConfig>();
-        moqPQQuoteSerializationRepo = new Mock<IPQClientQuoteDeserializerRepository>();
-        moqStreamControlsFactory = new Mock<IStreamControlsFactory>();
-        moqStreamControls = new Mock<IStreamControls>();
-        moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
+        moqSocketConnectivityChanged   = new Mock<ISocketConnectivityChanged>();
+        moqServerConnectionConfig      = new Mock<IEndpointConfig>();
+        moqPQQuoteSerializationRepo    = new Mock<IPQClientQuoteDeserializerRepository>();
+        moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQTickInstant>>();
+        moqStreamControlsFactory       = new Mock<IStreamControlsFactory>();
+
+        moqStreamControls  = new Mock<IStreamControls>();
         moqSocketFactories = new Mock<ISocketFactoryResolver>();
-        moqOsSocket = new Mock<IOSSocket>();
-        moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
-        moqAction = new Mock<Action<SocketSessionState>>();
+        moqOsSocket        = new Mock<IOSSocket>();
+        moqAction          = new Mock<Action<SocketSessionState>>();
 
         moqSocketConnectivityChanged.Setup(scc => scc.GetOnConnectionChangedHandler()).Returns(moqAction.Object);
 
         ISocketConnectivityChanged ConnectivityChanged(ISocketSessionContext context) => moqSocketConnectivityChanged.Object;
 
         moqStreamControlsFactory.Setup(scf => scf.ResolveStreamControls(It.IsAny<ISocketSessionContext>()))
-            .Returns(moqStreamControls.Object);
+                                .Returns(moqStreamControls.Object);
         moqSocketFactories.SetupGet(sf => sf.ConnectionChangedHandlerResolver).Returns(ConnectivityChanged);
         moqSocketFactories.SetupGet(sf => sf.StreamControlsFactory).Returns(moqStreamControlsFactory.Object);
         moqSocketFactories.SetupGet(sf => sf.SocketDispatcherResolver).Returns(moqSocketDispatcherResolver.Object);
         PQUpdateClient.SocketFactories = moqSocketFactories.Object;
-        testHostName = "TestHostname";
+        testHostName                   = "TestHostname";
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicName).Returns("PQUpdateClientRepositoryTests");
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("PQUpdateClientRepositoryTests");
         moqServerConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);
@@ -81,8 +98,8 @@ public class PQUpdateClientRepositoryTests
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
-        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
-            .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
+        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQTickInstant>(uint.MaxValue))
+                                   .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqUpdateClientRegFactory = new PQUpdateClientRepository(moqSocketDispatcherResolver.Object);
     }

@@ -190,7 +190,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         subPeriodResolverStarted = true;
     }
 
-    private async Task GetRepositoryExistingSummariesInfo(DateTime maxPreviousTimeRange)
+    private async ValueTask GetRepositoryExistingSummariesInfo(DateTime maxPreviousTimeRange)
     {
         var existingRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
             (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, PriceSummaryPeriod, State.Period);
@@ -210,7 +210,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         }
     }
 
-    private async Task GetRepositoryQuoteInfo(DateTime now)
+    private async ValueTask GetRepositoryQuoteInfo(DateTime now)
     {
         var quotesRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
             (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, Price, Tick);
@@ -228,7 +228,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         }
     }
 
-    private async Task BuildHistoricalSummariesForPersister(DateTime maxPreviousTimeRange)
+    private async ValueTask BuildHistoricalSummariesForPersister(DateTime maxPreviousTimeRange)
     {
         State.SubPeriodsRepoRange = State.QuotesRepoRange;
 
@@ -243,7 +243,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         await startupBuildSummariesForPersister.BuildFromParts();
     }
 
-    private async Task GetSubSummaryInfoAndBuildSummariesForPersister(DateTime now, DateTime maxPreviousTimeRange)
+    private async ValueTask GetSubSummaryInfoAndBuildSummariesForPersister(DateTime now, DateTime maxPreviousTimeRange)
     {
         var existingPeriodsRangeRequest
             = new TimeSeriesRepositoryInstrumentFileInfoRequest

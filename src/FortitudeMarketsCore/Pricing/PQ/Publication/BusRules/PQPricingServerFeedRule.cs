@@ -27,7 +27,7 @@ public class PQPricingServerFeedRule : Rule
 
     private readonly string publishTickerAddress;
 
-    private List<ISourceTickerQuoteInfo>        allPricingConfiguredTickerQuoteInfos = null!;
+    private List<ISourceTickerInfo>             allPricingConfiguredTickerInfos = null!;
     private PQPricingServerClientResponderRule? clientResponderRule;
     private PQPricingServerQuotePublisherRule?  updatePublisherRule;
 
@@ -60,7 +60,7 @@ public class PQPricingServerFeedRule : Rule
     private FeedSourceTickerInfoUpdate ReceivedAllAvailableTickersRequest(IBusRespondingMessage<string, FeedSourceTickerInfoUpdate> arg)
     {
         var response = Context.PooledRecycler.Borrow<FeedSourceTickerInfoUpdate>();
-        response.SourceTickerQuoteInfos = allPricingConfiguredTickerQuoteInfos;
+        response.SourceTickerInfos = allPricingConfiguredTickerInfos;
 
         response.FeedName = feedName;
         return response;
@@ -68,11 +68,11 @@ public class PQPricingServerFeedRule : Rule
 
     public async ValueTask RegisterEachConfiguredTicker()
     {
-        allPricingConfiguredTickerQuoteInfos = marketConnectionConfig.PricingEnabledSourceTickerInfos.ToList();
-        foreach (var sourceTickerQuoteInfo in allPricingConfiguredTickerQuoteInfos)
+        allPricingConfiguredTickerInfos = marketConnectionConfig.PricingEnabledSourceTickerInfos.ToList();
+        foreach (var sourceTickerInfo in allPricingConfiguredTickerInfos)
         {
             var emptyQuoteEvent = Context.PooledRecycler.Borrow<PublishQuoteEvent>();
-            emptyQuoteEvent.PublishQuote = sourceTickerQuoteInfo.PublishedTypePQInstance();
+            emptyQuoteEvent.PublishQuote = sourceTickerInfo.PublishedTypePQInstance();
             await Context.MessageBus.PublishAsync
                 (this, publishTickerAddress, emptyQuoteEvent, new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: updatePublisherRule));
         }

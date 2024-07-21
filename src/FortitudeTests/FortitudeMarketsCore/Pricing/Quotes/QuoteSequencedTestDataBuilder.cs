@@ -22,14 +22,14 @@ public class QuoteSequencedTestDataBuilder
     private decimal lastAskTop = 0;
     private decimal lastBidTop = 0;
 
-    public void InitializeQuotes(IEnumerable<IMutableLevel0Quote> initializeQuotes, uint batchId)
+    public void InitializeQuotes(IEnumerable<IMutableTickInstant> initializeQuotes, uint batchId)
     {
         foreach (var quote in initializeQuotes) InitializeQuote(quote, batchId);
     }
 
-    public void InitializeQuote(IMutableLevel0Quote initializeQuote, uint batchId)
+    public void InitializeQuote(IMutableTickInstant initializeQuote, uint batchId)
     {
-        SetupLevel0Quote(initializeQuote, batchId);
+        SetupTickInstant(initializeQuote, batchId);
         SetupLevel1Quote(initializeQuote as IMutableLevel1Quote, batchId);
         SetupLevel2Quote(initializeQuote as IMutableLevel2Quote, batchId);
         SetupLevel3Quote(initializeQuote as IMutableLevel3Quote, batchId);
@@ -83,8 +83,7 @@ public class QuoteSequencedTestDataBuilder
                 lastPaidGivenTrade.WasPaid     = togglePaidBool  = !togglePaidBool;
             }
 
-            if (pqLevel3Quote.RecentlyTraded[i] is IPQLastTraderPaidGivenTrade lastTraderTrade)
-                lastTraderTrade.TraderName = "NewTraderName " + i;
+            if (pqLevel3Quote.RecentlyTraded[i] is IPQLastTraderPaidGivenTrade lastTraderTrade) lastTraderTrade.TraderName = "NewTraderName " + i;
         }
     }
 
@@ -104,22 +103,16 @@ public class QuoteSequencedTestDataBuilder
             mutableAsk.Price  = 0.791906m + batchId * 0.00001m + deltaPrice;
             mutableAsk.Volume = 100_0000 + deltaVolume;
 
-            if (mutableBid is IMutableSourcePriceVolumeLayer mutableBidPriceVal)
-                SetupSourceNameOnLayer(mutableBidPriceVal, true, batchId);
-            if (mutableAsk is IMutableSourcePriceVolumeLayer mutableAskPriceVal)
-                SetupSourceNameOnLayer(mutableAskPriceVal, false, batchId);
+            if (mutableBid is IMutableSourcePriceVolumeLayer mutableBidPriceVal) SetupSourceNameOnLayer(mutableBidPriceVal, true, batchId);
+            if (mutableAsk is IMutableSourcePriceVolumeLayer mutableAskPriceVal) SetupSourceNameOnLayer(mutableAskPriceVal, false, batchId);
             if (mutableBid is IMutableSourceQuoteRefPriceVolumeLayer mutableBidSrcQuotRef)
                 SetupSourceQuoteRefOnLayer(mutableBidSrcQuotRef, true, batchId);
             if (mutableAsk is IMutableSourceQuoteRefPriceVolumeLayer mutableAskSrcQuotRef)
                 SetupSourceQuoteRefOnLayer(mutableAskSrcQuotRef, false, batchId);
-            if (mutableBid is IMutableValueDatePriceVolumeLayer mutableBidValueDate)
-                SetupValueDateOnLayer(mutableBidValueDate, true, batchId);
-            if (mutableAsk is IMutableValueDatePriceVolumeLayer mutableAskValueDate)
-                SetupValueDateOnLayer(mutableAskValueDate, false, batchId);
-            if (mutableBid is IMutableTraderPriceVolumeLayer mutableBidTrader)
-                SetupTraderDetailsOnLayer(mutableBidTrader, true, batchId);
-            if (mutableAsk is IMutableTraderPriceVolumeLayer mutableAskTrader)
-                SetupTraderDetailsOnLayer(mutableAskTrader, false, batchId);
+            if (mutableBid is IMutableValueDatePriceVolumeLayer mutableBidValueDate) SetupValueDateOnLayer(mutableBidValueDate, true, batchId);
+            if (mutableAsk is IMutableValueDatePriceVolumeLayer mutableAskValueDate) SetupValueDateOnLayer(mutableAskValueDate, false, batchId);
+            if (mutableBid is IMutableTraderPriceVolumeLayer mutableBidTrader) SetupTraderDetailsOnLayer(mutableBidTrader, true, batchId);
+            if (mutableAsk is IMutableTraderPriceVolumeLayer mutableAskTrader) SetupTraderDetailsOnLayer(mutableAskTrader, false, batchId);
         }
         level2Quote.IsBidPriceTopUpdated = lastBidTop != level2Quote.BidPriceTop;
         level2Quote.IsAskPriceTopUpdated = lastAskTop != level2Quote.AskPriceTop;
@@ -184,22 +177,22 @@ public class QuoteSequencedTestDataBuilder
         InitalizePeriodSummary(level1Quote.SummaryPeriod, batchId);
     }
 
-    private void SetupLevel0Quote(IMutableLevel0Quote level0Quote, uint batchId)
+    private void SetupTickInstant(IMutableTickInstant tickInstant, uint batchId)
     {
-        level0Quote.SinglePrice        = 0.78568m + batchId * 0.00001m;
-        level0Quote.SourceTime         = new DateTime(2017, 07, 16, 15, 46, 00).Add(TimeSpan.FromSeconds(batchId * 10));
-        level0Quote.IsReplay           = true;
-        level0Quote.ClientReceivedTime = level0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 10));
-        if (level0Quote is IPQLevel0Quote pqLevel0Quote)
+        tickInstant.SingleTickValue    = 0.78568m + batchId * 0.00001m;
+        tickInstant.SourceTime         = new DateTime(2017, 07, 16, 15, 46, 00).Add(TimeSpan.FromSeconds(batchId * 10));
+        tickInstant.IsReplay           = true;
+        tickInstant.ClientReceivedTime = tickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 10));
+        if (tickInstant is IPQTickInstant pqTickInstant)
         {
-            pqLevel0Quote.PQPriceSyncStatus = PriceSyncStatus.Good;
-            pqLevel0Quote.PQSequenceId      = batchId;
-            pqLevel0Quote.DispatchedTime    = pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
-            pqLevel0Quote.SocketReceivingTime =
-                pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 12));
-            pqLevel0Quote.ProcessedTime = pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 13));
-            pqLevel0Quote.LastPublicationTime =
-                pqLevel0Quote.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 14));
+            pqTickInstant.FeedSyncStatus = FeedSyncStatus.Good;
+            pqTickInstant.PQSequenceId   = batchId;
+            pqTickInstant.DispatchedTime = pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
+            pqTickInstant.SocketReceivingTime =
+                pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 12));
+            pqTickInstant.ProcessedTime = pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 13));
+            pqTickInstant.LastPublicationTime =
+                pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 14));
         }
     }
 }

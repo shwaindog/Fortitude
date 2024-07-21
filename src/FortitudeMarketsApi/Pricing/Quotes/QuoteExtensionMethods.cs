@@ -24,28 +24,28 @@ public static class QuoteExtensionMethods
 
     private static readonly int secondLinePadding = Math.Abs(PropertyNamePadding) + 1;
 
-    public static string DiffQuotes(this ILevel0Quote? q1, ILevel0Quote? q2, bool exactValues = false)
+    public static string DiffQuotes(this ITickInstant? ti1, ITickInstant? ti2, bool exactValues = false)
     {
-        if (q1 == null && q2 == null) return "";
-        if (q1 == null) return "q1 is null";
-        if (q2 == null) return "q2 is null";
+        if (ti1 == null && ti2 == null) return "";
+        if (ti1 == null) return "q1 is null";
+        if (ti2 == null) return "q2 is null";
         var sb = new StringBuilder(50);
 
-        sb.AddIfDifferent(q1, q2, q => q.SourceTickerQuoteInfo!);
-        sb.AddIfDifferent(q1, q2, q => q.IsReplay);
-        sb.AddIfDifferent(q1, q2, q => q.SinglePrice);
-        sb.AddIfDifferent(q1, q2, q => q.SourceTime);
-        sb.AddIfDifferent(q1, q2, q => q.ClientReceivedTime, exactValues);
+        sb.AddIfDifferent(ti1, ti2, q => q.SourceTickerInfo!);
+        sb.AddIfDifferent(ti1, ti2, q => q.IsReplay);
+        sb.AddIfDifferent(ti1, ti2, q => q.SingleTickValue);
+        sb.AddIfDifferent(ti1, ti2, q => q.SourceTime);
+        sb.AddIfDifferent(ti1, ti2, q => q.ClientReceivedTime, exactValues);
 
-        var l1q1 = q1 as ILevel1Quote;
-        var l1q2 = q2 as ILevel1Quote;
+        var l1q1 = ti1 as ILevel1Quote;
+        var l1q2 = ti2 as ILevel1Quote;
         if (l1q1 == null && l1q2 != null)
         {
-            sb.Append("q1 is only a level0 quote, but q2 is a level1 quote");
+            sb.Append("q1 is only a tick instant, but q2 is a level1 quote");
         }
         else if (l1q1 != null && l1q2 == null)
         {
-            sb.Append("q2 is only a level0 quote, but q1 is a level1 quote");
+            sb.Append("q2 is only a tick instant, but q1 is a level1 quote");
         }
         else if (l1q1 != null) //no need for && l2q2 != null
         {
@@ -59,8 +59,8 @@ public static class QuoteExtensionMethods
             sb.AddIfDifferent(l1q1, l1q2, q => q.SummaryPeriod!);
         }
 
-        var l2q1 = q1 as ILevel2Quote;
-        var l2q2 = q2 as ILevel2Quote;
+        var l2q1 = ti1 as ILevel2Quote;
+        var l2q2 = ti2 as ILevel2Quote;
         if (l2q1 == null && l2q2 != null)
         {
             sb.Append("q1 is only a level1 quote, but q2 is a level2 quote");
@@ -75,8 +75,8 @@ public static class QuoteExtensionMethods
             sb.AddIfDifferent(l2q1, l2q2, q => q.AskBook, exactValues);
         }
 
-        var l3q1 = q1 as ILevel3Quote;
-        var l3q2 = q2 as ILevel3Quote;
+        var l3q1 = ti1 as ILevel3Quote;
+        var l3q2 = ti2 as ILevel3Quote;
         if (l3q1 == null && l3q2 != null)
         {
             sb.Append("q1 is only a level1 quote, but q2 is a level2 quote");
@@ -96,7 +96,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>
-        (this StringBuilder sb, T q1, T q2, Expression<Func<T, string>> property, bool makeThisCheck = true) where T : ILevel0Quote
+        (this StringBuilder sb, T q1, T q2, Expression<Func<T, string>> property, bool makeThisCheck = true) where T : ITickInstant
     {
         var evaluator = property.Compile();
         var q1Value   = evaluator(q1);
@@ -114,7 +114,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>
-        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, DateTime>> property, bool makeThisCheck = true) where T : ILevel0Quote
+        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, DateTime>> property, bool makeThisCheck = true) where T : ITickInstant
     {
         var       evaluator = property.Compile();
         DateTime? q1Value   = q1 != null ? evaluator(q1) : null;
@@ -131,7 +131,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>
-        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, decimal>> property, bool makeThisCheck = true) where T : ILevel0Quote
+        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, decimal>> property, bool makeThisCheck = true) where T : ITickInstant
     {
         var      evaluator = property.Compile();
         decimal? q1Value   = q1 != null ? evaluator(q1) : null;
@@ -147,7 +147,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>
-        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, bool>> property, bool makeThisCheck = true) where T : ILevel0Quote
+        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, bool>> property, bool makeThisCheck = true) where T : ITickInstant
     {
         var   evaluator = property.Compile();
         bool? q1Value   = q1 != null ? evaluator(q1) : null;
@@ -163,7 +163,8 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>
-        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, ISourceTickerQuoteInfo>> property, bool exactValue = false) where T : ILevel0Quote
+        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, ISourceTickerInfo>> property, bool exactValue = false)
+        where T : ITickInstant
     {
         var evaluator    = property.Compile();
         var q1Value      = q1 != null ? evaluator(q1) : null;
@@ -175,9 +176,9 @@ public static class QuoteExtensionMethods
               .Insert(sb.Length, " ", secondLinePadding)
               .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
-        if (q1Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ1)
-            areSame                                                                             = comparableQ1.AreEquivalent(q2Value, exactValue);
-        else if (q2Value is IInterfacesComparable<ISourceTickerQuoteInfo> comparableQ2) areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
+        if (q1Value is IInterfacesComparable<ISourceTickerInfo> comparableQ1)
+            areSame                                                                        = comparableQ1.AreEquivalent(q2Value, exactValue);
+        else if (q2Value is IInterfacesComparable<ISourceTickerInfo> comparableQ2) areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")
               .Insert(sb.Length, " ", secondLinePadding).Append("q2=").Append(q2Value).Append("\n");
@@ -185,7 +186,8 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>
-        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, IPricePeriodSummary>> property, bool exactValue = false) where T : ILevel0Quote
+        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, IPricePeriodSummary>> property, bool exactValue = false)
+        where T : ITickInstant
     {
         var evaluator    = property.Compile();
         var q1Value      = q1 != null ? evaluator(q1) : null;

@@ -13,12 +13,12 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription;
 
 public interface IPQSnapshotClientCommon
 {
-    IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; }
+    IList<ISourceTickerInfo> LastPublishedSourceTickerInfos { get; }
 
-    ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerQuoteInfoListAsync
+    ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerInfoListAsync
         (int timeout = 10_000, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null);
 
     ValueTask<bool> RequestSnapshots
-    (IList<ISourceTickerQuoteInfo> sourceTickerIds, int timeout = 10_000
+    (IList<ISourceTickerInfo> sourceTickerIds, int timeout = 10_000
       , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null);
 }

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
@@ -15,7 +18,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
 
     protected override void BuildSyncState()
     {
-        syncState = new SynchronisingState<PQLevel0Quote>(pqQuoteStreamDeserializer);
+        syncState = new SynchronisingState<PQTickInstant>(pqQuoteStreamDeserializer);
     }
 
     [TestMethod]
@@ -31,19 +34,19 @@ public class SynchronisingStateTests : SyncStateBaseTests
     [TestMethod]
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Update, 1);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Update, 1);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
-            (strTemplt, strParams) =>
-            {
-                Assert.AreEqual("Stream {0} recovered after message sequence out of order, RecvSeqID={1}",
-                    strTemplt);
-                Assert.AreEqual(2, strParams.Length);
-                Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
-                Assert.AreEqual(1u, strParams[1]);
-            });
+         (strTemplt, strParams) =>
+         {
+             Assert.AreEqual("Stream {0} recovered after message sequence out of order, RecvSeqID={1}",
+                             strTemplt);
+             Assert.AreEqual(2, strParams.Length);
+             Assert.AreEqual(SourceTickerInfo, strParams[0]);
+             Assert.AreEqual(1u, strParams[1]);
+         });
 
         syncState.ProcessInState(sockBuffContext);
         MoqFlogger.Verify();
@@ -52,27 +55,27 @@ public class SynchronisingStateTests : SyncStateBaseTests
     [TestMethod]
     public virtual void NewSyncState_ProcessInStateProcessNextExpectedUpdateCantSync_LogsProblem()
     {
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Update, 2);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Update, 2);
         var sockBuffContext = deserializeInputList.First();
         syncState.ProcessInState(sockBuffContext);
 
-        SendPqLevel0Quote.HasUpdates = true;
-        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Update, uint.MaxValue);
+        SendPqTickInstant.HasUpdates = true;
+        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Update, uint.MaxValue);
         sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
-            (strTemplt, strParams) =>
-            {
-                Assert.AreEqual("Stream {0} could not recover after sequence anomaly, " +
-                                "PrevSeqId={1}, RecvSeqID={2}, MismatchedId={3}", strTemplt);
-                Assert.AreEqual(4, strParams.Length);
-                Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
-                Assert.AreEqual(0u, strParams[1]);
-                Assert.AreEqual(0u, strParams[2]);
-                Assert.AreEqual(3u, strParams[3]);
-            }).Verifiable();
+         (strTemplt, strParams) =>
+         {
+             Assert.AreEqual("Stream {0} could not recover after sequence anomaly, " +
+                             "PrevSeqId={1}, RecvSeqID={2}, MismatchedId={3}", strTemplt);
+             Assert.AreEqual(4, strParams.Length);
+             Assert.AreEqual(SourceTickerInfo, strParams[0]);
+             Assert.AreEqual(0u, strParams[1]);
+             Assert.AreEqual(0u, strParams[2]);
+             Assert.AreEqual(3u, strParams[3]);
+         }).Verifiable();
 
         syncState.ProcessInState(sockBuffContext);
 
@@ -83,8 +86,8 @@ public class SynchronisingStateTests : SyncStateBaseTests
     {
         base.NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour();
 
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Update, 1);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Update, 1);
         var sockBuffContext = deserializeInputList.First();
 
         syncState.ProcessInState(sockBuffContext);
@@ -94,21 +97,21 @@ public class SynchronisingStateTests : SyncStateBaseTests
     public override void NewSyncState_ProcessSnapshot_CallsExpectedBehaviour()
     {
         pqQuoteStreamDeserializer.PublishedQuote.PQSequenceId = 0;
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Snapshot, 2);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Snapshot, 2);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
-            (strTemplt, strParams) =>
-            {
-                Assert.AreEqual("Stream {0} recovered after snapshot, PrevSeqId={1}, SnapshotSeqId={2}, " +
-                                "LastUpdateSeqId={3}", strTemplt);
-                Assert.AreEqual(4, strParams.Length);
-                Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
-                Assert.AreEqual(0u, strParams[1]);
-                Assert.AreEqual(2u, strParams[2]);
-                Assert.AreEqual(0u, strParams[3]);
-            }).Verifiable();
+         (strTemplt, strParams) =>
+         {
+             Assert.AreEqual("Stream {0} recovered after snapshot, PrevSeqId={1}, SnapshotSeqId={2}, " +
+                             "LastUpdateSeqId={3}", strTemplt);
+             Assert.AreEqual(4, strParams.Length);
+             Assert.AreEqual(SourceTickerInfo, strParams[0]);
+             Assert.AreEqual(0u, strParams[1]);
+             Assert.AreEqual(2u, strParams[2]);
+             Assert.AreEqual(0u, strParams[3]);
+         }).Verifiable();
 
         syncState.ProcessInState(sockBuffContext);
 
@@ -118,21 +121,21 @@ public class SynchronisingStateTests : SyncStateBaseTests
     [TestMethod]
     public virtual void NewSyncState_ProcessInStateProcessSnapshotMovesToSnapshot_LogsRecovery()
     {
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Snapshot, 2);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Snapshot, 2);
         var sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
-            (strTemplt, strParams) =>
-            {
-                Assert.AreEqual("Stream {0} recovered after snapshot, PrevSeqId={1}," +
-                                " SnapshotSeqId={2}, LastUpdateSeqId={3}", strTemplt);
-                Assert.AreEqual(4, strParams.Length);
-                Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
-                Assert.AreEqual(0u, strParams[1]);
-                Assert.AreEqual(2u, strParams[2]);
-                Assert.AreEqual(0u, strParams[3]);
-            }).Verifiable();
+         (strTemplt, strParams) =>
+         {
+             Assert.AreEqual("Stream {0} recovered after snapshot, PrevSeqId={1}," +
+                             " SnapshotSeqId={2}, LastUpdateSeqId={3}", strTemplt);
+             Assert.AreEqual(4, strParams.Length);
+             Assert.AreEqual(SourceTickerInfo, strParams[0]);
+             Assert.AreEqual(0u, strParams[1]);
+             Assert.AreEqual(2u, strParams[2]);
+             Assert.AreEqual(0u, strParams[3]);
+         }).Verifiable();
 
         syncState.ProcessInState(sockBuffContext);
 

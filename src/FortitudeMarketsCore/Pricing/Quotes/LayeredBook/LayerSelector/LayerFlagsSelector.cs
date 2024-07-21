@@ -11,10 +11,11 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 
-public interface ILayerFlagsSelector<T, Tu> where T : class where Tu : ISourceTickerQuoteInfo
+public interface ILayerFlagsSelector<T, Tu> where T : class where Tu : ISourceTickerInfo
 {
     bool OriginalCanWhollyContain(LayerFlags copySourceRequiredFlags, LayerFlags copyDestinationSupportedFlags);
-    T    FindForLayerFlags(Tu sourceTickerQuoteInfo);
+
+    T FindForLayerFlags(Tu sourceTickerInfo);
 
     IPriceVolumeLayer CreateExpectedImplementation
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
@@ -27,26 +28,26 @@ public interface ILayerFlagsSelector<T, Tu> where T : class where Tu : ISourceTi
 
 public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
     where T : class
-    where Tu : ISourceTickerQuoteInfo
+    where Tu : ISourceTickerInfo
 {
     protected static readonly List<Type> AllowedImplementations = new();
 
-    public T FindForLayerFlags(Tu sourceTickerQuoteInfo)
+    public T FindForLayerFlags(Tu sourceTickerInfo)
     {
-        var layerFlags           = sourceTickerQuoteInfo.LayerFlags;
+        var layerFlags           = sourceTickerInfo.LayerFlags;
         var mostCompactLayerType = layerFlags.MostCompactLayerType();
         return mostCompactLayerType switch
                {
-                   LayerType.PriceVolume => SelectSimplePriceVolumeLayer(sourceTickerQuoteInfo)
+                   LayerType.PriceVolume => SelectSimplePriceVolumeLayer(sourceTickerInfo)
 
-                 , LayerType.SourceQuoteRefTraderValueDatePriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerQuoteInfo)
+                 , LayerType.SourceQuoteRefTraderValueDatePriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerInfo)
 
-                 , LayerType.TraderPriceVolume         => SelectTraderPriceVolumeLayer(sourceTickerQuoteInfo)
-                 , LayerType.ValueDatePriceVolume      => SelectValueDatePriceVolumeLayer(sourceTickerQuoteInfo)
-                 , LayerType.SourceQuoteRefPriceVolume => SelectSourceQuoteRefPriceVolumeLayer(sourceTickerQuoteInfo)
-                 , LayerType.SourcePriceVolume         => SelectSourcePriceVolumeLayer(sourceTickerQuoteInfo)
+                 , LayerType.TraderPriceVolume         => SelectTraderPriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.ValueDatePriceVolume      => SelectValueDatePriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.SourceQuoteRefPriceVolume => SelectSourceQuoteRefPriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.SourcePriceVolume         => SelectSourcePriceVolumeLayer(sourceTickerInfo)
 
-                 , _ => SelectSimplePriceVolumeLayer(sourceTickerQuoteInfo)
+                 , _ => SelectSimplePriceVolumeLayer(sourceTickerInfo)
                };
     }
 
@@ -83,10 +84,10 @@ public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
         CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
-    protected abstract T SelectSimplePriceVolumeLayer(Tu sourceTickerQuoteInfo);
-    protected abstract T SelectValueDatePriceVolumeLayer(Tu sourceTickerQuoteInfo);
-    protected abstract T SelectSourcePriceVolumeLayer(Tu sourceTickerQuoteInfo);
-    protected abstract T SelectSourceQuoteRefPriceVolumeLayer(Tu sourceTickerQuoteInfo);
-    protected abstract T SelectTraderPriceVolumeLayer(Tu sourceTickerQuoteInfo);
-    protected abstract T SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(Tu sourceTickerQuoteInfo);
+    protected abstract T SelectSimplePriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectValueDatePriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectSourcePriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectSourceQuoteRefPriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectTraderPriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(Tu sourceTickerInfo);
 }

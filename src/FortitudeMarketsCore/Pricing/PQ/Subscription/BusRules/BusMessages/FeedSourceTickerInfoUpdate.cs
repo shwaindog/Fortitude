@@ -14,15 +14,15 @@ public class FeedSourceTickerInfoUpdate : RecyclableObject
 {
     public string FeedName { get; set; } = null!;
 
-    public List<ISourceTickerQuoteInfo> SourceTickerQuoteInfos { get; set; } = new();
+    public List<ISourceTickerInfo> SourceTickerInfos { get; set; } = new();
 
     public override void StateReset()
     {
-        SourceTickerQuoteInfos.Clear();
+        SourceTickerInfos.Clear();
         FeedName = null!;
         base.StateReset();
     }
 
     public override string ToString() =>
-        $"{GetType().Name}({nameof(FeedName)}: {FeedName}, {nameof(SourceTickerQuoteInfos)}: \n{string.Join("\n", SourceTickerQuoteInfos)})";
+        $"{GetType().Name}({nameof(FeedName)}: {FeedName}, {nameof(SourceTickerInfos)}: \n{string.Join("\n", SourceTickerInfos)})";
 }

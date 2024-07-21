@@ -26,7 +26,7 @@ using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules.TimeSeriesBusRu
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
-public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote
+public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant
 {
     public HistoricalQuotesRequest
         (SourceTickerIdentifier sourceTickerIdentifier, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
@@ -48,14 +48,14 @@ public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesE
     public static string CalculateRequestAddress()
     {
         var typeOfTEntry = typeof(TEntry);
-        if (typeOfTEntry == typeof(Level0PriceQuote)) return PricingRepoRetrieveL0Request;
-        if (typeOfTEntry == typeof(Level1PriceQuote)) return PricingRepoRetrieveL1Request;
-        if (typeOfTEntry == typeof(Level2PriceQuote)) return PricingRepoRetrieveL2Request;
-        if (typeOfTEntry == typeof(Level3PriceQuote)) return PricingRepoRetrieveL3Request;
-        if (typeOfTEntry == typeof(PQLevel0Quote)) return PricingRepoRetrievePqL0Request;
-        if (typeOfTEntry == typeof(PQLevel1Quote)) return PricingRepoRetrievePqL1Request;
-        if (typeOfTEntry == typeof(PQLevel2Quote)) return PricingRepoRetrievePqL2Request;
-        if (typeOfTEntry == typeof(PQLevel3Quote)) return PricingRepoRetrievePqL3Request;
+        if (typeOfTEntry == typeof(TickInstant)) return PricingRepoRetrieveTickInstantRequest;
+        if (typeOfTEntry == typeof(Level1PriceQuote)) return PricingRepoRetrieveL1QuoteRequest;
+        if (typeOfTEntry == typeof(Level2PriceQuote)) return PricingRepoRetrieveL2QuoteRequest;
+        if (typeOfTEntry == typeof(Level3PriceQuote)) return PricingRepoRetrieveL3QuoteRequest;
+        if (typeOfTEntry == typeof(PQTickInstant)) return PricingRepoRetrievePqTickInstantRequest;
+        if (typeOfTEntry == typeof(PQLevel1Quote)) return PricingRepoRetrievePqL1QuoteRequest;
+        if (typeOfTEntry == typeof(PQLevel2Quote)) return PricingRepoRetrievePqL2QuoteRequest;
+        if (typeOfTEntry == typeof(PQLevel3Quote)) return PricingRepoRetrievePqL3QuoteRequest;
         throw new Exception("Unexpected Quote type received");
     }
 }
@@ -84,22 +84,22 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     public override async ValueTask StartAsync()
     {
         await base.StartAsync();
-        l0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level0PriceQuote>, bool>
-            (PricingRepoRetrieveL0Request, HandleL0HistoricalPriceRequest);
+        l0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<TickInstant>, bool>
+            (PricingRepoRetrieveTickInstantRequest, HandleL0HistoricalPriceRequest);
         l1RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level1PriceQuote>, bool>
-            (PricingRepoRetrieveL1Request, HandleL1HistoricalPriceRequest);
+            (PricingRepoRetrieveL1QuoteRequest, HandleL1HistoricalPriceRequest);
         l2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level2PriceQuote>, bool>
-            (PricingRepoRetrieveL2Request, HandleL2HistoricalPriceRequest);
+            (PricingRepoRetrieveL2QuoteRequest, HandleL2HistoricalPriceRequest);
         l3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level3PriceQuote>, bool>
-            (PricingRepoRetrieveL3Request, HandleL3HistoricalPriceRequest);
-        pql0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel0Quote>, bool>
-            (PricingRepoRetrievePqL0Request, HandlePqL0HistoricalPriceRequest);
+            (PricingRepoRetrieveL3QuoteRequest, HandleL3HistoricalPriceRequest);
+        pql0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQTickInstant>, bool>
+            (PricingRepoRetrievePqTickInstantRequest, HandlePqL0HistoricalPriceRequest);
         pql1RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
-            (PricingRepoRetrievePqL1Request, HandlePqL1HistoricalPriceRequest);
+            (PricingRepoRetrievePqL1QuoteRequest, HandlePqL1HistoricalPriceRequest);
         pql2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel2Quote>, bool>
-            (PricingRepoRetrievePqL2Request, HandlePqL2HistoricalPriceRequest);
+            (PricingRepoRetrievePqL2QuoteRequest, HandlePqL2HistoricalPriceRequest);
         pql3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel3Quote>, bool>
-            (PricingRepoRetrievePqL3Request, HandlePqL3HistoricalPriceRequest);
+            (PricingRepoRetrievePqL3QuoteRequest, HandlePqL3HistoricalPriceRequest);
         Logger.Info("Started {0} ", nameof(HistoricalQuotesRetrievalRule));
     }
 
@@ -126,7 +126,8 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }
 
-    private bool HandleL0HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<Level0PriceQuote>, bool> historicalQuotesRequestMessage)
+    private bool HandleL0HistoricalPriceRequest
+        (IBusRespondingMessage<HistoricalQuotesRequest<TickInstant>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
@@ -150,7 +151,8 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandlePqL0HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PQLevel0Quote>, bool> historicalQuotesRequestMessage)
+    private bool HandlePqL0HistoricalPriceRequest
+        (IBusRespondingMessage<HistoricalQuotesRequest<PQTickInstant>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
@@ -175,7 +177,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults<TEntry>
-        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, new()
+        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
     {
         var instrument = FindInstrumentFor(request.SourceTickerIdentifier);
         if (instrument == null) return false;
@@ -195,7 +197,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     }
 
     private void ProcessResults<TEntry>(IReaderContext<TEntry> readerContext, HistoricalQuotesRequest<TEntry> request)
-        where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, new()
+        where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
     {
         var channel = request.ChannelRequest.PublishChannel;
         try

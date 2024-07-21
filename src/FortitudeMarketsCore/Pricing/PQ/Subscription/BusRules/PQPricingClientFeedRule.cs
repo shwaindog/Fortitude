@@ -33,7 +33,7 @@ public class PQPricingClientFeedRule : Rule
 
     private DateTime feedStartTime;
 
-    private List<ISourceTickerQuoteInfo> latestReceivedSourceTickerQuoteInfos = new();
+    private List<ISourceTickerInfo> latestReceivedSourceTickerInfos = new();
 
     private PQPricingClientRequesterRule?         pqClientSnapshotRequesterRule;
     private PQPricingClientUpdatesSubscriberRule? pqClientUpdateSubscriberRule;
@@ -99,11 +99,11 @@ public class PQPricingClientFeedRule : Rule
         if (pqClientSnapshotRequesterRule != null) await Context.MessageBus.UndeployRuleAsync(this, pqClientSnapshotRequesterRule);
     }
 
-    private void ReceivedFeedAvailableTickersUpdate(IBusMessage<FeedSourceTickerInfoUpdate> sourceTickerQuoteInfosMessage)
+    private void ReceivedFeedAvailableTickersUpdate(IBusMessage<FeedSourceTickerInfoUpdate> sourceTickerInfosMessage)
     {
         PricingFeedStatus = PricingFeedStatus.AvailableForSubscription;
-        var tickersUpdate = sourceTickerQuoteInfosMessage.Payload.Body();
-        latestReceivedSourceTickerQuoteInfos = tickersUpdate!.SourceTickerQuoteInfos.ToList();
+        var tickersUpdate = sourceTickerInfosMessage.Payload.Body();
+        latestReceivedSourceTickerInfos = tickersUpdate!.SourceTickerInfos.ToList();
     }
 
     private async ValueTask<PricingFeedStatusResponse> ReceivedFeedStatusRequestHandler
@@ -122,7 +122,7 @@ public class PQPricingClientFeedRule : Rule
 
             PricingFeedStatus = pricingFeedStatusResponse.HealthySubscribedTickers.Any() ? PricingFeedStatus.Ticking
                 : pricingFeedStatusResponse.UnhealthySubscribedTickers.Any() ? PricingFeedStatus.NothingTicking
-                : latestReceivedSourceTickerQuoteInfos.Any() ? PricingFeedStatus.AvailableForSubscription
+                : latestReceivedSourceTickerInfos.Any() ? PricingFeedStatus.AvailableForSubscription
                 : PricingFeedStatus.Starting;
         }
         else
@@ -134,7 +134,7 @@ public class PQPricingClientFeedRule : Rule
 
         pricingFeedStatusResponse.FeedStatus = pricingFeedStatus;
 
-        pricingFeedStatusResponse.AvailableTickersTickers = latestReceivedSourceTickerQuoteInfos;
+        pricingFeedStatusResponse.AvailableTickersTickers = latestReceivedSourceTickerInfos;
 
         pricingFeedStatusResponse.StartTime = feedStartTime;
 

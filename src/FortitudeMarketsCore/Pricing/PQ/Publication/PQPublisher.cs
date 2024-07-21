@@ -14,13 +14,13 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
-public interface IQuotePublisher<in T> : IDisposable where T : ILevel0Quote
+public interface IQuotePublisher<in T> : IDisposable where T : ITickInstant
 {
     void PublishReset(string ticker, DateTime exchangeTs, DateTime exchangeSentTs, DateTime adapterRecvTs);
     void PublishQuoteUpdate(T quote);
 }
 
-public interface IPQPublisher : IQuotePublisher<ILevel0Quote>
+public interface IPQPublisher : IQuotePublisher<ITickInstant>
 {
     void RegisterTickersWithServer(IMarketConnectionConfig marketConnectionConfig);
 
@@ -28,10 +28,10 @@ public interface IPQPublisher : IQuotePublisher<ILevel0Quote>
 
     void SetNextSequenceNumberToFullUpdate(string ticker);
 
-    void PublishQuoteUpdateAs(ILevel0Quote quote, PQMessageFlags? withMessageFlags = null);
+    void PublishQuoteUpdateAs(ITickInstant quote, PQMessageFlags? withMessageFlags = null);
 }
 
-public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
+public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublisher<>));
 
@@ -93,9 +93,9 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
         }
     }
 
-    public void PublishQuoteUpdateAs(ILevel0Quote quote, PQMessageFlags? withMessageFlags = null)
+    public void PublishQuoteUpdateAs(ITickInstant quote, PQMessageFlags? withMessageFlags = null)
     {
-        if (pictures.TryGetValue(quote.SourceTickerQuoteInfo!.Ticker, out var pqPicture))
+        if (pictures.TryGetValue(quote.SourceTickerInfo!.Ticker, out var pqPicture))
         {
             // logger.Info("About to publish quote: {0}", quote);
             pqPicture!.CopyFrom(quote);
@@ -105,19 +105,19 @@ public class PQPublisher<T> : IPQPublisher where T : IPQLevel0Quote
         }
     }
 
-    public void PublishQuoteUpdate(ILevel0Quote quote)
+    public void PublishQuoteUpdate(ITickInstant quote)
     {
         PublishQuoteUpdateAs(quote);
     }
 
-    public void RegisterTickersWithServer(ISourceTickerQuoteInfo sourceTickerQuoteInfo)
+    public void RegisterTickersWithServer(ISourceTickerInfo sourceTickerInfo)
     {
         pqServer.StartServices();
 
         if (!shutdownFlag)
         {
-            var picture = pqServer.Register(sourceTickerQuoteInfo.Ticker);
-            if (picture != null) pictures.AddOrUpdate(sourceTickerQuoteInfo.Ticker, picture);
+            var picture = pqServer.Register(sourceTickerInfo.Ticker);
+            if (picture != null) pictures.AddOrUpdate(sourceTickerInfo.Ticker, picture);
         }
     }
 }

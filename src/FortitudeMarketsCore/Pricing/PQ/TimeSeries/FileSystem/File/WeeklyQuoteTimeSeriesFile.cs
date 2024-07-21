@@ -16,23 +16,23 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class WeeklyLevel0QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel0QuoteTimeSeriesFile,
-    DailyToHourlyLevel0QuoteSubBuckets<ILevel0Quote>, ILevel0Quote>
+public class WeeklyTickInstantTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyTickInstantTimeSeriesFile,
+    DailyToHourlyTickInstantSubBuckets<ITickInstant>, ITickInstant>
 {
-    public WeeklyLevel0QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public WeeklyTickInstantTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public WeeklyLevel0QuoteTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyTickInstantTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
                                                .AssertTimeSeriesEntryType(InstrumentType.Price)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<ILevel0Quote, DailyToHourlyLevel0QuoteSubBuckets<ILevel0Quote>> CreateAppendContext() =>
-        new PQQuoteAppendContext<ILevel0Quote, DailyToHourlyLevel0QuoteSubBuckets<ILevel0Quote>, PQLevel0Quote>();
+    public override ISessionAppendContext<ITickInstant, DailyToHourlyTickInstantSubBuckets<ITickInstant>> CreateAppendContext() =>
+        new PQQuoteAppendContext<ITickInstant, DailyToHourlyTickInstantSubBuckets<ITickInstant>, PQTickInstant>();
 
-    public static WeeklyLevel0QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
+    public static WeeklyTickInstantTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
 public class WeeklyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel1QuoteTimeSeriesFile,

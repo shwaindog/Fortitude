@@ -14,7 +14,7 @@ using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
@@ -46,8 +46,8 @@ public abstract class PQPriceSummaryDataBucket<TBucket, TEntry> : DataBucket<TEn
         {
             if (messageDeserializer == null)
             {
-                var srcTkrQtInfo = PricingInstrumentId as ISourceTickerQuoteInfo ?? new SourceTickerQuoteInfo(PricingInstrumentId);
-                messageDeserializer = new PQPriceStoragePeriodSummaryDeserializer(new PQSourceTickerQuoteInfo(srcTkrQtInfo));
+                var srcTkrInfo = PricingInstrumentId as ISourceTickerInfo ?? new SourceTickerInfo(PricingInstrumentId);
+                messageDeserializer = new PQPriceStoragePeriodSummaryDeserializer(new PQSourceTickerInfo(srcTkrInfo));
             }
 
             return messageDeserializer;

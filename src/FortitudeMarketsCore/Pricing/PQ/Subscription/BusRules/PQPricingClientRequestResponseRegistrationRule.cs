@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization.Rules;
 using FortitudeCommon.Monitoring.Logging;
@@ -12,14 +15,15 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
 public class PQPricingClientRequestResponseRegistrationRule : RemoteRequestResponseRegistrationRule
 {
-    private const uint PQSourceTickerInfoResponseMessageId = (uint)PQMessageIds.SourceTickerInfoResponse;
-    private readonly string feedName;
+    private const    uint     PQSourceTickerInfoResponseMessageId = (uint)PQMessageIds.SourceTickerInfoResponse;
+    private readonly string   feedName;
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientRequestResponseRegistrationRule));
 
-    public PQPricingClientRequestResponseRegistrationRule(string feedName
-        , ISocketSessionContext socketSessionContext, string? registrationRepoName = null)
+    public PQPricingClientRequestResponseRegistrationRule
+    (string feedName
+      , ISocketSessionContext socketSessionContext, string? registrationRepoName = null)
         : base(feedName.FeedRegisterRemoteResponseRuleName(), socketSessionContext, feedName.FeedRequestResponseRegistrationAddress(),
-            null, registrationRepoName) =>
+               null, registrationRepoName) =>
         this.feedName = feedName;
 
     public override async ValueTask StartAsync()
@@ -30,7 +34,7 @@ public class PQPricingClientRequestResponseRegistrationRule : RemoteRequestRespo
 
     protected override string ExtractSubscriptionPostfix(string fullMessageAddressDestination) =>
         fullMessageAddressDestination.ExtractTickerFromAmendPublicationAddress(feedName)
-            .Replace(feedName.FeedAmendTickerPublicationAddress(), "");
+                                     .Replace(feedName.FeedAmendTickerPublicationAddress(), "");
 
     protected override void RuleOverrideDeserializerResolverNoMessageId(MessageDeserializerResolveRun messageDeserializerResolveRun)
     {
@@ -38,7 +42,7 @@ public class PQPricingClientRequestResponseRegistrationRule : RemoteRequestRespo
         {
             messageDeserializerResolveRun.FailureMessage
                 = "Expected to have a root MessageDeserializationRepository that is of Type PQClientQuoteDeserializerRepository " +
-                  "to be able look up ticker names to SourceTickerQuoteInfo and resolve a message deserializer.  Will not be able to register tickers requests.  " +
+                  "to be able look up ticker names to SourceTickerInfo and resolve a message deserializer.  Will not be able to register tickers requests.  " +
                   $"Will not be able to update ticker subscription requests for ticker {messageDeserializerResolveRun.SubscribePostFix}";
             logger.Warn(messageDeserializerResolveRun.FailureMessage);
             return;
@@ -50,7 +54,7 @@ public class PQPricingClientRequestResponseRegistrationRule : RemoteRequestRespo
             var pqSourceTickerInfoResponseDeserializer = pqClientQuoteDeserializerRepository
                 .SourceNotifyingMessageDeserializerFromMessageId<PQSourceTickerInfoResponse>(PQSourceTickerInfoResponseMessageId);
             pqSourceTickerInfoResponseDeserializer!.RemoveOnZeroNotifiers = false;
-            messageDeserializerResolveRun.MessageDeserializer = pqSourceTickerInfoResponseDeserializer;
+            messageDeserializerResolveRun.MessageDeserializer             = pqSourceTickerInfoResponseDeserializer;
         }
     }
 }

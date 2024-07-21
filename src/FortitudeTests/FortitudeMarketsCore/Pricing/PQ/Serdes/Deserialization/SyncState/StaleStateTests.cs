@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
@@ -15,23 +18,23 @@ public class StaleStateTests : InSyncStateTests
 
     protected override void BuildSyncState()
     {
-        syncState = new StaleState<PQLevel0Quote>(pqQuoteStreamDeserializer);
+        syncState = new StaleState<PQTickInstant>(pqQuoteStreamDeserializer);
     }
 
     [TestMethod]
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Update, uint.MaxValue);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Update, uint.MaxValue);
         var sockBuffContext = deserializeInputList.First();
 
         SetupQuoteStreamDeserializerExpectations();
 
         MoqFlogger.Setup(fl => fl.Info("Stream {0} recovered after timeout, RecvSeqID={1}",
-            It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
+                                       It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
         {
             Assert.AreEqual(2, strParams.Length);
-            Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
+            Assert.AreEqual(SourceTickerInfo, strParams[0]);
             Assert.AreEqual(0u, strParams[1]);
         }).Verifiable();
 
@@ -44,7 +47,7 @@ public class StaleStateTests : InSyncStateTests
     public override void NewSyncState_HasJustGoneStale_CallsExpectedBehaviour()
     {
         var clientReceivedTime = new DateTime(2017, 09, 24, 23, 23, 05);
-        DesersializerPqLevel0Quote.ClientReceivedTime = clientReceivedTime;
+        DesersializerPqTickInstant.ClientReceivedTime = clientReceivedTime;
 
         Assert.IsFalse(syncState.HasJustGoneStale(clientReceivedTime));
         Assert.IsFalse(syncState.HasJustGoneStale(clientReceivedTime.AddSeconds(1)));

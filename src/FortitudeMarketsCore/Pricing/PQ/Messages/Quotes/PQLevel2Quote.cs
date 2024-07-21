@@ -7,6 +7,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -45,16 +46,16 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
         askBook = new PQOrderBook(BookSide.AskBook, LayerType.PriceVolume);
     }
 
-    public PQLevel2Quote(ISourceTickerQuoteInfo sourceTickerInfo)
+    public PQLevel2Quote(ISourceTickerInfo sourceTickerInfo)
         : base(sourceTickerInfo)
     {
-        bidBook = new PQOrderBook(BookSide.BidBook, PQSourceTickerQuoteInfo!);
-        askBook = new PQOrderBook(BookSide.AskBook, PQSourceTickerQuoteInfo!);
+        bidBook = new PQOrderBook(BookSide.BidBook, PQSourceTickerInfo!);
+        askBook = new PQOrderBook(BookSide.AskBook, PQSourceTickerInfo!);
         // ReSharper disable once VirtualMemberCallInConstructor
         EnsureRelatedItemsAreConfigured(this);
     }
 
-    public PQLevel2Quote(ILevel0Quote toClone) : base(toClone)
+    public PQLevel2Quote(ITickInstant toClone) : base(toClone)
     {
         if (toClone is IPQLevel2Quote l2QToClone)
         {
@@ -76,8 +77,8 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
         }
         else
         {
-            bidBook = new PQOrderBook(BookSide.BidBook, PQSourceTickerQuoteInfo!);
-            askBook = new PQOrderBook(BookSide.AskBook, PQSourceTickerQuoteInfo!);
+            bidBook = new PQOrderBook(BookSide.BidBook, PQSourceTickerInfo!);
+            askBook = new PQOrderBook(BookSide.AskBook, PQSourceTickerInfo!);
         }
 
         // ReSharper disable once VirtualMemberCallInConstructor
@@ -92,65 +93,65 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
 
     public new PQLevel2Quote? Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as PQLevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as PQLevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     public new PQLevel2Quote? Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as PQLevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as PQLevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     IPQLevel2Quote? IPQLevel2Quote.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     IPQLevel2Quote? IPQLevel2Quote.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     ILevel2Quote? ILevel2Quote.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     ILevel2Quote? ILevel2Quote.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     IPQLevel2Quote? IDoublyLinkedListNode<IPQLevel2Quote>.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     IPQLevel2Quote? IDoublyLinkedListNode<IPQLevel2Quote>.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQLevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    public override QuoteLevel QuoteLevel => QuoteLevel.Level2;
+    public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level2Quote;
 
     public bool IsBidBookChanged
     {
@@ -243,7 +244,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
     (DateTime snapShotTime, StorageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
+        quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerInfo;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                quotePublicationPrecisionSetting))
             yield return updatedField;
@@ -306,7 +307,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
 
     IPQLevel2Quote IPQLevel2Quote.Clone() => Clone();
 
-    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 
@@ -326,7 +327,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
         return this;
     }
 
-    public override void EnsureRelatedItemsAreConfigured(ILevel0Quote? quote)
+    public override void EnsureRelatedItemsAreConfigured(ITickInstant? quote)
     {
         base.EnsureRelatedItemsAreConfigured(quote);
 
@@ -337,12 +338,12 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
         }
         else
         {
-            BidBook.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
-            AskBook.EnsureRelatedItemsAreConfigured(PQSourceTickerQuoteInfo);
+            BidBook.EnsureRelatedItemsAreConfigured(PQSourceTickerInfo);
+            AskBook.EnsureRelatedItemsAreConfigured(PQSourceTickerInfo);
         }
     }
 
-    public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
+    public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
         if (!(other is ILevel2Quote otherL2)) return false;
         var baseSame           = base.AreEquivalent(other, exactTypes);
@@ -366,9 +367,9 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
         return resolver.ResolveStorageTime(this);
     }
 
-    public override PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)
+    public override PQTickInstant SetSourceTickerInfo(ISourceTickerInfo toSet)
     {
-        SourceTickerQuoteInfo = toSet;
+        SourceTickerInfo = toSet;
         EnsureRelatedItemsAreConfigured(this);
         return this;
     }
@@ -380,7 +381,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
         yield break;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ILevel0Quote?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ITickInstant?)obj, true);
 
     public override int GetHashCode()
     {

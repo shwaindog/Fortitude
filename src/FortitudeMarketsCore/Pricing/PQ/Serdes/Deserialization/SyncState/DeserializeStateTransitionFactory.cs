@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using System.ComponentModel;
@@ -8,29 +11,27 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 internal class DeserializeStateTransitionFactory<T> : IDeserializeStateTransitionFactory<T>
-    where T : PQLevel0Quote, new()
+    where T : PQTickInstant, new()
 {
     private SyncStateBase<T>? inSyncState;
     private SyncStateBase<T>? replay;
+
     private SynchronisingState<T>? synchronisingState;
+
     private SyncStateBase<T>? timedOut;
 
     public virtual SyncStateBase<T> TransitionToState(QuoteSyncState desiredState, SyncStateBase<T> currentState)
     {
         switch (desiredState)
         {
-            case QuoteSyncState.InSync:
-                return GetInSyncState(currentState);
-            case QuoteSyncState.Synchronising:
-                return GetSynchronisingState(currentState);
-            case QuoteSyncState.Replay:
-                return GetReplayState(currentState);
-            case QuoteSyncState.Stale:
-                return GetStaleState(currentState);
-            case QuoteSyncState.InitializationState:
-                throw new InvalidEnumArgumentException("Should never request to change to intialization state");
-            default:
-                return GetSynchronisingState(currentState);
+            case QuoteSyncState.InSync:        return GetInSyncState(currentState);
+            case QuoteSyncState.Synchronising: return GetSynchronisingState(currentState);
+            case QuoteSyncState.Replay:        return GetReplayState(currentState);
+            case QuoteSyncState.Stale:         return GetStaleState(currentState);
+
+            case QuoteSyncState.InitializationState: throw new InvalidEnumArgumentException("Should never request to change to intialization state");
+
+            default: return GetSynchronisingState(currentState);
         }
     }
 

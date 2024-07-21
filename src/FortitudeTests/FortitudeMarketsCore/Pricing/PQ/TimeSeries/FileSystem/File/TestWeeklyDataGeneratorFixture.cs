@@ -17,8 +17,8 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.F
 public static class TestWeeklyDataGeneratorFixture
 {
     public static IEnumerable<TQuoteLevel> GenerateQuotesForEachDayAndHourOfCurrentWeek<TQuoteLevel, TEntry>
-        (int start, int amount, IQuoteGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
-        where TEntry : class, TQuoteLevel, IMutableLevel0Quote
+        (int start, int amount, ITickGenerator<TEntry> tickGenerator, DateTime? forWeekWithDate = null)
+        where TEntry : class, TQuoteLevel, IMutableTickInstant
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
@@ -29,15 +29,15 @@ public static class TestWeeklyDataGeneratorFixture
         {
             for (var j = 0; j < 24; j++)
                 foreach (var l1QuoteStruct in GenerateRepeatableQuotes<TQuoteLevel, TEntry>
-                             (start, amount, j, currentDay.DayOfWeek, quoteGenerator))
+                             (start, amount, j, currentDay.DayOfWeek, tickGenerator))
                     yield return l1QuoteStruct;
             currentDay = currentDay.AddDays(1);
         }
     }
 
     public static IEnumerable<TQuoteLevel> GenerateRepeatableQuotes<TQuoteLevel, TEntry>
-        (int start, int amount, int hour, DayOfWeek forDayOfWeek, IQuoteGenerator<TEntry> quoteGenerator, DateTime? forWeekWithDate = null)
-        where TEntry : class, IMutableLevel0Quote, TQuoteLevel
+        (int start, int amount, int hour, DayOfWeek forDayOfWeek, ITickGenerator<TEntry> tickGenerator, DateTime? forWeekWithDate = null)
+        where TEntry : class, IMutableTickInstant, TQuoteLevel
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
@@ -49,7 +49,7 @@ public static class TestWeeklyDataGeneratorFixture
         for (var i = start; i < start + amount; i++)
         {
             var startTime = generateDateHour + TimeSpan.FromMilliseconds(i);
-            yield return quoteGenerator.Quotes(startTime, TimeSpan.FromMilliseconds(1), 1, i).First();
+            yield return tickGenerator.Quotes(startTime, TimeSpan.FromMilliseconds(1), 1, i).First();
         }
     }
 

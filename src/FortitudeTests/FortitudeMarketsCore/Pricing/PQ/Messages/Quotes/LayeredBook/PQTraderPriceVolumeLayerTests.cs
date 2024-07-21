@@ -11,7 +11,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using Moq;
@@ -747,7 +747,7 @@ public class PQTraderPriceVolumeLayerTests
     {
         Assert.AreEqual(populatedNumberOfTraders, nameIdLookup.Count);
 
-        var moqSrcTkrQuoteInfo = new Mock<IPQSourceTickerQuoteInfo>();
+        var moqSrcTkrQuoteInfo = new Mock<IPQSourceTickerInfo>();
         moqSrcTkrQuoteInfo.SetupGet(stqi => stqi.NameIdLookup!).Returns(emptyNameIdLookup);
 
         var newEmpty = new PQTraderPriceVolumeLayer(emptyNameIdLookup);
@@ -760,7 +760,7 @@ public class PQTraderPriceVolumeLayerTests
     {
         Assert.AreEqual(populatedNumberOfTraders, nameIdLookup.Count);
 
-        var moqSrcTkrQuoteInfo = new Mock<IPQSourceTickerQuoteInfo>();
+        var moqSrcTkrQuoteInfo = new Mock<IPQSourceTickerInfo>();
         moqSrcTkrQuoteInfo.SetupGet(stqi => stqi.NameIdLookup!).Returns(emptyNameIdLookup);
 
         var newEmpty = new PQTraderPriceVolumeLayer(new PQNameIdLookupGenerator(0));

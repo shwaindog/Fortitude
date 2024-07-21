@@ -15,7 +15,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using Moq;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -25,15 +25,15 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone
 public class PQTickerFeedSubscriptionQuoteStreamTests
 {
     private IPricingServerConfig feedConfig               = null!;
-    private Mock<IPQLevel0Quote> initializingQuote        = null!;
+    private Mock<IPQTickInstant> initializingQuote        = null!;
     private Mock<ISyncLock>      intializingQuoteSyncLock = null!;
-    private List<IPQLevel0Quote> list1ReceivedQuotes      = null!;
-    private List<IPQLevel0Quote> list2ReceivedQuotes      = null!;
+    private List<IPQTickInstant> list1ReceivedQuotes      = null!;
+    private List<IPQTickInstant> list2ReceivedQuotes      = null!;
 
-    private PQTickerFeedSubscriptionQuoteStream<IPQLevel0Quote> pqTickerFeedSubscription = null!;
+    private PQTickerFeedSubscriptionQuoteStream<IPQTickInstant> pqTickerFeedSubscription = null!;
 
-    private IPQLevel0Quote         publishingQuote       = null!;
-    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private IPQTickInstant    publishingQuote  = null!;
+    private ISourceTickerInfo sourceTickerInfo = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -53,25 +53,24 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
                           new EndpointConfig("testhost", 9090)
                       }));
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+        sourceTickerInfo = new SourceTickerInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize |
-             LayerFlags.TraderCount
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-             LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
+                              LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
-        publishingQuote = new PQLevel0Quote(sourceTickerQuoteInfo);
+        publishingQuote = new PQTickInstant(sourceTickerInfo);
 
-        initializingQuote        = new Mock<IPQLevel0Quote>();
+        initializingQuote        = new Mock<IPQTickInstant>();
         intializingQuoteSyncLock = new Mock<ISyncLock>();
-        initializingQuote.SetupGet(pql0Q => pql0Q.Lock).Returns(intializingQuoteSyncLock.Object);
+        initializingQuote.SetupGet(pqti => pqti.Lock).Returns(intializingQuoteSyncLock.Object);
 
-        pqTickerFeedSubscription = new PQTickerFeedSubscriptionQuoteStream<IPQLevel0Quote>
-            (feedConfig, sourceTickerQuoteInfo, initializingQuote.Object);
+        pqTickerFeedSubscription = new PQTickerFeedSubscriptionQuoteStream<IPQTickInstant>
+            (feedConfig, sourceTickerInfo, initializingQuote.Object);
 
-        list1ReceivedQuotes = new List<IPQLevel0Quote>();
-        list2ReceivedQuotes = new List<IPQLevel0Quote>();
+        list1ReceivedQuotes = new List<IPQTickInstant>();
+        list2ReceivedQuotes = new List<IPQTickInstant>();
     }
 
     [TestMethod]
@@ -79,22 +78,22 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
     {
         pqTickerFeedSubscription.Subscribe(q0 => { list1ReceivedQuotes.Add(q0.Clone()); });
 
-        publishingQuote.SinglePrice = 1.234567m;
+        publishingQuote.SingleTickValue = 1.234567m;
         pqTickerFeedSubscription.OnNext(publishingQuote);
 
         Assert.AreEqual(1, list1ReceivedQuotes.Count);
-        Assert.AreEqual(1.234567m, list1ReceivedQuotes[0].SinglePrice);
+        Assert.AreEqual(1.234567m, list1ReceivedQuotes[0].SingleTickValue);
 
 
         pqTickerFeedSubscription.Subscribe(q0 => { list2ReceivedQuotes.Add(q0.Clone()); });
 
-        publishingQuote.SinglePrice = 9.876543m;
+        publishingQuote.SingleTickValue = 9.876543m;
         pqTickerFeedSubscription.OnNext(publishingQuote);
 
         Assert.AreEqual(2, list1ReceivedQuotes.Count);
-        Assert.AreEqual(9.876543m, list1ReceivedQuotes[1].SinglePrice);
+        Assert.AreEqual(9.876543m, list1ReceivedQuotes[1].SingleTickValue);
         Assert.AreEqual(1, list2ReceivedQuotes.Count);
-        Assert.AreEqual(9.876543m, list2ReceivedQuotes[0].SinglePrice);
+        Assert.AreEqual(9.876543m, list2ReceivedQuotes[0].SingleTickValue);
     }
 
     [TestMethod]
@@ -103,23 +102,23 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
         var list1Sub = pqTickerFeedSubscription.Subscribe(q0 => { list1ReceivedQuotes.Add(q0.Clone()); });
         pqTickerFeedSubscription.Subscribe(q0 => { list2ReceivedQuotes.Add(q0.Clone()); });
 
-        publishingQuote.SinglePrice = 1.234567m;
+        publishingQuote.SingleTickValue = 1.234567m;
         pqTickerFeedSubscription.OnNext(publishingQuote);
 
         Assert.AreEqual(1, list1ReceivedQuotes.Count);
-        Assert.AreEqual(1.234567m, list1ReceivedQuotes[0].SinglePrice);
+        Assert.AreEqual(1.234567m, list1ReceivedQuotes[0].SingleTickValue);
         Assert.AreEqual(1, list2ReceivedQuotes.Count);
-        Assert.AreEqual(1.234567m, list2ReceivedQuotes[0].SinglePrice);
+        Assert.AreEqual(1.234567m, list2ReceivedQuotes[0].SingleTickValue);
 
         list1Sub.Dispose();
 
-        publishingQuote.SinglePrice = 9.876543m;
+        publishingQuote.SingleTickValue = 9.876543m;
         pqTickerFeedSubscription.OnNext(publishingQuote);
 
         Assert.AreEqual(1, list1ReceivedQuotes.Count);
-        Assert.AreEqual(1.234567m, list1ReceivedQuotes[0].SinglePrice);
+        Assert.AreEqual(1.234567m, list1ReceivedQuotes[0].SingleTickValue);
         Assert.AreEqual(2, list2ReceivedQuotes.Count);
-        Assert.AreEqual(9.876543m, list2ReceivedQuotes[1].SinglePrice);
+        Assert.AreEqual(9.876543m, list2ReceivedQuotes[1].SingleTickValue);
     }
 
     [TestMethod]
@@ -195,12 +194,12 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
         intializingQuoteSyncLock.Setup(sl => sl.Release()).Callback(() => { insideSyncLock = false; });
 
         var hasRunCallback         = false;
-        var subscribedObserverMock = new Mock<IObserver<IPQLevel0Quote>>();
-        var observerCollectionMock = new Mock<IList<IObserver<IPQLevel0Quote>>>();
+        var subscribedObserverMock = new Mock<IObserver<IPQTickInstant>>();
+        var observerCollectionMock = new Mock<IList<IObserver<IPQTickInstant>>>();
 
         NonPublicInvocator.SetInstanceField(pqTickerFeedSubscription, "observers", observerCollectionMock.Object);
 
-        observerCollectionMock.Setup(l => l.Add(subscribedObserverMock.Object)).Callback<IObserver<IPQLevel0Quote>>(
+        observerCollectionMock.Setup(l => l.Add(subscribedObserverMock.Object)).Callback<IObserver<IPQTickInstant>>(
          sub =>
          {
              Assert.IsTrue(insideSyncLock);
@@ -221,12 +220,12 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
         intializingQuoteSyncLock.Setup(sl => sl.Release()).Callback(() => { insideSyncLock = false; });
 
         var hasRunCallback         = false;
-        var subscribedObserverMock = new Mock<IObserver<IPQLevel0Quote>>();
-        var observerCollectionMock = new Mock<IList<IObserver<IPQLevel0Quote>>>();
+        var subscribedObserverMock = new Mock<IObserver<IPQTickInstant>>();
+        var observerCollectionMock = new Mock<IList<IObserver<IPQTickInstant>>>();
 
         NonPublicInvocator.SetInstanceField(pqTickerFeedSubscription, "observers", observerCollectionMock.Object);
 
-        observerCollectionMock.Setup(l => l.Remove(subscribedObserverMock.Object)).Callback<IObserver<IPQLevel0Quote>>(
+        observerCollectionMock.Setup(l => l.Remove(subscribedObserverMock.Object)).Callback<IObserver<IPQTickInstant>>(
          sub =>
          {
              Assert.IsTrue(insideSyncLock);

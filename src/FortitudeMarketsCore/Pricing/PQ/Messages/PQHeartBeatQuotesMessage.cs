@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
@@ -12,27 +15,29 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages;
 
 public interface IPQHeartBeatQuotesMessage : IVersionedMessage
 {
-    List<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; }
+    List<IPQTickInstant> QuotesToSendHeartBeats { get; set; }
 }
 
 public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHeartBeatQuotesMessage
-    , IEnumerable<IPQLevel0Quote>
+  , IEnumerable<IPQTickInstant>
 {
-    public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQLevel0Quote>();
+    public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQTickInstant>();
 
-    public PQHeartBeatQuotesMessage(List<IPQLevel0Quote> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
+    public PQHeartBeatQuotesMessage(List<IPQTickInstant> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<IPQLevel0Quote> GetEnumerator() => QuotesToSendHeartBeats.GetEnumerator();
+    public IEnumerator<IPQTickInstant> GetEnumerator() => QuotesToSendHeartBeats.GetEnumerator();
 
     public uint MessageId => (uint)PQMessageIds.HeartBeat;
 
     public byte Version => 1;
-    public List<IPQLevel0Quote> QuotesToSendHeartBeats { get; set; } = new();
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public List<IPQTickInstant> QuotesToSendHeartBeats { get; set; }
+
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is IPQHeartBeatQuotesMessage heartBeatQuotesMessage)
         {

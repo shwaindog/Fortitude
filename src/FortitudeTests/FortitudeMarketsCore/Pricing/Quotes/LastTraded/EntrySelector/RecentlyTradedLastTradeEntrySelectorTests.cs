@@ -11,7 +11,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded.EntrySelector;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -39,7 +39,7 @@ public class RecentlyTradedLastTradeEntrySelectorTests
 
     private PQLastTrade                pqLastTrade                = null!;
     private PQLastTraderPaidGivenTrade pqLastTraderPaidGivenTrade = null!;
-    private ISourceTickerQuoteInfo     sourceTickerQuoteInfo      = null!;
+    private ISourceTickerInfo          sourceTickerInfo           = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -63,141 +63,141 @@ public class RecentlyTradedLastTradeEntrySelectorTests
             TraderName = expectedTraderName
         };
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+        sourceTickerInfo = new SourceTickerInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1);
     }
 
     [TestMethod]
     public void VariosLastTradeFlags_FindForLastTradeFlags_ReturnsLastTrade()
     {
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.None;
-        var pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.None;
+        var pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedPrice;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedPrice;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedTime;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedTime;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTrade));
     }
 
     [TestMethod]
     public void VariosLastTradeFlags_FindForLastTradeFlags_ReturnsLastPaidGivenTrade()
     {
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume;
-        var pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume;
+        var pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedPrice;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedPrice;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedPrice
-                                                                                 | LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedPrice
                                                                             | LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
 
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven |
-                                                LastTradedFlags.LastTradedPrice;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven |
-                                                LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven |
-                                                LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice
+                                                                       | LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
+
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven |
+                                           LastTradedFlags.LastTradedPrice;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven |
+                                           LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume | LastTradedFlags.PaidOrGiven |
+                                           LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastPaidGivenTrade));
     }
 
     [TestMethod]
     public void VariosLastTradeFlags_FindForLastTradeFlags_ReturnsLastTraderPaidGivenTrade()
     {
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName;
-        var pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName;
+        var pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedTime;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedTime;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice |
-                                                LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                                LastTradedFlags.LastTradedPrice;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                                LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
-        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                                LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice |
+                                           LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
 
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven;
-        pvl                                   = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
-                                                LastTradedFlags.LastTradedPrice;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                           LastTradedFlags.LastTradedPrice;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
-                                                LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                           LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
-                                                LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                           LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
 
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                                LastTradedFlags.PaidOrGiven;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven;
+        pvl                              = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                                LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
+                                           LastTradedFlags.LastTradedPrice;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                                LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
+                                           LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
-        sourceTickerQuoteInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                                LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice |
-                                                LastTradedFlags.LastTradedTime;
-        pvl = entrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags)!;
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.PaidOrGiven |
+                                           LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
+
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                           LastTradedFlags.PaidOrGiven;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                           LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                           LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
+        Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
+        sourceTickerInfo.LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                           LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedPrice |
+                                           LastTradedFlags.LastTradedTime;
+        pvl = entrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags)!;
         Assert.AreEqual(pvl.GetType(), typeof(LastTraderPaidGivenTrade));
     }
 

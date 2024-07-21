@@ -10,7 +10,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -21,7 +21,7 @@ public class PQTickerFeedSubscriptionTests
 {
     private IPricingServerConfig          feedConfig               = null!;
     private DummyPQTickerFeedSubscription pqTickerFeedSubscription = null!;
-    private ISourceTickerQuoteInfo        sourceTickerQuoteInfo    = null!;
+    private ISourceTickerInfo             sourceTickerInfo         = null!;
 
 
     [TestInitialize]
@@ -41,14 +41,13 @@ public class PQTickerFeedSubscriptionTests
                       new EndpointConfig("testhost", 9090)
                   }, "testConnectionName"));
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+        sourceTickerInfo = new SourceTickerInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize |
-             LayerFlags.TraderCount
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
-             LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        pqTickerFeedSubscription = new DummyPQTickerFeedSubscription(feedConfig, sourceTickerQuoteInfo);
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
+                              LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+        pqTickerFeedSubscription = new DummyPQTickerFeedSubscription(feedConfig, sourceTickerInfo);
     }
 
     [TestMethod]
@@ -66,7 +65,7 @@ public class PQTickerFeedSubscriptionTests
     {
         public DummyPQTickerFeedSubscription
         (IPricingServerConfig feedServerConfig,
-            ISourceTickerQuoteInfo sourceTickerQuoteInfo) : base(feedServerConfig, sourceTickerQuoteInfo) { }
+            ISourceTickerInfo sourceTickerInfo) : base(feedServerConfig, sourceTickerInfo) { }
 
         public bool UnsubscribeHasBeenCalled { get; set; }
 

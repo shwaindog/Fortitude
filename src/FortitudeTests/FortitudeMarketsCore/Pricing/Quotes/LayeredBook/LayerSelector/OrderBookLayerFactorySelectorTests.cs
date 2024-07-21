@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -46,7 +46,7 @@ public class OrderBookLayerFactorySelectorTests
     private PriceVolumeLayer               priceVolumeLayer               = null!;
     private SourcePriceVolumeLayer         sourcePriceVolumeLayer         = null!;
     private SourceQuoteRefPriceVolumeLayer sourceQutoeRefPriceVolumeLayer = null!;
-    private ISourceTickerQuoteInfo         sourceTickerQuoteInfo          = null!;
+    private ISourceTickerInfo              sourceTickerInfo               = null!;
 
     private SourceQuoteRefTraderValueDatePriceVolumeLayer srcQtRefTrdrVlDtPvl = null!;
 
@@ -96,219 +96,220 @@ public class OrderBookLayerFactorySelectorTests
             [0] = new PQTraderLayerInfo(nameIdGenerator.Clone(), expectedTraderName, ExpectedVolume)
         };
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+        sourceTickerInfo = new SourceTickerInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
     }
 
     [TestMethod]
     public void VariosLayerFlags_FindForLayerFlags_ReturnsPriceVolumeLayer()
     {
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.None;
-        var pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.None;
+        var pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(PriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(PriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(PriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(PriceVolumeLayer));
     }
 
     [TestMethod]
     public void VariosLayerFlags_FindForLayerFlags_ReturnsSourcePriceVolumeLayer()
     {
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceName;
-        var pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.SourceName;
+        var pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
 
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.Executable | LayerFlags.SourceName;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
+
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.Executable | LayerFlags.SourceName;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourcePriceVolumeLayer));
     }
 
     [TestMethod]
     public void VariosLayerFlags_FindForLayerFlags_ReturnsSourceQuoteRefPriceVolumeLayer()
     {
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceQuoteReference;
-        var pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.SourceQuoteReference;
+        var pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceQuoteReference;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceQuoteReference;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceQuoteReference;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceQuoteReference;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceQuoteReference;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceQuoteReference;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.Executable | LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceQuoteReference;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
 
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceQuoteReference;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.Executable | LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
+
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(SourceQuoteRefPriceVolumeLayer));
     }
 
     [TestMethod]
     public void VariosLayerFlags_FindForLayerFlags_ReturnValueDatePriceVolumeLayer()
     {
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate;
-        var pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.ValueDate;
+        var pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(ValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.ValueDate;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.ValueDate;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(ValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.ValueDate;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.ValueDate;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(ValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.ValueDate;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.ValueDate;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(ValueDatePriceVolumeLayer));
     }
 
     [TestMethod]
     public void VariosLayerFlags_FindForLayerFlags_ReturnTraderPriceVolumeLayer()
     {
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName;
-        var pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.TraderName;
+        var pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(TraderPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.TraderName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.TraderName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(TraderPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.TraderName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.TraderName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(TraderPriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.TraderName;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.TraderName;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(), typeof(TraderPriceVolumeLayer));
     }
 
     [TestMethod]
     public void VariosLayerFlags_FindForLayerFlags_ReturnsSrcQtRefTrdrVlDtPvl()
     {
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
-        var pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
+        var pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.SourceQuoteReference;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.SourceQuoteReference;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.TraderName;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.TraderName;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.ValueDate | LayerFlags.SourceName;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.ValueDate;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable | LayerFlags.ValueDate;
-        pvl                              = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.ValueDate | LayerFlags.SourceName;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
 
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.ValueDate;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable | LayerFlags.ValueDate;
+        pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference |
-                                           LayerFlags.ValueDate | LayerFlags.TraderName;
-        pvl = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(),
+                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
+
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(),
+                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(),
+                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(pvl.GetType(),
+                        typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference |
+                                      LayerFlags.ValueDate | LayerFlags.TraderName;
+        pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
                         typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer));
     }

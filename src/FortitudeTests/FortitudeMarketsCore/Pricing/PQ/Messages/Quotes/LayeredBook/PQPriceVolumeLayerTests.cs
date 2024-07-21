@@ -345,10 +345,10 @@ public class PQPriceVolumeLayerTests
         IPQPriceVolumeLayer pvl)
     {
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, pvl.Price, 1),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerPriceOffset, 1), $"For {pvl.GetType().Name} ");
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerVolumeOffset, pvl.Volume, 6),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerVolumeOffset, 6), $"For {pvl.GetType().Name} ");
     }
 

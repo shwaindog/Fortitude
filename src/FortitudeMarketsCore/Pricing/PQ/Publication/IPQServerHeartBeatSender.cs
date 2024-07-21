@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.AsyncProcessing;
@@ -11,9 +14,12 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 public interface IPQServerHeartBeatSender
 {
     bool HasStarted { get; }
-    IDoublyLinkedList<IPQLevel0Quote>? ServerLinkedQuotes { get; set; }
-    ISyncLock? ServerLinkedLock { get; set; }
-    IPQUpdateServer? UpdateServer { get; set; }
+
+    IDoublyLinkedList<IPQTickInstant>? ServerLinkedQuotes { get; set; }
+
+    ISyncLock?       ServerLinkedLock { get; set; }
+    IPQUpdateServer? UpdateServer     { get; set; }
+
     void StartSendingHeartBeats();
     void StopAndWaitUntilFinished();
 }

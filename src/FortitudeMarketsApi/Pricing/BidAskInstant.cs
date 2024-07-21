@@ -12,7 +12,8 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsApi.Pricing;
 
-public interface IBidAskInstantPair : IBidAskPair, IReusableObject<IBidAskInstantPair>, IInterfacesComparable<IBidAskInstantPair>
+public interface IBidAskInstant : IBidAskPair, IReusableObject<IBidAskInstant>, IInterfacesComparable<IBidAskInstant>
+  , IDoublyLinkedListNode<IBidAskInstant>
 {
     DateTime AtTime { get; }
 }
@@ -28,7 +29,7 @@ public readonly struct BidAskInstantPair // not inheriting from IBidAskInstantPa
         AtTime   = toClone.AtTime;
     }
 
-    public BidAskInstantPair(IBidAskInstantPair toClone)
+    public BidAskInstantPair(IBidAskInstant toClone)
     {
         BidPrice = toClone.BidPrice;
         AskPrice = toClone.AskPrice;
@@ -70,14 +71,14 @@ public static class BidAskInstantPairExtensions
     public static BidAskInstantPair SetAtTime(this BidAskInstantPair pair, DateTime atTime) => new(pair.BidPrice, pair.AskPrice, atTime);
 }
 
-public interface IBidAskInstant : IBidAskInstantPair, IDoublyLinkedListNode<IBidAskInstant>
+public interface IMutableBidAskInstant : IBidAskInstant
 {
     new decimal  BidPrice { get; set; }
     new decimal  AskPrice { get; set; }
     new DateTime AtTime   { get; set; }
 }
 
-public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
+public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInstant
 {
     protected BidAskInstantPair BidAskInstantPairState;
 
@@ -116,7 +117,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
     public IBidAskInstant? Previous { get; set; }
     public IBidAskInstant? Next     { get; set; }
 
-    public virtual bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(IBidAskInstant? other, bool exactTypes = false)
     {
         if (other == null) return false;
         var bidPriceSame = BidPrice == other.BidPrice;
@@ -127,7 +128,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
         return allAreSame;
     }
 
-    public override IBidAskInstantPair CopyFrom(IBidAskInstantPair source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IBidAskInstant CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         BidPrice = source.BidPrice;
         AskPrice = source.AskPrice;
@@ -135,7 +136,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
         return this;
     }
 
-    public override IBidAskInstantPair Clone() => Recycler?.Borrow<BidAskInstant>().CopyFrom(this) ?? new BidAskInstant(this);
+    public override IBidAskInstant Clone() => Recycler?.Borrow<BidAskInstant>().CopyFrom(this) ?? new BidAskInstant(this);
 
     public void Configure(BidAskInstantPair bidAskInstantPair) => BidAskInstantPairState = bidAskInstantPair;
 
@@ -150,7 +151,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstantPair>, IBidAskInstant
         AtTime   = atTime ?? DateTime.UtcNow;
     }
 
-    public IBidAskInstantPair CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IBidAskInstant CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         BidPrice = source.BidPriceTop;
         AskPrice = source.AskPriceTop;

@@ -22,18 +22,18 @@ public interface IPQTickerFeedSubscription
 
 public abstract class PQTickerFeedSubscription : IPQTickerFeedSubscription
 {
-    private readonly ISourceTickerQuoteInfo sourceTickerQuoteInfo;
+    private readonly ISourceTickerInfo sourceTickerInfo;
 
     protected PQTickerFeedSubscription
     (IPricingServerConfig feedServerConfig,
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo)
+        ISourceTickerInfo sourceTickerInfo)
     {
-        Feed                       = feedServerConfig;
-        this.sourceTickerQuoteInfo = sourceTickerQuoteInfo;
+        Feed                  = feedServerConfig;
+        this.sourceTickerInfo = sourceTickerInfo;
     }
 
-    public string Source => sourceTickerQuoteInfo.Source;
-    public string Ticker => sourceTickerQuoteInfo.Ticker;
+    public string Source => sourceTickerInfo.Source;
+    public string Ticker => sourceTickerInfo.Ticker;
 
     public IPricingServerConfig Feed { get; }
 

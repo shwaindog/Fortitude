@@ -62,17 +62,17 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         Capacity = toClone.Capacity;
     }
 
-    public OrderBook(BookSide bookSide, ISourceTickerQuoteInfo sourceTickerQuoteInfo)
+    public OrderBook(BookSide bookSide, ISourceTickerInfo sourceTickerInfo)
     {
         BookSide = bookSide;
 
-        LayersOfType = sourceTickerQuoteInfo.LayerFlags.MostCompactLayerType();
-        IsLadder     = sourceTickerQuoteInfo.LayerFlags.HasLadder();
-        bookLayers   = new List<IPriceVolumeLayer?>(sourceTickerQuoteInfo.MaximumPublishedLayers);
-        for (var i = 0; i < sourceTickerQuoteInfo.MaximumPublishedLayers; i++) bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerQuoteInfo));
+        LayersOfType = sourceTickerInfo.LayerFlags.MostCompactLayerType();
+        IsLadder     = sourceTickerInfo.LayerFlags.HasLadder();
+        bookLayers   = new List<IPriceVolumeLayer?>(sourceTickerInfo.MaximumPublishedLayers);
+        for (var i = 0; i < sourceTickerInfo.MaximumPublishedLayers; i++) bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerInfo));
     }
 
-    public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerQuoteInfo> LayerSelector { get; set; } =
+    public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerInfo> LayerSelector { get; set; } =
         new OrderBookLayerFactorySelector();
 
     public LayerType LayersOfType { get; private set; } = LayerType.PriceVolume;

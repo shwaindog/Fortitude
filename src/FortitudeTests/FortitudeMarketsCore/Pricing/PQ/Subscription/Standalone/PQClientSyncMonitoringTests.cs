@@ -28,8 +28,9 @@ public class PQClientSyncMonitoringTests
 
     private DateTime baseTime;
 
-    private Func<string, IMarketConnectionConfig?> getSourceServerConfigFunc      = null!;
-    private List<ISourceTickerQuoteInfo>           historyOfCalledSourceTickerIds = null!;
+    private Func<string, IMarketConnectionConfig?> getSourceServerConfigFunc = null!;
+
+    private List<ISourceTickerInfo> historyOfCalledSourceTickerIds = null!;
 
     private bool inSequencerSerialize;
 
@@ -37,21 +38,25 @@ public class PQClientSyncMonitoringTests
 
     private string? lastSourceName;
 
-    private List<ISourceTickerQuoteInfo>        lastUniqueSourceTickerIdentifiers    = null!;
-    private ThreadStart                         monitorAction                        = null!;
-    private Mock<IPQQuoteDeserializer>          moqFirstQuoteDeserializer            = null!;
-    private Mock<ISourceTickerQuoteInfo>        moqFirstQuoteDeserializerIdentifier  = null!;
-    private Mock<IFLogger>                      moqLogger                            = null!;
-    private Mock<IMarketConnectionConfig>       moqMarketConnectionConfig            = null!;
-    private Mock<IOSThread>                     moqOsThread                          = null!;
-    private Mock<IOSParallelController>         moqParallelController                = null!;
-    private Mock<IOSParallelControllerFactory>  moqParallelControllerFactory         = null!;
-    private Mock<IPQQuoteDeserializer>          moqSecondQuoteDeserializer           = null!;
-    private Mock<ISourceTickerQuoteInfo>        moqSecondQuoteDeserializerIdentifier = null!;
-    private Mock<ISequencer>                    moqSequencer                         = null!;
-    private Mock<INetworkTopicConnectionConfig> moqSnapshotServerConnectionConfig    = null!;
-    private Mock<IPricingServerConfig>          moqSnapshotUpdatePricingServerConfig = null!;
-    private Mock<IIntraOSThreadSignal>          moqStopSignal                        = null!;
+    private List<ISourceTickerInfo>       lastUniqueSourceTickerIdentifiers   = null!;
+    private ThreadStart                   monitorAction                       = null!;
+    private Mock<IPQQuoteDeserializer>    moqFirstQuoteDeserializer           = null!;
+    private Mock<ISourceTickerInfo>       moqFirstQuoteDeserializerIdentifier = null!;
+    private Mock<IFLogger>                moqLogger                           = null!;
+    private Mock<IMarketConnectionConfig> moqMarketConnectionConfig           = null!;
+    private Mock<IOSThread>               moqOsThread                         = null!;
+    private Mock<IOSParallelController>   moqParallelController               = null!;
+
+    private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
+
+    private Mock<IPQQuoteDeserializer> moqSecondQuoteDeserializer           = null!;
+    private Mock<ISourceTickerInfo>    moqSecondQuoteDeserializerIdentifier = null!;
+    private Mock<ISequencer>           moqSequencer                         = null!;
+
+    private Mock<INetworkTopicConnectionConfig> moqSnapshotServerConnectionConfig = null!;
+
+    private Mock<IPricingServerConfig> moqSnapshotUpdatePricingServerConfig = null!;
+    private Mock<IIntraOSThreadSignal> moqStopSignal                        = null!;
 
     private Mock<IDoublyLinkedList<IPQQuoteDeserializer>> moqSyncKo = null!;
     private Mock<IDoublyLinkedList<IPQQuoteDeserializer>> moqSyncOk = null!;
@@ -61,7 +66,7 @@ public class PQClientSyncMonitoringTests
     private PQClientSyncMonitoring pqClientSyncMonitoring          = null!;
     private long                   sequencerSequence;
 
-    private Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>>
+    private Action<INetworkTopicConnectionConfig, List<ISourceTickerInfo>>
         snapShotRequestActionFunc = null!;
 
     [TestInitialize]
@@ -93,7 +98,7 @@ public class PQClientSyncMonitoringTests
             return srcName != nonExistentSource ? moqMarketConnectionConfig.Object : null;
         };
 
-        historyOfCalledSourceTickerIds = new List<ISourceTickerQuoteInfo>();
+        historyOfCalledSourceTickerIds = new List<ISourceTickerInfo>();
         lastConnectionConfig           = null;
         snapShotRequestActionFunc = (scc, stList) =>
         {
@@ -537,11 +542,11 @@ public class PQClientSyncMonitoringTests
                  .Callback(() => { Assert.IsTrue(inSequencerSerialize); })
                  .Returns(moqFirstQuoteDeserializer.Object).Verifiable();
 
-        moqFirstQuoteDeserializerIdentifier = new Mock<ISourceTickerQuoteInfo>();
+        moqFirstQuoteDeserializerIdentifier = new Mock<ISourceTickerInfo>();
         moqFirstQuoteDeserializer.SetupGet(qu => qu.Identifier)
                                  .Returns(moqFirstQuoteDeserializerIdentifier.Object);
         moqFirstQuoteDeserializerIdentifier.SetupGet(usti => usti.Source).Returns("TestFirstSource");
-        moqSecondQuoteDeserializerIdentifier = new Mock<ISourceTickerQuoteInfo>();
+        moqSecondQuoteDeserializerIdentifier = new Mock<ISourceTickerInfo>();
         moqSecondQuoteDeserializer.SetupGet(qu => qu.Identifier)
                                   .Returns(moqSecondQuoteDeserializerIdentifier.Object);
         moqSecondQuoteDeserializerIdentifier.SetupGet(usti => usti.Source).Returns("TestSecondSource");

@@ -14,7 +14,7 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsApi.Indicators.Pricing;
 
-public interface IIndicatorBidAskInstantPair : IBidAskInstantPair, IReusableObject<IIndicatorBidAskInstantPair>
+public interface IIndicatorBidAskInstantPair : IBidAskInstant, IReusableObject<IIndicatorBidAskInstantPair>
   , IInterfacesComparable<IIndicatorBidAskInstantPair>
 {
     long IndicatorSourceTickerId { get; }
@@ -140,7 +140,7 @@ public static class BidAskInstantPairExtensions
         new(indicatorSourceTickerId, pair.BidPrice, pair.AskPrice, pair.CoveringPeriod, pair.AtTime);
 }
 
-public interface IIndicatorBidAskInstant : IIndicatorBidAskInstantPair, IBidAskInstant, IDoublyLinkedListNode<IIndicatorBidAskInstant>
+public interface IIndicatorBidAskInstant : IIndicatorBidAskInstantPair, IMutableBidAskInstant, IDoublyLinkedListNode<IIndicatorBidAskInstant>
 {
     new long IndicatorSourceTickerId { get; set; }
 
@@ -166,6 +166,14 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         CoveringPeriod = indicatorBidAskInstant.CoveringPeriod;
     }
 
+    public IndicatorBidAskInstant
+        (long indicatorSourceTickerId, BidAskInstantPair indicatorBidAskInstant, TimePeriod coveringPeriod) : base(indicatorBidAskInstant)
+    {
+        IndicatorSourceTickerId = indicatorSourceTickerId;
+
+        CoveringPeriod = coveringPeriod;
+    }
+
     public IndicatorBidAskInstant(long indicatorSourceTickerId, ILevel1Quote toCapture) : base(toCapture)
     {
         IndicatorSourceTickerId = indicatorSourceTickerId;
@@ -177,16 +185,6 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         (long indicatorSourceTickerId, decimal bidPrice, decimal askPrice, TimePeriod coveringPeriod, DateTime? atTime = null)
         : base(bidPrice, askPrice, atTime)
     {
-        IndicatorSourceTickerId = indicatorSourceTickerId;
-
-        CoveringPeriod = coveringPeriod;
-    }
-
-    public IndicatorBidAskInstant
-        (long indicatorSourceTickerId, BidAskInstantPair bidAskInstantPair, TimePeriod coveringPeriod)
-    {
-        BidAskInstantPairState = bidAskInstantPair;
-
         IndicatorSourceTickerId = indicatorSourceTickerId;
 
         CoveringPeriod = coveringPeriod;
@@ -208,7 +206,7 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         set => base.Next = value;
     }
 
-    public override bool AreEquivalent(IBidAskInstantPair? other, bool exactTypes = false)
+    public override bool AreEquivalent(IBidAskInstant? other, bool exactTypes = false)
     {
         if (other == null) return false;
         var indicatorBidAskInstant = other as IIndicatorBidAskInstant;
@@ -236,10 +234,10 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
 
     public IReusableObject<IIndicatorBidAskInstantPair> CopyFrom
         (IReusableObject<IIndicatorBidAskInstantPair> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((IBidAskInstantPair)source, copyMergeFlags);
+        CopyFrom((IBidAskInstant)source, copyMergeFlags);
 
     public IIndicatorBidAskInstantPair CopyFrom(IIndicatorBidAskInstantPair source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((IBidAskInstantPair)source, copyMergeFlags);
+        CopyFrom((IBidAskInstant)source, copyMergeFlags);
 
     IIndicatorBidAskInstantPair ICloneable<IIndicatorBidAskInstantPair>.Clone() => Clone();
 
@@ -291,7 +289,7 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         CoveringPeriod = coveringPeriod;
     }
 
-    public override IIndicatorBidAskInstant CopyFrom(IBidAskInstantPair source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IIndicatorBidAskInstant CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 

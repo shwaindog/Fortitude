@@ -31,7 +31,7 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -63,7 +63,7 @@ public class PQStandaloneSnapshotClientTests
     private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteDeserializationRepo = null!;
     private Mock<IMap<uint, IMessageDeserializer>>     moqSerializerCache            = null!;
 
-    private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+    private Mock<INotifyingMessageDeserializer<PQTickInstant>> moqSocketBinaryDeserializer = null!;
 
     private Mock<ISocketConnection>             moqSocketConnection            = null!;
     private Mock<IEndpointConfig>               moqSocketConnectionConfig      = null!;
@@ -77,7 +77,7 @@ public class PQStandaloneSnapshotClientTests
     private Mock<ITimerCallbackSubscription>    moqTimerCallbackSubscription   = null!;
     private PQStandaloneSnapshotClient          pqStandaloneSnapshotClient     = null!;
 
-    private IList<ISourceTickerQuoteInfo> sendSrcTkrIds = null!;
+    private IList<ISourceTickerInfo> sendSrcTkrIds = null!;
 
     private string sessionDescription = null!;
 
@@ -116,7 +116,7 @@ public class PQStandaloneSnapshotClientTests
         sessionDescription             = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteDeserializationRepo  = new Mock<IPQClientQuoteDeserializerRepository>();
         moqClientMessageStreamDecoder  = new Mock<IPQClientMessageStreamDecoder>();
-        moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQTickInstant>>();
 
         moqOsSocket          = new Mock<IOSSocket>();
         stubContext          = new StubTimeContext();
@@ -173,19 +173,19 @@ public class PQStandaloneSnapshotClientTests
         moqSerializerCache = new Mock<IMap<uint, IMessageDeserializer>>();
         moqOsSocket.SetupAllProperties();
 
-        sendSrcTkrIds = new List<ISourceTickerQuoteInfo>
+        sendSrcTkrIds = new List<ISourceTickerInfo>
         {
-            new SourceTickerQuoteInfo(7, "FirstSource", 7, "FirstTicker", Level3, Unknown)
-          , new SourceTickerQuoteInfo(77, "FirstSource", 77, "SecondTicker", Level3, Unknown)
-          , new SourceTickerQuoteInfo(15, "FirstSource", 16, "ThirdTicker", Level3, Unknown)
-          , new SourceTickerQuoteInfo(19, "FirstSource", 19, "FourthTicker", Level3, Unknown)
-          , new SourceTickerQuoteInfo(798, "FirstSource", 798, "FifthTicker", Level3, Unknown)
+            new SourceTickerInfo(7, "FirstSource", 7, "FirstTicker", Level3Quote, Unknown)
+          , new SourceTickerInfo(77, "FirstSource", 77, "SecondTicker", Level3Quote, Unknown)
+          , new SourceTickerInfo(15, "FirstSource", 16, "ThirdTicker", Level3Quote, Unknown)
+          , new SourceTickerInfo(19, "FirstSource", 19, "FourthTicker", Level3Quote, Unknown)
+          , new SourceTickerInfo(798, "FirstSource", 798, "FifthTicker", Level3Quote, Unknown)
         };
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
         moqPQQuoteDeserializationRepo
-            .Setup(pqqsf => pqqsf.GetDeserializer<PQLevel0Quote>(uint.MaxValue))
+            .Setup(pqqsf => pqqsf.GetDeserializer<PQTickInstant>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqStandaloneSnapshotClient = new PQStandaloneSnapshotClient(moqSocketSessionContext.Object, moqStreamControls.Object);

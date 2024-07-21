@@ -49,7 +49,7 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
                     return null;
                 }
 
-                deserializedSourceTickerInfoResponse.SourceTickerQuoteInfos.Add(DeserializeSourceTickerQuoteInfo(ref ptr, fixedBuffer));
+                deserializedSourceTickerInfoResponse.SourceTickerInfos.Add(DeserializeSourceTickerInfo(ref ptr, fixedBuffer));
             }
 
             messageBufferContext.LastReadLength = (int)messageBufferContext.MessageHeader.MessageSize;
@@ -60,12 +60,12 @@ public class PQSourceTickerInfoResponseDeserializer : MessageDeserializer<PQSour
         throw new ArgumentException("Expected readContext to be of type IMessageBufferContext");
     }
 
-    private unsafe ISourceTickerQuoteInfo DeserializeSourceTickerQuoteInfo(ref byte* currPtr, IBuffer fixedBuffer)
+    private unsafe ISourceTickerInfo DeserializeSourceTickerInfo(ref byte* currPtr, IBuffer fixedBuffer)
     {
-        var srcTkrQtInfo = recycler.Borrow<SourceTickerQuoteInfo>();
-        SourceTickerQuoteInfoDeserializer.DeserializeSourceTickerQuoteInfo(srcTkrQtInfo, ref currPtr, fixedBuffer);
+        var srcTkrInfo = recycler.Borrow<SourceTickerInfo>();
+        SourceTickerInfoDeserializer.DeserializeSourceTickerInfo(srcTkrInfo, ref currPtr, fixedBuffer);
 
-        return srcTkrQtInfo;
+        return srcTkrInfo;
     }
 
     public override IMessageDeserializer Clone() => new PQSourceTickerInfoResponseDeserializer(this);

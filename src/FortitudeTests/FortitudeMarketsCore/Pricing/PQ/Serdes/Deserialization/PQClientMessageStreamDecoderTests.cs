@@ -19,7 +19,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using Moq;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -33,40 +33,42 @@ public class PQClientMessageStreamDecoderTests
     private const ushort ExpectedTickerId      = ushort.MaxValue;
     private const uint   ExpectedStreamId      = uint.MaxValue;
 
-    private const uint MessageSizeToQuoteSerializer = 142 + PQQuoteMessageHeader.HeaderSize;
+    private const uint MessageSizeToQuoteSerializer = 160 + PQQuoteMessageHeader.HeaderSize;
 
     private Mock<IPQClientQuoteDeserializerRepository> clientDeserializerRepo = null!;
 
     private IConversation?               lastReceivedConversation;
-    private List<ISourceTickerQuoteInfo> lastReceivedSourceTickerQuoteInfos = null!;
-    private Mock<IMessageDeserializer>   moqBinaryDeserializer              = null!;
-    private Mock<IConversation>          moqConversation                    = null!;
-    private PQClientMessageStreamDecoder pqClientMessageStreamDecoder       = null!;
-    private CircularReadWriteBuffer      readWriteBuffer                    = null!;
+    private List<ISourceTickerInfo>      lastReceivedSourceTickerInfos = null!;
+    private Mock<IMessageDeserializer>   moqBinaryDeserializer         = null!;
+    private Mock<IConversation>          moqConversation               = null!;
+    private PQClientMessageStreamDecoder pqClientMessageStreamDecoder  = null!;
+    private CircularReadWriteBuffer      readWriteBuffer               = null!;
 
-    private List<ISourceTickerQuoteInfo> sendSourceTickerQuoteInfos = new()
+    private List<ISourceTickerInfo> sendSourceTickerInfos = new()
     {
-        new SourceTickerQuoteInfo
-            (0x7777, "FirstSource", 3333, "FirstTicker", Level3, Unknown
-           , 7, 0.000005m, 1m, 10_000_000m, 2m, 1
-           , LayerFlags.Price | LayerFlags.ValueDate, LastTradedFlags.LastTradedPrice)
-      , new SourceTickerQuoteInfo
-            (0x5151, "SecondSource", 7777, "SecondTicker", Level3, Unknown
-           , 20, 0.05m, 10_000m, 1_000_000m, 5_000m, 2_000
-           , LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable, LastTradedFlags.PaidOrGiven)
-      , new SourceTickerQuoteInfo
-            (0xFFFF, "ThirdSource", 0001, "ThirdTicker", Level3, Unknown
-           , 1, 5m, 100_000m, 100_000_000m, 50_000m, 1
-           , LayerFlags.None)
+        new SourceTickerInfo
+            (0x7777, "FirstSource", 3333, "FirstTicker", Level3Quote, Unknown
+           , 7, 0.000005m, 0.0001m, 1m, 10_000_000m, 2m, 1
+           , layerFlags: LayerFlags.Price | LayerFlags.ValueDate
+           , lastTradedFlags: LastTradedFlags.LastTradedPrice)
+      , new SourceTickerInfo
+            (0x5151, "SecondSource", 7777, "SecondTicker", Level3Quote, Unknown
+           , 20, 0.05m, 1m, 10_000m, 1_000_000m, 5_000m, 2_000
+           , layerFlags: LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven)
+      , new SourceTickerInfo
+            (0xFFFF, "ThirdSource", 0001, "ThirdTicker", Level3Quote, Unknown
+           , 1, 5m, 100m, 100_000m, 100_000_000m, 50_000m, 1
+           , layerFlags: LayerFlags.None)
     };
 
     private SocketBufferReadContext socketBufferReadContext = null!;
 
+    private SourceTickerInfo sourceTickerInfo = null!;
+
     private ConversationMessageReceivedHandler<PQSourceTickerInfoResponse> sourceTickerInfoResponseCallBack = null!;
 
     private PQSourceTickerInfoResponseSerializer sourceTickerInfoResponseSerializer = null!;
-
-    private SourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -82,12 +84,13 @@ public class PQClientMessageStreamDecoderTests
         };
         readWriteBuffer.ReadCursor  = BufferReadWriteOffset;
         readWriteBuffer.WriteCursor = BufferReadWriteOffset;
-        sourceTickerQuoteInfo =
-            new SourceTickerQuoteInfo
-                (ExpectedSourceId, "TestSource", ExpectedTickerId, "TestTicker", Level3, Unknown
+        sourceTickerInfo =
+            new SourceTickerInfo
+                (ExpectedSourceId, "TestSource", ExpectedTickerId, "TestTicker", Level3Quote, Unknown
                , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-               , LayerFlags.Volume | LayerFlags.Price
-               , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+               , layerFlags: LayerFlags.Volume | LayerFlags.Price
+               , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                  LastTradedFlags.LastTradedTime);
 
         clientDeserializerRepo = new Mock<IPQClientQuoteDeserializerRepository>();
         moqBinaryDeserializer  = new Mock<IMessageDeserializer>();
@@ -97,8 +100,8 @@ public class PQClientMessageStreamDecoderTests
                               .Verifiable();
         sourceTickerInfoResponseCallBack = (sourceTickerInfoResponse, header, conversation) =>
         {
-            lastReceivedConversation           = conversation;
-            lastReceivedSourceTickerQuoteInfos = sourceTickerInfoResponse.SourceTickerQuoteInfos;
+            lastReceivedConversation      = conversation;
+            lastReceivedSourceTickerInfos = sourceTickerInfoResponse.SourceTickerInfos;
         };
         sourceTickerInfoResponseSerializer = new PQSourceTickerInfoResponseSerializer();
 
@@ -122,13 +125,13 @@ public class PQClientMessageStreamDecoderTests
                     Assert.Fail("Expected bufferContext to be an ISocketBufferReadContext");
             })
             .Returns(null!).Verifiable();
-        var expectedL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo)
+        var expectedTickInstant = new PQTickInstant(sourceTickerInfo)
         {
-            SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
+            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amountWritten   = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
+        var amountWritten   = quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -138,7 +141,7 @@ public class PQClientMessageStreamDecoderTests
 
         writeStartOffset = readWriteBuffer.WriteCursor;
 
-        amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
+        amountWritten = quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
 
         readWriteBuffer.WriteCursor += amountWritten;
 
@@ -165,12 +168,12 @@ public class PQClientMessageStreamDecoderTests
                     Assert.Fail("Expected bufferContext to be an ISocketBufferReadContext");
             })
             .Returns(null!).Verifiable();
-        var expectedL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo)
+        var expectedTickInstant = new PQTickInstant(sourceTickerInfo)
         {
-            SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
+            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
 
-        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote>(2) { expectedL0Quote });
+        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQTickInstant>(2) { expectedTickInstant });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
         var amtWritten          = heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);
@@ -192,7 +195,7 @@ public class PQClientMessageStreamDecoderTests
             .Returns(null!).Verifiable();
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        amtWritten                  =  quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
+        amtWritten                  =  quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
         readWriteBuffer.WriteCursor += amtWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -214,12 +217,12 @@ public class PQClientMessageStreamDecoderTests
             })
             .Returns(null!).Verifiable();
 
-        var expectedL0Quote = new PQLevel0Quote(sourceTickerQuoteInfo)
+        var expectedTickInstant = new PQTickInstant(sourceTickerInfo)
         {
-            SinglePrice = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
+            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
-        var amtWritten      = quoteSerializer.Serialize(readWriteBuffer, expectedL0Quote);
+        var amtWritten      = quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
@@ -242,7 +245,7 @@ public class PQClientMessageStreamDecoderTests
             .Returns(null!)
             .Verifiable();
 
-        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote>(2) { expectedL0Quote });
+        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQTickInstant>(2) { expectedTickInstant });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
         amtWritten                  =  heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);
@@ -266,40 +269,43 @@ public class PQClientMessageStreamDecoderTests
                 (new PassThroughDeserializedNotifier<PQSourceTickerInfoResponse>
                     ($"{nameof(PQClientMessageStreamDecoderTests)}.{nameof(sourceTickerInfoResponseCallBack)}"
                    , sourceTickerInfoResponseCallBack));
-        var sourceTickerInfoResponse = new PQSourceTickerInfoResponse(sendSourceTickerQuoteInfos);
+        var sourceTickerInfoResponse = new PQSourceTickerInfoResponse(sendSourceTickerInfos);
         sourceTickerInfoResponseSerializer.Serialize(sourceTickerInfoResponse, (ISerdeContext)socketBufferReadContext);
         var amtWritten = socketBufferReadContext.LastWriteLength;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
 
-        Assert.IsTrue(sendSourceTickerQuoteInfos.SequenceEqual(lastReceivedSourceTickerQuoteInfos));
+        Assert.IsTrue(sendSourceTickerInfos.SequenceEqual(lastReceivedSourceTickerInfos));
         Assert.AreSame(moqConversation.Object, lastReceivedConversation);
         Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
 
-        sendSourceTickerQuoteInfos = new List<ISourceTickerQuoteInfo>
+        sendSourceTickerInfos = new List<ISourceTickerInfo>
         {
-            new SourceTickerQuoteInfo
-                (1111, "FourthSource", 5555, "FourthTicker", Level3, Unknown
+            new SourceTickerInfo
+                (1111, "FourthSource", 5555, "FourthTicker", Level3Quote, Unknown
                , 7, 0.000005m, 1m, 10_000_000m, 2m, 1
-               , LayerFlags.Price | LayerFlags.ValueDate, LastTradedFlags.LastTradedPrice)
-          , new SourceTickerQuoteInfo
-                (0xAAAA, "FifthSource", 3333, "FifthTicker", Level3, Unknown
+               , layerFlags: LayerFlags.Price | LayerFlags.ValueDate
+               , lastTradedFlags: LastTradedFlags.LastTradedPrice)
+          , new SourceTickerInfo
+                (0xAAAA, "FifthSource", 3333, "FifthTicker", Level3Quote, Unknown
                , 20, 0.05m, 10_000m, 1_000_000m, 5_000m, 2_000
-               , LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable, LastTradedFlags.PaidOrGiven)
-          , new SourceTickerQuoteInfo
-                (0x2222, "SixthSource", 7777, "SixthTicker", Level3, Unknown
+               , layerFlags: LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable
+               , lastTradedFlags: LastTradedFlags.PaidOrGiven)
+          , new SourceTickerInfo
+                (0x2222, "SixthSource", 7777, "SixthTicker", Level3Quote, Unknown
                , 1, 5m, 100_000m, 100_000_000m, 50_000m, 1
-               , LayerFlags.None, LastTradedFlags.None)
+               , layerFlags: LayerFlags.None
+               , lastTradedFlags: LastTradedFlags.None)
         };
 
-        sourceTickerInfoResponse = new PQSourceTickerInfoResponse(sendSourceTickerQuoteInfos);
+        sourceTickerInfoResponse = new PQSourceTickerInfoResponse(sendSourceTickerInfos);
         sourceTickerInfoResponseSerializer.Serialize(sourceTickerInfoResponse, (ISerdeContext)socketBufferReadContext);
-        amtWritten                         = socketBufferReadContext.LastWriteLength;
-        lastReceivedSourceTickerQuoteInfos = null!;
+        amtWritten                    = socketBufferReadContext.LastWriteLength;
+        lastReceivedSourceTickerInfos = null!;
 
         pqClientMessageStreamDecoder.Process(socketBufferReadContext);
 
-        Assert.IsTrue(lastReceivedSourceTickerQuoteInfos!.SequenceEqual(sendSourceTickerQuoteInfos));
+        Assert.IsTrue(lastReceivedSourceTickerInfos!.SequenceEqual(sendSourceTickerInfos));
         Assert.AreSame(moqConversation.Object, lastReceivedConversation);
         Assert.AreEqual(readWriteBuffer.WriteCursor, readWriteBuffer.ReadCursor);
     }

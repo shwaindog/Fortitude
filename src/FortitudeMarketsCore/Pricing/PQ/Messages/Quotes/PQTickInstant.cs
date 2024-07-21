@@ -15,15 +15,15 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
-public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutableLevel0Quote,
-    IPQSupportsFieldUpdates<ILevel0Quote>, IPQSupportsStringUpdates<ILevel0Quote>, IRelatedItem<ILevel0Quote>,
+public interface IPQTickInstant : IDoublyLinkedListNode<IPQTickInstant>, IMutableTickInstant,
+    IPQSupportsFieldUpdates<ITickInstant>, IPQSupportsStringUpdates<ITickInstant>, IRelatedItem<ITickInstant>,
     IVersionedMessage
 {
     PQMessageFlags? OverrideSerializationFlags { get; set; }
@@ -38,9 +38,9 @@ public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutabl
     bool IsDispatchedTimeSubHourUpdated     { get; set; }
     bool IsClientReceivedTimeDateUpdated    { get; set; }
     bool IsClientReceivedTimeSubHourUpdated { get; set; }
+    bool IsFeedSyncStatusUpdated            { get; set; }
     bool IsReplayUpdated                    { get; set; }
-    bool IsSinglePriceUpdated               { get; set; }
-    bool IsSyncStatusUpdated                { get; set; }
+    bool IsSingleValueUpdated               { get; set; }
 
     ISyncLock Lock                { get; }
     uint      PQSequenceId        { get; set; }
@@ -49,20 +49,20 @@ public interface IPQLevel0Quote : IDoublyLinkedListNode<IPQLevel0Quote>, IMutabl
     DateTime  ProcessedTime       { get; set; }
     DateTime  DispatchedTime      { get; set; }
 
-    PriceSyncStatus PQPriceSyncStatus { get; set; }
-
-    new IPQLevel0Quote? Next     { get; set; }
-    new IPQLevel0Quote? Previous { get; set; }
+    new FeedSyncStatus  FeedSyncStatus { get; set; }
+    new IPQTickInstant? Next           { get; set; }
+    new IPQTickInstant? Previous       { get; set; }
 
     void ResetFields();
 
-    new IPQLevel0Quote Clone();
+    new IPQTickInstant Clone();
 }
 
-public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITimeSeriesEntry<PQLevel0Quote>, ICloneable<PQLevel0Quote>
-  , IDoublyLinkedListNode<PQLevel0Quote>
+public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ITimeSeriesEntry<PQTickInstant>
+  , ICloneable<PQTickInstant>
+  , IDoublyLinkedListNode<PQTickInstant>
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel0Quote));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQTickInstant));
 
     protected readonly ISyncLock SyncLock = new SpinLockLight();
 
@@ -71,96 +71,97 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
     private DateTime clientReceivedTime = DateTimeConstants.UnixEpoch;
     private DateTime dispatchedTime     = DateTimeConstants.UnixEpoch;
 
-    protected PQSourceTickerQuoteInfo? PQSourceTickerQuoteInfo;
+    private FeedSyncStatus feedSyncStatus = FeedSyncStatus.OutOfSync;
 
-    private PriceSyncStatus priceSyncStatus = PriceSyncStatus.OutOfSync;
+    protected PQSourceTickerInfo? PQSourceTickerInfo;
 
     private DateTime processedTime = DateTimeConstants.UnixEpoch;
-    private decimal  singlePrice;
+    private decimal  singleValue;
     private DateTime socketReceivingTime = DateTimeConstants.UnixEpoch;
     private DateTime sourceTime          = DateTimeConstants.UnixEpoch;
 
     protected QuoteFieldUpdatedFlags UpdatedFlags;
 
-    public PQLevel0Quote() { }
+    public PQTickInstant() { }
 
-    public PQLevel0Quote(ISourceTickerQuoteInfo sourceTickerInfo) => SourceTickerQuoteInfo = sourceTickerInfo;
+    public PQTickInstant(ISourceTickerInfo sourceTickerInfo) => SourceTickerInfo = sourceTickerInfo;
 
-    public PQLevel0Quote(ILevel0Quote toClone)
+    public PQTickInstant(ITickInstant toClone)
     {
-        singlePrice        = toClone.SinglePrice;
+        singleValue        = toClone.SingleTickValue;
         IsReplay           = toClone.IsReplay;
         sourceTime         = toClone.SourceTime;
         ClientReceivedTime = toClone.ClientReceivedTime;
+        FeedSyncStatus     = toClone.FeedSyncStatus;
 
-        SourceTickerQuoteInfo = new PQSourceTickerQuoteInfo(toClone.SourceTickerQuoteInfo!);
-        if (toClone is IPQLevel0Quote pqLevel0Quote)
+        SourceTickerInfo = new PQSourceTickerInfo(toClone.SourceTickerInfo!);
+        if (toClone is IPQTickInstant ipqTickInstant)
         {
-            OverrideSerializationFlags = pqLevel0Quote.OverrideSerializationFlags;
+            OverrideSerializationFlags = ipqTickInstant.OverrideSerializationFlags;
 
-            SourceTickerQuoteInfo = pqLevel0Quote.SourceTickerQuoteInfo;
-            PQSequenceId          = pqLevel0Quote.PQSequenceId;
-            PQPriceSyncStatus     = pqLevel0Quote.PQPriceSyncStatus;
-            LastPublicationTime   = pqLevel0Quote.LastPublicationTime;
-            SocketReceivingTime   = pqLevel0Quote.SocketReceivingTime;
-            ProcessedTime         = pqLevel0Quote.ProcessedTime;
-            DispatchedTime        = pqLevel0Quote.DispatchedTime;
+            SourceTickerInfo    = ipqTickInstant.SourceTickerInfo;
+            PQSequenceId        = ipqTickInstant.PQSequenceId;
+            FeedSyncStatus      = ipqTickInstant.FeedSyncStatus;
+            LastPublicationTime = ipqTickInstant.LastPublicationTime;
+            SocketReceivingTime = ipqTickInstant.SocketReceivingTime;
+            ProcessedTime       = ipqTickInstant.ProcessedTime;
+            DispatchedTime      = ipqTickInstant.DispatchedTime;
         }
 
         SyncLock = new SpinLockLight();
-        if (toClone is PQLevel0Quote plLevel0Quote) UpdatedFlags = plLevel0Quote.UpdatedFlags;
+        if (toClone is PQTickInstant pqTickInstant) UpdatedFlags = pqTickInstant.UpdatedFlags;
     }
 
-    protected string Level0ToStringMembers =>
-        $"{nameof(PQSourceTickerQuoteInfo)}: {PQSourceTickerQuoteInfo}, {nameof(PQSequenceId)}: {PQSequenceId}, " +
-        $"{nameof(PQPriceSyncStatus)}: {PQPriceSyncStatus}, {nameof(LastPublicationTime)}: {LastPublicationTime}, " +
+    protected string TickInstantToStringMembers =>
+        $"{nameof(PQSourceTickerInfo)}: {PQSourceTickerInfo}, {nameof(PQSequenceId)}: {PQSequenceId}, " +
+        $"{nameof(FeedSyncStatus)}: {FeedSyncStatus}, {nameof(LastPublicationTime)}: {LastPublicationTime}, " +
         $"{nameof(SourceTime)}: {SourceTime}, {nameof(DispatchedTime)}: {DispatchedTime}, " +
         $"{nameof(ProcessedTime)}: {ProcessedTime}, {nameof(IsSourceTimeDateUpdated)}: {IsSourceTimeDateUpdated}, " +
         $"{nameof(IsSourceTimeSubHourUpdated)}: {IsSourceTimeSubHourUpdated}, " +
-        $"{nameof(IsSyncStatusUpdated)}: {IsSyncStatusUpdated}, {nameof(SinglePrice)}: {SinglePrice}, " +
-        $"{nameof(IsSinglePriceUpdated)}: {IsSinglePriceUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
+        $"{nameof(IsFeedSyncStatusUpdated)}: {IsFeedSyncStatusUpdated}, {nameof(SingleTickValue)}: {SingleTickValue}, " +
+        $"{nameof(IsSingleValueUpdated)}: {IsSingleValueUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
         $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
 
-    public override PQLevel0Quote Clone() =>
-        Recycler?.Borrow<PQLevel0Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQLevel0Quote ?? new PQLevel0Quote(this);
+    public override PQTickInstant Clone() =>
+        Recycler?.Borrow<PQTickInstant>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQTickInstant ?? new PQTickInstant(this);
 
-    public PQLevel0Quote? Previous
+    public PQTickInstant? Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as PQLevel0Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<ITickInstant>)this).Previous as PQTickInstant;
+        set => ((IDoublyLinkedListNode<ITickInstant>)this).Previous = value;
     }
 
-    public PQLevel0Quote? Next
+    public PQTickInstant? Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as PQLevel0Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<ITickInstant>)this).Next as PQTickInstant;
+        set => ((IDoublyLinkedListNode<ITickInstant>)this).Next = value;
     }
 
-    IPQLevel0Quote? IPQLevel0Quote.Previous
+    IPQTickInstant? IPQTickInstant.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel0Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<ITickInstant>)this).Previous as IPQTickInstant;
+        set => ((IDoublyLinkedListNode<ITickInstant>)this).Previous = value;
     }
 
-    IPQLevel0Quote? IPQLevel0Quote.Next
+    IPQTickInstant? IPQTickInstant.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel0Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<ITickInstant>)this).Next as IPQTickInstant;
+        set => ((IDoublyLinkedListNode<ITickInstant>)this).Next = value;
     }
 
-    IPQLevel0Quote? IDoublyLinkedListNode<IPQLevel0Quote>.Previous
+    IPQTickInstant? IDoublyLinkedListNode<IPQTickInstant>.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel0Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<ITickInstant>)this).Previous as IPQTickInstant;
+        set => ((IDoublyLinkedListNode<ITickInstant>)this).Previous = value;
     }
 
-    IPQLevel0Quote? IDoublyLinkedListNode<IPQLevel0Quote>.Next
+    IPQTickInstant? IDoublyLinkedListNode<IPQTickInstant>.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel0Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<ITickInstant>)this).Next as IPQTickInstant;
+        set => ((IDoublyLinkedListNode<ITickInstant>)this).Next = value;
     }
 
-    public virtual QuoteLevel QuoteLevel => QuoteLevel.Level0;
+    public virtual TickerDetailLevel TickerDetailLevel => TickerDetailLevel.SingleValue;
 
     public PQMessageFlags? OverrideSerializationFlags { get; set; }
 
@@ -174,27 +175,27 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
 
     public byte Version => 1;
 
-    ISourceTickerQuoteInfo? ILevel0Quote.SourceTickerQuoteInfo => PQSourceTickerQuoteInfo;
+    ISourceTickerInfo? ITickInstant.SourceTickerInfo => PQSourceTickerInfo;
 
-    public ISourceTickerQuoteInfo? SourceTickerQuoteInfo
+    public ISourceTickerInfo? SourceTickerInfo
     {
-        get => PQSourceTickerQuoteInfo;
+        get => PQSourceTickerInfo;
         set
         {
-            if (ReferenceEquals(value, PQSourceTickerQuoteInfo)) return;
-            if (value is PQSourceTickerQuoteInfo pqSourceTickerInfo) // share SourceTickerInfo if possible
-                PQSourceTickerQuoteInfo = pqSourceTickerInfo;
-            if (value != null && PQSourceTickerQuoteInfo != null)
+            if (ReferenceEquals(value, PQSourceTickerInfo)) return;
+            if (value is PQSourceTickerInfo pqSourceTickerInfo) // share SourceTickerInfo if possible
+                PQSourceTickerInfo = pqSourceTickerInfo;
+            if (value != null && PQSourceTickerInfo != null)
             {
-                PQSourceTickerQuoteInfo.CopyFrom(value);
+                PQSourceTickerInfo.CopyFrom(value);
                 return;
             }
 
-            PQSourceTickerQuoteInfo = ConvertToPQSourceTickerInfo(value!, PQSourceTickerQuoteInfo);
+            PQSourceTickerInfo = ConvertToPQSourceTickerInfo(value!, PQSourceTickerInfo);
         }
     }
-    ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Previous { get; set; }
-    ILevel0Quote? IDoublyLinkedListNode<ILevel0Quote>.Next     { get; set; }
+    ITickInstant? IDoublyLinkedListNode<ITickInstant>.Previous { get; set; }
+    ITickInstant? IDoublyLinkedListNode<ITickInstant>.Next     { get; set; }
 
     public virtual DateTime SourceTime
     {
@@ -376,49 +377,49 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
         }
     }
 
-    public PriceSyncStatus PQPriceSyncStatus
+    public bool IsFeedSyncStatusUpdated
     {
-        get => priceSyncStatus;
-        set
-        {
-            if (priceSyncStatus == value) return;
-            IsSyncStatusUpdated = true;
-            priceSyncStatus     = value;
-        }
-    }
-
-    public bool IsSyncStatusUpdated
-    {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.PublicationStatusUpdatedFlag) > 0;
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.FeedSyncStatusFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.PublicationStatusUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.FeedSyncStatusFlag;
 
-            else if (IsSyncStatusUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.PublicationStatusUpdatedFlag;
+            else if (IsFeedSyncStatusUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.FeedSyncStatusFlag;
         }
     }
 
-    public virtual decimal SinglePrice
+    public FeedSyncStatus FeedSyncStatus
     {
-        get => singlePrice;
+        get => feedSyncStatus;
         set
         {
-            if (singlePrice == value) return;
-            IsSinglePriceUpdated = true;
-            singlePrice          = value;
+            if (feedSyncStatus == value) return;
+            IsFeedSyncStatusUpdated = true;
+            feedSyncStatus          = value;
         }
     }
 
-    public bool IsSinglePriceUpdated
+    public virtual decimal SingleTickValue
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.SinglePriceUpdatedFlag) > 0;
+        get => singleValue;
+        set
+        {
+            if (singleValue == value) return;
+            IsSingleValueUpdated = true;
+            singleValue          = value;
+        }
+    }
+
+    public bool IsSingleValueUpdated
+    {
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.SingleValueUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.SinglePriceUpdatedFlag;
+                UpdatedFlags |= QuoteFieldUpdatedFlags.SingleValueUpdatedFlag;
             else
-                UpdatedFlags ^= QuoteFieldUpdatedFlags.SinglePriceUpdatedFlag;
+                UpdatedFlags ^= QuoteFieldUpdatedFlags.SingleValueUpdatedFlag;
         }
     }
 
@@ -453,7 +454,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
         get => UpdatedFlags > 0;
         set
         {
-            if (PQSourceTickerQuoteInfo != null) PQSourceTickerQuoteInfo.HasUpdates = value;
+            if (PQSourceTickerInfo != null) PQSourceTickerInfo.HasUpdates = value;
             UpdatedFlags = value ? UpdatedFlags.AllFlags() : QuoteFieldUpdatedFlags.None;
         }
     }
@@ -463,14 +464,14 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
         OverrideSerializationFlags = null;
 
         PQSequenceId        = 0;
-        singlePrice         = 0;
+        singleValue         = 0;
         sourceTime          = DateTimeConstants.UnixEpoch;
         socketReceivingTime = DateTimeConstants.UnixEpoch;
         processedTime       = DateTimeConstants.UnixEpoch;
         dispatchedTime      = DateTimeConstants.UnixEpoch;
         clientReceivedTime  = DateTimeConstants.UnixEpoch;
         LastPublicationTime = DateTimeConstants.UnixEpoch;
-        PQPriceSyncStatus   = PriceSyncStatus.OutOfSync;
+        FeedSyncStatus      = FeedSyncStatus.OutOfSync;
         IsReplay            = false;
         UpdatedFlags        = QuoteFieldUpdatedFlags.None;
     }
@@ -481,14 +482,14 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
 
-        if (PQSourceTickerQuoteInfo != null)
-            foreach (var field in PQSourceTickerQuoteInfo.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                                                                               quotePublicationPrecisionSettings))
+        if (PQSourceTickerInfo != null)
+            foreach (var field in PQSourceTickerInfo.GetDeltaUpdateFields(snapShotTime, messageFlags,
+                                                                          quotePublicationPrecisionSettings))
                 yield return field;
 
-        if (!updatedOnly || IsSinglePriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.SinglePrice, SinglePrice,
-                                           PQSourceTickerQuoteInfo?.PriceScalingPrecision ?? 1);
+        if (!updatedOnly || IsSingleValueUpdated)
+            yield return new PQFieldUpdate(PQFieldKeys.SingleTickValue, SingleTickValue,
+                                           PQSourceTickerInfo?.PriceScalingPrecision ?? 1);
         if (!updatedOnly || IsSourceTimeDateUpdated)
             yield return new PQFieldUpdate(PQFieldKeys.SourceSentDateTime, sourceTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsSourceTimeSubHourUpdated)
@@ -502,7 +503,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
             yield return new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)booleanFields);
         }
 
-        if (!updatedOnly || IsSyncStatusUpdated) yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)PQPriceSyncStatus);
+        if (!updatedOnly || IsFeedSyncStatusUpdated) yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)FeedSyncStatus);
 
         var includeReceiverTimes = (messageFlags & StorageFlags.IncludeReceiverTimes) > 0;
         if (includeReceiverTimes)
@@ -549,13 +550,13 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        var infoResult = PQSourceTickerQuoteInfo!.UpdateField(pqFieldUpdate);
+        var infoResult = PQSourceTickerInfo!.UpdateField(pqFieldUpdate);
         if (infoResult > 0) return infoResult;
         switch (pqFieldUpdate.Id)
         {
-            case PQFieldKeys.SinglePrice:
-                IsSinglePriceUpdated = true;
-                SinglePrice          = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+            case PQFieldKeys.SingleTickValue:
+                IsSingleValueUpdated = true;
+                SingleTickValue      = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
                 return 0;
             case PQFieldKeys.SourceSentDateTime:
                 IsSourceTimeDateUpdated = true;
@@ -570,7 +571,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
                 SetBooleanFields((PQBooleanValues)pqFieldUpdate.Value);
                 return 0;
             case PQFieldKeys.PQSyncStatus:
-                PQPriceSyncStatus = (PriceSyncStatus)pqFieldUpdate.Value;
+                FeedSyncStatus = (FeedSyncStatus)pqFieldUpdate.Value;
                 return 0;
             case PQFieldKeys.SocketReceivingDateTime:
                 IsSocketReceivedTimeDateUpdated = true;
@@ -615,25 +616,25 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
-        if (PQSourceTickerQuoteInfo != null)
-            foreach (var field in PQSourceTickerQuoteInfo.GetStringUpdates(snapShotTime, messageFlags))
+        if (PQSourceTickerInfo != null)
+            foreach (var field in PQSourceTickerInfo.GetStringUpdates(snapShotTime, messageFlags))
                 yield return field;
     }
 
     public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate) =>
-        PQSourceTickerQuoteInfo != null && PQSourceTickerQuoteInfo.UpdateFieldString(stringUpdate);
+        PQSourceTickerInfo != null && PQSourceTickerInfo.UpdateFieldString(stringUpdate);
 
 
-    DateTime ITimeSeriesEntry<ILevel0Quote>.StorageTime(IStorageTimeResolver<ILevel0Quote>? resolver) => StorageTime(resolver);
+    DateTime ITimeSeriesEntry<ITickInstant>.StorageTime(IStorageTimeResolver<ITickInstant>? resolver) => StorageTime(resolver);
 
-    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (source is IPQLevel0Quote ipq0)
+        if (source is IPQTickInstant ipq0)
         {
-            if (PQSourceTickerQuoteInfo != null)
-                PQSourceTickerQuoteInfo.CopyFrom(ipq0.SourceTickerQuoteInfo!, copyMergeFlags);
+            if (PQSourceTickerInfo != null)
+                PQSourceTickerInfo.CopyFrom(ipq0.SourceTickerInfo!, copyMergeFlags);
             else
-                SourceTickerQuoteInfo = ipq0.SourceTickerQuoteInfo;
+                SourceTickerInfo = ipq0.SourceTickerInfo;
             // only copy if changed
             var isFullReplace = copyMergeFlags.HasFullReplace();
             if (ipq0.IsSourceTimeDateUpdated || isFullReplace)
@@ -697,16 +698,16 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
                 IsClientReceivedTimeSubHourUpdated = originalClientReceivedTime != clientReceivedTime;
             }
 
-            if (ipq0.IsReplayUpdated || isFullReplace) IsReplay              = ipq0.IsReplay;
-            if (ipq0.IsSinglePriceUpdated || isFullReplace) SinglePrice      = ipq0.SinglePrice;
-            if (ipq0.IsSyncStatusUpdated || isFullReplace) PQPriceSyncStatus = ipq0.PQPriceSyncStatus;
+            if (ipq0.IsReplayUpdated || isFullReplace) IsReplay               = ipq0.IsReplay;
+            if (ipq0.IsSingleValueUpdated || isFullReplace) SingleTickValue   = ipq0.SingleTickValue;
+            if (ipq0.IsFeedSyncStatusUpdated || isFullReplace) FeedSyncStatus = ipq0.FeedSyncStatus;
             //PQ tracks its own changes only copy explicit changes
 
             OverrideSerializationFlags = ipq0.OverrideSerializationFlags;
 
             PQSequenceId = ipq0.PQSequenceId;
 
-            if (source is PQLevel0Quote pq0)
+            if (source is PQTickInstant pq0)
             {
                 LastPublicationTime = pq0.LastPublicationTime;
                 if (isFullReplace) UpdatedFlags = pq0.UpdatedFlags;
@@ -717,51 +718,52 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
             OverrideSerializationFlags = null;
 
             ClientReceivedTime = source.ClientReceivedTime;
-            if (source.SourceTickerQuoteInfo != null)
+            if (source.SourceTickerInfo != null)
             {
-                SourceTickerQuoteInfo ??= new PQSourceTickerQuoteInfo(source.SourceTickerQuoteInfo);
-                SourceTickerQuoteInfo.CopyFrom(source.SourceTickerQuoteInfo);
+                SourceTickerInfo ??= new PQSourceTickerInfo(source.SourceTickerInfo);
+                SourceTickerInfo.CopyFrom(source.SourceTickerInfo);
             }
             else
             {
-                SourceTickerQuoteInfo?.StateReset();
+                SourceTickerInfo?.StateReset();
             }
-            SourceTime  = source.SourceTime;
-            IsReplay    = source.IsReplay;
-            SinglePrice = source.SinglePrice;
+            SourceTime      = source.SourceTime;
+            IsReplay        = source.IsReplay;
+            SingleTickValue = source.SingleTickValue;
+            FeedSyncStatus  = source.FeedSyncStatus;
         }
 
         return this;
     }
 
     IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
-        (IVersionedMessage)CopyFrom((ILevel0Quote)source, copyMergeFlags);
+        (IVersionedMessage)CopyFrom((ITickInstant)source, copyMergeFlags);
 
     public IReusableObject<IVersionedMessage> CopyFrom
         (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        (IVersionedMessage)CopyFrom((ILevel0Quote)source, copyMergeFlags);
+        (IVersionedMessage)CopyFrom((ITickInstant)source, copyMergeFlags);
 
-    public virtual void EnsureRelatedItemsAreConfigured(ILevel0Quote? referenceInstance)
+    public virtual void EnsureRelatedItemsAreConfigured(ITickInstant? referenceInstance)
     {
-        if (referenceInstance?.SourceTickerQuoteInfo is IPQSourceTickerQuoteInfo pqSrcTkrQuoteInfo) SourceTickerQuoteInfo = pqSrcTkrQuoteInfo;
+        if (referenceInstance?.SourceTickerInfo is IPQSourceTickerInfo pqSrcTkrQuoteInfo) SourceTickerInfo = pqSrcTkrQuoteInfo;
     }
 
-    ILevel0Quote ICloneable<ILevel0Quote>.          Clone() => Clone();
+    ITickInstant ICloneable<ITickInstant>.          Clone() => Clone();
     IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
 
-    IMutableLevel0Quote IMutableLevel0Quote.Clone() => Clone();
+    IMutableTickInstant IMutableTickInstant.Clone() => Clone();
 
-    IPQLevel0Quote IPQLevel0Quote.Clone() => Clone();
+    IPQTickInstant IPQTickInstant.Clone() => Clone();
 
-    public virtual bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
         var isReplaySame = IsReplay == other.IsReplay;
-        var tickerQuoteInfoSame =
-            PQSourceTickerQuoteInfo?.AreEquivalent(other.SourceTickerQuoteInfo, exactTypes)
-         ?? other.SourceTickerQuoteInfo == null;
-        var singlePriceSame = singlePrice == other.SinglePrice;
+        var tickerInfoSame =
+            PQSourceTickerInfo?.AreEquivalent(other.SourceTickerInfo, exactTypes)
+         ?? other.SourceTickerInfo == null;
+        var singlePriceSame = singleValue == other.SingleTickValue;
         var sourceTimeSame  = SourceTime.Equals(other.SourceTime);
 
         var sequenceIdSame        = true;
@@ -774,46 +776,46 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
         var clientReceivedSame      = true;
         var updatedFlagsSame        = true;
         var booleanFieldsSame       = true;
-        var pqLevel0Quote           = other as PQLevel0Quote;
+        var pqTickInstant           = other as PQTickInstant;
         if (exactTypes)
         {
-            sequenceIdSame        = PQSequenceId == pqLevel0Quote!.PQSequenceId;
-            publicationStatusSame = PQPriceSyncStatus == pqLevel0Quote.PQPriceSyncStatus;
+            sequenceIdSame        = PQSequenceId == pqTickInstant!.PQSequenceId;
+            publicationStatusSame = FeedSyncStatus == pqTickInstant.FeedSyncStatus;
 
-            socketReceivingTimeSame = SocketReceivingTime.Equals(pqLevel0Quote.SocketReceivingTime);
-            lastPubTimeSame         = LastPublicationTime.Equals(pqLevel0Quote.LastPublicationTime);
-            processingTimeSame      = ProcessedTime.Equals(pqLevel0Quote.ProcessedTime);
-            dispatchTimeSame        = DispatchedTime.Equals(pqLevel0Quote.DispatchedTime);
+            socketReceivingTimeSame = SocketReceivingTime.Equals(pqTickInstant.SocketReceivingTime);
+            lastPubTimeSame         = LastPublicationTime.Equals(pqTickInstant.LastPublicationTime);
+            processingTimeSame      = ProcessedTime.Equals(pqTickInstant.ProcessedTime);
+            dispatchTimeSame        = DispatchedTime.Equals(pqTickInstant.DispatchedTime);
             clientReceivedSame      = ClientReceivedTime == other.ClientReceivedTime;
 
-            updatedFlagsSame  = UpdatedFlags == pqLevel0Quote.UpdatedFlags;
-            booleanFieldsSame = BooleanFields == pqLevel0Quote.BooleanFields;
+            updatedFlagsSame  = UpdatedFlags == pqTickInstant.UpdatedFlags;
+            booleanFieldsSame = BooleanFields == pqTickInstant.BooleanFields;
         }
 
-        var allAreSame = clientReceivedSame && isReplaySame && tickerQuoteInfoSame && singlePriceSame && sourceTimeSame
+        var allAreSame = clientReceivedSame && isReplaySame && tickerInfoSame && singlePriceSame && sourceTimeSame
                       && updatedFlagsSame && booleanFieldsSame && dispatchTimeSame && processingTimeSame && lastPubTimeSame
                       && socketReceivingTimeSame && sequenceIdSame && publicationStatusSame;
         return allAreSame;
     }
 
-    public DateTime StorageTime(IStorageTimeResolver<PQLevel0Quote>? resolver = null)
+    public DateTime StorageTime(IStorageTimeResolver<PQTickInstant>? resolver = null)
     {
         resolver ??= QuoteStorageTimeResolver.Instance;
         return resolver.ResolveStorageTime(this);
     }
 
-    public virtual PQLevel0Quote SetSourceTickerQuoteInfo(ISourceTickerQuoteInfo toSet)
+    public virtual PQTickInstant SetSourceTickerInfo(ISourceTickerInfo toSet)
     {
-        SourceTickerQuoteInfo = toSet;
+        SourceTickerInfo = toSet;
         return this;
     }
 
-    private PQSourceTickerQuoteInfo ConvertToPQSourceTickerInfo
-        (ISourceTickerQuoteInfo value, PQSourceTickerQuoteInfo? originalQuoteInfo)
+    private PQSourceTickerInfo ConvertToPQSourceTickerInfo
+        (ISourceTickerInfo value, PQSourceTickerInfo? originalQuoteInfo)
     {
         if (originalQuoteInfo == null)
         {
-            originalQuoteInfo = new PQSourceTickerQuoteInfo(value);
+            originalQuoteInfo = new PQSourceTickerInfo(value);
             return originalQuoteInfo;
         }
 
@@ -833,7 +835,7 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
         if (IsReplayUpdated) IsReplay = (booleanFlags & PQBooleanValues.IsReplaySetFlag) == PQBooleanValues.IsReplaySetFlag;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((PQLevel0Quote?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((PQTickInstant?)obj, true);
 
     public override int GetHashCode()
     {
@@ -841,9 +843,9 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
         {
             var hashCode = (int)UpdatedFlags;
             hashCode = (hashCode * 397) ^ (int)PQSequenceId;
-            hashCode = (hashCode * 397) ^ SourceTickerQuoteInfo?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ SourceTickerInfo?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ BooleanFields.GetHashCode();
-            hashCode = (hashCode * 397) ^ singlePrice.GetHashCode();
+            hashCode = (hashCode * 397) ^ singleValue.GetHashCode();
             hashCode = (hashCode * 397) ^ sourceTime.GetHashCode();
             hashCode = (hashCode * 397) ^ LastPublicationTime.GetHashCode();
             hashCode = (hashCode * 397) ^ SocketReceivingTime.GetHashCode();
@@ -851,11 +853,11 @@ public class PQLevel0Quote : ReusableObject<ILevel0Quote>, IPQLevel0Quote, ITime
             hashCode = (hashCode * 397) ^ DispatchedTime.GetHashCode();
             hashCode = (hashCode * 397) ^ ClientReceivedTime.GetHashCode();
             hashCode = (hashCode * 397) ^ IsReplay.GetHashCode();
-            hashCode = (hashCode * 397) ^ (int)PQPriceSyncStatus;
-            hashCode = (hashCode * 397) ^ (SourceTickerQuoteInfo?.GetHashCode() ?? 0);
+            hashCode = (hashCode * 397) ^ (int)FeedSyncStatus;
+            hashCode = (hashCode * 397) ^ (SourceTickerInfo?.GetHashCode() ?? 0);
             return hashCode;
         }
     }
 
-    public override string ToString() => $"{GetType().Name}({Level0ToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({TickInstantToStringMembers})";
 }

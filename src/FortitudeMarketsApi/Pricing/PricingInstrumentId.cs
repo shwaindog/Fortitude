@@ -68,6 +68,20 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         Category             = toClone.Category;
     }
 
+    public PricingInstrument(SourceTickerIdentifier toClone) : base(toClone)
+    {
+        EntryPeriod          = TimeSeriesPeriod.Tick;
+        MarketClassification = MarketClassificationExtensions.Unknown;
+        InstrumentType       = InstrumentType.Price;
+    }
+
+    public PricingInstrument(SourceTickerIdValue toClone) : base(toClone)
+    {
+        EntryPeriod          = TimeSeriesPeriod.Tick;
+        MarketClassification = MarketClassificationExtensions.Unknown;
+        InstrumentType       = InstrumentType.Price;
+    }
+
     public PricingInstrument(PricingInstrumentId toClone) : base(toClone)
     {
         EntryPeriod          = toClone.EntryPeriod;
@@ -253,7 +267,8 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
 
     IPricingInstrumentId ICloneable<IPricingInstrumentId>.Clone() => Clone();
 
-    public override IPricingInstrumentId Clone() => Recycler?.Borrow<PricingInstrument>().CopyFrom(this) ?? new PricingInstrument(this);
+    public override IPricingInstrumentId Clone() =>
+        Recycler?.Borrow<PricingInstrument>().CopyFrom(this) ?? new PricingInstrument((IPricingInstrumentId)this);
 
     public override void StateReset()
     {

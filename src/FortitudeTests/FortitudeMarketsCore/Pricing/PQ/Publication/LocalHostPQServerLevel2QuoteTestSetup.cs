@@ -26,7 +26,7 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
     public void SetupPQServer()
     {
         CreatePQPublisher();
-        Level2PriceQuoteTests.GenerateL2QuoteWithSourceNameLayer(FirstTickerQuoteInfo);
+        Level2PriceQuoteTests.GenerateL2QuoteWithSourceNameLayer(FirstTickerInfo);
     }
 
     public void InitializeLevel2QuoteConfig()
@@ -44,7 +44,7 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
         PqPublisher = new PQPublisher<PQLevel2Quote>(PqServer);
         PqPublisher.RegisterTickersWithServer(useMarketConnectionConfig);
         Logger.Info("Started PQServer");
-        Level2PriceQuote = Level2PriceQuoteTests.GenerateL2QuoteWithSourceNameLayer(FirstTickerQuoteInfo);
+        Level2PriceQuote = Level2PriceQuoteTests.GenerateL2QuoteWithSourceNameLayer(FirstTickerInfo);
         return PqPublisher;
     }
 

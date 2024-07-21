@@ -14,7 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 
 public interface IPQSourceTickerId : ISourceTickerId, IReusableObject<IPQSourceTickerId>
   , IHasNameIdLookup, IPQSupportsFieldUpdates<IPQSourceTickerId>, IPQSupportsStringUpdates<IPQSourceTickerId>
@@ -63,6 +63,22 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
             IsSourceUpdated = pqSourceTickerId.IsSourceUpdated;
             IsTickerUpdated = pqSourceTickerId.IsTickerUpdated;
         }
+    }
+
+    public PQSourceTickerId(SourceTickerIdentifier toClone)
+    {
+        SourceId = toClone.SourceId;
+        TickerId = toClone.TickerId;
+        Source   = toClone.Source;
+        Ticker   = toClone.Ticker;
+    }
+
+    public PQSourceTickerId(SourceTickerIdValue toClone)
+    {
+        SourceId = toClone.SourceId;
+        TickerId = toClone.TickerId;
+        Source   = toClone.Source;
+        Ticker   = toClone.Ticker;
     }
 
     public uint SourceTickerId => ((uint)SourceId << 16) | TickerId;
@@ -258,7 +274,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         return this;
     }
 
-    public virtual bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(ISourceTickerInfo? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
@@ -283,7 +299,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         return allAreSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ISourceTickerQuoteInfo?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ISourceTickerInfo?)obj, true);
 
     public override int GetHashCode()
     {

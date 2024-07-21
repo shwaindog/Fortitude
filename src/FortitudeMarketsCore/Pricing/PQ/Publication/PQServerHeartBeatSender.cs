@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Reflection;
 using FortitudeCommon.AsyncProcessing;
@@ -23,25 +26,26 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
         = FLoggerFactory.Instance.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType!);
 
     private readonly IOSParallelController parallelController;
+
     private volatile bool hasStarted;
+
     private IOSThread? heartBeatOSThread;
 
     public PQServerHeartBeatSender() => parallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
 
     public IPQUpdateServer? UpdateServer { get; set; }
 
-    public IDoublyLinkedList<IPQLevel0Quote>? ServerLinkedQuotes { get; set; }
+    public IDoublyLinkedList<IPQTickInstant>? ServerLinkedQuotes { get; set; }
 
     public ISyncLock? ServerLinkedLock { get; set; }
 
-    public bool HasStarted =>
-        hasStarted && UpdateServer != null
-                   && ServerLinkedLock != null && ServerLinkedQuotes != null;
+    public bool HasStarted => hasStarted && UpdateServer != null && ServerLinkedLock != null && ServerLinkedQuotes != null;
 
     public void StartSendingHeartBeats()
     {
-        hasStarted = true;
+        hasStarted        = true;
         heartBeatOSThread = parallelController.CreateNewOSThread(CheckPublishHeartbeats);
+
         heartBeatOSThread.IsBackground = true;
         heartBeatOSThread.Start();
     }
@@ -55,8 +59,8 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
     internal void CheckPublishHeartbeats()
     {
         var lastRun = TimeContext.UtcNow;
-        var hbs = new List<IPQLevel0Quote>();
-        var hbm = new PQHeartBeatQuotesMessage(hbs);
+        var hbs     = new List<IPQTickInstant>();
+        var hbm     = new PQHeartBeatQuotesMessage(hbs);
         while (HasStarted)
             try
             {
@@ -68,24 +72,24 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
                     hbs.Clear();
                     while (!ServerLinkedQuotes!.IsEmpty)
                     {
-                        IPQLevel0Quote? level0Quote;
+                        IPQTickInstant? tickInstant;
                         ServerLinkedLock!.Acquire();
                         try
                         {
-                            if ((level0Quote = ServerLinkedQuotes.Head) == null
-                                || (TimeContext.UtcNow - level0Quote.LastPublicationTime).TotalMilliseconds <
+                            if ((tickInstant = ServerLinkedQuotes.Head) == null
+                             || (TimeContext.UtcNow - tickInstant.LastPublicationTime).TotalMilliseconds <
                                 HbToleranceMs)
                                 break;
-                            ServerLinkedQuotes.Remove(level0Quote);
-                            ServerLinkedQuotes.AddLast(level0Quote);
-                            level0Quote.LastPublicationTime = TimeContext.UtcNow;
+                            ServerLinkedQuotes.Remove(tickInstant);
+                            ServerLinkedQuotes.AddLast(tickInstant);
+                            tickInstant.LastPublicationTime = TimeContext.UtcNow;
                         }
                         finally
                         {
                             ServerLinkedLock.Release();
                         }
 
-                        hbs.Add(level0Quote);
+                        hbs.Add(tickInstant);
                     }
 
                     if (hbs.Count > 0 && UpdateServer is { IsStarted: true }) UpdateServer.Send(hbm);

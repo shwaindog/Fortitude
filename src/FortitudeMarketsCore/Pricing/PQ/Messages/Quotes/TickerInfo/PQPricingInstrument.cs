@@ -17,7 +17,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
-namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 
 public interface IPQPricingInstrumentId : IPQSourceTickerId, IPricingInstrumentId, ICloneable<IPQPricingInstrumentId>
 {
@@ -33,13 +33,17 @@ public interface IPQPricingInstrumentId : IPQSourceTickerId, IPricingInstrumentI
 
 public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
 {
+    private InstrumentType?      instrumentType;
     private MarketClassification marketClassification;
 
     private string[]? optionalKeys;
     private string[]? requiredKeys;
 
-    private InstrumentType? timeSeriesType;
-    public PQPricingInstrument() { }
+    public PQPricingInstrument()
+    {
+        marketClassification = MarketClassificationExtensions.Unknown;
+        instrumentType       = InstrumentType.Price;
+    }
 
     public PQPricingInstrument
     (ushort sourceId, ushort tickerId, string source, string ticker, TimeSeriesPeriod period, InstrumentType instrumentType
@@ -63,13 +67,27 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         if (toClone is IPQPricingInstrumentId pubToClone) IsMarketClassificationUpdated = pubToClone.IsMarketClassificationUpdated;
     }
 
+    public PQPricingInstrument(SourceTickerIdentifier toClone) : base(toClone)
+    {
+        EntryPeriod          = TimeSeriesPeriod.Tick;
+        marketClassification = MarketClassificationExtensions.Unknown;
+        instrumentType       = InstrumentType.Price;
+    }
+
+    public PQPricingInstrument(SourceTickerIdValue toClone) : base(toClone)
+    {
+        EntryPeriod          = TimeSeriesPeriod.Tick;
+        marketClassification = MarketClassificationExtensions.Unknown;
+        instrumentType       = InstrumentType.Price;
+    }
+
     string IInstrument.InstrumentName   => Ticker;
     string IInstrument.InstrumentSource => Source;
 
     public InstrumentType InstrumentType
     {
-        get => timeSeriesType ?? InstrumentType.Price;
-        set => timeSeriesType = value;
+        get => instrumentType ?? InstrumentType.Price;
+        set => instrumentType = value;
     }
 
     public MarketClassification MarketClassification
@@ -286,9 +304,9 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
         (IPQPricingInstrumentId)CopyFrom(source, copyMergeFlags);
 
-    public override bool AreEquivalent(ISourceTickerQuoteInfo? other, bool exactTypes = false)
+    public override bool AreEquivalent(ISourceTickerInfo? other, bool exactTypes = false)
     {
-        if (other == null || (exactTypes && other is not IPQSourceTickerQuoteInfo srcTkrQtInfo)) return false;
+        if (other == null || (exactTypes && other is not IPQSourceTickerInfo srcTkrInfo)) return false;
 
         var baseIsSame = base.AreEquivalent(other, exactTypes);
 
