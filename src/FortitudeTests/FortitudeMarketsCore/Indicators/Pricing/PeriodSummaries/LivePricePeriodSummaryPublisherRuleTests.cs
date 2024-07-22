@@ -28,7 +28,7 @@ using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -39,20 +39,20 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 {
     private readonly DateTime testEpochTime = new(2024, 7, 11);
 
-    private readonly SourceTickerQuoteInfo tickerId15SPeriod = new
-        (2, "SourceName", 2, "TickerName2", Level1, Unknown
+    private readonly SourceTickerInfo tickerId15SPeriod = new
+        (2, "SourceName", 2, "TickerName2", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly SourceTickerQuoteInfo tickerId1MPeriod = new
-        (2, "SourceName", 2, "TickerName4", Level1, Unknown
+    private readonly SourceTickerInfo tickerId1MPeriod = new
+        (2, "SourceName", 2, "TickerName4", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly SourceTickerQuoteInfo tickerId30SPeriod = new
-        (3, "SourceName", 3, "TickerName3", Level1, Unknown
+    private readonly SourceTickerInfo tickerId30SPeriod = new
+        (3, "SourceName", 3, "TickerName3", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly SourceTickerQuoteInfo tickerId5SPeriod = new
-        (1, "SourceName", 1, "TickerName1", Level1, Unknown
+    private readonly SourceTickerInfo tickerId5SPeriod = new
+        (1, "SourceName", 1, "TickerName1", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
     private List<PricePeriodSummary>            fifteenSecondPeriodSummaries = null!;

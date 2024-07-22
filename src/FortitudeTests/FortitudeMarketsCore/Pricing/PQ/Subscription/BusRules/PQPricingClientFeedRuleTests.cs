@@ -76,7 +76,7 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         Assert.IsTrue(receivedSnapshotTick, "Did not receive snapshot response tick from the client before timeout was reached");
         haveReceivedPriceAutoResetEvent.Reset();
         logger.Info("Received snapshot await update");
-        var sourcePriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(pqServerL3QuoteServerSetup.FirstTickerQuoteInfo, 3);
+        var sourcePriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(pqServerL3QuoteServerSetup.FirstTickerInfo, 3);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
         var receivedUpdateTick = haveReceivedPriceAutoResetEvent.WaitOne(8_000);
         logger.Info("Received update ");

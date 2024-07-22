@@ -6,9 +6,10 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Indicators;
+using FortitudeMarketsApi.Indicators.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Indicators;
-using FortitudeMarketsCore.Indicators.Pricing;
 using FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
@@ -18,24 +19,23 @@ using FortitudeTests.FortitudeMarketsCore.Indicators.Config;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
 namespace FortitudeTests.FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
 [TestClass]
-public class LiveSharedTicksMovingAveragePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
+public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
     private readonly DateTime testEpochTime = new(2024, 7, 11);
 
-    private readonly SourceTickerQuoteInfo tickerId15SPeriod = new
-        (2, "SourceName", 2, "TickerName2", Level1, Unknown
+    private readonly SourceTickerInfo tickerId15SPeriod = new
+        (2, "SourceName", 2, "TickerName2", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
 
-    private SharedTicksMovingAveragePublishParams fifteenSecondsLivePeriodParams;
-
+    private LiveShortPeriodMovingAveragePublishParams fifteenSecondsLivePeriodParams;
 
     private decimal highLowSpread;
 
@@ -66,9 +66,8 @@ public class LiveSharedTicksMovingAveragePublisherRuleTests : OneOfEachMessageQu
         Generate1SQuotes();
 
         fifteenSecondsLivePeriodParams
-            = new SharedTicksMovingAveragePublishParams
-                (tickerId15SPeriod, new IndicatorPublishInterval(TimeSpan.FromSeconds(1))
-               , new MovingAverageOffset(TimeSpan.FromSeconds(15)));
+            = new LiveShortPeriodMovingAveragePublishParams
+                (new IndicatorSourceTickerIdentifier(IndicatorConstants.BidAskMovingAverageId, tickerId15SPeriod));
         var unitTestNoRepositoryConfig = IndicatorServicesConfigTests.UnitTestNoRepositoryConfig();
         unitTestNoRepositoryConfig.PersistenceConfig.PersistPriceSummaries = true;
         indicatorRegistryStubRule
@@ -105,7 +104,7 @@ public class LiveSharedTicksMovingAveragePublisherRuleTests : OneOfEachMessageQu
     }
 
     // private class TestLiveMovingAverageClient
-    //     (PricingInstrumentId pricingInstrumentId, int waitNumberForCompleted = 1, int waitNumberForLive = 1) : Rule
+    //     (IndicatorSourceTickerIdentifier instrumentSourceTickerIdentifier, int waitNumberForCompleted = 1, int waitNumberForLive = 1) : Rule
     // {
     //     private const string LivePeriodTestClientPublishPricesAddress
     //         = "TestClient.LivePricePeriodSummary.Publish.Quotes";

@@ -21,7 +21,7 @@ using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.Summaries;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion
@@ -31,9 +31,10 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.F
 [TestClass]
 public class PriceSummaryTimeSeriesFileTests
 {
-    private static readonly IFLogger                   Logger = FLoggerFactory.Instance.GetLogger(typeof(PriceSummaryTimeSeriesFileTests));
-    private readonly        Func<PricePeriodSummary>   asDtoPricePeriodSummaryFactory = () => new PricePeriodSummary();
-    private readonly        Func<PQPricePeriodSummary> asPQPricePeriodSummaryFactory = () => new PQPricePeriodSummary();
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PriceSummaryTimeSeriesFileTests));
+
+    private readonly Func<PricePeriodSummary>   asDtoPricePeriodSummaryFactory = () => new PricePeriodSummary();
+    private readonly Func<PQPricePeriodSummary> asPQPricePeriodSummaryFactory  = () => new PQPricePeriodSummary();
 
     private readonly Func<IPricePeriodSummary> asPricePeriodSummaryFactory = () => new PricePeriodSummary();
 
@@ -44,7 +45,7 @@ public class PriceSummaryTimeSeriesFileTests
 
     private PricePeriodSummaryGenerator priceSummaryGenerator = null!;
 
-    private SourceTickerQuoteInfo srcTkrQtInfo = null!;
+    private SourceTickerInfo srcTkrInfo = null!;
 
     private DateTime startOfWeek;
 
@@ -53,10 +54,11 @@ public class PriceSummaryTimeSeriesFileTests
     public void Setup()
     {
         PagedMemoryMappedFile.LogMappingMessages = true;
-        srcTkrQtInfo =
-            new SourceTickerQuoteInfo
-                (19, "PriceSummaryTimeSeriesFileTests", 79, "PriceSummaryTests", Level0, Unknown
-               , 1, 0.1m, 10_000m, 100_000_000m, 10_000m, 1, LayerFlags.None);
+        srcTkrInfo =
+            new SourceTickerInfo
+                (19, "PriceSummaryTimeSeriesFileTests", 79, "PriceSummaryTests", SingleValue, Unknown
+               , 1, 0.1m, 1m, 10_000m, 100_000_000m, 10_000m, 1, 10_000
+               , true, false, LayerFlags.None);
 
 
         asPQPriceStoragePeriodSummaryFactory = () => new PQPriceStoragePeriodSummary();
@@ -65,7 +67,7 @@ public class PriceSummaryTimeSeriesFileTests
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         startOfWeek = dateToGenerate.AddDays(dayDiff);
 
-        var generateQuoteInfo = new GeneratePriceSummariesInfo(srcTkrQtInfo);
+        var generateQuoteInfo = new GeneratePriceSummariesInfo(srcTkrInfo);
         generateQuoteInfo.MidPriceGenerator!.StartTime            = startOfWeek;
         generateQuoteInfo.MidPriceGenerator!.StartPrice           = 200_042m;
         generateQuoteInfo.MidPriceGenerator!.RoundAtDecimalPlaces = 1;
@@ -110,7 +112,7 @@ public class PriceSummaryTimeSeriesFileTests
                , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.PriceSummaryPeriod, entryPeriod, instrumentFields
                               , optionalInstrumentFields)
                , filePeriod, fileStartTime, internalIndexSize, fileFlags);
-        return new PriceTimeSeriesFileParameters(srcTkrQtInfo, createTestCreateFileParameters);
+        return new PriceTimeSeriesFileParameters(srcTkrInfo, createTestCreateFileParameters);
     }
 
     [TestCleanup]

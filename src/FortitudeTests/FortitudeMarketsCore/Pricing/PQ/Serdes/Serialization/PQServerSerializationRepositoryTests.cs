@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarketsCore.Pricing.PQ.Messages;
@@ -23,7 +26,7 @@ public class PQServerSerializationRepositoryTests
     [TestMethod]
     public void NewSerializationFactory_GetSerializer_ReturnsAppropriateSerializerForMessageType()
     {
-        snapshotServerSerializationRepository.RegisterSerializer<PQLevel0Quote>();
+        snapshotServerSerializationRepository.RegisterSerializer<PQTickInstant>();
         var quoteSerializer = snapshotServerSerializationRepository.GetSerializer((uint)PQMessageIds.Quote);
         Assert.IsInstanceOfType(quoteSerializer, typeof(PQQuoteSerializer));
 

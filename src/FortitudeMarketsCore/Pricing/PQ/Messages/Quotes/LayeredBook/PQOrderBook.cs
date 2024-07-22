@@ -13,7 +13,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
@@ -23,7 +23,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 
 public interface IPQOrderBook : IMutableOrderBook, IPQSupportsFieldUpdates<IOrderBook>,
     IPQSupportsStringUpdates<IOrderBook>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBook>,
-    IRelatedItem<IPQSourceTickerQuoteInfo>, IRelatedLinkedItem<LayerFlags, IPQNameIdLookupGenerator>,
+    IRelatedItem<IPQSourceTickerInfo>, IRelatedLinkedItem<LayerFlags, IPQNameIdLookupGenerator>,
     ISupportsPQNameIdLookupGenerator
 
 {
@@ -57,12 +57,12 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         LayersOfType = layerType;
     }
 
-    public PQOrderBook(BookSide bookSide, IPQSourceTickerQuoteInfo srcTickerQuoteInfo)
+    public PQOrderBook(BookSide bookSide, IPQSourceTickerInfo srcTickerInfo)
     {
         BookSide     = bookSide;
-        IsLadder     = srcTickerQuoteInfo.LayerFlags.HasLadder();
-        NameIdLookup = InitializeNewIdLookupGenerator(srcTickerQuoteInfo.NameIdLookup);
-        EnsureRelatedItemsAreConfigured(srcTickerQuoteInfo);
+        IsLadder     = srcTickerInfo.LayerFlags.HasLadder();
+        NameIdLookup = InitializeNewIdLookupGenerator(srcTickerInfo.NameIdLookup);
+        EnsureRelatedItemsAreConfigured(srcTickerInfo);
     }
 
     public PQOrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null, bool isLadder = false)
@@ -291,8 +291,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
 
     public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        if (stringUpdate.Field.Id == PQFieldKeys.LayerNameDictionaryUpsertCommand)
-            return NameIdLookup.UpdateFieldString(stringUpdate);
+        if (stringUpdate.Field.Id == PQFieldKeys.LayerNameDictionaryUpsertCommand) return NameIdLookup.UpdateFieldString(stringUpdate);
         return false;
     }
 
@@ -322,8 +321,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             else
                 AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, NameIdLookup, sourceLayer, copyMergeFlags));
             if (sourceLayer is { IsEmpty: false }) continue;
-            if (destinationLayer is IMutablePriceVolumeLayer mutableDestinationLayer)
-                mutableDestinationLayer.IsEmpty = true;
+            if (destinationLayer is IMutablePriceVolumeLayer mutableDestinationLayer) mutableDestinationLayer.IsEmpty = true;
         }
         for (var i = source.Count; i < source.Capacity; i++)
             AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, NameIdLookup, null, copyMergeFlags));
@@ -350,7 +348,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
         }
     }
 
-    public void EnsureRelatedItemsAreConfigured(IPQSourceTickerQuoteInfo? referenceInstance)
+    public void EnsureRelatedItemsAreConfigured(IPQSourceTickerInfo? referenceInstance)
     {
         if (referenceInstance is { NameIdLookup: not null }) NameIdLookup.CopyFrom(referenceInstance.NameIdLookup);
         LayersOfType = referenceInstance?.LayerFlags.MostCompactLayerType() ?? LayersOfType;

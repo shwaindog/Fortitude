@@ -327,6 +327,26 @@ public static class TimeSeriesPeriodExtensions
         return periodRanges;
     }
 
+    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsSmallerThan(this TimeSpan timeSpan)
+    {
+        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() < timeSpan);
+    }
+
+    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsGreaterThan(TimeSpan timeSpan)
+    {
+        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() > timeSpan);
+    }
+
+    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsSmallerThanOrEqualTo(this TimeSpan timeSpan)
+    {
+        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() <= timeSpan);
+    }
+
+    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsGreaterThanOrEqualTo(TimeSpan timeSpan)
+    {
+        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() >= timeSpan);
+    }
+
     public static string ShortName(this TimePeriod timePeriod)
     {
         if (timePeriod.IsTimeSeriesPeriod()) return timePeriod.TimeSeriesPeriod.ShortName();

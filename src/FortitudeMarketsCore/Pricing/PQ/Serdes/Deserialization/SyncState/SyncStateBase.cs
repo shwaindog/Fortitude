@@ -14,7 +14,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
+public abstract class SyncStateBase<T> where T : PQTickInstant, new()
 {
     protected const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.ffffff";
 
@@ -103,7 +103,7 @@ public abstract class SyncStateBase<T> where T : PQLevel0Quote, new()
     }
 
     protected void PublishQuoteRunAction
-    (PriceSyncStatus syncStatus, IPerfLogger? dispatchLatencyLogger,
+    (FeedSyncStatus syncStatus, IPerfLogger? dispatchLatencyLogger,
         Action<IPQQuoteDeserializer> syncStateAction)
     {
         LinkedDeserializer.PushQuoteToSubscribers(syncStatus, dispatchLatencyLogger);

@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
+public class SynchronisingState<T> : SyncStateBase<T> where T : PQTickInstant, new()
 {
     private DateTime lastSyncAttempt;
 
@@ -39,7 +39,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
         LogSyncRecoveryMessage(sequenceId);
         SwitchState(QuoteSyncState.InSync);
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
+        PublishQuoteRunAction(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
                               LinkedDeserializer.OnSyncOk);
     }
 
@@ -75,7 +75,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQLevel0Quote, n
                     LinkedDeserializer.Identifier, prevSeqId, currSeqId, prevSeqId);
 
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
+        PublishQuoteRunAction(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
                               LinkedDeserializer.OnSyncOk);
         SwitchState(QuoteSyncState.InSync);
     }

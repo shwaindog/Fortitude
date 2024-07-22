@@ -17,16 +17,16 @@ using FortitudeMarketsCore.Pricing.PQ.Summaries;
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
 public interface IPQQuoteAppendContext<TEntry, out TSerializeType> : IAppendContext<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
-    where TSerializeType : PQLevel0Quote, new()
+    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
+    where TSerializeType : PQTickInstant, new()
 {
     TSerializeType SerializeEntry { get; }
 }
 
 public class PQQuoteAppendContext<TEntry, TBucket, TSerializeType> : AppendContext<TEntry, TBucket>, IPQQuoteAppendContext<TEntry, TSerializeType>
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
+    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
-    where TSerializeType : PQLevel0Quote, new()
+    where TSerializeType : PQTickInstant, new()
 {
     public TSerializeType SerializeEntry { get; } = new();
 }

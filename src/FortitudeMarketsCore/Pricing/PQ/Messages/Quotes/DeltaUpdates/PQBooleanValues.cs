@@ -6,15 +6,16 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 [Flags]
 public enum PQBooleanValues : uint
 {
-    None                            = 0
-  , IsReplayUpdatedFlag             = 0x0001
-  , IsReplaySetFlag                 = 0x0002
-  , IsExecutableUpdatedFlag         = 0x0004
-  , IsExecutableSetFlag             = 0x0008
-  , IsBidPriceTopUpdatedChangedFlag = 0x0010
-  , IsBidPriceTopUpdatedSetFlag     = 0x0020
-  , IsAskPriceTopUpdatedChangedFlag = 0x0040
-  , IsAskPriceTopUpdatedSetFlag     = 0x0080
+    None                        = 0
+  , IsReplaySetFlag             = 0x01
+  , IsExecutableSetFlag         = 0x02
+  , IsBidPriceTopUpdatedSetFlag = 0x04
+  , IsAskPriceTopUpdatedSetFlag = 0x08
+
+  , IsReplayUpdatedFlag             = 0x01_00_00
+  , IsExecutableUpdatedFlag         = 0x02_00_00
+  , IsBidPriceTopUpdatedChangedFlag = 0x04_00_00
+  , IsAskPriceTopUpdatedChangedFlag = 0x08_00_00
 }
 
 public static class PQBooleanValuesExtensions

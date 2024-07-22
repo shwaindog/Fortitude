@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -29,14 +30,17 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
         Recycler?.Borrow<QuoteWrappingPricePeriodSummary>().CopyFrom(this) as QuoteWrappingPricePeriodSummary ??
         new QuoteWrappingPricePeriodSummary(this);
 
-    public override IPricePeriodSummary CopyFrom
-        (IPricePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes)
     {
-        if (source is QuoteWrappingPricePeriodSummary quoteWrappingPricePeriodSummary) level1Quote = quoteWrappingPricePeriodSummary.level1Quote;
-        return this;
-    }
+        if (other == null) return false;
+        if (exactTypes && other.GetType() != GetType()) return false;
+        var startTimeSame       = PeriodStartTime.Equals(other.AtTime);
+        var averageBidPriceSame = AverageBidAsk.BidPrice == other.BidPrice;
+        var averageAskPriceSame = AverageBidAsk.AskPrice == other.AskPrice;
 
-    IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
+        var allAreSame = startTimeSame && averageBidPriceSame && averageAskPriceSame;
+        return allAreSame;
+    }
 
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {
@@ -68,8 +72,25 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
 
     public PricePeriodSummaryFlags PeriodSummaryFlags { get; set; }
 
-    public IPricePeriodSummary? Previous { get; set; }
-    public IPricePeriodSummary? Next     { get; set; }
+    public IPricePeriodSummary? Previous
+    {
+        get => ((IBidAskInstant)this).Previous as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
+    }
+
+    public IPricePeriodSummary? Next
+    {
+        get => ((IBidAskInstant)this).Next as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
+    }
+
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
+
+    decimal IBidAskPair.BidPrice => AverageBidAsk.BidPrice;
+    decimal IBidAskPair.AskPrice => AverageBidAsk.AskPrice;
+
+    DateTime IBidAskInstant.AtTime => PeriodStartTime;
 
     public bool IsEmpty
     {
@@ -84,8 +105,10 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
     public BidAskPair HighestBidAsk => level1Quote?.BidAskTop ?? new BidAskPair();
     public BidAskPair LowestBidAsk  => level1Quote?.BidAskTop ?? new BidAskPair();
     public BidAskPair EndBidAsk     => level1Quote?.BidAskTop ?? new BidAskPair();
-    public uint       TickCount     => level1Quote != null ? (uint)1 : 0;
-    public long       PeriodVolume  { get; set; }
+
+    public uint TickCount    => level1Quote != null ? (uint)1 : 0;
+    public long PeriodVolume { get; set; }
+
     public BidAskPair AverageBidAsk => level1Quote?.BidAskTop ?? new BidAskPair();
 
     public BoundedTimeRange ToBoundedTimeRange(DateTime? maxDateTime = null) =>
@@ -109,6 +132,24 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
         level1Quote = null;
         base.StateReset();
     }
+
+    public override IPricePeriodSummary CopyFrom
+        (IPricePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is QuoteWrappingPricePeriodSummary quoteWrappingPricePeriodSummary) level1Quote = quoteWrappingPricePeriodSummary.level1Quote;
+        return this;
+    }
+
+    IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
+
+    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
+
+    IReusableObject<IBidAskInstant> IStoreState<IReusableObject<IBidAskInstant>>.CopyFrom
+        (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+
+    IBidAskInstant IStoreState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
     public IPricePeriodSummary CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

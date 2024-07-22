@@ -72,26 +72,26 @@ public class TimeSeriesRepositoryInfoStubRule : Rule
             = await this.RegisterRequestListenerAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
                 (TimeSeriesInstrumentFileInfoRequestResponse, HandleInstrumentFileInfo);
         instrumentFileEntriesInfoRequestListenSubscription
-            = await this.RegisterRequestListenerAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileEntryInfo>>
+            = await this.RegisterRequestListenerAsync<TimeSeriesRepositoryInstrumentFileEntryInfoRequest, List<InstrumentFileEntryInfo>>
                 (TimeSeriesInstrumentEntryFileInfoRequestResponse, HandleInstrumentFileEntryInfoRequest);
     }
 
     private async ValueTask<List<InstrumentFileEntryInfo>> HandleInstrumentFileEntryInfoRequest
-        (IBusRespondingMessage<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileEntryInfo>> instrumentRequestMsg)
+        (IBusRespondingMessage<TimeSeriesRepositoryInstrumentFileEntryInfoRequest, List<InstrumentFileEntryInfo>> instrumentRequestMsg)
     {
         var req = instrumentRequestMsg.Payload.Body();
 
         var launchContext =
             Context.GetEventQueues(MessageQueueType.Worker)
                    .SelectEventQueue(QueueSelectionStrategy.EarliestStarted)
-                   .GetExecutionContextResult<List<InstrumentFileEntryInfo>, TimeSeriesRepositoryInstrumentFileInfoRequest>(this);
+                   .GetExecutionContextResult<List<InstrumentFileEntryInfo>, TimeSeriesRepositoryInstrumentFileEntryInfoRequest>(this);
 
         var result = await launchContext.Execute(GetFileEntryInfo, req);
 
         return result;
     }
 
-    private List<InstrumentFileEntryInfo> GetFileEntryInfo(TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
+    private List<InstrumentFileEntryInfo> GetFileEntryInfo(TimeSeriesRepositoryInstrumentFileEntryInfoRequest req) =>
         fileEntryInfosCallback(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
 
 

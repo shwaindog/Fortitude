@@ -12,11 +12,11 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -34,7 +34,7 @@ public class OrderBookTests
 
     private List<OrderBook>          allPopulatedOrderBooks       = null!;
     private IPQNameIdLookupGenerator emptyNameIdLookupGenerator   = null!;
-    private ISourceTickerQuoteInfo   publicationPrecisionSettings = null!;
+    private ISourceTickerInfo        publicationPrecisionSettings = null!;
 
     private OrderBook                              simpleFullyPopulatedOrderBook      = null!;
     private IList<IPriceVolumeLayer>               simpleLayers                       = null!;
@@ -103,15 +103,16 @@ public class OrderBookTests
             simpleFullyPopulatedOrderBook, sourceFullyPopulatedOrderBook, sourceQtRefFullyPopulatedOrderBook
           , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
         };
-        publicationPrecisionSettings = new SourceTickerQuoteInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+        publicationPrecisionSettings = new SourceTickerInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
     }
 
     [TestMethod]
-    public void FromSourceTickerQuoteInfo_New_InitializesOrderBookWithExpectedLayerTypes()
+    public void FromSourceTickerInfo_New_InitializesOrderBookWithExpectedLayerTypes()
     {
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
         var orderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
@@ -177,7 +178,7 @@ public class OrderBookTests
     public void PQOrderBook_InitializedFromOrderBook_ConvertsLayers()
     {
         var pqSrcTkrQuoteInfo =
-            new PQSourceTickerQuoteInfo(publicationPrecisionSettings)
+            new PQSourceTickerInfo(publicationPrecisionSettings)
             {
                 LayerFlags = LayerFlags.Price | LayerFlags.Volume
             };

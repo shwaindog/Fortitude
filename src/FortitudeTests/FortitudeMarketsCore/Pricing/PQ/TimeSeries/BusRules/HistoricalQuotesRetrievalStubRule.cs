@@ -34,13 +34,13 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     private ISubscription? pql2RequestListenerSubscription;
     private ISubscription? pql3RequestListenerSubscription;
 
-    private Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback;
+    private Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ITickInstant>> quotesCallback;
 
-    public HistoricalQuotesRetrievalStubRule(Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> quotesCallback)
+    public HistoricalQuotesRetrievalStubRule(Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ITickInstant>> quotesCallback)
         : base(nameof(HistoricalQuotesRetrievalStubRule)) =>
         this.quotesCallback = quotesCallback;
 
-    public Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ILevel0Quote>> QuotesCallback
+    public Func<SourceTickerIdentifier, UnboundedTimeRange?, IEnumerable<ITickInstant>> QuotesCallback
     {
         get => quotesCallback;
         set => quotesCallback = value ?? throw new ArgumentNullException(nameof(value));
@@ -49,22 +49,22 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     public override async ValueTask StartAsync()
     {
         await base.StartAsync();
-        l0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level0PriceQuote>, bool>
-            (PricingRepoRetrieveL0Request, HandleL0HistoricalPriceRequest);
+        l0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<TickInstant>, bool>
+            (PricingRepoRetrieveTickInstantRequest, HandleL0HistoricalPriceRequest);
         l1RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level1PriceQuote>, bool>
-            (PricingRepoRetrieveL1Request, HandleL1HistoricalPriceRequest);
+            (PricingRepoRetrieveL1QuoteRequest, HandleL1HistoricalPriceRequest);
         l2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level2PriceQuote>, bool>
-            (PricingRepoRetrieveL2Request, HandleL2HistoricalPriceRequest);
+            (PricingRepoRetrieveL2QuoteRequest, HandleL2HistoricalPriceRequest);
         l3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level3PriceQuote>, bool>
-            (PricingRepoRetrieveL3Request, HandleL3HistoricalPriceRequest);
-        pql0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel0Quote>, bool>
-            (PricingRepoRetrievePqL0Request, HandlePqL0HistoricalPriceRequest);
+            (PricingRepoRetrieveL3QuoteRequest, HandleL3HistoricalPriceRequest);
+        pql0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQTickInstant>, bool>
+            (PricingRepoRetrievePqTickInstantRequest, HandlePqL0HistoricalPriceRequest);
         pql1RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
-            (PricingRepoRetrievePqL1Request, HandlePqL1HistoricalPriceRequest);
+            (PricingRepoRetrievePqL1QuoteRequest, HandlePqL1HistoricalPriceRequest);
         pql2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel2Quote>, bool>
-            (PricingRepoRetrievePqL2Request, HandlePqL2HistoricalPriceRequest);
+            (PricingRepoRetrievePqL2QuoteRequest, HandlePqL2HistoricalPriceRequest);
         pql3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel3Quote>, bool>
-            (PricingRepoRetrievePqL3Request, HandlePqL3HistoricalPriceRequest);
+            (PricingRepoRetrievePqL3QuoteRequest, HandlePqL3HistoricalPriceRequest);
     }
 
     public override void Stop()
@@ -81,7 +81,7 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     }
 
     protected virtual bool HandleL0HistoricalPriceRequest
-        (IBusRespondingMessage<HistoricalQuotesRequest<Level0PriceQuote>, bool> historicalQuotesRequestMessage)
+        (IBusRespondingMessage<HistoricalQuotesRequest<TickInstant>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
@@ -109,7 +109,7 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     }
 
     protected virtual bool HandlePqL0HistoricalPriceRequest
-        (IBusRespondingMessage<HistoricalQuotesRequest<PQLevel0Quote>, bool> historicalQuotesRequestMessage)
+        (IBusRespondingMessage<HistoricalQuotesRequest<PQTickInstant>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
@@ -137,7 +137,7 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults<TEntry>
-        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, new()
+        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
     {
         var results = quotesCallback(request.SourceTickerIdentifier, request.TimeRange);
 
@@ -146,14 +146,14 @@ public class HistoricalQuotesRetrievalStubRule : Rule
         var launchContext =
             Context.GetEventQueues(MessageQueueType.Worker)
                    .SelectEventQueue(QueueSelectionStrategy.EarliestStarted)
-                   .GetExecutionContextAction<IEnumerable<ILevel0Quote>, HistoricalQuotesRequest<TEntry>>(this);
+                   .GetExecutionContextAction<IEnumerable<ITickInstant>, HistoricalQuotesRequest<TEntry>>(this);
 
         launchContext.Execute(ProcessResults, results, request);
         return true;
     }
 
-    private void ProcessResults<TEntry>(IEnumerable<ILevel0Quote> results, HistoricalQuotesRequest<TEntry> request)
-        where TEntry : class, ITimeSeriesEntry<TEntry>, ILevel0Quote, new()
+    private void ProcessResults<TEntry>(IEnumerable<ITickInstant> results, HistoricalQuotesRequest<TEntry> request)
+        where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
     {
         var channel = request.ChannelRequest.PublishChannel;
         try

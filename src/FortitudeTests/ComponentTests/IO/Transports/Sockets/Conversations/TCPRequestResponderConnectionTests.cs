@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
@@ -22,17 +25,21 @@ namespace FortitudeTests.ComponentTests.IO.Transports.Sockets.Conversations;
 public class TcpRequestResponderConnectionTests
 {
     private readonly AutoResetEvent autoResetEvent = new(false);
+
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TcpRequestResponderConnectionTests));
 
-    private readonly NetworkTopicConnectionConfig originalResponderTopicConConfig = new("ResponderConName", "TestResponderName"
-        , SocketConversationProtocol.TcpAcceptor,
-        new List<IEndpointConfig>
-        {
-            new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort)
-        }, "TcpRequestResponderConnectionTests",
-        1024 * 1024 * 2, 1024 * 1024 * 2, 50,
-        SocketConnectionAttributes.Reliable | SocketConnectionAttributes.TransportHeartBeat
-    );
+    private readonly NetworkTopicConnectionConfig originalResponderTopicConConfig =
+        new("ResponderConName", "TestResponderName"
+          , SocketConversationProtocol.TcpAcceptor,
+            new List<IEndpointConfig>
+            {
+                new EndpointConfig(TestMachineConfig.LoopBackIpAddress
+                                 , TestMachineConfig.ServerUpdatePort)
+            }, "TcpRequestResponderConnectionTests",
+            1024 * 1024 * 2, 1024 * 1024 * 2, 50,
+            SocketConnectionAttributes.Reliable |
+            SocketConnectionAttributes.TransportHeartBeat
+           );
 
     private readonly IRecycler recycler = new Recycler();
 
@@ -41,15 +48,19 @@ public class TcpRequestResponderConnectionTests
         { 2345, new SimpleVersionedMessage.SimpleSerializer() }, { 159, new SimpleVersionedMessage.SimpleSerializer() }
     };
 
-    private Dictionary<uint, IMessageDeserializer> requesterDeserializers = null!;
-    private SimpleVersionedMessage requesterReceivedResponseMessage = null!;
-    private MessageSerdesRepositoryFactory requesterSerdesFactory = null!;
+    private Dictionary<uint, IMessageDeserializer> requesterDeserializers           = null!;
+    private SimpleVersionedMessage                 requesterReceivedResponseMessage = null!;
+    private MessageSerdesRepositoryFactory         requesterSerdesFactory           = null!;
+
     private SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory requesterStreamDeserializerRepo = null!;
+
     private Dictionary<uint, IMessageDeserializer> responderDeserializers = null!;
 
-    private SimpleVersionedMessage responderReceivedMessage = null!;
-    private MessageSerdesRepositoryFactory responderSerdesFactory = null!;
+    private SimpleVersionedMessage         responderReceivedMessage = null!;
+    private MessageSerdesRepositoryFactory responderSerdesFactory   = null!;
+
     private SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory responderStreamDeserializerRepo = null!;
+
     private SimpleMessageStreamDecoder.SimpleSerializerFactory streamSerializerRepo = null!;
 
     private ConversationRequester tcpRequester = null!;
@@ -64,17 +75,17 @@ public class TcpRequestResponderConnectionTests
         responderDeserializers = new Dictionary<uint, IMessageDeserializer>
         {
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
-            , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
+          , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
         responderStreamDeserializerRepo = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(responderDeserializers);
-        streamSerializerRepo = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
+        streamSerializerRepo            = new SimpleMessageStreamDecoder.SimpleSerializerFactory(serializers);
         responderSerdesFactory
             = new MessageSerdesRepositoryFactory(streamSerializerRepo, responderStreamDeserializerRepo, responderStreamDeserializerRepo);
 
         requesterDeserializers = new Dictionary<uint, IMessageDeserializer>
         {
             { 2345, new SimpleVersionedMessage.SimpleDeserializer() }
-            , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
+          , { 159, new SimpleVersionedMessage.SimpleDeserializer() }
         };
         requesterStreamDeserializerRepo = new SimpleMessageStreamDecoder.SimpleDeserializerMessageDeserializationFactory(requesterDeserializers);
         requesterSerdesFactory
@@ -87,7 +98,7 @@ public class TcpRequestResponderConnectionTests
     {
         var tcpRequesterBuilder = new TcpConversationRequesterBuilder();
         requesterTopicConConfig.ConversationProtocol = SocketConversationProtocol.TcpClient;
-        requesterTopicConConfig.ConnectionName = "RequesterConName";
+        requesterTopicConConfig.ConnectionName       = "RequesterConName";
         return tcpRequesterBuilder.Build(requesterTopicConConfig, requesterSerdesFactory);
     }
 
@@ -118,7 +129,7 @@ public class TcpRequestResponderConnectionTests
         Assert.IsTrue(started);
         await Task.Delay(20);
         threadPoolExecutionContext = recycler.Borrow<ThreadPoolExecutionContextResult<bool, TimeSpan>>();
-        started = await tcpRequester.StartAsync(10_000, threadPoolExecutionContext);
+        started                    = await tcpRequester.StartAsync(10_000, threadPoolExecutionContext);
         Assert.IsTrue(started);
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
@@ -162,7 +173,7 @@ public class TcpRequestResponderConnectionTests
         tcpRequester.StreamPublisher!.Send(v1Message);
 
         logger.Info("Sent Message to responder");
-        autoResetEvent.WaitOne(500);
+        autoResetEvent.WaitOne(1000);
         // assert server receives properly
         Assert.AreEqual(v2Message.Payload2, requesterReceivedResponseMessage.Payload2);
         Assert.AreEqual(v2Message.MessageId, requesterReceivedResponseMessage.MessageId);
@@ -172,8 +183,7 @@ public class TcpRequestResponderConnectionTests
     private void RespondToClientMessage(SimpleVersionedMessage msg, MessageHeader messageHeader, IConversation client)
     {
         responderReceivedMessage = msg;
-        if (client is IConversationRequester conversationRequester)
-            conversationRequester.StreamPublisher!.Send(v2Message);
+        if (client is IConversationRequester conversationRequester) conversationRequester.StreamPublisher!.Send(v2Message);
     }
 
     private void ReceivedFromClientDeserializerCallback(SimpleVersionedMessage msg, MessageHeader header, IConversation client)

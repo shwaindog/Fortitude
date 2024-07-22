@@ -18,11 +18,11 @@ namespace FortitudeMarketsCore.Pricing.Generators.Summaries;
 public struct GeneratePriceSummariesInfo
 {
     public GeneratePriceSummariesInfo
-    (ISourceTickerQuoteInfo sourceTickerQuoteInfo,
+    (ISourceTickerInfo sourceTickerInfo,
         IMidPriceGenerator? midPriceGenerator = null)
     {
-        SourceTickerQuoteInfo = sourceTickerQuoteInfo;
-        MidPriceGenerator     = midPriceGenerator ?? new SyntheticRepeatableMidPriceGenerator(1.0m, DateTime.Now);
+        SourceTickerInfo  = sourceTickerInfo;
+        MidPriceGenerator = midPriceGenerator ?? new SyntheticRepeatableMidPriceGenerator(1.0m, DateTime.Now);
     }
 
     public DateTime SinglePriceSummaryStartTime = DateTime.Now;
@@ -57,7 +57,7 @@ public struct GeneratePriceSummariesInfo
 
     public uint MinimumTickCount = 1;
 
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo;
+    public ISourceTickerInfo SourceTickerInfo;
 
     public IMidPriceGenerator MidPriceGenerator;
 }
@@ -121,7 +121,7 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
     }
 
     public abstract TPriceSummary CreatePricePeriodSummary
-        (ISourceTickerQuoteInfo sourceTickerQuoteInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
+        (ISourceTickerInfo sourceTickerInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
 
     public TPriceSummary PriceSummaries(PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
@@ -179,7 +179,7 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
                                , (uint)(GeneratePriceSummaryInfo.AverageTickCount +
                                         NormalDist.Sample() * GeneratePriceSummaryInfo.TickCountStandardDeviation));
 
-        var priceSummary = CreatePricePeriodSummary(GeneratePriceSummaryInfo.SourceTickerQuoteInfo, previousCurrentMidPriceTime);
+        var priceSummary = CreatePricePeriodSummary(GeneratePriceSummaryInfo.SourceTickerInfo, previousCurrentMidPriceTime);
 
         priceSummary.StartBidPrice   = startBidPrice;
         priceSummary.StartAskPrice   = startAskPrice;
@@ -200,8 +200,8 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
     private long RoundVolumeToScaleValue(long volume)
     {
         int volumeRound;
-        var minVolAmounts = Math.Min(GeneratePriceSummaryInfo.SourceTickerQuoteInfo.IncrementSize
-                                   , GeneratePriceSummaryInfo.SourceTickerQuoteInfo.MinSubmitSize);
+        var minVolAmounts = Math.Min(GeneratePriceSummaryInfo.SourceTickerInfo.IncrementSize
+                                   , GeneratePriceSummaryInfo.SourceTickerInfo.MinSubmitSize);
         if (minVolAmounts < 1 && minVolAmounts.Scale > 0)
         {
             volumeRound = minVolAmounts.Scale;
@@ -230,7 +230,7 @@ public class PricePeriodSummaryGenerator : PricePeriodSummaryGenerator<PricePeri
     public PricePeriodSummaryGenerator(GeneratePriceSummariesInfo generatePriceSummaryInfo) : base(generatePriceSummaryInfo) { }
 
     public override PricePeriodSummary CreatePricePeriodSummary
-        (ISourceTickerQuoteInfo sourceTickerQuoteInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+        (ISourceTickerInfo sourceTickerInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         var currMid = previousCurrentMidPriceTime.CurrentMid;
         return new PricePeriodSummary(GeneratePriceSummaryInfo.SummaryPeriod, currMid.Time

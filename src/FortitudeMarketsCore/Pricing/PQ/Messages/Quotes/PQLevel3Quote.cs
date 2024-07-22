@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.TimeSeries;
@@ -38,20 +39,22 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));
 
-    private uint               batchId;
+    private uint batchId;
+
     private IPQRecentlyTraded? recentlyTraded;
-    private uint               sourceQuoteRef;
-    private DateTime           valueDate = DateTimeConstants.UnixEpoch;
+
+    private uint     sourceQuoteRef;
+    private DateTime valueDate = DateTimeConstants.UnixEpoch;
 
     public PQLevel3Quote() => recentlyTraded = new PQRecentlyTraded();
 
-    public PQLevel3Quote(ISourceTickerQuoteInfo uniqueSourceTickerIdentifier)
+    public PQLevel3Quote(ISourceTickerInfo uniqueSourceTickerIdentifier)
         : base(uniqueSourceTickerIdentifier)
     {
-        if (PQSourceTickerQuoteInfo!.LastTradedFlags != LastTradedFlags.None) recentlyTraded = new PQRecentlyTraded(PQSourceTickerQuoteInfo);
+        if (PQSourceTickerInfo!.LastTradedFlags != LastTradedFlags.None) recentlyTraded = new PQRecentlyTraded(PQSourceTickerInfo);
     }
 
-    public PQLevel3Quote(ILevel0Quote toClone) : base(toClone)
+    public PQLevel3Quote(ITickInstant toClone) : base(toClone)
     {
         if (toClone is IPQLevel3Quote ipql3QToClone)
         {
@@ -83,65 +86,65 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
 
     public new PQLevel3Quote? Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as PQLevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as PQLevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     public new PQLevel3Quote? Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as PQLevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as PQLevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     IPQLevel3Quote? IPQLevel3Quote.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     IPQLevel3Quote? IPQLevel3Quote.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     ILevel3Quote? ILevel3Quote.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     ILevel3Quote? ILevel3Quote.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     IPQLevel3Quote? IDoublyLinkedListNode<IPQLevel3Quote>.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as IPQLevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     IPQLevel3Quote? IDoublyLinkedListNode<IPQLevel3Quote>.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as IPQLevel3Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQLevel3Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    public override QuoteLevel QuoteLevel => QuoteLevel.Level3;
+    public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level3Quote;
 
     public uint BatchId
     {
@@ -252,7 +255,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
-        quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerQuoteInfo;
+        quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerInfo;
 
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime,
                                                                messageFlags, quotePublicationPrecisionSetting))
@@ -316,8 +319,8 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
         return false;
     }
 
-    public override ILevel0Quote CopyFrom
-    (ILevel0Quote source
+    public override ITickInstant CopyFrom
+    (ITickInstant source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
@@ -353,7 +356,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
         return this;
     }
 
-    public override void EnsureRelatedItemsAreConfigured(ILevel0Quote? quote)
+    public override void EnsureRelatedItemsAreConfigured(ITickInstant? quote)
     {
         base.EnsureRelatedItemsAreConfigured(quote);
         if (quote is IPQLevel3Quote pqLevel3Quote) recentlyTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.RecentlyTraded?.NameIdLookup);
@@ -369,7 +372,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
 
     IPQLevel3Quote IPQLevel3Quote.Clone() => Clone();
 
-    public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
+    public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
         if (!(other is ILevel3Quote otherL3)) return false;
         var baseSame = base.AreEquivalent(otherL3, exactTypes);
@@ -388,7 +391,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
         return resolver.ResolveStorageTime(this);
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel0Quote, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITickInstant, true);
 
     public override int GetHashCode()
     {

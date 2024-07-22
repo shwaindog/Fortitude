@@ -33,13 +33,13 @@ public interface IPQSnapshotClient : IConversationRequester, IPQSnapshotClientCo
 {
     IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
 
-    ISourceTickerQuoteInfoRegistry SourceTickerQuoteInfoRegistry { get; set; }
+    ISourceTickerInfoRegistry SourceTickerInfoRegistry { get; set; }
 
     bool HasSourceTickerInfo { get; }
 
-    void RequestSourceTickerQuoteInfoList();
+    void RequestSourceTickerInfoList();
 
-    void RequestSnapshots(IList<ISourceTickerQuoteInfo> sourceTickerIds);
+    void RequestSnapshots(IList<ISourceTickerInfo> sourceTickerIds);
 }
 
 public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnapshotClient
@@ -51,8 +51,8 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
     private readonly IFLogger                logger;
     private readonly IOSParallelController   parallelController;
 
-    private readonly IDictionary<uint, ISourceTickerQuoteInfo> requestsQueue =
-        new Dictionary<uint, ISourceTickerQuoteInfo>();
+    private readonly IDictionary<uint, ISourceTickerInfo> requestsQueue =
+        new Dictionary<uint, ISourceTickerInfo>();
 
     private DateTime                       lastSnapshotSent = DateTime.MinValue;
     private IPQClientMessageStreamDecoder? messageStreamDecoder;
@@ -60,20 +60,22 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
 
     private IRecycler recycler = new Recycler();
 
+    private ISourceTickerInfoRegistry? sourceTickerInfoRepo;
+
     private IDeserializedNotifier<PQSourceTickerInfoResponse, PQSourceTickerInfoResponse>? sourceTickerInfoResponseNotifier;
-    private ISourceTickerQuoteInfoRegistry?                                                sourceTickerQuoteInfoRepo;
     private ITimerCallbackSubscription?                                                    timerSubscription;
 
     public PQStandaloneSnapshotClient(ISocketSessionContext socketSessionContext, IStreamControls streamControls)
         : base(socketSessionContext, streamControls)
     {
-        logger              =  FLoggerFactory.Instance.GetLogger(typeof(PQStandaloneSnapshotClient));
-        parallelController  =  socketSessionContext.SocketFactoryResolver.ParallelController!;
-        intraOSThreadSignal =  parallelController!.SingleOSThreadActivateSignal(false);
-        cxTimeoutMs         =  socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
-        Connected           += SocketConnection;
-        Connected           += SendQueuedRequests;
-        Disconnected        += SocketSessionContextOnStateChanged;
+        logger              = FLoggerFactory.Instance.GetLogger(typeof(PQStandaloneSnapshotClient));
+        parallelController  = socketSessionContext.SocketFactoryResolver.ParallelController!;
+        intraOSThreadSignal = parallelController!.SingleOSThreadActivateSignal(false);
+
+        cxTimeoutMs  =  socketSessionContext.NetworkTopicConnectionConfig.ConnectionTimeoutMs;
+        Connected    += SocketConnection;
+        Connected    += SendQueuedRequests;
+        Disconnected += SocketSessionContextOnStateChanged;
 
         var serdesFactor = (IPQClientSerdesRepositoryFactory)socketSessionContext.SerdesFactory;
         DeserializerRepository = serdesFactor.MessageDeserializationRepository("PQSnapshotClient");
@@ -81,12 +83,14 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         {
             if (socketSessionContext.SocketReceiver != null)
             {
-                messageStreamDecoder                 =  (IPQClientMessageStreamDecoder)socketSessionContext.SocketReceiver.Decoder!;
+                messageStreamDecoder = (IPQClientMessageStreamDecoder)socketSessionContext.SocketReceiver.Decoder!;
+
                 messageStreamDecoder.ReceivedMessage += OnReceivedMessage;
                 messageStreamDecoder.ReceivedData    += OnReceivedMessage;
-                sourceTickerInfoResponseNotifier = new PassThroughDeserializedNotifier<PQSourceTickerInfoResponse>(
-                 $"{nameof(PQStandaloneSnapshotClient)}.{nameof(ReceivedSourceTickerInfoResponse)}"
-               , ReceivedSourceTickerInfoResponse);
+
+                sourceTickerInfoResponseNotifier = new PassThroughDeserializedNotifier<PQSourceTickerInfoResponse>
+                    ($"{nameof(PQStandaloneSnapshotClient)}.{nameof(ReceivedSourceTickerInfoResponse)}"
+                   , ReceivedSourceTickerInfoResponse);
                 messageStreamDecoder.MessageDeserializationRepository.RegisterDeserializer<PQSourceTickerInfoResponse>()
                                     .AddDeserializedNotifier(sourceTickerInfoResponseNotifier);
             }
@@ -101,19 +105,19 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         set => socketFactories = value;
     }
 
-    public ISourceTickerQuoteInfoRegistry SourceTickerQuoteInfoRegistry
+    public ISourceTickerInfoRegistry SourceTickerInfoRegistry
     {
-        get => sourceTickerQuoteInfoRepo ??= new SourceTickerQuoteInfoRegistry(Name);
-        set => sourceTickerQuoteInfoRepo = value;
+        get => sourceTickerInfoRepo ??= new SourceTickerInfoRegistry(Name);
+        set => sourceTickerInfoRepo = value;
     }
 
-    public IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; private set; } = new List<ISourceTickerQuoteInfo>();
+    public IList<ISourceTickerInfo> LastPublishedSourceTickerInfos { get; private set; } = new List<ISourceTickerInfo>();
 
-    public bool HasSourceTickerInfo => LastPublishedSourceTickerQuoteInfos.Any();
+    public bool HasSourceTickerInfo => LastPublishedSourceTickerInfos.Any();
 
     public IPQClientQuoteDeserializerRepository DeserializerRepository { get; }
 
-    public void RequestSnapshots(IList<ISourceTickerQuoteInfo> sourceTickerIds)
+    public void RequestSnapshots(IList<ISourceTickerInfo> sourceTickerIds)
     {
         Start();
         if (IsStarted)
@@ -146,7 +150,7 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
     }
 
     public async ValueTask<bool> RequestSnapshots
-    (IList<ISourceTickerQuoteInfo> sourceTickerIds, int timeout = 10_000
+    (IList<ISourceTickerInfo> sourceTickerIds, int timeout = 10_000
       , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
         var started = await StartAsync(timeout, alternativeExecutionContext);
@@ -162,7 +166,7 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         return false;
     }
 
-    public void RequestSourceTickerQuoteInfoList()
+    public void RequestSourceTickerInfoList()
     {
         Start();
         if (IsStarted)
@@ -177,7 +181,7 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         }
     }
 
-    public async ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerQuoteInfoListAsync
+    public async ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerInfoListAsync
     (int timeout = 10_000
       , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
@@ -210,8 +214,8 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
       , IConversation conversation)
     {
         logger.Info("Received source ticker info response for streams to {0}", Name);
-        SourceTickerQuoteInfoRegistry.AppendReplace(sourceTickerInfoResponse.SourceTickerQuoteInfos);
-        LastPublishedSourceTickerQuoteInfos = sourceTickerInfoResponse.SourceTickerQuoteInfos;
+        SourceTickerInfoRegistry.AppendReplace(sourceTickerInfoResponse.SourceTickerInfos);
+        LastPublishedSourceTickerInfos = sourceTickerInfoResponse.SourceTickerInfos;
     }
 
     private void SocketSessionContextOnStateChanged()
@@ -230,8 +234,9 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
 
         var serdesFactory = new PQClientClientSerdesRepositoryFactory();
 
-        var socketSessionContext = new SocketSessionContext(networkConnectionConfig.TopicName + "Requester", conversationType, conversationProtocol,
-                                                            networkConnectionConfig, sockFactories, serdesFactory, socketDispatcherResolver);
+        var socketSessionContext = new SocketSessionContext
+            (networkConnectionConfig.TopicName + "Requester", conversationType, conversationProtocol
+           , networkConnectionConfig, sockFactories, serdesFactory, socketDispatcherResolver);
 
         var streamControls = sockFactories.StreamControlsFactory.ResolveStreamControls(socketSessionContext);
 
@@ -266,8 +271,8 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
 
     private void EnableTimeout()
     {
-        timerSubscription ??= parallelController.ScheduleWithEarlyTrigger(intraOSThreadSignal, TimeoutConnection!,
-                                                                          cxTimeoutMs, false);
+        timerSubscription ??= parallelController.ScheduleWithEarlyTrigger
+            (intraOSThreadSignal, TimeoutConnection!, cxTimeoutMs, false);
     }
 
     private void DisableTimeout()

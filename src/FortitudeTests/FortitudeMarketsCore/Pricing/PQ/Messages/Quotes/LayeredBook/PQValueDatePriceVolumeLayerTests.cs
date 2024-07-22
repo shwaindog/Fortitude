@@ -332,7 +332,7 @@ public class PQValueDatePriceVolumeLayerTests
         PQPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset, pvl.ValueDate.GetHoursFromUnixEpoch(),
-                                          PQFieldFlags.IsExtendedFieldId), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                          PQFieldFlags.IsExtendedFieldId), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                          PQFieldKeys.FirstLayerDateOffset, PQFieldFlags.IsExtendedFieldId), $"For {pvl.GetType().Name} ");
     }
 

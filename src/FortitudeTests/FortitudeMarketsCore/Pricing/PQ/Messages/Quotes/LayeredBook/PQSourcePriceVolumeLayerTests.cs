@@ -458,12 +458,12 @@ public class PQSourcePriceVolumeLayerTests
         PQPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerSourceIdOffset, pvl.SourceId),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerSourceIdOffset), $"For {pvl.GetType().Name} ");
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerBooleanFlagsOffset,
                                           pvl.Executable ? PQFieldFlags.LayerExecutableFlag : 0),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerBooleanFlagsOffset), $"For {pvl.GetType().Name} ");
     }
 

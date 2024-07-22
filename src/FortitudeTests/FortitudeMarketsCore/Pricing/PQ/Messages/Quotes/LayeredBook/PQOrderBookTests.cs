@@ -12,11 +12,11 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -28,13 +28,17 @@ public class PQOrderBookTests
     private const int MaxNumberOfLayers  = 19; // test being less than max.
     private const int MaxNumberOfTraders = 3;  // not too many traders.
 
-    private PQOrderBook                                             allFieldsFullyPopulatedOrderBook = null!;
-    private IList<IPQSourceQuoteRefTraderValueDatePriceVolumeLayer> allFieldsLayers                  = null!;
-    private List<IReadOnlyList<IPQPriceVolumeLayer?>>               allPopulatedLayers               = null!;
+    private PQOrderBook allFieldsFullyPopulatedOrderBook = null!;
 
-    private List<PQOrderBook>       allPopulatedOrderBooks       = null!;
-    private PQNameIdLookupGenerator nameIdLookupGenerator        = null!;
-    private PQSourceTickerQuoteInfo publicationPrecisionSettings = null!;
+    private IList<IPQSourceQuoteRefTraderValueDatePriceVolumeLayer> allFieldsLayers = null!;
+
+    private List<IReadOnlyList<IPQPriceVolumeLayer?>> allPopulatedLayers = null!;
+
+    private List<PQOrderBook> allPopulatedOrderBooks = null!;
+
+    private PQNameIdLookupGenerator nameIdLookupGenerator = null!;
+
+    private PQSourceTickerInfo publicationPrecisionSettings = null!;
 
     private PQOrderBook                              simpleFullyPopulatedOrderBook      = null!;
     private IList<IPQPriceVolumeLayer>               simpleLayers                       = null!;
@@ -107,16 +111,17 @@ public class PQOrderBookTests
           , valueDateFullyPopulatedOrderBook, traderFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
         };
         publicationPrecisionSettings =
-            new PQSourceTickerQuoteInfo
-                (new SourceTickerQuoteInfo
-                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+            new PQSourceTickerInfo
+                (new SourceTickerInfo
+                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
                    , MaxNumberOfLayers, 0.000001m, 30000m, 50000000m, 1000m, 1
-                   , LayerFlags.Volume | LayerFlags.Price
-                   , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
+                   , layerFlags: LayerFlags.Volume | LayerFlags.Price
+                   , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                      LastTradedFlags.LastTradedTime));
     }
 
     [TestMethod]
-    public void FromSourceTickerQuoteInfo_New_InitializesOrderBookWithExpectedLayerTypes()
+    public void FromSourceTickerInfo_New_InitializesOrderBookWithExpectedLayerTypes()
     {
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
         var orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
@@ -746,17 +751,17 @@ public class PQOrderBookTests
             Assert.AreEqual
                 (new PQFieldUpdate
                      ((byte)(PQFieldKeys.LayerPriceOffset + i), PQScaling.Scale(pvl!.Price, priceScale), priceScale),
-                 PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerPriceOffset + i), priceScale)
+                 PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerPriceOffset + i), priceScale)
                , $"For layer {pvl.GetType().Name} level {i}");
             Assert.AreEqual
                 (new PQFieldUpdate
                      ((ushort)(PQFieldKeys.LayerVolumeOffset + i), PQScaling.Scale(pvl.Volume, volumeScale), volumeScale),
-                 PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, (ushort)(PQFieldKeys.LayerVolumeOffset + i), volumeScale),
+                 PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, (ushort)(PQFieldKeys.LayerVolumeOffset + i), volumeScale),
                  $"For bidlayer {pvl.GetType().Name} level {i}");
 
             if (pvl is IPQSourcePriceVolumeLayer srcPvl)
             {
-                var srcId = PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerSourceIdOffset + i));
+                var srcId = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, (byte)(PQFieldKeys.LayerSourceIdOffset + i));
 
                 var nameIdLookup = srcPvl.NameIdLookup;
 
@@ -767,7 +772,7 @@ public class PQOrderBookTests
 
             if (pvl is IPQSourceQuoteRefPriceVolumeLayer srcQtRefPvl)
             {
-                var srcQtRef = PQLevel0QuoteTests.ExtractFieldUpdateWithId
+                var srcQtRef = PQTickInstantTests.ExtractFieldUpdateWithId
                     (checkFieldUpdates, (byte)(PQFieldKeys.LayerSourceQuoteRefOffset + i));
 
                 Assert.AreEqual(new PQFieldUpdate
@@ -776,7 +781,7 @@ public class PQOrderBookTests
 
             if (pvl is IPQValueDatePriceVolumeLayer valueDatePvl)
             {
-                var valueDate = PQLevel0QuoteTests.ExtractFieldUpdateWithId
+                var valueDate = PQTickInstantTests.ExtractFieldUpdateWithId
                     (checkFieldUpdates, (ushort)(PQFieldKeys.FirstLayerDateOffset + i));
 
                 var dateAsHoursFromEpoch = valueDatePvl.ValueDate.GetHoursFromUnixEpoch();

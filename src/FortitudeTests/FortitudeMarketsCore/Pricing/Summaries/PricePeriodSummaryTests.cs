@@ -202,7 +202,7 @@ public class PricePeriodSummaryTests
     }
 
     [TestMethod]
-    public void PopulatedPeriodSummary_Clone_CreatesCopyOfEverythingExceptSrcTkrQtInfo()
+    public void PopulatedPeriodSummary_Clone_CreatesCopyOfEverythingExceptSrcTkrInfo()
     {
         var clone = fullyPopulatedPricePeriodSummary.Clone();
 

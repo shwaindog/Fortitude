@@ -6,6 +6,7 @@
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
+using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;
@@ -26,30 +27,29 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
     }
 
     public Level2PriceQuote
-    (ISourceTickerQuoteInfo sourceTickerQuoteInfo, DateTime? sourceTime = null,
-        bool isReplay = false, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
-        DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null,
-        DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false,
-        DateTime? sourceAskTime = null, bool isAskPriceTopChanged = false,
-        bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBook? bidBook = null,
-        bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false)
-        : base(sourceTickerQuoteInfo, sourceTime, isReplay, singlePrice, clientReceivedTime, adapterReceivedTime,
-               adapterSentTime, sourceBidTime, 0m, isBidPriceTopChanged, sourceAskTime, 0m,
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
+      , decimal singlePrice = 0m, DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null
+      , DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null
+      , bool isAskPriceTopChanged = false, bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBook? bidBook = null
+      , bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false)
+        : base(sourceTickerInfo, sourceTime, isReplay, feedSyncStatus, singlePrice, clientReceivedTime, adapterReceivedTime,
+               adapterSentTime, sourceBidTime, validFrom, validTo, 0m, isBidPriceTopChanged, sourceAskTime, 0m,
                isAskPriceTopChanged, executable, periodSummary)
     {
         if (bidBook is OrderBook mutBidOrderBook)
             BidBook = mutBidOrderBook;
         else
-            BidBook = bidBook != null ? new OrderBook(bidBook) : new OrderBook(BookSide.BidBook, SourceTickerQuoteInfo!);
+            BidBook = bidBook != null ? new OrderBook(bidBook) : new OrderBook(BookSide.BidBook, SourceTickerInfo!);
         IsBidBookChanged = isBidBookChanged;
         if (askBook is OrderBook mutAskOrderBook)
             AskBook = mutAskOrderBook;
         else
-            AskBook = askBook != null ? new OrderBook(askBook) : new OrderBook(BookSide.AskBook, SourceTickerQuoteInfo!);
+            AskBook = askBook != null ? new OrderBook(askBook) : new OrderBook(BookSide.AskBook, SourceTickerInfo!);
         IsAskBookChanged = isAskBookChanged;
     }
 
-    public Level2PriceQuote(ILevel0Quote toClone) : base(toClone)
+    public Level2PriceQuote(ITickInstant toClone) : base(toClone)
     {
         if (toClone is ILevel2Quote level2ToClone)
         {
@@ -78,40 +78,40 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
 
     public new Level2PriceQuote? Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as Level2PriceQuote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as Level2PriceQuote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
     public new Level2PriceQuote? Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as Level2PriceQuote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as Level2PriceQuote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     ILevel2Quote? ILevel2Quote.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     ILevel2Quote? ILevel2Quote.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
     ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Previous
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Previous = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
     ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Next
     {
-        get => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next as ILevel2Quote;
-        set => ((IDoublyLinkedListNode<ILevel0Quote>)this).Next = value;
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel2Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    public override QuoteLevel QuoteLevel => QuoteLevel.Level2;
+    public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level2Quote;
 
     public IMutableOrderBook BidBook          { get; set; }
     IOrderBook ILevel2Quote. BidBook          => BidBook;
@@ -131,9 +131,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
             }
             else
             {
-                BidBook[0]
-                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as
-                        IMutablePriceVolumeLayer;
+                BidBook[0]        = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
                 BidBook[0]!.Price = value;
             }
         }
@@ -150,9 +148,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
             }
             else
             {
-                AskBook[0]
-                    = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerQuoteInfo!) as
-                        IMutablePriceVolumeLayer;
+                AskBook[0]        = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
                 AskBook[0]!.Price = value;
             }
         }
@@ -161,7 +157,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
 
     DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
 
-    public override ILevel0Quote CopyFrom(ILevel0Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 
@@ -186,7 +182,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
 
     IMutableLevel2Quote IMutableLevel2Quote.Clone() => Clone();
 
-    public override bool AreEquivalent(ILevel0Quote? other, bool exactTypes = false)
+    public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
         if (!(other is ILevel2Quote otherL2)) return false;
         var baseIsSame = base.AreEquivalent(otherL2, exactTypes);
@@ -227,9 +223,9 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
     }
 
     public override string ToString() =>
-        $"Level2PriceQuote {{{nameof(SourceTickerQuoteInfo)}: {SourceTickerQuoteInfo}, " +
-        $"{nameof(SourceTime)}: {SourceTime:O}, {nameof(IsReplay)}: {IsReplay}, {nameof(SinglePrice)}: " +
-        $"{SinglePrice:N5}, {nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, " +
+        $"Level2PriceQuote {{{nameof(SourceTickerInfo)}: {SourceTickerInfo}, " +
+        $"{nameof(SourceTime)}: {SourceTime:O}, {nameof(IsReplay)}: {IsReplay}, {nameof(SingleTickValue)}: " +
+        $"{SingleTickValue:N5}, {nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, " +
         $"{nameof(AdapterReceivedTime)}: {AdapterReceivedTime:O}, {nameof(AdapterSentTime)}: " +
         $"{AdapterSentTime:O}, {nameof(SourceBidTime)}: {SourceBidTime:O}, {nameof(BidPriceTop)}: {BidPriceTop:N5}, " +
         $"{nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(SourceAskTime)}: {SourceAskTime:O}, " +

@@ -32,13 +32,13 @@ public class RecentlyTraded : ReusableObject<IRecentlyTraded>, IMutableRecentlyT
         for (var i = 0; i < toClone.Count; i++) LastTrades.Add(LastTradeEntrySelector.ConvertToExpectedImplementation(toClone[i], true));
     }
 
-    public RecentlyTraded(ISourceTickerQuoteInfo sourceTickerQuoteInfo)
+    public RecentlyTraded(ISourceTickerInfo sourceTickerInfo)
     {
-        LastTradesSupportFlags = sourceTickerQuoteInfo.LastTradedFlags;
+        LastTradesSupportFlags = sourceTickerInfo.LastTradedFlags;
         LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
         LastTrades             = new List<IMutableLastTrade?>(PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades);
         for (var i = 0; i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
-            LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(sourceTickerQuoteInfo.LastTradedFlags));
+            LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(sourceTickerInfo.LastTradedFlags));
     }
 
     public static ILastTradeEntryFlagsSelector<IMutableLastTrade>

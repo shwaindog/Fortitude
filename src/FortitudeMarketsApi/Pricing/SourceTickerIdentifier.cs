@@ -118,7 +118,7 @@ public readonly struct SourceTickerIdentifier // not inheriting from ISourceTick
     public uint   SourceTickerId => (uint)((SourceId << 16) | TickerId);
     public ushort SourceId       { get; }
     public ushort TickerId       { get; }
-    public string Ticker         => SourceTickerId.GetRegisteredTickerName();
+    public string Ticker         => SourceTickerIdentifierExtensions.GetRegisteredTickerName(SourceTickerId);
     public string Source         => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 }
 
@@ -193,13 +193,13 @@ public static class SourceTickerIdentifierExtensions
         return NoSourceNameValue;
     }
 
-    public static string GetRegisteredTickerName(this uint sourceTickerId)
+    public static string GetRegisteredTickerName(uint sourceTickerId)
     {
         if (IdsToTickerNameLookup.TryGetValue(sourceTickerId, out var tickerName)) return tickerName!;
         return NoTickerNameValue;
     }
 
-    public static string SourceTickerShortName(this uint sourceTickerId)
+    public static string SourceTickerShortName(uint sourceTickerId)
     {
         if (!SingleStringShortNameLookup.TryGetValue(sourceTickerId, out var shortName)) shortName = NoSourceTickerShortNameValue;
         return shortName!;

@@ -11,7 +11,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
@@ -805,7 +805,7 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
     [TestMethod]
     public void EmptyPvlMissingLookup_Construction_SetsTraderNameIdLookupWhenNullOrSameAsInfo()
     {
-        var moqSrcTkrQuoteInfo = new Mock<IPQSourceTickerQuoteInfo>();
+        var moqSrcTkrQuoteInfo = new Mock<IPQSourceTickerInfo>();
 
         var newEmpty = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(new PQNameIdLookupGenerator(0));
 
@@ -943,20 +943,20 @@ public class PQSourceQuoteRefTraderValueDatePriceVolumeLayerTests
         PQTraderPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset, pvl.ValueDate.GetHoursFromUnixEpoch(),
-                                          PQFieldFlags.IsExtendedFieldId), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                          PQFieldFlags.IsExtendedFieldId), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                          PQFieldKeys.FirstLayerDateOffset, PQFieldFlags.IsExtendedFieldId), $"For {pvl.GetType().Name} ");
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerSourceIdOffset, pvl.SourceId),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerSourceIdOffset), $"For {pvl.GetType().Name} ");
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerBooleanFlagsOffset,
                                           pvl.Executable ? PQFieldFlags.LayerExecutableFlag : 0),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerBooleanFlagsOffset), $"For {pvl.GetType().Name} ");
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerSourceQuoteRefOffset, pvl.SourceQuoteReference),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerSourceQuoteRefOffset), $"For {pvl.GetType().Name} ");
     }
 

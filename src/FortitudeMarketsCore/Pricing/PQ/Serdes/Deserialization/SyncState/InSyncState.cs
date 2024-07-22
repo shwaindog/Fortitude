@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
+public class InSyncState<T> : SyncStateBase<T> where T : PQTickInstant, new()
 {
     internal const uint PQTimeoutMs = 2000;
 
@@ -39,7 +39,7 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
         base.ProcessNextExpectedUpdate(bufferContext, sequenceId);
         LastSuccessfulUpdateSequienceId = sequenceId;
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger, LinkedDeserializer.OnReceivedUpdate);
+        PublishQuoteRunAction(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger, LinkedDeserializer.OnReceivedUpdate);
     }
 
     protected override void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
@@ -70,18 +70,19 @@ public class InSyncState<T> : SyncStateBase<T> where T : PQLevel0Quote, new()
                         LinkedDeserializer.Identifier, LinkedDeserializer.PublishedQuote.PQSequenceId, sequenceId);
 
         SwitchState(QuoteSyncState.Synchronising);
-        PublishQuoteRunAction(PriceSyncStatus.OutOfSync, sockBuffContext?.DispatchLatencyLogger, LinkedDeserializer.OnOutOfSync);
+        PublishQuoteRunAction(FeedSyncStatus.OutOfSync, sockBuffContext?.DispatchLatencyLogger, LinkedDeserializer.OnOutOfSync);
     }
 
     public override bool HasJustGoneStale(DateTime utcNow)
     {
         int elapsed;
         if ((elapsed = (int)(utcNow - LinkedDeserializer.PublishedQuote.ClientReceivedTime).TotalMilliseconds) <=
-            PQTimeoutMs) return false;
+            PQTimeoutMs)
+            return false;
         Logger.Info
             ("Stale detected on stream {0}, {1}ms elapsed with no update", LinkedDeserializer.Identifier, elapsed);
         SwitchState(QuoteSyncState.Stale);
-        LinkedDeserializer.PushQuoteToSubscribers(PriceSyncStatus.Stale);
+        LinkedDeserializer.PushQuoteToSubscribers(FeedSyncStatus.Stale);
         return true;
     }
 }

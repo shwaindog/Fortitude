@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
@@ -16,7 +19,7 @@ public class InSyncStateTests : SyncStateBaseTests
 
     protected override void BuildSyncState()
     {
-        syncState = new InSyncState<PQLevel0Quote>(pqQuoteStreamDeserializer);
+        syncState = new InSyncState<PQTickInstant>(pqQuoteStreamDeserializer);
     }
 
     [TestMethod]
@@ -34,52 +37,56 @@ public class InSyncStateTests : SyncStateBaseTests
     public override void NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Update, 2);
+                                                                                                PQMessageFlags.Update, 2);
         var sockBuffContext = deserializeInputList.First();
 
-        DesersializerPqLevel0Quote.PQSequenceId = 4;
+        DesersializerPqTickInstant.PQSequenceId = 4;
 
         var sockBuffContextDeserializerTimestamp = new DateTime(2017, 09, 23, 19, 47, 32);
         sockBuffContext.DeserializerTime = sockBuffContextDeserializerTimestamp;
 
-        MoqFlogger.Setup(fl => fl.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, " +
-                                       "RecvSeqID={3}, WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}",
-            It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
+        MoqFlogger.Setup
+            (fl => fl.Info("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, " +
+                           "RecvSeqID={3}, WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}"
+                         , It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
         {
             Assert.AreEqual("Unexpected sequence Id (#{0}) on stream {1}, PrevSeqID={2}, RecvSeqID={3}, " +
                             "WakeUpTs={4}, DeserializeTs={5}, ReceivingTimestamp={6}", strTemplt);
             Assert.AreEqual(7, strParams.Length);
             Assert.AreEqual(0, strParams[0]);
-            Assert.AreEqual(SourceTickerQuoteInfo, strParams[1]);
+            Assert.AreEqual(SourceTickerInfo, strParams[1]);
             Assert.AreEqual(4u, strParams[2]);
             Assert.AreEqual(3u, strParams[3]);
-            Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.ClientReceivedTimestamp(
-                    PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
-                .ToString(ExpectedDateFormat), strParams[4]);
+            Assert.AreEqual
+                (PQQuoteDeserializationSequencedTestDataBuilder
+                 .ClientReceivedTimestamp
+                     (PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
+                 .ToString(ExpectedDateFormat), strParams[4]);
             Assert.AreEqual(sockBuffContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[5]);
-            Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.RecevingTimestampBaseTime(
-                    PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
-                .ToString(ExpectedDateFormat), strParams[6]);
+            Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder
+                            .RecevingTimestampBaseTime
+                                (PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
+                            .ToString(ExpectedDateFormat), strParams[6]);
         }).Verifiable();
 
         MoqFlogger.Setup(fl => fl.Info("Sequence anomaly detected on stream {0}, PrevSeqID={1}, RecvSeqID={2}, " +
                                        "WakeUpTs={3}, DeserializeTs={4}, ReceivingTimestamp={5}", It.IsAny<object[]>()))
-            .Callback<string, object[]>((strTemplt, strParams) =>
-            {
-                Assert.AreEqual(6, strParams.Length);
-                Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
-                Assert.AreEqual(4u, strParams[1]);
-                Assert.AreEqual(3u, strParams[2]);
-                Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.ClientReceivedTimestamp(
-                            PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
-                        .ToString(ExpectedDateFormat),
-                    strParams[3]);
-                Assert.AreEqual(sockBuffContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[4]);
-                Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.RecevingTimestampBaseTime(
-                            PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
-                        .ToString(ExpectedDateFormat),
-                    strParams[5]);
-            }).Verifiable();
+                  .Callback<string, object[]>((strTemplt, strParams) =>
+                  {
+                      Assert.AreEqual(6, strParams.Length);
+                      Assert.AreEqual(SourceTickerInfo, strParams[0]);
+                      Assert.AreEqual(4u, strParams[1]);
+                      Assert.AreEqual(3u, strParams[2]);
+                      Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder
+                                      .ClientReceivedTimestamp
+                                          (PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
+                                      .ToString(ExpectedDateFormat), strParams[3]);
+                      Assert.AreEqual(sockBuffContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[4]);
+                      Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder
+                                      .RecevingTimestampBaseTime
+                                          (PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
+                                      .ToString(ExpectedDateFormat), strParams[5]);
+                  }).Verifiable();
 
         syncState.ProcessInState(sockBuffContext);
         MoqFlogger.Verify();
@@ -89,13 +96,13 @@ public class InSyncStateTests : SyncStateBaseTests
     public virtual void NewSyncState_HasJustGoneStale_CallsExpectedBehaviour()
     {
         var clientReceivedTime = new DateTime(2017, 09, 24, 23, 23, 05);
-        DesersializerPqLevel0Quote.ClientReceivedTime = clientReceivedTime;
+        DesersializerPqTickInstant.ClientReceivedTime = clientReceivedTime;
 
         MoqFlogger.Setup(fl => fl.Info("Stale detected on stream {0}, {1}ms elapsed with no update",
-            It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
+                                       It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
         {
             Assert.AreEqual(2, strParams.Length);
-            Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
+            Assert.AreEqual(SourceTickerInfo, strParams[0]);
             Assert.AreEqual(2001, strParams[1]);
         }).Verifiable();
 
@@ -109,8 +116,8 @@ public class InSyncStateTests : SyncStateBaseTests
 
     private void SendUpdateSequenceId(uint sequenceId, PQMessageFlags feedType)
     {
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            feedType, sequenceId);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, feedType, sequenceId);
         var sockBuffContext = deserializeInputList.First();
 
         SetupQuoteStreamDeserializerExpectations();
@@ -120,21 +127,21 @@ public class InSyncStateTests : SyncStateBaseTests
 
     private void InSyncUpdate_ProcessUnsyncedUpdateMessageInPast_LogsAnomaly()
     {
-        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Snapshot, 8);
+        var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Snapshot, 8);
         var sockBuffContext = deserializeInputList.First();
         syncState.ProcessInState(sockBuffContext);
 
-        SendPqLevel0Quote.HasUpdates = true;
-        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes(ExpectedQuotes,
-            PQMessageFlags.Update, 4);
+        SendPqTickInstant.HasUpdates = true;
+        deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
+            (ExpectedQuotes, PQMessageFlags.Update, 4);
         sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info("Sequence anomaly ignored on stream {0}, PrevSeqID={1}, RecvSeqID={2}",
-            It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
+                                       It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>
         {
             Assert.AreEqual(3, strParams.Length);
-            Assert.AreEqual(SourceTickerQuoteInfo, strParams[0]);
+            Assert.AreEqual(SourceTickerInfo, strParams[0]);
             Assert.AreEqual(8u, strParams[1]);
             Assert.AreEqual(5u, strParams[2]);
         }).Verifiable();

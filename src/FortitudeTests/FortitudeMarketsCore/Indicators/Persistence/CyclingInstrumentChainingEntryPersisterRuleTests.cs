@@ -21,7 +21,7 @@ using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -40,20 +40,20 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
 
     private readonly Random random = new();
 
-    private readonly SourceTickerQuoteInfo ticker1Id = new
-        (1, "SourceName1", 1, "TickerName1", Level1, Unknown
+    private readonly SourceTickerInfo ticker1Id = new
+        (1, "SourceName1", 1, "TickerName1", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly SourceTickerQuoteInfo ticker2Id = new
-        (1, "SourceName1", 2, "TickerName2", Level1, Unknown
+    private readonly SourceTickerInfo ticker2Id = new
+        (1, "SourceName1", 2, "TickerName2", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly SourceTickerQuoteInfo ticker3Id = new
-        (2, "SourceName2", 1, "TickerName1", Level1, Unknown
+    private readonly SourceTickerInfo ticker3Id = new
+        (2, "SourceName2", 1, "TickerName1", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private readonly SourceTickerQuoteInfo ticker4Id = new
-        (2, "SourceName2", 1, "TickerName2", Level1, Unknown
+    private readonly SourceTickerInfo ticker4Id = new
+        (2, "SourceName2", 1, "TickerName2", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
     private CyclingInstrumentChainingEntryPersisterParams                    cyclingPersisterParams;
@@ -61,7 +61,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
 
     private decimal highLowSpread;
 
-    private SourceTickerQuoteInfo[] instruments = null!;
+    private SourceTickerInfo[] instruments = null!;
 
     private decimal mid1;
     private decimal mid2;
@@ -102,10 +102,10 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
             (new TimeSeriesRepositoryParams(timeSeriesRepository), TestEntriesToPersistAddress);
 
         instruments = new[] { ticker1Id, ticker2Id, ticker3Id, ticker4Id };
-        foreach (var sourceTickerQuoteInfo in instruments)
+        foreach (var sourceTickerInfo in instruments)
         {
-            sourceTickerQuoteInfo.Register();
-            sourceTickerQuoteInfo.InstrumentType = InstrumentType.PriceSummaryPeriod;
+            sourceTickerInfo.Register();
+            sourceTickerInfo.InstrumentType = InstrumentType.PriceSummaryPeriod;
         }
 
         periods = new[] { FifteenSeconds, ThirtySeconds, OneMinute, FiveMinutes, FifteenMinutes, ThirtyMinutes };

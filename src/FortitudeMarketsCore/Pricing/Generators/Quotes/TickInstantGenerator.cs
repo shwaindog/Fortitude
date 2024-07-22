@@ -11,13 +11,13 @@ using FortitudeMarketsCore.Pricing.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.Generators.Quotes;
 
-public abstract class Level0QuoteGeneratorBase<TQuote> : QuoteGenerator<TQuote> where TQuote : IMutableLevel0Quote
+public abstract class TickInstantGeneratorBase<TDetailLevel> : TickGenerator<TDetailLevel> where TDetailLevel : IMutableTickInstant
 {
     protected DateTime AdapterReceivedDateTime;
     protected DateTime AdapterSentDateTime;
-    protected Level0QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
+    protected TickInstantGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
 
-    public void PopulateQuote(IMutableLevel0Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableTickInstant populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         var timeStampInfo  = GenerateQuoteInfo.TimeStampGenerationInfo;
         var lastSourceTime = PreviousReturnedQuote?.SourceTime ?? DateTime.MinValue;
@@ -26,8 +26,8 @@ public abstract class Level0QuoteGeneratorBase<TQuote> : QuoteGenerator<TQuote> 
                                                    timeStampInfo.IntervalStdDeviationTicks));
         if (sourceTime - lastSourceTime < timeStampInfo.MinQuoteTimeSpan) sourceTime = lastSourceTime.Add(timeStampInfo.MinQuoteTimeSpan);
 
-        populateQuote.SourceTime  = sourceTime;
-        populateQuote.SinglePrice = previousCurrentMidPriceTime.CurrentMid.Mid;
+        populateQuote.SourceTime      = sourceTime;
+        populateQuote.SingleTickValue = previousCurrentMidPriceTime.CurrentMid.Mid;
 
 
         AdapterReceivedDateTime = sourceTime + timeStampInfo.AverageAdapterDelayTimeSpan +
@@ -46,13 +46,13 @@ public abstract class Level0QuoteGeneratorBase<TQuote> : QuoteGenerator<TQuote> 
     }
 }
 
-public class Level0QuoteGenerator : Level0QuoteGeneratorBase<Level0PriceQuote>
+public class TickInstantGenerator : TickInstantGeneratorBase<TickInstant>
 {
-    public Level0QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
+    public TickInstantGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
 
-    public override Level0PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
+    public override TickInstant BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
     {
-        var toPopulate = new Level0PriceQuote(GenerateQuoteInfo.SourceTickerQuoteInfo);
+        var toPopulate = new TickInstant(GenerateQuoteInfo.SourceTickerInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);
         return toPopulate;
     }

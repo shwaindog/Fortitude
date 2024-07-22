@@ -18,7 +18,8 @@ namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 public interface IPQQuoteDeserializer : INotifyingMessageDeserializer,
     IDoublyLinkedListNode<IPQQuoteDeserializer>
 {
-    ISourceTickerQuoteInfo             Identifier { get; }
+    ISourceTickerInfo Identifier { get; }
+
     event Action<IPQQuoteDeserializer> ReceivedUpdate;
     event Action<IPQQuoteDeserializer> SyncOk;
     event Action<IPQQuoteDeserializer> OutOfSync;
@@ -31,19 +32,20 @@ public interface IPQQuoteDeserializer : INotifyingMessageDeserializer,
 }
 
 public interface IPQQuoteDeserializer<T> : IPQQuoteDeserializer, INotifyingMessageDeserializer<T>, IObservable<T>
-    where T : class, IPQLevel0Quote
+    where T : class, IPQTickInstant
 {
     T   PublishedQuote { get; }
     int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId);
 }
 
 public interface IPQQuotePublishingDeserializer<T> : IPQQuoteDeserializer<T>
-    where T : class, IPQLevel0Quote
+    where T : class, IPQTickInstant
 {
     bool AllowUpdatesCatchup { get; }
-    uint SyncRetryMs         { get; }
 
-    void PushQuoteToSubscribers(PriceSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null);
+    uint SyncRetryMs { get; }
+
+    void PushQuoteToSubscribers(FeedSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null);
 
     void ClearSyncRing();
     T    ClaimSyncSlotEntry();

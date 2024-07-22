@@ -525,7 +525,7 @@ public class PQLastPaidGivenTradeTests
         expectedFlag |= (byte)(expectedFlag | 6);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset,
-                                          lt.TradeVolume, expectedFlag), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                          lt.TradeVolume, expectedFlag), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                          PQFieldKeys.LastTradeVolumeOffset, expectedFlag), $"For asklayer {lt.GetType().Name}");
     }
 

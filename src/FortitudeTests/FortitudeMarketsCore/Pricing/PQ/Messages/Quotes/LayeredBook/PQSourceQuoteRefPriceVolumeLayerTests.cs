@@ -438,7 +438,7 @@ public class PQSourceQuoteRefPriceVolumeLayerTests
         PQSourcePriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerSourceQuoteRefOffset, pvl.SourceQuoteReference),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LayerSourceQuoteRefOffset), $"For {pvl.GetType().Name} ");
     }
 

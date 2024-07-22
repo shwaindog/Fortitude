@@ -41,7 +41,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
     private readonly ISequencer pqSeq = new Sequencer();
 
-    private readonly Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction;
+    private readonly Action<INetworkTopicConnectionConfig, List<ISourceTickerInfo>> snapShotRequestAction;
 
     private readonly IIntraOSThreadSignal stopSignal;
 
@@ -54,7 +54,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
     public PQClientSyncMonitoring
     (Func<string, IMarketConnectionConfig?> getSourceServerConfig,
-        Action<INetworkTopicConnectionConfig, List<ISourceTickerQuoteInfo>> snapShotRequestAction)
+        Action<INetworkTopicConnectionConfig, List<ISourceTickerInfo>> snapShotRequestAction)
     {
         osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
         stopSignal           = osParallelController.SingleOSThreadActivateSignal(false);
@@ -225,7 +225,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
     private void FindAndSnapshotKnockedOutTickersReadyForSnapshot()
     {
         IPQQuoteDeserializer? firstToResync                  = null;
-        var                   deserializersInNeedOfSnapshots = new Dictionary<string, List<ISourceTickerQuoteInfo>>();
+        var                   deserializersInNeedOfSnapshots = new Dictionary<string, List<ISourceTickerInfo>>();
         for (var count = 0; tasksActive && count < MaxSnapshotBatch; count++)
         {
             IPQQuoteDeserializer? pu;
@@ -252,7 +252,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
             if (!deserializersInNeedOfSnapshots.TryGetValue(pu.Identifier.Source,
                                                             out var pqQuoteDeserializerList))
                 deserializersInNeedOfSnapshots[pu.Identifier.Source] =
-                    pqQuoteDeserializerList = new List<ISourceTickerQuoteInfo>();
+                    pqQuoteDeserializerList = new List<ISourceTickerInfo>();
             if (!pqQuoteDeserializerList.Contains(pu.Identifier)) pqQuoteDeserializerList.Add(pu.Identifier);
         }
 
@@ -261,7 +261,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
     private void RequestSnapshotsForTickers
     (
-        Dictionary<string, List<ISourceTickerQuoteInfo>> deserializersInNeedOfSnapshots)
+        Dictionary<string, List<ISourceTickerInfo>> deserializersInNeedOfSnapshots)
     {
         foreach (var kv in deserializersInNeedOfSnapshots)
         {

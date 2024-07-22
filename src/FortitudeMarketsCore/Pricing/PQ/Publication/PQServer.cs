@@ -23,7 +23,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Publication;
 
-public interface IPQServer<T> : IDisposable where T : IPQLevel0Quote
+public interface IPQServer<T> : IDisposable where T : IPQTickInstant
 {
     bool IsStarted { get; }
     void StartServices();
@@ -34,19 +34,19 @@ public interface IPQServer<T> : IDisposable where T : IPQLevel0Quote
     void SetNextSequenceNumberToFullUpdate(string ticker);
 }
 
-public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
+public class PQServer<T> : IPQServer<T> where T : class, IPQTickInstant
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServer<T>));
 
     private readonly ISocketDispatcherResolver         dispatcherResolver;
     private readonly IMap<uint, T>                     entities        = new ConcurrentMap<uint, T>();
-    private readonly IDoublyLinkedList<IPQLevel0Quote> heartbeatQuotes = new DoublyLinkedList<IPQLevel0Quote>();
+    private readonly IDoublyLinkedList<IPQTickInstant> heartbeatQuotes = new DoublyLinkedList<IPQTickInstant>();
     private readonly ISyncLock                         heartBeatSync   = new YieldLockLight();
 
-    private readonly IMarketConnectionConfig         marketConnectionConfig;
-    private readonly IPricingServerConfig            pricingServerConfig;
-    private readonly Func<ISourceTickerQuoteInfo, T> quoteFactory;
-    private readonly IPQServerHeartBeatSender        serverHeartBeatSender;
+    private readonly IMarketConnectionConfig    marketConnectionConfig;
+    private readonly IPricingServerConfig       pricingServerConfig;
+    private readonly Func<ISourceTickerInfo, T> quoteFactory;
+    private readonly IPQServerHeartBeatSender   serverHeartBeatSender;
 
     private readonly Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer>
         snapShotServerFactory;
@@ -63,9 +63,9 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
         ISocketDispatcherResolver socketDispatcherResolver,
         Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> snapShotServerFactory,
         Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory,
-        Func<ISourceTickerQuoteInfo, T>? quoteFactory = null)
+        Func<ISourceTickerInfo, T>? quoteFactory = null)
     {
-        this.quoteFactory           = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerQuoteInfo, T>();
+        this.quoteFactory           = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerInfo, T>();
         dispatcherResolver          = socketDispatcherResolver;
         this.marketConnectionConfig = marketConnectionConfig;
         pricingServerConfig         = marketConnectionConfig.PricingServerConfig!;
@@ -110,12 +110,12 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
 
     public void Unregister(T quote)
     {
-        if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.SourceTickerId, out var ent))
+        if (entities.TryGetValue(quote.SourceTickerInfo!.SourceTickerId, out var ent))
         {
             quote.ResetFields();
             quote.HasUpdates = true;
             Publish(quote);
-            entities.Remove(quote.SourceTickerQuoteInfo.SourceTickerId);
+            entities.Remove(quote.SourceTickerInfo.SourceTickerId);
             heartBeatSync.Acquire();
             try
             {
@@ -135,13 +135,13 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQLevel0Quote
     public void Publish(T quote)
     {
         if (!quote.HasUpdates) return;
-        if (entities.TryGetValue(quote.SourceTickerQuoteInfo!.SourceTickerId, out var ent))
+        if (entities.TryGetValue(quote.SourceTickerInfo!.SourceTickerId, out var ent))
         {
             ent!.Lock.Acquire();
             try
             {
                 var seqId = ent.PQSequenceId;
-                ent.CopyFrom((ILevel0Quote)quote);
+                ent.CopyFrom((ITickInstant)quote);
                 quote.HasUpdates = false;
                 ent.PQSequenceId = seqId;
             }

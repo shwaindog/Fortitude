@@ -22,9 +22,9 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataBucket<TEntry, TBucket>, IPriceQuoteBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
+    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket<TEntry>
-    where TSerializeType : PQLevel0Quote, new()
+    where TSerializeType : PQTickInstant, new()
 {
     private IMessageBufferContext? bufferContext;
     private PQQuoteSerializer?     indexEntrySerializer;
@@ -44,8 +44,8 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         {
             if (messageDeserializer == null)
             {
-                var srcTkrQtInfo = PricingInstrumentId as ISourceTickerQuoteInfo ?? new SourceTickerQuoteInfo(PricingInstrumentId);
-                messageDeserializer = new PQQuoteStorageDeserializer<TSerializeType>(srcTkrQtInfo);
+                var srcTkrInfo = PricingInstrumentId as ISourceTickerInfo ?? new SourceTickerInfo(PricingInstrumentId);
+                messageDeserializer = new PQQuoteStorageDeserializer<TSerializeType>(srcTkrInfo);
             }
 
             return messageDeserializer;
@@ -74,8 +74,8 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
     {
         var pqContext = entryContext as IPQQuoteAppendContext<TEntry, TSerializeType>;
         var entry     = entryContext.CurrentEntry;
-        if (entry!.SourceTickerQuoteInfo!.SourceId != PricingInstrumentId.SourceId
-         || entry.SourceTickerQuoteInfo.TickerId != PricingInstrumentId.TickerId || pqContext == null)
+        if (entry!.SourceTickerInfo!.SourceId != PricingInstrumentId.SourceId
+         || entry.SourceTickerInfo.TickerId != PricingInstrumentId.TickerId || pqContext == null)
             return new AppendResult(StorageAttemptResult.EntryNotCompatible);
 
         bufferContext ??= new MessageBufferContext(writeBuffer);

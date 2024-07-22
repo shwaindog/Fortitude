@@ -61,7 +61,7 @@ public interface ITimeSeriesRepository
     void CloseAllFilesAndSessions();
 
     InstrumentFileInfo      GetInstrumentFileInfo(IInstrument instrument);
-    InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument);
+    InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument, UnboundedTimeRange? limitEntryRange = null);
 
     IEnumerable<IInstrument> AvailableInstrumentsMatching
     (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
@@ -125,7 +125,7 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
         return new InstrumentFileInfo(instrument, filePeriod, earliestEntryTime, latestEntryTime, allFileStartTimes);
     }
 
-    public InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument)
+    public InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument, UnboundedTimeRange? limitEntryRange = null)
     {
         if (!InstrumentFilesMap.TryGetValue(instrument, out var instrumentFiles))
         {
@@ -141,7 +141,7 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
         }
         var totalCount  = 0L;
         var fileDetails = new List<FileEntryInfo>(instrumentFiles.Count);
-        foreach (var instrumentFile in instrumentFiles)
+        foreach (var instrumentFile in instrumentFiles.Where(irfs => irfs.FilePeriodRange.Intersects(limitEntryRange)))
         {
             var timeSeriesFile = instrumentFile.TimeSeriesFile;
             var fileEntries    = timeSeriesFile.Header.TotalEntries;

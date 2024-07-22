@@ -12,11 +12,11 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class DailyToHourlyLevel0QuoteSubBuckets<TEntry> : PriceQuoteSubBucket<TEntry, DailyToHourlyLevel0QuoteSubBuckets<TEntry>,
-    HourlyLevel0QuoteDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry<TEntry>, ILevel0Quote
+public class DailyToHourlyTickInstantSubBuckets<TEntry> : PriceQuoteSubBucket<TEntry, DailyToHourlyTickInstantSubBuckets<TEntry>,
+    HourlyTickInstantDataBucket<TEntry>>
+    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
 {
-    public DailyToHourlyLevel0QuoteSubBuckets
+    public DailyToHourlyTickInstantSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>

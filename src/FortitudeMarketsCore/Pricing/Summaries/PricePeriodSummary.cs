@@ -100,29 +100,45 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
 
     public PricePeriodSummary? Previous
     {
-        get => ((IPricePeriodSummary)this).Previous as PricePeriodSummary;
-        set => ((IPricePeriodSummary)this).Previous = value;
+        get => ((IBidAskInstant)this).Previous as PricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
     }
 
     public PricePeriodSummary? Next
     {
-        get => ((IPricePeriodSummary)this).Next as PricePeriodSummary;
-        set => ((IPricePeriodSummary)this).Next = value;
+        get => ((IBidAskInstant)this).Next as PricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
+    }
+
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
+
+    IPricePeriodSummary? IPricePeriodSummary.Previous
+    {
+        get => ((IBidAskInstant)this).Previous as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
+    }
+    IPricePeriodSummary? IPricePeriodSummary.Next
+    {
+        get => ((IBidAskInstant)this).Next as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
     }
 
     IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous
     {
-        get => ((IPricePeriodSummary)this).Previous;
-        set => ((IPricePeriodSummary)this).Previous = value;
+        get => ((IBidAskInstant)this).Previous as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Previous = value;
     }
     IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next
     {
-        get => ((IPricePeriodSummary)this).Next;
-        set => ((IPricePeriodSummary)this).Next = value;
+        get => ((IBidAskInstant)this).Next as IPricePeriodSummary;
+        set => ((IBidAskInstant)this).Next = value;
     }
 
-    IPricePeriodSummary? IPricePeriodSummary.Previous { get; set; }
-    IPricePeriodSummary? IPricePeriodSummary.Next     { get; set; }
+    decimal IBidAskPair.BidPrice => AverageBidPrice;
+    decimal IBidAskPair.AskPrice => AverageAskPrice;
+
+    DateTime IBidAskInstant.AtTime => PeriodStartTime;
 
     public bool IsEmpty
     {
@@ -204,6 +220,13 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     IPricePeriodSummary IStoreState<IPricePeriodSummary>.CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 
+    IReusableObject<IBidAskInstant> IStoreState<IReusableObject<IBidAskInstant>>.CopyFrom
+        (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+
+    IBidAskInstant IStoreState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+
     IReusableObject<IPricePeriodSummary> IStoreState<IReusableObject<IPricePeriodSummary>>.CopyFrom
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
@@ -213,6 +236,20 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     IPricePeriodSummary ICloneable<IPricePeriodSummary>.Clone() => Clone();
 
     IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() => Clone();
+
+    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
+
+    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes)
+    {
+        if (other == null) return false;
+        if (exactTypes && other.GetType() != GetType()) return false;
+        var startTimeSame       = PeriodStartTime.Equals(other.AtTime);
+        var averageBidPriceSame = AverageBidPrice == other.BidPrice;
+        var averageAskPriceSame = AverageAskPrice == other.AskPrice;
+
+        var allAreSame = startTimeSame && averageBidPriceSame && averageAskPriceSame;
+        return allAreSame;
+    }
 
     public bool AreEquivalent(IPricePeriodSummary? other, bool exactTypes = false)
     {

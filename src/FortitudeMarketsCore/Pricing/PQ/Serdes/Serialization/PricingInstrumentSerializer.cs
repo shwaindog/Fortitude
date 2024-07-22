@@ -38,7 +38,7 @@ public class PricingInstrumentSerializer : ISerializer<IPricingInstrumentId>
 
     public void Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
-        Serialize((ISourceTickerQuoteInfo)message, (ISerdeContext)writeContext);
+        Serialize((ISourceTickerInfo)message, (ISerdeContext)writeContext);
     }
 
     public unsafe int Serialize(IBuffer buffer, IPricingInstrumentId message)

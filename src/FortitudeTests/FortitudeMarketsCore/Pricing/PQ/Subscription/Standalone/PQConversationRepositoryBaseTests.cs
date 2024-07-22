@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
@@ -24,27 +27,37 @@ public class PQConversationRepositoryBaseTests
         dummySktSubRegFctryBs = null!;
 
     private DummyConversationSubscriber dummySocketSubscriber = null!;
+
     private Mock<IMessageDeserializationRepository> moqBinaryDeserializationFactory = null!;
-    private Mock<IFLogger> moqFlogger = null!;
+
+    private Mock<IFLogger>  moqFlogger  = null!;
     private Mock<IOSSocket> moqOsSocket = null!;
+
     private Mock<IOSParallelController> moqParallelControler = null!;
+
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<INotifyingMessageDeserializer<PQLevel0Quote>> moqSocketBinaryDeserializer = null!;
+
+    private Mock<INotifyingMessageDeserializer<PQTickInstant>> moqSocketBinaryDeserializer = null!;
+
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
+
     private string testHostName = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        moqFlogger = new Mock<IFLogger>();
+        moqFlogger           = new Mock<IFLogger>();
         moqParallelControler = new Mock<IOSParallelController>();
+
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
-            .Returns(moqParallelControler.Object);
+                                    .Returns(moqParallelControler.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
-        moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
+
+        moqSocketTopicConnectionConfig  = new Mock<INetworkTopicConnectionConfig>();
         moqBinaryDeserializationFactory = new Mock<IMessageDeserializationRepository>();
-        moqSocketBinaryDeserializer = new Mock<INotifyingMessageDeserializer<PQLevel0Quote>>();
+        moqSocketBinaryDeserializer     = new Mock<INotifyingMessageDeserializer<PQTickInstant>>();
+
         moqOsSocket = new Mock<IOSSocket>();
 
         testHostName = "TestHostname";
@@ -54,8 +67,9 @@ public class PQConversationRepositoryBaseTests
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
-        moqBinaryDeserializationFactory.Setup(bdf => bdf
-                .GetDeserializer<PQLevel0Quote>(uint.MaxValue))
+        moqBinaryDeserializationFactory
+            .Setup(bdf => bdf
+                       .GetDeserializer<PQTickInstant>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object)
             .Verifiable();
 
@@ -112,12 +126,13 @@ public class PQConversationRepositoryBaseTests
     [TestMethod]
     public void MultiRegisteredFactory_UnregisterSocketSubscriber_RemoveSubscriptionEvenIfContainsSubscriptions()
     {
-        moqBinaryDeserializationFactory.Setup(bdf => bdf
-                .GetDeserializer<PQLevel0Quote>(1u))
+        moqBinaryDeserializationFactory
+            .Setup(bdf => bdf
+                       .GetDeserializer<PQTickInstant>(1u))
             .Returns(moqSocketBinaryDeserializer.Object)
             .Verifiable();
 
-        var socketClient = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
+        var socketClient  = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
         var socketClient2 = dummySktSubRegFctryBs.RetrieveOrCreateConversation(moqSocketTopicConnectionConfig.Object);
 
         var socketSubscriptions = NonPublicInvocator.GetInstanceField<ConcurrentMap<INetworkTopicConnectionConfig,
@@ -131,8 +146,10 @@ public class PQConversationRepositoryBaseTests
         Assert.AreSame(moqSocketTopicConnectionConfig.Object, kvp.Key);
         Assert.AreSame(socketClient, kvp.Value);
 
-        moqSocketBinaryDeserializer.Setup(sbd =>
-            sbd.IsRegistered(It.IsAny<ConversationMessageReceivedHandler<PQLevel0Quote>>())).Returns(true).Verifiable();
+        moqSocketBinaryDeserializer
+            .Setup(sbd =>
+                       sbd.IsRegistered(It.IsAny<ConversationMessageReceivedHandler<PQTickInstant>>())).Returns(true)
+            .Verifiable();
 
         dummySktSubRegFctryBs.RemoveConversation(moqSocketTopicConnectionConfig.Object);
 
@@ -155,7 +172,7 @@ public class PQConversationRepositoryBaseTests
     {
         public DummyConversationSubscriber()
         {
-            Error += (_, _) => { };
+            Error   += (_, _) => { };
             Started += () => { };
             Stopped += () => { };
             Error?.Invoke("To hide complier warnings", 0);
@@ -163,17 +180,22 @@ public class PQConversationRepositoryBaseTests
             Stopped?.Invoke();
         }
 
-        public ConversationType ConversationType { get; set; } = ConversationType.Subscriber;
+        public ConversationType  ConversationType  { get; set; } = ConversationType.Subscriber;
         public ConversationState ConversationState { get; set; } = ConversationState.New;
 
 
         public int Id { get; } = 0;
+
         public IConversationSession Session { get; } = null!;
+
         public string Name { get; set; } = "";
 
         public bool IsStarted { get; } = false;
+
         public IStreamListener? StreamListener { get; set; }
+
         public event Action<string, int>? Error;
+
         public event Action? Started;
         public event Action? Stopped;
 

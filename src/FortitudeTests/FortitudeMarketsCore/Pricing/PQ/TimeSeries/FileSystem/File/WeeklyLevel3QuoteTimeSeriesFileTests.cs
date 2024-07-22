@@ -22,7 +22,7 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 using FortitudeMarketsCore.Pricing.Quotes;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion
@@ -44,7 +44,7 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     private IReaderSession<ILevel3Quote>? level3SessionReader;
     private IWriterSession<ILevel3Quote>  level3SessionWriter = null!;
 
-    private SourceTickerQuoteInfo  level3SrcTkrQtInfo     = null!;
+    private SourceTickerInfo       level3SrcTkrInfo       = null!;
     private PQLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
     private DateTime               startOfWeek;
 
@@ -64,13 +64,13 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     (FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader,
         LayerType layerType = LayerType.PriceVolume, byte numberOfLayers = 20, LastTradeType lastTradeType = LastTradeType.Price)
     {
-        level3SrcTkrQtInfo =
-            new SourceTickerQuoteInfo
-                (19, "WeeklyLevel3QuoteTimeSeriesFileTests", 79, "PersistTest", Level3, Unknown
+        level3SrcTkrInfo =
+            new SourceTickerInfo
+                (19, "WeeklyLevel3QuoteTimeSeriesFileTests", 79, "PersistTest", Level3Quote, Unknown
                , numberOfLayers, layerFlags: layerType.SupportedLayerFlags(), lastTradedFlags: lastTradeType.SupportedLastTradedFlags()
                , roundingPrecision: 0.000001m);
 
-        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrQtInfo);
+        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrInfo);
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
@@ -98,7 +98,7 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
                               , optionalInstrumentFields),
                  TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7,
                  fileFlags, 6);
-        var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level3SrcTkrQtInfo, createTestCreateFileParameters);
+        var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level3SrcTkrInfo, createTestCreateFileParameters);
         level3OneWeekFile   = new WeeklyLevel3QuoteTimeSeriesFile(createPriceQuoteFile);
         level3SessionWriter = level3OneWeekFile.GetWriterSession()!;
     }
@@ -162,15 +162,15 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     }
 
     public void CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned<TEntry>
-        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel3Quote> retrievalFactory)
+        (ITickGenerator<TEntry> tickGenerator, Func<ILevel3Quote> retrievalFactory)
         where TEntry : class, IMutableLevel3Quote, ILevel3Quote
     {
         var toPersistAndCheck
             = GenerateRepeatableQuotes<ILevel3Quote, TEntry>
-                (1, 10, 1, DayOfWeek.Wednesday, quoteGenerator).ToList();
+                (1, 10, 1, DayOfWeek.Wednesday, tickGenerator).ToList();
         toPersistAndCheck.AddRange
             (GenerateRepeatableQuotes<ILevel3Quote, TEntry>
-                (1, 10, 1, DayOfWeek.Thursday, quoteGenerator));
+                (1, 10, 1, DayOfWeek.Thursday, tickGenerator));
 
         foreach (var firstPeriod in toPersistAndCheck)
         {
@@ -205,15 +205,15 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     }
 
     public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>
-        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel3Quote> retrievalFactory)
+        (ITickGenerator<TEntry> tickGenerator, Func<ILevel3Quote> retrievalFactory)
         where TEntry : class, IMutableLevel3Quote, ILevel3Quote
     {
         var toPersistAndCheck
             = GenerateRepeatableQuotes<ILevel3Quote, TEntry>
-                (1, 8000, 1, DayOfWeek.Wednesday, quoteGenerator).ToList();
+                (1, 8000, 1, DayOfWeek.Wednesday, tickGenerator).ToList();
         toPersistAndCheck.AddRange
             (GenerateRepeatableQuotes<ILevel3Quote, TEntry>
-                (1, 8000, 1, DayOfWeek.Thursday, quoteGenerator));
+                (1, 8000, 1, DayOfWeek.Thursday, tickGenerator));
 
         foreach (var firstPeriod in toPersistAndCheck)
         {
@@ -262,12 +262,12 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     }
 
     public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>
-        (IQuoteGenerator<TEntry> quoteGenerator, Func<ILevel3Quote> retrievalFactory)
+        (ITickGenerator<TEntry> tickGenerator, Func<ILevel3Quote> retrievalFactory)
         where TEntry : class, IMutableLevel3Quote, ILevel3Quote
     {
         var toPersistAndCheck =
             GenerateQuotesForEachDayAndHourOfCurrentWeek<ILevel3Quote, TEntry>
-                (0, 10, quoteGenerator).ToList();
+                (0, 10, tickGenerator).ToList();
 
         foreach (var Level3QuoteStruct in toPersistAndCheck)
         {

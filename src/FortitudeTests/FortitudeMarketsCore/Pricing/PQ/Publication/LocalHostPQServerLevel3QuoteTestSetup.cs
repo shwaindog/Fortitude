@@ -58,7 +58,7 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
         PqPublisher = new PQPublisher<PQLevel3Quote>(PqServer);
         PqPublisher.RegisterTickersWithServer(useConnectionConfig);
         Logger.Info("Started PQServer");
-        Level3PriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(FirstTickerQuoteInfo);
+        Level3PriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(FirstTickerInfo);
         return PqPublisher;
     }
 }

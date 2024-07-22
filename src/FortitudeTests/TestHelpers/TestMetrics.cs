@@ -46,8 +46,8 @@ public class TestMetrics
     {
         fortitudeCommonType      = typeof(TimeContext);
         fortitudeIOType          = typeof(ISocketSessionContext);
-        fortitudeMarketsApiType  = typeof(ILevel0Quote);
-        fortitudeMarketsCoreType = typeof(PQLevel0Quote);
+        fortitudeMarketsApiType  = typeof(ITickInstant);
+        fortitudeMarketsCoreType = typeof(PQTickInstant);
         fortitudeBusRulesType    = typeof(BusMessage);
 
         fortitudeCommonAssemblyClasses =

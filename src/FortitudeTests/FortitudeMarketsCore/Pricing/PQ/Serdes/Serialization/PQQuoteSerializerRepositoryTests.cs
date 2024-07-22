@@ -11,7 +11,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -25,16 +25,17 @@ public class PQClientQuoteSerializerRepositoryTests
 
     private PQClientQuoteSerializerRepository pqClientQuoteSerializerRepository = null!;
 
-    private ISourceTickerQuoteInfo sourceTickerQuoteInfo = null!;
+    private ISourceTickerInfo sourceTickerInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", Level3, Unknown
+        sourceTickerInfo = new SourceTickerInfo
+            (ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
 
         pqClientQuoteSerializerRepository = new PQClientQuoteSerializerRepository(new Recycler(), null);
     }
@@ -52,7 +53,7 @@ public class PQClientQuoteSerializerRepositoryTests
     [TestMethod]
     public void NoEnteredDeserializer_GetSerializerNonSupportedType_ReturnsNull()
     {
-        var result = pqClientQuoteSerializerRepository.GetSerializer<PQLevel0Quote>(sourceTickerQuoteInfo.SourceTickerId);
+        var result = pqClientQuoteSerializerRepository.GetSerializer<PQTickInstant>(sourceTickerInfo.SourceTickerId);
         Assert.IsNull(result);
     }
 }

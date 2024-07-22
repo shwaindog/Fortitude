@@ -102,10 +102,10 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
 
     public IIOInboundMessageQueue? IOInboundMessageQueue => SocketSessionContext.IOInboundMessageQueue(messageBus);
 
-    public IList<ISourceTickerQuoteInfo> LastPublishedSourceTickerQuoteInfos { get; private set; } = new List<ISourceTickerQuoteInfo>();
+    public IList<ISourceTickerInfo> LastPublishedSourceTickerInfos { get; private set; } = new List<ISourceTickerInfo>();
 
     public async ValueTask<bool> RequestSnapshots
-    (IList<ISourceTickerQuoteInfo> sourceTickerIds, int timeout = 10_000
+    (IList<ISourceTickerInfo> sourceTickerIds, int timeout = 10_000
       , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
         RestartTimeoutTimer();
@@ -122,7 +122,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         return false;
     }
 
-    public async ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerQuoteInfoListAsync
+    public async ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerInfoListAsync
     (int timeout = 10_000
       , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
@@ -155,11 +155,11 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
             Send(pqSourceTickerInfoRequest);
             pqSourceTickerInfoRequest.DecrementRefCount();
             var sourceTickerInfosResponse = await responseValueTask;
-            if (!sourceTickerInfosResponse.SourceTickerQuoteInfos.Any())
+            if (!sourceTickerInfosResponse.SourceTickerInfos.Any())
                 logger.Info("Request for source ticker info return no tickers for {0}. Got {1}", feedName, sourceTickerInfosResponse);
             else
                 hasHadSuccessfullSourceTickerResponse = true;
-            LastPublishedSourceTickerQuoteInfos = sourceTickerInfosResponse.SourceTickerQuoteInfos;
+            LastPublishedSourceTickerInfos = sourceTickerInfosResponse.SourceTickerInfos;
             return sourceTickerInfosResponse;
         }
 

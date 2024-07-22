@@ -159,7 +159,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
             syncKo.AddLast(pqMd);
 
             if (!resync) continue;
-            if (!requestList.SourceTickerQuoteInfos.Contains(pqMd.Identifier)) requestList.SourceTickerQuoteInfos.Add(pqMd.Identifier);
+            if (!requestList.SourceTickerInfos.Contains(pqMd.Identifier)) requestList.SourceTickerInfos.Add(pqMd.Identifier);
         }
 
         RequestSnapshotsForTickers(requestList);
@@ -167,7 +167,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private void RequestSnapshotsForTickers(FeedSourceTickerInfoUpdate deserializersInNeedOfSnapshots)
     {
-        if (deserializersInNeedOfSnapshots.SourceTickerQuoteInfos.Any())
+        if (deserializersInNeedOfSnapshots.SourceTickerInfos.Any())
             this.Publish(feedRequestSnapshotsAddress, deserializersInNeedOfSnapshots, new DispatchOptions());
         else
             deserializersInNeedOfSnapshots.DecrementRefCount();

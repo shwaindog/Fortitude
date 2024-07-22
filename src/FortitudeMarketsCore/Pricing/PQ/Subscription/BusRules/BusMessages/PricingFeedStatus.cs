@@ -35,9 +35,9 @@ public class PricingFeedStatusResponse : RecyclableObject
 
     public DateTime LastTickerRefreshTime { get; set; }
 
-    public List<ISourceTickerQuoteInfo> AvailableTickersTickers    { get; set; } = new();
-    public List<ISourceTickerQuoteInfo> HealthySubscribedTickers   { get; set; } = new();
-    public List<ISourceTickerQuoteInfo> UnhealthySubscribedTickers { get; set; } = new();
+    public List<ISourceTickerInfo> AvailableTickersTickers    { get; set; } = new();
+    public List<ISourceTickerInfo> HealthySubscribedTickers   { get; set; } = new();
+    public List<ISourceTickerInfo> UnhealthySubscribedTickers { get; set; } = new();
 
     public override void StateReset()
     {

@@ -14,10 +14,10 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 namespace FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
 
 public interface IPQTickerFeedSubscriptionQuoteStream<out T> : IPQTickerFeedSubscription, IObservable<T>
-    where T : class, ILevel0Quote { }
+    where T : class, ITickInstant { }
 
 public class PQTickerFeedSubscriptionQuoteStream<T> : PQTickerFeedSubscription, IObserver<T>,
-    IPQTickerFeedSubscriptionQuoteStream<T> where T : class, IPQLevel0Quote
+    IPQTickerFeedSubscriptionQuoteStream<T> where T : class, IPQTickInstant
 {
     private readonly ISyncLock quoteLockLight;
 
@@ -28,8 +28,8 @@ public class PQTickerFeedSubscriptionQuoteStream<T> : PQTickerFeedSubscription, 
 
     public PQTickerFeedSubscriptionQuoteStream
     (IPricingServerConfig feedServerConfig,
-        ISourceTickerQuoteInfo sourceTickerQuoteInfo, T publishedQuote)
-        : base(feedServerConfig, sourceTickerQuoteInfo) =>
+        ISourceTickerInfo sourceTickerInfo, T publishedQuote)
+        : base(feedServerConfig, sourceTickerInfo) =>
         quoteLockLight = publishedQuote.Lock;
 
     public void OnNext(T value)

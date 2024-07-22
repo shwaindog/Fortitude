@@ -13,7 +13,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -26,51 +26,57 @@ public class PQHeartbeatSerializerTests
 
     private PQHeartBeatQuotesMessage firstBatchOfQuotes = null!;
 
-    private PQLevel0Quote firstQuote = null!;
+    private SourceTickerInfo firstInfo = null!;
 
-    private SourceTickerQuoteInfo    firstQuoteInfo        = null!;
-    private PQLevel3Quote            fourthQuote           = null!;
-    private SourceTickerQuoteInfo    fourthQuoteInfo       = null!;
+    private PQTickInstant    firstQuote  = null!;
+    private SourceTickerInfo fourthInfo  = null!;
+    private PQLevel3Quote    fourthQuote = null!;
+
     private PQHeartbeatSerializer    pqHeartBeatSerializer = null!;
     private CircularReadWriteBuffer  readWriteBuffer       = null!;
     private PQHeartBeatQuotesMessage secondBatchOfQuotes   = null!;
-    private PQLevel1Quote            secondQuote           = null!;
-    private SourceTickerQuoteInfo    secondQuoteInfo       = null!;
-    private PQLevel2Quote            thirdQuote            = null!;
-    private SourceTickerQuoteInfo    thirdQuoteInfo        = null!;
+
+    private SourceTickerInfo secondInfo  = null!;
+    private PQLevel1Quote    secondQuote = null!;
+    private SourceTickerInfo thirdInfo   = null!;
+    private PQLevel2Quote    thirdQuote  = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        firstQuoteInfo = new SourceTickerQuoteInfo
-            (1, "TestSource", 1, "TestTicker", Level3, Unknown
+        firstInfo = new SourceTickerInfo
+            (1, "TestSource", 1, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        secondQuoteInfo = new SourceTickerQuoteInfo
-            (2, "TestSource", 2, "TestTicker", Level3, Unknown
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
+        secondInfo = new SourceTickerInfo
+            (2, "TestSource", 2, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        thirdQuoteInfo = new SourceTickerQuoteInfo
-            (3, "TestSource", 3, "TestTicker", Level3, Unknown
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
+        thirdInfo = new SourceTickerInfo
+            (3, "TestSource", 3, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
-        fourthQuoteInfo = new SourceTickerQuoteInfo
-            (4, "TestSource", 4, "TestTicker", Level3, Unknown
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
+        fourthInfo = new SourceTickerInfo
+            (4, "TestSource", 4, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
 
-        firstQuote  = new PQLevel0Quote(firstQuoteInfo);
-        secondQuote = new PQLevel1Quote(secondQuoteInfo);
-        thirdQuote  = new PQLevel2Quote(thirdQuoteInfo);
-        fourthQuote = new PQLevel3Quote(fourthQuoteInfo);
+        firstQuote  = new PQTickInstant(firstInfo);
+        secondQuote = new PQLevel1Quote(secondInfo);
+        thirdQuote  = new PQLevel2Quote(thirdInfo);
+        fourthQuote = new PQLevel3Quote(fourthInfo);
 
         firstBatchOfQuotes
-            = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote> { firstQuote, secondQuote, thirdQuote });
-        secondBatchOfQuotes = new PQHeartBeatQuotesMessage(new List<IPQLevel0Quote> { thirdQuote, fourthQuote });
+            = new PQHeartBeatQuotesMessage(new List<IPQTickInstant> { firstQuote, secondQuote, thirdQuote });
+        secondBatchOfQuotes = new PQHeartBeatQuotesMessage(new List<IPQTickInstant> { thirdQuote, fourthQuote });
 
         readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
 
@@ -97,7 +103,7 @@ public class PQHeartbeatSerializerTests
             var messageFlags = *currPtr++;
             Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
             var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.SourceTickerId);
+            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerInfo!.SourceTickerId);
             var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
             var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
@@ -121,7 +127,7 @@ public class PQHeartbeatSerializerTests
             var messageFlags = *currPtr++;
             Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
             var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerQuoteInfo!.SourceTickerId);
+            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerInfo!.SourceTickerId);
             var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
             var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);

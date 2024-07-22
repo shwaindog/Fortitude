@@ -18,13 +18,13 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQLevel0Quote
+internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQTickInstant
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteFeedDeserializer<T>));
 
     private bool feedIsStopped = true;
 
-    public PQQuoteFeedDeserializer(ISourceTickerQuoteInfo identifier) : base(identifier)
+    public PQQuoteFeedDeserializer(ISourceTickerInfo identifier) : base(identifier)
     {
         if (!string.IsNullOrEmpty(identifier.Ticker)) throw new ArgumentException("Expected no ticker to be specified.");
     }
@@ -46,7 +46,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
             var       ptr                                                 = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
             var       sequenceId                                          = StreamByteOps.ToUInt(ref ptr);
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
-            PushQuoteToSubscribers(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
+            PushQuoteToSubscribers(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)
                 OnSyncOk(this);
             else
@@ -62,12 +62,12 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
     {
         int elapsed;
         if ((elapsed = (int)(utcNow - PublishedQuote.ClientReceivedTime).TotalMilliseconds) <=
-            InSyncState<PQLevel0Quote>.PQTimeoutMs && !feedIsStopped)
+            InSyncState<PQTickInstant>.PQTimeoutMs && !feedIsStopped)
             return false;
         feedIsStopped = true;
         Logger.Info("Stale detected on feed {0}, {1}ms elapsed with no update",
                     Identifier.Source, elapsed);
-        PushQuoteToSubscribers(PriceSyncStatus.Stale);
+        PushQuoteToSubscribers(FeedSyncStatus.Stale);
         return true;
     }
 

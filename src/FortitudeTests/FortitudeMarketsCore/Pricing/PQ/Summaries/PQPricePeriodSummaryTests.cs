@@ -12,14 +12,14 @@ using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.SourceTickerInfo;
+using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -28,9 +28,9 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Summaries;
 [TestClass]
 public class PQPricePeriodSummaryTests
 {
-    private PQPricePeriodSummary    emptySummary                = null!;
-    private PQPricePeriodSummary    fullyPopulatedPeriodSummary = null!;
-    private PQSourceTickerQuoteInfo pricePrecisionSettings      = null!;
+    private PQPricePeriodSummary emptySummary                = null!;
+    private PQPricePeriodSummary fullyPopulatedPeriodSummary = null!;
+    private PQSourceTickerInfo   pricePrecisionSettings      = null!;
 
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
 
@@ -42,12 +42,13 @@ public class PQPricePeriodSummaryTests
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
         pricePrecisionSettings =
-            new PQSourceTickerQuoteInfo
-                (new SourceTickerQuoteInfo
-                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
-                   , 20, 0.00001m, 10_000_000m, 50_000_000_000m, 10_000_000m, 1
-                   , LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
-                   , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime));
+            new PQSourceTickerInfo
+                (new SourceTickerInfo
+                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+                   , 20, 0.00001m, 0.00001m, 10_000_000m, 50_000_000_000m, 10_000_000m, 1
+                   , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+                   , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                                      LastTradedFlags.LastTradedTime));
 
         emptySummary                = new PQPricePeriodSummary();
         fullyPopulatedPeriodSummary = new PQPricePeriodSummary();
@@ -639,7 +640,7 @@ public class PQPricePeriodSummaryTests
     }
 
     [TestMethod]
-    public void PopulatedPeriodSummaryWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllLevel0Fields()
+    public void PopulatedPeriodSummaryWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllTickInstantFields()
     {
         var pqFieldUpdates =
             fullyPopulatedPeriodSummary.GetDeltaUpdateFields
@@ -648,7 +649,7 @@ public class PQPricePeriodSummaryTests
     }
 
     [TestMethod]
-    public void PopulatedPeriodSummaryWithNoUpdates_GetDeltaUpdateFieldsAsSnapshot_ReturnsAllLevel0Fields()
+    public void PopulatedPeriodSummaryWithNoUpdates_GetDeltaUpdateFieldsAsSnapshot_ReturnsAllTickInstantFields()
     {
         fullyPopulatedPeriodSummary.HasUpdates = false;
         var pqFieldUpdates =
@@ -853,49 +854,49 @@ public class PQPricePeriodSummaryTests
         var volumeScale = precisionSettings.VolumeScalingPrecision;
         Assert.AreEqual(new PQFieldUpdate
                             (PQFieldKeys.PeriodStartDateTime, periodSummary.PeriodStartTime.GetHoursFromUnixEpoch()),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodStartDateTime));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodStartDateTime));
         var fifthByte = periodSummary.PeriodStartTime.GetSubHourComponent().BreakLongToByteAndUint(out var lowerFourBytes);
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodStartSubHourTime, lowerFourBytes, fifthByte),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodStartSubHourTime));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodStartSubHourTime));
         Assert.AreEqual(new PQFieldUpdate
                             (PQFieldKeys.PeriodEndDateTime, periodSummary.PeriodEndTime.GetHoursFromUnixEpoch()),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodEndDateTime));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodEndDateTime));
         fifthByte = periodSummary.PeriodEndTime.GetSubHourComponent().BreakLongToByteAndUint(out lowerFourBytes);
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodEndSubHourTime, lowerFourBytes, fifthByte),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodEndSubHourTime));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodEndSubHourTime));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodStartPrice, periodSummary.StartBidPrice, priceScale),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodStartPrice, priceScale));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodStartPrice, priceScale));
         Assert.AreEqual(new PQFieldUpdate
                             (PQFieldKeys.PeriodStartPrice, PQScaling.Scale(periodSummary.StartAskPrice, priceScale)
                            , (byte)(PQFieldFlags.IsAskSideFlag | priceScale)),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId
+                        PQTickInstantTests.ExtractFieldUpdateWithId
                             (checkFieldUpdates, PQFieldKeys.PeriodStartPrice, (byte)(PQFieldFlags.IsAskSideFlag | priceScale)));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodHighestPrice, PQScaling.Scale(periodSummary.HighestBidPrice, priceScale), priceScale),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodHighestPrice, priceScale));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodHighestPrice, priceScale));
         Assert.AreEqual(new PQFieldUpdate
                             (PQFieldKeys.PeriodHighestPrice, PQScaling.Scale(periodSummary.HighestAskPrice, priceScale)
                            , (byte)(PQFieldFlags.IsAskSideFlag | priceScale)),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId
+                        PQTickInstantTests.ExtractFieldUpdateWithId
                             (checkFieldUpdates, PQFieldKeys.PeriodHighestPrice, (byte)(PQFieldFlags.IsAskSideFlag | priceScale)));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodLowestPrice, PQScaling.Scale(periodSummary.LowestBidPrice, priceScale), priceScale),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodLowestPrice, priceScale));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodLowestPrice, priceScale));
         Assert.AreEqual(new PQFieldUpdate
                             (PQFieldKeys.PeriodLowestPrice, PQScaling.Scale(periodSummary.LowestAskPrice, priceScale)
                            , (byte)(PQFieldFlags.IsAskSideFlag | priceScale)),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId
+                        PQTickInstantTests.ExtractFieldUpdateWithId
                             (checkFieldUpdates, PQFieldKeys.PeriodLowestPrice, (byte)(PQFieldFlags.IsAskSideFlag | priceScale)));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodEndPrice, PQScaling.Scale(periodSummary.EndBidPrice, priceScale), priceScale),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodEndPrice, priceScale));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodEndPrice, priceScale));
         Assert.AreEqual(new PQFieldUpdate
                             (PQFieldKeys.PeriodEndPrice, PQScaling.Scale(periodSummary.EndAskPrice, priceScale)
                            , (byte)(PQFieldFlags.IsAskSideFlag | priceScale)),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId
+                        PQTickInstantTests.ExtractFieldUpdateWithId
                             (checkFieldUpdates, PQFieldKeys.PeriodEndPrice, (byte)(PQFieldFlags.IsAskSideFlag | priceScale)));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodTickCount, periodSummary.TickCount),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodTickCount));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodTickCount));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodVolume, (decimal)periodSummary.PeriodVolume, volumeScale),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodVolume, volumeScale));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodVolume, volumeScale));
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PeriodSummaryFlags, (uint)periodSummary.PeriodSummaryFlags),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodSummaryFlags));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PeriodSummaryFlags));
     }
 }

@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Summaries;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -35,8 +35,8 @@ public class QuoteExtensionMethodsTests
     private readonly DateTime originalQuoteClientReceiveTime = DateTime.Parse("2015-08-09 10:06:23.123456");
     private readonly DateTime originalQuoteExchangeTime      = new(2015, 11, 17, 22, 07, 23);
 
-    private readonly SourceTickerQuoteInfo originalSourceTickerQuoteInfo =
-        new(1, OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, Level3, Unknown
+    private readonly SourceTickerInfo originalSourceTickerInfo =
+        new(1, OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, Level3Quote, Unknown
           , 20, 0.0001m, 1m, 1000000m, 1m);
 
     private ILevel3Quote originalQuote = null!;
@@ -46,9 +46,10 @@ public class QuoteExtensionMethodsTests
     {
         originalQuote =
             new Level3PriceQuote
-                (originalSourceTickerQuoteInfo, originalQuoteExchangeTime, false, 1.1124m, originalQuoteClientReceiveTime
+                (originalSourceTickerInfo, originalQuoteExchangeTime, false, FeedSyncStatus.Good, 1.1124m, originalQuoteClientReceiveTime
                , originalQuoteAdapterTime, originalQuoteAdapterTime, originalQuoteBidDateTime
-               , true, originalQuoteAskDateTime, true, true, new PricePeriodSummary()
+               , true, originalQuoteAskDateTime, originalQuoteExchangeTime, originalQuoteExchangeTime.AddSeconds(2)
+               , true, true, new PricePeriodSummary()
                , new OrderBook
                      (BookSide.BidBook,
                       new[]
@@ -92,19 +93,19 @@ public class QuoteExtensionMethodsTests
         var q2 = originalQuote.Clone();
 
         var newExchangerName = "DifferentExchangeName";
-        var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (1, newExchangerName, 1, OriginalQuoteTickerName, Level3, Unknown
+        var newSourceTickerInfo = new SourceTickerInfo
+            (1, newExchangerName, 1, OriginalQuoteTickerName, Level3Quote, Unknown
            , 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2, (Level3PriceQuote pq) => pq.SourceTickerQuoteInfo, newSourceTickerQuoteInfo);
+            (q2, (Level3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
-        Assert.IsTrue(differences.Contains(nameof(q2.SourceTickerQuoteInfo))
+        Assert.IsTrue(differences.Contains(nameof(q2.SourceTickerInfo))
                    && differences.Contains(OriginalQuoteExchangeName)
                    && differences.Contains(newExchangerName));
-        var updatedNewQuoteInfo = (SourceTickerQuoteInfo)q2.SourceTickerQuoteInfo!;
+        var updatedNewQuoteInfo = (SourceTickerInfo)q2.SourceTickerInfo!;
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (updatedNewQuoteInfo, (SourceTickerQuoteInfo stqi) => stqi.Source, OriginalQuoteExchangeName);
+            (updatedNewQuoteInfo, (SourceTickerInfo stqi) => stqi.Source, OriginalQuoteExchangeName);
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
         Assert.AreEqual("", differences);
@@ -115,19 +116,19 @@ public class QuoteExtensionMethodsTests
     {
         var q2            = originalQuote.Clone();
         var newTickerName = "DifferentTicker";
-        var newSourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (1, OriginalQuoteExchangeName, 1, newTickerName, Level3, Unknown
+        var newSourceTickerInfo = new SourceTickerInfo
+            (1, OriginalQuoteExchangeName, 1, newTickerName, Level3Quote, Unknown
            , 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2, (Level3PriceQuote pq) => pq.SourceTickerQuoteInfo, newSourceTickerQuoteInfo);
+            (q2, (Level3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
-        Assert.IsTrue(differences.Contains(nameof(q2.SourceTickerQuoteInfo))
+        Assert.IsTrue(differences.Contains(nameof(q2.SourceTickerInfo))
                    && differences.Contains(OriginalQuoteTickerName)
                    && differences.Contains(newTickerName));
-        var updatedNewQuoteInfo = (SourceTickerQuoteInfo)q2.SourceTickerQuoteInfo!;
+        var updatedNewQuoteInfo = (SourceTickerInfo)q2.SourceTickerInfo!;
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (updatedNewQuoteInfo, (SourceTickerQuoteInfo stqi) => stqi.Ticker, OriginalQuoteTickerName);
+            (updatedNewQuoteInfo, (SourceTickerInfo stqi) => stqi.Ticker, OriginalQuoteTickerName);
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
         Assert.AreEqual("", differences);

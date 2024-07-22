@@ -16,19 +16,19 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.
 [TestClass]
 public class DeserializeStateTransitionFactoryTests
 {
-    private DeserializeStateTransitionFactory<PQLevel0Quote> deserializeStateTransitionFactory = null!;
+    private DeserializeStateTransitionFactory<PQTickInstant> deserializeStateTransitionFactory = null!;
 
-    private Mock<IPQQuotePublishingDeserializer<PQLevel0Quote>> deserialzer = null!;
+    private Mock<IPQQuotePublishingDeserializer<PQTickInstant>> deserialzer = null!;
 
-    private InitializationState<PQLevel0Quote> initializationState = null!;
+    private InitializationState<PQTickInstant> initializationState = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        deserialzer         = new Mock<IPQQuotePublishingDeserializer<PQLevel0Quote>>();
-        initializationState = new InitializationState<PQLevel0Quote>(deserialzer.Object);
+        deserialzer         = new Mock<IPQQuotePublishingDeserializer<PQTickInstant>>();
+        initializationState = new InitializationState<PQTickInstant>(deserialzer.Object);
 
-        deserializeStateTransitionFactory = new DeserializeStateTransitionFactory<PQLevel0Quote>();
+        deserializeStateTransitionFactory = new DeserializeStateTransitionFactory<PQTickInstant>();
     }
 
     [TestMethod]

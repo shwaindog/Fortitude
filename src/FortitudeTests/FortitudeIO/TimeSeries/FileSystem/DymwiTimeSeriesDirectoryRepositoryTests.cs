@@ -20,7 +20,7 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeTests.FortitudeCommon.Extensions;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -33,7 +33,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
 
     private readonly Func<ILevel3Quote> asPQLevel3QuoteFactory = () => new PQLevel3Quote();
 
-    private readonly string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3.tsf";
+    private readonly string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3Quote.tsf";
 
     private readonly DateTime week1                = new(2024, 5, 24);
     private readonly string   week1ExpectedDirPath = "2020s/24/05-May/Week-3/FXMajor_Global/RepoTest";
@@ -44,7 +44,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
     private readonly DateTime week4                = new(2024, 6, 13);
     private readonly string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FXMajor_Global/RepoTest";
 
-    private SourceTickerQuoteInfo  level3SrcTkrQtInfo     = null!;
+    private SourceTickerInfo       level3SrcTkrInfo       = null!;
     private PQLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
 
     private IReaderSession<ILevel3Quote>? readerSession;
@@ -58,12 +58,12 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
     [TestInitialize]
     public void Setup()
     {
-        level3SrcTkrQtInfo =
-            new SourceTickerQuoteInfo
-                (19, "DymwiTest", 79, "RepoTest", Level3, FxMajor
+        level3SrcTkrInfo =
+            new SourceTickerInfo
+                (19, "DymwiTest", 79, "RepoTest", Level3Quote, FxMajor
                , 5, layerFlags: LayerFlags.SourceQuoteReference, lastTradedFlags: LastTradedFlags.PaidOrGiven, roundingPrecision: 0.000001m);
 
-        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrQtInfo);
+        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrInfo);
         generateQuoteInfo.MidPriceGenerator!.StartTime  = week1.Date;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
@@ -100,7 +100,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
             (TestWeeklyDataGeneratorFixture.GenerateRepeatableQuotes<ILevel3Quote, PQLevel3Quote>
                 (1, 10, 1, DayOfWeek.Thursday, pqLevel3QuoteGenerator, week3));
 
-        var repoWriter = repo.GetWriterSession<ILevel3Quote>(level3SrcTkrQtInfo);
+        var repoWriter = repo.GetWriterSession<ILevel3Quote>(level3SrcTkrInfo);
 
         Assert.IsNotNull(repoWriter);
         foreach (var firstPeriod in toPersistAndCheck)
@@ -114,14 +114,14 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         AssertFileNameDoesNotExistsFor(week2ExpectedDirPath, week2);
         AssertFileNameExistsFor(week3ExpectedDirPath, week3);
         AssertFileNameDoesNotExistsFor(week4ExpectedDirPath, week4);
-        readerSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrQtInfo)!;
+        readerSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrInfo)!;
         var allEntriesReader = readerSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, asPQLevel3QuoteFactory);
         var storedItems      = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
-        var newReaderSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrQtInfo)!;
+        var newReaderSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrInfo)!;
         Assert.AreNotSame(readerSession, newReaderSession);
         var newEntriesReader = newReaderSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, asPQLevel3QuoteFactory);
         newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;

@@ -46,7 +46,7 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
 
     public unsafe int Serialize(IBuffer buffer, PQSourceTickerInfoResponse message)
     {
-        var quoteInfos = message.SourceTickerQuoteInfos;
+        var quoteInfos = message.SourceTickerInfos;
 
         using var fixedBuffer = buffer;
 
@@ -85,10 +85,10 @@ internal class PQSourceTickerInfoResponseSerializer : IMessageSerializer<PQSourc
         return (int)amtWritten;
     }
 
-    private unsafe int Serialize(byte* currPtr, ISourceTickerQuoteInfo sourceTickerQuoteInfo, IBuffer fixedBuffer)
+    private unsafe int Serialize(byte* currPtr, ISourceTickerInfo sourceTickerInfo, IBuffer fixedBuffer)
     {
         var writeStart = currPtr;
-        SourceTickerQuoteInfoSerializer.SerializeSourceTickerQuoteInfo(sourceTickerQuoteInfo, ref currPtr, fixedBuffer, instrumentAttributes);
+        SourceTickerInfoSerializer.SerializeSourceTickerInfo(sourceTickerInfo, ref currPtr, fixedBuffer, instrumentAttributes);
         return (int)(currPtr - writeStart);
     }
 }

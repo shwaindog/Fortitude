@@ -21,7 +21,7 @@ public class PQLevel3QuoteGenerator : Level3QuoteGeneratorBase<PQLevel3Quote>
 
     public override PQLevel3Quote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
     {
-        var toPopulate = new PQLevel3Quote(GenerateQuoteInfo.SourceTickerQuoteInfo);
+        var toPopulate = new PQLevel3Quote(GenerateQuoteInfo.SourceTickerInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);
         toPopulate.IsAskPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsAskPriceTopUpdated ?? false) != toPopulate.IsAskPriceTopUpdated;
         toPopulate.IsBidPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsBidPriceTopUpdated ?? false) != toPopulate.IsBidPriceTopUpdated;

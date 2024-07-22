@@ -11,5 +11,5 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public interface IPQImplementationFactory
 {
-    T GetConcreteMapping<T>(ISourceTickerQuoteInfo quoteInfo) where T : IPQLevel0Quote;
+    T GetConcreteMapping<T>(ISourceTickerInfo info) where T : IPQTickInstant;
 }

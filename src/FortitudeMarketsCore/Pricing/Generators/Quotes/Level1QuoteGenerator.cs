@@ -11,7 +11,7 @@ using FortitudeMarketsCore.Pricing.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.Generators.Quotes;
 
-public abstract class Level1QuoteGeneratorBase<TQuote> : Level0QuoteGeneratorBase<TQuote> where TQuote : IMutableLevel1Quote
+public abstract class Level1QuoteGeneratorBase<TQuote> : TickInstantGeneratorBase<TQuote> where TQuote : IMutableLevel1Quote
 {
     protected Level1QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
 
@@ -23,7 +23,7 @@ public abstract class Level1QuoteGeneratorBase<TQuote> : Level0QuoteGeneratorBas
         populateQuote.SourceBidTime       = populateQuote.SourceTime;
         populateQuote.AdapterReceivedTime = AdapterReceivedDateTime;
         populateQuote.AdapterSentTime     = AdapterSentDateTime;
-        if (populateQuote.QuoteLevel == QuoteLevel.Level1)
+        if (populateQuote.TickerDetailLevel == TickerDetailLevel.Level1Quote)
         {
             var bookGenerationInfo = GenerateQuoteInfo.BookGenerationInfo;
 
@@ -34,8 +34,7 @@ public abstract class Level1QuoteGeneratorBase<TQuote> : Level0QuoteGeneratorBas
             var roundedTopBid = decimal.Round(mid - topBidAskSpread / 2);
             var roundedTopAsk = decimal.Round(mid + topBidAskSpread / 2);
 
-            while (roundedTopAsk - roundedTopBid > bookGenerationInfo.TightestSpreadPips)
-                roundedTopBid -= bookGenerationInfo.SmallestPriceLayerPips;
+            while (roundedTopAsk - roundedTopBid > bookGenerationInfo.TightestSpreadPips) roundedTopBid -= bookGenerationInfo.SmallestPriceLayerPips;
 
             populateQuote.AskPriceTop          = roundedTopAsk;
             populateQuote.BidPriceTop          = roundedTopBid;
@@ -51,7 +50,7 @@ public class Level1QuoteGenerator : Level1QuoteGeneratorBase<Level1PriceQuote>
 
     public override Level1PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
     {
-        var toPopulate = new Level1PriceQuote(GenerateQuoteInfo.SourceTickerQuoteInfo);
+        var toPopulate = new Level1PriceQuote(GenerateQuoteInfo.SourceTickerInfo);
         PopulateQuote(toPopulate, previousCurrentMidPriceTime);
         return toPopulate;
     }

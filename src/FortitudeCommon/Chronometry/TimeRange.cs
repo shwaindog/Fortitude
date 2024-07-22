@@ -24,6 +24,21 @@ public struct UnboundedTimeRange
     public static explicit operator BoundedTimeRange(UnboundedTimeRange toConvert) => new(toConvert.FromTime!.Value, toConvert.ToTime!.Value);
 }
 
+public struct UnboundedTimeSpan
+{
+    public UnboundedTimeSpan(TimeSpan? lowerLimit, TimeSpan? upperLimit)
+    {
+        LowerLimit = lowerLimit;
+        UpperLimit = upperLimit;
+    }
+
+    public TimeSpan? LowerLimit { get; }
+    public TimeSpan? UpperLimit { get; }
+
+
+    public static explicit operator BoundedTimeSpan(UnboundedTimeSpan toConvert) => new(toConvert.LowerLimit!.Value, toConvert.UpperLimit!.Value);
+}
+
 public struct BoundedTimeRange
 {
     public BoundedTimeRange(DateTime fromTime, DateTime toTime)
@@ -39,6 +54,24 @@ public struct BoundedTimeRange
 
 
     public static implicit operator UnboundedTimeRange(BoundedTimeRange toConvert) => new(toConvert.FromTime, toConvert.ToTime);
+}
+
+public struct BoundedTimeSpan
+{
+    public BoundedTimeSpan(TimeSpan lowerLimit, TimeSpan upperLimit)
+    {
+        if (lowerLimit == TimeSpan.MinValue || upperLimit == TimeSpan.MaxValue)
+            throw new Exception("Expected lowerLimit and upperLimit to have set values");
+        if (lowerLimit > upperLimit) throw new Exception("Expected lowerLimit to be less than upperLimit ");
+        LowerLimit = lowerLimit;
+        UpperLimit = upperLimit;
+    }
+
+    public TimeSpan LowerLimit { get; }
+    public TimeSpan UpperLimit { get; }
+
+
+    public static implicit operator UnboundedTimeSpan(BoundedTimeSpan toConvert) => new(toConvert.LowerLimit, toConvert.UpperLimit);
 }
 
 public struct SubPeriodOffset

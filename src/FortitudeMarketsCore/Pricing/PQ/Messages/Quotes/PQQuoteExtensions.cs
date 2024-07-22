@@ -12,76 +12,78 @@ namespace FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 public static class PQQuoteExtensions
 {
-    public static PQLevel0Quote MostCompactPQInstance(this ISourceTickerQuoteInfo srcTickerQuoteInfo, IRecycler? recycler = null)
+    public static PQTickInstant MostCompactPQInstance(this ISourceTickerInfo srcTickerInfo, IRecycler? recycler = null)
     {
-        var quoteLevel = srcTickerQuoteInfo.MostCompactQuoteLevel();
+        var quoteLevel = srcTickerInfo.MostCompactQuoteLevel();
         switch (quoteLevel)
         {
-            case QuoteLevel.Level0:
-                return recycler?.Borrow<PQLevel0Quote>()?.SetSourceTickerQuoteInfo(srcTickerQuoteInfo) ?? new PQLevel0Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level1:
-                return recycler?.Borrow<PQLevel1Quote>()?.SetSourceTickerQuoteInfo(srcTickerQuoteInfo) ?? new PQLevel1Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level2: return new PQLevel2Quote(srcTickerQuoteInfo);
+            case TickerDetailLevel.SingleValue:
+                return recycler?.Borrow<PQTickInstant>()?.SetSourceTickerInfo(srcTickerInfo) ??
+                       new PQTickInstant(srcTickerInfo);
+            case TickerDetailLevel.Level1Quote:
+                return recycler?.Borrow<PQLevel1Quote>()?.SetSourceTickerInfo(srcTickerInfo) ?? new PQLevel1Quote(srcTickerInfo);
+            case TickerDetailLevel.Level2Quote: return new PQLevel2Quote(srcTickerInfo);
 
-            default: return new PQLevel3Quote(srcTickerQuoteInfo);
+            default: return new PQLevel3Quote(srcTickerInfo);
         }
     }
 
-    public static PQLevel0Quote PublishedTypePQInstance(this ISourceTickerQuoteInfo srcTickerQuoteInfo, IRecycler? recycler = null)
+    public static PQTickInstant PublishedTypePQInstance(this ISourceTickerInfo srcTickerInfo, IRecycler? recycler = null)
     {
-        var quoteLevel = srcTickerQuoteInfo.PublishedQuoteLevel;
+        var quoteLevel = srcTickerInfo.PublishedTickerDetailLevel;
         switch (quoteLevel)
         {
-            case QuoteLevel.Level0: return new PQLevel0Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level1: return new PQLevel1Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level2: return new PQLevel2Quote(srcTickerQuoteInfo);
+            case TickerDetailLevel.SingleValue: return new PQTickInstant(srcTickerInfo);
+            case TickerDetailLevel.Level1Quote: return new PQLevel1Quote(srcTickerInfo);
+            case TickerDetailLevel.Level2Quote: return new PQLevel2Quote(srcTickerInfo);
 
-            default: return new PQLevel3Quote(srcTickerQuoteInfo);
+            default: return new PQLevel3Quote(srcTickerInfo);
         }
     }
 
-    public static Func<PQLevel0Quote> MostRestrictivePQInstanceFactory
-    (this ISourceTickerQuoteInfo srcTickerQuoteInfo, QuoteLevel upperBound
+    public static Func<PQTickInstant> MostRestrictivePQInstanceFactory
+    (this ISourceTickerInfo srcTickerInfo, TickerDetailLevel upperBound
       , IRecycler? recycler = null)
     {
-        var srcTickerQuoteLevel = srcTickerQuoteInfo.PublishedQuoteLevel;
-        var quoteLevel          = (QuoteLevel)Math.Min((byte)srcTickerQuoteLevel, (byte)upperBound);
+        var srcTickerQuoteLevel = srcTickerInfo.PublishedTickerDetailLevel;
+        var quoteLevel          = (TickerDetailLevel)Math.Min((byte)srcTickerQuoteLevel, (byte)upperBound);
         switch (quoteLevel)
         {
-            case QuoteLevel.Level0: return () => new PQLevel0Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level1: return () => new PQLevel1Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level2: return () => new PQLevel2Quote(srcTickerQuoteInfo);
+            case TickerDetailLevel.SingleValue: return () => new PQTickInstant(srcTickerInfo);
+            case TickerDetailLevel.Level1Quote: return () => new PQLevel1Quote(srcTickerInfo);
+            case TickerDetailLevel.Level2Quote: return () => new PQLevel2Quote(srcTickerInfo);
 
-            default: return () => new PQLevel3Quote(srcTickerQuoteInfo);
+            default: return () => new PQLevel3Quote(srcTickerInfo);
         }
     }
 
-    public static Func<PQLevel0Quote> LeastRestrictivePQInstanceFactory
-    (this ISourceTickerQuoteInfo srcTickerQuoteInfo, QuoteLevel lowerBound
+    public static Func<PQTickInstant> LeastRestrictivePQInstanceFactory
+    (this ISourceTickerInfo srcTickerInfo, TickerDetailLevel lowerBound
       , IRecycler? recycler = null)
     {
-        var srcTickerQuoteLevel = srcTickerQuoteInfo.PublishedQuoteLevel;
-        var quoteLevel          = (QuoteLevel)Math.Max((byte)srcTickerQuoteLevel, (byte)lowerBound);
+        var srcTickerQuoteLevel = srcTickerInfo.PublishedTickerDetailLevel;
+        var quoteLevel          = (TickerDetailLevel)Math.Max((byte)srcTickerQuoteLevel, (byte)lowerBound);
         switch (quoteLevel)
         {
-            case QuoteLevel.Level0: return () => new PQLevel0Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level1: return () => new PQLevel1Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level2: return () => new PQLevel2Quote(srcTickerQuoteInfo);
+            case TickerDetailLevel.SingleValue: return () => new PQTickInstant(srcTickerInfo);
+            case TickerDetailLevel.Level1Quote: return () => new PQLevel1Quote(srcTickerInfo);
+            case TickerDetailLevel.Level2Quote: return () => new PQLevel2Quote(srcTickerInfo);
 
-            default: return () => new PQLevel3Quote(srcTickerQuoteInfo);
+            default: return () => new PQLevel3Quote(srcTickerInfo);
         }
     }
 
-    public static Func<PQLevel0Quote> PublishedTypePQInstanceFactory(this ISourceTickerQuoteInfo srcTickerQuoteInfo, IRecycler? recycler = null)
+    public static Func<PQTickInstant> PublishedTypePQInstanceFactory
+        (this ISourceTickerInfo srcTickerInfo, IRecycler? recycler = null)
     {
-        var quoteLevel = srcTickerQuoteInfo.PublishedQuoteLevel;
+        var quoteLevel = srcTickerInfo.PublishedTickerDetailLevel;
         switch (quoteLevel)
         {
-            case QuoteLevel.Level0: return () => new PQLevel0Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level1: return () => new PQLevel1Quote(srcTickerQuoteInfo);
-            case QuoteLevel.Level2: return () => new PQLevel2Quote(srcTickerQuoteInfo);
+            case TickerDetailLevel.SingleValue: return () => new PQTickInstant(srcTickerInfo);
+            case TickerDetailLevel.Level1Quote: return () => new PQLevel1Quote(srcTickerInfo);
+            case TickerDetailLevel.Level2Quote: return () => new PQLevel2Quote(srcTickerInfo);
 
-            default: return () => new PQLevel3Quote(srcTickerQuoteInfo);
+            default: return () => new PQLevel3Quote(srcTickerInfo);
         }
     }
 }

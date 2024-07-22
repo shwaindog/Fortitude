@@ -537,7 +537,7 @@ public class PQLastTraderPaidGivenTradeTests
         PQLastPaidGivenTradeTests.AssertContainsAllLtFields(checkFieldUpdates, lt);
 
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, lt.TraderId),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LastTraderIdOffset), $"For asklayer {lt.GetType().Name}");
     }
 

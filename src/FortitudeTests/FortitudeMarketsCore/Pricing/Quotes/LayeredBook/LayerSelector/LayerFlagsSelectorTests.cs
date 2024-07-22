@@ -9,7 +9,7 @@ using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSelector;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -18,36 +18,38 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.Quotes.LayeredBook.LayerSe
 [TestClass]
 public class LayerFlagsSelectorTests
 {
-    private DummyLayerFlagsSelectorTests layerSelector         = null!;
-    private ISourceTickerQuoteInfo       sourceTickerQuoteInfo = null!;
+    private DummyLayerFlagsSelectorTests layerSelector = null!;
+
+    private ISourceTickerInfo sourceTickerInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         layerSelector = new DummyLayerFlagsSelectorTests();
 
-        sourceTickerQuoteInfo = new SourceTickerQuoteInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3, Unknown
+        sourceTickerInfo = new SourceTickerInfo
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , LayerFlags.Volume | LayerFlags.Price
-           , LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price
+           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
+                              LastTradedFlags.LastTradedTime);
     }
 
     [TestMethod]
     public void VariosLayerFlags_Select_CallsSimplePriceVolumeSelector()
     {
         var expectedSelectorCalled = "SelectSimplePriceVolumeLayer";
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.None;
-        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.None;
+        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
@@ -55,44 +57,44 @@ public class LayerFlagsSelectorTests
     public void VariosLayerFlags_Select_CallsSourcePriceVolumeSelector()
     {
         var expectedSelectorCalled = "SelectSourcePriceVolumeLayer";
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceName;
-        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.SourceName;
+        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.Executable | LayerFlags.SourceName;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.Executable | LayerFlags.SourceName;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
@@ -100,50 +102,50 @@ public class LayerFlagsSelectorTests
     public void VariosLayerFlags_Select_CallsSourceQuoteRefPriceVolumeSelector()
     {
         var expectedSelectorCalled = "SelectSourceQuoteRefPriceVolumeLayer";
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceQuoteReference;
-        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.SourceQuoteReference;
+        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceQuoteReference;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.SourceQuoteReference;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceQuoteReference;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.SourceQuoteReference;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceQuoteReference;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceQuoteReference;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.Executable | LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceQuoteReference;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceQuoteReference;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.Executable | LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
@@ -151,18 +153,18 @@ public class LayerFlagsSelectorTests
     public void VariosLayerFlags_Select_CallsValueDatePriceVolumeSelector()
     {
         var expectedSelectorCalled = "SelectValueDatePriceVolumeLayer";
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate;
-        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.ValueDate;
+        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.ValueDate;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.ValueDate;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.ValueDate;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.ValueDate;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.ValueDate;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.ValueDate;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
@@ -170,18 +172,18 @@ public class LayerFlagsSelectorTests
     public void VariosLayerFlags_Select_CallsTraderPriceVolumeSelector()
     {
         var expectedSelectorCalled = "SelectTraderPriceVolumeLayer";
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName;
-        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.TraderName;
+        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.TraderName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.TraderName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.TraderName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.TraderName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.TraderName;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.TraderName;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
@@ -189,72 +191,71 @@ public class LayerFlagsSelectorTests
     public void VariosLayerFlags_Select_CallsSrcQtRefTrdrVlDtSelector()
     {
         var expectedSelectorCalled = "SelectSourceQuoteRefTraderValueDatePriceVolumeLayer";
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
-        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
+        var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.SourceQuoteReference;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.SourceQuoteReference;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.TraderName;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.TraderName;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
-                                           LayerFlags.ValueDate | LayerFlags.SourceName;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.ValueDate;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable | LayerFlags.ValueDate;
-        selectorCalled                   = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
-        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
+                                      LayerFlags.ValueDate | LayerFlags.SourceName;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
 
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.ValueDate;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName |
-                                           LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.TraderName | LayerFlags.Executable | LayerFlags.ValueDate;
+        selectorCalled              = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
-        sourceTickerQuoteInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
-                                           LayerFlags.SourceName | LayerFlags.SourceQuoteReference |
-                                           LayerFlags.ValueDate | LayerFlags.TraderName;
-        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerQuoteInfo);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+
+        sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.TraderName;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName |
+                                      LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
+        Assert.AreEqual(expectedSelectorCalled, selectorCalled);
+        sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
+                                      LayerFlags.SourceName | LayerFlags.SourceQuoteReference |
+                                      LayerFlags.ValueDate | LayerFlags.TraderName;
+        selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
     }
 
 
-    internal class DummyLayerFlagsSelectorTests : LayerFlagsSelector<string, ISourceTickerQuoteInfo>
+    internal class DummyLayerFlagsSelectorTests : LayerFlagsSelector<string, ISourceTickerInfo>
     {
-        protected override string SelectSimplePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectSimplePriceVolumeLayer);
+        protected override string SelectSimplePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectSimplePriceVolumeLayer);
 
-        protected override string SelectValueDatePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
-            nameof(SelectValueDatePriceVolumeLayer);
+        protected override string SelectValueDatePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectValueDatePriceVolumeLayer);
 
-        protected override string SelectSourcePriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectSourcePriceVolumeLayer);
+        protected override string SelectSourcePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectSourcePriceVolumeLayer);
 
-        protected override string SelectSourceQuoteRefPriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
+        protected override string SelectSourceQuoteRefPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) =>
             nameof(SelectSourceQuoteRefPriceVolumeLayer);
 
-        protected override string SelectTraderPriceVolumeLayer(ISourceTickerQuoteInfo sourceTickerQuoteInfo) => nameof(SelectTraderPriceVolumeLayer);
+        protected override string SelectTraderPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectTraderPriceVolumeLayer);
 
         protected override string SelectSourceQuoteRefTraderValueDatePriceVolumeLayer
         (
-            ISourceTickerQuoteInfo sourceTickerQuoteInfo) =>
+            ISourceTickerInfo sourceTickerInfo) =>
             nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
 
         public override IPriceVolumeLayer CreateExpectedImplementation

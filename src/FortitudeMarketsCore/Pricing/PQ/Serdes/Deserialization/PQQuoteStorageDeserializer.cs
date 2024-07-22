@@ -17,14 +17,14 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQLevel0Quote
+internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQTickInstant
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteFeedDeserializer<T>));
 
     private uint lastSequenceId = 0;
 
     public PQQuoteStorageDeserializer
-    (ISourceTickerQuoteInfo identifier,
+    (ISourceTickerInfo identifier,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage,
         byte storageVersion = 1)
         : base(identifier, serializationFlags)
@@ -55,7 +55,7 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
 
             lastSequenceId = PublishedQuote.PQSequenceId;
 
-            PushQuoteToSubscribers(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
+            PushQuoteToSubscribers(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             return PublishedQuote;
         }
 

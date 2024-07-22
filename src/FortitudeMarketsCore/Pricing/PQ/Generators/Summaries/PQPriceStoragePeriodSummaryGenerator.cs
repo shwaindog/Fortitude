@@ -17,7 +17,7 @@ public class PQPriceStoragePeriodSummaryGenerator : PricePeriodSummaryGenerator<
     public PQPriceStoragePeriodSummaryGenerator(GeneratePriceSummariesInfo generatePriceSummaryInfo) : base(generatePriceSummaryInfo) { }
 
     public override PQPriceStoragePeriodSummary CreatePricePeriodSummary
-        (ISourceTickerQuoteInfo sourceTickerQuoteInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+        (ISourceTickerInfo sourceTickerInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
     {
         var currMid = previousCurrentMidPriceTime.CurrentMid;
         return new PQPriceStoragePeriodSummary

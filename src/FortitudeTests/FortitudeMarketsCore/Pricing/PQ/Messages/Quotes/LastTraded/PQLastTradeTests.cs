@@ -373,14 +373,14 @@ public class PQLastTradeTests
     public static void AssertContainsAllLtFields(IList<PQFieldUpdate> checkFieldUpdates, IPQLastTrade lt)
     {
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradePriceOffset, lt.TradePrice, 1),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LastTradePriceOffset, 1), $"For {lt.GetType().Name} ");
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradeTimeHourOffset,
-                                          lt.TradeTime.GetHoursFromUnixEpoch()), PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                          lt.TradeTime.GetHoursFromUnixEpoch()), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                          PQFieldKeys.LastTradeTimeHourOffset), $"For {lt.GetType().Name} ");
         var fifthByte = lt.TradeTime.GetSubHourComponent().BreakLongToByteAndUint(out var lowerFourBytes);
         Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradeTimeSubHourOffset, lowerFourBytes, fifthByte),
-                        PQLevel0QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQFieldKeys.LastTradeTimeSubHourOffset), $"For {lt.GetType().Name} ");
     }
 

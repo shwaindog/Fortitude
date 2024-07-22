@@ -31,7 +31,7 @@ public class LocalHostPQTestSetupCommon
 
     public IMarketConnectionConfig DefaultServerMarketConnectionConfig = null!;
     public IMarketsConfig          DefaultServerMarketsConfig          = null!;
-    public ISourceTickerQuoteInfo  FirstTickerQuoteInfo                = null!;
+    public ISourceTickerInfo       FirstTickerInfo                     = null!;
 
     public LastTradedFlags        LastTradedFlags      = LastTradedFlags.None;
     public LayerFlags             LayerDetails         = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
@@ -47,10 +47,10 @@ public class LocalHostPQTestSetupCommon
         SourceTickersConfig ??=
             new SourceTickersConfig
                 (new TickerConfig
-                    (TickerId, TestTicker, TickerAvailability.AllEnabled, QuoteLevel.Level3, Unknown
-                   , 0.000001m, 0.1m, 100, 0.1m
-                   , 250, LayerDetails, 20, LastTradedFlags));
-        FirstTickerQuoteInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
+                    (TickerId, TestTicker, TickerAvailability.PricingAndTradingEnabled, TickerDetailLevel.Level3Quote, Unknown
+                   , 0.000001m, 0.0001m, 0.1m, 100, 0.1m
+                   , 250, 10_000, LayerDetails, 20, LastTradedFlags));
+        FirstTickerInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
         PricingServerConfig ??=
             new PricingServerConfig
                 (new NetworkTopicConnectionConfig

@@ -11,7 +11,7 @@ using FortitudeMarketsCore.Pricing.PQ.Publication;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using Moq;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.QuoteLevel;
+using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -23,7 +23,7 @@ public class PQPublisherTests
     private Mock<IMarketConnectionConfig>   moqMarketConnectionConfig = null!;
     private Mock<IPQLevel1Quote>            moqPQLevel1Quote          = null!;
     private Mock<IPQServer<IPQLevel1Quote>> moqPqServer               = null!;
-    private Mock<ISourceTickerQuoteInfo>    moqSourceTickerQuoteInfo  = null!;
+    private Mock<ISourceTickerInfo>         moqSourceTickerInfo       = null!;
     private PQPublisher<IPQLevel1Quote>     pqPublisher               = null!;
 
     [TestInitialize]
@@ -43,11 +43,11 @@ public class PQPublisherTests
         moqMarketConnectionConfig
             .Setup
                 (stpcr => stpcr.AllSourceTickerInfos)
-            .Returns(new List<ISourceTickerQuoteInfo>
+            .Returns(new List<ISourceTickerInfo>
             {
-                new SourceTickerQuoteInfo(1, "First", 1, "First", Level3, Unknown)
-              , new SourceTickerQuoteInfo(1, "First", 2, "Second", Level3, Unknown)
-              , new SourceTickerQuoteInfo(2, "Second", 1, "First", Level3, Unknown)
+                new SourceTickerInfo(1, "First", 1, "First", Level3Quote, Unknown)
+              , new SourceTickerInfo(1, "First", 2, "Second", Level3Quote, Unknown)
+              , new SourceTickerInfo(2, "Second", 1, "First", Level3Quote, Unknown)
             });
 
         pqPublisher.RegisterTickersWithServer(moqMarketConnectionConfig.Object);
@@ -59,10 +59,10 @@ public class PQPublisherTests
     {
         SetupTickerWithPublisher();
 
-        moqPQLevel1Quote.Setup(pql0qp => pql0qp.ResetFields()).Verifiable();
-        moqPQLevel1Quote.SetupSet(pql0qp => pql0qp.SourceTime         = It.IsAny<DateTime>()).Verifiable();
-        moqPQLevel1Quote.SetupSet(pql0qp => pql0qp.ClientReceivedTime = It.IsAny<DateTime>()).Verifiable();
-        moqPQLevel1Quote.SetupSet(pql0qp => pql0qp.AdapterSentTime    = It.IsAny<DateTime>()).Verifiable();
+        moqPQLevel1Quote.Setup(pql1q => pql1q.ResetFields()).Verifiable();
+        moqPQLevel1Quote.SetupSet(pql1q => pql1q.SourceTime         = It.IsAny<DateTime>()).Verifiable();
+        moqPQLevel1Quote.SetupSet(pql1q => pql1q.ClientReceivedTime = It.IsAny<DateTime>()).Verifiable();
+        moqPQLevel1Quote.SetupSet(pql1q => pql1q.AdapterSentTime    = It.IsAny<DateTime>()).Verifiable();
 
         moqPqServer.Setup(pqs => pqs.Publish(moqPQLevel1Quote.Object)).Verifiable();
 
@@ -79,16 +79,16 @@ public class PQPublisherTests
     {
         SetupTickerWithPublisher();
 
-        moqPQLevel1Quote.Setup(pql0qp => pql0qp.CopyFrom(It.IsAny<ILevel0Quote>(), CopyMergeFlags.Default))
+        moqPQLevel1Quote.Setup(pql1q => pql1q.CopyFrom(It.IsAny<ITickInstant>(), CopyMergeFlags.Default))
                         .Verifiable();
         moqPqServer.Setup(pqs => pqs.Publish(moqPQLevel1Quote.Object)).Verifiable();
 
-        var dummyLevel0Quote         = new PQLevel0QuoteTests.DummyPQLevel0Quote();
-        var moqSourceTickerQuoteInfo = new Mock<ISourceTickerQuoteInfo>();
-        moqSourceTickerQuoteInfo.As<ISourceTickerQuoteInfo>().SetupGet(stqi => stqi.Ticker).Returns("MoqTicker");
-        dummyLevel0Quote.SourceTickerQuoteInfo = moqSourceTickerQuoteInfo.Object;
+        var dummyTickInstant    = new PQTickInstantTests.DummyPQTickInstant();
+        var moqSourceTickerInfo = new Mock<ISourceTickerInfo>();
+        moqSourceTickerInfo.As<ISourceTickerInfo>().SetupGet(stqi => stqi.Ticker).Returns("MoqTicker");
+        dummyTickInstant.SourceTickerInfo = moqSourceTickerInfo.Object;
 
-        pqPublisher.PublishQuoteUpdate(dummyLevel0Quote);
+        pqPublisher.PublishQuoteUpdate(dummyTickInstant);
 
         moqPqServer.Verify();
         moqPQLevel1Quote.Verify();
@@ -100,10 +100,10 @@ public class PQPublisherTests
     {
         SetupTickerWithPublisher();
 
-        moqPQLevel1Quote.Setup(pql0qp => pql0qp.ResetFields()).Verifiable();
-        moqPQLevel1Quote.SetupSet(pql0qp => pql0qp.SourceTime         = It.IsAny<DateTime>()).Verifiable();
-        moqPQLevel1Quote.SetupSet(pql0qp => pql0qp.ClientReceivedTime = It.IsAny<DateTime>()).Verifiable();
-        moqPQLevel1Quote.SetupSet(pql0qp => pql0qp.AdapterSentTime    = It.IsAny<DateTime>()).Verifiable();
+        moqPQLevel1Quote.Setup(pql1q => pql1q.ResetFields()).Verifiable();
+        moqPQLevel1Quote.SetupSet(pql1q => pql1q.SourceTime         = It.IsAny<DateTime>()).Verifiable();
+        moqPQLevel1Quote.SetupSet(pql1q => pql1q.ClientReceivedTime = It.IsAny<DateTime>()).Verifiable();
+        moqPQLevel1Quote.SetupSet(pql1q => pql1q.AdapterSentTime    = It.IsAny<DateTime>()).Verifiable();
 
         moqPqServer.Setup(pqs => pqs.Publish(moqPQLevel1Quote.Object)).Verifiable();
 
@@ -117,14 +117,14 @@ public class PQPublisherTests
     {
         pqPublisher = new PQPublisher<IPQLevel1Quote>(moqPqServer.Object);
 
-        moqSourceTickerQuoteInfo = new Mock<ISourceTickerQuoteInfo>();
-        moqSourceTickerQuoteInfo.SetupGet(stpc => stpc.Ticker).Returns("MoqTicker");
-        moqSourceTickerQuoteInfo.SetupGet(stpc => stpc.RoundingPrecision).Returns(0.00001m);
-        moqSourceTickerQuoteInfo.SetupGet(stpc => stpc.IncrementSize).Returns(1m);
+        moqSourceTickerInfo = new Mock<ISourceTickerInfo>();
+        moqSourceTickerInfo.SetupGet(stpc => stpc.Ticker).Returns("MoqTicker");
+        moqSourceTickerInfo.SetupGet(stpc => stpc.RoundingPrecision).Returns(0.00001m);
+        moqSourceTickerInfo.SetupGet(stpc => stpc.IncrementSize).Returns(1m);
 
         moqMarketConnectionConfig = new Mock<IMarketConnectionConfig>();
         moqMarketConnectionConfig.Setup(stpcr => stpcr.AllSourceTickerInfos)
-                                 .Returns(new List<ISourceTickerQuoteInfo> { moqSourceTickerQuoteInfo.Object });
+                                 .Returns(new List<ISourceTickerInfo> { moqSourceTickerInfo.Object });
 
         moqPQLevel1Quote = new Mock<IPQLevel1Quote>();
         moqPqServer.Setup(pqs => pqs.Register(It.IsAny<string>()))

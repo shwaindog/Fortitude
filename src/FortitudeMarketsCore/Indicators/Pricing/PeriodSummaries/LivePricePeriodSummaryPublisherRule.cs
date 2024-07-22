@@ -129,9 +129,9 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
              + $"_{livePublishPricePeriodSummaryParams.SourceTickerIdentifier.Source}_{livePublishPricePeriodSummaryParams.SourceTickerIdentifier.Ticker}" +
                $"_{livePublishPricePeriodSummaryParams.Period.ShortName()}")
     {
-        pricingInstrumentId = new PricingInstrumentId(livePublishPricePeriodSummaryParams.SourceTickerIdentifier
-                                                    , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod
-                                                                                 , livePublishPricePeriodSummaryParams.Period));
+        pricingInstrumentId = new PricingInstrumentId
+            (livePublishPricePeriodSummaryParams.SourceTickerIdentifier, new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod
+           , livePublishPricePeriodSummaryParams.Period));
         sourceTickerIdentifier    = livePublishPricePeriodSummaryParams.SourceTickerIdentifier;
         periodToPublish           = livePublishPricePeriodSummaryParams.Period;
         liveResponsePublishParams = livePublishPricePeriodSummaryParams.LivePublishParams;

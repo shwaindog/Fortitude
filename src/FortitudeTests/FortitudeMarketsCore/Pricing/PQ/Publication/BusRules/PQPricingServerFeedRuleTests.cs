@@ -81,7 +81,7 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         await using var serverDeploy = await EventQueue1.LaunchRuleAsync(pricingServerFeedRule, pricingServerFeedRule, EventQueue1SelectionResult);
         Logger.Info("Deployed pricing server");
-        publishQuoteEvent.PublishQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(serverConfig.FirstTickerQuoteInfo);
+        publishQuoteEvent.PublishQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(serverConfig.FirstTickerInfo);
         await MessageBus.PublishAsync(pricingServerFeedRule, feedName.FeedTickerPublishAddress(), publishQuoteEvent, new DispatchOptions());
 
         await using var clientDeploy
@@ -106,7 +106,7 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         Assert.IsTrue(receivedSnapshotTick, "Did not receive snapshot response tick from the client before timeout was reached");
         haveReceivedPriceAutoResetEvent.Reset();
         Logger.Info("Received snapshot await update");
-        publishQuoteEvent.PublishQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(serverConfig.FirstTickerQuoteInfo, 2);
+        publishQuoteEvent.PublishQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(serverConfig.FirstTickerInfo, 2);
         await MessageBus.PublishAsync(pricingServerFeedRule, feedName.FeedTickerPublishAddress(), publishQuoteEvent, new DispatchOptions());
         counter = 0;
         bool receivedUpdateTick;

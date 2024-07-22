@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class StaleState<T> : InSyncState<T> where T : PQLevel0Quote, new()
+public class StaleState<T> : InSyncState<T> where T : PQTickInstant, new()
 {
     public StaleState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Stale) { }
@@ -24,7 +24,7 @@ public class StaleState<T> : InSyncState<T> where T : PQLevel0Quote, new()
                     sequenceId);
         SwitchState(QuoteSyncState.InSync);
         var sockBuffContext = bufferContext as SocketBufferReadContext;
-        PublishQuoteRunAction(PriceSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
+        PublishQuoteRunAction(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger,
                               LinkedDeserializer.OnSyncOk);
     }
 

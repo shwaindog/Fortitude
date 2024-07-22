@@ -15,7 +15,7 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 namespace FortitudeMarketsCore.Indicators.Pricing;
 
 public class PriceListenerIndicatorRule<TQuoteType> : Rule
-    where TQuoteType : class, ILevel0Quote
+    where TQuoteType : class, ITickInstant
 {
     private readonly string feedTickerListenAddress;
 

@@ -11,18 +11,18 @@ namespace FortitudeMarketsApi.Configuration.ClientServerConfig.PricingConfig;
 
 public interface ITickerPricingSubscriptionConfig
 {
-    ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; }
-    IPricingServerConfig   PricingServerConfig   { get; }
+    ISourceTickerInfo    SourceTickerInfo    { get; }
+    IPricingServerConfig PricingServerConfig { get; }
 }
 
 public class TickerPricingSubscriptionConfig : ITickerPricingSubscriptionConfig
 {
-    public TickerPricingSubscriptionConfig(ISourceTickerQuoteInfo sourceTickerQuoteInfo, IPricingServerConfig pricingServerConfig)
+    public TickerPricingSubscriptionConfig(ISourceTickerInfo sourceTickerInfo, IPricingServerConfig pricingServerConfig)
     {
-        SourceTickerQuoteInfo = sourceTickerQuoteInfo;
-        PricingServerConfig   = pricingServerConfig;
+        SourceTickerInfo    = sourceTickerInfo;
+        PricingServerConfig = pricingServerConfig;
     }
 
-    public ISourceTickerQuoteInfo SourceTickerQuoteInfo { get; }
-    public IPricingServerConfig   PricingServerConfig   { get; }
+    public ISourceTickerInfo    SourceTickerInfo    { get; }
+    public IPricingServerConfig PricingServerConfig { get; }
 }

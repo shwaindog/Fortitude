@@ -25,13 +25,13 @@ public interface IMarketConnectionConfig : IConnection, ICloneable<IMarketConnec
     IPricingServerConfig? PricingServerConfig  { get; set; }
     ITradingServerConfig? TradingServerConfig  { get; set; }
 
-    IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos            { get; }
-    IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos { get; }
-    IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos { get; }
+    IEnumerable<ISourceTickerInfo> AllSourceTickerInfos            { get; }
+    IEnumerable<ISourceTickerInfo> PricingEnabledSourceTickerInfos { get; }
+    IEnumerable<ISourceTickerInfo> TradingEnabledSourceTickerInfos { get; }
 
     IMarketConnectionConfig ShiftPortsBy(ushort deltaPorts);
 
-    ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker);
+    ISourceTickerInfo?      GetSourceTickerInfo(string ticker);
     IMarketConnectionConfig ToggleProtocolDirection(string connectionName);
 }
 
@@ -149,14 +149,14 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
                 : null;
     }
 
-    public IEnumerable<ISourceTickerQuoteInfo> AllSourceTickerInfos =>
-        SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+    public IEnumerable<ISourceTickerInfo> AllSourceTickerInfos =>
+        SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerInfo>();
 
-    public IEnumerable<ISourceTickerQuoteInfo> PricingEnabledSourceTickerInfos =>
-        SourceTickerConfig?.PricingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+    public IEnumerable<ISourceTickerInfo> PricingEnabledSourceTickerInfos =>
+        SourceTickerConfig?.PricingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerInfo>();
 
-    public IEnumerable<ISourceTickerQuoteInfo> TradingEnabledSourceTickerInfos =>
-        SourceTickerConfig?.TradingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerQuoteInfo>();
+    public IEnumerable<ISourceTickerInfo> TradingEnabledSourceTickerInfos =>
+        SourceTickerConfig?.TradingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerInfo>();
 
     public IMarketConnectionConfig ShiftPortsBy(ushort deltaPorts)
     {
@@ -167,7 +167,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         return shiftedMarketConnectionConfig;
     }
 
-    public ISourceTickerQuoteInfo? GetSourceTickerInfo(string ticker) => SourceTickerConfig?.GetSourceTickerInfo(SourceId, Name, ticker);
+    public ISourceTickerInfo? GetSourceTickerInfo(string ticker) => SourceTickerConfig?.GetSourceTickerInfo(SourceId, Name, ticker);
 
     public IMarketConnectionConfig Clone() => new MarketConnectionConfig(this);
 
