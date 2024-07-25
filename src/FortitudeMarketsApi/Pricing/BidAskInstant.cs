@@ -96,6 +96,13 @@ public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInsta
         AtTime   = atTime ?? DateTime.UtcNow;
     }
 
+    public BidAskInstant(IBidAskInstant toClone)
+    {
+        BidPrice = toClone.BidPrice;
+        AskPrice = toClone.AskPrice;
+        AtTime   = toClone.AtTime;
+    }
+
     public decimal BidPrice
     {
         get => BidAskInstantPairState.BidPrice;
@@ -151,7 +158,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInsta
         AtTime   = atTime ?? DateTime.UtcNow;
     }
 
-    public IBidAskInstant CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public virtual IBidAskInstant CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         BidPrice = source.BidPriceTop;
         AskPrice = source.AskPriceTop;

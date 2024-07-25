@@ -13,12 +13,12 @@ using FortitudeIO.TimeSeries;
 
 namespace FortitudeMarketsApi.Pricing.Summaries;
 
-public interface IPricePeriodSummary : IBidAskInstant, IInterfacesComparable<IPricePeriodSummary>, ITimeSeriesPeriodRange
-  , ITimeSeriesEntry<IPricePeriodSummary>, IDoublyLinkedListNode<IPricePeriodSummary>, IReusableObject<IPricePeriodSummary>
+public interface IPricePeriodSummary : IReusableObject<IPricePeriodSummary>, IInterfacesComparable<IPricePeriodSummary>, ITimeSeriesPeriodRange
+  , ITimeSeriesEntry<IPricePeriodSummary>, IDoublyLinkedListNode<IPricePeriodSummary>
 {
     PricePeriodSummaryFlags PeriodSummaryFlags { get; }
-    DateTime                PeriodEndTime      { get; }
 
+    DateTime   PeriodEndTime { get; }
     bool       IsEmpty       { get; }
     BidAskPair StartBidAsk   { get; }
     BidAskPair HighestBidAsk { get; }
@@ -28,88 +28,10 @@ public interface IPricePeriodSummary : IBidAskInstant, IInterfacesComparable<IPr
     long       PeriodVolume  { get; }
     BidAskPair AverageBidAsk { get; }
 
-    new IPricePeriodSummary? Next     { get; set; }
-    new IPricePeriodSummary? Previous { get; set; }
-
     double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler);
     bool   IsWhollyBoundedBy(ITimeSeriesPeriodRange parentRange);
 
     new IPricePeriodSummary Clone();
-}
-
-public static class PricePeriodSummaryExtensions
-{
-    public static int AddReplace
-        (this IDoublyLinkedList<IPricePeriodSummary> existing, IDoublyLinkedList<IPricePeriodSummary> toAdd, IRecycler? recycler = null)
-    {
-        var removedCount = 0;
-        var currentAdd   = toAdd.Head;
-
-        while (currentAdd != null)
-        {
-            removedCount += AddReplace(existing, currentAdd, recycler);
-
-            currentAdd = currentAdd.Next;
-        }
-        return removedCount;
-    }
-
-    public static int AddReplace
-        (this IDoublyLinkedList<IPricePeriodSummary> existing, IPricePeriodSummary toAddReplace, IRecycler? recycler = null)
-    {
-        var currentExisting = existing.Head;
-        if (currentExisting == null)
-        {
-            existing.AddFirst(toAddReplace);
-            return 0;
-        }
-        var removedCount = 0;
-        while (currentExisting != null)
-        {
-            if (ReferenceEquals(currentExisting, toAddReplace)) break;
-            if (toAddReplace.IsWhollyBoundedBy(currentExisting)) break;
-            if (currentExisting.PeriodStartTime > toAddReplace.PeriodStartTime)
-            {
-                var insertAfter = currentExisting.Previous;
-                while (currentExisting != null && currentExisting.IsWhollyBoundedBy(toAddReplace))
-                {
-                    if (ReferenceEquals(currentExisting, toAddReplace)) return removedCount;
-                    var removed = existing.Remove(currentExisting);
-                    recycler?.Recycle(removed);
-                    removedCount++;
-                    currentExisting = currentExisting.Next;
-                }
-                if (ReferenceEquals(insertAfter, toAddReplace)) break;
-                if (insertAfter != null)
-                {
-                    insertAfter.Next      = toAddReplace;
-                    toAddReplace.Previous = insertAfter;
-                }
-                else
-                {
-                    existing.AddFirst(toAddReplace);
-                }
-                if (currentExisting != null)
-                {
-                    currentExisting.Previous = toAddReplace;
-                    toAddReplace.Next        = currentExisting;
-                }
-                else
-                {
-                    toAddReplace.Next = null;
-                }
-                return removedCount;
-            }
-            if (currentExisting?.Next == null)
-            {
-                existing.AddLast(toAddReplace);
-                return removedCount;
-            }
-
-            currentExisting = currentExisting.Next;
-        }
-        return removedCount;
-    }
 }
 
 public interface IMutablePricePeriodSummary : IPricePeriodSummary
@@ -197,5 +119,76 @@ public static class MutablePricePeriodSummaryExtensions
         mergeInto.PeriodVolume    += other.PeriodVolume;
 
         return mergeInto;
+    }
+
+    public static int AddReplace
+        (this IDoublyLinkedList<IPricePeriodSummary> existing, IDoublyLinkedList<IPricePeriodSummary> toAdd)
+    {
+        var removedCount = 0;
+        var currentAdd   = toAdd.Head;
+
+        while (currentAdd != null)
+        {
+            removedCount += AddReplace(existing, currentAdd);
+
+            currentAdd = currentAdd.Next;
+        }
+        return removedCount;
+    }
+
+    public static int AddReplace
+        (this IDoublyLinkedList<IPricePeriodSummary> existing, IPricePeriodSummary toAddReplace)
+    {
+        var currentExisting = existing.Head;
+        if (currentExisting == null)
+        {
+            existing.AddFirst(toAddReplace);
+            return 0;
+        }
+        var removedCount = 0;
+        while (currentExisting != null)
+        {
+            if (ReferenceEquals(currentExisting, toAddReplace)) break;
+            if (toAddReplace.IsWhollyBoundedBy(currentExisting)) break;
+            if (currentExisting.PeriodStartTime > toAddReplace.PeriodStartTime)
+            {
+                var insertAfter = currentExisting.Previous;
+                while (currentExisting != null && currentExisting.IsWhollyBoundedBy(toAddReplace))
+                {
+                    if (ReferenceEquals(currentExisting, toAddReplace)) return removedCount;
+                    var removed = existing.Remove(currentExisting);
+                    removed.DecrementRefCount();
+                    removedCount++;
+                    currentExisting = currentExisting.Next;
+                }
+                if (ReferenceEquals(insertAfter, toAddReplace)) break;
+                if (insertAfter != null)
+                {
+                    insertAfter.Next      = toAddReplace;
+                    toAddReplace.Previous = insertAfter;
+                }
+                else
+                {
+                    existing.AddFirst(toAddReplace);
+                }
+                if (currentExisting != null)
+                {
+                    currentExisting.Previous = toAddReplace;
+                    toAddReplace.Next        = currentExisting;
+                }
+                else
+                {
+                    toAddReplace.Next = null;
+                }
+            }
+            if (currentExisting?.Next == null)
+            {
+                existing.AddLast(toAddReplace);
+                return removedCount;
+            }
+
+            currentExisting = currentExisting.Next;
+        }
+        return removedCount;
     }
 }

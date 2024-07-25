@@ -324,9 +324,9 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
             (sourceTickerIdentifier.HistoricalPeriodSummaryResponseRequest(liveConstructingSubPeriod), requestRange);
         foreach (var subPeriod in subPeriods)
             if (subPeriod.IsWhollyBoundedBy(currentPeriodSummaryState))
-                currentPeriodSummaryState.SubSummaryPeriods.AddReplace(subPeriod, Context.PooledRecycler);
+                currentPeriodSummaryState.SubSummaryPeriods.AddReplace(subPeriod);
             else if (lastPeriodSummaryState != null && subPeriod.IsWhollyBoundedBy(lastPeriodSummaryState))
-                lastPeriodSummaryState.SubSummaryPeriods.AddReplace(subPeriod, Context.PooledRecycler);
+                lastPeriodSummaryState.SubSummaryPeriods.AddReplace(subPeriod);
     }
 
     private ValueTask ReceiveSubPeriodHandler(IBusMessage<PricePeriodSummary> subPeriodMsg)
@@ -359,7 +359,7 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
         var subPeriodContainerStart = periodToPublish.ContainingPeriodBoundaryStart(subPeriod.PeriodStartTime);
         if (currentPeriodSummaryState.PeriodStartTime == subPeriodContainerStart)
         {
-            currentPeriodSummaryState.SubSummaryPeriods.AddReplace(subPeriod, Context.PooledRecycler);
+            currentPeriodSummaryState.SubSummaryPeriods.AddReplace(subPeriod);
         }
         else if (subPeriodContainerStart > currentPeriodSummaryState.PeriodStartTime)
         {

@@ -10,14 +10,14 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeMarketsApi.Indicators.Pricing;
 
-public interface IVaryingIndicatorBidAskInstantChain : IDoublyLinkedList<IIndicatorBidAskInstant>, IRecyclableObject
+public interface IVaryingIndicatorBidAskInstantChain : IDoublyLinkedList<IIndicatorValidRangeBidAskPeriod>, IRecyclableObject
 {
-    IIndicatorBidAskInstant RefIncAddFirst(IIndicatorBidAskInstant node);
-    IIndicatorBidAskInstant RefIncAddLast(IIndicatorBidAskInstant node);
-    IIndicatorBidAskInstant RefDecRemove(IIndicatorBidAskInstant node);
+    IIndicatorValidRangeBidAskPeriod RefIncAddFirst(IIndicatorValidRangeBidAskPeriod node);
+    IIndicatorValidRangeBidAskPeriod RefIncAddLast(IIndicatorValidRangeBidAskPeriod node);
+    IIndicatorValidRangeBidAskPeriod RefDecRemove(IIndicatorValidRangeBidAskPeriod node);
 }
 
-public class VaryingIndicatorBidAskInstantChain : DoublyLinkedList<IIndicatorBidAskInstant>, IVaryingIndicatorBidAskInstantChain
+public class VaryingIndicatorBidAskInstantChain : DoublyLinkedList<IIndicatorValidRangeBidAskPeriod>, IVaryingIndicatorBidAskInstantChain
 {
     private const int NumRecentRecycleTimes = 5;
 
@@ -39,19 +39,19 @@ public class VaryingIndicatorBidAskInstantChain : DoublyLinkedList<IIndicatorBid
         set => isInRecycler = value ? 1 : 0;
     }
 
-    public IIndicatorBidAskInstant RefIncAddFirst(IIndicatorBidAskInstant node)
+    public IIndicatorValidRangeBidAskPeriod RefIncAddFirst(IIndicatorValidRangeBidAskPeriod node)
     {
         node.IncrementRefCount();
         return AddFirst(node);
     }
 
-    public IIndicatorBidAskInstant RefIncAddLast(IIndicatorBidAskInstant node)
+    public IIndicatorValidRangeBidAskPeriod RefIncAddLast(IIndicatorValidRangeBidAskPeriod node)
     {
         node.IncrementRefCount();
         return AddLast(node);
     }
 
-    public IIndicatorBidAskInstant RefDecRemove(IIndicatorBidAskInstant node)
+    public IIndicatorValidRangeBidAskPeriod RefDecRemove(IIndicatorValidRangeBidAskPeriod node)
     {
         Remove(node);
         node.DecrementRefCount();

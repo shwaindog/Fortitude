@@ -14,21 +14,22 @@ using FortitudeMarketsApi.Pricing.Quotes;
 
 namespace FortitudeMarketsApi.Indicators.Pricing;
 
-public interface IIndicatorBidAskInstantPair : IBidAskInstant, IReusableObject<IIndicatorBidAskInstantPair>
-  , IInterfacesComparable<IIndicatorBidAskInstantPair>
+public interface IIndicatorValidRangeBidAskPeriod : IValidRangeBidAskPeriod, IReusableObject<IIndicatorValidRangeBidAskPeriod>
+  , IInterfacesComparable<IIndicatorValidRangeBidAskPeriod>, IDoublyLinkedListNode<IIndicatorValidRangeBidAskPeriod>
 {
     long IndicatorSourceTickerId { get; }
 
-    TimePeriod CoveringPeriod { get; }
+    new IIndicatorValidRangeBidAskPeriod? Next     { get; set; }
+    new IIndicatorValidRangeBidAskPeriod? Previous { get; set; }
 
-    new IIndicatorBidAskInstantPair Clone();
+    new IIndicatorValidRangeBidAskPeriod Clone();
 }
 
-public readonly struct IndicatorBidAskInstantPair // not inheriting from IBidAskInstantPair to prevent accidental boxing unboxing
+public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting from IBidAskInstantPair to prevent accidental boxing unboxing
 {
-    public IndicatorBidAskInstantPair() { }
+    public IndicatorValidRangeBidAskPeriodValue() { }
 
-    public IndicatorBidAskInstantPair(long indicatorSourceTickerId, TimePeriod coveringPeriod, BidAskInstantPair toClone)
+    public IndicatorValidRangeBidAskPeriodValue(long indicatorSourceTickerId, TimePeriod coveringPeriod, BidAskInstantPair toClone)
     {
         IndicatorSourceTickerId = indicatorSourceTickerId;
 
@@ -39,7 +40,7 @@ public readonly struct IndicatorBidAskInstantPair // not inheriting from IBidAsk
         AtTime   = toClone.AtTime;
     }
 
-    public IndicatorBidAskInstantPair(IIndicatorBidAskInstantPair toClone)
+    public IndicatorValidRangeBidAskPeriodValue(IIndicatorValidRangeBidAskPeriod toClone)
     {
         IndicatorSourceTickerId = toClone.IndicatorSourceTickerId;
 
@@ -50,7 +51,7 @@ public readonly struct IndicatorBidAskInstantPair // not inheriting from IBidAsk
         AtTime   = toClone.AtTime;
     }
 
-    public IndicatorBidAskInstantPair(long indicatorSourceTickerId, ILevel1Quote toCapture)
+    public IndicatorValidRangeBidAskPeriodValue(long indicatorSourceTickerId, ILevel1Quote toCapture)
     {
         IndicatorSourceTickerId = indicatorSourceTickerId;
 
@@ -61,7 +62,7 @@ public readonly struct IndicatorBidAskInstantPair // not inheriting from IBidAsk
         AtTime   = toCapture.SourceTime;
     }
 
-    public IndicatorBidAskInstantPair
+    public IndicatorValidRangeBidAskPeriodValue
         (long indicatorSourceTickerId, decimal bidPrice, decimal askPrice, TimePeriod coveringPeriod, DateTime? atTime = null)
     {
         IndicatorSourceTickerId = indicatorSourceTickerId;
@@ -73,7 +74,7 @@ public readonly struct IndicatorBidAskInstantPair // not inheriting from IBidAsk
         AtTime   = atTime ?? DateTime.UtcNow;
     }
 
-    public IndicatorBidAskInstantPair
+    public IndicatorValidRangeBidAskPeriodValue
         (long indicatorSourceTickerId, BidAskInstantPair bidAskInstantPair, TimePeriod coveringPeriod)
     {
         IndicatorSourceTickerId = indicatorSourceTickerId;
@@ -94,122 +95,105 @@ public readonly struct IndicatorBidAskInstantPair // not inheriting from IBidAsk
     public DateTime AtTime   { get; }
 
 
-    public static implicit operator BidAskInstantPair(IndicatorBidAskInstantPair indicatorBidAskInstant) =>
-        new(indicatorBidAskInstant.BidPrice, indicatorBidAskInstant.AskPrice, indicatorBidAskInstant.AtTime);
+    public static implicit operator ValidRangeBidAskPeriodValue(IndicatorValidRangeBidAskPeriodValue indicatorValidRangeBidAskPeriodValue) =>
+        new(indicatorValidRangeBidAskPeriodValue.BidPrice, indicatorValidRangeBidAskPeriodValue.AskPrice
+          , indicatorValidRangeBidAskPeriodValue.AtTime);
 }
 
-public static class BidAskInstantPairExtensions
+public static class IndicatorValidRangeBidAskPeriodValueExtensions
 {
-    public static IndicatorBidAskInstantPair ToIndicatorBidAskInstantPair
+    public static IndicatorValidRangeBidAskPeriodValue ToIndicatorBidAskInstantPair
         (this BidAskInstantPair pair, long indicatorSourceTickerId, TimePeriod coveringPeriod) =>
         new(indicatorSourceTickerId, pair, coveringPeriod);
 
-    public static IndicatorBidAskInstant ToIndicatorBidAskInstant(this IndicatorBidAskInstantPair pair, IRecycler? recycler = null)
+    public static IndicatorValidRangeBidAskPeriod ToIndicatorBidAskInstant(this IndicatorValidRangeBidAskPeriodValue pair, IRecycler? recycler = null)
     {
-        var instant = recycler?.Borrow<IndicatorBidAskInstant>() ?? new IndicatorBidAskInstant();
+        var instant = recycler?.Borrow<IndicatorValidRangeBidAskPeriod>() ?? new IndicatorValidRangeBidAskPeriod();
         instant.Configure(pair);
         return instant;
     }
 
-    public static IndicatorBidAskInstant ToIndicatorBidAskInstant
+    public static IndicatorValidRangeBidAskPeriod ToIndicatorBidAskInstant
         (this BidAskInstantPair pair, long indicatorSourceTickerId, TimePeriod coveringPeriod, IRecycler? recycler = null)
     {
-        var instant = recycler?.Borrow<IndicatorBidAskInstant>() ?? new IndicatorBidAskInstant();
+        var instant = recycler?.Borrow<IndicatorValidRangeBidAskPeriod>() ?? new IndicatorValidRangeBidAskPeriod();
         instant.Configure(indicatorSourceTickerId, pair, coveringPeriod);
         return instant;
     }
 
-    public static IndicatorBidAskInstantPair SetBidPrice
-        (this IndicatorBidAskInstantPair pair, decimal bidPrice) =>
+    public static IndicatorValidRangeBidAskPeriodValue SetBidPrice
+        (this IndicatorValidRangeBidAskPeriodValue pair, decimal bidPrice) =>
         new(pair.IndicatorSourceTickerId, bidPrice, pair.AskPrice, pair.CoveringPeriod, pair.AtTime);
 
-    public static IndicatorBidAskInstantPair SetAskPrice
-        (this IndicatorBidAskInstantPair pair, decimal askPrice) =>
+    public static IndicatorValidRangeBidAskPeriodValue SetAskPrice
+        (this IndicatorValidRangeBidAskPeriodValue pair, decimal askPrice) =>
         new(pair.IndicatorSourceTickerId, pair.BidPrice, askPrice, pair.CoveringPeriod, pair.AtTime);
 
-    public static IndicatorBidAskInstantPair SetCoveringPeriod
-        (this IndicatorBidAskInstantPair pair, TimePeriod coveringPeriod) =>
+    public static IndicatorValidRangeBidAskPeriodValue SetCoveringPeriod
+        (this IndicatorValidRangeBidAskPeriodValue pair, TimePeriod coveringPeriod) =>
         new(pair.IndicatorSourceTickerId, pair.BidPrice, pair.AskPrice, coveringPeriod, pair.AtTime);
 
-    public static IndicatorBidAskInstantPair SetAtTime
-        (this IndicatorBidAskInstantPair pair, DateTime atTime) =>
+    public static IndicatorValidRangeBidAskPeriodValue SetAtTime
+        (this IndicatorValidRangeBidAskPeriodValue pair, DateTime atTime) =>
         new(pair.IndicatorSourceTickerId, pair.BidPrice, pair.AskPrice, pair.CoveringPeriod, atTime);
 
-    public static IndicatorBidAskInstantPair SetIndicatorSourceTickerId
-        (this IndicatorBidAskInstantPair pair, long indicatorSourceTickerId) =>
+    public static IndicatorValidRangeBidAskPeriodValue SetIndicatorSourceTickerId
+        (this IndicatorValidRangeBidAskPeriodValue pair, long indicatorSourceTickerId) =>
         new(indicatorSourceTickerId, pair.BidPrice, pair.AskPrice, pair.CoveringPeriod, pair.AtTime);
 }
 
-public interface IIndicatorBidAskInstant : IIndicatorBidAskInstantPair, IMutableBidAskInstant, IDoublyLinkedListNode<IIndicatorBidAskInstant>
+public class IndicatorValidRangeBidAskPeriod : ValidRangeBidAskPeriod, IIndicatorValidRangeBidAskPeriod
 {
-    new long IndicatorSourceTickerId { get; set; }
+    public IndicatorValidRangeBidAskPeriod() { }
 
-    new IIndicatorBidAskInstant? Previous { get; set; }
-    new IIndicatorBidAskInstant? Next     { get; set; }
-}
-
-public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
-{
-    public IndicatorBidAskInstant() { }
-
-    public IndicatorBidAskInstant(IndicatorBidAskInstantPair indicatorBidAskInstantPair) : base(indicatorBidAskInstantPair)
+    public IndicatorValidRangeBidAskPeriod
+        (IndicatorValidRangeBidAskPeriodValue indicatorValidRangeBidAskPeriodValue) : base(indicatorValidRangeBidAskPeriodValue)
     {
-        IndicatorSourceTickerId = indicatorBidAskInstantPair.IndicatorSourceTickerId;
+        IndicatorSourceTickerId = indicatorValidRangeBidAskPeriodValue.IndicatorSourceTickerId;
 
-        CoveringPeriod = indicatorBidAskInstantPair.CoveringPeriod;
+        CoveringPeriod = indicatorValidRangeBidAskPeriodValue.CoveringPeriod;
     }
 
-    public IndicatorBidAskInstant(IndicatorBidAskInstant indicatorBidAskInstant) : base(indicatorBidAskInstant)
+    public IndicatorValidRangeBidAskPeriod(IndicatorValidRangeBidAskPeriod indicatorValidRangeBidAskPeriod) : base(indicatorValidRangeBidAskPeriod)
     {
-        IndicatorSourceTickerId = indicatorBidAskInstant.IndicatorSourceTickerId;
+        IndicatorSourceTickerId = indicatorValidRangeBidAskPeriod.IndicatorSourceTickerId;
 
-        CoveringPeriod = indicatorBidAskInstant.CoveringPeriod;
+        CoveringPeriod = indicatorValidRangeBidAskPeriod.CoveringPeriod;
     }
 
-    public IndicatorBidAskInstant
-        (long indicatorSourceTickerId, BidAskInstantPair indicatorBidAskInstant, TimePeriod coveringPeriod) : base(indicatorBidAskInstant)
-    {
+    public IndicatorValidRangeBidAskPeriod
+        (long indicatorSourceTickerId, ValidRangeBidAskPeriodValue validRangeBidAskPeriodValue, TimePeriod coveringPeriod) :
+        base(validRangeBidAskPeriodValue) =>
         IndicatorSourceTickerId = indicatorSourceTickerId;
 
-        CoveringPeriod = coveringPeriod;
-    }
-
-    public IndicatorBidAskInstant(long indicatorSourceTickerId, ILevel1Quote toCapture) : base(toCapture)
-    {
+    public IndicatorValidRangeBidAskPeriod
+        (long indicatorSourceTickerId, ILevel1Quote toCapture) : base(toCapture) =>
         IndicatorSourceTickerId = indicatorSourceTickerId;
 
-        CoveringPeriod = new TimePeriod(TimeSeriesPeriod.Tick);
-    }
-
-    public IndicatorBidAskInstant
-        (long indicatorSourceTickerId, decimal bidPrice, decimal askPrice, TimePeriod coveringPeriod, DateTime? atTime = null)
-        : base(bidPrice, askPrice, atTime)
-    {
+    public IndicatorValidRangeBidAskPeriod
+    (long indicatorSourceTickerId, decimal bidPrice, decimal askPrice, DateTime validToTime, DateTime? atTime = null
+      , DateTime? validFromTime = null, TimePeriod? coveringPeriod = null)
+        : base(bidPrice, askPrice, validToTime, atTime, validFromTime, coveringPeriod) =>
         IndicatorSourceTickerId = indicatorSourceTickerId;
-
-        CoveringPeriod = coveringPeriod;
-    }
 
     public long IndicatorSourceTickerId { get; set; }
 
-    public TimePeriod CoveringPeriod { get; set; }
-
-    public new IIndicatorBidAskInstant? Previous
+    public new IIndicatorValidRangeBidAskPeriod? Previous
     {
-        get => base.Previous as IIndicatorBidAskInstant;
-        set => base.Previous = value;
+        get => base.Previous as IIndicatorValidRangeBidAskPeriod;
+        set => ((IValidRangeBidAskPeriod)this).Previous = value;
     }
 
-    public new IIndicatorBidAskInstant? Next
+    public new IIndicatorValidRangeBidAskPeriod? Next
     {
-        get => base.Next as IIndicatorBidAskInstant;
-        set => base.Next = value;
+        get => base.Next as IIndicatorValidRangeBidAskPeriod;
+        set => ((IValidRangeBidAskPeriod)this).Next = value;
     }
 
     public override bool AreEquivalent(IBidAskInstant? other, bool exactTypes = false)
     {
         if (other == null) return false;
-        var indicatorBidAskInstant = other as IIndicatorBidAskInstant;
+        var indicatorBidAskInstant = other as IIndicatorValidRangeBidAskPeriod;
         if (indicatorBidAskInstant == null && exactTypes) return false;
         var baseIsSame = base.AreEquivalent(other, exactTypes);
 
@@ -220,7 +204,7 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         return allAreSame;
     }
 
-    public bool AreEquivalent(IIndicatorBidAskInstantPair? other, bool exactTypes = false)
+    public bool AreEquivalent(IIndicatorValidRangeBidAskPeriod? other, bool exactTypes = false)
     {
         if (other == null) return false;
         var baseIsSame = base.AreEquivalent(other, exactTypes);
@@ -232,28 +216,31 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         return allAreSame;
     }
 
-    public IReusableObject<IIndicatorBidAskInstantPair> CopyFrom
-        (IReusableObject<IIndicatorBidAskInstantPair> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+    public IReusableObject<IIndicatorValidRangeBidAskPeriod> CopyFrom
+        (IReusableObject<IIndicatorValidRangeBidAskPeriod> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IBidAskInstant)source, copyMergeFlags);
 
-    public IIndicatorBidAskInstantPair CopyFrom(IIndicatorBidAskInstantPair source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+    public IIndicatorValidRangeBidAskPeriod CopyFrom
+        (IIndicatorValidRangeBidAskPeriod source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IBidAskInstant)source, copyMergeFlags);
 
-    IIndicatorBidAskInstantPair ICloneable<IIndicatorBidAskInstantPair>.Clone() => Clone();
+    IIndicatorValidRangeBidAskPeriod ICloneable<IIndicatorValidRangeBidAskPeriod>.Clone() => Clone();
 
-    public override IIndicatorBidAskInstantPair Clone() =>
-        Recycler?.Borrow<IndicatorBidAskInstant>().CopyFrom(this) ?? new IndicatorBidAskInstant(this);
+    IValidRangeBidAskPeriod IValidRangeBidAskPeriod.Clone() => Clone();
 
-    public void Configure(IndicatorBidAskInstantPair indicatorBidAskInstantPair)
+    public new IIndicatorValidRangeBidAskPeriod Clone() =>
+        Recycler?.Borrow<IndicatorValidRangeBidAskPeriod>().CopyFrom(this) ?? new IndicatorValidRangeBidAskPeriod(this);
+
+    public void Configure(IndicatorValidRangeBidAskPeriodValue indicatorValidRangeBidAskPeriodValue)
     {
-        base.Configure(indicatorBidAskInstantPair);
+        base.Configure(indicatorValidRangeBidAskPeriodValue);
 
-        IndicatorSourceTickerId = indicatorBidAskInstantPair.IndicatorSourceTickerId;
+        IndicatorSourceTickerId = indicatorValidRangeBidAskPeriodValue.IndicatorSourceTickerId;
 
-        CoveringPeriod = indicatorBidAskInstantPair.CoveringPeriod;
+        CoveringPeriod = indicatorValidRangeBidAskPeriodValue.CoveringPeriod;
     }
 
-    public void Configure(IndicatorBidAskInstant indicatorBidAskInstant)
+    public void Configure(IIndicatorValidRangeBidAskPeriod indicatorBidAskInstant)
     {
         base.Configure(indicatorBidAskInstant);
 
@@ -289,11 +276,11 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         CoveringPeriod = coveringPeriod;
     }
 
-    public override IIndicatorBidAskInstant CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IIndicatorValidRangeBidAskPeriod CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 
-        if (source is IIndicatorBidAskInstant indicatorBidAskInstant)
+        if (source is IIndicatorValidRangeBidAskPeriod indicatorBidAskInstant)
         {
             IndicatorSourceTickerId = indicatorBidAskInstant.IndicatorSourceTickerId;
             CoveringPeriod          = indicatorBidAskInstant.CoveringPeriod;
@@ -301,14 +288,14 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         return this;
     }
 
-    protected bool Equals(IndicatorBidAskInstant other) => AreEquivalent(other, true);
+    protected bool Equals(IIndicatorValidRangeBidAskPeriod other) => AreEquivalent(other, true);
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((IndicatorBidAskInstant)obj);
+        return Equals((IIndicatorValidRangeBidAskPeriod)obj);
     }
 
     // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -320,6 +307,6 @@ public class IndicatorBidAskInstant : BidAskInstant, IIndicatorBidAskInstant
         $"{nameof(AskPrice)}: {AskPrice}, {nameof(AtTime)}: {AtTime})";
 
 
-    public static implicit operator IndicatorBidAskInstantPair(IndicatorBidAskInstant pricePoint) =>
+    public static implicit operator IndicatorValidRangeBidAskPeriodValue(IndicatorValidRangeBidAskPeriod pricePoint) =>
         new(pricePoint.IndicatorSourceTickerId, pricePoint.CoveringPeriod, pricePoint.BidAskInstantPairState);
 }

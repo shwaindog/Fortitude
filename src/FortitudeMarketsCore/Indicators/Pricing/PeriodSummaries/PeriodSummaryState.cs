@@ -32,8 +32,10 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
 
     public bool HasPublishedComplete { get; set; }
 
-    public bool             IsEmpty          => SubSummaryPeriods.Head == null && PreviousPeriodBidAskEnd == null;
-    public DateTime         PeriodStartTime  { get; set; }
+    public bool IsEmpty => SubSummaryPeriods.Head == null && PreviousPeriodBidAskEnd == null;
+
+    public DateTime PeriodStartTime { get; set; }
+
     public TimeSeriesPeriod TimeSeriesPeriod { get; set; }
 
     public BoundedTimeRange ToBoundedTimeRange
@@ -53,11 +55,15 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
         toPopulate.PeriodStartTime  = PeriodStartTime;
         toPopulate.PeriodEndTime    = this.PeriodEnd();
         toPopulate.OpeningState(PreviousPeriodBidAskEnd);
-        var periodLengthAt                = (atTime ?? TimeContext.UtcNow).Min(toPopulate.PeriodEndTime);
+
+        var periodLengthAt = (atTime ?? TimeContext.UtcNow).Min(toPopulate.PeriodEndTime);
+
         var runningTimeWeightedBidAverage = 0m;
         var runningTimeWeightedAskAverage = 0m;
-        var currentPeriodSummary          = SubSummaryPeriods.Head;
-        var averageFrom                   = currentPeriodSummary?.PeriodStartTime ?? PeriodStartTime;
+
+        var currentPeriodSummary = SubSummaryPeriods.Head;
+
+        var averageFrom = currentPeriodSummary?.PeriodStartTime ?? PeriodStartTime;
 
         if (this is { PreviousPeriodBidAskEnd: not null } && currentPeriodSummary?.PeriodStartTime > PeriodStartTime)
         {

@@ -13,7 +13,8 @@ namespace FortitudeIO.TimeSeries;
 
 public interface ITimeSeriesPeriodRange
 {
-    DateTime         PeriodStartTime  { get; }
+    DateTime PeriodStartTime { get; }
+
     TimeSeriesPeriod TimeSeriesPeriod { get; }
     BoundedTimeRange ToBoundedTimeRange(DateTime? maxDateTime = null);
 }
@@ -34,7 +35,8 @@ public struct TimeSeriesPeriodRange // not inheriting from ITimeSeriesPeriodRang
         TimeSeriesPeriod = timeSeriesPeriod;
     }
 
-    public DateTime         PeriodStartTime  { get; set; }
+    public DateTime PeriodStartTime { get; set; }
+
     public TimeSeriesPeriod TimeSeriesPeriod { get; set; }
 
     public static implicit operator BoundedTimeRange(TimeSeriesPeriodRange toConvert) =>
@@ -109,8 +111,9 @@ public static class TimeSeriesPeriodRangeExtensions
 
 
     public static TimeSeriesPeriodRange AsTimeSeriesPeriodRange(this ITimeSeriesPeriodRange range) => new(range);
-    public static DateTime              PeriodEnd(this ITimeSeriesPeriodRange range) => range.TimeSeriesPeriod.PeriodEnd(range.PeriodStartTime);
-    public static TimeSpan              PeriodTimeSpan(this ITimeSeriesPeriodRange range) => range.PeriodEnd() - range.PeriodStartTime;
+
+    public static DateTime PeriodEnd(this ITimeSeriesPeriodRange range)      => range.TimeSeriesPeriod.PeriodEnd(range.PeriodStartTime);
+    public static TimeSpan PeriodTimeSpan(this ITimeSeriesPeriodRange range) => range.PeriodEnd() - range.PeriodStartTime;
 
     public static bool ContainsTime(this ITimeSeriesPeriodRange range, DateTime checkTime) =>
         range.PeriodStartTime <= checkTime && range.PeriodEnd() > checkTime;
