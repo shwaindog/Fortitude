@@ -70,14 +70,14 @@ public static class PricePeriodSummaryExtensions
         new(channelFactory, resultLimit, batchSize);
 
     public static int AddReplace
-        (this IDoublyLinkedList<PricePeriodSummary> existing, IDoublyLinkedList<PricePeriodSummary> toAdd, IRecycler? recycler = null)
+        (this IDoublyLinkedList<PricePeriodSummary> existing, IDoublyLinkedList<PricePeriodSummary> toAdd)
     {
         var removedCount = 0;
         var currentAdd   = toAdd.Head;
 
         while (currentAdd != null)
         {
-            removedCount += AddReplace(existing, currentAdd, recycler);
+            removedCount += AddReplace(existing, currentAdd);
 
             currentAdd = currentAdd.Next;
         }
@@ -85,7 +85,7 @@ public static class PricePeriodSummaryExtensions
     }
 
     public static int AddReplace
-        (this IDoublyLinkedList<PricePeriodSummary> existing, PricePeriodSummary toAddReplace, IRecycler? recycler = null)
+        (this IDoublyLinkedList<PricePeriodSummary> existing, PricePeriodSummary toAddReplace)
     {
         var currentExisting = existing.Head;
         if (currentExisting == null)
@@ -105,7 +105,7 @@ public static class PricePeriodSummaryExtensions
                 {
                     if (ReferenceEquals(currentExisting, toAddReplace)) return removedCount;
                     var removed = existing.Remove(currentExisting);
-                    recycler?.Recycle(removed);
+                    removed.DecrementRefCount();
                     removedCount++;
                     currentExisting = currentExisting.Next;
                 }

@@ -91,7 +91,7 @@ public class MovingAveragePublishRequestState
 
     public void PublishBatchBidAskInstantChain(SameIndicatorBidAskInstantChain bidAskChain) { }
 
-    public void PublishSingleMovingAverage(IndicatorBidAskInstant bidAskInstant) { }
+    public void PublishSingleMovingAverage(IIndicatorValidRangeBidAskPeriod validRangeBidAskPeriod) { }
 
     public MovingAverageCalculationState CreateMovingAverageState
         (MovingAverageOffset movingAverageOffset, DateTime earliestQuoteTime, TimeSpan ignoreTickGapsGreaterThan) =>
@@ -111,12 +111,12 @@ public class MovingAveragePublishRequestState
         return resultChain;
     }
 
-    public IndicatorBidAskInstant CalculateSingleMovingAverage
+    public IIndicatorValidRangeBidAskPeriod CalculateSingleMovingAverage
         (MovingAverageCalculationState movingAverageCalculationState, IDoublyLinkedList<IBidAskInstant> timeOrderedPairs, DateTime atTime)
     {
         var recycler             = containingRule.Context.PooledRecycler;
         var movingAverageInstant = movingAverageCalculationState.Calculate(timeOrderedPairs, atTime, 0);
-        var bidAskInstant        = recycler.Borrow<IndicatorBidAskInstant>();
+        var bidAskInstant        = recycler.Borrow<IndicatorValidRangeBidAskPeriod>();
         bidAskInstant.Configure(indicatorSourceTickerId, movingAverageInstant, movingAverageCalculationState.AveragePeriod);
         return bidAskInstant;
     }

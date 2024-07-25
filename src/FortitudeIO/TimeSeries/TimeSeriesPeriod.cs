@@ -88,6 +88,8 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
+    public static TimePeriod ToTimePeriod(this TimeSeriesPeriod timeSeriesPeriod) => new (timeSeriesPeriod);
+
     public static bool IsTimeSpan(this TimePeriod spanOrPeriod)
     {
         return spanOrPeriod.NullableTimeSpan != null;

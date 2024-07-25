@@ -414,7 +414,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
                 var request = new HistoricalPricePeriodSummaryRequestResponse(State.PricingInstrumentId, timeRange);
                 var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
                     (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
-                foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary, Context.PooledRecycler);
+                foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary);
             }
         }
         if (currentSummary != null && State.Cache.Tail!.PeriodEndTime >= endHistoricalTimeRange)
@@ -425,7 +425,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
                 var request = new HistoricalPricePeriodSummaryRequestResponse(State.PricingInstrumentId, timeRange);
                 var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
                     (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
-                foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary, Context.PooledRecycler);
+                foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary);
             }
         }
         if (currentSummary == null)
@@ -437,8 +437,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
                     var request = new HistoricalPricePeriodSummaryRequestResponse(State.PricingInstrumentId, timeRange);
                     var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
                         (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
-                    foreach (var repoHistoricalSummary in repoHistoricalSummaries)
-                        State.Cache.AddReplace(repoHistoricalSummary, Context.PooledRecycler);
+                    foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary);
                 }
         }
     }

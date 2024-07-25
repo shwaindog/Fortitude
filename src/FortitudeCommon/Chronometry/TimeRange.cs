@@ -103,6 +103,12 @@ public static class TimeRangeExtensions
         return lhs.FromTime < rhs.ToTime && lhs.ToTime > rhs.FromTime;
     }
 
+    public static bool IsWhollyBoundedBy(this BoundedTimeRange check, BoundedTimeRange boundedBy) =>
+        check.FromTime >= boundedBy.FromTime && check.ToTime <= boundedBy.ToTime;
+
+    public static bool Contains(this BoundedTimeRange boundingPeriod, DateTime checkTime) =>
+        boundingPeriod.FromTime <= checkTime && boundingPeriod.ToTime >= checkTime;
+
     public static bool IsBounded(this UnboundedTimeRange periodRange) => periodRange is { FromTime: not null, ToTime: not null };
 
     public static TimeSpan TimeSpan(this BoundedTimeRange periodRange) => periodRange.ToTime - periodRange.FromTime;
@@ -115,9 +121,11 @@ public static class TimeRangeExtensions
         return bounded.FromTime!.Value - bounded.ToTime!.Value;
     }
 
-    public static UnboundedTimeRange CapUpperTime
-        (this UnboundedTimeRange toCap, DateTime maxUpperBound) =>
+    public static UnboundedTimeRange CapUpperTime(this UnboundedTimeRange toCap, DateTime maxUpperBound) =>
         new(toCap.FromTime, toCap.ToTime?.Min(maxUpperBound) ?? maxUpperBound);
+
+    public static BoundedTimeRange TrimFromTime(this BoundedTimeRange toTrim, DateTime newFromTime) =>
+        new(toTrim.FromTime.Max(newFromTime), toTrim.ToTime);
 
     public static UnboundedTimeRange? Intersection(this UnboundedTimeRange lhs, UnboundedTimeRange rhs)
     {
