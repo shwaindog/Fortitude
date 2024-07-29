@@ -10,7 +10,7 @@ using FortitudeMarketsApi.Indicators;
 using FortitudeMarketsApi.Indicators.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Indicators;
-using FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
+using FortitudeMarketsCore.Indicators.Pricing.Parameters;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeCommon.Chronometry;

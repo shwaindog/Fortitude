@@ -146,4 +146,50 @@ public static class DateTimeExtensions
         var maxTicks = Math.Max(Math.Max(first.Ticks, second.Ticks), third.Ticks);
         return DateTime.FromBinary(maxTicks);
     }
+
+    public static TimeSpan TimeSinceUtcStartOfWeek(this DateTimeOffset dateTimeOffset)
+    {
+        var utcTimeOffset       = dateTimeOffset.Offset;
+        var sinceSundayTimeSpan = TimeSpan.FromDays((int)dateTimeOffset.DayOfWeek);
+        var sinceDayStart       = dateTimeOffset - dateTimeOffset.Date;
+        return sinceDayStart + utcTimeOffset + sinceSundayTimeSpan;
+    }
+
+    public static TimeSpan TimeSinceUtcStartOfWeek(this DateTime dateTime)
+    {
+        var utcTime             = dateTime.ToUniversalTime();
+        var sinceSundayTimeSpan = TimeSpan.FromDays((int)utcTime.DayOfWeek);
+        var sinceDayStart       = utcTime - utcTime.Date;
+        return sinceDayStart + sinceSundayTimeSpan;
+    }
+
+    public static TimeSpan TimeToNextUtcStartOfWeek(this DateTimeOffset dateTimeOffset)
+    {
+        var utcTimeOffset            = dateTimeOffset.Offset;
+        var timeSpanToSundayNextWeek = TimeSpan.FromDays(7 - (int)dateTimeOffset.DayOfWeek);
+        var sinceDayStart            = dateTimeOffset - dateTimeOffset.Date;
+        return timeSpanToSundayNextWeek - (sinceDayStart + utcTimeOffset);
+    }
+
+    public static TimeSpan TimeToNextUtcStartOfWeek(this DateTime dateTime)
+    {
+        var utcTime                  = dateTime.ToUniversalTime();
+        var timeSpanToSundayNextWeek = TimeSpan.FromDays(7 - (int)utcTime.DayOfWeek);
+        var sinceDayStart            = utcTime - utcTime.Date;
+        return timeSpanToSundayNextWeek - sinceDayStart;
+    }
+
+    public static DateTimeOffset StartOfNextDay(this DateTimeOffset dateTimeOffset)
+    {
+        var sinceDayStart     = dateTimeOffset - dateTimeOffset.Date;
+        var remainingTimeSpan = TimeSpan.FromDays(1) - sinceDayStart;
+        return dateTimeOffset + remainingTimeSpan;
+    }
+
+    public static DateTime StartOfNextDay(this DateTime dateTime)
+    {
+        var sinceDayStart     = dateTime - dateTime.Date;
+        var remainingTimeSpan = TimeSpan.FromDays(1) - sinceDayStart;
+        return dateTime + remainingTimeSpan;
+    }
 }

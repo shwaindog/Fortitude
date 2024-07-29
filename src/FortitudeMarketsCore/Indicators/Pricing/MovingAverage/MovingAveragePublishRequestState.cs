@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Indicators.Pricing;
 using FortitudeMarketsApi.Pricing;
+using FortitudeMarketsCore.Indicators.Pricing.Parameters;
 
 #endregion
 
@@ -27,8 +28,8 @@ public class MovingAveragePublishRequestState
     private readonly MovingAveragePublisherParams? singleMoveAverageParams;
 
     public MovingAveragePublishRequestState
-    (IListeningRule containingRule, long indicatorSourceTickerId, DateTime earliestQuoteTime, MovingAveragePublisherParams singlePublisherParams
-      , TimeSpan ignoreTickGapsGreaterThan)
+    (IListeningRule containingRule, long indicatorSourceTickerId, MovingAveragePublisherParams singlePublisherParams
+      , CalculateMovingAverageOptions calculateMovingAverageOptions)
     {
         this.containingRule          = containingRule;
         this.indicatorSourceTickerId = indicatorSourceTickerId;
@@ -40,12 +41,13 @@ public class MovingAveragePublishRequestState
         averagesToCalculate =
             singlePublisherParams.PeriodsToPublish
                                  .Select(movingAverageOffset =>
-                                             CreateMovingAverageState(movingAverageOffset, earliestQuoteTime, ignoreTickGapsGreaterThan)).ToList();
+                                             CreateMovingAverageState(movingAverageOffset, calculateMovingAverageOptions))
+                                 .ToList();
     }
 
     public MovingAveragePublishRequestState
-    (IListeningRule containingRule, long indicatorSourceTickerId, DateTime earliestQuoteTime, MovingAverageBatchPublisherParams batchPublisherParams
-      , TimeSpan ignoreTickGapsGreaterThan)
+    (IListeningRule containingRule, long indicatorSourceTickerId, MovingAverageBatchPublisherParams batchPublisherParams
+      , CalculateMovingAverageOptions calculateMovingAverageOptions)
     {
         this.containingRule          = containingRule;
         this.indicatorSourceTickerId = indicatorSourceTickerId;
@@ -57,7 +59,7 @@ public class MovingAveragePublishRequestState
         averagesToCalculate =
             batchPublisherParams
                 .BatchPeriodsToPublish.Flatten()
-                .Select(offset => CreateMovingAverageState(offset, earliestQuoteTime, ignoreTickGapsGreaterThan)).ToList();
+                .Select(offset => CreateMovingAverageState(offset, calculateMovingAverageOptions)).ToList();
     }
 
     public DateTime? NextPublishDateTime { get; private set; }
@@ -71,7 +73,7 @@ public class MovingAveragePublishRequestState
         return averagesToCalculate.Min(macs => macs.EarliestTime(asOfTime));
     }
 
-    public void CalculateMovingAverageAndPublish(IDoublyLinkedList<IBidAskInstant> timeOrderedPairs, DateTime atTime)
+    public void CalculateMovingAverageAndPublish(IDoublyLinkedList<IValidRangeBidAskPeriod> timeOrderedPairs, DateTime atTime)
     {
         if (isBatchPublisher)
         {
@@ -89,30 +91,30 @@ public class MovingAveragePublishRequestState
         NextPublishDateTime = atTime + PublishInterval.AveragePeriodTimeSpan();
     }
 
-    public void PublishBatchBidAskInstantChain(SameIndicatorBidAskInstantChain bidAskChain) { }
+    public void PublishBatchBidAskInstantChain(SameIndicatorValidRangeBidAskPeriodChain bidAskChain) { }
 
     public void PublishSingleMovingAverage(IIndicatorValidRangeBidAskPeriod validRangeBidAskPeriod) { }
 
     public MovingAverageCalculationState CreateMovingAverageState
-        (MovingAverageOffset movingAverageOffset, DateTime earliestQuoteTime, TimeSpan ignoreTickGapsGreaterThan) =>
-        new(movingAverageOffset, earliestQuoteTime, ignoreTickGapsGreaterThan);
+        (MovingAverageOffset movingAverageOffset, CalculateMovingAverageOptions calculateMovingAverageOptions) =>
+        new(movingAverageOffset, calculateMovingAverageOptions);
 
-    public SameIndicatorBidAskInstantChain CalculateBatch(IDoublyLinkedList<IBidAskInstant> timeOrderedPairs, DateTime atTime)
+    public SameIndicatorValidRangeBidAskPeriodChain CalculateBatch(IDoublyLinkedList<IValidRangeBidAskPeriod> timeOrderedPairs, DateTime atTime)
     {
         var recycler    = containingRule.Context.PooledRecycler;
-        var resultChain = recycler.Borrow<SameIndicatorBidAskInstantChain>();
+        var resultChain = recycler.Borrow<SameIndicatorValidRangeBidAskPeriodChain>();
         resultChain.Configure(indicatorSourceTickerId, batchMovingAverageParams!.Value.BatchPeriodsToPublish.CoveringPeriod);
         var batchCount = 0u;
         foreach (var movingAverageState in averagesToCalculate)
         {
             var movingAverageInstant = movingAverageState.Calculate(timeOrderedPairs, atTime, batchCount++);
-            resultChain.AddLast(movingAverageInstant.ToBidAskInstant(recycler));
+            resultChain.AddLast(movingAverageInstant.ToValidRangeBidAskPeriod(recycler));
         }
         return resultChain;
     }
 
     public IIndicatorValidRangeBidAskPeriod CalculateSingleMovingAverage
-        (MovingAverageCalculationState movingAverageCalculationState, IDoublyLinkedList<IBidAskInstant> timeOrderedPairs, DateTime atTime)
+        (MovingAverageCalculationState movingAverageCalculationState, IDoublyLinkedList<IValidRangeBidAskPeriod> timeOrderedPairs, DateTime atTime)
     {
         var recycler             = containingRule.Context.PooledRecycler;
         var movingAverageInstant = movingAverageCalculationState.Calculate(timeOrderedPairs, atTime, 0);

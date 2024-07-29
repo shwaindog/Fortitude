@@ -53,6 +53,8 @@ public readonly struct TimePeriod
 
     public TimeSpan         TimeSpan         => NullableTimeSpan!.Value;
     public TimeSeriesPeriod TimeSeriesPeriod => NullableTimeSeriesPeriod!.Value;
+
+    public static implicit operator TimeSpan(TimePeriod toConvert) => toConvert.NullableTimeSpan ?? toConvert.TimeSeriesPeriod.AveragePeriodTimeSpan();
 }
 
 public static class TimeSeriesPeriodExtensions

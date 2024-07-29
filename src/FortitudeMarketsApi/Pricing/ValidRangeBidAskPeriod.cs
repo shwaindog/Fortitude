@@ -126,6 +126,36 @@ public struct ValidRangeBidAskPeriodValue
         new(toConvert.BidPrice, toConvert.AskPrice, toConvert.AtTime);
 }
 
+public static class ValidRangeBidAskPeriodValueExtensions
+{
+    public static ValidRangeBidAskPeriod ToValidRangeBidAskPeriod(this ValidRangeBidAskPeriodValue pair, IRecycler? recycler = null)
+    {
+        var instant = recycler?.Borrow<ValidRangeBidAskPeriod>() ?? new ValidRangeBidAskPeriod();
+        instant.Configure(pair);
+        return instant;
+    }
+
+    public static ValidRangeBidAskPeriodValue SetBidPrice
+        (this ValidRangeBidAskPeriodValue pair, decimal bidPrice) =>
+        new(bidPrice, pair.AskPrice, pair.ValidTo, pair.AtTime, pair.ValidFrom);
+
+    public static ValidRangeBidAskPeriodValue SetAskPrice
+        (this ValidRangeBidAskPeriodValue pair, decimal askPrice) =>
+        new(pair.BidPrice, askPrice, pair.ValidTo, pair.AtTime, pair.ValidFrom);
+
+    public static ValidRangeBidAskPeriodValue SetAtTime
+        (this ValidRangeBidAskPeriodValue pair, DateTime atTime) =>
+        new(pair.BidPrice, pair.AskPrice, pair.ValidTo, atTime, pair.ValidFrom);
+
+    public static ValidRangeBidAskPeriodValue SetValidTo
+        (this ValidRangeBidAskPeriodValue pair, DateTime validTo) =>
+        new(pair.BidPrice, pair.AskPrice, validTo, pair.AtTime, pair.ValidFrom);
+
+    public static ValidRangeBidAskPeriodValue SetValidFrom
+        (this ValidRangeBidAskPeriodValue pair, DateTime validFrom) =>
+        new(pair.BidPrice, pair.AskPrice, pair.ValidTo, pair.AtTime, validFrom);
+}
+
 [Flags]
 public enum ValidPeriodFlags : ushort
 {
@@ -670,6 +700,10 @@ public static class ValidRangeBidAskInstantExtensions
     public static bool HasValidPeriod(this IValidRangeBidAskPeriod validRBidAsk) => validRBidAsk.IsValidAt(validRBidAsk.AtTime);
 
     public static bool HasValidPeriod(this ValidRangeBidAskPeriodValue validRBidAsk) => validRBidAsk.IsValidAt(validRBidAsk.AtTime);
+
+    public static bool IsMarketClosed
+        (this IValidRangeBidAskPeriod checkIsClose) =>
+        checkIsClose.SweepEndOfMarketDay || checkIsClose.SweepEndOfMarketWeek;
 
     public static int AddChain(this IDoublyLinkedList<ValidRangeBidAskPeriod> existing, ValidRangeBidAskPeriod chainToAdd)
     {
