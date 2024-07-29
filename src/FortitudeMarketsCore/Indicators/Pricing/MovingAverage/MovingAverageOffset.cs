@@ -55,7 +55,7 @@ public static class MovingAverageParamsExtensions
         }
     }
 
-    public static BoundedTimeRange PeriodTimeRange(this MovingAverageOffset movingAvg, DateTime asOfTime)
+    public static BoundedTimeRange WallClockPeriodTimeRange(this MovingAverageOffset movingAvg, DateTime asOfTime)
     {
         var calcStartTime = asOfTime;
         var calcEndTime   = asOfTime;

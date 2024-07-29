@@ -1,19 +1,21 @@
-﻿namespace FortitudeCommon.Configuration.Availability
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+namespace FortitudeCommon.Configuration.Availability;
+
+public enum Month
 {
-    public enum Month
-    {
-        Unknown,
-        January,
-        Feburary,
-        March,
-        April,
-        May,
-        June,
-        July,
-        August,
-        September,
-        October,
-        November,
-        December
-    }
+    Unknown   = 0
+  , January   = 1
+  , February  = 2
+  , March     = 3
+  , April     = 4
+  , May       = 5
+  , June      = 6
+  , July      = 7
+  , August    = 8
+  , September = 9
+  , October   = 10
+  , November  = 11
+  , December  = 12
 }

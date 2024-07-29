@@ -18,4 +18,11 @@ public static class BidAskExtensions
         var bidAsk = (BidAskInstant)(recycler?.Borrow<BidAskInstant>().CopyFrom(level1Quote) ?? new BidAskInstant(level1Quote));
         return bidAsk;
     }
+
+    public static ValidRangeBidAskPeriod ToValidRangeBidAskPeriod(this IPQLevel1Quote level1Quote, IRecycler? recycler = null)
+    {
+        var bidAsk = (ValidRangeBidAskPeriod)(recycler?.Borrow<ValidRangeBidAskPeriod>().CopyFrom(level1Quote) ??
+                                              new ValidRangeBidAskPeriod(level1Quote));
+        return bidAsk;
+    }
 }
