@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
@@ -306,8 +307,9 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
 
         Assert.AreEqual((uint)toPersistAndCheck.Count, level2OneWeekFile.Header.TotalEntries);
         level2SessionReader = level2OneWeekFile.GetReaderSession();
-        var allEntriesReader = level2SessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
-        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        var allEntriesReader = level2SessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
@@ -349,8 +351,9 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
 
         Assert.AreEqual((uint)toPersistAndCheck.Count, level2OneWeekFile.Header.TotalEntries);
         level2SessionReader = level2OneWeekFile.GetReaderSession();
-        var allEntriesReader = level2SessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
-        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        var allEntriesReader = level2SessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
@@ -403,15 +406,17 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         Assert.AreEqual((uint)toPersistAndCheck.Count, level2OneWeekFile.Header.TotalEntries);
 
         level2SessionReader = level2OneWeekFile.GetReaderSession();
-        var allEntriesReader = level2SessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
-        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        var allEntriesReader = level2SessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
         var newReaderSession = level2OneWeekFile.GetReaderSession();
         Assert.AreNotSame(level2SessionReader, newReaderSession);
-        var newEntriesReader = level2SessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
+        var newEntriesReader = level2SessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
         newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;
         newEntriesReader.RunReader();
         var listResults = newEntriesReader.ResultList;

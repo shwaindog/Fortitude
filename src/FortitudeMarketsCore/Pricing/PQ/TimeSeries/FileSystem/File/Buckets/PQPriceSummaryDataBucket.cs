@@ -109,8 +109,30 @@ public abstract class PQPriceSummaryDataBucket<TBucket, TEntry> : DataBucket<TEn
             bufferDeserializer.Deserialize(buffer);
             var toReturn = readerContext.GetNextEntryToPopulate;
             toReturn.CopyFrom(bufferDeserializer.DeserializedPriceSummary, CopyMergeFlags.FullReplace);
-            if (readerContext.ProcessCandidateEntry(toReturn)) yield return toReturn;
+
+            if (readerContext.IsReverseChronologicalOrder)
+            {
+                if (!readerContext.CheckExceededPeriodRangeTime(toReturn))
+                    readerContext.ReadReverseAddToStart(toReturn);
+                else
+                    break;
+            }
+            else if (readerContext.ProcessCandidateEntry(toReturn))
+            {
+                yield return toReturn;
+            }
         }
+        if (!readerContext.IsReverseChronologicalOrder) yield break;
+        foreach (var checkEntry in readerContext.ReadReverse())
+        {
+            if (readerContext.ProcessCandidateEntry(checkEntry))
+            {
+                checkEntry.IncrementRefCount(); // clearing reverse results will decrement items
+                yield return checkEntry;
+            }
+            if (!readerContext.ContinueSearching) break;
+        }
+        readerContext.ClearReadReverse();
     }
 
     public virtual AppendResult AppendEntry

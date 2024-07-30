@@ -183,7 +183,8 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
             Assert.IsTrue(fileInfo.HasInstrument);
             using var reader = timeSeriesRepository.GetReaderSession<PricePeriodSummary>(instrument);
 
-            var entryReader = reader!.GetAllEntriesReader(EntryResultSourcing.NewEachEntryUnlimited, () => new PricePeriodSummary());
+            var entryReader = reader!.AllChronologicalEntriesReader
+                (new Recycler(), EntryResultSourcing.NewEachEntryUnlimited, ReaderOptions.ReadFastAsPossible, () => new PricePeriodSummary());
             var readEntries = entryReader.ResultEnumerable.ToList();
 
             Console.Out.WriteLine($"Read for  {pricingInstrumentId} it has {readEntries.Count} instruments");

@@ -98,8 +98,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
     }
 
     public virtual IEnumerable<TEntry> ReadEntries
-    (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext
-      , IPQQuoteDeserializer<TSerializeType> bufferDeserializer)
+        (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext, IPQQuoteDeserializer<TSerializeType> bufferDeserializer)
     {
         var entryCount = 0;
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)
@@ -109,8 +108,34 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
             bufferDeserializer.Deserialize(buffer);
             var toReturn = readerContext.GetNextEntryToPopulate;
             toReturn.CopyFrom(bufferDeserializer.PublishedQuote, CopyMergeFlags.FullReplace);
-            if (readerContext.ProcessCandidateEntry(toReturn)) yield return toReturn;
+            if (readerContext.IsReverseChronologicalOrder)
+            {
+                if (!readerContext.CheckExceededPeriodRangeTime(toReturn))
+                {
+                    readerContext.ReadReverseAddToStart(toReturn);
+                }
+                else
+                {
+                    toReturn.DecrementRefCount();
+                    break;
+                }
+            }
+            else if (readerContext.ProcessCandidateEntry(toReturn))
+            {
+                yield return toReturn;
+            }
         }
+        if (!readerContext.IsReverseChronologicalOrder) yield break;
+        foreach (var checkEntry in readerContext.ReadReverse())
+        {
+            if (readerContext.ProcessCandidateEntry(checkEntry))
+            {
+                checkEntry.IncrementRefCount(); // clearing reverse results will decrement items
+                yield return checkEntry;
+            }
+            if (!readerContext.ContinueSearching) break;
+        }
+        readerContext.ClearReadReverse();
     }
 
     public virtual AppendResult AppendEntry

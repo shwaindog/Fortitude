@@ -64,14 +64,15 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(HistoricalQuotesRetrievalRule));
 
-    private ISubscription? l0RequestListenerSubscription;
-    private ISubscription? l1RequestListenerSubscription;
-    private ISubscription? l2RequestListenerSubscription;
-    private ISubscription? l3RequestListenerSubscription;
-    private ISubscription? pql0RequestListenerSubscription;
-    private ISubscription? pql1RequestListenerSubscription;
-    private ISubscription? pql2RequestListenerSubscription;
-    private ISubscription? pql3RequestListenerSubscription;
+    private ISubscription? l1RequestSubscription;
+    private ISubscription? l2RequestSubscription;
+    private ISubscription? l3RequestSubscription;
+    private ISubscription? pql1RequestSubscription;
+    private ISubscription? pql2RequestSubscription;
+    private ISubscription? pql3RequestSubscription;
+    private ISubscription? pqTickInstantRequestSubscription;
+
+    private ISubscription? tickInstantRequestSubscription;
 
     public HistoricalQuotesRetrievalRule
         (TimeSeriesRepositoryParams repositoryParams) : base(repositoryParams, nameof(HistoricalQuotesRetrievalRule)) { }
@@ -84,35 +85,35 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     public override async ValueTask StartAsync()
     {
         await base.StartAsync();
-        l0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<TickInstant>, bool>
-            (PricingRepoRetrieveTickInstantRequest, HandleL0HistoricalPriceRequest);
-        l1RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level1PriceQuote>, bool>
+        tickInstantRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<TickInstant>, bool>
+            (PricingRepoRetrieveTickInstantRequest, HandleTickInstantHistoricalPriceRequest);
+        l1RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level1PriceQuote>, bool>
             (PricingRepoRetrieveL1QuoteRequest, HandleL1HistoricalPriceRequest);
-        l2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level2PriceQuote>, bool>
+        l2RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level2PriceQuote>, bool>
             (PricingRepoRetrieveL2QuoteRequest, HandleL2HistoricalPriceRequest);
-        l3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level3PriceQuote>, bool>
+        l3RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level3PriceQuote>, bool>
             (PricingRepoRetrieveL3QuoteRequest, HandleL3HistoricalPriceRequest);
-        pql0RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQTickInstant>, bool>
-            (PricingRepoRetrievePqTickInstantRequest, HandlePqL0HistoricalPriceRequest);
-        pql1RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
+        pqTickInstantRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQTickInstant>, bool>
+            (PricingRepoRetrievePqTickInstantRequest, HandlePqTickInstantHistoricalPriceRequest);
+        pql1RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
             (PricingRepoRetrievePqL1QuoteRequest, HandlePqL1HistoricalPriceRequest);
-        pql2RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel2Quote>, bool>
+        pql2RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel2Quote>, bool>
             (PricingRepoRetrievePqL2QuoteRequest, HandlePqL2HistoricalPriceRequest);
-        pql3RequestListenerSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel3Quote>, bool>
+        pql3RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel3Quote>, bool>
             (PricingRepoRetrievePqL3QuoteRequest, HandlePqL3HistoricalPriceRequest);
         Logger.Info("Started {0} ", nameof(HistoricalQuotesRetrievalRule));
     }
 
     public override void Stop()
     {
-        l0RequestListenerSubscription?.Unsubscribe();
-        l1RequestListenerSubscription?.Unsubscribe();
-        l2RequestListenerSubscription?.Unsubscribe();
-        l3RequestListenerSubscription?.Unsubscribe();
-        pql0RequestListenerSubscription?.Unsubscribe();
-        pql1RequestListenerSubscription?.Unsubscribe();
-        pql2RequestListenerSubscription?.Unsubscribe();
-        pql3RequestListenerSubscription?.Unsubscribe();
+        tickInstantRequestSubscription?.Unsubscribe();
+        l1RequestSubscription?.Unsubscribe();
+        l2RequestSubscription?.Unsubscribe();
+        l3RequestSubscription?.Unsubscribe();
+        pqTickInstantRequestSubscription?.Unsubscribe();
+        pql1RequestSubscription?.Unsubscribe();
+        pql2RequestSubscription?.Unsubscribe();
+        pql3RequestSubscription?.Unsubscribe();
         Logger.Info("Stopped {0} ", nameof(HistoricalQuotesRetrievalRule));
         base.Stop();
     }
@@ -126,7 +127,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }
 
-    private bool HandleL0HistoricalPriceRequest
+    private bool HandleTickInstantHistoricalPriceRequest
         (IBusRespondingMessage<HistoricalQuotesRequest<TickInstant>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
@@ -151,7 +152,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandlePqL0HistoricalPriceRequest
+    private bool HandlePqTickInstantHistoricalPriceRequest
         (IBusRespondingMessage<HistoricalQuotesRequest<PQTickInstant>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
@@ -183,8 +184,9 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         if (instrument == null) return false;
         var readerSession = TimeSeriesRepository!.GetReaderSession<TEntry>(instrument, request.TimeRange);
         if (readerSession == null) return false;
-        var readerContext = readerSession.GetEntriesBetweenReader
-            (request.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited, request.ChannelRequest.PublishChannel.GetChannelEventOrNew<TEntry>());
+        var readerContext = readerSession.ChronologicalEntriesBetweenTimeRangeReader
+            (Context.PooledRecycler, request.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ConsumerControlled
+           , request.ChannelRequest.PublishChannel.GetChannelEventOrNew<TEntry>());
 
         if (request.ChannelRequest.BatchSize > 1) readerContext.BatchLimit   = request.ChannelRequest.BatchSize;
         if (request.ChannelRequest.ResultLimit > 0) readerContext.MaxResults = request.ChannelRequest.ResultLimit;

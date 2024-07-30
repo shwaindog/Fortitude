@@ -146,8 +146,9 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         if (instrument == null) return Enumerable.Empty<PricePeriodSummary>();
         var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, responseRequest.TimeRange);
         if (readerSession == null) return Enumerable.Empty<PricePeriodSummary>();
-        var readerContext = readerSession.GetEntriesBetweenReader(responseRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited
-                                                                , () => new PricePeriodSummary());
+        var readerContext = readerSession.ChronologicalEntriesBetweenTimeRangeReader
+            (Context.PooledRecycler, responseRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible
+           , () => new PricePeriodSummary());
 
         return readerContext.ResultEnumerable;
     }
@@ -158,8 +159,8 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         if (instrument == null) return false;
         var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, streamRequest.TimeRange);
         if (readerSession == null) return false;
-        var readerContext = readerSession.GetEntriesBetweenReader
-            (streamRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited
+        var readerContext = readerSession.ChronologicalEntriesBetweenTimeRangeReader
+            (Context.PooledRecycler, streamRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible
            , streamRequest.ChannelRequest.PublishChannel.GetChannelEventOrNew<PricePeriodSummary>());
 
         if (streamRequest.ChannelRequest.BatchSize > 1) readerContext.BatchLimit   = streamRequest.ChannelRequest.BatchSize;

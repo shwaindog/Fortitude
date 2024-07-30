@@ -23,7 +23,7 @@ using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
+namespace FortitudeTests.FortitudeMarketsCore.Indicators.Pricing.MovingAverage.TimeWeighted;
 
 [TestClass]
 public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup

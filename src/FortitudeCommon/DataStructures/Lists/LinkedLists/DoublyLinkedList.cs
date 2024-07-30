@@ -4,12 +4,13 @@
 #region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
 namespace FortitudeCommon.DataStructures.Lists.LinkedLists;
 
-public class DoublyLinkedList<T> : IDoublyLinkedList<T> where T : class, IDoublyLinkedListNode<T>
+public class DoublyLinkedList<T> : RecyclableObject, IDoublyLinkedList<T> where T : class, IDoublyLinkedListNode<T>
 {
     public T? Head { get; private set; }
     public T? Tail { get; private set; }
@@ -137,6 +138,19 @@ public class DoublyLinkedList<T> : IDoublyLinkedList<T> where T : class, IDoubly
 
         doublyLinkedList.Head = head;
         doublyLinkedList.Tail = tail;
+    }
+
+    public override void StateReset()
+    {
+        var currentNode = Head;
+        while (currentNode != null)
+        {
+            if (currentNode is IRecyclableObject recyclableNode) recyclableNode.DecrementRefCount();
+            currentNode = currentNode.Next;
+        }
+        Clear();
+
+        base.StateReset();
     }
 
     public void Clear()

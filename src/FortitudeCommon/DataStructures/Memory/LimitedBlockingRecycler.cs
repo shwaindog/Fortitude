@@ -18,7 +18,7 @@ public interface ILimitedRecycler : IRecycler
 
 public class LimitedBlockingRecycler : ILimitedRecycler
 {
-    private readonly Recycler backingRecycler;
+    private readonly IRecycler backingRecycler;
 
     private readonly ConcurrentDictionary<Type, Semaphore> borrowCountMap = new();
 
@@ -31,6 +31,13 @@ public class LimitedBlockingRecycler : ILimitedRecycler
         MaxTypeBorrowLimit = maxTypeBorrowLimit;
 
         backingRecycler = new Recycler(shouldAutoRecycleOnRefCountZero, acceptNonCreatedObjects, throwWhenAttemptToRecycleRefCountNoZero);
+    }
+
+    public LimitedBlockingRecycler(int maxTypeBorrowLimit, IRecycler backingRecycler)
+    {
+        MaxTypeBorrowLimit = maxTypeBorrowLimit;
+
+        this.backingRecycler = backingRecycler;
     }
 
     public int MaxTypeBorrowLimit { get; set; }

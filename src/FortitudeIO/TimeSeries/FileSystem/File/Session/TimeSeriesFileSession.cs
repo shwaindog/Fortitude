@@ -38,13 +38,15 @@ public interface IMutableBucketContainer
 
 public interface IBucketTrackingSession : IMutableBucketContainer
 {
-    IMutableTimeSeriesFileHeader FileHeader          { get; }
-    IBucket?                     CurrentlyOpenBucket { get; set; }
+    IMutableTimeSeriesFileHeader FileHeader { get; }
+
+    IBucket? CurrentlyOpenBucket { get; set; }
 
     ShiftableMemoryMappedFileView ActiveBucketDataFileView   { get; }
     ShiftableMemoryMappedFileView ActiveBucketHeaderFileView { get; }
     ShiftableMemoryMappedFileView ReadChildrenFileView       { get; }
-    FixedByteArrayBuffer          UncompressedBuffer         { get; }
+
+    FixedByteArrayBuffer UncompressedBuffer { get; }
 }
 
 public interface IFileReaderSession<TEntry> : IReaderSession<TEntry>
@@ -65,35 +67,46 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TEntry : ITimeSeriesEntry<TEntry>
 {
-    private readonly int                                    activeViewAdditionalMultiple;
-    private readonly List<TBucket>                          cacheBuckets = new();
-    private readonly int                                    defaultViewSizeBytes;
-    private readonly List<ShiftableMemoryMappedFileView>    parentBucketsHeaderAndIndexViews = new();
-    private readonly int                                    reserveMultiple;
+    private readonly int activeViewAdditionalMultiple;
+
+    private readonly List<TBucket> cacheBuckets = new();
+
+    private readonly int defaultViewSizeBytes;
+
+    private readonly List<ShiftableMemoryMappedFileView> parentBucketsHeaderAndIndexViews = new();
+
+    private readonly int reserveMultiple;
+
     private readonly TimeSeriesFile<TFile, TBucket, TEntry> timeSeriesFile;
 
-    private ShiftableMemoryMappedFileView?          activeBucketHeaderView;
-    private ShiftableMemoryMappedFileView?          amendOffsetView;
+    private ShiftableMemoryMappedFileView? activeBucketHeaderView;
+    private ShiftableMemoryMappedFileView? amendOffsetView;
+
     private ISessionAppendContext<TEntry, TBucket>? appendContext;
-    private ShiftableMemoryMappedFileView?          bucketAppenderView;
+
+    private ShiftableMemoryMappedFileView? bucketAppenderView;
 
     private TBucket? currentlyOpenBucket;
-    private bool     isWritable;
-    private uint     lastAddedIndexKey;
+
+    private bool isWritable;
+    private uint lastAddedIndexKey;
 
     private ShiftableMemoryMappedFileView? readChildBucketsView;
-    private FixedByteArrayBuffer?          uncompressedBuffer;
+
+    private FixedByteArrayBuffer? uncompressedBuffer;
 
     public TimeSeriesFileSession
     (TimeSeriesFile<TFile, TBucket, TEntry> file, bool isWritable,
         int defaultViewSizeBytes = ushort.MaxValue * 2, int reserveMultiple = 2, int activeViewAdditionalMultiple = 2)
     {
-        timeSeriesFile                    = file;
-        this.reserveMultiple              = reserveMultiple;
+        timeSeriesFile       = file;
+        this.reserveMultiple = reserveMultiple;
+
         this.activeViewAdditionalMultiple = activeViewAdditionalMultiple;
         this.defaultViewSizeBytes         = Math.Max(ushort.MaxValue * 2, defaultViewSizeBytes);
-        IsWritable                        = isWritable;
-        IsOpen                            = true;
+
+        IsWritable = isWritable;
+        IsOpen     = true;
     }
 
     protected virtual IBucketFactory<TBucket> FileBucketFactory => timeSeriesFile.RootBucketFactory;
@@ -200,26 +213,102 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         cacheBuckets.Add((TBucket)bucket);
     }
 
-    public IReaderContext<TEntry> GetAllEntriesReader
-    (EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
-        Func<TEntry>? createNew = null) =>
-        new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew);
+    public IReaderContext<TEntry> AllChronologicalEntriesReader
+    (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled
+      , Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, readerOptions, createNew);
+        return readerContext;
+    }
 
-    public IReaderContext<TEntry> GetEntriesBetweenReader
-    (UnboundedTimeRange? periodRange,
+    public IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled
+      , Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, readerOptions, createNew);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> AllChronologicalEntriesReader<TConcreteEntry>
+    (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> AllReverseChronologicalEntriesReader
+    (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder, createNew);
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
-        Func<TEntry>? createNew = null) =>
-        new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew)
-        {
-            PeriodRange = periodRange
-        };
+        Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder, createNew);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
 
-    public IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext) =>
-        ChronologicallyOrderedBuckets().SelectMany(bucket =>
+    public IReaderContext<TEntry> AllReverseChronologicalEntriesReader<TConcreteEntry>
+        (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
+
+    public IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext)
+    {
+        if (readerContext.IsReverseChronologicalOrder)
+            return ChronologicallyOrderedBuckets().Reverse().SelectMany(bucket =>
+            {
+                bucket.RefreshViews();
+                return bucket.ReadEntries(readerContext);
+            });
+        return ChronologicallyOrderedBuckets().SelectMany(bucket =>
         {
             bucket.RefreshViews();
             return bucket.ReadEntries(readerContext);
         });
+    }
 
     public void VisitChildrenCacheAndClose()
     {
