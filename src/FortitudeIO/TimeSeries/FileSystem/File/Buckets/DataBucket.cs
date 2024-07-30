@@ -50,12 +50,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
 
     protected ShiftableMemoryMappedFileView? BucketAppenderDataReaderFileView;
-    private   DataBucketHeader               cacheDataHeaderExtension;
-    private   LzmaEncoderParams              compressionParams = new();
-    private   long                           dataBucketHeaderExtensionRealignmentDelta;
-    private   LzmaDecoder?                   lzmaDecoder;
 
-    private LzmaEncoder?          lzmaEncoder;
+    private DataBucketHeader  cacheDataHeaderExtension;
+    private LzmaEncoderParams compressionParams = new();
+
+    private long         dataBucketHeaderExtensionRealignmentDelta;
+    private LzmaDecoder? lzmaDecoder;
+    private LzmaEncoder? lzmaEncoder;
+
     private DataBucketHeader*     mappedDataHeader;
     private FixedByteArrayBuffer? readerBuffer;
 
@@ -75,7 +77,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
     internal virtual long EndOfBaseBucketHeaderSectionOffset => base.EndAllHeadersSectionFileOffset;
 
     internal long StartDataBucketHeaderSectionOffset => EndOfBaseBucketHeaderSectionOffset + dataBucketHeaderExtensionRealignmentDelta;
-    internal long StartOfDataSectionOffset           => EndAllHeadersSectionFileOffset;
+
+    internal long StartOfDataSectionOffset => EndAllHeadersSectionFileOffset;
 
     public IFixedByteArrayBuffer? DataWriterAtAppendLocation
     {
@@ -373,8 +376,9 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
 
     public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext)
     {
-        var matchingIndexOffsets = BucketIndexes.Values
-                                                .Where(bii => bii.Intersects(readerContext.PeriodRange));
+        var matchingIndexOffsets =
+            BucketIndexes.Values
+                         .Where(bii => bii.Intersects(readerContext.PeriodRange));
         if (matchingIndexOffsets.Any())
         {
             var first = matchingIndexOffsets.First();

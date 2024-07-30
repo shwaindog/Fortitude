@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
@@ -32,11 +33,12 @@ namespace FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.F
 [TestClass]
 public class WeeklyTickInstantTimeSeriesFileTests
 {
-    private static readonly IFLogger           Logger = FLoggerFactory.Instance.GetLogger(typeof(WeeklyTickInstantTimeSeriesFileTests));
-    private readonly        Func<ITickInstant> asPQTickInstantFactory = () => new PQTickInstant();
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(WeeklyTickInstantTimeSeriesFileTests));
 
-    private readonly Func<ITickInstant>     asTickInstantFactory   = () => new TickInstant();
-    private          PQTickInstantGenerator pqTickInstantGenerator = null!;
+    private readonly Func<ITickInstant> asPQTickInstantFactory = () => new PQTickInstant();
+    private readonly Func<ITickInstant> asTickInstantFactory   = () => new TickInstant();
+
+    private PQTickInstantGenerator pqTickInstantGenerator = null!;
 
     private TickInstantGenerator tickInstantGenerator = null!;
 
@@ -148,8 +150,9 @@ public class WeeklyTickInstantTimeSeriesFileTests
 
         Assert.AreEqual((uint)toPersistAndCheck.Count, tickInstantOneWeekFile.Header.TotalEntries);
         tickInstantSessionReader = tickInstantOneWeekFile.GetReaderSession();
-        var allEntriesReader = tickInstantSessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
-        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        var allEntriesReader = tickInstantSessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
@@ -157,17 +160,17 @@ public class WeeklyTickInstantTimeSeriesFileTests
     }
 
     [TestMethod]
-    public void CreateNewPriceQuoteCompressedDataFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
+    public void CreateNewPriceQuoteCompressedDataFile_SavesEntriesCloseAndReopen_ReadInReverseOriginalValuesAreReturnedInReverseOrder()
     {
         CreateTickInstantFile(FileFlags.WriteDataCompressed);
-        NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(tickInstantGenerator, asTickInstantFactory);
+        NewFile_SavesEntriesCloseAndReopen_ReadInReverseOriginalValuesAreReturned(tickInstantGenerator);
     }
 
     [TestMethod]
-    public void CreateNewPriceQuoteFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
+    public void CreateNewPriceQuoteFile_SavesEntriesCloseAndReopen_ReadInReverseOriginalValuesAreReturnedInReverseOrder()
     {
         CreateTickInstantFile();
-        NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(tickInstantGenerator, asTickInstantFactory);
+        NewFile_SavesEntriesCloseAndReopen_ReadInReverseOriginalValuesAreReturned(tickInstantGenerator);
     }
 
     [TestMethod]
@@ -202,15 +205,55 @@ public class WeeklyTickInstantTimeSeriesFileTests
         Assert.AreEqual((uint)toPersistAndCheck.Count, tickInstantOneWeekFile.Header.TotalEntries);
 
         tickInstantSessionReader = tickInstantOneWeekFile.GetReaderSession();
-        var allEntriesReader = tickInstantSessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
-        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        var allEntriesReader = tickInstantSessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
         var newReaderSession = tickInstantOneWeekFile.GetReaderSession();
         Assert.AreNotSame(tickInstantSessionReader, newReaderSession);
-        var newEntriesReader = tickInstantSessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
+        var newEntriesReader = tickInstantSessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;
+        newEntriesReader.RunReader();
+        var listResults = newEntriesReader.ResultList;
+        Assert.AreEqual(toPersistAndCheck.Count, newEntriesReader.CountMatch);
+        Assert.AreEqual(allEntriesReader.CountMatch, newEntriesReader.CountProcessed);
+        Assert.AreEqual(toPersistAndCheck.Count, listResults.Count);
+        CompareExpectedToExtracted(toPersistAndCheck, storedItems);
+        newReaderSession.Close();
+    }
+
+    public void NewFile_SavesEntriesCloseAndReopen_ReadInReverseOriginalValuesAreReturned<TEntry>
+        (ITickGenerator<TEntry> tickGenerator)
+        where TEntry : class, IMutableTickInstant, ITickInstant
+    {
+        var toPersistAndCheck =
+            GenerateQuotesForEachDayAndHourOfCurrentWeek<ITickInstant, TEntry>
+                (0, 10, tickGenerator).ToList();
+
+        foreach (var level1QuoteStruct in toPersistAndCheck)
+        {
+            var result = tickInstantSessionWriter.AppendEntry(level1QuoteStruct);
+            Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
+        }
+        tickInstantOneWeekFile.AutoCloseOnZeroSessions = false;
+        tickInstantSessionWriter.Close();
+        Assert.AreEqual((uint)toPersistAndCheck.Count, tickInstantOneWeekFile.Header.TotalEntries);
+
+        tickInstantSessionReader = tickInstantOneWeekFile.GetReaderSession();
+        var allEntriesReader = tickInstantSessionReader.AllReverseChronologicalEntriesReader<TickInstant>(new Recycler());
+        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
+        Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
+        Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
+        toPersistAndCheck.Reverse();
+        CompareExpectedToExtracted(toPersistAndCheck, storedItems);
+        var newReaderSession = tickInstantOneWeekFile.GetReaderSession();
+        Assert.AreNotSame(tickInstantSessionReader, newReaderSession);
+        var newEntriesReader = tickInstantSessionReader.AllReverseChronologicalEntriesReader<TickInstant>(new Recycler());
         newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;
         newEntriesReader.RunReader();
         var listResults = newEntriesReader.ResultList;

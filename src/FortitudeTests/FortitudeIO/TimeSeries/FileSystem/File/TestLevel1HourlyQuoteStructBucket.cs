@@ -21,7 +21,8 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TestLevel1HourlyQuoteStructBucket));
 
-    public TestLevel1HourlyQuoteStructBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
+    public TestLevel1HourlyQuoteStructBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null) :
         base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
@@ -36,13 +37,29 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         {
             // var readCursor = readBuffer.ReadCursor;
             var checkEntry = GetEntryAt(readBuffer);
-            if (readerContext.ProcessCandidateEntry(checkEntry))
+            if (readerContext.IsReverseChronologicalOrder)
+            {
+                if (!readerContext.CheckExceededPeriodRangeTime(checkEntry))
+                    readerContext.ReadReverseAddToStart(checkEntry);
+                else
+                    break;
+            }
+            else if (readerContext.ProcessCandidateEntry(checkEntry))
+            {
                 yield return checkEntry;
+            }
 
             // Logger.Info("Bucket {0} with StartTime {1} read EntryNum: {2} at {3} - {4} ", BucketId, PeriodStartTime, entryCount, checkEntry
             //           , readCursor);
             // entryCount++;
         }
+        if (!readerContext.IsReverseChronologicalOrder) yield break;
+        foreach (var checkEntry in readerContext.ReadReverse())
+        {
+            if (readerContext.ProcessCandidateEntry(checkEntry)) yield return checkEntry;
+            if (!readerContext.ContinueSearching) break;
+        }
+        readerContext.ClearReadReverse();
     }
 
     protected Level1QuoteStruct GetEntryAt(IBuffer readBuffer)
@@ -52,7 +69,8 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         return *ptr;
     }
 
-    public override AppendResult AppendEntry(IFixedByteArrayBuffer writeBuffer,
+    public override AppendResult AppendEntry
+    (IFixedByteArrayBuffer writeBuffer,
         IAppendContext<Level1QuoteStruct> entryContext, AppendResult appendResult)
     {
         // var writeCursor = growableBuffer.WriteCursor;

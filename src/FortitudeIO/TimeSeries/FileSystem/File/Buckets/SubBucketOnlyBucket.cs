@@ -145,13 +145,17 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
             ? SubBuckets.Max(sb => sb.CalculateBucketEndFileOffset())
             : EndAllHeadersSectionFileOffset;
 
-    public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext) =>
-        SubBuckets.Where(sb => sb.BucketIntersects(readerContext.PeriodRange))
-                  .SelectMany(subBucket =>
-                  {
-                      subBucket.RefreshViews();
-                      return subBucket.ReadEntries(readerContext);
-                  });
+    public override IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext)
+    {
+        var subBuckets                                            = SubBuckets;
+        if (readerContext.IsReverseChronologicalOrder) subBuckets = subBuckets.Reverse();
+        return subBuckets.Where(sb => sb.BucketIntersects(readerContext.PeriodRange))
+                         .SelectMany(subBucket =>
+                         {
+                             subBucket.RefreshViews();
+                             return subBucket.ReadEntries(readerContext);
+                         });
+    }
 
     public override AppendResult AppendEntry(IAppendContext<TEntry> entryContext)
     {

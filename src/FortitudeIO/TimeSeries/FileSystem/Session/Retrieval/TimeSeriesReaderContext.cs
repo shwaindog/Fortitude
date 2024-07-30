@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
@@ -16,17 +17,20 @@ using static FortitudeIO.TimeSeries.FileSystem.Session.Retrieval.ResultFlags;
 
 namespace FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
+[Flags]
 public enum ReaderOptions
 {
-    None               = 0
-  , ReadFastAsPossible = 1
-  , AtEntryStorageTime = 2
-  , ConsumerControlled = 4
+    None                      = 0
+  , ReadFastAsPossible        = 1
+  , AtEntryStorageTime        = 2
+  , ConsumerControlled        = 4
+  , ReverseChronologicalOrder = 8
 }
 
 public enum EntryResultSourcing
 {
-    ReuseSingletonObject = 0
+    FromRecycler = 0
+  , ReuseSingletonObject
   , FromFactoryFuncUnlimited
   , FromFactoryFuncLimited
   , FromBlockingQueue
@@ -36,65 +40,83 @@ public enum EntryResultSourcing
 
 public interface IReaderContext<TEntry> : IDisposable
 {
-    IMessageDeserializer?         BucketDeserializer      { get; set; }
-    IMessageSerializer?           ResultWriter            { get; set; }
-    IMessageBufferContext?        ResultBuffer            { get; set; }
-    IObserver<TEntry>?            ResultObserver          { get; set; }
     IStorageTimeResolver<TEntry>? StorageTimeResolver     { get; set; }
-    Func<TEntry>?                 SourceEntryFactory      { get; set; }
-    List<TEntry>                  ResultList              { get; }
-    Action<TEntry>?               CallbackAction          { get; set; }
-    IEnumerable<TEntry>           ResultEnumerable        { get; }
     IEnumerable<List<TEntry>>     BatchedResultEnumerable { get; }
-    IBlockingQueue<TEntry>?       PublishEntriesQueue     { get; set; }
-    IBlockingQueue<TEntry>?       SourceEntriesQueue      { get; set; }
-    UnboundedTimeRange?           PeriodRange             { get; set; }
-    ReaderOptions                 ReaderOptions           { get; set; }
-    ResultFlags                   ResultPublishFlags      { get; set; }
-    EntryResultSourcing           EntrySourcing           { get; set; }
-    TimeSeriesPeriod              SamplePeriod            { get; set; }
+
+    IMessageDeserializer?   BucketDeserializer  { get; set; }
+    IMessageSerializer?     ResultWriter        { get; set; }
+    IMessageBufferContext?  ResultBuffer        { get; set; }
+    IBlockingQueue<TEntry>? PublishEntriesQueue { get; set; }
+    IBlockingQueue<TEntry>? SourceEntriesQueue  { get; set; }
+    IEnumerable<TEntry>     ResultEnumerable    { get; }
+
+    UnboundedTimeRange? PeriodRange        { get; set; }
+    EntryResultSourcing EntrySourcing      { get; set; }
+    IObserver<TEntry>?  ResultObserver     { get; set; }
+    ReaderOptions       ReaderOptions      { get; set; }
+    ResultFlags         ResultPublishFlags { get; set; }
+    TimeSeriesPeriod    SamplePeriod       { get; set; }
+    Func<TEntry>?       SourceEntryFactory { get; set; }
+    List<TEntry>        ResultList         { get; }
+    Action<TEntry>?     CallbackAction     { get; set; }
 
     TEntry  PopulateEntrySingleton { get; set; }
     TEntry? FirstResult            { get; set; }
     TEntry? LastResult             { get; set; }
     TEntry  GetNextEntryToPopulate { get; }
-    bool    ContinueSearching      { get; }
-    int     MaxResults             { get; set; }
-    int     BatchLimit             { get; set; }
-    int     MaxUnconsumedLimit     { get; set; }
-    int     CountMatch             { get; set; }
-    int     CountProcessed         { get; set; }
-    int     CountBucketsVisited    { get; set; }
-    void    FinishedConsumingEntry(TEntry entry);
-    bool    ProcessCandidateEntry(TEntry entry);
+
+    bool ContinueSearching   { get; }
+    int  MaxResults          { get; set; }
+    int  BatchLimit          { get; set; }
+    int  MaxUnconsumedLimit  { get; set; }
+    int  CountMatch          { get; set; }
+    int  CountProcessed      { get; set; }
+    int  CountBucketsVisited { get; set; }
+
+    bool IsReverseChronologicalOrder { get; }
+
+    bool CheckExceededPeriodRangeTime(TEntry candidateEntry);
+
+    void ClearReadReverse();
+    void ReadReverseAddToStart(TEntry entry);
+    void FinishedConsumingEntry(TEntry entry);
+    bool ProcessCandidateEntry(TEntry entry);
+    void CloseReaderSession();
+    void RunReader();
+
+    IEnumerable<TEntry> ReadReverse();
 
     IFlowRateEnumerable<TEntry>       FlowRateEnumerable(FlowRate flowRate);
     IFlowRateEnumerable<List<TEntry>> BatchedFlowRateEnumerable(BatchRate batchRate);
-
-    void CloseReaderSession();
-    void RunReader();
 }
 
-public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 {
-    private readonly Func<TEntry>           createNew;
-    private readonly IReaderSession<TEntry> readerSession;
-
     private Action<TEntry>? callbackAction;
-    private DateTime        lastSamplePeriodStart;
-    private int             maxUnconsumedLimit;
 
+    private Type?        concreteType;
+    private Func<TEntry> createNew = null!;
+
+    private DateTime   lastSamplePeriodStart;
+    private int        maxUnconsumedLimit;
     private Semaphore? maxUnconsumedSemaphore;
     private TEntry?    populateEntrySingleton;
 
+    private IReaderSession<TEntry> readerSession = null!;
+
+    private IDoublyLinkedList<DoublyLinkedListWrapperNode<TEntry>>? readReverseBucket;
+
+    private IRecycler resultsRecycler = null!;
+
+    public TimeSeriesReaderContext() => ReaderOptions = ReaderOptions.None;
+
     public TimeSeriesReaderContext
-    (IReaderSession<TEntry> readerSession,
+    (IReaderSession<TEntry> readerSession, IRecycler resultsRecycler,
         EntryResultSourcing defaultEntryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled,
         Func<TEntry>? createNew = null)
     {
-        this.readerSession = readerSession;
-        EntrySourcing      = defaultEntryResultSourcing;
-        this.createNew     = SourceEntryFactory = createNew ?? ReflectionHelper.DefaultCtorFunc<TEntry>();
+        Configure(readerSession, resultsRecycler, defaultEntryResultSourcing, readerOptions, createNew);
     }
 
     public void Dispose()
@@ -111,10 +133,12 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
     public IMessageSerializer?    ResultWriter       { get; set; }
     public IMessageBufferContext? ResultBuffer       { get; set; }
     public IObserver<TEntry>?     ResultObserver     { get; set; }
-    public Func<TEntry>?          SourceEntryFactory { get; set; }
-    public List<TEntry>           ResultList         { get; } = new();
-    public TEntry?                FirstResult        { get; set; }
-    public TEntry?                LastResult         { get; set; }
+
+    public Func<TEntry>? SourceEntryFactory { get; set; }
+    public List<TEntry>  ResultList         { get; } = new();
+
+    public TEntry? FirstResult { get; set; }
+    public TEntry? LastResult  { get; set; }
 
     public TEntry PopulateEntrySingleton
     {
@@ -130,6 +154,7 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
         {
             switch (EntrySourcing)
             {
+                case EntryResultSourcing.FromRecycler:             return (TEntry)resultsRecycler.Borrow(concreteType ?? typeof(TEntry));
                 case EntryResultSourcing.ReuseSingletonObject:     return PopulateEntrySingleton!;
                 case EntryResultSourcing.FromFactoryFuncUnlimited: return SourceEntryFactory!();
                 case EntryResultSourcing.FromFactoryFuncLimited:
@@ -181,10 +206,45 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
         foreach (var subscribePullResult in readerSession.StartReaderContext(this)) processedCount++;
     }
 
-    public int  CountMatch          { get; set; }
-    public int  CountProcessed      { get; set; }
-    public int  CountBucketsVisited { get; set; }
-    public bool ContinueSearching   { get; private set; } = true;
+    public int CountMatch          { get; set; }
+    public int CountProcessed      { get; set; }
+    public int CountBucketsVisited { get; set; }
+
+    public bool ContinueSearching { get; private set; } = true;
+
+    public bool IsReverseChronologicalOrder => (ReaderOptions & ReaderOptions.ReverseChronologicalOrder) > 0;
+
+    public void ClearReadReverse()
+    {
+        var currentWrapped = readReverseBucket?.Head;
+        while (currentWrapped != null)
+        {
+            var next = currentWrapped.Next;
+            readReverseBucket!.Remove(currentWrapped);
+            currentWrapped.DecrementRefCount(); // stateReset will check if payload is recyclable and decrement
+            currentWrapped = next;
+        }
+        readReverseBucket?.DecrementRefCount();
+    }
+
+    public void ReadReverseAddToStart(TEntry entry)
+    {
+        readReverseBucket ??= resultsRecycler.Borrow<DoublyLinkedList<DoublyLinkedListWrapperNode<TEntry>>>();
+        var wrapperNode = resultsRecycler.Borrow<DoublyLinkedListWrapperNode<TEntry>>();
+        wrapperNode.Configure(entry);
+        readReverseBucket.AddFirst(wrapperNode);
+    }
+
+    public IEnumerable<TEntry> ReadReverse()
+    {
+        var currentWrapped = readReverseBucket?.Head;
+        while (currentWrapped != null)
+        {
+            yield return currentWrapped.Payload;
+
+            currentWrapped = currentWrapped.Next;
+        }
+    }
 
     public IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
 
@@ -328,6 +388,58 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
     public int MaxResults { get; set; }
     public int BatchLimit { get; set; }
 
+    public bool CheckExceededPeriodRangeTime(TEntry candidateEntry)
+    {
+        if (PeriodRange == null) return false;
+        var range            = PeriodRange.Value;
+        var entryStorageTime = candidateEntry.StorageTime(StorageTimeResolver);
+        return entryStorageTime > range.ToTime && range.ToTime != null;
+    }
+
+    public void Configure
+    (IReaderSession<TEntry> readSession, IRecycler resultRecycler,
+        EntryResultSourcing defaultEntryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled,
+        Func<TEntry>? createNewFunc = null)
+    {
+        readerSession   = readSession;
+        resultsRecycler = resultRecycler;
+        ReaderOptions   = readerOptions;
+        if (!IsReverseChronologicalOrder)
+            EntrySourcing = defaultEntryResultSourcing;
+        else if (defaultEntryResultSourcing == EntryResultSourcing.ReuseSingletonObject)
+            EntrySourcing = createNewFunc == null ? EntryResultSourcing.FromRecycler : EntryResultSourcing.FromFactoryFuncUnlimited;
+        createNew = SourceEntryFactory = createNewFunc ?? ReflectionHelper.DefaultCtorFunc<TEntry>();
+    }
+
+    public void Configure<TConcreteEntry>
+    (IReaderSession<TEntry> readSession, IRecycler resultRecycler,
+        EntryResultSourcing defaultEntryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        concreteType    = typeof(TConcreteEntry);
+        readerSession   = readSession;
+        resultsRecycler = resultRecycler;
+        ReaderOptions   = readerOptions;
+        if (!IsReverseChronologicalOrder)
+            EntrySourcing                                                                              = defaultEntryResultSourcing;
+        else if (defaultEntryResultSourcing == EntryResultSourcing.ReuseSingletonObject) EntrySourcing = EntryResultSourcing.FromRecycler;
+        createNew = SourceEntryFactory = resultRecycler.Borrow<TConcreteEntry>;
+    }
+
+    public override void StateReset()
+    {
+        ClearReadReverse();
+        maxUnconsumedSemaphore = null!;
+
+        concreteType    = null!;
+        createNew       = null!;
+        readerSession   = null!;
+        resultsRecycler = null!;
+        callbackAction  = null;
+        ReaderOptions   = ReaderOptions.None;
+    }
+
     protected bool CheckPeriodRange(TEntry candidateEntry)
     {
         if (PeriodRange == null) return true;
@@ -335,13 +447,5 @@ public class TimeSeriesReaderContext<TEntry> : IReaderContext<TEntry> where TEnt
         var entryStorageTime = candidateEntry.StorageTime(StorageTimeResolver);
         return (entryStorageTime < range.ToTime || (range.ToTime == null && range.FromTime != null))
             && (entryStorageTime > range.FromTime || (range.FromTime == null && range.ToTime != null));
-    }
-
-    protected bool CheckExceededPeriodRangeTime(TEntry candidateEntry)
-    {
-        if (PeriodRange == null) return false;
-        var range            = PeriodRange.Value;
-        var entryStorageTime = candidateEntry.StorageTime(StorageTimeResolver);
-        return entryStorageTime > range.ToTime && range.ToTime != null;
     }
 }

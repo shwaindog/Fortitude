@@ -1,9 +1,15 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using FortitudeCommon.DataStructures.Memory;
+
+#endregion
+
 namespace FortitudeCommon.DataStructures.Lists.LinkedLists;
 
-public interface IDoublyLinkedList<T> : IEnumerable<T> where T : class, IDoublyLinkedListNode<T>
+public interface IDoublyLinkedList<T> : IEnumerable<T>, IRecyclableObject where T : class, IDoublyLinkedListNode<T>
 {
     T?   Head    { get; }
     T?   Tail    { get; }

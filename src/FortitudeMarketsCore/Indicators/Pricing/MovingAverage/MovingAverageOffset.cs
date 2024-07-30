@@ -37,9 +37,10 @@ public struct MovingAverageOffset
         LatestOffsetNumberOfPeriods = latestOffsetNumberOfPeriods;
     }
 
-    public TimePeriod AveragePeriod               { get; }
-    public TimePeriod LatestOffsetPeriod          { get; }
-    public int        LatestOffsetNumberOfPeriods { get; }
+    public TimePeriod AveragePeriod      { get; }
+    public TimePeriod LatestOffsetPeriod { get; }
+
+    public int LatestOffsetNumberOfPeriods { get; }
 }
 
 public static class MovingAverageParamsExtensions

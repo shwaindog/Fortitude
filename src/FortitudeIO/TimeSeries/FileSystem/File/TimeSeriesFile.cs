@@ -58,9 +58,14 @@ public interface ITimeSeriesEntryFile<TEntry> : ITimeSeriesFile
     new IFileReaderSession<TEntry>  GetInfoSession();
 
     IEnumerable<TEntry>? EntriesFor
-    (UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? entryFactory = null);
+
+    IEnumerable<TEntry>? EntriesFor<TConcreteEntry>
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
 }
 
 public interface IMutableTimeSeriesFile : ITimeSeriesFile
@@ -133,13 +138,31 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     public Func<TEntry>? DefaultEntryFactory { get; set; }
 
     public IEnumerable<TEntry>? EntriesFor
-    (UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? entryFactory = null)
     {
         var wasOpen       = IsOpen;
         var readerSession = GetReaderSession();
-        var rangeReader   = readerSession.GetEntriesBetweenReader(periodRange, entryResultSourcing, entryFactory ?? DefaultEntryFactory);
+        var rangeReader
+            = readerSession.ChronologicalEntriesBetweenTimeRangeReader
+                (resultsRecycler, periodRange, entryResultSourcing, ReaderOptions.ConsumerControlled, entryFactory ?? DefaultEntryFactory);
+
+        if (remainingLimit != null) rangeReader.MaxResults = remainingLimit.Value;
+        foreach (var result in rangeReader.ResultEnumerable) yield return result;
+        readerSession.Close();
+        if (IsOpen && numberOfOpenSessions <= 0 && !wasOpen) Close();
+    }
+
+    public IEnumerable<TEntry>? EntriesFor<TConcreteEntry>
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var wasOpen       = IsOpen;
+        var readerSession = GetReaderSession();
+        var rangeReader
+            = readerSession.ChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>(resultsRecycler, periodRange, entryResultSourcing);
 
         if (remainingLimit != null) rangeReader.MaxResults = remainingLimit.Value;
         foreach (var result in rangeReader.ResultEnumerable) yield return result;

@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Indicators.Pricing.Parameters;
 
 #endregion
 
-namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
+namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage.TimeWeighted;
 
 public class MovingAveragePublishRequestState
 {

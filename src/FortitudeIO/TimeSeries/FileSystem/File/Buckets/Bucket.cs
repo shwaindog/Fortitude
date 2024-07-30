@@ -38,6 +38,7 @@ public enum StorageAttemptResult
     EntryNotCompatible
   , NoBucketChecked
   , PeriodRangeMatched
+  , PriorBucketPeriod
   , NextBucketPeriod
   , StorageTimeNotSupported
   , NextFilePeriod

@@ -3,6 +3,7 @@
 
 #region
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
@@ -124,6 +125,7 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IT
         var clientReceivedTimeSame = ClientReceivedTime.Equals(other.ClientReceivedTime);
 
         var allEquivalent = srcTickersAreEquivalent && sourceTimesSame && replayIsSame && staleIsSame && singlePriceSame && clientReceivedTimeSame;
+        if (!allEquivalent) Debugger.Break();
         return allEquivalent;
     }
 

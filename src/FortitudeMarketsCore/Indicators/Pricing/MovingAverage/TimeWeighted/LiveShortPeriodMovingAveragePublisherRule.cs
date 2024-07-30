@@ -24,7 +24,7 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
 #endregion
 
-namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
+namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage.TimeWeighted;
 
 public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorRule<PQLevel1Quote>
 {
@@ -102,7 +102,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         }
 
         recentPeriodRequestSubscription = await this.RegisterRequestListenerAsync<MovingAveragePublisherParams, bool>
-            (MovingAverageConstants.MovingAverageLiveShortPeriodRequest(indicatorSourceTickerId), ReceivePublishRequestHandler);
+            (MovingAverageConstants.TimeWeightedMovingAverageLiveShortPeriodRequest(indicatorSourceTickerId), ReceivePublishRequestHandler);
         if (movingAverageParams.InitialPeriodsToPublish != null)
         {
             broadcastPublishInterval = movingAverageParams.InitialPeriodsToPublish!.Value.PublishFrequency.PublishInterval;
@@ -159,7 +159,8 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         var earliestTick = periodTopOfBookChain.Head?.AtTime;
         if (earliestTick == null || earliestTick > movingAverageRequiredTicksTime.Add(TimeSpan.FromSeconds(10)))
         {
-            historicalQuotesChannel = this.CreateChannelFactory<PQLevel1Quote>(ReceiveHistoricalQuote, new LimitedBlockingRecycler(200));
+            historicalQuotesChannel = this.CreateChannelFactory<PQLevel1Quote>
+                (ReceiveHistoricalQuote, new LimitedBlockingRecycler(200, Context.PooledRecycler));
             var channelRequest = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
             var request = channelRequest.ToHistoricalQuotesRequest
                 (indicatorSourceTickerId, new UnboundedTimeRange(movingAverageRequiredTicksTime, earliestTick));

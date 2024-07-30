@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
@@ -297,9 +298,10 @@ public class PriceSummaryTimeSeriesFileTests
         sessionWriter.Close();
 
         Assert.AreEqual((uint)toPersistAndCheck.Count, tsf.Header.TotalEntries);
-        using var sessionReader    = tsf.GetReaderSession();
-        var       allEntriesReader = sessionReader.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, retrievalFactory);
-        var       storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        using var sessionReader = tsf.GetReaderSession();
+        var allEntriesReader = sessionReader.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);

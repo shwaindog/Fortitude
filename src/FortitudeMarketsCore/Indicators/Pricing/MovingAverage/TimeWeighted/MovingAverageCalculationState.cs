@@ -12,7 +12,7 @@ using FortitudeMarketsCore.Indicators.Pricing.Parameters;
 
 #endregion
 
-namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
+namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage.TimeWeighted;
 
 public class MovingAverageCalculationState
 {
@@ -54,10 +54,11 @@ public class MovingAverageCalculationState
             // go backwards from latest to earliest
             RemainingPeriod = movingAverageOffset.AveragePeriod.AveragePeriodTimeSpan()
 
-          , CalcStartTime  = wallClockMovingAverageTimeRange.ToTime
-          , StartDeltaFrom = previousRunCalculation?.StartDeltaFrom
-          , EndDeltaFrom   = previousRunCalculation?.EndDeltaFrom
-          , CurrentTick    = previousRunCalculation?.StartFromTick ?? timeOrderedPairs.Tail
+          , IncludedTimeSpan = TimeSpan.Zero
+          , CalcStartTime    = wallClockMovingAverageTimeRange.ToTime
+          , StartDeltaFrom   = previousRunCalculation?.StartDeltaFrom
+          , EndDeltaFrom     = previousRunCalculation?.EndDeltaFrom
+          , CurrentTick      = previousRunCalculation?.StartFromTick ?? timeOrderedPairs.Tail
 
           , TotalTimeWeightedBidInMs = previousRunCalculation?.TotalTimeWeightedBidInMs ?? 0m
           , TotalTimeWeightedAskInMs = previousRunCalculation?.TotalTimeWeightedAskInMs ?? 0m
@@ -101,8 +102,7 @@ public class MovingAverageCalculationState
             run.CurrentTick  = run.PreviousTick;
             run.PreviousTick = run.CurrentTick.Previous;
         }
-        var periodTotalMs = (decimal)(movingAverageOffset.AveragePeriod.AveragePeriodTimeSpan() - run.RemainingPeriod.Max(TimeSpan.Zero))
-            .TotalMilliseconds;
+        var periodTotalMs = (decimal)run.IncludedTimeSpan.TotalMilliseconds;
         SaveRunForNextDeltaRun(startFromTick, calcEndTime);
         return new ValidRangeBidAskPeriodValue
             (run.TotalTimeWeightedBidInMs / periodTotalMs, run.TotalTimeWeightedAskInMs / periodTotalMs
@@ -218,7 +218,11 @@ public class MovingAverageCalculationState
     {
         var sliceTotalPeriod = sliceEnd - sliceStart;
 
-        if (sliceTotalPeriod > run.RemainingPeriod) sliceStart = sliceEnd - run.RemainingPeriod;
+        if (sliceTotalPeriod > run.RemainingPeriod)
+        {
+            sliceStart       = sliceEnd - run.RemainingPeriod;
+            sliceTotalPeriod = sliceEnd - sliceStart;
+        }
 
         var bidPrice = tick.BidPrice;
         var askPrice = tick.AskPrice;
@@ -241,13 +245,16 @@ public class MovingAverageCalculationState
         {
             var validPeriod = sliceStart < tick.ValidTo ? tick.ValidTo - sliceStart : TimeSpan.Zero;
             var validMs     = (decimal)validPeriod.TotalMilliseconds;
-            bidTimeWeightedCurrentPrice =  bidPrice * validMs;
-            askTimeWeightedCurrentPrice =  askPrice * validMs;
-            run.RemainingPeriod         -= validPeriod;
+            bidTimeWeightedCurrentPrice = bidPrice * validMs;
+            askTimeWeightedCurrentPrice = askPrice * validMs;
+
+            run.RemainingPeriod  -= validPeriod;
+            run.IncludedTimeSpan += validPeriod;
         }
         else
         {
-            run.RemainingPeriod -= sliceTotalPeriod;
+            run.IncludedTimeSpan += sliceTotalPeriod;
+            run.RemainingPeriod  -= sliceTotalPeriod;
         }
         return new BidAskPair(bidTimeWeightedCurrentPrice, askTimeWeightedCurrentPrice);
     }
@@ -261,6 +268,7 @@ public class MovingAverageCalculationState
         public DateTime? EndDeltaFrom;
         public DateTime  CalcStartTime;
         public bool      JustCalcDeltaPeriods;
+        public TimeSpan  IncludedTimeSpan;
 
         public IValidRangeBidAskPeriod? CurrentTick;
         public IValidRangeBidAskPeriod? PreviousTick;

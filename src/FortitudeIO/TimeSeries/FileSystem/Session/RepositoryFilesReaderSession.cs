@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
@@ -32,6 +33,8 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
 {
     private readonly List<InstrumentRepoFileReaderSession<TEntry>> sortedInstrumentReaderSessions;
 
+    private List<InstrumentRepoFileReaderSession<TEntry>>? reverseSortedInstrumentReaderSessions;
+
     public RepositoryFilesReaderSession(InstrumentRepoFileSet repoFiles)
     {
         repoFiles.Sort();
@@ -54,9 +57,20 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
 
     public IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext)
     {
-        for (var i = 0; i < sortedInstrumentReaderSessions.Count && readerContext.ContinueSearching; i++)
+        var instrumentSessions = sortedInstrumentReaderSessions;
+
+        if (readerContext.IsReverseChronologicalOrder)
         {
-            var fileReaderSession = sortedInstrumentReaderSessions[i];
+            reverseSortedInstrumentReaderSessions ??= new List<InstrumentRepoFileReaderSession<TEntry>>();
+            reverseSortedInstrumentReaderSessions.Clear();
+            reverseSortedInstrumentReaderSessions.AddRange(((IEnumerable<InstrumentRepoFileReaderSession<TEntry>>)instrumentSessions).Reverse());
+            instrumentSessions = reverseSortedInstrumentReaderSessions;
+        }
+
+
+        for (var i = 0; i < instrumentSessions.Count && readerContext.ContinueSearching; i++)
+        {
+            var fileReaderSession = instrumentSessions[i];
             if (fileReaderSession.ReaderSession is not { IsOpen: true })
             {
                 if (fileReaderSession.ReaderSession != null)
@@ -65,10 +79,10 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
                 }
                 else
                 {
-                    var entryFile = fileReaderSession.InstrumentRepoFile.TimeSeriesEntryFile<TEntry>();
+                    var entryFile     = fileReaderSession.InstrumentRepoFile.TimeSeriesEntryFile<TEntry>();
                     var readerSession = entryFile!.GetReaderSession();
-                    fileReaderSession = new InstrumentRepoFileReaderSession<TEntry>(fileReaderSession.InstrumentRepoFile, readerSession);
-                    sortedInstrumentReaderSessions[i] = fileReaderSession;
+                    fileReaderSession     = new InstrumentRepoFileReaderSession<TEntry>(fileReaderSession.InstrumentRepoFile, readerSession);
+                    instrumentSessions[i] = fileReaderSession;
                 }
             }
             foreach (var fileEntry in fileReaderSession.ReaderSession!.StartReaderContext(readerContext)) yield return fileEntry;
@@ -91,17 +105,87 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
         }
     }
 
-    public IReaderContext<TEntry> GetAllEntriesReader
-    (EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
-        Func<TEntry>? createNew = null) =>
-        new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew);
+    public IReaderContext<TEntry> AllChronologicalEntriesReader
+    (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled,
+        Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, readerOptions, createNew);
+        return readerContext;
+    }
 
-    public IReaderContext<TEntry> GetEntriesBetweenReader
-    (UnboundedTimeRange? periodRange,
+    public IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
-        Func<TEntry>? createNew = null) =>
-        new TimeSeriesReaderContext<TEntry>(this, entryResultSourcing, createNew)
-        {
-            PeriodRange = periodRange
-        };
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled,
+        Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, readerOptions, createNew);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> AllChronologicalEntriesReader<TConcreteEntry>
+    (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> AllReverseChronologicalEntriesReader
+    (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder, createNew);
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        Func<TEntry>? createNew = null)
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder, createNew);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> AllReverseChronologicalEntriesReader<TConcreteEntry>
+        (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);
+        return readerContext;
+    }
+
+    public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+    {
+        var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
+        readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);
+        readerContext.PeriodRange = periodRange;
+        return readerContext;
+    }
 }

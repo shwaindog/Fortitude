@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
@@ -26,24 +27,56 @@ public interface IReaderSession<TEntry> : ITimeSeriesSession
 
     void VisitChildrenCacheAndClose();
 
-    IReaderContext<TEntry> GetAllEntriesReader
-    (EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+    IReaderContext<TEntry> AllChronologicalEntriesReader
+    (IRecycler resultRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled
       , Func<TEntry>? createNew = null);
 
-    IReaderContext<TEntry> GetEntriesBetweenReader
-    (UnboundedTimeRange? periodRange,
+    IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader
+    (IRecycler resultRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled
+      , Func<TEntry>? createNew = null);
+
+    IReaderContext<TEntry> AllChronologicalEntriesReader<TConcreteEntry>
+    (IRecycler resultRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+
+    IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
+    (IRecycler resultRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+
+
+    public IReaderContext<TEntry> AllReverseChronologicalEntriesReader
+    (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
+        Func<TEntry>? createNew = null);
+
+    public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         Func<TEntry>? createNew = null);
+
+    public IReaderContext<TEntry> AllReverseChronologicalEntriesReader<TConcreteEntry>
+        (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+
+    public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
+    (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
+        EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
 }
 
 public struct AppendResult
 {
     public AppendResult(StorageAttemptResult storageAttemptResult) => StorageAttemptResult = storageAttemptResult;
-    public int?                 SerializedSize       { get; set; }
-    public uint?                BucketId             { get; set; }
-    public long?                FileOffset           { get; set; }
-    public DateTime             StorageTime          { get; set; }
+
     public StorageAttemptResult StorageAttemptResult { get; set; }
+
+    public int?     SerializedSize { get; set; }
+    public uint?    BucketId       { get; set; }
+    public long?    FileOffset     { get; set; }
+    public DateTime StorageTime    { get; set; }
 }
 
 public interface IWriterSession<in TEntry> : ITimeSeriesSession where TEntry : ITimeSeriesEntry<TEntry>

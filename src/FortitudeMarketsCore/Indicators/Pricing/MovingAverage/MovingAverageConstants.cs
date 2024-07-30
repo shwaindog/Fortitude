@@ -11,12 +11,12 @@ namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
 public static class MovingAverageConstants
 {
-    public const string MovingAverageBase         = $"{IndicatorServiceConstants.IndicatorsBase}.MovingAverage";
-    public const string MovingAverageLiveTemplate = $"{MovingAverageBase}.Live.{{0}}.{{1}}.{{2}}";
-    public const string MovingAverageShortPeriod  = $"{MovingAverageBase}.Live.{{0}}.{{1}}.ShortPeriod";
+    public const string MovingAverageBase                    = $"{IndicatorServiceConstants.IndicatorsBase}.MovingAverage";
+    public const string MovingAverageLiveTemplate            = $"{MovingAverageBase}.Live.{{0}}.{{1}}.{{2}}";
+    public const string TimeWeightedMovingAverageShortPeriod = $"{MovingAverageBase}.Live.{{0}}.{{1}}.TimeWeighted.ShortPeriod";
 
 
-    public static string MovingAverageLiveShortPeriodRequest
+    public static string TimeWeightedMovingAverageLiveShortPeriodRequest
         (this SourceTickerIdentifier sourceTicker) =>
-        string.Format(MovingAverageShortPeriod, sourceTicker.Source, sourceTicker.Ticker);
+        string.Format(TimeWeightedMovingAverageShortPeriod, sourceTicker.Source, sourceTicker.Ticker);
 }

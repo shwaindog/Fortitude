@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries.FileSystem;
@@ -115,15 +116,17 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         AssertFileNameExistsFor(week3ExpectedDirPath, week3);
         AssertFileNameDoesNotExistsFor(week4ExpectedDirPath, week4);
         readerSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrInfo)!;
-        var allEntriesReader = readerSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, asPQLevel3QuoteFactory);
-        var storedItems      = allEntriesReader.ResultEnumerable.ToList();
+        var allEntriesReader = readerSession.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, asPQLevel3QuoteFactory);
+        var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
         var newReaderSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrInfo)!;
         Assert.AreNotSame(readerSession, newReaderSession);
-        var newEntriesReader = newReaderSession.GetAllEntriesReader(EntryResultSourcing.FromFactoryFuncUnlimited, asPQLevel3QuoteFactory);
+        var newEntriesReader = newReaderSession.AllChronologicalEntriesReader
+            (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, asPQLevel3QuoteFactory);
         newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;
         newEntriesReader.RunReader();
         var listResults = newEntriesReader.ResultList;

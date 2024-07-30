@@ -273,9 +273,10 @@ public class QuoteToSummaryStreamRequestAttendant<TQuote> : StreamRequestAttenda
             (StreamRequest.RequestTimeRange?.FromTime ?? State.QuotesRepoRange.FromTime
            , endHistoricalPeriods.Min(StreamRequest.RequestTimeRange?.ToTime));
 
-        var historicalQuotesChannel = ConstructingRule.CreateChannelFactory<TQuote>(ReceiveHistoricalQuote, new LimitedBlockingRecycler(200));
-        var channelRequest          = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
-        var request                 = channelRequest.ToHistoricalQuotesRequest(State.PricingInstrumentId, requestHistoricalRange);
+        var historicalQuotesChannel = ConstructingRule.CreateChannelFactory<TQuote>
+            (ReceiveHistoricalQuote, new LimitedBlockingRecycler(200, ConstructingRule.Context.PooledRecycler));
+        var channelRequest = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
+        var request        = channelRequest.ToHistoricalQuotesRequest(State.PricingInstrumentId, requestHistoricalRange);
 
         var retrieving = await ConstructingRule.RequestAsync<HistoricalQuotesRequest<TQuote>, bool>(request.RequestAddress, request);
         if (!retrieving) await historicalQuotesChannel.PublishComplete(ConstructingRule);
